@@ -144,7 +144,7 @@ namespace MediaPortal.SkinEngine.Models
     /// registered as expected and therefore it could not be load.</returns>
     protected static Model Load(string registrationLocation, string id)
     {
-      ServiceScope.Get<ILogger>().Debug("ModelManager: Load model registrationLocation '{0}', id '{1}'", registrationLocation, id);
+      ServiceScope.Get<ILogger>().Debug("ModelManager: Loading model (RegistrationLocation='{0}', Id='{1}')", registrationLocation, id);
       try
       {
         object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
@@ -154,7 +154,7 @@ namespace MediaPortal.SkinEngine.Models
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model registrationLocation: {0} id: {1}", ex, registrationLocation, id);
+        ServiceScope.Get<ILogger>().Error("ModelManager: failed to load model (RegistrationLocation='{0}', Id='{1}')", ex, registrationLocation, id);
       }
       return null;
     }

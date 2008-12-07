@@ -427,15 +427,22 @@ namespace MediaPortal.SkinEngine.Xaml
     /// of this path on object <paramref name="start"/>.</exception>
     public bool Evaluate(IDataDescriptor start, out IDataDescriptor result)
     {
-      result = start;
-      foreach (IPathSegment ps in _pathSegments)
+      try
       {
-        if (result == null || result.Value == null)
-          return false;
-        if (!ps.Evaluate(result, out result))
-          return false;
+        result = start;
+        foreach (IPathSegment ps in _pathSegments)
+        {
+          if (result == null || result.Value == null)
+            return false;
+          if (!ps.Evaluate(result, out result))
+            return false;
+        }
+        return true;
       }
-      return true;
+      catch (Exception e)
+      {
+        throw new XamlBindingException("PathExpression: Error evaluating path expression '{0}'", e, ToString());
+      }
     }
 
     /// <summary>

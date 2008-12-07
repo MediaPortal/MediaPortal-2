@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
@@ -97,11 +99,17 @@ namespace MediaPortal.SkinEngine.Xaml.XamlNamespace
       context.LookupNamespace(_typeName, out localName, out namespaceURI);
       Type type = context.GetNamespaceHandler(namespaceURI).GetElementType(localName, namespaceURI);
       IDataDescriptor result;
-      if (PathExpression.Compile(context, _staticMemberName).Evaluate(
-          new ValueDataDescriptor(type), out result))
-        return result.Value;
-      else
-        return null;
+      try
+      {
+        if (PathExpression.Compile(context, _staticMemberName).Evaluate(
+            new ValueDataDescriptor(type), out result))
+          return result.Value;
+      }
+      catch (XamlBindingException e)
+      {
+        ServiceScope.Get<ILogger>().Warn("Error evaluating Static markup", e);
+      }
+      return null;
     }
 
     #endregion

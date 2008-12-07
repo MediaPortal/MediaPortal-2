@@ -130,10 +130,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
           }
           catch (Exception e)
           {
-            ServiceScope.Get<ILogger>().Warn("Error loading skins from directory '{0}'", e, rootDirectoryPath);
+            ServiceScope.Get<ILogger>().Warn("SkinManager: Error loading skins from directory '{0}'", e, rootDirectoryPath);
           }
         else
-          ServiceScope.Get<ILogger>().Warn("Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
+          ServiceScope.Get<ILogger>().Warn("SkinManager: Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
       // Setup the resource chain: Inherit the default theme resources for all
       // skins other than the default skin
       Skin defaultSkin = DefaultSkin;
@@ -155,8 +155,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       if (_skins.ContainsKey(skinName))
         return _skins[skinName];
-      else
-        return null;
+      return null;
     }
 
     /// <summary>

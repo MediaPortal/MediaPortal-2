@@ -23,8 +23,11 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -120,10 +123,17 @@ namespace MediaPortal.SkinEngine.Controls.Animations
       object targetObject = element.FindElement(new NameFinder(targetName));
       if (targetObject == null)
         return null;
-      IDataDescriptor result = new ValueDataDescriptor(targetObject);
-      if (_propertyExpression == null || !_propertyExpression.Evaluate(result, out result))
-        return null;
-      return result;
+      try
+      {
+        IDataDescriptor result = new ValueDataDescriptor(targetObject);
+        if (_propertyExpression != null && _propertyExpression.Evaluate(result, out result))
+          return result;
+      }
+      catch (XamlBindingException e)
+      {
+        ServiceScope.Get<ILogger>().Warn("PropertyAnimationTimeline: Error evaluating expression '{0}' on target object '{1}'", e, _propertyExpression, targetObject);
+      }
+      return null;
     }
 
     public override TimelineContext CreateTimelineContext(UIElement element)
