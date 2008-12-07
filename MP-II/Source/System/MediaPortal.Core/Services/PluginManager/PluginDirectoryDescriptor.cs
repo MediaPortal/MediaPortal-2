@@ -245,7 +245,6 @@ namespace MediaPortal.Core.Services.PluginManager
     protected static ICollection<PluginItemMetadata> ParseRegisterElement(XmlElement registerElement)
     {
       string location = null;
-      string id = null;
       foreach (XmlAttribute attr in registerElement.Attributes)
       {
         switch (attr.Name)
@@ -262,6 +261,8 @@ namespace MediaPortal.Core.Services.PluginManager
       ICollection<PluginItemMetadata> result = new List<PluginItemMetadata>();
       foreach (XmlNode child in registerElement.ChildNodes)
       {
+        string id = null;
+        bool redundant = false;
         XmlElement childElement = child as XmlElement;
         if (childElement == null)
           continue;
@@ -274,6 +275,9 @@ namespace MediaPortal.Core.Services.PluginManager
             case "Id":
               id = attr.Value;
               break;
+            case "Redundant":
+              redundant = bool.Parse(attr.Value);
+              break;
             default:
               attributes.Add(attr.Name, attr.Value);
               break;
@@ -281,7 +285,7 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         if (id == null)
           throw new ArgumentException("'Id' attribute has to be given for plugin item '" + childElement.Name + "'");
-        result.Add(new PluginItemMetadata(location, builderName, id, attributes));
+        result.Add(new PluginItemMetadata(location, builderName, id, redundant, attributes));
       }
       return result;
     }

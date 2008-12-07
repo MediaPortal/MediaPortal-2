@@ -206,7 +206,8 @@ namespace MediaPortal.Core.PluginManager
           new Dictionary<string, ICollection<PluginItemMetadata>>();
       foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
       {
-        _itemRegistrations.Add(itemMetadata, RegisterItem(itemMetadata));
+        if (!RegisterItem(itemMetadata))
+          continue;
         // Prepare data for change listener calls
         ICollection<PluginItemMetadata> changedMetadataInLocation;
         if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
@@ -246,10 +247,7 @@ namespace MediaPortal.Core.PluginManager
       }
       // Unregistration of items
       foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
-      {
         UnregisterItem(itemMetadata);
-        _itemRegistrations.Remove(itemMetadata);
-      }
       // Call change listeners
       foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
       {
@@ -363,14 +361,28 @@ namespace MediaPortal.Core.PluginManager
     /// Registers the specified plugin item in the plugin tree.
     /// </summary>
     /// <param name="itemMetadata">Meta data structure of the item to register.</param>
-    /// <returns>Plugin item registration structure of the item to be registered.</returns>
-    internal PluginItemRegistration RegisterItem(PluginItemMetadata itemMetadata)
+    /// <returns><c>true</c>, if the plugin item could be registered, <c>false</c>,
+    /// if the item already existed and <see cref="PluginItemMetadata.IsRedundant"/> is specified.</returns>
+    /// <exception cref="ArgumentException">If the there is already an item registered at the registration
+    /// location and the <see cref="PluginItemMetadata.IsRedundant"/> flag is not set.</exception>
+    internal bool RegisterItem(PluginItemMetadata itemMetadata)
     {
       IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, true);
       itemMetadata.PluginRuntime = this;
-      PluginItemRegistration result = new PluginItemRegistration(itemMetadata);
-      node.AddItem(itemMetadata.Id, result);
-      return result;
+      if (node.Items != null && node.Items.ContainsKey(itemMetadata.Id))
+        if (itemMetadata.IsRedundant)
+        {
+          PluginItemRegistration itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
+          itemRegistration.AdditionalRedundantItemsMetadata.Add(itemMetadata);
+          return false;
+        }
+        else
+          throw new ArgumentException(string.Format("At location '{0}', a plugin item with id '{1}' is already registered",
+              itemMetadata.RegistrationLocation, itemMetadata.Id));
+      PluginItemRegistration resultItemRegistration = new PluginItemRegistration(itemMetadata);
+      node.AddItem(itemMetadata.Id, resultItemRegistration);
+      _itemRegistrations.Add(itemMetadata, resultItemRegistration);
+      return true;
     }
 
     /// <summary>
@@ -380,11 +392,32 @@ namespace MediaPortal.Core.PluginManager
     /// <returns>Plugin item registration structure of the item to be unregistered.</returns>
     internal void UnregisterItem(PluginItemMetadata itemMetadata)
     {
-      IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, false);
-      if (node == null || node.Items == null)
-        return;
-      if (node.Items.ContainsKey(itemMetadata.Id))
-        node.Items.Remove(itemMetadata.Id);
+      try
+      {
+        IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, false);
+        if (node == null || node.Items == null)
+          return;
+        if (node.Items.ContainsKey(itemMetadata.Id))
+        {
+          PluginItemRegistration itemRegistration = (PluginItemRegistration)node.Items[itemMetadata.Id];
+          // Check, if there are additional redundant items registered at this position. If yes, we'll use
+          // the first of them instead of the old item to be unregistered.
+          PluginItemMetadata newItemMetadata = null;
+          IEnumerator<PluginItemMetadata> enumerator = itemRegistration.AdditionalRedundantItemsMetadata.GetEnumerator();
+          if (enumerator.MoveNext())
+          {
+            newItemMetadata = enumerator.Current;
+            itemRegistration.AdditionalRedundantItemsMetadata.Remove(newItemMetadata);
+          }
+          node.Items.Remove(itemMetadata.Id);
+          if (newItemMetadata != null)
+            newItemMetadata.PluginRuntime.RegisterItem(newItemMetadata);
+        }
+      }
+      finally
+      {
+        _itemRegistrations.Remove(itemMetadata);
+      }
     }
 
     #endregion

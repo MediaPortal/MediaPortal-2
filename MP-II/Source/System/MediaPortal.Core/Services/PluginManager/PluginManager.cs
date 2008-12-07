@@ -562,13 +562,22 @@ namespace MediaPortal.Core.Services.PluginManager
               if (!plugin.Metadata.DependsOn.Contains(builderRegistration.PluginRuntime.Metadata.Name))
               {
                 logger.Warn(
-                    "Plugin '{0}': Builder '{1}' is added to the system by plugin '{2}', but this is not specified in the plugin dependencies",
+                    "Plugin '{0}': Builder '{1}' (implemented by plugin '{2}') is used, but this plugin dependency is not explicitly specified",
                     pluginName, builderName, builderRegistration.PluginRuntime.Metadata.Name);
                 return false;
               }
           }
         }
-        plugin.RegisterItems();
+        try
+        {
+          plugin.RegisterItems();
+        }
+        catch (Exception e)
+        {
+          logger.Error("Error registering plugin items for plugin '{0}'", e, pluginName);
+          plugin.UnregisterItems();
+          return false;
+        }
         CollectionUtils.AddAll(_builders, CreateBuilderRegistrations(plugin));
         foreach (PluginRuntime parent in pendingChildRegistrations)
           parent.AddDependentPlugin(plugin);

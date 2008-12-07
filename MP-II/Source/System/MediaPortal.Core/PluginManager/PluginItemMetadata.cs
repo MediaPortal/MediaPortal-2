@@ -43,6 +43,7 @@ namespace MediaPortal.Core.PluginManager
     protected string _registrationLocation;
     protected string _builderName;
     protected string _id;
+    protected bool _redundant;
     protected IDictionary<string, string> _attributes;
     protected PluginRuntime _pluginRuntime;
 
@@ -51,11 +52,12 @@ namespace MediaPortal.Core.PluginManager
     #region Ctor
 
     public PluginItemMetadata(string registrationLocation, string builderName,
-        string id, IDictionary<string, string> attributes)
+        string id, bool redundant, IDictionary<string, string> attributes)
     {
       _registrationLocation = registrationLocation;
       _builderName = builderName;
       _id = id;
+      _redundant = redundant;
       _attributes = new Dictionary<string, string>(attributes);
     }
 
@@ -83,6 +85,20 @@ namespace MediaPortal.Core.PluginManager
     public string Id
     {
       get { return _id; }
+    }
+
+    /// <summary>
+    /// Returns the information if this plugin item is a "redundant item".
+    /// </summary>
+    /// <remarks>
+    /// A redundant item is is omitted when trying to add it to the plugin tree and another plugin item is
+    /// already registered there. This can be used for structural items like virtual folders (for example
+    /// config sections), where the plugin needs such an item registration but doesn't know if another
+    /// plugin did register this needed structural item.
+    /// </remarks>
+    public bool IsRedundant
+    {
+      get { return _redundant; }
     }
 
     /// <summary>

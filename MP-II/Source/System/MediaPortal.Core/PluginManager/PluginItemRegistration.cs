@@ -38,6 +38,8 @@ namespace MediaPortal.Core.PluginManager
 
     protected object _itemInstance = null;
     protected ICollection<IPluginItemStateTracker> _stateTrackers = new List<IPluginItemStateTracker>();
+    protected ICollection<PluginItemMetadata> _additionalRedundantItemsMetadata =
+        new List<PluginItemMetadata>();
 
     #endregion
 
@@ -49,8 +51,6 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     /// <param name="metaData">The metadata of the plugin item to create this registration
     /// structure for.</param>
-    /// <param name="pluginRuntime">The runtime instance of the plugin the registered item
-    /// belongs to.</param>
     internal PluginItemRegistration(PluginItemMetadata metaData)
     {
       _pluginItemMetadata = metaData;
@@ -89,6 +89,18 @@ namespace MediaPortal.Core.PluginManager
     public ICollection<IPluginItemStateTracker> StateTrackers
     {
       get { return _stateTrackers; }
+    }
+
+    /// <summary>
+    /// Returns a collection containing all redundantly registered plugin item metadata.
+    /// </summary>
+    /// <remarks>
+    /// Redundantly registered items will be registered in place of this item's registration, if the plugin
+    /// of this item will be removed.
+    /// </remarks>
+    public ICollection<PluginItemMetadata> AdditionalRedundantItemsMetadata
+    {
+      get { return _additionalRedundantItemsMetadata; }
     }
   }
 }
