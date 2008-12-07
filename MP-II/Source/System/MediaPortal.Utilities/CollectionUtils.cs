@@ -55,7 +55,6 @@ namespace MediaPortal.Utilities
     /// <param name="c1">First source collection.</param>
     /// <param name="c2">Second source collection</param>
     /// <returns>Intersection of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
-    [Obsolete("Can be replaced by Intersect extension method since .net 3.5")] 
     public static ICollection<T> Intersection<S, T>(ICollection<S> c1, ICollection<T> c2) where S: T
     {
       ICollection<T> result = new List<T>();

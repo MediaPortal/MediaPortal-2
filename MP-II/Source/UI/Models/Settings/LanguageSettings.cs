@@ -22,9 +22,10 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Screen;
@@ -39,14 +40,14 @@ namespace Models.Settings
 
     public Language()
     {
-      ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
+      ILocalization localProvider = ServiceScope.Get<ILocalization>();
 
-      CultureInfo[] langs = localProvider.AvailableLanguages();
+      ICollection<CultureInfo> langs = localProvider.AvailableLanguages;
 
       _languages = new ItemsList();
-      for (int i = 0; i < langs.Length; ++i)
+      foreach (CultureInfo lang in langs)
       {
-        ListItem item = new ListItem("Name", langs[i].EnglishName);
+        ListItem item = new ListItem("Name", lang.EnglishName);
         _languages.Add(item);
       }
     }
@@ -72,13 +73,13 @@ namespace Models.Settings
     {
       if (item == null) return;
       string langChoosen = item.Label("Name", "").Evaluate();
-      ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
-      CultureInfo[] langs = localProvider.AvailableLanguages();
-      for (int i = 0; i < langs.Length; ++i)
+      ILocalization localProvider = ServiceScope.Get<ILocalization>();
+      ICollection<CultureInfo> langs = localProvider.AvailableLanguages;
+      foreach (CultureInfo lang in langs)
       {
-        if (langs[i].EnglishName == langChoosen)
+        if (lang.EnglishName == langChoosen)
         {
-          localProvider.ChangeLanguage(langs[i].Name);
+          localProvider.ChangeLanguage(lang.Name);
           IScreenManager windowMgr = ServiceScope.Get<IScreenManager>();
           windowMgr.Reset();
           return;
@@ -92,7 +93,7 @@ namespace Models.Settings
     void SetSelectedLanguage()
     {
 
-      ILocalisation localProvider = ServiceScope.Get<ILocalisation>();
+      ILocalization localProvider = ServiceScope.Get<ILocalization>();
 
       foreach (ListItem item in _languages)
       {

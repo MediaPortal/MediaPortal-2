@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,7 +25,6 @@
 using System;
 using System.Windows.Forms;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.UserManagement;
 using MediaPortal.Media.ClientMediaManager;
@@ -39,10 +38,10 @@ using MediaPortal.Thumbnails;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.DeviceManager;
-using MediaPortal.Services.Localisation;
+using MediaPortal.Services.Localization;
 using MediaPortal.Services.Burning;
 
 [assembly: CLSCompliant(true)]
@@ -119,7 +118,7 @@ namespace MediaPortal
         ServiceScope.Add<IUserService>(userservice);
 
         logger.Debug("ApplicationLauncher: Create StringManager");
-        ServiceScope.Add<ILocalisation>(new StringManager());
+        ServiceScope.Add<ILocalization>(new StringManager());
 
         logger.Debug("ApplicationLauncher: Create ThumbnailGenerator");
         ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());

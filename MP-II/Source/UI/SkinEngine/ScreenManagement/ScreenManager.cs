@@ -86,6 +86,14 @@ namespace MediaPortal.SkinEngine
     }
 
     /// <summary>
+    /// Disposes all resources which were allocated by the screen manager.
+    /// </summary>
+    public void Dispose()
+    {
+      _skinManager.Dispose();
+    }
+
+    /// <summary>
     /// Prepares the skin and theme, this will load the skin and theme instances and
     /// set it as the current skin and theme in the <see cref="SkinContext"/>.
     /// After calling this method, the <see cref="SkinContext.SkinResources"/>

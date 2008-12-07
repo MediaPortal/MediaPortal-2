@@ -4,7 +4,7 @@ using System.Timers;
 using MediaPortal.Core;
 using MediaPortal.SkinEngine.Controls;
 using MediaPortal.Utilities;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.SkinEngine
@@ -162,25 +162,25 @@ namespace MediaPortal.SkinEngine
       switch (cur.DayOfWeek)
       {
         case DayOfWeek.Monday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "1");
+          day = ServiceScope.Get<ILocalization>().ToString("days", "1");
           break;
         case DayOfWeek.Tuesday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "2");
+          day = ServiceScope.Get<ILocalization>().ToString("days", "2");
           break;
         case DayOfWeek.Wednesday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "3");
+          day = ServiceScope.Get<ILocalization>().ToString("days", "3");
           break;
         case DayOfWeek.Thursday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "4");
+          day = ServiceScope.Get<ILocalization>().ToString("days", "4");
           break;
         case DayOfWeek.Friday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "5");
+          day = ServiceScope.Get<ILocalization>().ToString("days", "5");
           break;
         case DayOfWeek.Saturday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "6");
+          day = ServiceScope.Get<ILocalization>().ToString("days", "6");
           break;
         case DayOfWeek.Sunday:
-          day = ServiceScope.Get<ILocalisation>().ToString("days", "0");;
+          day = ServiceScope.Get<ILocalization>().ToString("days", "0");;
           break;
         default:
           throw new ArgumentException("Invalid DayOfWeek");
@@ -189,40 +189,40 @@ namespace MediaPortal.SkinEngine
       switch (cur.Month)
       {
         case 1:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "1");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "1");
           break;
         case 2:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "2");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "2");
           break;
         case 3:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "3");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "3");
           break;
         case 4:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "4");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "4");
           break;
         case 5:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "5");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "5");
           break;
         case 6:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "6");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "6");
           break;
         case 7:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "7");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "7");
           break;
         case 8:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "8");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "8");
           break;
         case 9:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "9");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "9");
           break;
         case 10:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "10");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "10");
           break;
         case 11:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "11");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "11");
           break;
         case 12:
-          month = ServiceScope.Get<ILocalisation>().ToString("months", "12");
+          month = ServiceScope.Get<ILocalization>().ToString("months", "12");
           break;
         default:
           throw new ArgumentException("Invalid Month");

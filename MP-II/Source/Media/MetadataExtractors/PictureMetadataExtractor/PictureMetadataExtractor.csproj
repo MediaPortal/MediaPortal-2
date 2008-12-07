@@ -103,7 +103,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+    <PostBuildEvent>
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 xcopy /Y "$(TargetDir)pictureimporter.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 </PostBuildEvent>

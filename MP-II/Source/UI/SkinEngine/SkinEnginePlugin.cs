@@ -26,10 +26,7 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.UserManagement;
 using MediaPortal.Presentation.Commands;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Presentation.Players;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
@@ -42,6 +39,7 @@ namespace MediaPortal.SkinEngine
     #region Protected fields
 
     protected MainForm _mainForm = null;
+    protected ScreenManager _screenManager = null;
 
     #endregion
 
@@ -79,12 +77,18 @@ namespace MediaPortal.SkinEngine
     protected void Start()
     {
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IScreenManager service");
-      ScreenManager screenManager = new ScreenManager();
+      _screenManager = new ScreenManager();
 
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create DirectX main window");
-      _mainForm = new MainForm(screenManager);
+      _mainForm = new MainForm(_screenManager);
       _mainForm.Visible = true;
       _mainForm.Start();
+    }
+
+    protected void Dispose()
+    {
+      _mainForm.Dispose();
+      _screenManager.Dispose();
     }
 
     protected void InitializeServices()
@@ -114,12 +118,15 @@ namespace MediaPortal.SkinEngine
 
     public void Stop()
     {
-      _mainForm.Close();
+      Dispose();
     }
 
     public void Continue() { }
 
-    public void Shutdown() { }
+    public void Shutdown()
+    {
+      Dispose();
+    }
 
     #endregion
   }

@@ -28,53 +28,81 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Services.PluginManager;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Services.Localisation
+namespace MediaPortal.Services.Localization
 {
   /// <summary>
   /// This class manages localisation strings.
   /// </summary>
-  public class StringManager : ILocalisation
+  public class StringManager : ILocalization
   {
-    #region Variables
-    private LocalisationStrings _strings;
+    protected class LanguagePluginItemStateTracker : IPluginItemStateTracker
+    {
+      protected StringManager _parent;
+
+      public LanguagePluginItemStateTracker(StringManager parent)
+      {
+        _parent = parent;
+      }
+
+      #region IPluginItemStateTracker implementation
+
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
+      {
+        // We don't care about strings in use, because we don't have an overview which strings are
+        // still needed.
+        return true;
+      }
+
+      public void Stop(PluginItemRegistration itemRegistration)
+      {
+        _parent.RemovePlugin(itemRegistration);
+      }
+
+      public void Continue(PluginItemRegistration itemRegistration)
+      { }
+
+      #endregion
+    }
+
+    #region Protected fields
+
+    protected LocalizationStrings _strings;
+    protected IPluginItemStateTracker _languagePluginStateTracker;
+
     #endregion
 
     #region Constructors/Destructors
 
     public StringManager()
     {
-      ServiceScope.Get<ILogger>().Debug("StringsManager: Loading Settings");
+      _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
+      ServiceScope.Get<ILogger>().Debug("StringManager: Loading settings");
       RegionSettings settings = ServiceScope.Get<ISettingsManager>().Load<RegionSettings>();
 
       if (settings.Culture == string.Empty)
       {
-        ServiceScope.Get<ILogger>().Info("StringsManager: Culture Not found in settings");
-        _strings = new LocalisationStrings("Language", null);
+        ServiceScope.Get<ILogger>().Info("StringManager: Culture not found in settings");
+        _strings = new LocalizationStrings("Language", null);
         settings.Culture = _strings.CurrentCulture.Name;
 
-        ServiceScope.Get<ILogger>().Info("StringsManager: Culture set to: " + _strings.CurrentCulture.Name);
+        ServiceScope.Get<ILogger>().Info("StringManager: Culture set to: " + _strings.CurrentCulture.Name);
         ServiceScope.Get<ISettingsManager>().Save(settings);
         ServiceScope.Get<ILogger>().Info("StringsManager: Saving settings");
       }
       else
       {
-        ServiceScope.Get<ILogger>().Debug("StringsManager: Using culture: " + settings.Culture);
-        _strings = new LocalisationStrings("Language", settings.Culture);
+        ServiceScope.Get<ILogger>().Debug("StringManager: Using culture: " + settings.Culture);
+        _strings = new LocalizationStrings("Language", settings.Culture);
       }
 
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
       queue.OnMessageReceive += OnPluginManagerMessageReceived;
-    }
-
-    public StringManager(string directory, string cultureName)
-    {
-      _strings = new LocalisationStrings(directory, cultureName);
     }
 
     #endregion
@@ -88,12 +116,14 @@ namespace MediaPortal.Services.Localisation
         ICollection<PluginResource> languageResources = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PluginResource>(
             "/Resources/Language", new FixedItemStateTracker());
 
+        ILogger logger = ServiceScope.Get<ILogger>();
         foreach (PluginResource resource in languageResources)
         {
+          logger.Debug("StringManager: Adding language directory '{0}'", resource.Path);
           if (Directory.Exists(resource.Path))
             AddDirectory(resource.Path);
           else
-            ServiceScope.Get<ILogger>().Error("StringManager: Language directory doesn't exist: {0}", resource.Path);
+            logger.Error("StringManager: Language directory doesn't exist: {0}", resource.Path);
         }
       }
       catch (Exception)
@@ -102,22 +132,28 @@ namespace MediaPortal.Services.Localisation
       }
     }
 
+    protected void RemovePlugin(PluginItemRegistration itemRegistration)
+    {
+      PluginResource languageResource = (PluginResource) itemRegistration.Item;
+      _strings.RemoveDirectory(languageResource.Path);
+    }
+
+    public void Dispose()
+    {
+      ServiceScope.Get<IPluginManager>().RevokeAllPluginItems("/Resources/Language", _languagePluginStateTracker);
+    }
+
     #endregion
 
-    #region ILocalisation Implementation
+    #region ILocalization implementation
 
-    #region Events
     public event LanguageChangeHandler LanguageChange;
-    #endregion
 
-    #region proterties
     public CultureInfo CurrentCulture
     {
       get { return _strings.CurrentCulture; }
     }
-    #endregion
 
-    #region public methods
     public void ChangeLanguage(string cultureName)
     {
       _strings.ChangeLanguage(cultureName);
@@ -149,12 +185,12 @@ namespace MediaPortal.Services.Localisation
       return _strings.IsLocaleSupported(cultureName);
     }
 
-    public CultureInfo[] AvailableLanguages()
+    public ICollection<CultureInfo> AvailableLanguages
     {
-      return _strings.AvailableLanguages();
+      get { return _strings.AvailableLanguages; }
     }
 
-    public CultureInfo GetBestLanguage()
+    public CultureInfo GuessBestLanguage()
     {
       return _strings.GetBestLanguage();
     }
@@ -163,7 +199,6 @@ namespace MediaPortal.Services.Localisation
     {
       _strings.AddDirectory(stringsDirectory);
     }
-    #endregion
 
     #endregion
 
@@ -176,7 +211,8 @@ namespace MediaPortal.Services.Localisation
     /// <param name="message">Message containing the notification data.</param>
     private void OnPluginManagerMessageReceived(QueueMessage message)
     {
-      if (((PluginManagerMessaging.NotificationType)message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
+      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.Notification]) ==
+          PluginManagerMessaging.NotificationType.PluginsInitialized)
         InitializeLanguageResources();
     }
 

@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Core.Services.PluginManager.Builders

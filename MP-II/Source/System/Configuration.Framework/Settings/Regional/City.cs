@@ -29,6 +29,9 @@ using MediaPortal.Configuration.Settings.Regional;
 
 namespace Components.Configuration.Settings.Regional
 {
+  /// <summary>
+  /// FIXME: merge with main settings
+  /// </summary>
   public class City : SingleSelectionList
   {
     #region Public properties

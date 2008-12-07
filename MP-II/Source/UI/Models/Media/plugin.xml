@@ -13,4 +13,8 @@
   <Register Location = "/Models/Media">
     <Instance Id = "Model" ClassName = "Models.Media.Model"/>
   </Register>
+
+  <Register Location = "/Resources/Language">
+    <Resource Id = "MediaLanguage" Directory = "Language" Type = "Language"/>
+  </Register>
 </Plugin>

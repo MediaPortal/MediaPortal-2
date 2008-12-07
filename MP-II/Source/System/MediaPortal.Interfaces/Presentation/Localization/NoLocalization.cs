@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,15 +22,16 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Globalization;
 
-namespace MediaPortal.Presentation.Localisation
+namespace MediaPortal.Presentation.Localization
 {
   /// <summary>
-  /// Dummy class which implements the <see cref="ILocalisation"/> interface, but
+  /// Dummy class which implements the <see cref="ILocalization"/> interface, but
   /// doesn't provide any localized strings.
   /// </summary>
-  internal class NoLocalisation : ILocalisation
+  internal class NoLocalisation : ILocalization
   {
     public event LanguageChangeHandler LanguageChange;
 
@@ -66,18 +67,16 @@ namespace MediaPortal.Presentation.Localisation
       return false;
     }
 
-    public CultureInfo[] AvailableLanguages()
+    public ICollection<CultureInfo> AvailableLanguages
     {
-      return new CultureInfo[] {CultureInfo.CurrentUICulture};
+      get { return new List<CultureInfo>(new CultureInfo[] {CultureInfo.CurrentUICulture}); }
     }
 
-    public CultureInfo GetBestLanguage()
+    public CultureInfo GuessBestLanguage()
     {
       return CultureInfo.CurrentUICulture;
     }
 
-    public void AddDirectory(string stringsDirectory)
-    {
-    }
+    public void AddDirectory(string stringsDirectory) { }
   }
 }

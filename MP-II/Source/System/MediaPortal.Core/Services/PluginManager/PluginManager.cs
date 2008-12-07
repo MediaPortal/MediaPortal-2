@@ -131,9 +131,9 @@ namespace MediaPortal.Core.Services.PluginManager
       SendPluginManagerMessage(PluginManagerMessaging.NotificationType.PluginsInitialized);
       _state = PluginManagerState.Running;
       if (maintenanceMode)
-        ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
-      else
         ServiceScope.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
+      else
+        ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
     }
 
     public void Shutdown()
@@ -429,37 +429,36 @@ namespace MediaPortal.Core.Services.PluginManager
     }
 
     private static void ContinueOpenEndRequests(
-        IEnumerable<KeyValuePair<PluginItemMetadata, ICollection<IPluginItemStateTracker>>>
+        IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>>
         endRequestsToClose)
     {
-      foreach (KeyValuePair<PluginItemMetadata, ICollection<IPluginItemStateTracker>>
+      foreach (KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>
         itemStateTrackersToFinish in endRequestsToClose)
         foreach (IPluginItemStateTracker stateTracker in itemStateTrackersToFinish.Value)
           stateTracker.Continue(itemStateTrackersToFinish.Key);
     }
 
     private static void StopOpenEndRequests(
-        IEnumerable<KeyValuePair<PluginItemMetadata, ICollection<IPluginItemStateTracker>>>
+        IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>>
         endRequestsToClose)
     {
-      foreach (KeyValuePair<PluginItemMetadata, ICollection<IPluginItemStateTracker>>
+      foreach (KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>
         itemStateTrackersToFinish in endRequestsToClose)
         foreach (IPluginItemStateTracker stateTracker in itemStateTrackersToFinish.Value)
           stateTracker.Stop(itemStateTrackersToFinish.Key);
     }
 
     private static bool AllEndRequestsSucceed(IEnumerable<PluginItemRegistration> items,
-        out IDictionary<PluginItemMetadata, ICollection<IPluginItemStateTracker>>
-        endRequestsToClose)
+        out IDictionary<PluginItemRegistration, ICollection<IPluginItemStateTracker>> endRequestsToClose)
     {
-      endRequestsToClose = new Dictionary<PluginItemMetadata, ICollection<IPluginItemStateTracker>>();
+      endRequestsToClose = new Dictionary<PluginItemRegistration, ICollection<IPluginItemStateTracker>>();
       foreach (PluginItemRegistration itemRegistration in items)
       {
         ICollection<IPluginItemStateTracker> stateTrackersToFinish = new List<IPluginItemStateTracker>();
-        endRequestsToClose.Add(itemRegistration.Metadata, stateTrackersToFinish);
+        endRequestsToClose.Add(itemRegistration, stateTrackersToFinish);
         foreach (IPluginItemStateTracker stateTracker in itemRegistration.StateTrackers)
         {
-          if (stateTracker.RequestEnd(itemRegistration.Metadata))
+          if (stateTracker.RequestEnd(itemRegistration))
             stateTrackersToFinish.Add(stateTracker);
           else
             return false;
@@ -679,7 +678,7 @@ namespace MediaPortal.Core.Services.PluginManager
               plugin.State = PluginState.Active;
               return false;
             }
-          IDictionary<PluginItemMetadata, ICollection<IPluginItemStateTracker>> endRequestsToClose;
+          IDictionary<PluginItemRegistration, ICollection<IPluginItemStateTracker>> endRequestsToClose;
           if (AllEndRequestsSucceed(plugin.ItemRegistrations.Values, out endRequestsToClose))
           {
             plugin.State = PluginState.Stopping;
@@ -718,6 +717,8 @@ namespace MediaPortal.Core.Services.PluginManager
       String pluginsDirectoryPath = ServiceScope.Get<IPathManager>().GetPath("<PLUGINS>");
       foreach (string pluginDirectoryPath in Directory.GetDirectories(pluginsDirectoryPath))
       {
+        if (Path.GetFileName(pluginDirectoryPath).StartsWith("."))
+          continue;
         try
         {
           IPluginMetadata pm = new PluginDirectoryDescriptor(pluginDirectoryPath);

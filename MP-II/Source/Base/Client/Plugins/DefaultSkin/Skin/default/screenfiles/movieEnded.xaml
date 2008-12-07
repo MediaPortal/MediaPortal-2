@@ -7,23 +7,23 @@
     History="False">
 
   <Canvas Background="{StaticResource BackgroundBrush}" Width="720" Height="576"/>
-    <Canvas Width="720" Height="576">
-      <Canvas.Background>
-        <VideoBrush/>
-      </Canvas.Background>
-      <Canvas.OpacityMask>
-        <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
-          <GradientStop Offset="0.0" Color="#2F000000" />
-          <GradientStop Offset="1.0" Color="#3F000000" />
-        </LinearGradientBrush>
-      </Canvas.OpacityMask>
-    </Canvas>
-    <Grid Canvas.Left="20" Canvas.Top="30" Width="700"  Height="50"  >
-      <Label Font="font26" Content="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
-    </Grid>
-    <Image Canvas.Left="170" Canvas.Top="90" Source="logo_stop.png" />
-    <Label Canvas.Left="240" Canvas.Top="100" Font="font26" Content="[playback.38]" Width="500" Height="50" Color="#7FFFFFFF"/>
-    <Canvas Canvas.Left="240" Canvas.Top="170">
+  <Canvas Width="720" Height="576">
+    <Canvas.Background>
+      <VideoBrush/>
+    </Canvas.Background>
+    <Canvas.OpacityMask>
+      <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+        <GradientStop Offset="0.0" Color="#2F000000" />
+        <GradientStop Offset="1.0" Color="#3F000000" />
+      </LinearGradientBrush>
+    </Canvas.OpacityMask>
+  </Canvas>
+  <Grid Canvas.Left="20" Canvas.Top="30" Width="700"  Height="50"  >
+    <Label Font="font26" Content="{Binding Source={Service Players},Path=OSD.Title}" HorizontalAlignment="Center"/>
+  </Grid>
+  <Image Canvas.Left="170" Canvas.Top="90" Source="logo_stop.png" />
+  <Label Canvas.Left="240" Canvas.Top="100" Font="font26" Content="[playback.38]" Width="500" Height="50" Color="#7FFFFFFF"/>
+  <Canvas Canvas.Left="240" Canvas.Top="170">
     <ListView x:Name="mainMenu" Height="300" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding MovieEndedMenu}">
       <ListView.Resources>
         <CommandBridge x:Key="Menu_Command"

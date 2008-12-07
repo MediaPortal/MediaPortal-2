@@ -107,7 +107,7 @@ namespace Models.Media
     }
 
     /// <summary>
-    /// Provides the data to the view currently shown.
+    /// Provides the data of the view currently shown.
     /// </summary>
     public View CurrentView
     {

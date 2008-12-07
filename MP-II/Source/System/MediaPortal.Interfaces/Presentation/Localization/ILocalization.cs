@@ -22,9 +22,10 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.Globalization;
 
-namespace MediaPortal.Presentation.Localisation
+namespace MediaPortal.Presentation.Localization
 {
   public delegate void LanguageChangeHandler(object o);
 
@@ -38,7 +39,7 @@ namespace MediaPortal.Presentation.Localisation
   /// Generally, the implementing instance of this interface should not be used directly,
   /// instances of <c>StringId</c> should be used instead for resolving localized strings.
   /// </remarks>
-  public interface ILocalisation
+  public interface ILocalization
   {
     #region events
     /// <summary>
@@ -98,7 +99,7 @@ namespace MediaPortal.Presentation.Localisation
     /// </summary>
     /// <param name="cultureName">Name of the culture to check. If the name is one of
     /// the names returned by the property <see cref="CultureInfo.Name"/> from one
-    /// of those cultures returned by <see cref="AvailableLanguages()"/>, this method
+    /// of those cultures returned by <see cref="AvailableLanguages"/>, this method
     /// returns <c>true</c>, otherwise it returns false.</param>
     /// <returns>true, if the specified culture is supported, false otherwise.</returns>
     bool IsLocaleSupported(string cultureName);
@@ -106,17 +107,17 @@ namespace MediaPortal.Presentation.Localisation
     /// <summary>
     /// Returns the <see cref="CultureInfo"/>s for all installed languages.
     /// </summary>
-    /// <returns>Array defining all languages, for which localized strings are availabe in this
+    /// <returns>Collection containing all languages for which localized strings are availabe in this
     /// application.</returns>
-    CultureInfo[] AvailableLanguages();
+    ICollection<CultureInfo> AvailableLanguages { get; }
 
     /// <summary>
     /// Tries to guess the best language for the current system. Will default in english if
     /// no other language could be found.
     /// The algorithm for finding the "best language" depends on the implementation.
     /// </summary>
-    /// <returns>Best language that fits to the current system.</returns>
-    CultureInfo GetBestLanguage();
+    /// <returns>Best language for this system.</returns>
+    CultureInfo GuessBestLanguage();
 
     /// <summary>
     /// Adds the specified directory to the collection of available language-file directories.

@@ -27,6 +27,8 @@ using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
@@ -158,8 +160,9 @@ namespace MediaPortal.SkinEngine.Xaml
         result = _namespaceHandler.
           GetAttachedProperty(_propertyProvider, _propertyName, source.Value, _namespaceURI);
       }
-      catch
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Warn("AttachedPropertyPathSegment: Cannot evaluate attached property '{0}' on object '{1}'", e, ToString(), source.Value);
         return false;
       }
       return true;

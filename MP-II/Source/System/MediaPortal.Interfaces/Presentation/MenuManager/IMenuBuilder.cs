@@ -22,10 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MediaPortal.Presentation.MenuManager
 {
   public interface IMenuBuilder

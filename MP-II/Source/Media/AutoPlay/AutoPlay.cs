@@ -28,7 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.AutoPlay;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
@@ -333,29 +333,29 @@ namespace Components.Services.AutoPlay
     {
       string line;
 
-      ServiceScope.Get<IScreenManager>().DialogTitle = ServiceScope.Get<ILocalisation>().ToString("autoplay", "autoplay");
+      ServiceScope.Get<IScreenManager>().DialogTitle = ServiceScope.Get<ILocalization>().ToString("autoplay", "autoplay");
       
       switch (iMedia)
       {
         case MediaType.AUDIO:
         case MediaType.AUDIO_CD:
-          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "audio");
+          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "audio");
           break;
 
         case MediaType.DVD:
-          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "dvd");
+          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "dvd");
           break;
 
         case MediaType.PHOTOS:
-          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "photo");
+          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "photo");
           break;
 
         case MediaType.VIDEOS:
-          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "video");
+          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "video");
           break;
 
         default:
-          line = ServiceScope.Get<ILocalisation>().ToString("autoplay", "disc");
+          line = ServiceScope.Get<ILocalization>().ToString("autoplay", "disc");
           break;
       }
       ServiceScope.Get<IScreenManager>().DialogLine1 = line;

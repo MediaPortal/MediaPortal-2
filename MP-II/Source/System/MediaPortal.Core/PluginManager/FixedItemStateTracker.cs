@@ -38,13 +38,13 @@ namespace MediaPortal.Core.PluginManager
   /// </remarks>
   public class FixedItemStateTracker : IPluginItemStateTracker
   {
-    public bool RequestEnd(PluginItemMetadata item)
+    public bool RequestEnd(PluginItemRegistration itemRegistration)
     {
       return false;
     }
 
-    public void Stop(PluginItemMetadata item) { }
+    public void Stop(PluginItemRegistration itemRegistration) { }
 
-    public void Continue(PluginItemMetadata item) { }
+    public void Continue(PluginItemRegistration itemRegistration) { }
   }
 }

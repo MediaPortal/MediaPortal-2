@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core;
 
-namespace MediaPortal.Presentation.Localisation
+namespace MediaPortal.Presentation.Localization
 {
   /// <summary>
   /// String descriptor for localized text strings to be displayed in the GUI.
@@ -33,7 +33,7 @@ namespace MediaPortal.Presentation.Localisation
   /// <remarks>
   /// String descriptors of this class hold a section name and a name of the to-be-localized
   /// string. These values are used to lookup the localized string in the language resource.
-  /// <see cref="MediaPortal.Presentation.Localisation.ILocalisation"/>
+  /// <see cref="ILocalization"/>
   /// </remarks>
   public class StringId : IComparable<StringId>, IEquatable<StringId>
   {
@@ -105,7 +105,7 @@ namespace MediaPortal.Presentation.Localisation
       _section = section;
       _name = name;
 
-      ServiceScope.Get<ILocalisation>().LanguageChange += LanguageChange;
+      ServiceScope.Get<ILocalization>().LanguageChange += LanguageChange;
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ namespace MediaPortal.Presentation.Localisation
         _section = label.Substring(1, pos - 1).ToLower();
         _name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
 
-        ServiceScope.Get<ILocalisation>().LanguageChange += LanguageChange;
+        ServiceScope.Get<ILocalization>().LanguageChange += LanguageChange;
       }
       else
       {
@@ -143,7 +143,7 @@ namespace MediaPortal.Presentation.Localisation
     /// </summary>
     public void Dispose()
     {
-      ServiceScope.Get<ILocalisation>().LanguageChange -= LanguageChange;
+      ServiceScope.Get<ILocalization>().LanguageChange -= LanguageChange;
     }
 
     /// <summary>
@@ -154,7 +154,7 @@ namespace MediaPortal.Presentation.Localisation
     public override string ToString()
     {
       if (_localised == null)
-        _localised = ServiceScope.Get<ILocalisation>().ToString(this);
+        _localised = ServiceScope.Get<ILocalization>().ToString(this);
 
       if (_localised == null)
         return Label;
@@ -200,7 +200,7 @@ namespace MediaPortal.Presentation.Localisation
     /// <returns></returns>
     public int CompareTo(StringId other)
     {
-      return string.Compare(ToString(), other.ToString(), false, ServiceScope.Get<ILocalisation>().CurrentCulture);
+      return string.Compare(ToString(), other.ToString(), false, ServiceScope.Get<ILocalization>().CurrentCulture);
     }
 
     #endregion

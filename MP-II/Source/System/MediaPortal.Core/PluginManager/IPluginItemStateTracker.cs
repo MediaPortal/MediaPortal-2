@@ -32,13 +32,13 @@ namespace MediaPortal.Core.PluginManager
   public interface IPluginItemStateTracker
   {
     /// <summary>
-    /// Schedules the stopping of the plugin providing the specified <paramref name="item"/> this
-    /// state tracker is watching.
+    /// Schedules the stopping of the plugin providing the specified <paramref name="itemRegistration"/>
+    /// this state tracker is watching.
     /// This method returns the information if the item can be removed from the system. Before this
     /// method is called, the plugin's state will be changed to <see cref="PluginState.EndRequest"/>.
     /// </summary>
     /// <remarks>
-    /// This method is part of the first phase in the two-phase stop procedure.
+    /// This method takes part of the first phase in the two-phase stop procedure.
     /// If the plugin state tracker returns <c>true</c> as a result of the call to its end request
     /// method, and the calls to this method also return <c>true</c> for all item users for all
     /// items of the to-be-disabled plugin, the plugin's state will change to
@@ -47,31 +47,33 @@ namespace MediaPortal.Core.PluginManager
     /// If either this method returns <c>false</c> for one item user for one of the items of the
     /// plugin, or if the plugin state tracker returns <c>false</c> as a result of the call to its end
     /// request method, the plugin will continue to be active and the method
-    /// <see cref="Continue(PluginItemMetadata)"/> will be called.
+    /// <see cref="Continue(PluginItemRegistration)"/> will be called.
     /// After this method returned <c>true</c>, the item must not be accessed any more by the client
     /// in a way that would change the return value if this method would be called again, until
-    /// one of the methods <see cref="Stop(PluginItemMetadata)"/> or
-    /// <see cref="Continue(PluginItemMetadata)"/> is called.
+    /// one of the methods <see cref="Stop(PluginItemRegistration)"/> or
+    /// <see cref="Continue(PluginItemRegistration)"/> is called.
     /// </remarks>
-    /// <param name="item">The item which should be removed.</param>
+    /// <param name="itemRegistration">The item which should be removed.</param>
     /// <returns><c>true</c>, if the specified item can be removed from the system at this time,
     /// else <c>false</c>.
     /// </returns>
-    bool RequestEnd(PluginItemMetadata item);
+    bool RequestEnd(PluginItemRegistration itemRegistration);
 
     /// <summary>
     /// Second step of the two-phase stopping procedure. This method should stop the usage
-    /// of the specified <paramref name="item"/>, which means the client isn't allowed to access the
-    /// item any more. The item reference gets invalid when this method is called.
+    /// of the item defined by the specified <paramref name="itemRegistration"/>, which means the
+    /// client isn't allowed to access the item any more. The item reference gets invalid after this
+    /// method is called.
     /// </summary>
-    void Stop(PluginItemMetadata item);
+    void Stop(PluginItemRegistration itemRegistration);
 
     /// <summary>
     /// Revokes the end request which was triggered by a former call to the
-    /// <see cref="RequestEnd(PluginItemMetadata)"/> method. After this call, the <paramref name="item"/>
-    /// may be accessed again as it was before the call of <see cref="RequestEnd(PluginItemMetadata)"/>
+    /// <see cref="RequestEnd(PluginItemRegistration)"/> method. After this call, the
+    /// item defined by the <paramref name="itemRegistration"/> may be accessed again as it was before
+    /// the call of <see cref="RequestEnd(PluginItemRegistration)"/>
     /// method.
     /// </summary>
-    void Continue(PluginItemMetadata item);
+    void Continue(PluginItemRegistration itemRegistration);
   }
 }

@@ -64,13 +64,13 @@ namespace Components.Services.ImporterManager
         _manager = manager;
       }
 
-      public bool RequestEnd(PluginItemMetadata item)
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         _manager.LockImporters();
         return true;
       }
 
-      public void Stop(PluginItemMetadata item)
+      public void Stop(PluginItemRegistration itemRegistration)
       {
         if (!_manager.ImportersLocked())
           throw new InvalidOperationException(string.Format("ImporterManager: Cannot stop importer '{0}', importer collection is not locked", item.Id));
@@ -78,7 +78,7 @@ namespace Components.Services.ImporterManager
         _manager.UnlockImporters();
       }
 
-      public void Continue(PluginItemMetadata item)
+      public void Continue(PluginItemRegistration itemRegistration)
       {
         _manager.UnlockImporters();
       }

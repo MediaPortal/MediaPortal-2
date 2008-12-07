@@ -29,15 +29,18 @@ using System.Globalization;
 using MediaPortal.Configuration.Settings.Regional;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Configuration.Settings;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 
 namespace Components.Configuration.Settings.Regional
 {
+  /// <summary>
+  /// FIXME: merge with main settings
+  /// </summary>
   public class Country : SingleSelectionList
   {
     #region Variables
 
-    private RegionInfo[] _regionNames;
+    private IList<RegionInfo> _regionNames;
 
     #endregion
 
@@ -57,15 +60,16 @@ namespace Components.Configuration.Settings.Regional
       LocalizationSettings settings = (LocalizationSettings)settingsObject;
       InitializeRegionNames();
       // Initialize the list
-      _items = new List<IResourceString>(_regionNames.Length);
+      List<IResourceString>  regionNames = new List<IResourceString>(_regionNames.Count);
       string current = null;
       foreach (RegionInfo region in _regionNames)
       {
         if (region.TwoLetterISORegionName.ToLowerInvariant() == settings.CountryCode)
           current = region.NativeName;
-        _items.Add(LocalizationHelper.CreateLabelProperty(region.NativeName));
+        regionNames.Add(LocalizationHelper.CreateLabelProperty(region.NativeName));
       }
-      _items.Sort();
+      regionNames.Sort();
+      _items = regionNames;
       // Find the item to select
       if (string.IsNullOrEmpty(current)) // Use the systemsetting as default fallback
         current = RegionInfo.CurrentRegion.NativeName;
@@ -86,7 +90,7 @@ namespace Components.Configuration.Settings.Regional
       {
         if (region.NativeName == selection)
         {
-          ((LocalizationSettings)settingsObject).CountryCode = region.TwoLetterISORegionName.ToLowerInvariant();
+          ((LocalizationSettings) settingsObject).CountryCode = region.TwoLetterISORegionName.ToLowerInvariant();
           break;
         }
       }

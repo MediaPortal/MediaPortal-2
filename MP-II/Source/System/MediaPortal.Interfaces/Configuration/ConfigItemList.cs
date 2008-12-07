@@ -38,7 +38,7 @@ namespace MediaPortal.Configuration
   {
     #region Variables
 
-    protected List<IResourceString> _items = new List<IResourceString>();
+    protected IList<IResourceString> _items = new List<IResourceString>();
 
     #endregion
 

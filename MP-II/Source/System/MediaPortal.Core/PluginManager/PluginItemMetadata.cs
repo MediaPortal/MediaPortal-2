@@ -106,7 +106,7 @@ namespace MediaPortal.Core.PluginManager
 
     public override string ToString()
     {
-      return string.Format("Plugin item: location '{0}', id '{1}'", _registrationLocation, _id);
+      return string.Format("Plugin item: Location '{0}', id '{1}'", _registrationLocation, _id);
     }
 
     #endregion

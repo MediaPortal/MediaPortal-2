@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Text;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 
 namespace MediaPortal.Presentation.MenuManager
 {

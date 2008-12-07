@@ -74,8 +74,8 @@
     <Compile Include="Burning\MediaInfo.cs" />
     <Compile Include="Burning\MediaTypeSupport.cs" />
     <Compile Include="InputManager\InputMapper.cs" />
-    <Compile Include="Localisation\LocalisationStrings.cs" />
-    <Compile Include="Localisation\StringManager.cs" />
+    <Compile Include="Localization\LocalizationStrings.cs" />
+    <Compile Include="Localization\StringManager.cs" />
     <Compile Include="MenuManager\Menu.cs" />
     <Compile Include="MenuManager\MenuBuilder.cs" />
     <Compile Include="MenuManager\MenuCollection.cs" />

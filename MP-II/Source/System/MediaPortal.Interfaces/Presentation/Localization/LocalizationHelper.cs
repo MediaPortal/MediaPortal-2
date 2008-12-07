@@ -23,9 +23,9 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 
-namespace MediaPortal.Presentation.Localisation
+namespace MediaPortal.Presentation.Localization
 {
   public static class LocalizationHelper
   {

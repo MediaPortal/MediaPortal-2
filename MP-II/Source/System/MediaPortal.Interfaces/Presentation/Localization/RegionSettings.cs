@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,7 +25,7 @@
 using System.Globalization;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Presentation.Localisation
+namespace MediaPortal.Presentation.Localization
 {
   public class RegionSettings
   {
@@ -40,9 +40,8 @@ namespace MediaPortal.Presentation.Localisation
     #region Properties
 
     /// <summary>
-    /// Gets or sets the culture used for localisation
+    /// Gets or sets the culture used for localization.
     /// </summary>
-    /// <value>The Culture</value>
     [Setting(SettingScope.User, "")]
     public string Culture
     {
@@ -51,10 +50,10 @@ namespace MediaPortal.Presentation.Localisation
     }
 
     /// <summary>
-    /// Gets or sets the region used for localisation
+    /// Gets or sets the region used for localization.
     /// </summary>
     /// <value>The Region (ISO 2 letters)</value>
-    //    [Setting(SettingScope.Global, "")]
+    [Setting(SettingScope.Global, "")]
     public string Region
     {
       get { return _region; }
@@ -62,7 +61,7 @@ namespace MediaPortal.Presentation.Localisation
     }
 
     /// <summary>
-    /// Gets or sets the city used for localisation
+    /// Gets or sets the city used for localization.
     /// </summary>
     /// <value>The city name</value>
     [Setting(SettingScope.Global, "")]
@@ -70,20 +69,6 @@ namespace MediaPortal.Presentation.Localisation
     {
       get { return _city; }
       set { _city = value; }
-    }
-
-    #endregion
-
-    #region static Methods
-
-    public static string LocalCulture()
-    {
-      return CultureInfo.CurrentCulture.Name;
-    }
-
-    public static string LocalRegion()
-    {
-      return RegionInfo.CurrentRegion.TwoLetterISORegionName;
     }
 
     #endregion

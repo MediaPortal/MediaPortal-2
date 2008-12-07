@@ -94,7 +94,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"
+    <PostBuildEvent>
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 xcopy /Y "$(TargetDir)movieimporter.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 xcopy /Y "$(TargetDir)movieimporter.pdb"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"

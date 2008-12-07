@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 
 namespace MediaPortal.Configuration
 {
@@ -68,7 +68,7 @@ namespace MediaPortal.Configuration
     /// </returns>
     public float CalculateMatchQuality(ConfigBase configObject)
     {
-      CultureInfo culture = ServiceScope.Get<ILocalisation>().CurrentCulture;
+      CultureInfo culture = ServiceScope.Get<ILocalization>().CurrentCulture;
       IEnumerable<string> searchTexts = configObject.GetSearchTexts();
       double result = 0;
       int count = 0;

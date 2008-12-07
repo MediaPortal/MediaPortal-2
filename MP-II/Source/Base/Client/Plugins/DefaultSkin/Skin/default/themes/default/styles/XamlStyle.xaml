@@ -470,14 +470,14 @@
                 <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF000000"/>
                 <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="#FF045935"/>
               </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="(Shape.StrokeThickness)">
+              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="StrokeThickness">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
                 <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="5"/>
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Canvas Width="160" Height="104" DataContext="{Binding Source={Service Players}}">
-            <Rectangle Width="160" Height="104" Stroke="#FF000000" StrokeThickness="0" x:Name="Border">
+            <Rectangle x:Name="Border" Width="160" Height="104" Stroke="#FF000000" StrokeThickness="0">
               <Rectangle.Fill>
                 <VideoBrush>
                 </VideoBrush>
@@ -1153,11 +1153,11 @@
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28"/>
-      <Label Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Content="{Binding [Size]}" FontSize="20"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Label Grid.Row="0" Grid.Column="2" Content="{Binding [Size]}" FontSize="20" HorizontalAlignment="Right" VerticalAlignment="Center"/>
     </Grid>
   </DataTemplate>
 

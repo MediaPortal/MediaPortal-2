@@ -44,14 +44,25 @@ namespace MediaPortal.Core.Services.PluginManager
       _path = path;
     }
 
+    /// <summary>
+    /// Returns the type of this resource.
+    /// </summary>
     public PluginResourceType Type
     {
       get { return _type; }
     }
 
+    /// <summary>
+    /// Returns the absolute file- or directory-path of this resource.
+    /// </summary>
     public string Path
     {
       get { return _path; }
+    }
+
+    public override string ToString()
+    {
+      return string.Format("PluginResource Path='{0}', Type='{1}'", _path, _type);
     }
   }
 }

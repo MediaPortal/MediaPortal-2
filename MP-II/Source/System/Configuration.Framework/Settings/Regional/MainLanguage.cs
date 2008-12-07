@@ -26,20 +26,18 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Configuration.Settings.Regional;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Configuration.Settings;
 
 namespace Components.Configuration.Settings.Regional
 {
   public class MainLanguage : SingleSelectionList
   {
-
     #region Variables
 
-    private CultureInfo[] _cultures;
+    private IList<CultureInfo> _cultures;
 
     #endregion
 
@@ -63,35 +61,36 @@ namespace Components.Configuration.Settings.Regional
 
     #region Public Methods
 
+    protected static int CompareByName(CultureInfo culture1, CultureInfo culture2)
+    {
+      return string.Compare(culture1.DisplayName, culture2.DisplayName);
+    }
+
     public override void Load(object settingsObject)
     {
-      _cultures = ServiceScope.Get<ILocalisation>().AvailableLanguages();
-      CultureInfo current = ServiceScope.Get<ILocalisation>().CurrentCulture;
+      List<CultureInfo> cultures = new List<CultureInfo>(ServiceScope.Get<ILocalization>().AvailableLanguages);
+      cultures.Sort(CompareByName);
+      _cultures = cultures;
+      CultureInfo current = ServiceScope.Get<ILocalization>().CurrentCulture;
       // Fill items
-      List<IResourceString> items = new List<IResourceString>(_cultures.Length);
-      for (int i = 0; i < _cultures.Length; i++)
-        items.Add(LocalizationHelper.CreateLabelProperty(_cultures[i].DisplayName));
-      items.Sort();
-      _items = items;
-      // Find index to select after sorting
-      for (int i = 0; i < _cultures.Length; i++)
+      _items = new List<IResourceString>(_cultures.Count);
+      for (int i = 0; i < _cultures.Count; i++)
       {
-        if (_cultures[i].Name == current.Name)
-        {
+        CultureInfo ci = _cultures[i];
+        _items.Add(LocalizationHelper.CreateLabelProperty(ci.DisplayName));
+        if (ci.Name == current.Name)
           Selected = i;
-          break;
-        }
       }
     }
 
     public override void Save(object settingsObject)
     {
-      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[Selected].Name);
+      ServiceScope.Get<ILocalization>().ChangeLanguage(_cultures[Selected].Name);
     }
 
     public override void Apply()
     {
-      ServiceScope.Get<ILocalisation>().ChangeLanguage(_cultures[Selected].Name);
+      ServiceScope.Get<ILocalization>().ChangeLanguage(_cultures[Selected].Name);
     }
 
     #endregion

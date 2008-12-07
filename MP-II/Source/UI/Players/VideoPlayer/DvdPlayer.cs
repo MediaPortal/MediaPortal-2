@@ -36,7 +36,7 @@ using DirectShowLib.Dvd;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
@@ -1054,13 +1054,13 @@ namespace MediaPortal.SkinEngine.Players
                 case DvdAudioLangExt.Captions:
                   break;
                 case DvdAudioLangExt.VisuallyImpaired:
-                  streams[i] += ServiceScope.Get<ILocalisation>().ToString("playback", "27"); // " (Visually Impaired)";
+                  streams[i] += ServiceScope.Get<ILocalization>().ToString("playback", "27"); // " (Visually Impaired)";
                   break;
                 case DvdAudioLangExt.DirectorComments1:
-                  streams[i] += ServiceScope.Get<ILocalisation>().ToString("playback", "24"); // " (Director Comments)";
+                  streams[i] += ServiceScope.Get<ILocalization>().ToString("playback", "24"); // " (Director Comments)";
                   break;
                 case DvdAudioLangExt.DirectorComments2:
-                  streams[i] += ServiceScope.Get<ILocalisation>().ToString("playback", "28"); //" (Director Comments 2)";
+                  streams[i] += ServiceScope.Get<ILocalization>().ToString("playback", "28"); //" (Director Comments 2)";
                   break;
               }
             }
@@ -1083,7 +1083,7 @@ namespace MediaPortal.SkinEngine.Players
         bool isDisabled;
         _dvdInfo.GetCurrentSubpicture(out streamsAvailable, out currentStream, out isDisabled);
         string[] streams = new string[streamsAvailable + 1];
-        streams[0] = ServiceScope.Get<ILocalisation>().ToString("playback", "17"); //off
+        streams[0] = ServiceScope.Get<ILocalization>().ToString("playback", "17"); //off
         for (int i = 0; i < streamsAvailable; ++i)
         {
           DvdSubpictureAttributes attr;
@@ -1100,28 +1100,28 @@ namespace MediaPortal.SkinEngine.Players
                 case DvdSubPictureLangExt.CaptionNormal:
                   break;
                 case DvdSubPictureLangExt.CaptionBig:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "18"); //big
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "18"); //big
                   break;
                 case DvdSubPictureLangExt.CaptionChildren:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "19"); //Children
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "19"); //Children
                   break;
                 case DvdSubPictureLangExt.CCNormal:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "20"); //CC
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "20"); //CC
                   break;
                 case DvdSubPictureLangExt.CCBig:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "21"); //CC big
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "21"); //CC big
                   break;
                 case DvdSubPictureLangExt.CCChildren:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "22"); //CC Children
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "22"); //CC Children
                   break;
                 case DvdSubPictureLangExt.Forced:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "23"); //Forced
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "23"); //Forced
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsNormal:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "24"); //Director Comments
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "24"); //Director Comments
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsBig:
-                  streams[i + 1] += ServiceScope.Get<ILocalisation>().ToString("playback", "25"); //Director Comments big
+                  streams[i + 1] += ServiceScope.Get<ILocalization>().ToString("playback", "25"); //Director Comments big
                   break;
                 case DvdSubPictureLangExt.DirectorCommentsChildren:
                   streams[i + 1] += " (Directors Comments children)";

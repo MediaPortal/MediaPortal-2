@@ -47,22 +47,6 @@ namespace MediaPortal.Media.ClientMediaManager
     /// </summary>
     protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
 
-    /// <summary>
-    /// Contains the id of the MusicMetadataExtractor.
-    /// </summary>
-    protected const string MUSIC_METADATAEXTRACTOR_ID = "{817FEE2E-8690-4355-9F24-3BDC65AEDFFE}";
-
-    // TODO: When the movie and picture MEs are implemented, comment this in:
-    ///// <summary>
-    ///// Contains the id of the MovieMetadataExtractor.
-    ///// </summary>
-    //protected const string MOVIE_METADATAEXTRACTOR_ID = ...;
-
-    ///// <summary>
-    ///// Contains the id of the PictureMetadataExtractor.
-    ///// </summary>
-    //protected const string PICTURE_METADATAEXTRACTOR_ID = ...;
-
     protected IDictionary<Guid, ShareDescriptor> _shares = new Dictionary<Guid, ShareDescriptor>();
 
     #endregion
@@ -99,6 +83,8 @@ namespace MediaPortal.Media.ClientMediaManager
       Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
       if (mediaManager.LocalMediaProviders.ContainsKey(localFsMediaProviderId))
       {
+        // Hint: Localization resources for [Media.MyMusic], [Media.MyVideos] and [Media.MyPictures]
+        // will be provided by the Media model
         string folderPath;
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
         {
@@ -107,7 +93,6 @@ namespace MediaPortal.Media.ClientMediaManager
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-          // TODO: Localization resource for [Media.MyMusic]
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, "[Media.MyMusic]",
@@ -122,7 +107,6 @@ namespace MediaPortal.Media.ClientMediaManager
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-          // TODO: Localization resource for [Media.MyVideos]
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, "[Media.MyVideos]",
@@ -137,7 +121,6 @@ namespace MediaPortal.Media.ClientMediaManager
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-          // TODO: Localization resource for [Media.MyPictures]
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, "[Media.MyPictures]",

@@ -51,17 +51,17 @@ namespace MediaPortal.SkinEngine.SkinManagement
         _skinManager = skinManager;
       }
 
-      public bool RequestEnd(PluginItemMetadata item)
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         return true;
       }
 
-      public void Stop(PluginItemMetadata item)
+      public void Stop(PluginItemRegistration itemRegistration)
       {
         _skinManager.ReloadSkins();
       }
 
-      public void Continue(PluginItemMetadata item) { }
+      public void Continue(PluginItemRegistration itemRegistration) { }
     }
 
     public const string DEFAULT_SKIN = "default";
@@ -77,6 +77,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       _skinResourcesPluginItemStateTracker = new SkinResourcesPluginItemStateTracker(this);
       ReloadSkins();
+    }
+
+    public void Dispose()
+    {
+      ReleasePluginSkinResources();
+      _skins = null;
     }
 
     /// <summary>
@@ -96,6 +102,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
       get { return _skins.ContainsKey(DEFAULT_SKIN) ? _skins[DEFAULT_SKIN] : null; }
     }
 
+    /// <summary>
+    /// Reduces memory consumption by releasing all cached data for all skins. The caches will be
+    /// re-filled again on demand.
+    /// </summary>
     public void ReleaseSkinResources()
     {
       foreach (Skin skin in _skins.Values)
@@ -103,7 +113,16 @@ namespace MediaPortal.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Will reload all skin information from the file system.
+    /// Releases all plugin items requested to get the skin directories.
+    /// </summary>
+    protected void ReleasePluginSkinResources()
+    {
+      ServiceScope.Get<IPluginManager>().RevokeAllPluginItems(
+          "/Resources/Skin", _skinResourcesPluginItemStateTracker);
+    }
+
+    /// <summary>
+    /// Will reload all skins from the file system.
     /// </summary>
     public void ReloadSkins()
     {
@@ -161,11 +180,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <summary>
     /// Returns all relevant skin root directories available in the system.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Collection of skin root directories.</returns>
     protected ICollection<string> GetSkinRootDirectoryPaths()
     {
-      ICollection<string> result = new List<string>();
+      ReleasePluginSkinResources();
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      ICollection<string> result = new List<string>();
       foreach (PluginResource skinDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
           "/Resources/Skin", _skinResourcesPluginItemStateTracker))
         result.Add(skinDirectoryResource.Path);

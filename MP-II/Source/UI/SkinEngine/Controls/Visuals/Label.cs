@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using Font = MediaPortal.SkinEngine.Fonts.Font;
@@ -46,7 +46,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _scrollProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
-    StringId _label;
+    IResourceString _resourceString;
 
     #endregion
 
@@ -90,7 +90,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Color = copyManager.GetCopy(l.Color);
       Scroll = copyManager.GetCopy(l.Scroll);
 
-      _label = new StringId(Content);
+      _resourceString = LocalizationHelper.CreateLabelProperty(Content);
       Attach();
     }
 
@@ -104,8 +104,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnContentChanged(Property prop)
     {
-      _label = new StringId(Content);
-      if (Screen != null) 
+      _resourceString = LocalizationHelper.CreateLabelProperty(Content);
+      if (Screen != null)
         Screen.Invalidate(this);
     }
 
@@ -192,9 +192,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       AllocFont();
 
       // Measure the text
-      if (_label != null && _asset != null)
+      if (_resourceString != null && _asset != null)
       {
-        childSize = new SizeF(_asset.Font.Width(_label.ToString(), FontSize) * SkinContext.Zoom.Width,
+        childSize = new SizeF(_asset.Font.Width(_resourceString.Evaluate(), FontSize) * SkinContext.Zoom.Width,
                          _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
       }
 
@@ -296,8 +296,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
       
-      if (_label != null)
-        _renderer.Draw(_label.ToString(), rect, ActualPosition.Z, align, FontSize * 0.9f, color, Scroll, out totalWidth);
+      if (_resourceString != null)
+        _renderer.Draw(_resourceString.Evaluate(), rect, ActualPosition.Z, align, FontSize * 0.9f, color, Scroll, out totalWidth);
       SkinContext.RemoveTransform();
 
     }
@@ -349,10 +349,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
-      if (_label != null)
+      if (_resourceString != null)
       {
         float totalWidth;
-        _asset.Draw(_label.ToString(), rect, align, FontSize*0.9f, color, Scroll, out totalWidth);
+        _asset.Draw(_resourceString.Evaluate(), rect, align, FontSize*0.9f, color, Scroll, out totalWidth);
       }
       SkinContext.RemoveTransform();
     }

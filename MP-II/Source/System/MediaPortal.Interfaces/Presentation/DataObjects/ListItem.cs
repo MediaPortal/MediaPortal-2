@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.Commands;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Presentation.DataObjects
