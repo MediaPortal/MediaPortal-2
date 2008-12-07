@@ -31,7 +31,7 @@ namespace MediaPortal.Presentation.Localization
   /// Dummy class which implements the <see cref="ILocalization"/> interface, but
   /// doesn't provide any localized strings.
   /// </summary>
-  internal class NoLocalisation : ILocalization
+  internal class NoLocalization : ILocalization
   {
     public event LanguageChangeHandler LanguageChange;
 

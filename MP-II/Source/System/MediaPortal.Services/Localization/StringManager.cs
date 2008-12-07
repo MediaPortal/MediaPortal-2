@@ -37,7 +37,7 @@ using MediaPortal.Core.PluginManager;
 namespace MediaPortal.Services.Localization
 {
   /// <summary>
-  /// This class manages localisation strings.
+  /// This class manages localization strings.
   /// </summary>
   public class StringManager : ILocalization
   {

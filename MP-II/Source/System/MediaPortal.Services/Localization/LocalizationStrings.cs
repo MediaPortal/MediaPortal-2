@@ -30,7 +30,7 @@ using System.IO;
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.Localisation.Strings;
+using MediaPortal.Utilities.Localization.StringsFile;
 
 namespace MediaPortal.Services.Localization
 {

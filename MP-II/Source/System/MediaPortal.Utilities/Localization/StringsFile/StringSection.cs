@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace MediaPortal.Utilities.Localisation.Strings
+namespace MediaPortal.Utilities.Localization.StringsFile
 {
   public class StringSection
   {

@@ -85,9 +85,9 @@
     <Compile Include="FileSystem\FileUtils.cs" />
     <Compile Include="FileSystem\WindowsFilesystemPathComparer.cs" />
     <Compile Include="FileSystem\WindowsFilesystemPathEqualityComparer.cs" />
-    <Compile Include="Localisation\StringsFile\StringFile.cs" />
-    <Compile Include="Localisation\StringsFile\StringLocalised.cs" />
-    <Compile Include="Localisation\StringsFile\StringSection.cs" />
+    <Compile Include="Localization\StringsFile\StringFile.cs" />
+    <Compile Include="Localization\StringsFile\StringLocalised.cs" />
+    <Compile Include="Localization\StringsFile\StringSection.cs" />
     <Compile Include="ObjectUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
