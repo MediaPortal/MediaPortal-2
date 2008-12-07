@@ -20,27 +20,32 @@
 
   <Register Location="/Configuration/Settings">
     <ConfigSection
-        Id ="General"
+        Id = "General"
+        Redundant = "true"
         Text = "[configuration.settings.general]"
         IconSmallPath ="Images\general-22.png"
         IconLargePath ="Images\general-48.png"/>
     <ConfigSection
         Id = "Regional"
+        Redundant = "true"
         Text = "[configuration.settings.regional]"
         IconSmallPath = "Images\globe-22.png"
         IconLargePath = "Images\globe-48.png"/>
     <ConfigSection
         Id = "Appearance"
+        Redundant = "true"
         Text = "[configuration.settings.appearance]"
         IconSmallPath = "Images\skin-22.png"
         IconLargePath = "Images\skin-48.png"/>
     <ConfigSection
         Id = "Folders"
+        Redundant = "true"
         Text = "[configuration.settings.folders]"
         IconSmallPath = "Images\folders-22.png"
         IconLargePath = "Images\folders-48.png"/>
     <ConfigSection
         Id = "Hardware"
+        Redundant = "true"
         Text = "[configuration.settings.hardware]"
         IconSmallPath = "Images\hardware-22.png"
         IconLargePath = "Images\hardware-48.png"/>
@@ -48,6 +53,7 @@
   <Register Location="/Configuration/Settings/General">
     <ConfigGroup
         Id = "System"
+        Redundant = "true"
         Text = "[configuration.system]"/>
   </Register>
   <Register Location="/Configuration/Settings/General/System">
@@ -65,9 +71,11 @@
   <Register Location="/Configuration/Settings/Regional">
     <ConfigGroup
         Id = "Language"
+        Redundant = "true"
         Text = "[configuration.language]"/>
     <ConfigGroup
         Id = "Location"
+        Redundant = "true"
         Text = "[configuration.location]"/>
   </Register>
   <Register Location="/Configuration/Settings/Regional/Language">

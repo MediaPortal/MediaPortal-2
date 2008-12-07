@@ -360,10 +360,10 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Registers the specified plugin item in the plugin tree.
     /// </summary>
-    /// <param name="itemMetadata">Meta data structure of the item to register.</param>
+    /// <param name="itemMetadata">Metadata structure of the item to register.</param>
     /// <returns><c>true</c>, if the plugin item could be registered, <c>false</c>,
     /// if the item already existed and <see cref="PluginItemMetadata.IsRedundant"/> is specified.</returns>
-    /// <exception cref="ArgumentException">If the there is already an item registered at the registration
+    /// <exception cref="ArgumentException">If there is already an item registered at the registration
     /// location and the <see cref="PluginItemMetadata.IsRedundant"/> flag is not set.</exception>
     internal bool RegisterItem(PluginItemMetadata itemMetadata)
     {

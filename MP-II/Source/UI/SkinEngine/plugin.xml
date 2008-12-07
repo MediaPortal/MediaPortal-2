@@ -19,6 +19,7 @@
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigGroup
         Id = "System"
+        Redundant = "true"
         Text = "[configuration.system]"/>
   </Register>
   <Register Location="/Configuration/Settings/Appearance/System">
