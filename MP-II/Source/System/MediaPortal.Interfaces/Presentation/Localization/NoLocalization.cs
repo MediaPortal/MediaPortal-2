@@ -45,7 +45,7 @@ namespace MediaPortal.Presentation.Localization
       get { return 1; }
     }
 
-    public void ChangeLanguage(string cultureName) {}
+    public void ChangeLanguage(CultureInfo culture) {}
 
     public string ToString(string section, string name, object[] parameters)
     {
@@ -60,11 +60,6 @@ namespace MediaPortal.Presentation.Localization
     public string ToString(StringId id)
     {
       return id.Label;
-    }
-
-    public bool IsLocaleSupported(string cultureName)
-    {
-      return false;
     }
 
     public ICollection<CultureInfo> AvailableLanguages

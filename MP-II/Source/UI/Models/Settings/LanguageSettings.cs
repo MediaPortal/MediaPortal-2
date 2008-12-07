@@ -79,7 +79,7 @@ namespace Models.Settings
       {
         if (lang.EnglishName == langChoosen)
         {
-          localProvider.ChangeLanguage(lang.Name);
+          localProvider.ChangeLanguage(lang);
           IScreenManager windowMgr = ServiceScope.Get<IScreenManager>();
           windowMgr.Reset();
           return;

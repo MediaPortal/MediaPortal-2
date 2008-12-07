@@ -30,10 +30,16 @@ using System.IO;
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Localization.StringsFile;
 
 namespace MediaPortal.Services.Localization
 {
+  /// <summary>
+  /// Management class for localization resources distributed among different directories. The localization
+  /// resources must be available in XML files of the name "strings_[culture name].xml", for example
+  /// "strings_en.xml".
+  /// </summary>
   public class LocalizationStrings
   {
     #region Variables
@@ -41,75 +47,88 @@ namespace MediaPortal.Services.Localization
     readonly Dictionary<string, Dictionary<string, StringLocalised>> _languageStrings =
         new Dictionary<string, Dictionary<string, StringLocalised>>(
             StringComparer.Create(CultureInfo.InvariantCulture, true));
-    readonly Dictionary<string, CultureInfo> _availableLanguages =
-        new Dictionary<string, CultureInfo>(StringComparer.Create(CultureInfo.InvariantCulture, true));
-    readonly List<string> _languageDirectories = new List<string>();
-    readonly string _systemDirectory;
+    readonly ICollection<CultureInfo> _availableLanguages =
+        new List<CultureInfo>();
+    readonly ICollection<string> _languageDirectories = new List<string>();
     CultureInfo _currentLanguage;
     
     #endregion
 
     #region Constructors/Destructors
     
-    public LocalizationStrings(string systemDirectory, string cultureName)
+    public LocalizationStrings(string cultureName)
     {
-      // Base strings directory
-      _systemDirectory = systemDirectory;
+      if (string.IsNullOrEmpty(cultureName))
+        cultureName = "en";
 
-      _languageDirectories.Add(_systemDirectory);
-
-      GetAvailableLangauges();
-
-      // If the language cannot be found default to Local language or English
-      if (cultureName != null && _availableLanguages.ContainsKey(cultureName))
-        _currentLanguage = _availableLanguages[cultureName];
-      else
-        _currentLanguage = GetBestLanguage();
-
-      if (_currentLanguage == null)
-        throw (new ArgumentException("No available language found"));
-
-      ReloadAll();
+      _currentLanguage = new CultureInfo(cultureName);
     }
 
     public void Dispose()
     {
       Clear();
     }
+
     #endregion
 
-    #region Properties
+    #region Public properties
+
+    /// <summary>
+    /// Returns the culture whose language is currently used for translating strings.
+    /// </summary>
     public CultureInfo CurrentCulture
     {
       get { return _currentLanguage; }
     }
+
     #endregion
 
-    #region Public Methods
+    #region Public methods
+
+    /// <summary>
+    /// Adds a directory containing localization resources. The strings will be automatically loaded.
+    /// </summary>
+    /// <param name="directory">Directory which potentially contains localization resources.</param>
     public void AddDirectory(string directory)
     {
       // Add directory to list, to enable reloading/changing language
       _languageDirectories.Add(directory);
 
-      LoadStrings(directory);
+      Load(directory);
     }
 
+    /// <summary>
+    /// Removes a directory of localization resources.
+    /// </summary>
+    /// <param name="directory">Directory of localization resources which maybe was added before by
+    /// <see cref="AddDirectory"/>.</param>
     public void RemoveDirectory(string directory)
     {
-      // TODO: remove strings from the given directory. Probably we have to change the
-      // backing data structures for this.
+      _languageDirectories.Remove(directory);
+      ReloadAll();
     }
 
-    public void ChangeLanguage(string cultureName)
+    /// <summary>
+    /// Sets the language to that all strings should be translated to the language of specified
+    /// <see cref="culture"/>.
+    /// </summary>
+    /// <param name="culture">The new culture.</param>
+    public void ChangeLanguage(CultureInfo culture)
     {
-      if (!_availableLanguages.ContainsKey(cultureName))
-        throw new ArgumentException("Language not available");
+      if (!_availableLanguages.Contains(culture))
+        throw new ArgumentException(string.Format("Language '{0}' is not available", culture.Name));
 
-      _currentLanguage = _availableLanguages[cultureName];
+      _currentLanguage = culture;
 
       ReloadAll();
     }
 
+    /// <summary>
+    /// Returns the localized string specified by its <paramref name="section"/> and <paramref name="name"/>.
+    /// </summary>
+    /// <param name="section">The section of the string to translate.</param>
+    /// <param name="name">The name of the string to translate.</param>
+    /// <returns>Translated string or <c>null</c>, if the string isn't available.</returns>
     public string ToString(string section, string name)
     {
       if (_languageStrings.ContainsKey(section) && _languageStrings[section].ContainsKey(name))
@@ -118,100 +137,46 @@ namespace MediaPortal.Services.Localization
       return null;
     }
 
-    public string ToString(string section, string name, object[] parameters)
-    {
-      string translation = ToString(section, name);
-      // if parameters or the translation is null, return the translation.
-      if ((translation == null) || (parameters == null))
-      {
-        return translation;
-      }
-      // return the formatted string. If formatting fails, log the error
-      // and return the unformatted string.
-      try
-      {
-        return String.Format(translation, parameters);
-      }
-      catch (FormatException)
-      {
-        //Log.Error("Error formatting translation with id {0}", dwCode);
-        //Log.Error("Unformatted translation: {0}", translation);
-        //Log.Error(e);  
-        // Throw exception??
-        return translation;
-      }
-    }
-
     public ICollection<CultureInfo> AvailableLanguages
     {
-      get { return _availableLanguages.Values; }
+      get { return _availableLanguages; }
     }
 
-    public bool IsLocaleSupported(string cultureName)
+    public static ICollection<CultureInfo> FindAvailableLanguages(string directory)
     {
-      if (_availableLanguages.ContainsKey(cultureName))
-        return true;
+      ICollection<CultureInfo> result = new List<CultureInfo>();
+      foreach (string filePath in Directory.GetFiles(directory, "strings_*.xml"))
+      {
+        int pos = filePath.IndexOf('_') + 1;
+        string cultName = filePath.Substring(pos, filePath.Length - Path.GetExtension(filePath).Length - pos);
 
-      return false;
-    }
-
-    public CultureInfo GetBestLanguage()
-    {
-      // Try current local language
-      if (_availableLanguages.ContainsKey(CultureInfo.CurrentCulture.Name))
-        return CultureInfo.CurrentCulture;
-
-      // Try Language Parent if it has one
-      if (!CultureInfo.CurrentCulture.IsNeutralCulture &&
-        _availableLanguages.ContainsKey(CultureInfo.CurrentCulture.Parent.Name))
-        return CultureInfo.CurrentCulture.Parent;
-
-      // default to English
-      if (_availableLanguages.ContainsKey("en"))
-        return _availableLanguages["en"];
-
-      return null;
+        result.Add(new CultureInfo(cultName));
+      }
+      return result;
     }
 
     #endregion
 
-    #region Private Methods
+    #region Protected Methods
 
-    private void ReloadAll()
+    protected void ReloadAll()
     {
       Clear();
 
       foreach (string directory in _languageDirectories)
-        LoadStrings(directory);
+        Load(directory);
     }
 
-    private void Clear()
+    protected void Clear()
     {
       if (_languageStrings != null)
         _languageStrings.Clear();
     }
 
-    private void GetAvailableLangauges()
+    protected void Load(string directory)
     {
-      foreach (string filePath in Directory.GetFiles(_systemDirectory, "strings_*.xml"))
-      {
-        int pos = filePath.IndexOf('_') + 1;
-        string cultName = filePath.Substring(pos, filePath.Length - Path.GetExtension(filePath).Length - pos);
+      CollectionUtils.AddAll(_availableLanguages, FindAvailableLanguages(directory));
 
-        try
-        {
-          CultureInfo cultInfo = new CultureInfo(cultName);
-          _availableLanguages.Add(cultName, cultInfo);
-        }
-        catch (ArgumentException)
-        {
-          // Log file error?
-        }
-      }
-    }
-
-    private void LoadStrings(string directory)
-    {
       string filename = string.Format("strings_{0}.xml", _currentLanguage.Name);
       //ServiceScope.Get<ILogger>().Info("    Loading strings file: {0}", filename);
 

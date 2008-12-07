@@ -58,11 +58,10 @@ namespace MediaPortal.Presentation.Localization
     #region Methods
 
     /// <summary>
-    /// Changes the current language, in which all strings should be translated.
+    /// Changes the current language, to that all strings should be translated.
     /// </summary>
-    /// <param name="cultureName">Name of the culture. This could be "de" or "en",
-    /// for example.</param>
-    void ChangeLanguage(string cultureName);
+    /// <param name="culture">The culture whose language should be used.</param>
+    void ChangeLanguage(CultureInfo culture);
 
     /// <summary>
     /// Returns the translation for a given string resource (given by section name and name)
@@ -95,16 +94,6 @@ namespace MediaPortal.Presentation.Localization
     string ToString(StringId id);
 
     /// <summary>
-    /// Returns the information, if the specified culture is supported.
-    /// </summary>
-    /// <param name="cultureName">Name of the culture to check. If the name is one of
-    /// the names returned by the property <see cref="CultureInfo.Name"/> from one
-    /// of those cultures returned by <see cref="AvailableLanguages"/>, this method
-    /// returns <c>true</c>, otherwise it returns false.</param>
-    /// <returns>true, if the specified culture is supported, false otherwise.</returns>
-    bool IsLocaleSupported(string cultureName);
-
-    /// <summary>
     /// Returns the <see cref="CultureInfo"/>s for all installed languages.
     /// </summary>
     /// <returns>Collection containing all languages for which localized strings are availabe in this
@@ -118,13 +107,6 @@ namespace MediaPortal.Presentation.Localization
     /// </summary>
     /// <returns>Best language for this system.</returns>
     CultureInfo GuessBestLanguage();
-
-    /// <summary>
-    /// Adds the specified directory to the collection of available language-file directories.
-    /// Will make all language files in the specified directory available to choose.
-    /// </summary>
-    /// <param name="stringsDirectory">Directory containing language files.</param>
-    void AddDirectory(string stringsDirectory);
 
     #endregion
   }
