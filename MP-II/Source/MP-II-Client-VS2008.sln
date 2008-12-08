@@ -6,7 +6,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "System", "System", "{843A0A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{5B0609A9-F3B5-41F8-81A5-3CE327A4ECD7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Main", "Main\MediaPortal.Client\MediaPortal.Main.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Client", "Main\MediaPortal.Client\MediaPortal.Client.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{23FE1AB5-FA54-4863-8E01-871B3A969E71}"
 EndProject
