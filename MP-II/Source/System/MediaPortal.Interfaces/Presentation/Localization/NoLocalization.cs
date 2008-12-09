@@ -67,7 +67,7 @@ namespace MediaPortal.Presentation.Localization
       get { return new List<CultureInfo>(new CultureInfo[] {CultureInfo.CurrentUICulture}); }
     }
 
-    public CultureInfo GuessBestLanguage()
+    public CultureInfo GetBestAvailableLanguage()
     {
       return CultureInfo.CurrentUICulture;
     }

@@ -122,20 +122,17 @@ namespace MediaPortal.Services.Localization
             logger.Error("StringManager: Language directory doesn't exist: {0}", resource.Path);
         }
 
-        if (string.IsNullOrEmpty(settings.Culture))
+        string currentCulture = settings.Culture;
+
+        if (string.IsNullOrEmpty(currentCulture))
         {
-          ICollection<CultureInfo> availableLanguages = new List<CultureInfo>();
-          foreach (string directory in languageDirectories)
-            CollectionUtils.AddAll(availableLanguages, LocalizationStrings.FindAvailableLanguages(directory));
-          CultureInfo bestCulture = GetBestLanguage(availableLanguages);
-          settings.Culture = bestCulture.Name;
-          ServiceScope.Get<ILogger>().Info("StringManager: Culture set to '{0}'", bestCulture);
-          ServiceScope.Get<ISettingsManager>().Save(settings);
+          currentCulture = CultureInfo.CurrentUICulture.Name;
+          ServiceScope.Get<ILogger>().Info("StringManager: Culture not set. Using culture: '{0}'", currentCulture);
         }
         else
-          ServiceScope.Get<ILogger>().Debug("StringManager: Using culture: " + settings.Culture);
+          ServiceScope.Get<ILogger>().Info("StringManager: Using culture: " + currentCulture);
 
-        _strings = new LocalizationStrings(settings.Culture);
+        _strings = new LocalizationStrings(currentCulture);
         foreach (string languageDirectory in languageDirectories)
           _strings.AddDirectory(languageDirectory);
       }
@@ -148,13 +145,13 @@ namespace MediaPortal.Services.Localization
     protected static CultureInfo GetBestLanguage(ICollection<CultureInfo> availableLanguages)
     {
       // Try current local language
-      if (availableLanguages.Contains(CultureInfo.CurrentCulture))
-        return CultureInfo.CurrentCulture;
+      if (availableLanguages.Contains(CultureInfo.CurrentUICulture))
+        return CultureInfo.CurrentUICulture;
 
       // Try Language Parent if it has one
-      if (CultureInfo.CurrentCulture.Parent != CultureInfo.InvariantCulture &&
-        availableLanguages.Contains(CultureInfo.CurrentCulture.Parent))
-        return CultureInfo.CurrentCulture.Parent;
+      if (CultureInfo.CurrentUICulture.Parent != CultureInfo.InvariantCulture &&
+        availableLanguages.Contains(CultureInfo.CurrentUICulture.Parent))
+        return CultureInfo.CurrentUICulture.Parent;
 
       // Default to English
       CultureInfo englishCulture = CultureInfo.GetCultureInfo("en");
@@ -229,7 +226,7 @@ namespace MediaPortal.Services.Localization
       get { return _strings.AvailableLanguages; }
     }
 
-    public CultureInfo GuessBestLanguage()
+    public CultureInfo GetBestAvailableLanguage()
     {
       return GetBestLanguage(_strings.AvailableLanguages);
     }

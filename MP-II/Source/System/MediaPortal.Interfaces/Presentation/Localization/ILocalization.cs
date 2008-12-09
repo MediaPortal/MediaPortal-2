@@ -101,12 +101,15 @@ namespace MediaPortal.Presentation.Localization
     ICollection<CultureInfo> AvailableLanguages { get; }
 
     /// <summary>
-    /// Tries to guess the best language for the current system. Will default in english if
-    /// no other language could be found.
-    /// The algorithm for finding the "best language" depends on the implementation.
+    /// Tries to guess the best language for that localization resources are available for the current system.
+    /// Will default in english if no other language resources could be found.
     /// </summary>
-    /// <returns>Best language for this system.</returns>
-    CultureInfo GuessBestLanguage();
+    /// <remarks>
+    /// If no installed language resources fit to the system language, the default (english) might not
+    /// be contained in the <see cref="AvailableLanguages"/> collection.
+    /// </remarks>
+    /// <returns>Best language for this system, for that language resources are available.</returns>
+    CultureInfo GetBestAvailableLanguage();
 
     #endregion
   }
