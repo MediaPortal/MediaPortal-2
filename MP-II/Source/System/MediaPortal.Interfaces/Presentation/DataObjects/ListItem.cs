@@ -50,7 +50,6 @@ namespace MediaPortal.Presentation.DataObjects
   /// Changes do <b>not</b> automatically trigger the <see cref="OnChanged"/> event; this event
   /// has to be explicitly triggered by modifying clients.
   /// </remarks>
-  /// TODO: Add methods/constructor to add unlocalized labels
   public class ListItem
   {
     #region Protected fields
@@ -69,10 +68,27 @@ namespace MediaPortal.Presentation.DataObjects
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ListItem"/> class with one
+    /// localized or unlocalized string label. The constructor can be forced to add the given string
+    /// <paramref name="value"/> unlocalized.
+    /// </summary>
+    /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
+    /// <param name="value">The value to create the label with. If <paramref name="testLocalized"/> is set
+    /// to <c>true</c> and <paramref name="value"/> references a localized string resource, a localized
+    /// label will be created. Else an unlocalized label will be used.</param>
+    /// <param name="testLocalized">If set to <c>true</c>, the <paramref name="value"/> will be checked if
+    /// it is a localized string.</param>
+    public ListItem(string name, string value, bool testLocalized)
+    {
+      SetLabel(name, value, testLocalized);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ListItem"/> class with one
     /// localized or unlocalized string label. This constructor will determine if the
     /// specified string references a localized resource.
     /// This is a convenience constructor for calling <see cref="ListItem(string, StringId)"/> or
-    /// <see cref="ListItem(string, IResourceString)"/>.
+    /// <see cref="ListItem(string, IResourceString)"/> or <see cref="ListItem(string, string, bool)"/> with
+    /// the <c>testLocalized</c> parameter set to <c>true</c>.
     /// </summary>
     /// <param name="name">The name of the label to be set to <paramref name="value"/>.</param>
     /// <param name="value">The value to create the label with. If <paramref name="value"/>
@@ -136,15 +152,39 @@ namespace MediaPortal.Presentation.DataObjects
 
     /// <summary>
     /// Adds a named label property to this item. The specified <paramref name="value"/>
-    /// may be a localized string; in this case this method will add it as localized
+    /// will be checked if it is a localized string; in this case this method will add it as localized
     /// label property.
     /// </summary>
+    /// <remarks>
+    /// This is a convenience method for calling <see cref="SetLabel(string,string,bool)"/> with the
+    /// <c>testLocalized</c> parameter set to <c>true</c>.
+    /// </remarks>
     /// <param name="name">The name for the new label.</param>
-    /// <param name="value">The string label to be added. If this parameter references a
-    /// localized resource, the new label will be a localized string label.</param>
+    /// <param name="value">The string label to be added.</param>
     public void SetLabel(string name, string value)
     {
       _labels[name] = LocalizationHelper.CreateLabelProperty(value);
+    }
+
+    /// <summary>
+    /// Adds a named label property to this item. If the parameter <paramref name="testLocalized"/> is
+    /// set to <c>true</c>, the specified <paramref name="value"/> will be checked if it is a localized string.
+    /// In this case this method will add it as localized label property. If the parameter
+    /// <paramref name="testLocalized"/> is set to <c>false</c> or if the <paramref name="value"/> is no
+    /// localized string resource, the value will simply be added as static string.
+    /// </summary>
+    /// <param name="name">The name for the new label.</param>
+    /// <param name="value">The string label to be added. If this parameter references a localized resource
+    /// and <paramref name="testLocalized"/> is set to <c>true</c>, the new label will be added as a localized
+    /// string label.</param>
+    /// <param name="testLocalized">If set to <c>true</c>, the <paramref name="value"/> will be tested if
+    /// it is a localized string.</param>
+    public void SetLabel(string name, string value, bool testLocalized)
+    {
+      if (testLocalized)
+        SetLabel(name, value);
+      else
+        _labels[name] = new StaticStringBuilder(value);
     }
 
     /// <summary>
