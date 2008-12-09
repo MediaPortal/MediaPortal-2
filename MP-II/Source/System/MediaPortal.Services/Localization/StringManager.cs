@@ -152,12 +152,12 @@ namespace MediaPortal.Services.Localization
         return CultureInfo.CurrentCulture;
 
       // Try Language Parent if it has one
-      if (!CultureInfo.CurrentCulture.IsNeutralCulture &&
+      if (CultureInfo.CurrentCulture.Parent != CultureInfo.InvariantCulture &&
         availableLanguages.Contains(CultureInfo.CurrentCulture.Parent))
         return CultureInfo.CurrentCulture.Parent;
 
       // Default to English
-      CultureInfo englishCulture = new CultureInfo("en");
+      CultureInfo englishCulture = CultureInfo.GetCultureInfo("en");
       if (availableLanguages.Contains(englishCulture))
         return englishCulture;
 

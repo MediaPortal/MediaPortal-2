@@ -66,7 +66,7 @@ namespace MediaPortal.Configuration.Settings.Regional
       get
       {
         if (_country == "") // Force the default value
-          _country = RegionInfo.CurrentRegion.TwoLetterISORegionName.ToLower(new CultureInfo("en"));
+          _country = RegionInfo.CurrentRegion.TwoLetterISORegionName.ToLower(CultureInfo.GetCultureInfo("en"));
         return _country;
       }
       set { _country = value; }
