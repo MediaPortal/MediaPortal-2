@@ -1,9 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Language>
-  <Section name="Media">
-    <String name="RootViewName" text="Media"/>
-    <String name="MyMusic" text="Music"/>
-    <String name="MyVideos" text="Videos"/>
-    <String name="MyPictures" text="Pictures"/>
+  <Section Name="Media">
+    <String Name="Name" Text="Media"/>
+    <String Name="RootViewName" Text="Media"/>
+    <String Name="MyMusic" Text="Music"/>
+    <String Name="MyVideos" Text="Videos"/>
+    <String Name="MyPictures" Text="Pictures"/>
   </Section>
 </Language>

@@ -31,7 +31,7 @@ namespace MediaPortal.Utilities.Localization.StringsFile
   public class StringFile
   {
     #region Variables
-    [XmlAttribute("name")]
+    [XmlAttribute("Name")]
     public string languageName;
     [XmlElement("Section")]
     public List<StringSection> sections;

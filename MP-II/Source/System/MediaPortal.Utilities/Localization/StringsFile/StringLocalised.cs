@@ -30,9 +30,9 @@ namespace MediaPortal.Utilities.Localization.StringsFile
   {
     #region Variables
     public string language;
-    [XmlAttribute("name")]
+    [XmlAttribute("Name")]
     public string name;
-    [XmlAttribute("text")]
+    [XmlAttribute("Text")]
     public string text;
     public bool isNew = false;
     #endregion
