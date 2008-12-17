@@ -115,6 +115,15 @@ namespace MediaPortal.Core.PluginManager
     bool TryStopPlugin(IPluginMetadata plugin);
 
     /// <summary>
+    /// Adds a new plugin item builder to the plugin manager which is provided by a system component. This
+    /// method mustn't be called from plugins, it should only be called by system components.
+    /// </summary>
+    /// <param name="builderName">The builder name. This is the name of the plugin item element which is handled
+    /// by the builder to register.</param>
+    /// <param name="builderInstance">The plugin item builder to register.</param>
+    void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance);
+
+    /// <summary>
     /// Returns the metadata of all plugins conflicting with the specified <paramref name="plugin"/>.
     /// </summary>
     /// <param name="plugin">The metadata of the plugin to check.</param>

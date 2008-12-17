@@ -48,4 +48,15 @@ namespace MediaPortal.Core.Exceptions
     public InvalidStateException(string msg, Exception ex, params object[] args):
         base(string.Format(msg, args), ex) { }
   }
+
+  /// <summary>
+  /// Thrown if a method call is not valid in the current state.
+  /// </summary>
+  public class IllegalCallException : ApplicationException
+  {
+    public IllegalCallException(string msg, params object[] args) :
+      base(string.Format(msg, args)) { }
+    public IllegalCallException(string msg, Exception ex, params object[] args):
+      base(string.Format(msg, args), ex) { }
+  }
 }

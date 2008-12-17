@@ -76,7 +76,8 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public PluginManager()
     {
-      CollectionUtils.AddAll(_builders, CreateDefaultBuilderRegistrations());
+      foreach (KeyValuePair<string, IPluginItemBuilder> builderRegistration in GetDefaultBuilders())
+        RegisterSystemPluginItemBuilder(builderRegistration.Key, builderRegistration.Value);
     }
 
     #endregion
@@ -173,6 +174,11 @@ namespace MediaPortal.Core.Services.PluginManager
       if (_availablePlugins.TryGetValue(plugin.Name, out pr))
         return TryDisable(pr);
       return true;
+    }
+
+    public void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance)
+    {
+      _builders.Add(CreateSystemBuilderRegistration(builderName, builderInstance));
     }
 
     public ICollection<IPluginMetadata> FindConflicts(IPluginMetadata plugin)
@@ -348,7 +354,7 @@ namespace MediaPortal.Core.Services.PluginManager
       return result;
     }
 
-    internal static KeyValuePair<string, PluginBuilderRegistration> CreateDefaultBuilderRegistration(
+    internal static KeyValuePair<string, PluginBuilderRegistration> CreateSystemBuilderRegistration(
         string builderName, IPluginItemBuilder builderInstance)
     {
       KeyValuePair<string, PluginBuilderRegistration> result =
@@ -359,11 +365,11 @@ namespace MediaPortal.Core.Services.PluginManager
       return result;
     }
 
-    internal static IDictionary<string, PluginBuilderRegistration> CreateDefaultBuilderRegistrations()
+    internal static IDictionary<string, IPluginItemBuilder> GetDefaultBuilders()
     {
-      IDictionary<string, PluginBuilderRegistration> result = new Dictionary<string, PluginBuilderRegistration>();
-      result.Add(CreateDefaultBuilderRegistration("Instance", new InstanceBuilder()));
-      result.Add(CreateDefaultBuilderRegistration("Resource", new ResourceBuilder()));
+      IDictionary<string, IPluginItemBuilder> result = new Dictionary<string, IPluginItemBuilder>();
+      result.Add("Instance", new InstanceBuilder());
+      result.Add("Resource", new ResourceBuilder());
       return result;
     }
 
