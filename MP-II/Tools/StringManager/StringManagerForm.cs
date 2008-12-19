@@ -25,22 +25,25 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Windows.Forms;
 using System.Globalization;
 using MediaPortal.Utilities.Xml;
-using MediaPortal.Utilities.Localisation;
-using MediaPortal.Utilities.Localisation.Strings;
+using MediaPortal.Utilities.Localization.StringsFile;
 using MediaPortal.Tools.StringManager.SolutionFiles;
 
 namespace MediaPortal.Tools.StringManager
 {
+
+  /// <summary>
+  /// The main form of the string managing tool, the tool used for managing localization strings.
+  /// This means, it looks through all .cs and .x(a)ml files and searches strings in the form "[x.y]".
+  /// So it gives you an overview which localized resources are referenced in the source files,
+  /// these can then be translated.
+  /// </summary>
   public partial class StringManagerForm : Form
   {
     #region enum
@@ -55,13 +58,11 @@ namespace MediaPortal.Tools.StringManager
 
     #region Variables
     // Settings
-    private string _configFile;
-    private StringManagerConfig _config;
+    private string _settingFile;
     private string _stringPath;
 
     //Strings
     private LocalisationStrings _strings;
-
     // Create
 
     //Manage tab
@@ -83,147 +84,189 @@ namespace MediaPortal.Tools.StringManager
     #endregion
 
     #region Constructors/Destructors
+
     public StringManagerForm()
     {
       InitializeComponent();
+      LoadSettings();
+      SetTabsEnabledState();
+      Closing += Form_Closing;
 
-      // load config file if it exists
-      LoadConfig();
-
-      // Catch closing event - check if un saved changes exist
-      this.Closing += new System.ComponentModel.CancelEventHandler(this.Form_Closing);
-
-      // Manage Tab
+      /// Set the ListView lvMatches for the "Manage" Tab
       lvMatches.Groups.Clear();
       string[] groupNames = Enum.GetNames(typeof(StringMatch.Source));
       foreach (string group in groupNames)
-      {
         lvMatches.Groups.Add(new ListViewGroup(group, HorizontalAlignment.Left));
-      }
 
-      // Check settings - enable tabs based on settings
-      if (tbStringsPath.Text == string.Empty)
-      {
-        tabsModes.Controls[(int)Tabs.Create].Enabled = false;
-        tabsModes.Controls[(int)Tabs.Translate].Enabled = false;
-        tabsModes.Controls[(int)Tabs.Manage].Enabled = false;
-        tabsModes.SelectedIndex = (int)Tabs.Settings;
-      }
-      else
-      {
-        if (tbSolution.Text == string.Empty && tbSkinPath.Text == string.Empty)
-          tabsModes.Controls[(int)Tabs.Manage].Enabled = false;
-        tabsModes.SelectedIndex = (int)Tabs.Translate;
-      }
       btnSave.Enabled = false;
       btnSaveNewStrings.Enabled = false;
       _currentLanguage = 0;
       _currentSection = 0;
       _targetSection = 0;
     }
+
     #endregion
 
-    #region Private
-    #region Save Load Files
-    private void LoadConfig()
-    {
-      _configFile = Path.Combine(Environment.CurrentDirectory, "StringManager.Config.Xml");
-      if (File.Exists(_configFile))
-      {
-        XmlSerializer s = new XmlSerializer(typeof(StringManagerConfig));
-        TextReader r = new StreamReader(_configFile);
-        _config = (StringManagerConfig)s.Deserialize(r);
+    #region Private Methods
 
-        tbStringsPath.Text = _config.stringPath;
-        tbSkinPath.Text = _config.skinPath;
-        tbSolution.Text = _config.solutionFile;
+    /// <summary>
+    /// Enables the tabs based on the settings.
+    /// ToDo: what are the settings?
+    /// </summary>
+    private void SetTabsEnabledState()
+    {
+      if (string.IsNullOrEmpty(_textBoxStringsPath.Text))
+      {
+        tabsModes.Controls[(int)Tabs.Create].Enabled
+          = tabsModes.Controls[(int)Tabs.Translate].Enabled
+            = tabsModes.Controls[(int)Tabs.Manage].Enabled
+              = false;
+        tabsModes.SelectedIndex = (int)Tabs.Settings;
+      }
+      else
+      {
+        if (_textBoxSolution.Text == string.Empty && _textBoxSkinPath.Text == string.Empty)
+          tabsModes.Controls[(int)Tabs.Manage].Enabled = false;
+        tabsModes.SelectedIndex = (int)Tabs.Translate;
       }
     }
 
-    private void SaveConfig()
+    /// <summary>
+    /// Deserializes the configuration from <see cref="_settingFile"/> to the textboxes in the Settings-tab.
+    /// </summary>
+    private void LoadSettings()
     {
-      if (_config == null)
-        _config = new StringManagerConfig();
+      _settingFile = Path.Combine(Environment.CurrentDirectory, "StringManager.Config.Xml");
+      if (!File.Exists(_settingFile))
+        return;
+      /// Deserialize the StringManagerConfig
+      XmlSerializer s = new XmlSerializer(typeof (StringManagerConfig));
+      try
+      {
+        using (TextReader reader = new StreamReader(_settingFile))
+        {
+          StringManagerConfig config = (StringManagerConfig) s.Deserialize(reader);
+          /// Set the textboxes
+          _textBoxStringsPath.Text = config.stringPath;
+          _textBoxSkinPath.Text = config.skinPath;
+          _textBoxSolution.Text = config.solutionFile;
+        }
+      }
+      catch { }
+  }
 
-      _config.stringPath = tbStringsPath.Text;
-      _config.skinPath = tbSkinPath.Text;
-      _config.solutionFile = tbSolution.Text;
+    /// <summary>
+    /// Serializes the configuration (textboxes in the Settings-tab) to <see cref="_settingFile"/>.
+    /// </summary>
+    private void SaveSettings()
+    {
+      StringManagerConfig config = new StringManagerConfig();
+      /// Get the configuration values from the textboxes
+      config.stringPath = _textBoxStringsPath.Text;
+      config.skinPath = _textBoxSkinPath.Text;
+      config.solutionFile = _textBoxSolution.Text;
 
-      if (File.Exists(_configFile + ".Bak"))
-        File.Delete(_configFile + ".Bak");
-
-      if (File.Exists(_configFile))
-        File.Move(_configFile, _configFile + ".Bak");
+      /// Backup the old configuration file
+      if (File.Exists(_settingFile + ".bak"))
+        File.Delete(_settingFile + ".bak");
+      if (File.Exists(_settingFile))
+        File.Move(_settingFile, _settingFile + ".bak");
 
       XmlSerializer s = new XmlSerializer(typeof(StringManagerConfig));
-      TextWriter w = new StreamWriter(_configFile);
-      s.Serialize(w, _config);
+      TextWriter w = new StreamWriter(_settingFile);
+      s.Serialize(w, config);
 
     }
 
-    private bool IsValidLanguagePath()
-    {
-      if (Directory.Exists(tbStringsPath.Text) && File.Exists(Path.Combine(tbStringsPath.Text, "strings_en.xml")))
-        return true;
+    #endregion
 
-      return false;
-    }
+    #region Private Static Methods
 
-    private StringFile LoadStrings(string directory, string language)
-    {
-      string filename = "strings_" + language + ".xml";
-
-      string path = Path.Combine(directory, filename);
-      if (File.Exists(path))
-      {
-        StringFile strings;
-        try
-        {
-          XmlSerializer s = new XmlSerializer(typeof(StringFile));
-          TextReader r = new StreamReader(path);
-          strings = (StringFile)s.Deserialize(r);
-          return strings;
-        }
-        catch (Exception)
-        {
-        }
-      }
-      return null;
-    }
-
-    private void SaveStrings(StringFile strings, string directory, string language)
+    /// <summary>
+    /// Returns the <see cref="StringFile"/> for the given <paramref name"language"/>
+    /// from the specified <paramref name"directory"/>.
+    /// Returns null if the <see cref="StringFile"/> can't be loaded.
+    /// </summary>
+    /// <param name="directory">The directory containing all string files.</param>
+    /// <param name="language">The two-letter language code specifying the requested language.</param>
+    /// <returns></returns>
+    private static StringFile LoadStrings(string directory, string language)
     {
       string filename = "strings_" + language + ".xml";
-
       string path = Path.Combine(directory, filename);
-      if (File.Exists(path + ".bak"))
-        File.Delete(path + ".bak");
-
-      if (File.Exists(path))
-        File.Move(path, path + ".bak");
-
+      if (!File.Exists(path))
+        return null;
       try
       {
         XmlSerializer s = new XmlSerializer(typeof(StringFile));
-        TextWriter w = new StreamWriter(path);
-        XmlTextWriter writer = new XmlNoNamespaceWriter(w);
-        writer.Formatting = Formatting.Indented;
-        s.Serialize(writer, strings);
-        writer.Close();
+        using (TextReader r = new StreamReader(path))
+          return (StringFile)s.Deserialize(r);
       }
       catch (Exception)
       {
+        return null;
       }
     }
 
+    /// <summary>
+    /// Saves the given <paramref name="stringFile"/> to an xml file formated as "strings_<paramref name="language"/>.xml"
+    /// in the specified <paramref name="directory"/>.
+    /// </summary>
+    /// <param name="stringFile">The <see cref="StringFile"/> to save.</param>
+    /// <param name="directory">The directory to save the <paramref name="stringFile"/> to.</param>
+    /// <param name="language">The language of the <see cref="StringFile"/>.</param>
+    /// <returns>Whether the <see cref="StringFile"/> was saved.</returns>
+    private static bool SaveStrings(StringFile stringFile, string directory, string language)
+    {
+      string filename = "strings_" + language + ".xml";
+      string path = Path.Combine(directory, filename);
+      /// Make a backup of the current languagefile.
+      if (File.Exists(path + ".bak"))
+        File.Delete(path + ".bak");
+      if (File.Exists(path))
+        File.Move(path, path + ".bak");
+      /// Serialize the StringFile
+      try
+      {
+        XmlSerializer s = new XmlSerializer(typeof(StringFile));
+        using (XmlTextWriter writer = new XmlNoNamespaceWriter(new StreamWriter(path)))
+        {
+          writer.Formatting = Formatting.Indented;
+          s.Serialize(writer, stringFile);
+        }
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
+    }
+
+    /// <summary>
+    /// Returns whether the value of <paramref name="languagePath"/>.Text is a valid language path.
+    /// </summary>
+    /// <returns></returns>
+    private static bool IsValidLanguagePath(string languagePath)
+    {
+      return !string.IsNullOrEmpty(languagePath)
+             && Directory.Exists(languagePath)
+             && File.Exists(Path.Combine(languagePath, "strings_en.xml"));
+    }
+
+    #endregion
+
+    #region Private
+
+    #region Save Load Files
+
     private void LoadDefaultStrings()
     {
-      _strings = new LocalisationStrings(_stringPath, "en");
+      _strings = new LocalisationStrings(_stringPath);
       _defaultStrings = LoadStrings(_stringPath, "en");
 
       // Get Available language list
       _languageList = new List<LanguageInfo>();
-      foreach (CultureInfo language in _strings.AvailableLanguages())
+      foreach (CultureInfo language in _strings.GetAvailableLanguages())
       {
         if (language.Name != "en")
         {
@@ -244,12 +287,13 @@ namespace MediaPortal.Tools.StringManager
         tvSections.Nodes.Add(section.name);
       }
     }
+
     #endregion
 
     private void LoadSolution()
     {
       Cursor.Current = Cursors.WaitCursor;
-      Solution solution = new Solution(tbSolution.Text);
+      Solution solution = new Solution(_textBoxSolution.Text);
 
       _matchedStrings = new List<StringMatch>();
       foreach (CSProject project in solution.Projects)
@@ -277,7 +321,7 @@ namespace MediaPortal.Tools.StringManager
 
     private void LoadSkin()
     {
-      DirectoryInfo skinDir = new DirectoryInfo(tbSkinPath.Text);
+      DirectoryInfo skinDir = new DirectoryInfo(_textBoxSkinPath.Text);
 
       if (skinDir.Exists)
       {
@@ -311,7 +355,7 @@ namespace MediaPortal.Tools.StringManager
         TreeNode node = new TreeNode();
         node.Text = section.name;
         if (section.isNew)
-          node.ForeColor = System.Drawing.Color.Blue;
+          node.ForeColor = Color.Blue;
         tvCreateSections.Nodes.Add(node);
       }
     }
@@ -423,7 +467,7 @@ namespace MediaPortal.Tools.StringManager
           else
           {
             stringItem = new ListViewItem(string.Empty);
-            listDefaultStrings.Items[index].ForeColor = System.Drawing.Color.Red;
+            listDefaultStrings.Items[index].ForeColor = Color.Red;
           }
           index++;
           listTranslateStrings.Items.Add(stringItem);
@@ -506,30 +550,40 @@ namespace MediaPortal.Tools.StringManager
       foreach (TreeNode node in treeSections.Nodes)
       {
         if (_missingList.ContainsKey(node.Text))
-          node.ForeColor = System.Drawing.Color.Red;
+          node.ForeColor = Color.Red;
         else
-          node.ForeColor = System.Drawing.Color.Black;
+          node.ForeColor = Color.Black;
       }
 
       foreach (ListViewItem item in listDefaultStrings.Items)
       {
         if (_missingList.ContainsKey(treeSections.SelectedNode.Text)
           && _missingList[treeSections.SelectedNode.Text].Contains(item.Text))
-          item.ForeColor = System.Drawing.Color.Red;
+          item.ForeColor = Color.Red;
         else
-          item.ForeColor = System.Drawing.Color.Black;
+          item.ForeColor = Color.Black;
       }
     }
     #endregion
+
     #endregion
 
     #region Events
+
     #region Form
+
+    /// <summary>
+    /// Handles the <see cref="Form.Closing"/> event for the current <see cref="Form"/>.
+    /// Gives the user the chance to save his changes.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Form_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
       if (!CheckSave())
         e.Cancel = true;
     }
+
     #endregion
 
     #region Tab Selection
@@ -558,22 +612,22 @@ namespace MediaPortal.Tools.StringManager
     #region Settings Tab
     private void tbStringsPath_TextChanged(object sender, EventArgs e)
     {
-      if (tbStringsPath.Text == string.Empty)
+      if (_textBoxStringsPath.Text == string.Empty)
       {
         tabsModes.Controls[0].Enabled = false;
-        tbStringsPath.ForeColor = System.Drawing.Color.Red;
+        _textBoxStringsPath.ForeColor = Color.Red;
         return;
       }
 
-      if (tbStringsPath.Text != string.Empty && IsValidLanguagePath())
+      if (IsValidLanguagePath(_textBoxStringsPath.Text))
       {
         tabsModes.Controls[0].Enabled = true;
-        tbStringsPath.ForeColor = System.Drawing.Color.Black;
+        _textBoxStringsPath.ForeColor = Color.Black;
 
-        if (tbStringsPath.Text != _stringPath)
+        if (_textBoxStringsPath.Text != _stringPath)
         {
           //Save current path
-          _stringPath = tbStringsPath.Text;
+          _stringPath = _textBoxStringsPath.Text;
 
           Cursor.Current = Cursors.WaitCursor;
 
@@ -584,59 +638,59 @@ namespace MediaPortal.Tools.StringManager
       }
       else
       {
-        if (Directory.Exists(tbStringsPath.Text))
+        if (Directory.Exists(_textBoxStringsPath.Text))
           btnNewStrings.Enabled = true;
-        tbStringsPath.ForeColor = System.Drawing.Color.Red;
+        _textBoxStringsPath.ForeColor = Color.Red;
       }
     }
 
     private void tbSolution_TextChanged(object sender, EventArgs e)
     {
-      if (tbSolution.Text == string.Empty)
+      if (_textBoxSolution.Text == string.Empty)
       {
         tabsModes.Controls[1].Enabled = false;
-        tbSolution.ForeColor = System.Drawing.Color.Red;
+        _textBoxSolution.ForeColor = Color.Red;
       }
 
-      if (tbSolution.Text != string.Empty && File.Exists(tbSolution.Text))
+      if (_textBoxSolution.Text != string.Empty && File.Exists(_textBoxSolution.Text))
       {
         tabsModes.Controls[1].Enabled = true;
-        tbSolution.ForeColor = System.Drawing.Color.Black;
+        _textBoxSolution.ForeColor = Color.Black;
       }
       else
       {
-        tbSolution.ForeColor = System.Drawing.Color.Red;
+        _textBoxSolution.ForeColor = Color.Red;
       }
     }
 
     private void btnSaveSettings_Click(object sender, EventArgs e)
     {
-      SaveConfig();
+      SaveSettings();
     }
 
     private void btnPath_Click(object sender, EventArgs e)
     {
-      if (tbStringsPath.Text != string.Empty)
-        folderBrowserDialog1.SelectedPath = tbStringsPath.Text;
+      if (_textBoxStringsPath.Text != string.Empty)
+        folderBrowserDialog1.SelectedPath = _textBoxStringsPath.Text;
       else
         folderBrowserDialog1.SelectedPath = Environment.CurrentDirectory;
       DialogResult result = folderBrowserDialog1.ShowDialog();
       if (result == DialogResult.OK)
       {
-        tbStringsPath.Text = folderBrowserDialog1.SelectedPath;
+        _textBoxStringsPath.Text = folderBrowserDialog1.SelectedPath;
       }
     }
 
     private void btnSkinPath_Click(object sender, EventArgs e)
     {
-      if (tbSkinPath.Text != string.Empty)
-        folderBrowserDialog1.SelectedPath = tbSkinPath.Text;
+      if (_textBoxSkinPath.Text != string.Empty)
+        folderBrowserDialog1.SelectedPath = _textBoxSkinPath.Text;
       else
         folderBrowserDialog1.SelectedPath = Environment.CurrentDirectory;
       DialogResult result = folderBrowserDialog1.ShowDialog();
       if (result == DialogResult.OK)
       {
-        tbSkinPath.Text = folderBrowserDialog1.SelectedPath;
+        _textBoxSkinPath.Text = folderBrowserDialog1.SelectedPath;
       }
     }
 
@@ -646,7 +700,7 @@ namespace MediaPortal.Tools.StringManager
       DialogResult result = openFileDialog1.ShowDialog();
       if (result == DialogResult.OK)
       {
-        tbSolution.Text = openFileDialog1.FileName;
+        _textBoxSolution.Text = openFileDialog1.FileName;
       }
     }
 
@@ -695,7 +749,7 @@ namespace MediaPortal.Tools.StringManager
 
     private void treeSections_VisibleChanged(object sender, EventArgs e)
     {
-      // Required because of bug in .NET
+      /// Required because of bug in .NET
       foreach (TreeNode node in treeSections.Nodes)
       {
         if (node.NodeFont == null || (node.NodeFont.Bold && !node.IsSelected))
@@ -728,34 +782,33 @@ namespace MediaPortal.Tools.StringManager
 
     private void listTranslateStrings_AfterLabelEdit(object sender, LabelEditEventArgs e)
     {
-      if (e.Label != null)
+      if (e.Label == null)
+        return;
+      string name = listDefaultStrings.Items[e.Item].Text;
+      if (_editList.ContainsKey(name))
       {
-        string name = listDefaultStrings.Items[e.Item].Text;
-        if (_editList.ContainsKey(name))
-        {
-          _editList[name].text = e.Label;
-        }
-        else
-        {
-          StringLocalised newString = new StringLocalised();
-          newString.name = name;
-          newString.text = e.Label;
-          _editList.Add(name, newString);
-        }
-        btnSave.Enabled = true;
-        _modifiedSection = true;
-        DrawTargetList();
-
-        // Hi James - please add something like that but matching to your concept how it should work ;)
-        //if (listTranslateStrings.Items[_lastSelected].Index == _editList.Count - 2)
-        //{
-        //  if (listDefaultStrings.Items.Count >= _editList.Count)
-        //  {
-        //    listTranslateStrings.Items[_editList.Count - 1].Text = listDefaultStrings.Items[_lastSelected + 1].Text;
-        //    listTranslateStrings.Items[_lastSelected + 1].BeginEdit();
-        //  }
-        //}
+        _editList[name].text = e.Label;
       }
+      else
+      {
+        StringLocalised newString = new StringLocalised();
+        newString.name = name;
+        newString.text = e.Label;
+        _editList.Add(name, newString);
+      }
+      btnSave.Enabled = true;
+      _modifiedSection = true;
+      DrawTargetList();
+
+      // Hi James - please add something like that but matching to your concept how it should work ;)
+      //if (listTranslateStrings.Items[_lastSelected].Index == _editList.Count - 2)
+      //{
+      //  if (listDefaultStrings.Items.Count >= _editList.Count)
+      //  {
+      //    listTranslateStrings.Items[_editList.Count - 1].Text = listDefaultStrings.Items[_lastSelected + 1].Text;
+      //    listTranslateStrings.Items[_lastSelected + 1].BeginEdit();
+      //  }
+      //}
     }
 
     #region Buttons
@@ -811,8 +864,8 @@ namespace MediaPortal.Tools.StringManager
         _lastSelected = listTranslateStrings.SelectedItems[0].Index;
         _lastFore = listDefaultStrings.Items[_lastSelected].ForeColor;
         _lastBack = listDefaultStrings.Items[_lastSelected].BackColor;
-        listDefaultStrings.Items[_lastSelected].ForeColor = System.Drawing.Color.FromName("HighlightText");
-        listDefaultStrings.Items[_lastSelected].BackColor = System.Drawing.Color.FromName("Highlight");
+        listDefaultStrings.Items[_lastSelected].ForeColor = Color.FromName("HighlightText");
+        listDefaultStrings.Items[_lastSelected].BackColor = Color.FromName("Highlight");
       }
     }
 
@@ -838,8 +891,8 @@ namespace MediaPortal.Tools.StringManager
     {
       if (listTranslateStrings.Items.Count > 0)
       {
-        listTranslateStrings.Items[_lastSelected].ForeColor = System.Drawing.Color.FromName("HighlightText");
-        listTranslateStrings.Items[_lastSelected].BackColor = System.Drawing.Color.FromName("Highlight");
+        listTranslateStrings.Items[_lastSelected].ForeColor = Color.FromName("HighlightText");
+        listTranslateStrings.Items[_lastSelected].BackColor = Color.FromName("Highlight");
       }
     }
 
@@ -847,8 +900,8 @@ namespace MediaPortal.Tools.StringManager
     {
       if (listDefaultStrings.Items.Count > 0)
       {
-        listDefaultStrings.Items[_lastSelected].ForeColor = System.Drawing.Color.FromName("HighlightText");
-        listDefaultStrings.Items[_lastSelected].BackColor = System.Drawing.Color.FromName("Highlight");
+        listDefaultStrings.Items[_lastSelected].ForeColor = Color.FromName("HighlightText");
+        listDefaultStrings.Items[_lastSelected].BackColor = Color.FromName("Highlight");
       }
     }
     #endregion
@@ -857,7 +910,7 @@ namespace MediaPortal.Tools.StringManager
     #region Manage Tab
     private void tvSections_VisibleChanged(object sender, EventArgs e)
     {
-      // Require because of bug in .NET
+      /// Require because of bug in .NET
       foreach (TreeNode node in tvSections.Nodes)
       {
         if (node.NodeFont == null || (node.NodeFont.Bold && !node.IsSelected))
@@ -913,13 +966,13 @@ namespace MediaPortal.Tools.StringManager
         }
         if (lvMatches.Items.Count == 0)
         {
-          tbTotal.ForeColor = System.Drawing.Color.Red;
+          tbTotal.ForeColor = Color.Red;
           tbTotal.BackColor = Color.FromKnownColor(KnownColor.Window);
           tbTotal.Text = "0";
         }
         else
         {
-          tbTotal.ForeColor = System.Drawing.Color.Black;
+          tbTotal.ForeColor = Color.Black;
           tbTotal.Text = lvMatches.Items.Count.ToString();
         }
 
@@ -930,13 +983,13 @@ namespace MediaPortal.Tools.StringManager
     #region Create Tab
     private void btnAddSection_Click(object sender, EventArgs e)
     {
-      if (!_defaultStrings.IsSection(tbNewSection.Text))
+      if (!_defaultStrings.IsSection(_textBoxNewSection.Text))
       {
         StringSection section = new StringSection();
-        section.name = tbNewSection.Text;
+        section.name = _textBoxNewSection.Text;
         section.isNew = true;
         _defaultStrings.sections.Add(section);
-        tbNewSection.Text = string.Empty;
+        _textBoxNewSection.Text = string.Empty;
         btnSaveNewStrings.Enabled = true;
         DrawCreateSectionsTreeView();
       }
@@ -950,13 +1003,13 @@ namespace MediaPortal.Tools.StringManager
     {
       if (tvCreateSections.SelectedNode != null)
       {
-        if (!_defaultStrings.sections[tvCreateSections.SelectedNode.Index].IsString(tbNewString.Text))
+        if (!_defaultStrings.sections[tvCreateSections.SelectedNode.Index].IsString(_textBoxNewString.Text))
         {
           StringLocalised str = new StringLocalised();
-          str.name = tbNewString.Text;
+          str.name = _textBoxNewString.Text;
           str.isNew = true;
           _defaultStrings.sections[tvCreateSections.SelectedNode.Index].localisedStrings.Add(str);
-          tbNewString.Text = string.Empty;
+          _textBoxNewString.Text = string.Empty;
           btnSaveNewStrings.Enabled = true;
         }
         else
@@ -977,7 +1030,7 @@ namespace MediaPortal.Tools.StringManager
 
     private void tvCreateSections_VisibleChanged(object sender, EventArgs e)
     {
-      // Required because of bug in .NET
+      /// Required because of bug in .NET
       foreach (TreeNode node in tvCreateSections.Nodes)
       {
         if (node.NodeFont == null || (node.NodeFont.Bold && !node.IsSelected))

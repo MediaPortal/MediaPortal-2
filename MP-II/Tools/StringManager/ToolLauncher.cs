@@ -23,13 +23,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Reflection;
-
-using MediaPortal.Utilities.CommandLine;
-using MediaPortal.Utilities.Screens;
-// using MediaPortal.Utilities.InfoScreen;
 
 
 namespace MediaPortal.Tools.StringManager

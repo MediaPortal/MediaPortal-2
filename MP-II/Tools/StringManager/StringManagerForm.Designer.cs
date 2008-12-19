@@ -57,8 +57,8 @@ namespace MediaPortal.Tools.StringManager
       this.btnSaveNewStrings = new System.Windows.Forms.Button();
       this.btnAddString = new System.Windows.Forms.Button();
       this.btnAddSection = new System.Windows.Forms.Button();
-      this.tbNewString = new System.Windows.Forms.TextBox();
-      this.tbNewSection = new System.Windows.Forms.TextBox();
+      this._textBoxNewString = new System.Windows.Forms.TextBox();
+      this._textBoxNewSection = new System.Windows.Forms.TextBox();
       this.label4 = new System.Windows.Forms.Label();
       this.lvCreateStrings = new System.Windows.Forms.ListView();
       this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
@@ -99,14 +99,14 @@ namespace MediaPortal.Tools.StringManager
       this.btnNewStrings = new System.Windows.Forms.Button();
       this.btnSaveSettings = new System.Windows.Forms.Button();
       this.gbManage = new System.Windows.Forms.GroupBox();
-      this.tbSolution = new System.Windows.Forms.MaskedTextBox();
+      this._textBoxSolution = new System.Windows.Forms.MaskedTextBox();
       this.lSolution = new System.Windows.Forms.Label();
       this.btnSkinPath = new System.Windows.Forms.Button();
       this.btnSolution = new System.Windows.Forms.Button();
       this.lSkinPath = new System.Windows.Forms.Label();
-      this.tbSkinPath = new System.Windows.Forms.MaskedTextBox();
+      this._textBoxSkinPath = new System.Windows.Forms.MaskedTextBox();
       this.gbRequired = new System.Windows.Forms.GroupBox();
-      this.tbStringsPath = new System.Windows.Forms.MaskedTextBox();
+      this._textBoxStringsPath = new System.Windows.Forms.MaskedTextBox();
       this.lStringsPath = new System.Windows.Forms.Label();
       this.btnPath = new System.Windows.Forms.Button();
       this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
@@ -147,8 +147,8 @@ namespace MediaPortal.Tools.StringManager
       this.tabCreate.Controls.Add(this.btnSaveNewStrings);
       this.tabCreate.Controls.Add(this.btnAddString);
       this.tabCreate.Controls.Add(this.btnAddSection);
-      this.tabCreate.Controls.Add(this.tbNewString);
-      this.tabCreate.Controls.Add(this.tbNewSection);
+      this.tabCreate.Controls.Add(this._textBoxNewString);
+      this.tabCreate.Controls.Add(this._textBoxNewSection);
       this.tabCreate.Controls.Add(this.label4);
       this.tabCreate.Controls.Add(this.lvCreateStrings);
       this.tabCreate.Controls.Add(this.label5);
@@ -191,19 +191,19 @@ namespace MediaPortal.Tools.StringManager
       this.btnAddSection.UseVisualStyleBackColor = true;
       this.btnAddSection.Click += new System.EventHandler(this.btnAddSection_Click);
       // 
-      // tbNewString
+      // _textBoxNewString
       // 
-      this.tbNewString.Location = new System.Drawing.Point(212, 34);
-      this.tbNewString.Name = "tbNewString";
-      this.tbNewString.Size = new System.Drawing.Size(119, 20);
-      this.tbNewString.TabIndex = 10;
+      this._textBoxNewString.Location = new System.Drawing.Point(212, 34);
+      this._textBoxNewString.Name = "_textBoxNewString";
+      this._textBoxNewString.Size = new System.Drawing.Size(119, 20);
+      this._textBoxNewString.TabIndex = 10;
       // 
-      // tbNewSection
+      // _textBoxNewSection
       // 
-      this.tbNewSection.Location = new System.Drawing.Point(6, 34);
-      this.tbNewSection.Name = "tbNewSection";
-      this.tbNewSection.Size = new System.Drawing.Size(122, 20);
-      this.tbNewSection.TabIndex = 8;
+      this._textBoxNewSection.Location = new System.Drawing.Point(6, 34);
+      this._textBoxNewSection.Name = "_textBoxNewSection";
+      this._textBoxNewSection.Size = new System.Drawing.Size(122, 20);
+      this._textBoxNewSection.TabIndex = 8;
       // 
       // label4
       // 
@@ -324,10 +324,10 @@ namespace MediaPortal.Tools.StringManager
       this.listTranslateStrings.TabIndex = 5;
       this.listTranslateStrings.UseCompatibleStateImageBehavior = false;
       this.listTranslateStrings.View = System.Windows.Forms.View.Details;
-      this.listTranslateStrings.Enter += new System.EventHandler(this.listTranslateStrings_Enter);
-      this.listTranslateStrings.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listTranslateStrings_ItemSelectionChanged);
       this.listTranslateStrings.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.listTranslateStrings_AfterLabelEdit);
       this.listTranslateStrings.Leave += new System.EventHandler(this.listTranslateStrings_Leave);
+      this.listTranslateStrings.Enter += new System.EventHandler(this.listTranslateStrings_Enter);
+      this.listTranslateStrings.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listTranslateStrings_ItemSelectionChanged);
       // 
       // columnText2
       // 
@@ -372,9 +372,9 @@ namespace MediaPortal.Tools.StringManager
       this.listDefaultStrings.TabIndex = 2;
       this.listDefaultStrings.UseCompatibleStateImageBehavior = false;
       this.listDefaultStrings.View = System.Windows.Forms.View.Details;
+      this.listDefaultStrings.Leave += new System.EventHandler(this.listDefaultStrings_Leave);
       this.listDefaultStrings.Enter += new System.EventHandler(this.listDefaultStrings_Enter);
       this.listDefaultStrings.ItemSelectionChanged += new System.Windows.Forms.ListViewItemSelectionChangedEventHandler(this.listDefaultStrings_ItemSelectionChanged);
-      this.listDefaultStrings.Leave += new System.EventHandler(this.listDefaultStrings_Leave);
       // 
       // columnName
       // 
@@ -411,8 +411,8 @@ namespace MediaPortal.Tools.StringManager
       this.treeSections.Name = "treeSections";
       this.treeSections.Size = new System.Drawing.Size(153, 370);
       this.treeSections.TabIndex = 0;
-      this.treeSections.Enter += new System.EventHandler(this.treeSections_Enter);
       this.treeSections.VisibleChanged += new System.EventHandler(this.treeSections_VisibleChanged);
+      this.treeSections.Enter += new System.EventHandler(this.treeSections_Enter);
       this.treeSections.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeSections_AfterSelect);
       this.treeSections.Leave += new System.EventHandler(this.treeSections_Leave);
       // 
@@ -559,8 +559,8 @@ namespace MediaPortal.Tools.StringManager
       this.tvSections.Name = "tvSections";
       this.tvSections.Size = new System.Drawing.Size(153, 370);
       this.tvSections.TabIndex = 4;
-      this.tvSections.Enter += new System.EventHandler(this.tvSections_Enter);
       this.tvSections.VisibleChanged += new System.EventHandler(this.tvSections_VisibleChanged);
+      this.tvSections.Enter += new System.EventHandler(this.tvSections_Enter);
       this.tvSections.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvSections_AfterSelect);
       this.tvSections.Leave += new System.EventHandler(this.tvSections_Leave);
       // 
@@ -627,12 +627,12 @@ namespace MediaPortal.Tools.StringManager
       // 
       this.gbManage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.gbManage.Controls.Add(this.tbSolution);
+      this.gbManage.Controls.Add(this._textBoxSolution);
       this.gbManage.Controls.Add(this.lSolution);
       this.gbManage.Controls.Add(this.btnSkinPath);
       this.gbManage.Controls.Add(this.btnSolution);
       this.gbManage.Controls.Add(this.lSkinPath);
-      this.gbManage.Controls.Add(this.tbSkinPath);
+      this.gbManage.Controls.Add(this._textBoxSkinPath);
       this.gbManage.Location = new System.Drawing.Point(14, 163);
       this.gbManage.Name = "gbManage";
       this.gbManage.Size = new System.Drawing.Size(629, 108);
@@ -640,15 +640,15 @@ namespace MediaPortal.Tools.StringManager
       this.gbManage.TabStop = false;
       this.gbManage.Text = "Manage";
       // 
-      // tbSolution
+      // _textBoxSolution
       // 
-      this.tbSolution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      this._textBoxSolution.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.tbSolution.Location = new System.Drawing.Point(154, 33);
-      this.tbSolution.Name = "tbSolution";
-      this.tbSolution.Size = new System.Drawing.Size(396, 20);
-      this.tbSolution.TabIndex = 3;
-      this.tbSolution.TextChanged += new System.EventHandler(this.tbSolution_TextChanged);
+      this._textBoxSolution.Location = new System.Drawing.Point(154, 33);
+      this._textBoxSolution.Name = "_textBoxSolution";
+      this._textBoxSolution.Size = new System.Drawing.Size(396, 20);
+      this._textBoxSolution.TabIndex = 3;
+      this._textBoxSolution.TextChanged += new System.EventHandler(this.tbSolution_TextChanged);
       // 
       // lSolution
       // 
@@ -690,20 +690,20 @@ namespace MediaPortal.Tools.StringManager
       this.lSkinPath.TabIndex = 7;
       this.lSkinPath.Text = "Skin Path";
       // 
-      // tbSkinPath
+      // _textBoxSkinPath
       // 
-      this.tbSkinPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      this._textBoxSkinPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.tbSkinPath.Location = new System.Drawing.Point(154, 63);
-      this.tbSkinPath.Name = "tbSkinPath";
-      this.tbSkinPath.Size = new System.Drawing.Size(396, 20);
-      this.tbSkinPath.TabIndex = 6;
+      this._textBoxSkinPath.Location = new System.Drawing.Point(154, 63);
+      this._textBoxSkinPath.Name = "_textBoxSkinPath";
+      this._textBoxSkinPath.Size = new System.Drawing.Size(396, 20);
+      this._textBoxSkinPath.TabIndex = 6;
       // 
       // gbRequired
       // 
       this.gbRequired.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.gbRequired.Controls.Add(this.tbStringsPath);
+      this.gbRequired.Controls.Add(this._textBoxStringsPath);
       this.gbRequired.Controls.Add(this.lStringsPath);
       this.gbRequired.Controls.Add(this.btnPath);
       this.gbRequired.Location = new System.Drawing.Point(14, 6);
@@ -713,15 +713,15 @@ namespace MediaPortal.Tools.StringManager
       this.gbRequired.TabStop = false;
       this.gbRequired.Text = "Required";
       // 
-      // tbStringsPath
+      // _textBoxStringsPath
       // 
-      this.tbStringsPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      this._textBoxStringsPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                   | System.Windows.Forms.AnchorStyles.Right)));
-      this.tbStringsPath.Location = new System.Drawing.Point(154, 37);
-      this.tbStringsPath.Name = "tbStringsPath";
-      this.tbStringsPath.Size = new System.Drawing.Size(396, 20);
-      this.tbStringsPath.TabIndex = 0;
-      this.tbStringsPath.TextChanged += new System.EventHandler(this.tbStringsPath_TextChanged);
+      this._textBoxStringsPath.Location = new System.Drawing.Point(154, 37);
+      this._textBoxStringsPath.Name = "_textBoxStringsPath";
+      this._textBoxStringsPath.Size = new System.Drawing.Size(396, 20);
+      this._textBoxStringsPath.TabIndex = 0;
+      this._textBoxStringsPath.TextChanged += new System.EventHandler(this.tbStringsPath_TextChanged);
       // 
       // lStringsPath
       // 
@@ -807,13 +807,13 @@ namespace MediaPortal.Tools.StringManager
     private System.Windows.Forms.TabPage tabSettings;
     private System.Windows.Forms.Button btnSkinPath;
     private System.Windows.Forms.Label lSkinPath;
-    private System.Windows.Forms.MaskedTextBox tbSkinPath;
+    private System.Windows.Forms.MaskedTextBox _textBoxSkinPath;
     private System.Windows.Forms.Button btnSolution;
     private System.Windows.Forms.Label lSolution;
-    private System.Windows.Forms.MaskedTextBox tbSolution;
+    private System.Windows.Forms.MaskedTextBox _textBoxSolution;
     private System.Windows.Forms.Button btnPath;
     private System.Windows.Forms.Label lStringsPath;
-    private System.Windows.Forms.MaskedTextBox tbStringsPath;
+    private System.Windows.Forms.MaskedTextBox _textBoxStringsPath;
     private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     private System.Windows.Forms.OpenFileDialog openFileDialog1;
     private System.Windows.Forms.GroupBox gbManage;
@@ -842,8 +842,8 @@ namespace MediaPortal.Tools.StringManager
     private System.Windows.Forms.Button btnNewStrings;
     private System.Windows.Forms.GroupBox gbCreate;
     private System.Windows.Forms.Button btnAddSection;
-    private System.Windows.Forms.TextBox tbNewString;
-    private System.Windows.Forms.TextBox tbNewSection;
+    private System.Windows.Forms.TextBox _textBoxNewString;
+    private System.Windows.Forms.TextBox _textBoxNewSection;
     private System.Windows.Forms.Label label4;
     private System.Windows.Forms.ListView lvCreateStrings;
     private System.Windows.Forms.ColumnHeader columnHeader9;

@@ -46,10 +46,6 @@ namespace MediaPortal.Tools.StringManager.SolutionFiles
     public string[] GetList(string filename)
     {
       StreamReader fileStream = new StreamReader(filename);
-
-      if (fileStream == null)
-        return null;
-
       string file = fileStream.ReadToEnd();
 
       if (file == null)
