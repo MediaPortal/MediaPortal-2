@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.Commands;
+using MediaPortal.Core.Commands;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Utilities;
 
@@ -55,7 +55,6 @@ namespace MediaPortal.Presentation.DataObjects
     #region Protected fields
 
     protected Property _commandProperty = new Property(typeof(ICommand), null);
-    protected Property _commandParameterProperty = new Property(typeof(ICommandParameter), null);
     protected IDictionary<string, IResourceString> _labels = new Dictionary<string, IResourceString>();
     protected Property _selectedProperty = new Property(typeof(bool), false);
 
@@ -147,7 +146,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <returns>Label property instance with the specified name or a new label property with the default value.</returns>
     public IResourceString Label(string name, string defValue)
     {
-      return _labels.ContainsKey(name) ? _labels[name] : LocalizationHelper.CreateLabelProperty(defValue);
+      return _labels.ContainsKey(name) ? _labels[name] : LocalizationHelper.CreateResourceString(defValue);
     }
 
     /// <summary>
@@ -163,7 +162,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// <param name="value">The string label to be added.</param>
     public void SetLabel(string name, string value)
     {
-      _labels[name] = LocalizationHelper.CreateLabelProperty(value);
+      _labels[name] = LocalizationHelper.CreateResourceString(value);
     }
 
     /// <summary>
@@ -199,10 +198,10 @@ namespace MediaPortal.Presentation.DataObjects
     /// <summary>
     /// Executes the command associated with this item.
     /// </summary>
-    public virtual void Execute()
+    public void Execute()
     {
       if (Command != null)
-        Command.Execute(CommandParameter);
+        Command.Execute();
     }
 
     public Property CommandProperty
@@ -219,20 +218,6 @@ namespace MediaPortal.Presentation.DataObjects
       set { _commandProperty.SetValue(value); }
     }
 
-    public Property CommandParameterProperty
-    {
-      get { return _commandParameterProperty; }
-    }
-
-    /// <summary>
-    /// Gets or sets the command parameter.
-    /// </summary>
-    public ICommandParameter CommandParameter
-    {
-      get { return (ICommandParameter) _commandParameterProperty.GetValue(); }
-      set { _commandParameterProperty.SetValue(value); }
-    }
-
     public Property SelectedProperty
     {
       get { return _selectedProperty; }
@@ -244,7 +229,7 @@ namespace MediaPortal.Presentation.DataObjects
     /// </summary>
     public bool Selected
     {
-      get { return (bool)_selectedProperty.GetValue(); }
+      get { return (bool) _selectedProperty.GetValue(); }
       set { _selectedProperty.SetValue(value); }
     }
 

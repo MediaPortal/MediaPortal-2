@@ -47,6 +47,7 @@ namespace MediaPortal.Core.PluginManager
   /// Plugin items will be lazily built. At the time an item is requested, it will be built if it was not
   /// built yet.
   /// </remarks>
+  /// TODO: Use C# event registration instead of message queue for plugin manager state change events
   public interface IPluginManager
   {
     /// <summary>

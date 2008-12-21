@@ -29,13 +29,14 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager;
+using MediaPortal.Presentation.SkinResources;
 
 namespace MediaPortal.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Manager class which caches all skins which are available in the system.
   /// </summary>
-  public class SkinManager
+  public class SkinManager : ISkinResourceManager
   {
     /// <summary>
     /// Plugin item state tracker which allows skin resources to be revoked. When skin resources
@@ -64,18 +65,55 @@ namespace MediaPortal.SkinEngine.SkinManagement
       public void Continue(PluginItemRegistration itemRegistration) { }
     }
 
+    protected class SkinResourcesRegistrationChangeListener: IItemRegistrationChangeListener
+    {
+      protected SkinManager _skinManager;
+
+      public SkinResourcesRegistrationChangeListener(SkinManager skinManager)
+      {
+        _skinManager = skinManager;
+      }
+
+      #region IItemRegistrationChangeListener implementation
+
+      public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
+      {
+        _skinManager.ReloadSkins();
+      }
+
+      public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
+      {
+        // Item removals are handeled by the SkinResourcesPluginItemStateTracker
+      }
+
+      #endregion
+    }
+
+    /// <summary>
+    /// Plugin item registration path where skin resources are registered.
+    /// </summary>
+    public const string SKIN_RESOURCES_REGISTRATION_PATH = "/Resources/Skin";
+
+    /// <summary>
+    /// Name of the default (fallback) skin.
+    /// </summary>
     public const string DEFAULT_SKIN = "default";
 
     #region Variables
 
     protected IDictionary<string, Skin> _skins = new Dictionary<string, Skin>();
     protected SkinResourcesPluginItemStateTracker _skinResourcesPluginItemStateTracker;
+    protected SkinResourcesRegistrationChangeListener _skinResourcesRegistrationChangeListener;
 
     #endregion
 
     public SkinManager()
     {
       _skinResourcesPluginItemStateTracker = new SkinResourcesPluginItemStateTracker(this);
+      _skinResourcesRegistrationChangeListener = new SkinResourcesRegistrationChangeListener(this);
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      pluginManager.AddItemRegistrationChangeListener(
+          SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesRegistrationChangeListener);
       ReloadSkins();
     }
 
@@ -118,7 +156,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected void ReleasePluginSkinResources()
     {
       ServiceScope.Get<IPluginManager>().RevokeAllPluginItems(
-          "/Resources/Skin", _skinResourcesPluginItemStateTracker);
+          SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesPluginItemStateTracker);
     }
 
     /// <summary>
@@ -177,6 +215,13 @@ namespace MediaPortal.SkinEngine.SkinManagement
       return null;
     }
 
+    protected void SkinResourcesWereChanged()
+    {
+      ReloadSkins();
+      if (SkinResourcesChanged != null)
+        SkinResourcesChanged();
+    }
+
     /// <summary>
     /// Returns all relevant skin root directories available in the system.
     /// </summary>
@@ -187,9 +232,20 @@ namespace MediaPortal.SkinEngine.SkinManagement
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       ICollection<string> result = new List<string>();
       foreach (PluginResource skinDirectoryResource in pluginManager.RequestAllPluginItems<PluginResource>(
-          "/Resources/Skin", _skinResourcesPluginItemStateTracker))
+          SKIN_RESOURCES_REGISTRATION_PATH, _skinResourcesPluginItemStateTracker))
         result.Add(skinDirectoryResource.Path);
       return result;
     }
+
+    #region ISkinResourceManager implementation
+
+    public IResourceAccessor SkinResourceContext
+    {
+      get { return SkinContext.SkinResources; }
+    }
+
+    public event SkinResourceCollectionChangedDlgt SkinResourcesChanged;
+
+    #endregion
   }
 }

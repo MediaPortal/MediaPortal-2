@@ -28,7 +28,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.FileSystem;
 

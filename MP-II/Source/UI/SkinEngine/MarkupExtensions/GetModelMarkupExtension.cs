@@ -22,9 +22,11 @@
 
 #endregion
 
+using System;
+using MediaPortal.Core;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.SkinEngine.Models;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {
@@ -33,20 +35,13 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected fields
 
-    protected string _registrationLocation = null;
-    protected string _id = null;
+    protected string _id;
 
     #endregion
 
     public GetModelMarkupExtension() { }
 
     #region Properties
-
-    public string RegistrationLocation
-    {
-      get { return _registrationLocation; }
-      set { _registrationLocation = value; }
-    }
 
     public string Id
     {
@@ -60,12 +55,19 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     object IEvaluableMarkupExtension.Evaluate(IParserContext context)
     {
-      if (RegistrationLocation == null || Id == null)
-        throw new XamlBindingException("GetModelMarkupExtension: Both properties RegistrationLocation and Id have to be set");
-      Model model = ModelManager.Instance.GetOrLoadModel(RegistrationLocation, Id);
-      if (model == null)
-        throw new XamlBindingException("GetModelMarkupExtension: Unknown model: {0}.{1}", RegistrationLocation, Id);
-      return model.Instance;
+      if (Id == null)
+        throw new XamlBindingException("GetModelMarkupExtension: Property Id has to be given");
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      Guid modelId = new Guid(Id);
+      NavigationContext currentContext = workflowManager.CurrentNavigationContext;
+      if (currentContext == null)
+        throw new XamlBindingException("Navigation context is not initialized - Workflow manager might not be initialized");
+      object model;
+      if (!currentContext.Models.TryGetValue(modelId, out model))
+        throw new XamlBindingException(
+            "GetModelMarkupExtension: Model with id '{0}' is not present in current navigation context (state='{1}')",
+            modelId, currentContext.WorkflowState.StateId);
+      return model;
     }
 
     #endregion

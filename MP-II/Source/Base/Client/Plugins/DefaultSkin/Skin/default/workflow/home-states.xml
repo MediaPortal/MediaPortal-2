@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workflow items for the home screen -->
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <State Id="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        Name="Home" MainScreen="home"/> <!-- No workflow model -->
+    <AdditionalModels StateId="7F702D9C-F2DD-42da-9ED8-0BA92F07787F">
+      <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/> <!-- Menu model -->
+      <!-- TODO: Model Id="..." (Player-Model) -->
+    </AdditionalModels>
+  </States>
+</Workflow>

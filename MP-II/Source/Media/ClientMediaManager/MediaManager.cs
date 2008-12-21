@@ -59,8 +59,10 @@ namespace MediaPortal.Media.ClientMediaManager
       ServiceScope.Add<ISharesManagement>(this);
     }
 
-    public void Startup()
+    public override void Initialize()
     {
+      base.Initialize();
+      ServiceScope.Get<ILogger>().Info("MediaManager: Startup");
       _localLocalSharesManagement.LoadSharesFromSettings();
       LoadViews();
     }

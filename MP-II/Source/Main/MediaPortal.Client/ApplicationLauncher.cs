@@ -28,12 +28,13 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.UserManagement;
 using MediaPortal.Media.ClientMediaManager;
-using MediaPortal.Presentation.MenuManager;
+using MediaPortal.Presentation;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.Services.InputManager;
 using MediaPortal.Services.Logging; // Needed for Release build configuration
-using MediaPortal.Services.MenuManager;
 using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.Services.UserManagement;
+using MediaPortal.Services.Workflow;
 using MediaPortal.Thumbnails;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
@@ -56,7 +57,7 @@ namespace MediaPortal
     //[STAThread]
     private static void Main(params string[] args)
     {
-      System.Threading.Thread.CurrentThread.Name = "Main";
+      System.Threading.Thread.CurrentThread.Name = "MediaPortal Client Main Thread";
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
 
@@ -105,13 +106,9 @@ namespace MediaPortal
         InputMapper inputMapper = new InputMapper();
         ServiceScope.Add<IInputMapper>(inputMapper);
 
-        logger.Debug("ApplicationLauncher: Create IMenuManager service");
-        MenuCollection menuCollection = new MenuCollection();
-        ServiceScope.Add<IMenuCollection>(menuCollection);
-
-        logger.Debug("ApplicationLauncher: Create IMenuBuilder service");
-        MenuBuilder menuBuilder = new MenuBuilder();
-        ServiceScope.Add<IMenuBuilder>(menuBuilder);
+        logger.Debug("ApplicationLauncher: Create IWorkflowManager service");
+        WorkflowManager workflowManager = new WorkflowManager();
+        ServiceScope.Add<IWorkflowManager>(workflowManager);
 
         logger.Debug("ApplicationLauncher: Create UserService service");
         UserService userservice = new UserService();
@@ -140,7 +137,16 @@ namespace MediaPortal
         pluginManager.Initialize();
         pluginManager.Startup(false);
 
-        mediaManager.Startup();
+        ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
+
+        // We have to handle some dependencies here in the start order:
+        // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
+        // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
+        // 3) After the workflow states and actions are loaded, the startup screen can be shown
+        mediaManager.Initialize(); // Independent from skin engine/skin resources
+        skinEngine.Initialize(); // 1)
+        workflowManager.Startup(); // 2)
+        skinEngine.Startup(); // 3)
 
         Application.Run();
         pluginManager.Shutdown();

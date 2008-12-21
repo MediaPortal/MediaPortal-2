@@ -154,7 +154,7 @@ namespace MediaPortal.Configuration
     {
       base.SetMetadata(metadata);
       _metadata = metadata;
-      _help = LocalizationHelper.CreateLabelProperty(SettingMetadata.HelpText);
+      _help = LocalizationHelper.CreateResourceString(SettingMetadata.HelpText);
     }
 
     #endregion

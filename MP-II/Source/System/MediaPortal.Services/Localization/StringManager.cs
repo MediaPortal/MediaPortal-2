@@ -34,7 +34,6 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Services.Localization
 {

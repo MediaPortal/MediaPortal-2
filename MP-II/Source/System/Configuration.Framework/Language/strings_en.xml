@@ -1,38 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Language>
-  <Section name="configuration">
-    <String name="save_on_exit" text="Would you like to save the changes before closing?"/>
-    <String name="unsaved_warning" text="Warning: Unsaved Changes"/>
-    <String name="browse" text="Browse"/>
-    <String name="areas.settings" text="Settings"/>
-    <String name="areas.logs" text="Logs"/>
-    <String name="system" text="System"/>
-    <String name="system.fullscreen" text="Always start MediaPortal in fullscreen mode"/>
-    <String name="system.fullscreen.help" text="Each time MediaPortal starts it will be in full screen mode"/>
-    <String name="system.autostart" text="Autostart MediaPortal on Windows startup"/>
-    <String name="system.autostart.help" text="MediaPortal will start when Windows starts up"/>
-    <String name="system.balloontips" text="Disable tray area's balloon tips (system wide setting)"/>
-    <String name="system.balloontips.help" text="Windows won't show balloon tips anymore"/>
-    <String name="settings.button.save" text="Save"/>
-    <String name="settings.button.apply" text="Apply"/>
-    <String name="settings.general" text="General"/>
-    <String name="settings.regional" text="Regional"/>
-    <String name="settings.appearance" text="Appearance"/>
-    <String name="settings.folders" text="Folders"/>
-    <String name="settings.hardware" text="Hardware"/>
-    <String name="language" text="Language"/>
-    <String name="language.main" text="Main Language"/>
-    <String name="language.main.help" text="Sets the main language used"/>
-    <String name="location" text="Location"/>
-    <String name="location.country" text="Country"/>
-    <String name="location.country.help" text="Your country, used to localise other setting (tv guide, weather, etc)"/>
-    <String name="location.region" text="Region"/>
-    <String name="location.region.help" text="Your Region"/>
-    <String name="location.city" text="City"/>
-    <String name="location.city.help" text="Your City"/>
-    <String name="appearance.skinconfig" text="Local skins"/>
-    <String name="appearance.skinbrowse" text="More skins"/>
-    <String name="skinengine.refreshratecontrol" text="Control refreshrate"/>
-    <String name="skinengine.refreshratecontrol.help" text="MediaPortal will control the refreshrate"/>
+  <Section Name="configuration">
+    <String Name="save_on_exit" Text="Would you like to save the changes before closing?"/>
+    <String Name="unsaved_warning" Text="Warning: Unsaved Changes"/>
+    <String Name="browse" Text="Browse"/>
+    <String Name="areas.settings" Text="Settings"/>
+    <String Name="areas.logs" Text="Logs"/>
+    <String Name="system" Text="System"/>
+    <String Name="system.fullscreen" Text="Always start MediaPortal in fullscreen mode"/>
+    <String Name="system.fullscreen.help" Text="Each time MediaPortal starts it will be in full screen mode"/>
+    <String Name="system.autostart" Text="Autostart MediaPortal on Windows startup"/>
+    <String Name="system.autostart.help" Text="MediaPortal will start when Windows starts up"/>
+    <String Name="system.balloontips" Text="Disable tray area's balloon tips (system wide setting)"/>
+    <String Name="system.balloontips.help" Text="Windows won't show balloon tips anymore"/>
+    <String Name="settings.button.save" Text="Save"/>
+    <String Name="settings.button.apply" Text="Apply"/>
+    <String Name="settings.general" Text="General"/>
+    <String Name="settings.regional" Text="Regional"/>
+    <String Name="settings.appearance" Text="Appearance"/>
+    <String Name="settings.folders" Text="Folders"/>
+    <String Name="settings.hardware" Text="Hardware"/>
+    <String Name="language" Text="Language"/>
+    <String Name="language.main" Text="Main Language"/>
+    <String Name="language.main.help" Text="Sets the main language used"/>
+    <String Name="location" Text="Location"/>
+    <String Name="location.country" Text="Country"/>
+    <String Name="location.country.help" Text="Your country, used to localise other setting (tv guide, weather, etc)"/>
+    <String Name="location.region" Text="Region"/>
+    <String Name="location.region.help" Text="Your Region"/>
+    <String Name="location.city" Text="City"/>
+    <String Name="location.city.help" Text="Your City"/>
+    <String Name="appearance.skinconfig" Text="Local skins"/>
+    <String Name="appearance.skinbrowse" Text="More skins"/>
+    <String Name="skinengine.refreshratecontrol" Text="Control refreshrate"/>
+    <String Name="skinengine.refreshratecontrol.help" Text="MediaPortal will control the refreshrate"/>
   </Section>
 </Language>

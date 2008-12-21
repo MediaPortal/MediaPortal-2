@@ -66,7 +66,7 @@ namespace Components.Configuration.Settings.Regional
       {
         if (region.TwoLetterISORegionName.ToLowerInvariant() == settings.CountryCode)
           current = region.NativeName;
-        regionNames.Add(LocalizationHelper.CreateLabelProperty(region.NativeName));
+        regionNames.Add(LocalizationHelper.CreateResourceString(region.NativeName));
       }
       regionNames.Sort();
       _items = regionNames;

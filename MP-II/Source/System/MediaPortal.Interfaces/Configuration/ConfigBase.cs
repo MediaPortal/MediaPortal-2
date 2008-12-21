@@ -87,7 +87,7 @@ namespace MediaPortal.Configuration
     public virtual void SetMetadata(ConfigBaseMetadata metadata)
     {
       _metadata = metadata;
-      _text = LocalizationHelper.CreateLabelProperty(_metadata.Text);
+      _text = LocalizationHelper.CreateResourceString(_metadata.Text);
     }
   }
 }

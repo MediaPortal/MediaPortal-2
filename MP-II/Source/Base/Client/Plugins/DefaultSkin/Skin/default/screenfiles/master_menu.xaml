@@ -54,9 +54,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <StackPanel x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
           <ListView x:Name="MainMenu" Height="304" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{DynamicResource Menu_Items}">
             <ListView.Resources>
-              <CommandBridge x:Key="Menu_Command"
-                  Command="{Binding Path=Command,Mode=OneTime}"
-                  CommandParameter="{Binding Path=CommandParameter,Mode=OneTime}"/>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
           <Button x:Name="VideoWindow" Style="{StaticResource VideoWindowButtonStyle}"

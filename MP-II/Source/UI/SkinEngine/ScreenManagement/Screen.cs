@@ -122,6 +122,7 @@ namespace MediaPortal.SkinEngine
       get { return _visual as FrameworkElement; }
     }
 
+    // FIXME Albert78: Remove this - history is managed by workflow manager now
     public bool History
     {
       get { return _history; }

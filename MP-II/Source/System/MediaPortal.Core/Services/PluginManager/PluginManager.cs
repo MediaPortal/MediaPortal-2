@@ -561,7 +561,7 @@ namespace MediaPortal.Core.Services.PluginManager
             PluginBuilderRegistration builderRegistration;
             if (!_builders.TryGetValue(builderName, out builderRegistration))
             {
-              logger.Warn("Plugin '{0}': Builder '{1}' is not available", pluginName, builderName);
+              logger.Warn("Plugin '{0}': Builder '{1}' is not available - plugin won't be enabled", pluginName, builderName);
               return false;
             }
             if (builderRegistration.PluginRuntime != null) // If builder is no default builder

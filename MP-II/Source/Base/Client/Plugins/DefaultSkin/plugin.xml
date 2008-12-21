@@ -6,8 +6,8 @@
     Description = "The base default skin for the common screens of MediaPortal-II"
     PluginVersion = "1.0">
 
-  <Register Location = "/Resources/Skin">
-    <Resource Id = "DefaultSkin" Directory = "Skin" Type = "Skin"/>
+  <Register Location="/Resources/Skin">
+    <Resource Id="DefaultSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
 </Plugin>

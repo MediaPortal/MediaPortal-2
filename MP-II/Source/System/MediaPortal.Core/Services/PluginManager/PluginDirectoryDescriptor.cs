@@ -41,6 +41,7 @@ namespace MediaPortal.Core.Services.PluginManager
   {
     public const string PLUGIN_META_FILE = "plugin.xml";
 
+    // FIXME Albert: Change meaning: version-high must match exactly
     public const int MIN_PLUGIN_DESCRIPTOR_VERSION_HIGH = 1;
     public const int MIN_PLUGIN_DESCRIPTOR_VERSION_LOW = 0;
 
@@ -93,7 +94,8 @@ namespace MediaPortal.Core.Services.PluginManager
         doc.Load(_pluginFilePath);
         XmlElement descriptorElement = doc.DocumentElement;
         if (descriptorElement == null || descriptorElement.Name != "Plugin")
-          throw new ArgumentException("File is no plugin descriptor (needs to contain a 'Plugin' element)");
+          throw new ArgumentException(
+              "File is no plugin descriptor file (document element must be 'Plugin')");
 
         bool versionOk = false;
         foreach (XmlAttribute attr in descriptorElement.Attributes)
@@ -124,7 +126,7 @@ namespace MediaPortal.Core.Services.PluginManager
               _autoActivate = Boolean.Parse(attr.Value);
               break;
             default:
-              throw new ArgumentException("'Plugin' element doesn't define an attribute '" + attr.Name + "'");
+              throw new ArgumentException("'Plugin' element doesn't support an attribute '" + attr.Name + "'");
           }
         }
         if (!versionOk)
@@ -155,7 +157,7 @@ namespace MediaPortal.Core.Services.PluginManager
               CollectionUtils.AddAll(_conflictsWith, ParsePluginNameEnumeration(childElement));
               break;
             default:
-              throw new ArgumentException("'Plugin' element doesn't define a child element '" + child.Name + "'");
+              throw new ArgumentException("'Plugin' element doesn't support a child element '" + child.Name + "'");
           }
         }
       }
@@ -200,7 +202,7 @@ namespace MediaPortal.Core.Services.PluginManager
               throw new ArgumentException("'PluginStateTracker' element needs an attribute 'ClassName'");
             break;
           default:
-            throw new ArgumentException("'Runtime' element doesn't define a child element '" + childElement.Name + "'");
+            throw new ArgumentException("'Runtime' element doesn't support a child element '" + childElement.Name + "'");
         }
       }
     }
@@ -225,7 +227,7 @@ namespace MediaPortal.Core.Services.PluginManager
             className = attr.Value;
             break;
           default:
-            throw new ArgumentException("'Builder' element doesn't define an attribute '" + attr.Name + "'");
+            throw new ArgumentException("'Builder' element doesn't support an attribute '" + attr.Name + "'");
         }
       }
       if (name == null)
@@ -242,7 +244,7 @@ namespace MediaPortal.Core.Services.PluginManager
     /// </summary>
     /// <param name="registerElement">Register element.</param>
     /// <returns>Metadata structures of all registered items in the given element.</returns>
-    protected static ICollection<PluginItemMetadata> ParseRegisterElement(XmlElement registerElement)
+    protected static IEnumerable<PluginItemMetadata> ParseRegisterElement(XmlElement registerElement)
     {
       string location = null;
       foreach (XmlAttribute attr in registerElement.Attributes)
@@ -253,12 +255,11 @@ namespace MediaPortal.Core.Services.PluginManager
             location = attr.Value;
             break;
           default:
-            throw new ArgumentException("'Register' element doesn't define an attribute '" + attr.Name + "'");
+            throw new ArgumentException("'Register' element doesn't support an attribute '" + attr.Name + "'");
         }
       }
       if (location == null)
         throw new ArgumentException("'Register' element needs an attribute 'Location'");
-      ICollection<PluginItemMetadata> result = new List<PluginItemMetadata>();
       foreach (XmlNode child in registerElement.ChildNodes)
       {
         string id = null;
@@ -285,9 +286,8 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         if (id == null)
           throw new ArgumentException("'Id' attribute has to be given for plugin item '" + childElement.Name + "'");
-        result.Add(new PluginItemMetadata(location, builderName, id, redundant, attributes));
+        yield return new PluginItemMetadata(location, builderName, id, redundant, attributes);
       }
-      return result;
     }
 
     /// <summary>
@@ -300,7 +300,6 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       if (enumElement.HasAttributes)
         throw new ArgumentException(string.Format("'{0}' element mustn't contain any attributes", enumElement.Name));
-      ICollection<string> result = new List<string>();
       foreach (XmlNode child in enumElement.ChildNodes)
       {
         XmlElement childElement = child as XmlElement;
@@ -318,18 +317,17 @@ namespace MediaPortal.Core.Services.PluginManager
                   name = attr.Value;
                   break;
                 default:
-                  throw new ArgumentException("'PluginReference' sub element doesn't define an attribute '" + attr.Name + "'");
+                  throw new ArgumentException("'PluginReference' sub element doesn't support an attribute '" + attr.Name + "'");
               }
             }
             if (name == null)
               throw new ArgumentException("'PluginReference' sub element needs an attribute 'Name'");
-            result.Add(name);
+            yield return name;
             break;
           default:
-            throw new ArgumentException("'" + enumElement.Name + "' element doesn't define a child element '" + child.Name + "'");
+            throw new ArgumentException("'" + enumElement.Name + "' element doesn't support a child element '" + child.Name + "'");
         }
       }
-      return result;
     }
 
     #endregion

@@ -269,16 +269,23 @@ namespace MediaPortal.Services.Localization
           return;
         }
 
-        foreach (StringSection section in strings.sections)
+        try
         {
-          Dictionary<string, StringLocalised> sectionContents = _languageStrings.ContainsKey(section.name) ?
-              _languageStrings[section.name] :
-              new Dictionary<string, StringLocalised>(
-                  StringComparer.Create(CultureInfo.InvariantCulture, true));
-          foreach (StringLocalised languageString in section.localisedStrings)
-            sectionContents[languageString.name] = languageString;
-          if (sectionContents.Count > 0)
-            _languageStrings[section.name] = sectionContents;
+          foreach (StringSection section in strings.sections)
+          {
+            Dictionary<string, StringLocalised> sectionContents = _languageStrings.ContainsKey(section.name) ?
+                _languageStrings[section.name] : new Dictionary<string, StringLocalised>(
+                    StringComparer.Create(CultureInfo.InvariantCulture, true));
+            foreach (StringLocalised languageString in section.localisedStrings)
+              sectionContents[languageString.name] = languageString;
+            if (sectionContents.Count > 0)
+              _languageStrings[section.name] = sectionContents;
+          }
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("Failed to load language resource file '{0}'", ex, filePath);
+          return;
         }
       }
     }

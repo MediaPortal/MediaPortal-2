@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -35,7 +35,7 @@ namespace MediaPortal.Presentation.Localization
     /// references a localized string resource. If so, the return value will be a localized
     /// <see cref="IResourceString"/>, else it will not be localized.
     /// </summary>
-    public static IResourceString CreateLabelProperty(string maybeLocalizationResource)
+    public static IResourceString CreateResourceString(string maybeLocalizationResource)
     {
       if (StringId.IsResourceString(maybeLocalizationResource))
         return new LocalizedStringBuilder(new StringId(maybeLocalizationResource));

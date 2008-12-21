@@ -1,0 +1,16 @@
+<Plugin
+    Version = "1.0"
+    Name = "Playlist"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Playlist Plugin"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName="Playlist.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="{CF729CE1-8A47-4fde-A0DF-D808A38B4EE8}" Name="PlayList" ClassName="Models.PlayList.PlayList"/>
+  </Register>
+</Plugin>

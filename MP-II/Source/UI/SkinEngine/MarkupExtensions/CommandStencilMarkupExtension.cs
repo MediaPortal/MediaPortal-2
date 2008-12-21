@@ -26,7 +26,6 @@ using MediaPortal.SkinEngine.Commands;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {
-
   /// <summary>
   /// Implements the MPF CommandStencil markup extension.
   /// </summary>

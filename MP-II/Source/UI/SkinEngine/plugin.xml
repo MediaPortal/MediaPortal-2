@@ -12,21 +12,21 @@
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName = "MediaPortal.SkinEngine.dll"/>
-    <PluginStateTracker ClassName= "MediaPortal.SkinEngine.SkinEnginePlugin"/>
+    <Assembly FileName="SkinEngine.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.SkinEngine.SkinEnginePlugin"/>
   </Runtime>
 
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigGroup
-        Id = "System"
-        Redundant = "true"
-        Text = "[configuration.system]"/>
+        Id="System"
+        Redundant="true"
+        Text="[configuration.system]"/>
   </Register>
   <Register Location="/Configuration/Settings/Appearance/System">
     <ConfigSetting
-        Id = "Fullscreen"
-        Text = "[configuration.system.fullscreen]"
-        HelpText = "[configuration.system.fullscreen.help]"
-        ClassName = "MediaPortal.SkinEngine.Settings.Fullscreen"/>
+        Id="Fullscreen"
+        Text="[configuration.system.fullscreen]"
+        HelpText="[configuration.system.fullscreen.help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Fullscreen"/>
   </Register>
 </Plugin>

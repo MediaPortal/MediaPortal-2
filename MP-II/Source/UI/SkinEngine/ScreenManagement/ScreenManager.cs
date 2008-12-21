@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
@@ -34,16 +35,16 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ScreenManagement
 {
   public class ScreenManager : IScreenManager
   {
-    public const string STARTUP_SCREEN = "home";
-
     #region Variables
 
+    public const string HOME_SCREEN = "home";
+
     private readonly IDictionary<string, Screen> _windowCache = new Dictionary<string, Screen>();
-    private readonly Stack<string> _history = new Stack<string>();
+    private readonly object _syncRoot = new object();
     private Screen _currentScreen = null;
     private readonly Stack<Screen> _dialogStack = new Stack<Screen>();
 
@@ -85,6 +86,11 @@ namespace MediaPortal.SkinEngine
       }
     }
 
+    public ISkinResourceManager SkinResourceManager
+    {
+      get { return _skinManager; }
+    }
+
     /// <summary>
     /// Disposes all resources which were allocated by the screen manager.
     /// </summary>
@@ -114,7 +120,7 @@ namespace MediaPortal.SkinEngine
       if (skin == null)
         throw new Exception(string.Format("Skin '{0}' not found", skinName));
       Theme theme = themeName == null ? null :
-          (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
+                                                 (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
       if (theme == null)
         theme = skin.DefaultTheme;
 
@@ -143,7 +149,7 @@ namespace MediaPortal.SkinEngine
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
       {
-        ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to find dialog: {0}", dialogName);
+        ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to show dialog {0}", dialogName);
         return;
       }
 
@@ -190,7 +196,7 @@ namespace MediaPortal.SkinEngine
     {
       if (_currentScreen == null)
         return;
-      lock (_history)
+      lock (_syncRoot)
       {
         _currentScreen.ScreenState = Screen.State.Closing;
         _currentScreen.HasFocus = false;
@@ -213,7 +219,7 @@ namespace MediaPortal.SkinEngine
 
     protected bool InternalShowScreen(Screen screen)
     {
-      lock (_history)
+      lock (_syncRoot)
       {
         _currentScreen = screen;
         _currentScreen.HasFocus = true;
@@ -224,18 +230,13 @@ namespace MediaPortal.SkinEngine
       return true;
     }
 
-    public void ShowStartupScreen()
-    {
-      ShowScreen(STARTUP_SCREEN);
-    }
-
     /// <summary>
     /// Renders the current window and dialog.
     /// </summary>
     public void Render()
     {
       SkinContext.Now = DateTime.Now;
-      lock (_history)
+      lock (_syncRoot)
       {
         lock (_windowCache)
         {
@@ -261,13 +262,12 @@ namespace MediaPortal.SkinEngine
       if (newSkinName == _skin.Name &&
           newThemeName == (_theme == null ? null : _theme.Name)) return;
 
-      lock (_history)
+      lock (_syncRoot)
       {
         ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
-        bool currentScreenInHistory = _currentScreen == null ? false : _currentScreen.History;
 
         InternalCloseCurrentScreenAndDialogs();
 
@@ -290,17 +290,10 @@ namespace MediaPortal.SkinEngine
           // TODO: Show error dialog
         }
 
-        // We will clear the history because we cannot guarantee that the screens in the
-        // history will be compatible with the new skin.
-        _history.Clear();
-        _history.Push(STARTUP_SCREEN);
-        if (currentScreenInHistory && _skin.GetSkinFilePath(currentScreenName) != null)
-          _history.Push(currentScreenName);
-
         if (_skin.GetSkinFilePath(currentScreenName) != null)
           _currentScreen = GetScreen(currentScreenName);
         if (_currentScreen == null)
-          _currentScreen = GetScreen(_history.Peek());
+          _currentScreen = GetScreen(HOME_SCREEN);
         if (_currentScreen == null)
         { // The new skin is broken, so reset to default skin
           if (_skin == _skinManager.DefaultSkin)
@@ -347,16 +340,12 @@ namespace MediaPortal.SkinEngine
           //_currentScreen.WaitCursorVisible = true;
         }
 
-        if (_windowCache.ContainsKey(screenName))
-          return _windowCache[screenName];
-
         Screen result = new Screen(screenName);
         try
         {
           UIElement root = LoadSkinFile(screenName);
           if (root == null) return null;
           result.Visual = root;
-          _windowCache.Add(screenName, result);
         }
         catch (Exception ex)
         {
@@ -375,11 +364,6 @@ namespace MediaPortal.SkinEngine
           //_currentScreen.WaitCursorVisible = false;
         }
       }
-    }
-
-    public IResourceAccessor SkinResourceContext
-    {
-      get { return SkinContext.SkinResources; }
     }
 
     public void SwitchTheme(string newThemeName)
@@ -438,7 +422,7 @@ namespace MediaPortal.SkinEngine
     public void CloseDialog()
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
-      lock (_history)
+      lock (_syncRoot)
       {
         // Close the children and the main dialog
         do
@@ -449,8 +433,8 @@ namespace MediaPortal.SkinEngine
 
     public void ShowDialog(string dialogName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show dialog '{0}'", dialogName);
-      lock (_history)
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
+      lock (_syncRoot)
       {
         InternalShowDialog(dialogName, false);
       }
@@ -458,8 +442,8 @@ namespace MediaPortal.SkinEngine
 
     public void ShowChildDialog(string dialogName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show child dialog '{0}'", dialogName);
-      lock (_history)
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing child dialog '{0}'...", dialogName);
+      lock (_syncRoot)
       {
         InternalShowDialog(dialogName, true);
       }
@@ -481,7 +465,7 @@ namespace MediaPortal.SkinEngine
         currentScreen = GetScreen(name);
       }
       if (currentScreen == null)
-        // Error message was shown in GetScreen()
+          // Error message was shown in GetScreen()
         return;
       InternalShowScreen(currentScreen);
     }
@@ -493,53 +477,17 @@ namespace MediaPortal.SkinEngine
 
     public bool ShowScreen(string windowName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Show screen '{0}'", windowName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", windowName);
       Screen newScreen = GetScreen(windowName);
       if (newScreen == null)
-        // Error message was shown in GetScreen()
+          // Error message was shown in GetScreen()
         return false;
 
-      lock (_history)
+      lock (_syncRoot)
       {
-        if (newScreen.History)
-        {
-          _history.Push(newScreen.Name);
-        }
-
         InternalCloseCurrentScreenAndDialogs();
 
         return InternalShowScreen(newScreen);
-      }
-    }
-
-    public void ShowPreviousScreen()
-    {
-      lock (_history)
-      {
-        if (_history.Count == 0)
-        {
-          return;
-        }
-        ServiceScope.Get<ILogger>().Debug("ScreenManager: Show previous screen");
-
-        if (IsDialogVisible)
-          InternalCloseDialog();
-        else
-        {
-          if (_history.Count <= 1)
-            return;
-
-          if (_currentScreen.History)
-            _history.Pop();
-
-          InternalCloseCurrentScreenAndDialogs();
-
-          Screen newScreen = GetScreen(_history.Peek());
-          if (newScreen == null)
-              // Error message was shown in GetScreen()
-            return;
-          InternalShowScreen(newScreen);
-        }
       }
     }
 
@@ -586,7 +534,7 @@ namespace MediaPortal.SkinEngine
     [Obsolete("This method will be replaced by a generic approach in the future")]
     public string DialogLine1
     {
-     get
+      get
       {
         return _dialogLines[0];
       }
@@ -599,7 +547,7 @@ namespace MediaPortal.SkinEngine
     [Obsolete("This method will be replaced by a generic approach in the future")]
     public string DialogLine2
     {
-     get
+      get
       {
         return _dialogLines[1];
       }

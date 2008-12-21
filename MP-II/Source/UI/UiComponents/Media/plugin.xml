@@ -1,0 +1,24 @@
+<Plugin
+    Version="1.0" 
+    Name="Media"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Media Navigation Plugin"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="Media.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" ClassName="Models.Media.MediaModel"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="MediaLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="MediaSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

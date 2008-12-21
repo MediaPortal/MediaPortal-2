@@ -32,29 +32,29 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration.Framework", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "System\MediaPortal.Core\MediaPortal.Core.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Interfaces", "System\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.UI", "System\MediaPortal.Interfaces\MediaPortal.UI.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Services", "System\MediaPortal.Services\MediaPortal.Services.csproj", "{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "System\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.SkinEngine", "UI\SkinEngine\MediaPortal.SkinEngine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinEngine", "UI\SkinEngine\SkinEngine.csproj", "{7E943389-3589-40C9-B481-2E223554CC49}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Models", "Models", "{E9A798FE-B9A8-49CE-B13C-30B08C065026}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UiComponents", "UiComponents", "{E9A798FE-B9A8-49CE-B13C-30B08C065026}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Login", "UI\Models\Login\Login.csproj", "{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Login", "UI\UiComponents\Login\Login.csproj", "{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Media", "UI\Models\Media\Media.csproj", "{CD37E2FF-4CF7-4F96-8C73-C6764988D408}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Media", "UI\UiComponents\Media\Media.csproj", "{CD37E2FF-4CF7-4F96-8C73-C6764988D408}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menu", "UI\Models\Menu\Menu.csproj", "{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Menu", "UI\UiComponents\Menu\Menu.csproj", "{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayList", "UI\Models\PlayList\PlayList.csproj", "{B75F0C3D-C482-4797-B760-B73ED801A1FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayList", "UI\UiComponents\PlayList\PlayList.csproj", "{B75F0C3D-C482-4797-B760-B73ED801A1FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settings", "UI\Models\Settings\Settings.csproj", "{F3ADA862-5671-49DC-B04A-2975221603CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settings", "UI\UiComponents\Settings\Settings.csproj", "{F3ADA862-5671-49DC-B04A-2975221603CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shares", "UI\Models\Shares\Shares.csproj", "{EAE480DB-43B8-43EF-94EE-074499BC23E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shares", "UI\UiComponents\Shares\Shares.csproj", "{EAE480DB-43B8-43EF-94EE-074499BC23E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weather", "UI\Models\Weather\Weather.csproj", "{E618785B-A7E1-4E70-A8F3-DB22F93B9088}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weather", "UI\UiComponents\Weather\Weather.csproj", "{E618785B-A7E1-4E70-A8F3-DB22F93B9088}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerManager", "UI\PlayerManager\PlayerManager.csproj", "{EC4B2593-C535-4D63-84E3-F8B7CD876F63}"
 EndProject

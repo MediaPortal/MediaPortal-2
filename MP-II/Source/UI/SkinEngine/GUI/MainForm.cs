@@ -36,6 +36,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.SkinEngine.SkinManagement;
 
 using MediaPortal.SkinEngine.Settings;
@@ -64,7 +65,6 @@ namespace MediaPortal.SkinEngine.GUI
     public MainForm(ScreenManager screenManager)
     {
       _screenManager = screenManager;
-      ServiceScope.Add<IScreenManager>(_screenManager);
 
       ServiceScope.Get<ILogger>().Debug("Registering DirectX MainForm as IScreenControl service");
       ServiceScope.Add<IScreenControl>(this);
@@ -107,21 +107,22 @@ namespace MediaPortal.SkinEngine.GUI
       // Start render thread before we show first screen, because the render thread does
       // an invalidate, we don't want a double invalidate.
       StartRenderThread_Async();
-      _screenManager.ShowStartupScreen();
 
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Stopping");
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("DirectX MainForm: Stopping");
       StopRenderThread();
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Exit screen manager");
+      logger.Debug("DirectX MainForm: Exit screen manager");
+      _screenManager.Dispose();
       _screenManager.Exit();
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Dispose DirectX");
+      logger.Debug("DirectX MainForm: Dispose DirectX");
       _directX.Dispose();
       _directX = null;
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Closing");
+      logger.Debug("DirectX MainForm: Closing");
       // We have to call ExitThread() explicitly because the application was started without
       // setting the MainForm, which would have added an event handler which calls
       // Application.ExitThread() for us

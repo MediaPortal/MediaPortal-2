@@ -54,13 +54,13 @@ namespace MediaPortal.Core.Services.Registry
     protected void CheckSubNodeCollectionPresent()
     {
       if (_subNodes == null)
-        _subNodes = new Dictionary<string, IRegistryNode>();
+        _subNodes = new Dictionary<string, IRegistryNode>(StringComparer.InvariantCultureIgnoreCase);
     }
 
     protected void CheckItemCollectionPresent()
     {
       if (_items == null)
-        _items = new Dictionary<string, object>();
+        _items = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
     }
 
     #endregion

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Media workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="17D2390E-5B05-4fbd-89F6-24D60CEB427F"
+        Name="Home->MediaNavigation"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
+        DisplayTitle="[Media.Name]"/>
+  </MenuActions>
+  <ContextMenuActions>
+    <!-- TODO -->
+    <PushNavigationTransition Id="44FA154D-4EA8-4ab3-AB3B-8AA89C699474"
+        Name="..."
+        SourceState="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
+        TargetState="..."
+        DisplayTitle="..."/>
+  </ContextMenuActions>
+</Workflow>

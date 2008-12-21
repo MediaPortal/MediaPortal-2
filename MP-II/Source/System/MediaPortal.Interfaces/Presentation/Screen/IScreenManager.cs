@@ -35,12 +35,6 @@ namespace MediaPortal.Presentation.Screen
   public interface IScreenManager
   {
     /// <summary>
-    /// Gets access to the skin resource accessor, which can load resource files in the context
-    /// of the currently active skin.
-    /// </summary>
-    IResourceAccessor SkinResourceContext { get; }
-
-    /// <summary>
     /// Closes the top most main dialog (together with it's children).
     /// </summary>
     void CloseDialog();
@@ -74,11 +68,6 @@ namespace MediaPortal.Presentation.Screen
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
     bool ShowScreen(string screenName);
-
-    /// <summary>
-    /// Closes a currently visible dialog or shows the previous screen from the screen history.
-    /// </summary>
-    void ShowPreviousScreen();
 
     void Reset();
 

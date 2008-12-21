@@ -22,84 +22,65 @@
 
 #endregion
 
+using System;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Commands;
-using MediaPortal.SkinEngine.Commands;
+using MediaPortal.Presentation;
+using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.SkinResources;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.SkinEngine.InputManagement;
+using MediaPortal.SkinEngine.ScreenManagement;
 
 namespace MediaPortal.SkinEngine
 {
-  public class SkinEnginePlugin: IPluginStateTracker
+  public class SkinEnginePlugin: IPluginStateTracker, ISkinEngine
   {
     #region Protected fields
+
+    protected const string HOME_STATE_STR = "{7F702D9C-F2DD-42da-9ED8-0BA92F07787F}";
 
     protected MainForm _mainForm = null;
     protected ScreenManager _screenManager = null;
 
     #endregion
 
-    #region Private & protected methods
+    #region ISkinEngine implementation
 
-    protected void Initialize()
+    public void Initialize()
     {
-      SlimDX.Configuration.EnableObjectTracking = true;
-      InitializeServices();
-
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      if (pluginManager.State == PluginManagerState.Starting)
-      {
-        // The main form will be created when all plugins are loaded
-        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
-        queue.OnMessageReceive += OnPluginManagerMessageReceived;
-      }
-      else
-        // The plugin manager is already running, this means the skin engine was started during
-        // the runtime. We do not need to wait for other plugins to be loaded and we can start immediately.
-        Start();
-    }
-
-    /// <summary>
-    /// Called when the plugin manager notifies the system about its events.
-    /// Creates the main screen when all plugins are initialized.
-    /// </summary>
-    /// <param name="message">Message containing the notification data.</param>
-    private void OnPluginManagerMessageReceived(QueueMessage message)
-    {
-      if (((PluginManagerMessaging.NotificationType)message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
-        Start();
-    }
-
-    protected void Start()
-    {
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IScreenManager service");
-      _screenManager = new ScreenManager();
-
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create DirectX main window");
-      _mainForm = new MainForm(_screenManager);
-      _mainForm.Visible = true;
-      _mainForm.Start();
-    }
-
-    protected void Dispose()
-    {
-      _mainForm.Dispose();
-      _screenManager.Dispose();
-    }
-
-    protected void InitializeServices()
-    {
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create ICommandBuilder service");
-      CommandBuilder cmdBuilder = new CommandBuilder();
-      ServiceScope.Add<ICommandBuilder>(cmdBuilder);
-
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IInputManager service");
       InputManager inputManager = new InputManager();
       ServiceScope.Add<IInputManager>(inputManager);
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IScreenManager service");
+      _screenManager = new ScreenManager();
+      ServiceScope.Add<IScreenManager>(_screenManager);
+      ServiceScope.Add<ISkinResourceManager>(_screenManager.SkinResourceManager);
+    }
+
+    public void Startup()
+    {
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Info("SkinEnginePlugin: Startup");
+      SlimDX.Configuration.EnableObjectTracking = true;
+
+      logger.Debug("SkinEnginePlugin: Create DirectX main window");
+      _mainForm = new MainForm(_screenManager);
+      _mainForm.Visible = true;
+      _mainForm.Start();
+
+      logger.Debug("SkinEnginePlugin: Switching workflow manager to home state");
+      ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
+    }
+
+    public void Dispose()
+    {
+      _mainForm.Dispose();
+      _screenManager.Dispose();
     }
 
     #endregion
@@ -108,7 +89,7 @@ namespace MediaPortal.SkinEngine
 
     public void Activated()
     {
-      Initialize();
+      ServiceScope.Add<ISkinEngine>(this);
     }
 
     public bool RequestEnd()

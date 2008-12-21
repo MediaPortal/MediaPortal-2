@@ -77,7 +77,7 @@ namespace Components.Configuration.Settings.Regional
       for (int i = 0; i < _cultures.Count; i++)
       {
         CultureInfo ci = _cultures[i];
-        _items.Add(LocalizationHelper.CreateLabelProperty(ci.DisplayName));
+        _items.Add(LocalizationHelper.CreateResourceString(ci.DisplayName));
         if (ci.Name == current.Name)
           Selected = i;
       }

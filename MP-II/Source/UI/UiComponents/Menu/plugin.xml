@@ -1,0 +1,16 @@
+<Plugin
+    Version = "1.0"
+    Name = "Menu"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Provides Menu Services"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName="Menu.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="Models.Menu.MenuModel"/>
+  </Register>
+</Plugin>

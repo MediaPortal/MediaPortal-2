@@ -27,6 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Workflow;
 
 namespace MediaPortal.Services.InputManager
 {
@@ -35,6 +36,7 @@ namespace MediaPortal.Services.InputManager
     public Key MapSpecialKey(Keys keycode, bool alt)
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
       IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
       switch (keycode)
@@ -110,12 +112,12 @@ namespace MediaPortal.Services.InputManager
             //show previous window
             if (inputManager.NeedRawKeyData)
               return Key.BackSpace;
-            screenManager.ShowPreviousScreen();
+            workflowManager.NavigatePop(1);
           }
           break;
         case Keys.Escape:
           //show previous window
-          screenManager.ShowPreviousScreen();
+          workflowManager.NavigatePop(1);
           break;
         case Keys.Space:
           //pause/continue playback

@@ -90,7 +90,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Color = copyManager.GetCopy(l.Color);
       Scroll = copyManager.GetCopy(l.Scroll);
 
-      _resourceString = LocalizationHelper.CreateLabelProperty(Content);
+      _resourceString = LocalizationHelper.CreateResourceString(Content);
       Attach();
     }
 
@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnContentChanged(Property prop)
     {
-      _resourceString = LocalizationHelper.CreateLabelProperty(Content);
+      _resourceString = LocalizationHelper.CreateResourceString(Content);
       if (Screen != null)
         Screen.Invalidate(this);
     }

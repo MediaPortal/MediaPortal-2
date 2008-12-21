@@ -14,6 +14,7 @@
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,6 +59,9 @@
   <ItemGroup>
     <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
     <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
@@ -76,9 +80,6 @@
     <Compile Include="InputManager\InputMapper.cs" />
     <Compile Include="Localization\LocalizationStrings.cs" />
     <Compile Include="Localization\StringManager.cs" />
-    <Compile Include="MenuManager\Menu.cs" />
-    <Compile Include="MenuManager\MenuBuilder.cs" />
-    <Compile Include="MenuManager\MenuCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="ThumbnailGenerator\Database\ThumbDatabase.cs" />
@@ -91,15 +92,18 @@
     <Compile Include="UserManagement\User.cs" />
     <Compile Include="UserManagement\UserService.cs" />
     <Compile Include="Logging\CrashLogger.cs" />
+    <Compile Include="Workflow\ModelBuilder.cs" />
+    <Compile Include="Workflow\WorkflowManager.cs" />
+    <Compile Include="Workflow\WorkflowResourcesLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
+    <ProjectReference Include="..\MediaPortal.Interfaces\MediaPortal.UI.csproj">
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.Interfaces</Name>
+      <Name>MediaPortal.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>

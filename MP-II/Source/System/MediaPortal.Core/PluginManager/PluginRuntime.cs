@@ -284,8 +284,9 @@ namespace MediaPortal.Core.PluginManager
       IRegistryNode node = GetRegistryNode(location, false);
       ICollection<PluginItemRegistration> result = new List<PluginItemRegistration>();
       if (node != null && node.Items != null)
-        foreach (PluginItemRegistration itemRegistration in node.Items.Values)
-          result.Add(itemRegistration);
+        foreach (object item in node.Items.Values)
+          if (item is PluginItemRegistration)
+            result.Add((PluginItemRegistration) item);
       return result;
     }
 
@@ -399,7 +400,7 @@ namespace MediaPortal.Core.PluginManager
           return;
         if (node.Items.ContainsKey(itemMetadata.Id))
         {
-          PluginItemRegistration itemRegistration = (PluginItemRegistration)node.Items[itemMetadata.Id];
+          PluginItemRegistration itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
           // Check, if there are additional redundant items registered at this position. If yes, we'll use
           // the first of them instead of the old item to be unregistered.
           PluginItemMetadata newItemMetadata = null;
