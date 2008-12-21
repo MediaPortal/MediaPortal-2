@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.UserManagement
+namespace MediaPortal.UserManagement
 {
   /// <summary>
   /// Interface for the User management service.

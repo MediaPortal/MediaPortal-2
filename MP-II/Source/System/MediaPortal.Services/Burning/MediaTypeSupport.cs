@@ -22,11 +22,7 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-using MediaPortal.Core.DeviceManager;
+using MediaPortal.DeviceManager;
 
 namespace MediaPortal.Services.Burning
 {

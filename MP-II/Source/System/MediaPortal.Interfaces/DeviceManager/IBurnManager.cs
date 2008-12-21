@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.DeviceManager
+namespace MediaPortal.DeviceManager
 {
   public delegate void BurningError(BurnResult eBurnResult, ProjectType eProjectType);
   public delegate void BurnProgress(BurnStatus eBurnStatus, int ePercentage);

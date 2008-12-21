@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Services.UserManagement;
 
-namespace MediaPortal.Core.UserManagement
+namespace MediaPortal.UserManagement
 {
   /// <summary>
   /// Interface for a permission. A permission may be an atomic right which can be

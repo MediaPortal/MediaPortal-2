@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace MediaPortal.Services.Burning
 {
@@ -303,7 +301,7 @@ namespace MediaPortal.Services.Burning
 
     Cdrecord-ProDVD-ProBD-Clone 2.01.01a36 (i686-pc-cygwin) Copyright (C) 1995-2007
 
-    Jörg Schilling
+    Jrg Schilling
     TOC Type: 1 = CD-ROM
     scsidev: '1,0,0'
     scsibus: 1 target: 0 lun: 0

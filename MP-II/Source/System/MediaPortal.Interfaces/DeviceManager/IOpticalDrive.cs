@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.DeviceManager
+namespace MediaPortal.DeviceManager
 {
   /// <summary>
   /// Interface for optical hardware devices like DVD burners

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Core.DeviceManager
+namespace MediaPortal.DeviceManager
 {
   public enum MediaType
   {

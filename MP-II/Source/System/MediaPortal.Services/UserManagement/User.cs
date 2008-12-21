@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.UserManagement;
+using MediaPortal.UserManagement;
 
 namespace MediaPortal.Services.UserManagement
 {

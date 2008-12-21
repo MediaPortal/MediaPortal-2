@@ -30,7 +30,7 @@ using System.Text;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.DeviceManager;
+using MediaPortal.DeviceManager;
 
 
 namespace MediaPortal.Services.Burning

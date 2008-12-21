@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.UserManagement;
+using MediaPortal.UserManagement;
 
 namespace MediaPortal.Services.UserManagement
 {

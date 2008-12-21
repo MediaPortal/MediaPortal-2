@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Core.UserManagement;
+using MediaPortal.UserManagement;
 
 namespace UiComponents.Login
 {

@@ -25,13 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-using MediaPortal.Core;
-using MediaPortal.Core.DeviceManager;
+using MediaPortal.DeviceManager;
 using MediaPortal.Core.Logging;
-using System.Threading;
-
 
 namespace MediaPortal.Services.Burning
 {

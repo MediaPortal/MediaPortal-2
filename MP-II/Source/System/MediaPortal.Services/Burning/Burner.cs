@@ -22,14 +22,10 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
 
 using MediaPortal.Core;
-using MediaPortal.Core.DeviceManager;
+using MediaPortal.DeviceManager;
 using MediaPortal.Core.Logging;
 
 namespace MediaPortal.Services.Burning

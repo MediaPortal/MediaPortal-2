@@ -26,7 +26,7 @@ using System;
 using System.Windows.Forms;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Core.UserManagement;
+using MediaPortal.UserManagement;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
 using MediaPortal.Presentation.Workflow;
@@ -41,7 +41,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.DeviceManager;
+using MediaPortal.DeviceManager;
 using MediaPortal.Services.Localization;
 using MediaPortal.Services.Burning;
 

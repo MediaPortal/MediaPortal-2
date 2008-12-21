@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MediaPortal.Core.DeviceManager
+namespace MediaPortal.DeviceManager
 {
   public enum BurnResult : int
   {
