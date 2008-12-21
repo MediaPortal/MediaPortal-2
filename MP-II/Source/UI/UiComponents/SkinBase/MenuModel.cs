@@ -28,7 +28,7 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Workflow;
 
-namespace Models.Menu
+namespace UiComponents.SkinBase
 {
   public class MenuModel
   {

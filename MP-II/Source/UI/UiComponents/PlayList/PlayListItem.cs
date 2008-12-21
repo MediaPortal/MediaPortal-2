@@ -23,9 +23,8 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Media.MediaManagement;
 
-namespace Models.PlayList
+namespace UiComponents.PlayList
 {
   public class PlayListItem : ListItem
   {

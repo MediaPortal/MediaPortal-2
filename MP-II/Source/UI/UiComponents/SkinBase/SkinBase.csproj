@@ -1,0 +1,503 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UiComponents.SkinBase</RootNamespace>
+    <AssemblyName>SkinBase</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|AnyCPU' ">
+    <OutputPath>bin\Xml Documentation\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
+    <OutputPath>bin\x86\Xml Documentation\</OutputPath>
+    <DocumentationFile>bin\x86\Xml Documentation\SkinBase.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\System\MediaPortal.Interfaces\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MenuModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\default\menus\fullscreenVideocontext.xml" />
+    <Content Include="Skin\default\menus\music-contextmenu.xml" />
+    <Content Include="Skin\default\menus\music-main.xml" />
+    <Content Include="Skin\default\menus\music-sort.xml" />
+    <Content Include="Skin\default\menus\mymedia-main.xml" />
+    <Content Include="Skin\default\menus\mymovies-contextmenu.xml" />
+    <Content Include="Skin\default\menus\mymovies-main.xml" />
+    <Content Include="Skin\default\menus\mymovies-playback-ended.xml" />
+    <Content Include="Skin\default\menus\mymovies-playback-resume.xml" />
+    <Content Include="Skin\default\menus\mymovies-playback-stopped.xml" />
+    <Content Include="Skin\default\menus\mymovies-sort.xml" />
+    <Content Include="Skin\default\menus\mypictures-context.xml" />
+    <Content Include="Skin\default\menus\mypictures-editting.xml" />
+    <Content Include="Skin\default\menus\mypictures-main.xml" />
+    <Content Include="Skin\default\menus\mypictures-sort.xml" />
+    <Content Include="Skin\default\menus\mypictures-view.xml" />
+    <Content Include="Skin\default\menus\playlist-main.xml" />
+    <Content Include="Skin\default\menus\settings-appearance.xml" />
+    <Content Include="Skin\default\menus\settings-language.xml" />
+    <Content Include="Skin\default\menus\settings-main.xml" />
+    <Content Include="Skin\default\menus\settings-refreshrate-main.xml" />
+    <Content Include="Skin\default\menus\settings-screen.xml" />
+    <Content Include="Skin\default\menus\settings-video-main.xml" />
+    <Content Include="Skin\default\menus\shares-add-main.xml" />
+    <Content Include="Skin\default\menus\shares-main.xml" />
+    <Content Include="Skin\default\menus\shares-notdefined-main.xml" />
+    <Content Include="Skin\default\menus\shares-remove-main.xml" />
+    <Content Include="Skin\default\menus\weather-main.xml" />
+    <Content Include="Skin\default\skin.xml" />
+    <Content Include="Skin\default\menus\home.xml" />
+    <Content Include="Skin\default\workflow\home-states.xml" />
+    <Content Include="Skin\default\fonts\default-font.xml" />
+    <Content Include="Skin\default\media\alphamask.png" />
+    <Content Include="Skin\default\media\arrow_round_down_focus.png" />
+    <Content Include="Skin\default\media\arrow_round_down_nofocus.png" />
+    <Content Include="Skin\default\media\arrow_round_left_focus.png" />
+    <Content Include="Skin\default\media\arrow_round_left_nofocus.png" />
+    <Content Include="Skin\default\media\arrow_round_right_focus.png" />
+    <Content Include="Skin\default\media\arrow_round_right_nofocus.png" />
+    <Content Include="Skin\default\media\arrow_round_up_focus.png" />
+    <Content Include="Skin\default\media\arrow_round_up_nofocus.png" />
+    <Content Include="Skin\default\media\au.png" />
+    <Content Include="Skin\default\media\background.png" />
+    <Content Include="Skin\default\media\bgsatin.png" />
+    <Content Include="Skin\default\media\bgwave.png" />
+    <Content Include="Skin\default\media\button_green_focus.png" />
+    <Content Include="Skin\default\media\button_green_nofocus.png" />
+    <Content Include="Skin\default\media\check-box.png" />
+    <Content Include="Skin\default\media\check-boxNF.png" />
+    <Content Include="Skin\default\media\checkbox-focused.png" />
+    <Content Include="Skin\default\media\checkbox-non-focused.png" />
+    <Content Include="Skin\default\media\checkbox-selected-focused.png" />
+    <Content Include="Skin\default\media\checkbox-selected-non-focused.png" />
+    <Content Include="Skin\default\media\Clock.png" />
+    <Content Include="Skin\default\media\common.waiting.1.png" />
+    <Content Include="Skin\default\media\common.waiting.2.png" />
+    <Content Include="Skin\default\media\common.waiting.3.png" />
+    <Content Include="Skin\default\media\common.waiting.4.png" />
+    <Content Include="Skin\default\media\common.waiting.5.png" />
+    <Content Include="Skin\default\media\common.waiting.6.png" />
+    <Content Include="Skin\default\media\common.waiting.7.png" />
+    <Content Include="Skin\default\media\common.waiting.8.png" />
+    <Content Include="Skin\default\media\context_background.png" />
+    <Content Include="Skin\default\media\context_background_blue.png" />
+    <Content Include="Skin\default\media\context_background_glass.png" />
+    <Content Include="Skin\default\media\coverflow_bg.png" />
+    <Content Include="Skin\default\media\coverflow_infobg.png" />
+    <Content Include="Skin\default\media\coverflow_selector.png" />
+    <Content Include="Skin\default\media\defaultAudioBig.png" />
+    <Content Include="Skin\default\media\defaultDVDRomBig.png" />
+    <Content Include="Skin\default\media\DefaultExtension.png" />
+    <Content Include="Skin\default\media\DefaultFolderBackBig.png" />
+    <Content Include="Skin\default\media\DefaultFolderBig.png" />
+    <Content Include="Skin\default\media\defaultNetwork.png" />
+    <Content Include="Skin\default\media\defaultPictureBig.png" />
+    <Content Include="Skin\default\media\DefaultUser.png" />
+    <Content Include="Skin\default\media\defaultVideoBig.png" />
+    <Content Include="Skin\default\media\delete_item.png" />
+    <Content Include="Skin\default\media\dialogue_shutdown_focus.png" />
+    <Content Include="Skin\default\media\dialogue_shutdown_nofocus.png" />
+    <Content Include="Skin\default\media\dialog_highlight.png" />
+    <Content Include="Skin\default\media\dialog_item_focus.png" />
+    <Content Include="Skin\default\media\dialog_item_nofocus.png" />
+    <Content Include="Skin\default\media\dialog_osd_background.png" />
+    <Content Include="Skin\default\media\dvd_logo.png" />
+    <Content Include="Skin\default\media\extension_install.png" />
+    <Content Include="Skin\default\media\extension_installed.png" />
+    <Content Include="Skin\default\media\extension_online.png" />
+    <Content Include="Skin\default\media\extension_reinstall.png" />
+    <Content Include="Skin\default\media\extension_uninstall.png" />
+    <Content Include="Skin\default\media\extension_update.png" />
+    <Content Include="Skin\default\media\fastforward_disabled.png" />
+    <Content Include="Skin\default\media\fastforward_enabled.png" />
+    <Content Include="Skin\default\media\hover_my music.png" />
+    <Content Include="Skin\default\media\hover_my pictures.png" />
+    <Content Include="Skin\default\media\hover_my radio.png" />
+    <Content Include="Skin\default\media\hover_my tv.png" />
+    <Content Include="Skin\default\media\hover_my videos.png" />
+    <Content Include="Skin\default\media\hover_my weather.png" />
+    <Content Include="Skin\default\media\hover_playlist.png" />
+    <Content Include="Skin\default\media\hover_settings.png" />
+    <Content Include="Skin\default\media\icon_empty_nofocus.png" />
+    <Content Include="Skin\default\media\Image00030.jpg" />
+    <Content Include="Skin\default\media\image_bg.png" />
+    <Content Include="Skin\default\media\key.png" />
+    <Content Include="Skin\default\media\key_focus.png" />
+    <Content Include="Skin\default\media\key_space.png" />
+    <Content Include="Skin\default\media\list_sub_focus.png" />
+    <Content Include="Skin\default\media\list_sub_nofocus.png" />
+    <Content Include="Skin\default\media\locked.png" />
+    <Content Include="Skin\default\media\login_item_selected.png" />
+    <Content Include="Skin\default\media\login_item_unselected.png" />
+    <Content Include="Skin\default\media\login_users.png" />
+    <Content Include="Skin\default\media\logo_fastforward.png" />
+    <Content Include="Skin\default\media\logo_pause.png" />
+    <Content Include="Skin\default\media\logo_play.png" />
+    <Content Include="Skin\default\media\logo_rewind.png" />
+    <Content Include="Skin\default\media\logo_stop.png" />
+    <Content Include="Skin\default\media\menu_list_focus.png" />
+    <Content Include="Skin\default\media\menu_list_nofocus.png" />
+    <Content Include="Skin\default\media\mouse_arrowdown_focus.png" />
+    <Content Include="Skin\default\media\mouse_arrowdown_nofocus.png" />
+    <Content Include="Skin\default\media\mouse_arrowleft_focus.png" />
+    <Content Include="Skin\default\media\mouse_arrowleft_nofocus.png" />
+    <Content Include="Skin\default\media\mouse_arrowok_focus.png" />
+    <Content Include="Skin\default\media\mouse_arrowok_nofocus.png" />
+    <Content Include="Skin\default\media\mouse_arrowright_focus.png" />
+    <Content Include="Skin\default\media\mouse_arrowright_nofocus.png" />
+    <Content Include="Skin\default\media\mouse_arrowup_focus.png" />
+    <Content Include="Skin\default\media\mouse_arrowup_nofocus.png" />
+    <Content Include="Skin\default\media\mute_disabled.png" />
+    <Content Include="Skin\default\media\mute_enabled.png" />
+    <Content Include="Skin\default\media\mute_Offdisabled.png" />
+    <Content Include="Skin\default\media\mute_Offenabled.png" />
+    <Content Include="Skin\default\media\nav_back_focus.png" />
+    <Content Include="Skin\default\media\nav_back_nofocus.png" />
+    <Content Include="Skin\default\media\osd_background.png" />
+    <Content Include="Skin\default\media\osd_bg_top.png" />
+    <Content Include="Skin\default\media\osd_pause_focus.png" />
+    <Content Include="Skin\default\media\osd_pause_nofocus.png" />
+    <Content Include="Skin\default\media\osd_play_focus.png" />
+    <Content Include="Skin\default\media\osd_play_nofocus.png" />
+    <Content Include="Skin\default\media\osd_progress_background.png" />
+    <Content Include="Skin\default\media\osd_progress_indicator.png" />
+    <Content Include="Skin\default\media\osd_progress_left.png" />
+    <Content Include="Skin\default\media\osd_progress_mid.png" />
+    <Content Include="Skin\default\media\osd_progress_mid_orange.png" />
+    <Content Include="Skin\default\media\osd_progress_mid_red.png" />
+    <Content Include="Skin\default\media\osd_progress_right.png" />
+    <Content Include="Skin\default\media\osd_subtitles_focus.png" />
+    <Content Include="Skin\default\media\osd_subtitles_nofocus.png" />
+    <Content Include="Skin\default\media\pause_disabled.png" />
+    <Content Include="Skin\default\media\pause_enabled.png" />
+    <Content Include="Skin\default\media\picture_bg.png" />
+    <Content Include="Skin\default\media\picture_bg_preview.png" />
+    <Content Include="Skin\default\media\pip_back.png" />
+    <Content Include="Skin\default\media\playlist_item_delete_focus.png" />
+    <Content Include="Skin\default\media\playlist_item_delete_nofocus.png" />
+    <Content Include="Skin\default\media\playlist_item_delete_nofocus_dimmed.png" />
+    <Content Include="Skin\default\media\playlist_item_down_focus.png" />
+    <Content Include="Skin\default\media\playlist_item_down_nofocus.png" />
+    <Content Include="Skin\default\media\playlist_item_down_nofocus_dimmed.png" />
+    <Content Include="Skin\default\media\playlist_item_up_focus.png" />
+    <Content Include="Skin\default\media\playlist_item_up_nofocus.png" />
+    <Content Include="Skin\default\media\playlist_item_up_nofocus_dimmed.png" />
+    <Content Include="Skin\default\media\play_disabled.png" />
+    <Content Include="Skin\default\media\play_enabled.png" />
+    <Content Include="Skin\default\media\rectangle.png" />
+    <Content Include="Skin\default\media\rectangle_light.png" />
+    <Content Include="Skin\default\media\rew_disabled.png" />
+    <Content Include="Skin\default\media\rew_enabled.png" />
+    <Content Include="Skin\default\media\rotate_left_disabled.png" />
+    <Content Include="Skin\default\media\rotate_left_enabled.png" />
+    <Content Include="Skin\default\media\rotate_right_disabled.png" />
+    <Content Include="Skin\default\media\rotate_right_enabled.png" />
+    <Content Include="Skin\default\media\skipback_disabled.png" />
+    <Content Include="Skin\default\media\skipback_enabled.png" />
+    <Content Include="Skin\default\media\skipforward_disabled.png" />
+    <Content Include="Skin\default\media\skipforward_enabled.png" />
+    <Content Include="Skin\default\media\start_bg.png" />
+    <Content Include="Skin\default\media\start_glow.png" />
+    <Content Include="Skin\default\media\start_logo.png" />
+    <Content Include="Skin\default\media\stop_disabled.png" />
+    <Content Include="Skin\default\media\stop_enabled.png" />
+    <Content Include="Skin\default\media\textbox_glow.png" />
+    <Content Include="Skin\default\media\textbox_notselected.png" />
+    <Content Include="Skin\default\media\textbox_selected.png" />
+    <Content Include="Skin\default\media\thumb_back.png" />
+    <Content Include="Skin\default\media\thumb_back_glow.png" />
+    <Content Include="Skin\default\media\thumb_back_pip.png" />
+    <Content Include="Skin\default\media\unlocked.png" />
+    <Content Include="Skin\default\media\user_bg.png" />
+    <Content Include="Skin\default\media\video-pause.png" />
+    <Content Include="Skin\default\media\video-play.png" />
+    <Content Include="Skin\default\media\Weather\128x128\0.png" />
+    <Content Include="Skin\default\media\Weather\128x128\1.png" />
+    <Content Include="Skin\default\media\Weather\128x128\10.png" />
+    <Content Include="Skin\default\media\Weather\128x128\11.png" />
+    <Content Include="Skin\default\media\Weather\128x128\12.png" />
+    <Content Include="Skin\default\media\Weather\128x128\13.png" />
+    <Content Include="Skin\default\media\Weather\128x128\14.png" />
+    <Content Include="Skin\default\media\Weather\128x128\15.png" />
+    <Content Include="Skin\default\media\Weather\128x128\16.png" />
+    <Content Include="Skin\default\media\Weather\128x128\17.png" />
+    <Content Include="Skin\default\media\Weather\128x128\18.png" />
+    <Content Include="Skin\default\media\Weather\128x128\19.png" />
+    <Content Include="Skin\default\media\Weather\128x128\2.png" />
+    <Content Include="Skin\default\media\Weather\128x128\20.png" />
+    <Content Include="Skin\default\media\Weather\128x128\21.png" />
+    <Content Include="Skin\default\media\Weather\128x128\22.png" />
+    <Content Include="Skin\default\media\Weather\128x128\23.png" />
+    <Content Include="Skin\default\media\Weather\128x128\24.png" />
+    <Content Include="Skin\default\media\Weather\128x128\25.png" />
+    <Content Include="Skin\default\media\Weather\128x128\26.png" />
+    <Content Include="Skin\default\media\Weather\128x128\27.png" />
+    <Content Include="Skin\default\media\Weather\128x128\28.png" />
+    <Content Include="Skin\default\media\Weather\128x128\29.png" />
+    <Content Include="Skin\default\media\Weather\128x128\3.png" />
+    <Content Include="Skin\default\media\Weather\128x128\30.png" />
+    <Content Include="Skin\default\media\Weather\128x128\31.png" />
+    <Content Include="Skin\default\media\Weather\128x128\32.png" />
+    <Content Include="Skin\default\media\Weather\128x128\33.png" />
+    <Content Include="Skin\default\media\Weather\128x128\34.png" />
+    <Content Include="Skin\default\media\Weather\128x128\35.png" />
+    <Content Include="Skin\default\media\Weather\128x128\36.png" />
+    <Content Include="Skin\default\media\Weather\128x128\37.png" />
+    <Content Include="Skin\default\media\Weather\128x128\38.png" />
+    <Content Include="Skin\default\media\Weather\128x128\39.png" />
+    <Content Include="Skin\default\media\Weather\128x128\4.png" />
+    <Content Include="Skin\default\media\Weather\128x128\40.png" />
+    <Content Include="Skin\default\media\Weather\128x128\41.png" />
+    <Content Include="Skin\default\media\Weather\128x128\42.png" />
+    <Content Include="Skin\default\media\Weather\128x128\43.png" />
+    <Content Include="Skin\default\media\Weather\128x128\44.png" />
+    <Content Include="Skin\default\media\Weather\128x128\45.png" />
+    <Content Include="Skin\default\media\Weather\128x128\46.png" />
+    <Content Include="Skin\default\media\Weather\128x128\47.png" />
+    <Content Include="Skin\default\media\Weather\128x128\5.png" />
+    <Content Include="Skin\default\media\Weather\128x128\6.png" />
+    <Content Include="Skin\default\media\Weather\128x128\7.png" />
+    <Content Include="Skin\default\media\Weather\128x128\8.png" />
+    <Content Include="Skin\default\media\Weather\128x128\9.png" />
+    <Content Include="Skin\default\media\Weather\128x128\na.png" />
+    <Content Include="Skin\default\media\Weather\128x128\permission.txt" />
+    <Content Include="Skin\default\media\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\default\media\Weather\64x64\0.png" />
+    <Content Include="Skin\default\media\Weather\64x64\1.png" />
+    <Content Include="Skin\default\media\Weather\64x64\10.png" />
+    <Content Include="Skin\default\media\Weather\64x64\11.png" />
+    <Content Include="Skin\default\media\Weather\64x64\12.png" />
+    <Content Include="Skin\default\media\Weather\64x64\13.png" />
+    <Content Include="Skin\default\media\Weather\64x64\14.png" />
+    <Content Include="Skin\default\media\Weather\64x64\15.png" />
+    <Content Include="Skin\default\media\Weather\64x64\16.png" />
+    <Content Include="Skin\default\media\Weather\64x64\17.png" />
+    <Content Include="Skin\default\media\Weather\64x64\18.png" />
+    <Content Include="Skin\default\media\Weather\64x64\19.png" />
+    <Content Include="Skin\default\media\Weather\64x64\2.png" />
+    <Content Include="Skin\default\media\Weather\64x64\20.png" />
+    <Content Include="Skin\default\media\Weather\64x64\21.png" />
+    <Content Include="Skin\default\media\Weather\64x64\22.png" />
+    <Content Include="Skin\default\media\Weather\64x64\23.png" />
+    <Content Include="Skin\default\media\Weather\64x64\24.png" />
+    <Content Include="Skin\default\media\Weather\64x64\25.png" />
+    <Content Include="Skin\default\media\Weather\64x64\26.png" />
+    <Content Include="Skin\default\media\Weather\64x64\27.png" />
+    <Content Include="Skin\default\media\Weather\64x64\28.png" />
+    <Content Include="Skin\default\media\Weather\64x64\29.png" />
+    <Content Include="Skin\default\media\Weather\64x64\3.png" />
+    <Content Include="Skin\default\media\Weather\64x64\30.png" />
+    <Content Include="Skin\default\media\Weather\64x64\31.png" />
+    <Content Include="Skin\default\media\Weather\64x64\32.png" />
+    <Content Include="Skin\default\media\Weather\64x64\33.png" />
+    <Content Include="Skin\default\media\Weather\64x64\34.png" />
+    <Content Include="Skin\default\media\Weather\64x64\35.png" />
+    <Content Include="Skin\default\media\Weather\64x64\36.png" />
+    <Content Include="Skin\default\media\Weather\64x64\37.png" />
+    <Content Include="Skin\default\media\Weather\64x64\38.png" />
+    <Content Include="Skin\default\media\Weather\64x64\39.png" />
+    <Content Include="Skin\default\media\Weather\64x64\4.png" />
+    <Content Include="Skin\default\media\Weather\64x64\40.png" />
+    <Content Include="Skin\default\media\Weather\64x64\41.png" />
+    <Content Include="Skin\default\media\Weather\64x64\42.png" />
+    <Content Include="Skin\default\media\Weather\64x64\43.png" />
+    <Content Include="Skin\default\media\Weather\64x64\44.png" />
+    <Content Include="Skin\default\media\Weather\64x64\45.png" />
+    <Content Include="Skin\default\media\Weather\64x64\46.png" />
+    <Content Include="Skin\default\media\Weather\64x64\47.png" />
+    <Content Include="Skin\default\media\Weather\64x64\5.png" />
+    <Content Include="Skin\default\media\Weather\64x64\6.png" />
+    <Content Include="Skin\default\media\Weather\64x64\7.png" />
+    <Content Include="Skin\default\media\Weather\64x64\8.png" />
+    <Content Include="Skin\default\media\Weather\64x64\9.png" />
+    <Content Include="Skin\default\media\Weather\64x64\na.png" />
+    <Content Include="Skin\default\media\Weather\64x64\permission.txt" />
+    <Content Include="Skin\default\media\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\default\media\Weather\Logos\TWClogo_32px.png" />
+    <Content Include="Skin\default\media\Weather\Logos\TWClogo_64px.png" />
+    <Content Include="Skin\default\media\Weather\Logos\weather48x48.gif" />
+    <Content Include="Skin\default\media\white_border.png" />
+    <Content Include="Skin\default\media\zoom_in_disabled.png" />
+    <Content Include="Skin\default\media\zoom_in_enabled.png" />
+    <Content Include="Skin\default\media\zoom_out_disabled.png" />
+    <Content Include="Skin\default\media\zoom_out_enabled.png" />
+    <Content Include="Skin\default\screenfiles\readme.txt" />
+    <Content Include="Skin\default\screenfiles\batchtest.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogAudioStreams.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogDvdChapters.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogDvdTitles.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogLoadPlayList.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMediaSortMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMovieContextMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMovieSortMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMovieViewMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMusicContextMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMusicSortMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMusicViewMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMyPictureContextMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMyPictureSortMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogMyPictureViewMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogNoSharesDefined.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsAspect.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsAudioCodec.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsAudioLanguage.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsDivXVideoCodec.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsFullscreen.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsH264VideoCodec.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsLanguage.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsMpg2VideoCodec.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsRefreshrate.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsRefreshrate24FPS.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsRefreshrate25FPS.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsRefreshrate30FPS.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsRefreshrateControl.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsRefreshrateDefault.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsSkin.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsSubtitleLanguage.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSettingsTheme.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogSubtitles.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogVideoContextMenu.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogWeatherLocations.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogWeatherRemoveCity.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogWeatherSearch.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogWeatherSearchResult.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogWeatherSetup.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogYesNo.xaml" />
+    <Content Include="Skin\default\screenfiles\dialogZoomModes.xaml" />
+    <Content Include="Skin\default\screenfiles\fullscreenvideo.xaml" />
+    <Content Include="Skin\default\screenfiles\home.xaml" />
+    <Content Include="Skin\default\screenfiles\imdbresultchoice.xaml" />
+    <Content Include="Skin\default\screenfiles\master.xaml" />
+    <Content Include="Skin\default\screenfiles\master_dialog.xaml" />
+    <Content Include="Skin\default\screenfiles\master_dialog_menu.xaml" />
+    <Content Include="Skin\default\screenfiles\master_menu.xaml" />
+    <Content Include="Skin\default\screenfiles\movieEnded.xaml" />
+    <Content Include="Skin\default\screenfiles\movieResume.xaml" />
+    <Content Include="Skin\default\screenfiles\movieStopped.xaml" />
+    <Content Include="Skin\default\screenfiles\music.xaml" />
+    <Content Include="Skin\default\screenfiles\osd.xaml" />
+    <Content Include="Skin\default\screenfiles\picturedetail.xaml" />
+    <Content Include="Skin\default\screenfiles\pictureEditting.xaml" />
+    <Content Include="Skin\default\screenfiles\pictures.xaml" />
+    <Content Include="Skin\default\screenfiles\pictureviewer.xaml" />
+    <Content Include="Skin\default\screenfiles\playlist.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsAppearance.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsAudioSetup.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsAudioSetup2.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsGeneral.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsLanguage.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsMonitorSetup.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsMonitorSetup2.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsMusic.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsPlayback.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsRefreshrate.xaml" />
+    <Content Include="Skin\default\screenfiles\settingsScreen.xaml" />
+    <Content Include="Skin\default\screenfiles\shares.xaml" />
+    <Content Include="Skin\default\screenfiles\sharesAdd.xaml" />
+    <Content Include="Skin\default\screenfiles\sharesCancel.xaml" />
+    <Content Include="Skin\default\screenfiles\sharesRefreshing.xaml" />
+    <Content Include="Skin\default\screenfiles\sharesRemove.xaml" />
+    <Content Include="Skin\default\screenfiles\weather.xaml" />
+    <Content Include="Skin\default\themes\default\theme.xml" />
+    <Content Include="Skin\default\themes\default\media\preview.png" />
+    <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml" />
+    <Content Include="Skin\default\themes\default\styles\XamlStyle.xaml" />
+    <Content Include="Skin\default\themes\default\styles\styles_osd.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Skin\default\shaders\blur.fx" />
+    <None Include="Skin\default\shaders\dialogbg.fx" />
+    <None Include="Skin\default\shaders\font.fx" />
+    <None Include="Skin\default\shaders\greyscale.fx" />
+    <None Include="Skin\default\shaders\lineargradient.fx" />
+    <None Include="Skin\default\shaders\linearopacitygradient.fx" />
+    <None Include="Skin\default\shaders\normal.fx" />
+    <None Include="Skin\default\shaders\radialgradient.fx" />
+    <None Include="Skin\default\shaders\radialopacitygradient.fx" />
+    <None Include="Skin\default\shaders\smartzoom.fx" />
+    <None Include="Skin\default\shaders\solidbrush.fx" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+xcopy /Y /S "$(ProjectDir)Language\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+xcopy /Y /S "$(ProjectDir)Skin\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+</PostBuildEvent>
+  </PropertyGroup>
+</Project>

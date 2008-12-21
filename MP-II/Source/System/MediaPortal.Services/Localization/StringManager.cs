@@ -101,13 +101,6 @@ namespace MediaPortal.Services.Localization
 
         ICollection<string> languageDirectories = new List<string>();
         // Add language directories
-        IPathManager pathManager = ServiceScope.Get<IPathManager>();
-        if (pathManager.Exists("<LANGUAGE>"))
-        {
-          string systemLanguageDirectory = pathManager.GetPath("<LANGUAGE>");
-          languageDirectories.Add(systemLanguageDirectory);
-        }
-
         ICollection<PluginResource> languageResources = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PluginResource>(
             "/Resources/Language", new FixedItemStateTracker());
 

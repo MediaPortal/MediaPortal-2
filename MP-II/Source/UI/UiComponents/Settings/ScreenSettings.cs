@@ -25,11 +25,9 @@
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Screen;
 
-namespace Models.Settings
+namespace UiComponents.Settings
 {
   public class ScreenSettings
   {

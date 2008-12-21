@@ -7,7 +7,7 @@
     <ProjectGuid>{F5A200C6-3E9C-4367-9950-E4F5A04FC0A5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Models.Login</RootNamespace>
+    <RootNamespace>UiComponents.Login</RootNamespace>
     <AssemblyName>Login</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

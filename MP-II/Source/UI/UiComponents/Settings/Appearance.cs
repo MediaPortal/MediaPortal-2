@@ -29,12 +29,11 @@ using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Presentation.SkinResources;
 
 
-namespace Models.Settings
+namespace UiComponents.Settings
 {
 
   public class Appearance

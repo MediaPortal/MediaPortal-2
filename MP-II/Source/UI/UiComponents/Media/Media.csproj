@@ -7,7 +7,7 @@
     <ProjectGuid>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Models.Media</RootNamespace>
+    <RootNamespace>UiComponents.Media</RootNamespace>
     <AssemblyName>Media</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

@@ -27,10 +27,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 
-using Models.Weather.Grabbers;
+using UiComponents.Weather.Grabbers;
 
 
-namespace Models.Weather
+namespace UiComponents.Weather
 {
   public class WeatherSetupViewModel
   {

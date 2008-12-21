@@ -1,0 +1,24 @@
+<Plugin
+    Version = "1.0"
+    Name = "SkinBase"
+    Author = "Team MediaPortal"
+    Copyright = "GPL"
+    Description = "Base services for the skin and default skin"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName="SkinBase.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="UiComponents.SkinBase.MenuModel"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="DefaultLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="DefaultSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

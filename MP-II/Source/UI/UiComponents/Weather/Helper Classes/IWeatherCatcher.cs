@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace Models.Weather
+namespace UiComponents.Weather
 {
   /// <summary>
   /// this is an Interface for catching weather data

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Models.Weather.Properties {
+namespace UiComponents.Weather.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

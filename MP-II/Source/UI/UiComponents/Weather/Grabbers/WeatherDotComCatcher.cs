@@ -34,7 +34,7 @@ using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 
-namespace Models.Weather.Grabbers
+namespace UiComponents.Weather.Grabbers
 {
   /// <summary>
   /// Implementation of the IWeatherCatcher

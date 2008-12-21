@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <RootNamespace>Models.Weather</RootNamespace>
+    <RootNamespace>UiComponents.Weather</RootNamespace>
     <AssemblyName>Weather</AssemblyName>
     <WarningLevel>4</WarningLevel>
     <OutputType>Library</OutputType>

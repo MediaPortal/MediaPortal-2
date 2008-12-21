@@ -6,5 +6,4 @@
  <Path name="DATABASE" value="&lt;DATA&gt;\Database" />
  <Path name="MPINSTALLER" value="&lt;DATA&gt;\Installer" />
  <Path name="PLUGINS" value="&lt;APPLICATION_ROOT&gt;\Plugins" />
- <Path name="LANGUAGE" value="&lt;APPLICATION_ROOT&gt;\Language" />
 </Paths>

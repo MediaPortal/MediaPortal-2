@@ -11,7 +11,7 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" ClassName="Models.Media.MediaModel"/>
+    <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" ClassName="UiComponents.Media.MediaModel"/>
   </Register>
 
   <Register Location="/Resources/Language">

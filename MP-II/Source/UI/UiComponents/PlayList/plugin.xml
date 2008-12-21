@@ -11,6 +11,6 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="{CF729CE1-8A47-4fde-A0DF-D808A38B4EE8}" Name="PlayList" ClassName="Models.PlayList.PlayList"/>
+    <Model Id="{CF729CE1-8A47-4fde-A0DF-D808A38B4EE8}" Name="PlayList" ClassName="UiComponents.PlayList.PlayList"/>
   </Register>
 </Plugin>

@@ -21,7 +21,7 @@
 */
 
 #endregion
-using System;
+
 using System.Collections.Generic;
 
 using MediaPortal.Core;
@@ -29,10 +29,10 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 
-using Models.Weather.Grabbers;
+using UiComponents.Weather.Grabbers;
 
 
-namespace Models.Weather
+namespace UiComponents.Weather
 {
   /// <summary>
   /// ViewModel Class for weather.xml

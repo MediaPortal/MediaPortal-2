@@ -26,7 +26,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Presentation.DataObjects;
 
-namespace Models.Media
+namespace UiComponents.Media
 {
   /// <summary>
   /// Holds a GUI item which encapsulates a playable media item.

@@ -135,14 +135,11 @@
     <String Name="settingsfade" Text="Fade on Stop"/>
     <String Name="settingsgapless" Text="Gapless Playback"/>
   </Section>
-  <Section Name="media">
-    <String Name="name" Text="My Media"/>
-  </Section>
   <Section Name="home">
     <String Name="title" Text="MediaPortal"/>
   </Section>
   <Section Name="login">
-    <String Name="welcome" Text="welcome"/>
+    <String Name="welcome" Text="Welcome"/>
   </Section>
   <Section Name="weather">
     <String Name="0" Text="My Weather"/>

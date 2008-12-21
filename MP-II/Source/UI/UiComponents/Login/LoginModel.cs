@@ -29,7 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.UserManagement;
 
-namespace Models.Login
+namespace UiComponents.Login
 {
   /// <summary>
   /// viewmodel for handling logins

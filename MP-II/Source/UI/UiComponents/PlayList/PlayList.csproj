@@ -7,7 +7,7 @@
     <ProjectGuid>{B75F0C3D-C482-4797-B760-B73ED801A1FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PlayList</RootNamespace>
+    <RootNamespace>UiComponents.PlayList</RootNamespace>
     <AssemblyName>PlayList</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

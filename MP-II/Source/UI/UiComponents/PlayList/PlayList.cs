@@ -26,14 +26,11 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Media.MetaData;
-using MediaPortal.Media.MediaManagement;
 
 
-namespace Models.PlayList
+namespace UiComponents.PlayList
 {
   public class PlayList
   {

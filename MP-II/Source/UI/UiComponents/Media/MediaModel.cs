@@ -32,7 +32,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Workflow;
 
-namespace Models.Media
+namespace UiComponents.Media
 {
   /// <summary>
   /// Model which holds the GUI state for the current navigation in the media views.

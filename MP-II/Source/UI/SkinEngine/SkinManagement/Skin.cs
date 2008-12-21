@@ -171,6 +171,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
       if (_metadataInitialized)
         return;
       string metaFilePath = GetResourceFilePath(SKIN_META_FILE);
+      if (metaFilePath == null)
+        return;
       _metadataInitialized = LoadMetadata(metaFilePath);
     }
 
@@ -181,7 +183,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         XmlDocument doc = new XmlDocument();
         doc.Load(metaFilePath);
         XmlElement skinElement = doc.DocumentElement;
-        if (skinElement.Name != "Skin")
+        if (skinElement == null || skinElement.Name != "Skin")
           throw new ArgumentException("File is no skin descriptor (needs to contain a 'Skin' element)");
 
         bool versionOk = false;

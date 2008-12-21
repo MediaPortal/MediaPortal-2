@@ -24,7 +24,7 @@
 
 using MediaPortal.Presentation.DataObjects;
 
-namespace Models.Shares
+namespace UiComponents.Shares
 {
   public class FolderItem : TreeItem
   {

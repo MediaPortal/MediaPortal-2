@@ -7,7 +7,7 @@
     <ProjectGuid>{EAE480DB-43B8-43EF-94EE-074499BC23E5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Models.Shares</RootNamespace>
+    <RootNamespace>UiComponents.Shares</RootNamespace>
     <AssemblyName>Shares</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

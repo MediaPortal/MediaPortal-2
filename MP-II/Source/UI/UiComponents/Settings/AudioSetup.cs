@@ -24,9 +24,8 @@
 
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.MenuManager;
 
-namespace Models.Settings
+namespace UiComponents.Settings
 {
   public class AudioSetup
   {

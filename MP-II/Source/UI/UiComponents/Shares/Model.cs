@@ -27,11 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.MenuManager;
-using MediaPortal.Media.Importers;
 using MediaPortal.Presentation.Screen;
 
-namespace Models.Shares
+namespace UiComponents.Shares
 {
   /// <summary>
   /// Model which holds the GUI state for the shares configuration screens.
