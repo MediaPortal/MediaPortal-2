@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -66,6 +66,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
+    <Reference Include="System.Management" />
+    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigSetting.cs" />
@@ -150,6 +153,30 @@
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\IResourceString.cs" />
     <Compile Include="Presentation\Screen\IScreenManager.cs" />
+    <Compile Include="Services\Burning\Burner.cs" />
+    <Compile Include="Services\Burning\BurnManager.cs" />
+    <Compile Include="Services\Burning\DeviceHelper.cs" />
+    <Compile Include="Services\Burning\DriveFeatures.cs" />
+    <Compile Include="Services\Burning\EventHelper.cs" />
+    <Compile Include="Services\Burning\MediaInfo.cs" />
+    <Compile Include="Services\Burning\MediaTypeSupport.cs" />
+    <Compile Include="Services\InputManager\InputMapper.cs" />
+    <Compile Include="Services\Localization\LocalizationStrings.cs" />
+    <Compile Include="Services\Localization\StringManager.cs" />
+    <Compile Include="Services\Logging\CrashLogger.cs" />
+    <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
+    <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
+    <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
+    <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
+    <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
+    <Compile Include="Services\UserManagement\Permission.cs" />
+    <Compile Include="Services\UserManagement\Role.cs" />
+    <Compile Include="Services\UserManagement\User.cs" />
+    <Compile Include="Services\UserManagement\UserService.cs" />
+    <Compile Include="Services\Workflow\ModelBuilder.cs" />
+    <Compile Include="Services\Workflow\WorkflowManager.cs" />
+    <Compile Include="Services\Workflow\WorkflowResourcesLoader.cs" />
     <Compile Include="Thumbnails\IAsyncThumbnailGenerator.cs" />
     <Compile Include="UserManagement\IPermission.cs" />
     <Compile Include="UserManagement\IPermissionObject.cs" />

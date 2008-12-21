@@ -70,31 +70,7 @@
     <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Burning\Burner.cs" />
-    <Compile Include="Burning\BurnManager.cs" />
-    <Compile Include="Burning\DeviceHelper.cs" />
-    <Compile Include="Burning\DriveFeatures.cs" />
-    <Compile Include="Burning\EventHelper.cs" />
-    <Compile Include="Burning\MediaInfo.cs" />
-    <Compile Include="Burning\MediaTypeSupport.cs" />
-    <Compile Include="InputManager\InputMapper.cs" />
-    <Compile Include="Localization\LocalizationStrings.cs" />
-    <Compile Include="Localization\StringManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThumbnailGenerator\Database\Thumb.cs" />
-    <Compile Include="ThumbnailGenerator\Database\ThumbDatabase.cs" />
-    <Compile Include="ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
-    <Compile Include="ThumbnailGenerator\ThumbnailGenerator.cs" />
-    <Compile Include="ThumbnailGenerator\ThumbnailBuilder.cs" />
-    <Compile Include="ThumbnailGenerator\WorkItem.cs" />
-    <Compile Include="UserManagement\Permission.cs" />
-    <Compile Include="UserManagement\Role.cs" />
-    <Compile Include="UserManagement\User.cs" />
-    <Compile Include="UserManagement\UserService.cs" />
-    <Compile Include="Logging\CrashLogger.cs" />
-    <Compile Include="Workflow\ModelBuilder.cs" />
-    <Compile Include="Workflow\WorkflowManager.cs" />
-    <Compile Include="Workflow\WorkflowResourcesLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

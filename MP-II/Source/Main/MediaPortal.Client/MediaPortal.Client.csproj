@@ -99,10 +99,6 @@
       <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
       <Name>MediaPortal.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\System\MediaPortal.Services\MediaPortal.Services.csproj">
-      <Project>{CB51230C-99F4-4BF5-BB60-2F2C725BDF20}</Project>
-      <Name>MediaPortal.Services</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
