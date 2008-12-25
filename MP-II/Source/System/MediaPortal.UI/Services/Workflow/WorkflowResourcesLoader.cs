@@ -133,11 +133,23 @@ namespace MediaPortal.Services.Workflow
               break;
             case "MenuActions":
               foreach (WorkflowStateAction action in LoadActions(childElement))
+              {
+                if (_menuActions.ContainsKey(action.ActionId))
+                  throw new ArgumentException(string.Format(
+                      "A menu action with id '{0}' was already registered with action name '{1}' (name of duplicate action is '{2}') -> Forgot to create a new GUID?",
+                      action.ActionId, _menuActions[action.ActionId].Name, action.Name));
                 _menuActions.Add(action.ActionId, action);
+              }
               break;
             case "ContextMenuActions":
               foreach (WorkflowStateAction action in LoadActions(childElement))
+              {
+                if (_contextMenuActions.ContainsKey(action.ActionId))
+                  throw new ArgumentException(string.Format(
+                      "A context menu action with id '{0}' was already registered with action name '{1}' (name of duplicate action is '{2}') -> Forgot to create a new GUID?",
+                      action.ActionId, _contextMenuActions[action.ActionId].Name, action.Name));
                 _contextMenuActions.Add(action.ActionId, action);
+              }
               break;
             default:
               throw new ArgumentException("'Workflow' element doesn't support a child element '" + child.Name + "'");
@@ -146,7 +158,7 @@ namespace MediaPortal.Services.Workflow
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Error("Error parsing workflow resource file '" + filePath + "'", e);
+        ServiceScope.Get<ILogger>().Error("Error loading workflow resource file '" + filePath + "'", e);
       }
     }
 
@@ -162,7 +174,9 @@ namespace MediaPortal.Services.Workflow
           case "State":
             WorkflowState state = LoadState(childElement);
             if (_states.ContainsKey(state.StateId))
-              throw new ArgumentException("Duplicate definition of workflow state '" + state.Name + "' (Id: '" + state.StateId + "')");
+              throw new ArgumentException(string.Format(
+                  "A workflow state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
+                  state.StateId, _states[state.StateId].Name, state.Name));
             _states.Add(state.StateId, state);
             break;
           case "AdditionalModels":
