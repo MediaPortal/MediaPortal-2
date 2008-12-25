@@ -253,7 +253,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4" Margin="0,0,0,0">
+          <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4">
             <Rectangle.Fill>
               <RadialGradientBrush GradientOrigin="0.85,0.82">
                 <RadialGradientBrush.RelativeTransform>
@@ -284,7 +284,10 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
