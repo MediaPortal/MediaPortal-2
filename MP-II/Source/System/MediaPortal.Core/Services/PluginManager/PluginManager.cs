@@ -737,6 +737,9 @@ namespace MediaPortal.Core.Services.PluginManager
         try
         {
           IPluginMetadata pm = new PluginDirectoryDescriptor(pluginDirectoryPath);
+          if (result.ContainsKey(pm.Name))
+            throw new ArgumentException(string.Format(
+                "Duplicate plugin '{0}'", pm.Name));
           result.Add(pm.Name, pm);
         }
         catch (Exception e)
