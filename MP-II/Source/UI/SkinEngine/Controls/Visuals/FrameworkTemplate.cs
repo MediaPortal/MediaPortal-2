@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
@@ -34,7 +35,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   /// <summary>
   /// Defines a container for UI elements which are used as template controls
   /// for all types of UI-templates. Special template types
-  /// like <see cref="Styles.ControlTemplate"/> or <see cref="DataTemplate"/> are derived
+  /// like <see cref="ControlTemplate"/> or <see cref="DataTemplate"/> are derived
   /// from this class. This class basically has no other job than holding those
   /// UI elements and cloning them when the template should be applied
   /// (method <see cref="LoadContent()"/>).
@@ -96,6 +97,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public UIElement LoadContent()
     {
+      if (_templateElement == null)
+        return null;
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
       UIElement result = cm.GetCopy(_templateElement);
