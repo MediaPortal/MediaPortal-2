@@ -15,15 +15,9 @@ Usage:
       <ResourceWrapper x:Key="Header_Text">
         [Header text]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Menu_Items">
-        [Collection of ListItem instances]
-      </ResourceWrapper>
       <ResourceWrapper x:Key="Contents_Element">
         [UI element to be displayed in the content area. This element will
          be placed into a ScrollViewer.]
-      </ResourceWrapper>
-      <ResourceWrapper x:Key="Menu_Command">
-        [Command to be assigned to the menu button.]
       </ResourceWrapper>
     </Include.Resources>
   </Include>
@@ -51,8 +45,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
       <DockPanel>
+        <Label Content="{DynamicResource Menu_Header_Text}" Margin="25,0,0,0" DockPanel.Dock="Top"/>
         <StackPanel x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-          <ListView x:Name="MainMenu" Height="304" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{DynamicResource Menu_Items}">
+          <ListView x:Name="MainMenu" Height="304" Width="200" Style="{StaticResource MenuListViewStyle}"
+              ItemsSource="{Binding Source={Model Id=9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>

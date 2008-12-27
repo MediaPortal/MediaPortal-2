@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Media workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="{F6255762-C52A-4231-9E67-14C28735216E}"
+        Name="Home->ConfigurationMain"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="E7422BB8-2779-49ab-BC99-E3F56138061B"
+        DisplayTitle="[Configuration.Name]"/>
+  </MenuActions>
+</Workflow>

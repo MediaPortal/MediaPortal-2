@@ -38,16 +38,16 @@ namespace MediaPortal.Presentation.Workflow
 
     protected Guid _actionId;
     protected string _name;
-    protected Guid _sourceState;
+    protected Guid _sourceStateId;
     protected IResourceString _displayTitle;
 
     #endregion
 
-    protected WorkflowStateAction(Guid actionId, string name, Guid sourceState, IResourceString displayTitle)
+    protected WorkflowStateAction(Guid actionId, string name, Guid sourceStateId, IResourceString displayTitle)
     {
       _actionId = actionId;
       _name = name;
-      _sourceState = sourceState;
+      _sourceStateId = sourceStateId;
       _displayTitle = displayTitle;
     }
 
@@ -71,9 +71,9 @@ namespace MediaPortal.Presentation.Workflow
     /// <summary>
     /// Returns the id of the workflow state where this action is available.
     /// </summary>
-    public Guid SourceState
+    public Guid SourceStateId
     {
-      get { return _sourceState; }
+      get { return _sourceStateId; }
     }
 
     /// <summary>

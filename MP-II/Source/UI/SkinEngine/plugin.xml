@@ -1,14 +1,14 @@
 <Plugin
-    Version = "1.0"
-    Name = "SkinEngine"
-    Author = "Frodo, Albert78"
-    Copyright = "GPL"
-    AutoActivate = "true" 
-    Description = "DirectX Window Manager"
-    PluginVersion = "1.0">
+    Version="1.0"
+    Name="SkinEngine"
+    Author="Frodo, Albert78"
+    Copyright="GPL"
+    AutoActivate="true" 
+    Description="DirectX Window Manager"
+    PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference Name="Configuration"/>
+    <PluginReference Name="ConfigurationManager"/>
   </DependsOn>
 
   <Runtime>
@@ -22,6 +22,7 @@
         Redundant="true"
         Text="[configuration.system]"/>
   </Register>
+
   <Register Location="/Configuration/Settings/Appearance/System">
     <ConfigSetting
         Id="Fullscreen"

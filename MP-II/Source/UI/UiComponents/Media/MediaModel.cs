@@ -40,9 +40,9 @@ namespace UiComponents.Media
   public class MediaModel : IWorkflowModel
   {
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
+
     #region Protected fields
 
-    protected ItemsList _sortMenu;
     protected readonly ItemsList _items; // Only one items list allowed as the UI databinds to it.
     protected Property _currentViewProperty;
     protected Property _navigatableParentItemProperty;
@@ -186,12 +186,26 @@ namespace UiComponents.Media
       get { return new Guid(MEDIA_MODEL_ID_STR); }
     }
 
-    public void StartModelContext(NavigationContext context)
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // We could initialize some data here when entering the media navigation state
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // We could dispose some data here when exiting media navigation context
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      // We could initialize some data here when changing the media navigation state
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+    }
+
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
     }
 

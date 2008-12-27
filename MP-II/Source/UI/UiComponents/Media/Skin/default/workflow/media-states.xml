@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Media workflow items -->
+<!-- Media workflow states -->
 <Workflow DescriptorVersion="1.0">
   <States>
     <State Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"

@@ -27,7 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Registry;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Configuration
+namespace MediaPortal.Configuration.ConfigurationManagement
 {
   /// <summary>
   /// Configuration tree containing <see cref="ConfigurationNode"/> instances.

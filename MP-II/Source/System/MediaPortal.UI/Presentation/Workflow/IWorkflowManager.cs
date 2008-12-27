@@ -33,28 +33,28 @@ namespace MediaPortal.Presentation.Workflow
   public interface IWorkflowManager
   {
     /// <summary>
-    /// Returns all currently known workflow states.
+    /// Returns all currently known workflow states. The dictionary maps state ids to states.
     /// </summary>
     /// <remarks>
     /// This collection will change when plugins are added or removed.
     /// </remarks>
-    ICollection<WorkflowState> States { get; }
+    IDictionary<Guid, WorkflowState> States { get; }
 
     /// <summary>
-    /// Returns all currently known menu state actions.
+    /// Returns all currently known menu state actions. The dictionary maps action ids to actions.
     /// </summary>
     /// <remarks>
     /// This collection maybe change when plugins are added or removed.
     /// </remarks>
-    ICollection<WorkflowStateAction> MenuStateActions { get; }
+    IDictionary<Guid, WorkflowStateAction> MenuStateActions { get; }
 
     /// <summary>
-    /// Returns all currently known context menu state actions.
+    /// Returns all currently known context menu state actions. The dictionary maps action ids to actions.
     /// </summary>
     /// <remarks>
     /// This collection maybe change when plugins are added or removed.
     /// </remarks>
-    ICollection<WorkflowStateAction> ContextMenuStateActions { get; }
+    IDictionary<Guid, WorkflowStateAction> ContextMenuStateActions { get; }
 
     /// <summary>
     /// Returns the navigation structure consisting of a stack of currently active navigation contexts.
@@ -70,11 +70,20 @@ namespace MediaPortal.Presentation.Workflow
     NavigationContext CurrentNavigationContext { get; }
 
     /// <summary>
-    /// Navigates to the specified state. This will push a new navigation context entry containing
-    /// the specified state on top of the navigation context stack. This realizes a forward navigation.
+    /// Navigates to the specified non-transient state. This will push a new navigation context entry
+    /// containing the specified state on top of the navigation context stack. This realizes a
+    /// forward navigation.
     /// </summary>
-    /// <param name="stateId">Id of the state to enter.</param>
+    /// <param name="stateId">Id of the non-transient state to enter.</param>
     void NavigatePush(Guid stateId);
+
+    /// <summary>
+    /// Navigates to the specified transient state. This will push a new navigation context entry
+    /// containing the specified state on top of the navigation context stack. This realizes a
+    /// forward navigation.
+    /// </summary>
+    /// <param name="state">Id of the new transient state to add and enter.</param>
+    void NavigatePushTransient(WorkflowState state);
 
     /// <summary>
     /// Removes the <paramref name="count"/> youngest navigation context levels from the
@@ -82,6 +91,15 @@ namespace MediaPortal.Presentation.Workflow
     /// </summary>
     /// <param name="count">Number of navigation levels to remove.</param>
     void NavigatePop(int count);
+
+    /// <summary>
+    /// Returns the information if one of the active navigation contexts on the stack contains the model
+    /// with the specified <paramref name="modelId"/>.
+    /// </summary>
+    /// <param name="modelId">Id of the model to search.</param>
+    /// <returns><c>true</c>, if the specified model is currently used in any navigation context, else
+    /// <c>false</c>.</returns>
+    bool IsModelContainedInNavigationStack(Guid modelId);
 
     // TODO: State and model context listeners
   }

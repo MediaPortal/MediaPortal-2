@@ -44,6 +44,7 @@ namespace MediaPortal.Presentation.Workflow
     protected WorkflowState _workflowState;
     protected IDictionary<Guid, WorkflowStateAction> _menuActions = new Dictionary<Guid, WorkflowStateAction>();
     protected IDictionary<Guid, WorkflowStateAction> _contextMenuActions = new Dictionary<Guid, WorkflowStateAction>();
+    protected Guid? _workflowModelId;
     protected IDictionary<Guid, object> _models = new Dictionary<Guid, object>();
 
     #endregion
@@ -54,10 +55,11 @@ namespace MediaPortal.Presentation.Workflow
     /// This constructor has to be called from the component managing the navigation context stack.
     /// </summary>
     public NavigationContext(WorkflowState workflowState, NavigationContext predecessor,
-        IDictionary<Guid, object> models)
+        Guid? workflowModelId, IDictionary<Guid, object> models)
     {
       _workflowState = workflowState;
       _predecessor = predecessor;
+      _workflowModelId = workflowModelId;
       _models = models;
     }
 
@@ -130,12 +132,29 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
+    /// Returns the workflow model id used in this navigation context.
+    /// </summary>
+    public Guid? WorkflowModelId
+    {
+      get { return _workflowModelId; }
+    }
+
+    /// <summary>
     /// Returns the dictionary of all models which are used in this navigation context.
     /// This contains the workflow model as well as additional models for this state.
     /// </summary>
     public IDictionary<Guid, object> Models
     {
       get { return _models; }
+    }
+
+    /// <summary>
+    /// Returns the predecessor navigation context, if it exists. For the root navigation context,
+    /// <c>null</c> will be returned.
+    /// </summary>
+    public NavigationContext Predecessor
+    {
+      get { return _predecessor; }
     }
 
     #endregion

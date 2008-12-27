@@ -82,9 +82,6 @@ namespace MediaPortal.Manager
         logger.Level = level;
         logger.LogMethodNames = logMethods;
 
-        logger.Debug("Manager: Registering Configuration Manager");
-        ServiceScope.Add<IConfigurationManager>(new ConfigurationManager());
-
         logger.Debug("Manager: Registering Strings Manager");
         ServiceScope.Add<ILocalisation>(new StringManager());
 

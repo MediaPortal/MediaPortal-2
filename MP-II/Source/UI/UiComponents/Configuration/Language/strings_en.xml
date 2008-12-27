@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Language>
+  <Section Name="Configuration">
+    <String Name="Name" Text="Settings"/>
+    <String Name="MainSettings" Text="Main settings"/> <!-- 2nd Header for root configuration section -->
+  </Section>
+</Language>

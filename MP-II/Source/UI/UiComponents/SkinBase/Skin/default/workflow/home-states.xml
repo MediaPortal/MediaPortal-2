@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Workflow items for the home screen -->
+<!-- Workflow states for the home screen -->
 <Workflow DescriptorVersion="1.0">
   <States>
     <State Id="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"

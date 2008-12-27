@@ -479,6 +479,8 @@
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
+          <Canvas Width="160" Height="104" Background="Black"/>
+<!-- TODO: Replace canvas by this comment when players service works again
           <Canvas Width="160" Height="104" DataContext="{Binding Source={Service Players}}">
             <Rectangle x:Name="Border" Width="160" Height="104" Stroke="#FF000000" StrokeThickness="0">
               <Rectangle.Fill>
@@ -491,6 +493,7 @@
             <Label Canvas.Left="170" Canvas.Top="42" x:Name="label2" FontSize="20" Width="400" Height="32" Content="{Binding OSD.MediaItem[artist]}" Color="#A0FFFFFF" IsVisible="False"/>
             <Label Canvas.Left="170" Canvas.Top="72" x:Name="label3" FontSize="20" Width="104" Height="32" Content="{Binding OSD.CurrentTime}" Color="#A0FFFFFF" IsVisible="False"/>
           </Canvas>
+-->
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>

@@ -78,7 +78,7 @@ namespace MediaPortal.Core.Registry
     {
       CheckAbsolute(path);
       int i = 0;
-      while (path[i] == '/')
+      while (path.Length > i && path[i] == '/')
         i++;
       return path.Substring(i);
     }

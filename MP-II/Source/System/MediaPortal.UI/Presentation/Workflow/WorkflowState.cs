@@ -39,21 +39,23 @@ namespace MediaPortal.Presentation.Workflow
     protected Guid _stateId;
     protected string _name;
     protected string _mainScreen;
-    protected Guid? _workflowModelId;
-    protected ICollection<Guid> _additionalModels;
+    protected bool _isTransient;
     protected bool _inheritMenu;
     protected bool _inheritContextMenu;
+    protected Guid? _workflowModelId;
+    protected ICollection<Guid> _additionalModels;
 
     #endregion
 
     public WorkflowState(Guid stateId, string name, string mainScreen, bool inheritMenu, bool inheritContextMenu,
-        Guid? workflowModelId, ICollection<Guid> additionalModels)
+        bool isTransient, Guid? workflowModelId, ICollection<Guid> additionalModels)
     {
       _stateId = stateId;
       _name = name;
       _mainScreen = mainScreen;
       _inheritMenu = inheritMenu;
       _inheritContextMenu = inheritContextMenu;
+      _isTransient = isTransient;
       _workflowModelId = workflowModelId;
       _additionalModels = additionalModels;
     }
@@ -117,6 +119,36 @@ namespace MediaPortal.Presentation.Workflow
     public ICollection<Guid> AdditionalModels
     {
       get { return _additionalModels; }
+    }
+
+    /// <summary>
+    /// Returns the information if this workflow state is a transient state. Transient states are not
+    /// defined persistently in a workflow resource file but are added on demand by some workflow model.
+    /// </summary>
+    /// <remarks>
+    /// Transient states automatically inherit the <see cref="AdditionalModels"/> from the first non-transient
+    /// state on the workflow navigation stack.
+    /// </remarks>
+    public bool IsTransient
+    {
+      get { return _isTransient; }
+    }
+
+    /// <summary>
+    /// Creates a new transient state. In transient states, some variables like the models are automatically
+    /// inherited from the parent state.
+    /// </summary>
+    /// <param name="name">The human-readable name of the new state.</param>
+    /// <param name="mainScreen">The main screen to be shown in the new state.</param>
+    /// <param name="inheritMenu">If set to <c>true</c>, the menu items of the parent state will be
+    /// inherited.</param>
+    /// <param name="inheritContextMenu">If set to <c>true</c>, the context menu items of the parent state
+    /// will be inherited.</param>
+    /// <returns>New transient workflow state.</returns>
+    public static WorkflowState CreateTransientState(string name, string mainScreen,
+        bool inheritMenu, bool inheritContextMenu)
+    {
+      return new WorkflowState(Guid.NewGuid(), name, mainScreen, inheritMenu, inheritContextMenu, true, null, null);
     }
   }
 }

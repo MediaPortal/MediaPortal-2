@@ -28,7 +28,7 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Localization;
 
-namespace MediaPortal.Configuration
+namespace MediaPortal.Configuration.ConfigurationManagement
 {
 
   /// <summary>

@@ -32,7 +32,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 
 
-namespace MediaPortal.Configuration
+namespace MediaPortal.Configuration.ConfigurationManagement
 {
   public delegate void ConfigurationNodeActionDelegate(ConfigurationNode node);
 
@@ -184,16 +184,17 @@ namespace MediaPortal.Configuration
         ConfigSettingMetadata csm = (ConfigSettingMetadata) metadata;
         ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
         cs.Load(cs.SettingsObjectType == null ? null : settingsManager.Load(cs.SettingsObjectType));
-        foreach (string listenToLocation in csm.ListenTo)
-        {
-          IConfigurationNode node;
-          if (FindNode(listenToLocation, out node))
-            if (node.ConfigObj is ConfigSetting)
-              cs.ListenTo((ConfigSetting) node.ConfigObj);
-            else
-              ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
-                Location, listenToLocation, node.ConfigObj.GetType().Name);
-        }
+        if (csm.ListenTo != null)
+          foreach (string listenToLocation in csm.ListenTo)
+          {
+            IConfigurationNode node;
+            if (FindNode(listenToLocation, out node))
+              if (node.ConfigObj is ConfigSetting)
+                cs.ListenTo((ConfigSetting) node.ConfigObj);
+              else
+                ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
+                  Location, listenToLocation, node.ConfigObj.GetType().Name);
+          }
         result = cs;
       }
       else
@@ -222,8 +223,8 @@ namespace MediaPortal.Configuration
     #region Public methods
 
     /// <summary>
-    /// Returns if the specified location can be found in the tree.
-    /// If found, it <paramref name="node"/> will be returned.
+    /// Returns the information if the specified location can be found in the tree.
+    /// If found, the <paramref name="node"/> will be returned.
     /// </summary>
     /// <param name="location">Location to search for. May be absolute or relative.</param>
     /// <param name="node">Node to be returned. If this method returns <c>false</c>, this parameter

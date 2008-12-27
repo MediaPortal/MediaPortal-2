@@ -1,0 +1,28 @@
+<Plugin
+    Version="1.0" 
+    Name="Configuration"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Shows settings to be edited in the MediaPortal-II GUI"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="Configuration.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference Name="ConfigurationManager"/>
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="545674F1-D92A-4383-B6C1-D758CECDBDF5" ClassName="UiComponents.Configuration.ConfigurationModel"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="ConfigurationLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="ConfigurationSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>

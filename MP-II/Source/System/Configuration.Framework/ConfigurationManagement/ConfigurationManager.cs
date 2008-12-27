@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Configuration
+namespace MediaPortal.Configuration.ConfigurationManagement
 {
   /// <summary>
   /// The default <see cref="IConfigurationManager"/> service implementation.

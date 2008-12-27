@@ -28,9 +28,11 @@ using MediaPortal.Configuration.Settings;
 
 namespace MediaPortal.SkinEngine.Settings
 {
+  /// <summary>
+  /// Configuration item for the fullscreen setting.
+  /// </summary>
   public class Fullscreen : YesNo
   {
-
     #region Public properties
 
     public override Type SettingsObjectType
@@ -44,15 +46,14 @@ namespace MediaPortal.SkinEngine.Settings
 
     public override void Load(object settingsObject)
     {
-      base._yes = ((AppSettings)settingsObject).FullScreen;
+      _yes = ((AppSettings) settingsObject).FullScreen;
     }
 
     public override void Save(object settingsObject)
     {
-      ((AppSettings)settingsObject).FullScreen = base._yes;
+      ((AppSettings) settingsObject).FullScreen = _yes;
     }
 
     #endregion
-
   }
 }

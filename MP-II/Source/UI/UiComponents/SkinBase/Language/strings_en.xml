@@ -13,7 +13,7 @@
     <String Name="done" Text="Done"/>
     <String Name="cancel" Text="Cancel"/>
     <String Name="back" Text="Back"/>
-	<String Name="add" Text="Add"/>
+    <String Name="add" Text="Add"/>
     <String Name="remove" Text="Remove"/>
   </Section>
   <Section Name="general">
@@ -43,11 +43,11 @@
     <String Name="5" Text="May"/>
     <String Name="6" Text="June"/>
     <String Name="7" Text="July"/>
-	<String Name="8" Text="August"/>
+    <String Name="8" Text="August"/>
     <String Name="9" Text="September"/>
-	<String Name="10" Text="October"/>
+    <String Name="10" Text="October"/>
     <String Name="11" Text="November"/>
-	<String Name="12" Text="December"/>
+    <String Name="12" Text="December"/>
   </Section>
   <Section Name="importers">
     <String Name="addshare" Text="Add share"/>
@@ -251,26 +251,26 @@
     <String Name="0" Text="Settings"/>
     <String Name="language" Text="Language"/>
     <String Name="menulanguage" Text="Menus"/>
-	<String Name="audiolanguage" Text="Audio"/>
-	<String Name="subtitlelanguage" Text="Subtitles"/>
-	<String Name="screen" Text="Screen"/>
-	<String Name="fullscreen" Text="Fullscreen"/>
-	<String Name="refreshrate" Text="Refresh Rate"/>
+    <String Name="audiolanguage" Text="Audio"/>
+    <String Name="subtitlelanguage" Text="Subtitles"/>
+    <String Name="screen" Text="Screen"/>
+    <String Name="fullscreen" Text="Fullscreen"/>
+    <String Name="refreshrate" Text="Refresh Rate"/>
 
     <String Name="appearance" Text="Appearance"/>
     <String Name="theme" Text="Theme"/>
     <String Name="skin" Text="Skin"/>
     
-	<String Name="shares" Text="Library"/>
-	<String Name="music" Text="Music"/>
+    <String Name="shares" Text="Library"/>
+    <String Name="music" Text="Music"/>
 	
-	<String Name="playback" Text="Playback"/>
+    <String Name="playback" Text="Playback"/>
     <String Name="mpg2videocodec" Text="MPEG-2 Video Codec"/>
     <String Name="h264videocodec" Text="H-264 Video Codec"/>
     <String Name="xvidvideocodec" Text="DivX/XVID Video Codec"/>
     <String Name="audiocodec" Text="Audio Codec"/>
     
-	<String Name="speakers" Text="Speakers"/>
+    <String Name="speakers" Text="Speakers"/>
     <String Name="speakerconnection" Text="Speaker connection"/>
     <String Name="analog" Text="Analog"/>
     <String Name="digital" Text="Digital (e.g. Toslink/Coax)"/>
@@ -279,7 +279,7 @@
     <String Name="speakers51" Text="5.1 speakers"/>
     <String Name="speakers71" Text="7.1 speakers"/>
 
-	<String Name="aspect" Text="Aspect Ratio"/>
+    <String Name="aspect" Text="Aspect Ratio"/>
     <String Name="aspectnormal" Text="Normal (4:3)"/>
     <String Name="aspectwide" Text="Wide (16:9)"/>
 
@@ -305,8 +305,8 @@
   </Section>
   <Section Name="extensions">
     <String Name="myextensions" Text="My extensions"/>
-	<String Name="updateall" Text="Update all"/>
-	<String Name="settings" Text="Settings"/>
+    <String Name="updateall" Text="Update all"/>
+    <String Name="settings" Text="Settings"/>
     <String Name="view" Text="View"/>
     <String Name="sort" Text="Sort"/>
     <String Name="views" Text="Library"/>
@@ -320,8 +320,8 @@
     <String Name="cancelupdate" Text="Cancel update"/>
     <String Name="name" Text="Name"/>
     <String Name="downloads" Text="Downloads"/>
-	<String Name="size" Text="Size"/>
-	<String Name="date" Text="Date"/>
+    <String Name="size" Text="Size"/>
+    <String Name="date" Text="Date"/>
     <String Name="reinstall" Text="Reinstall"/>
     <String Name="installinfo" Text="This action will be executed in next restart of MediaPortal"/>
     <String Name="dependecyinfo" Text="This extension depend one ore more extension this will be installed to. Continue ?"/>
@@ -345,8 +345,5 @@
     <String Name="video" Text="Video disc inserted - do you want to open it?"/>
     <String Name="photo" Text="Photo disc inserted - do you want to open it?"/>
     <String Name="disc" Text="Disc inserted - do you want to open it?"/>
-  </Section>
-	<Section Name="hello">
-    <String Name="menu" Text="Hello World"/>
   </Section>
 </Language>

@@ -28,7 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaProviders", "MediaProv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnPServer", "Media\UPnPServer\UPnPServer.csproj", "{9EEC65CC-5E3F-49A4-9EA0-169C849BF39C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration.Framework", "System\Configuration.Framework\Configuration.Framework.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "System\Configuration.Framework\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "System\MediaPortal.Core\MediaPortal.Core.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject
@@ -71,6 +71,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkinBase", "UI\UiComponents\SkinBase\SkinBase.csproj", "{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.UI", "System\MediaPortal.UI\MediaPortal.UI.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Configuration", "UI\UiComponents\Configuration\Configuration.csproj", "{9665887D-BEBF-4051-9151-7F189356682C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -398,6 +400,16 @@ Global
 		{52E587D0-A274-44DA-8846-8EEAF5414923}.Xml Documentation|Any CPU.Build.0 = Xml Documentation|Any CPU
 		{52E587D0-A274-44DA-8846-8EEAF5414923}.Xml Documentation|x86.ActiveCfg = Xml Documentation|x86
 		{52E587D0-A274-44DA-8846-8EEAF5414923}.Xml Documentation|x86.Build.0 = Xml Documentation|x86
+		{9665887D-BEBF-4051-9151-7F189356682C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Debug|x86.ActiveCfg = Debug|x86
+		{9665887D-BEBF-4051-9151-7F189356682C}.Debug|x86.Build.0 = Debug|x86
+		{9665887D-BEBF-4051-9151-7F189356682C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Release|x86.ActiveCfg = Release|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Xml Documentation|Any CPU.ActiveCfg = Release|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Xml Documentation|Any CPU.Build.0 = Release|Any CPU
+		{9665887D-BEBF-4051-9151-7F189356682C}.Xml Documentation|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -432,6 +444,7 @@ Global
 		{EAE480DB-43B8-43EF-94EE-074499BC23E5} = {E9A798FE-B9A8-49CE-B13C-30B08C065026}
 		{E618785B-A7E1-4E70-A8F3-DB22F93B9088} = {E9A798FE-B9A8-49CE-B13C-30B08C065026}
 		{4EFED5BE-2F6A-4944-BB96-053D5945BA1F} = {E9A798FE-B9A8-49CE-B13C-30B08C065026}
+		{9665887D-BEBF-4051-9151-7F189356682C} = {E9A798FE-B9A8-49CE-B13C-30B08C065026}
 		{1A980621-B711-4235-B98C-C4276D6FA9FD} = {6419E9F7-0103-4AAE-B8D2-268893EB15D6}
 		{02B2052E-4AE2-41C0-81D7-73A250C9399D} = {6419E9F7-0103-4AAE-B8D2-268893EB15D6}
 		{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C} = {6419E9F7-0103-4AAE-B8D2-268893EB15D6}

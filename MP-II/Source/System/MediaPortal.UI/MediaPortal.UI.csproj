@@ -143,6 +143,7 @@
     <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowManager.cs" />
     <Compile Include="Presentation\Workflow\NavigationContext.cs" />
+    <Compile Include="Presentation\Workflow\PushTransientStateNavigationTransition.cs" />
     <Compile Include="Presentation\Workflow\WorkflowState.cs" />
     <Compile Include="Presentation\Workflow\WorkflowStateAction.cs" />
     <Compile Include="Presentation\Workflow\PopNavigationTransition.cs" />

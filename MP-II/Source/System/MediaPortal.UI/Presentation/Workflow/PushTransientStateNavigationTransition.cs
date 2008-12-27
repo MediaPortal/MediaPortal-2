@@ -28,36 +28,36 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.Presentation.Workflow
 {
-  public class PushNavigationTransition : WorkflowStateAction
+  public class PushTransientStateNavigationTransition : WorkflowStateAction
   {
     #region Protected fields
 
-    protected Guid _targetStateId;
+    protected WorkflowState _transientState;
 
     #endregion
 
-    public PushNavigationTransition(Guid actionId, string name, Guid sourceStateId, Guid targetStateId,
-        IResourceString displayTitle) :
-        base(actionId, name, sourceStateId, displayTitle)
+    public PushTransientStateNavigationTransition(Guid actionId, string name, Guid sourceState,
+        WorkflowState transientTargetState, IResourceString displayTitle) :
+        base(actionId, name, sourceState, displayTitle)
     {
-      _targetStateId = targetStateId;
+      _transientState = transientTargetState;
     }
 
     /// <summary>
     /// Returns the id of the workflow state which will be pushed on the navigation context stack
     /// when this action is taken.
     /// </summary>
-    public Guid TargetStateId
+    public WorkflowState TargetState
     {
-      get { return _targetStateId; }
+      get { return _transientState; }
     }
 
     /// <summary>
-    /// Pushes the state with the <see cref="TargetStateId"/> onto the workflow navigation context stack.
+    /// Pushes the <see cref="TargetState"/> onto the workflow navigation context stack.
     /// </summary>
     public override void Execute()
     {
-      ServiceScope.Get<IWorkflowManager>().NavigatePush(TargetStateId);
+      ServiceScope.Get<IWorkflowManager>().NavigatePushTransient(TargetState);
     }
   }
 }

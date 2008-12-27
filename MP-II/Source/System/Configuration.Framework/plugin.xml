@@ -1,105 +1,109 @@
 <Plugin
-    Version = "1.0"
-    Name = "Configuration"
-    Author = "Team MediaPortal"
-    Copyright = "GPL"
-    Description = "Configuration"
-    PluginVersion = "1.0">
+    Version="1.0"
+    Name="ConfigurationManager"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="MediaPortal-II configuration engine"
+    PluginVersion="1.0">
 
   <Runtime>
-    <Assembly FileName = "Configuration.Framework.dll"/>
+    <Assembly FileName="ConfigurationManager.dll"/>
   </Runtime>
 
-  <Builder Name = "ConfigSection" ClassName = "Components.Configuration.Builders.ConfigBuilder"/>
-  <Builder Name = "ConfigGroup" ClassName = "Components.Configuration.Builders.ConfigBuilder"/>
-  <Builder Name = "ConfigSetting" ClassName = "Components.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="ConfigSection" ClassName="Components.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="ConfigGroup" ClassName="Components.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="ConfigSetting" ClassName="Components.Configuration.Builders.ConfigBuilder"/>
 
-  <Register Location = "/Resources/Language">
-    <Resource Id = "Configuration" Directory = "Language" Type = "Language"/>
+  <Register Location="/Services">
+    <Instance Id="IConfigurationManager" ClassName="MediaPortal.Configuration.ConfigurationManagement.ConfigurationManager"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="Configuration" Directory="Language" Type="Language"/>
   </Register>
 
   <Register Location="/Configuration/Settings">
     <ConfigSection
-        Id = "General"
-        Redundant = "true"
-        Text = "[configuration.settings.general]"
-        IconSmallPath ="Images\general-22.png"
-        IconLargePath ="Images\general-48.png"/>
+        Id="General"
+        Redundant="true"
+        Text="[configuration.settings.general]"
+        IconSmallPath="Images\general-22.png"
+        IconLargePath="Images\general-48.png"/>
     <ConfigSection
-        Id = "Regional"
-        Redundant = "true"
-        Text = "[configuration.settings.regional]"
-        IconSmallPath = "Images\globe-22.png"
-        IconLargePath = "Images\globe-48.png"/>
+        Id="Regional"
+        Redundant="true"
+        Text="[configuration.settings.regional]"
+        IconSmallPath="Images\globe-22.png"
+        IconLargePath="Images\globe-48.png"/>
     <ConfigSection
-        Id = "Appearance"
-        Redundant = "true"
-        Text = "[configuration.settings.appearance]"
-        IconSmallPath = "Images\skin-22.png"
-        IconLargePath = "Images\skin-48.png"/>
+        Id="Appearance"
+        Redundant="true"
+        Text="[configuration.settings.appearance]"
+        IconSmallPath="Images\skin-22.png"
+        IconLargePath="Images\skin-48.png"/>
     <ConfigSection
-        Id = "Folders"
-        Redundant = "true"
-        Text = "[configuration.settings.folders]"
-        IconSmallPath = "Images\folders-22.png"
-        IconLargePath = "Images\folders-48.png"/>
+        Id="Folders"
+        Redundant="true"
+        Text="[configuration.settings.folders]"
+        IconSmallPath="Images\folders-22.png"
+        IconLargePath="Images\folders-48.png"/>
     <ConfigSection
-        Id = "Hardware"
-        Redundant = "true"
-        Text = "[configuration.settings.hardware]"
-        IconSmallPath = "Images\hardware-22.png"
-        IconLargePath = "Images\hardware-48.png"/>
+        Id="Hardware"
+        Redundant="true"
+        Text="[configuration.settings.hardware]"
+        IconSmallPath="Images\hardware-22.png"
+        IconLargePath="Images\hardware-48.png"/>
   </Register>
   <Register Location="/Configuration/Settings/General">
     <ConfigGroup
-        Id = "System"
-        Redundant = "true"
-        Text = "[configuration.system]"/>
+        Id="System"
+        Redundant="true"
+        Text="[configuration.system]"/>
   </Register>
   <Register Location="/Configuration/Settings/General/System">
     <ConfigSetting
-        Id = "Autostart"
-        Text = "[configuration.system.autostart]"
-        HelpText = "[configuration.system.autostart.help]"
-        ClassName = "Components.Configuration.Settings.System.Autostart"/>
+        Id="Autostart"
+        Text="[configuration.system.autostart]"
+        HelpText="[configuration.system.autostart.help]"
+        ClassName="Components.Configuration.Settings.System.Autostart"/>
     <ConfigSetting
-        Id = "Balloontips"
-        Text = "[configuration.system.balloontips]"
-        HelpText = "[configuration.system.balloontips.help]"
-        ClassName ="Components.Configuration.Settings.System.Balloontips"/>
+        Id="Balloontips"
+        Text="[configuration.system.balloontips]"
+        HelpText="[configuration.system.balloontips.help]"
+        ClassName="Components.Configuration.Settings.System.Balloontips"/>
   </Register>
   <Register Location="/Configuration/Settings/Regional">
     <ConfigGroup
-        Id = "Language"
-        Redundant = "true"
-        Text = "[configuration.language]"/>
+        Id="Language"
+        Redundant="true"
+        Text="[configuration.language]"/>
     <ConfigGroup
-        Id = "Location"
-        Redundant = "true"
-        Text = "[configuration.location]"/>
+        Id="Location"
+        Redundant="true"
+        Text="[configuration.location]"/>
   </Register>
   <Register Location="/Configuration/Settings/Regional/Language">
     <ConfigSetting
-        Id = "Language.main"
-        Text = "[configuration.language.main]"
-        HelpText = "[configuration.language.main.help]"
-        ClassName = "Components.Configuration.Settings.Regional.MainLanguage"/>
+        Id="Language.main"
+        Text="[configuration.language.main]"
+        HelpText="[configuration.language.main.help]"
+        ClassName="Components.Configuration.Settings.Regional.MainLanguage"/>
   </Register>
   <Register Location="/Configuration/Settings/Regional/Location">
     <ConfigSetting
-        Id = "Country"
-        Text = "[configuration.location.country]"
-        HelpText = "[configuration.location.country.help]"
-        ClassName = "Components.Configuration.Settings.Regional.Country"/>
+        Id="Country"
+        Text="[configuration.location.country]"
+        HelpText="[configuration.location.country.help]"
+        ClassName="Components.Configuration.Settings.Regional.Country"/>
     <ConfigSetting
-        Id = "Region"
-        Text = "[configuration.location.region]"
-        HelpText = "[configuration.location.region.help]"
-        ClassName = "Components.Configuration.Settings.Regional.Region"/>
+        Id="Region"
+        Text="[configuration.location.region]"
+        HelpText="[configuration.location.region.help]"
+        ClassName="Components.Configuration.Settings.Regional.Region"/>
     <ConfigSetting
-        Id = "City"
-        Text = "[configuration.location.city]"
-        HelpText = "[configuration.location.city.help]"
-        ClassName = "Components.Configuration.Settings.Regional.City"/>
+        Id="City"
+        Text="[configuration.location.city]"
+        HelpText="[configuration.location.city.help]"
+        ClassName="Components.Configuration.Settings.Regional.City"/>
   </Register>
 </Plugin>
