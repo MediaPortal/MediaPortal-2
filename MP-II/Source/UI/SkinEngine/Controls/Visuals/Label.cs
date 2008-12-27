@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnContentChanged(Property prop)
     {
-      _resourceString = LocalizationHelper.CreateResourceString(Content);
+      _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
       if (Screen != null)
         Screen.Invalidate(this);
     }
