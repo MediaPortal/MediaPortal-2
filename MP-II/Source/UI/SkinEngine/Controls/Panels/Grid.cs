@@ -106,7 +106,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      
+
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());
       if (RowDefinitions.Count == 0)

@@ -84,6 +84,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         SkinContext.AddLayoutTransform(m);
       }
 
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible)
@@ -123,15 +128,16 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
-      if (Double.IsNaN(Width))
+      if (double.IsNaN(Width))
         _desiredSize.Width = sizeBorderX.Width + Math.Max(sizeBorderY.Width, sizeCenter.Width);
 
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = sizeBorderY.Height + Math.Max(sizeBorderX.Height, sizeCenter.Height);
 
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       if (LayoutTransform != null)
         SkinContext.RemoveLayoutTransform();
+
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);

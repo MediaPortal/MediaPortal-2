@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -252,12 +253,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         float height = _asset.Font.LineHeight(FontSize);
         float width;
-        if (double.IsNaN(Width) || !Wrap)
+        float totalWidth = double.IsNaN(Width) ? totalSize.Width : (float) Width;
+        if (float.IsNaN(totalWidth) || !Wrap)
           width = _asset.Font.Width(_resourceString.Evaluate(), FontSize);
         else
         { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
-          string[] lines = WrapText((float) Width, true);
-          width = 0; // Not used, as Width overrides our calculated width
+          string[] lines = WrapText(totalWidth, true);
+          width = 0;
+          foreach (string line in lines)
+            width = Math.Max(width, _asset.Font.Width(line, FontSize));
           height *= lines.Length;
         }
         childSize = new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);

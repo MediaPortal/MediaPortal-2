@@ -129,6 +129,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         SkinContext.AddLayoutTransform(m);
       }
 
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
       SizeF childSize;
@@ -161,10 +166,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
       _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
-      if (Double.IsNaN(Width))
+      if (double.IsNaN(Width))
         _desiredSize.Width = totalDesiredWidth;
 
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = totalDesiredHeight;
 
       if (LayoutTransform != null)

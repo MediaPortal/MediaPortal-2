@@ -44,7 +44,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void Measure(ref SizeF totalSize)
     {
       RemoveMargin(ref totalSize);
-      SizeF childSize;
 
       if (LayoutTransform != null)
       {
@@ -52,12 +51,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
+
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible)
           continue;
-        childSize = new SizeF(totalSize.Width, totalSize.Height);
+        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
         rect = RectangleF.Union(rect, new RectangleF(new PointF((float) GetLeft(child), (float) GetTop(child)),
             new SizeF(childSize.Width, childSize.Height)));
