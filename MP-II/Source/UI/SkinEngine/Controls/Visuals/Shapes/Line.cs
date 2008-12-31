@@ -253,25 +253,23 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
         _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
-        if (Double.IsNaN(Width))
+        if (double.IsNaN(Width))
           _desiredSize.Width = bounds.Width * SkinContext.Zoom.Width;
 
-        if (Double.IsNaN(Height))
+        if (double.IsNaN(Height))
           _desiredSize.Height = bounds.Height * SkinContext.Zoom.Height;
 
 
         if (LayoutTransform != null)
         {
-          ExtendedMatrix m = new ExtendedMatrix();
+          ExtendedMatrix m;
           LayoutTransform.GetTransform(out m);
           SkinContext.AddLayoutTransform(m);
         }
         SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
         if (LayoutTransform != null)
-        {
           SkinContext.RemoveLayoutTransform();
-        }
 
         totalSize = _desiredSize;
         AddMargin(ref totalSize);

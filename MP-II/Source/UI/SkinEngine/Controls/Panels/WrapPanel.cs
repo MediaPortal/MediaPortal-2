@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using SlimDX;
@@ -96,6 +95,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void Measure(ref SizeF totalSize)
     {
+      RemoveMargin(ref totalSize);
+
       SizeF availableSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
       if (double.IsNaN(availableSize.Width))
         availableSize.Width = totalSize.Width;
@@ -105,8 +106,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float initialHeight = availableSize.Height;
       float initialWidth = availableSize.Width;
 
-      SizeF childSize = new SizeF();
-      
       _sizeCol.Clear();
       float totalWidth = 0;
       float totalHeight = 0;
@@ -119,6 +118,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             totalWidth = availableSize.Width;
             foreach (FrameworkElement child in Children)
             {
+              if (!child.IsVisible)
+                continue;
+
+              SizeF childSize = new SizeF(totalWidth, float.NaN);
               child.Measure(ref childSize);
               // If width is not set, then just go on
               if (!double.IsNaN(availableSize.Width) && childSize.Width > availableSize.Width)
@@ -145,6 +148,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             totalHeight = availableSize.Height;
             foreach (FrameworkElement child in Children)
             {
+              if (!child.IsVisible)
+                continue;
+
+              SizeF childSize = new SizeF(float.NaN, totalHeight);
               child.Measure(ref childSize);
               if (!double.IsNaN(availableSize.Height) && childSize.Height > availableSize.Height)
               {
@@ -157,7 +164,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               childSize.Height -= childSize.Height;
               currentHeight += childSize.Height;
               if (childSize.Width > currentWidth)
-                currentWidth = child.DesiredSize.Width;
+                currentWidth = childSize.Width;
 
             }
             _sizeCol.Add(currentWidth);
@@ -165,12 +172,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           }
           break;
       }
+      
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
-      if (Double.IsNaN(Width))
+      if (double.IsNaN(Width))
         _desiredSize.Width = totalWidth;
 
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = totalHeight;
       
       if (LayoutTransform != null)
@@ -179,16 +187,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      
+
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
 
       totalSize = _desiredSize;
-      AddMargin(ref totalSize);
+      AddMargin(ref _desiredSize);
 
       //Trace.WriteLine(String.Format("WrapPanel.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
 
@@ -198,7 +204,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       //Trace.WriteLine(String.Format("WrapPanel.Arrange: {0} X {1} Y {2} W {3} H {4}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
 
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
@@ -223,8 +229,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             int offset = 0;
             foreach (FrameworkElement child in Children)
             {
-              if (!child.IsVisible) continue;
-              if (child.DesiredSize.Width + offsetX > _desiredSize.Width)
+              if (!child.IsVisible)
+                continue;
+
+              SizeF childSize = child.TotalDesiredSize();
+              if (childSize.Width + offsetX > _desiredSize.Width)
               {
                 offsetX = 0;
                 offsetY += totalHeight;
@@ -232,14 +241,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 offset++;
               }
               PointF location = new PointF(ActualPosition.X + offsetX, ActualPosition.Y + offsetY);
-              SizeF size = new SizeF(child.DesiredSize.Width, _sizeCol[offset]);
+              SizeF size = new SizeF(childSize.Width, _sizeCol[offset]);
 
               ArrangeChildVertical(child, ref location, ref size);
 
               child.Arrange(new RectangleF(location, size));
-              offsetX += child.DesiredSize.Width;
-              if (child.DesiredSize.Height > totalHeight)
-                totalHeight = child.DesiredSize.Height;
+              offsetX += childSize.Width;
+              if (childSize.Height > totalHeight)
+                totalHeight = childSize.Height;
             }
           }
           break;
@@ -252,8 +261,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             int offset = 0;
             foreach (FrameworkElement child in Children)
             {
-              if (!child.IsVisible) continue;
-              if (child.DesiredSize.Height + offsetY > _desiredSize.Height)
+              if (!child.IsVisible)
+                continue;
+
+              SizeF childSize = child.TotalDesiredSize();
+              if (childSize.Height + offsetY > _desiredSize.Height)
               {
                 offsetY = 0;
                 offsetX += totalWidth;
@@ -261,14 +273,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 offset++;
               }
               PointF location = new PointF(ActualPosition.X + offsetX, ActualPosition.Y + offsetY);
-              SizeF size = new SizeF(_sizeCol[offset], child.DesiredSize.Height);
+              SizeF size = new SizeF(_sizeCol[offset], childSize.Height);
 
               ArrangeChildHorizontal(child, ref location, ref size);
 
               child.Arrange(new RectangleF(location, size));
-              offsetY += child.DesiredSize.Height;
-              if (child.DesiredSize.Width > totalWidth)
-                totalWidth = child.DesiredSize.Width;
+              offsetY += childSize.Height;
+              if (childSize.Width > totalWidth)
+                totalWidth = childSize.Width;
             }
           }
           break;

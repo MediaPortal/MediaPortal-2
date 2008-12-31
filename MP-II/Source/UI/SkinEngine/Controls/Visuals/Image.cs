@@ -215,8 +215,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       InitializeTriggers();
       Deallocate();
-      float w = (float)Width * SkinContext.Zoom.Width;
-      float h = (float)Height * SkinContext.Zoom.Height;
+      float w = (float) Width * SkinContext.Zoom.Width;
+      float h = (float) Height * SkinContext.Zoom.Height;
 
       if (_image == null && Source != null)
       {
@@ -264,9 +264,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
@@ -277,7 +275,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("Image.Arrange: {0} X {1} Y {2} W {3} H {4}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 

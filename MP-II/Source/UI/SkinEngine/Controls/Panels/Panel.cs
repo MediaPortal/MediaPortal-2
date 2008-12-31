@@ -259,9 +259,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       if (Background != null)
       {
         if (_performLayout || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
-        {
           PerformLayout();
-        }
 
         // ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
@@ -335,9 +333,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             RenderPipeline.Instance.Add(_backgroundContext);
           }
           else
-          {
             _backgroundContext.OnVerticesChanged(2, ref verts);
-          }
         }
       }
 
@@ -353,9 +349,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         Children.FixZIndex();
         _renderOrder.Clear();
         foreach (UIElement element in Children)
-        {
           _renderOrder.Add(element);
-        }
         _renderOrder.Sort(new ZOrderComparer());
       }
     }

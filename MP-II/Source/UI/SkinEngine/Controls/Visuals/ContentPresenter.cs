@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
@@ -165,39 +164,42 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF(0, 0);
+      RemoveMargin(ref totalSize);
 
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
+      SizeF childSize;
 
-      // Do we have a child
       if (_templateControl != null)
       {
+        childSize = new SizeF(totalSize.Width, totalSize.Height);
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix m;
+          LayoutTransform.GetTransform(out m);
+          SkinContext.AddLayoutTransform(m);
+        }
+
         // Measure the child
         _templateControl.Measure(ref childSize);
+
+        if (LayoutTransform != null)
+          SkinContext.RemoveLayoutTransform();
       }
+      else
+        childSize = new SizeF();
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
-      if (Double.IsNaN(Width))
+      if (double.IsNaN(Width))
         _desiredSize.Width = childSize.Width;
 
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
-
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
 
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
+
       //Trace.WriteLine(String.Format("ContentPresenter.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
@@ -205,7 +207,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       //Trace.WriteLine(String.Format("ContentPresenter.Arrange: {0} X {1}, Y {2} W {4} H {5}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
   
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
@@ -229,36 +231,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
+
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       Initialize();
       InitializeTriggers();
       IsInvalidLayout = false;
-    }
-
-    protected void ArrangeChild(FrameworkElement child, ref PointF p, double widthPerCell, double heightPerCell)
-    {
-      if (VisualParent == null) return;
-
-      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
-      {
-        p.X += (float)((widthPerCell - child.DesiredSize.Width) / 2);
-      }
-      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-      {
-        p.X += (float)(widthPerCell - child.DesiredSize.Width);
-      }
-      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        p.Y += (float)((heightPerCell - child.DesiredSize.Height) / 2);
-      }
-      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-      {
-        p.Y += (float)(heightPerCell - child.DesiredSize.Height);
-      }
     }
 
     public override void DoRender()

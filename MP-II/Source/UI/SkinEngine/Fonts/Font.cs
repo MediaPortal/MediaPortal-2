@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -75,7 +74,7 @@ namespace MediaPortal.SkinEngine.Fonts
   /// <summary>
   /// Represents a font family.
   /// </summary>
-  public class FontFamily :IDisposable
+  public class FontFamily : IDisposable
   {
     string _name;
     private IntPtr _library;
@@ -206,50 +205,35 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="charIndex">The char to add.</param>
     private bool AddGlypth(uint charIndex)
     {
-
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
 
       float point_size = 64.0f*(float)_charSet.RenderedSize * 72.0f / (float)_resolution;
-
-      
       FT.FT_Set_Char_Size(_face, (int)point_size, 0, _resolution, 0);
-
-      
       uint glypthIndex = FT.FT_Get_Char_Index(_face, charIndex);
       
       // Font does not contain glypth
       if (glypthIndex == 0 && charIndex != 0)
       {
-
         // Copy 'not defined' glypth
         _charSet.SetCharacter(charIndex,_charSet.GetCharacter(0));
-
         return true;
       }
 
       // Load the glyph for the current character.
-      if (FT.FT_Load_Glyph(_face,
-                           glypthIndex,
-                           FT.FT_LOAD_DEFAULT) != 0)
-      {
+      if (FT.FT_Load_Glyph(_face, glypthIndex, FT.FT_LOAD_DEFAULT) != 0)
         return false;
-      }
         
       FT_FaceRec face = (FT_FaceRec)Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
 
       IntPtr glyph;
       // Load the glyph data into our local array.
       if (FT.FT_Get_Glyph(face.glyph, out glyph) != 0)
-      {
         return false;
-      }
 
       // Convert the glyph to bitmap form.
       if (FT.FT_Glyph_To_Bitmap(ref glyph, FT_Render_Mode.FT_RENDER_MODE_NORMAL, IntPtr.Zero, 1) != 0)
-      {
         return false;
-      }
 
       // get the structure fron the intPtr
       FT_BitmapGlyph Glyph = (FT_BitmapGlyph)Marshal.PtrToStructure(glyph, typeof(FT_BitmapGlyph));
@@ -294,15 +278,10 @@ namespace MediaPortal.SkinEngine.Fonts
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
 
       if (Glyph.bitmap.buffer != IntPtr.Zero)
-      {
         Marshal.Copy(Glyph.bitmap.buffer, BitmapBuffer, 0, cwidth * cheight);
-      }
 
       // Lock the the area we intend to update
-      Rectangle charArea = new Rectangle(_currentX,
-                                         _currentY,
-                                         pwidth,
-                                         pheight);
+      Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
 
       DataRectangle rect = _texture.LockRectangle(0, charArea, LockFlags.None);
 
@@ -351,7 +330,6 @@ namespace MediaPortal.SkinEngine.Fonts
       // Free the glypth
       FT.FT_Done_Glyph(glyph);
       return true;
-
     }
 
     public float FirstCharWidth
@@ -371,7 +349,7 @@ namespace MediaPortal.SkinEngine.Fonts
 
     public float LineHeight(float fontSize)
     {
-      return fontSize /_charSet.RenderedSize *_charSet.LineHeight;
+      return fontSize / _charSet.RenderedSize * _charSet.LineHeight;
     }
 
     public float Width(string text, float fontSize)
@@ -391,12 +369,48 @@ namespace MediaPortal.SkinEngine.Fonts
           _nextChar = text[i+1];
           Kerning kern = c.KerningList.Find(FindKerningNode);
           if (kern != null)
-          {
             width += kern.Amount*sizeScale;
-          }
         }
       }
       return width;
+    }
+
+    /// <summary>
+    /// Calculates the maximum substring of the specified <paramref name="text"/>
+    /// starting at index <paramref name="startIndex"/> which fits into the specified
+    /// <paramref name="maxWidth"/>.
+    /// </summary>
+    /// <param name="text">Text string whose substring should be calculated.</param>
+    /// <param name="fontSize">Size of the font to be used for the calculation.</param>
+    /// <param name="startIndex">First index in string which denotes the character from which
+    /// the width calculation starts.</param>
+    /// <param name="maxWidth">Maximum width the substring is allowed to take.</param>
+    /// <returns>Index of the first character in <paramref name="text"/> which doesn't
+    /// fit any more into the specified <paramref name="maxWidth"/>.</returns>
+    public int CalculateMaxSubstring(string text, float fontSize, int startIndex, float maxWidth)
+    {
+      float sizeScale = fontSize / _charSet.RenderedSize;
+      
+      for (int i = startIndex; i < text.Length; i++)
+      {
+        char chk = text[i];
+
+        BitmapCharacter c = Character(chk);
+
+        float charWidth = c.XAdvance * sizeScale;
+        if (i != text.Length - 1)
+        {
+          _nextChar = text[i+1];
+          Kerning kern = c.KerningList.Find(FindKerningNode);
+          if (kern != null)
+            charWidth += kern.Amount*sizeScale;
+        }
+        if (maxWidth >= charWidth)
+          maxWidth -= charWidth;
+        else
+          return i+1;
+      }
+      return text.Length;
     }
 
     public float Height
@@ -412,80 +426,80 @@ namespace MediaPortal.SkinEngine.Fonts
 
     FontQuad createQuad(BitmapCharacter c, Color4 Color, float x, float y, float z, float xOffset, float yOffset, float width, float height)
     {
-        //float u2, v2;
-        //u2 = v2 = 1;
-        Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
-        Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
-        Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
+      //float u2, v2;
+      //u2 = v2 = 1;
+      Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
+      Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
+      Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
 
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        // Create the vertices
-        PositionColored2Textured topLeft = new PositionColored2Textured(
-          x + xOffset, 
-          y + yOffset, 
-          z,
-          c.X / (float)_charSet.Width,
-          c.Y / (float)_charSet.Height,
-          Color.ToArgb());
+      uvPos.X *= finalScale.X;
+      uvPos.Y *= finalScale.Y;
+      uvPos.Z *= finalScale.Z;
+      uvPos.X += finalTranslation.X;
+      uvPos.Y += finalTranslation.Y;
+      uvPos.Z += finalTranslation.Z;
+      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+      // Create the vertices
+      PositionColored2Textured topLeft = new PositionColored2Textured(
+        x + xOffset, 
+        y + yOffset, 
+        z,
+        c.X / (float)_charSet.Width,
+        c.Y / (float)_charSet.Height,
+        Color.ToArgb());
 
-        uvPos = new Vector3(topLeft.X + width, y + yOffset, z);
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+      uvPos = new Vector3(topLeft.X + width, y + yOffset, z);
+      uvPos.X *= finalScale.X;
+      uvPos.Y *= finalScale.Y;
+      uvPos.Z *= finalScale.Z;
+      uvPos.X += finalTranslation.X;
+      uvPos.Y += finalTranslation.Y;
+      uvPos.Z += finalTranslation.Z;
+      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
 
-        PositionColored2Textured topRight = new PositionColored2Textured(
-          topLeft.X + width,
-          y + yOffset, 
-          z ,
-          (c.X + c.Width) / (float)_charSet.Width,
-          c.Y / (float)_charSet.Height,
-          Color.ToArgb());
-
-
-        uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        PositionColored2Textured bottomRight = new PositionColored2Textured(
-          topLeft.X + width, 
-          topLeft.Y + height, 
-          z,
-          (c.X + c.Width) / (float)_charSet.Width,
-          (c.Y + c.Height) / (float)_charSet.Height,
-          Color.ToArgb());
+      PositionColored2Textured topRight = new PositionColored2Textured(
+        topLeft.X + width,
+        y + yOffset, 
+        z ,
+        (c.X + c.Width) / (float)_charSet.Width,
+        c.Y / (float)_charSet.Height,
+        Color.ToArgb());
 
 
-        uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
-        uvPos.X *= finalScale.X;
-        uvPos.Y *= finalScale.Y;
-        uvPos.Z *= finalScale.Z;
-        uvPos.X += finalTranslation.X;
-        uvPos.Y += finalTranslation.Y;
-        uvPos.Z += finalTranslation.Z;
-        //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
-        PositionColored2Textured bottomLeft = new PositionColored2Textured(
-          x + xOffset, 
-          topLeft.Y + height, 
-          z,
-          c.X / (float)_charSet.Width,
-          (c.Y + c.Height) / (float)_charSet.Height,
-          Color.ToArgb());
+      uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
+      uvPos.X *= finalScale.X;
+      uvPos.Y *= finalScale.Y;
+      uvPos.Z *= finalScale.Z;
+      uvPos.X += finalTranslation.X;
+      uvPos.Y += finalTranslation.Y;
+      uvPos.Z += finalTranslation.Z;
+      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+      PositionColored2Textured bottomRight = new PositionColored2Textured(
+        topLeft.X + width, 
+        topLeft.Y + height, 
+        z,
+        (c.X + c.Width) / (float)_charSet.Width,
+        (c.Y + c.Height) / (float)_charSet.Height,
+        Color.ToArgb());
 
-        return new FontQuad(topLeft, topRight, bottomLeft, bottomRight);
+
+      uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
+      uvPos.X *= finalScale.X;
+      uvPos.Y *= finalScale.Y;
+      uvPos.Z *= finalScale.Z;
+      uvPos.X += finalTranslation.X;
+      uvPos.Y += finalTranslation.Y;
+      uvPos.Z += finalTranslation.Z;
+      //SkinContext.GetAlphaGradientUV(uvPos, out u2, out v2);
+      PositionColored2Textured bottomLeft = new PositionColored2Textured(
+        x + xOffset, 
+        topLeft.Y + height, 
+        z,
+        c.X / (float)_charSet.Width,
+        (c.Y + c.Height) / (float)_charSet.Height,
+        Color.ToArgb());
+
+      return new FontQuad(topLeft, topRight, bottomLeft, bottomRight);
     }
 
     /// <summary>Adds a new string to the list to render.</summary>
@@ -596,45 +610,45 @@ namespace MediaPortal.SkinEngine.Fonts
 
     private void doFadeOut(ref List<FontQuad> quads, bool scroll, string text)
     {
-        float alpha = 1.0f;
-        int startIndex = (int)(text.Length * 0.5f);
-        float step = 0.9f / ((float)text.Length - startIndex);
-        if (scroll)
+      float alpha = 1.0f;
+      int startIndex = (int)(text.Length * 0.5f);
+      float step = 0.9f / ((float)text.Length - startIndex);
+      if (scroll)
+      {
+        step = 1.0f / ((float)text.Length - startIndex);
+      }
+      for (int i = 0; i < quads.Count; ++i)
+      {
+        if (quads[i].CharacterIndex < startIndex)
         {
-          step = 1.0f / ((float)text.Length - startIndex);
+          continue;
         }
-        for (int i = 0; i < quads.Count; ++i)
+        float charIndex = quads[i].CharacterIndex - startIndex;
+        float charAlphaStart = alpha - (step * charIndex);
+        float charAlphaEnd = alpha - (step * (1 + charIndex));
+        for (int v = 0; v < quads[i].Vertices.Length; v++)
         {
-          if (quads[i].CharacterIndex < startIndex)
+          float newAlpha = charAlphaStart;
+          if (v == 1 || v == 4 || v == 5)
           {
-            continue;
+            newAlpha = charAlphaEnd;
           }
-          float charIndex = quads[i].CharacterIndex - startIndex;
-          float charAlphaStart = alpha - (step * charIndex);
-          float charAlphaEnd = alpha - (step * (1 + charIndex));
-          for (int v = 0; v < quads[i].Vertices.Length; v++)
+          uint color = (uint)quads[i].Vertices[v].Color;
+          float colorA = color >> 24;
+          colorA /= 255.0f;
+
+          colorA *= newAlpha;
+          uint alphaHex = (uint)((colorA * 255.0f));
+          unchecked
           {
-            float newAlpha = charAlphaStart;
-            if (v == 1 || v == 4 || v == 5)
-            {
-              newAlpha = charAlphaEnd;
-            }
-            uint color = (uint)quads[i].Vertices[v].Color;
-            float colorA = color >> 24;
-            colorA /= 255.0f;
-
-            colorA *= newAlpha;
-            uint alphaHex = (uint)((colorA * 255.0f));
-            unchecked
-            {
-              alphaHex <<= 24;
-              color = color & 0xffffff;
-              color |= alphaHex;
-            }
-
-            quads[i].Vertices[v].Color = (int)color;
+            alphaHex <<= 24;
+            color = color & 0xffffff;
+            color |= alphaHex;
           }
+
+          quads[i].Vertices[v].Color = (int)color;
         }
+      }
     }
 
     private BitmapCharacter Character(char c)
@@ -719,9 +733,7 @@ namespace MediaPortal.SkinEngine.Fonts
                     quads.RemoveAt(off);
                   }
                   else
-                  {
                     break;
-                  }
                 }
                 if (i - 3 >= 1 & i - 3 < text.Length)
                 {
@@ -738,20 +750,14 @@ namespace MediaPortal.SkinEngine.Fonts
             }
           }
           if (alignment == Align.Left)
-          {
             // Start at left
             x = b.TextBox.X;
-          }
           if (alignment == Align.Center)
-          {
             // Start in center
             x = b.TextBox.X + (maxWidth / 2f);
-          }
           else if (alignment == Align.Right)
-          {
             // Start at right
             x = b.TextBox.Right;
-          }
 
           y += _charSet.LineHeight * sizeScale;
           float offset = 0f;
@@ -881,9 +887,7 @@ namespace MediaPortal.SkinEngine.Fonts
 
         // Don't print these
         if (text[i] == '\n' || text[i] == '\r' || text[i] == '\t')
-        {
           continue;
-        }
 
         // Set starting cursor for alignment
         if (firstCharOfLine)
@@ -993,9 +997,7 @@ namespace MediaPortal.SkinEngine.Fonts
         }
       }
       if (fadeOut)
-      {
         doFadeOut(ref quads, scroll, text);
-      }
       return quads;
     }
 
@@ -1003,9 +1005,7 @@ namespace MediaPortal.SkinEngine.Fonts
     public float GetLineHeight(int index)
     {
       if (index < 0 || index > _strings.Count)
-      {
         throw new ArgumentException("StringBlock index out of range.");
-      }
       return _charSet.LineHeight * (_strings[index].Size / _charSet.RenderedSize);
     }
 

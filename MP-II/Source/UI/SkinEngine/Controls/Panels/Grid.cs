@@ -98,7 +98,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF();
+      RemoveMargin(ref totalSize);
 
       if (LayoutTransform != null)
       {
@@ -128,6 +128,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (row >= RowDefinitions.Count) row = RowDefinitions.Count - 1;
         if (row < 0) row = 0;
 
+        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
 
         ColumnDefinitions.SetDesiredLength(col, GetColumnSpan(child), childSize.Width);
@@ -144,9 +145,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
+
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       totalSize = _desiredSize;
@@ -158,7 +158,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void Arrange(RectangleF finalRect)
     {
       //Trace.WriteLine(String.Format("Grid.Arrange: {0} X {1},Y {2} W {3} H {4}", Name, (int) finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
       ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
@@ -371,4 +371,3 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     #endregion
   }
 }
-

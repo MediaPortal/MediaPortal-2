@@ -555,6 +555,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _isLayoutInvalid = value;}
     }
 
+    /// <summary>
+    /// Returns the desired size this element calculated based on the available size.
+    /// This value denotes the desired size of this element without <see cref="Margin"/>.
+    /// </summary>
     public SizeF DesiredSize
     {
       get { return _desiredSize; }
@@ -579,6 +583,62 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #endregion
 
     #region Layouting
+
+    /// <summary>
+    /// Adds this element's margin to the specified <param name="size"/> parameter.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="float.NaN"/> values will be preserved, i.e. if a <paramref name="size"/> coordinate
+    /// is <see cref="float.NaN"/>, it won't be changed.
+    /// </remarks>
+    /// <param name="size">Size parameter where the margin will be added.</param>
+    public void AddMargin(ref SizeF size)
+    {
+      if (!float.IsNaN(size.Width))
+        size.Width += (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      if (!float.IsNaN(size.Height))
+        size.Height += (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    /// <summary>
+    /// Removes this element's margin from the specified <param name="size"/> parameter.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="float.NaN"/> values will be preserved, i.e. if a <paramref name="size"/> coordinate
+    /// is <see cref="float.NaN"/>, it won't be changed.
+    /// </remarks>
+    /// <param name="size">Size parameter where the margin will be removed.</param>
+    public void RemoveMargin(ref SizeF size)
+    {
+      if (!float.IsNaN(size.Width))
+        size.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      if (!float.IsNaN(size.Height))
+        size.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    /// <summary>
+    /// Removes this element's margin from the specified <paramref name="rect"/>.
+    /// </summary>
+    /// <param name="rect">Outer element's rectangle where the margin will be removed.</param>
+    public void RemoveMargin(ref RectangleF rect)
+    {
+      rect.X += Margin.Left * SkinContext.Zoom.Width;
+      rect.Y += Margin.Top * SkinContext.Zoom.Height;
+
+      rect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
+      rect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    /// <summary>
+    /// Returns the total desired size, i.e. the <see cref="DesiredSize"/> with the
+    /// <see cref="Margin"/>.
+    /// </summary>
+    /// <returns><see cref="DesiredSize"/> plus <see cref="Margin"/>.</returns>
+    public SizeF TotalDesiredSize()
+    {
+      return new SizeF(_desiredSize.Width + (Margin.Left + Margin.Right) * SkinContext.Zoom.Width,
+          _desiredSize.Height + (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
+    }
 
     /// <summary>
     /// Will make this element scroll the specified <paramref name="childRect"/> in a visible
@@ -608,9 +668,23 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Will measure this elements size and fill the <see cref="DesiredSize"/> property.
+    /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
     /// </summary>
-    /// <param name="totalSize">Total Size of the element including Margins</param>
+    /// <remarks>
+    /// <para>
+    /// This method is the first part of the two-phase measuring process. In this first phase, parent
+    /// controls collect all the size requirements of their child controls.
+    /// </para>
+    /// <para>
+    /// An input size value of <see cref="float.NaN"/> denotes that this child control doesn't have a size
+    /// constraint in this direction. All other size values need to be considered by this child control as
+    /// the maximum available size. If this element still produces a bigger <see cref="DesiredSize"/>, the
+    /// <see cref="Arrange"/> method might give it a smaller final region.
+    /// </para>
+    /// </remarks>
+    /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
+    /// contains the size available for this child control (size constraint). As output, it must be set
+    /// to the <see cref="DesiredSize"/> plus <see cref="Margin"/>.</param>
     public virtual void Measure(ref SizeF totalSize)
     {
     }
@@ -618,7 +692,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Arranges the UI element and positions it in the finalrect.
     /// </summary>
-    /// <param name="finalRect">The final size that the parent computes for the child element.</param>
+    /// <param name="finalRect">The final position and size the parent computed for this child element.</param>
     public virtual void Arrange(RectangleF finalRect)
     {
       Initialize();
@@ -643,11 +717,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (!IsInvalidLayout) 
         return;
-      SizeF childSize = new SizeF(0, 0);
     
       //Trace.WriteLine("UpdateLayout: " + Name + "  " + GetType());
       IsInvalidLayout = false;
-      ExtendedMatrix m = _finalLayoutTransform;
 
       if (VisualParent is UIElement)
       {
@@ -660,31 +732,34 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (element == null)
         {
           SizeF size = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
+          SizeF childSize = new SizeF(size.Width, size.Height);
           Measure(ref childSize);
           Arrange(new RectangleF(0, 0, size.Width, size.Height));
         }
         else
         {
-          float w = (float)element.Width * SkinContext.Zoom.Width;
-          float h = (float)element.Height * SkinContext.Zoom.Height;
+          SizeF size = new SizeF((float) element.Width * SkinContext.Zoom.Width,
+              (float) element.Height * SkinContext.Zoom.Height);
 
           // Root element - Start counting again
           SkinContext.ResetZorder();
 
-          if (Double.IsNaN(w)) 
-            w = SkinContext.SkinWidth * SkinContext.Zoom.Width;
-          if (Double.IsNaN(h)) 
-            h = SkinContext.SkinHeight * SkinContext.Zoom.Height;
+          if (Double.IsNaN(size.Width)) 
+            size.Width = SkinContext.SkinWidth * SkinContext.Zoom.Width;
+          if (Double.IsNaN(size.Height)) 
+            size.Height = SkinContext.SkinHeight * SkinContext.Zoom.Height;
+          ExtendedMatrix m = _finalLayoutTransform;
           if (m != null)
             SkinContext.AddLayoutTransform(m);
+
+          SizeF childSize = new SizeF(size.Width, size.Height);
           Measure(ref childSize);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
 
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Arrange(new RectangleF((float)Canvas.GetLeft(element) * SkinContext.Zoom.Width,
-            (float)Canvas.GetTop(element) * SkinContext.Zoom.Height, w, h));
+          Arrange(new RectangleF(0, 0, size.Width, size.Height));
           if (m != null)
             SkinContext.RemoveLayoutTransform();
         }

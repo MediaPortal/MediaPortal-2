@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
@@ -227,22 +226,23 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF();
+      SizeF childSize;
      
       InitializeTriggers();
       AllocFont();
 
       if (_asset != null)
-      {
         childSize = new SizeF(_asset.Font.Width(Text, FontSize) * SkinContext.Zoom.Width,
                  _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
-      }
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
+      else
+        childSize = new SizeF();
 
-      if (Double.IsNaN(Width))
+      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+
+      if (double.IsNaN(Width))
         _desiredSize.Width = childSize.Width;
 
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
 
       if (LayoutTransform != null)
@@ -254,9 +254,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
+
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
@@ -267,7 +266,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       //Trace.WriteLine(String.Format("TextBox.Arrange: {0} X {1} Y {2} W {3} H {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 

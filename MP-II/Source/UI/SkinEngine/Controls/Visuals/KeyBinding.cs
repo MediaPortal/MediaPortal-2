@@ -83,12 +83,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void DoRender()
-    { }
-
     public override void OnKeyPressed(ref Key key)
     {
-      if (key == MediaPortal.Control.InputManager.Key.None)
+      if (key == Key.None)
       {
         return;
       }

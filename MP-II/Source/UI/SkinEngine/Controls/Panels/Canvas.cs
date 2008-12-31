@@ -43,7 +43,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF(0,0);
+      RemoveMargin(ref totalSize);
+      SizeF childSize;
 
       if (LayoutTransform != null)
       {
@@ -54,25 +55,25 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       foreach (UIElement child in Children)
       {
-        if (!child.IsVisible) 
+        if (!child.IsVisible)
           continue;
+        childSize = new SizeF(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
-        rect = RectangleF.Union(rect, new RectangleF(new PointF(0, 0), new SizeF(childSize.Width, childSize.Height)));
+        rect = RectangleF.Union(rect, new RectangleF(new PointF((float) GetLeft(child), (float) GetTop(child)),
+            new SizeF(childSize.Width, childSize.Height)));
       }
 
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
       if (Double.IsNaN(Width))
-        _desiredSize.Width =  rect.Right;
+        _desiredSize.Width = rect.Right;
       if (Double.IsNaN(Height))
         _desiredSize.Height = rect.Bottom;
 
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
@@ -84,7 +85,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       //Trace.WriteLine(String.Format("canvas.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
       ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
@@ -100,7 +101,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       float x = finalRect.Location.X;
       float y = finalRect.Location.Y;
 
-      SizeF childSize = new SizeF();
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible) 
@@ -114,7 +114,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         point.Y += y;
 
         // Get the child size
-        child.TotalDesiredSize(ref childSize);
+        SizeF childSize = child.TotalDesiredSize();
 
         // Arrange the child
         child.Arrange(new RectangleF(point, childSize));

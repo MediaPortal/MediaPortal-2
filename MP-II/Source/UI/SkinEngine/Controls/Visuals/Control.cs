@@ -389,35 +389,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
+      RemoveMargin(ref totalSize);
+
       FrameworkElement templateControl = TemplateControl;
-      SizeF childSize = new SizeF(0, 0);
+      SizeF childSize;
 
-      if (!IsVisible || templateControl == null)
+      if (templateControl != null)
       {
-        _desiredSize = new SizeF(0, 0);
-        return;
+        childSize = new SizeF(totalSize.Width, totalSize.Height);
+        if (LayoutTransform != null)
+        {
+          ExtendedMatrix m;
+          LayoutTransform.GetTransform(out m);
+          SkinContext.AddLayoutTransform(m);
+        }
+
+        templateControl.Measure(ref childSize);
       }
+      else
+        childSize = new SizeF();
+
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
       
-      templateControl.Measure(ref childSize);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-
-      if (Double.IsNaN(Width))
+      if (double.IsNaN(Width))
         _desiredSize.Width = childSize.Width;
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
+
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       totalSize = _desiredSize;
@@ -430,7 +431,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       FrameworkElement templateControl = TemplateControl;
       //Trace.WriteLine(String.Format("Control.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
 
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
 
@@ -452,9 +453,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
+
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       Initialize();
       InitializeTriggers();

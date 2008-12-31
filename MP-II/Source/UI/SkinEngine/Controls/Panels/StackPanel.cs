@@ -120,6 +120,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void Measure(ref SizeF totalSize)
     {
+      RemoveMargin(ref totalSize);
+
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -135,16 +137,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (!child.IsVisible) 
           continue;
-        childSize = new SizeF(0, 0);
-        child.Measure(ref childSize);
         if (Orientation == Orientation.Vertical)
         {
+          childSize = new SizeF(totalSize.Width, float.NaN);
+          child.Measure(ref childSize);
           totalDesiredHeight += childSize.Height;
           if (childSize.Width > totalDesiredWidth)
             totalDesiredWidth = childSize.Width;
         }
         else
         {
+          childSize = new SizeF(float.NaN, totalSize.Height);
+          child.Measure(ref childSize);
           totalDesiredWidth += childSize.Width;
           if (childSize.Height > totalDesiredHeight)
             totalDesiredHeight = childSize.Height;
@@ -164,9 +168,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _desiredSize.Height = totalDesiredHeight;
 
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
+
       if (_canScroll)
         // If we are able to scroll, we only need the biggest child control dimensions
         _desiredSize = minSize;
@@ -175,13 +178,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("StackPanel.Measure: {0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("StackPanel.Measure: {0} returns {1}x{2}", Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("StackPanel.Arrange: {0} X {1}, Y {2} W {3} H {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      ComputeInnerRectangle(ref finalRect);
+      //Trace.WriteLine(String.Format("StackPanel.Arrange: {0} X {1}, Y {2} W {3} H {4}", Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      RemoveMargin(ref finalRect);
 
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
@@ -201,7 +204,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             float startPositionX = _scrollOffsetX;
             float startPositionY = _scrollOffsetY;
-            SizeF childSize = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) 
@@ -210,7 +212,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               PointF location = new PointF(ActualPosition.X + startPositionX,
                   ActualPosition.Y + startPositionY);
 
-              child.TotalDesiredSize(ref childSize);
+              SizeF childSize = child.TotalDesiredSize();
               childSize.Width = (float) ActualWidth;
 
               ArrangeChildHorizontal(child, ref location, ref childSize);
@@ -228,14 +230,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           {
             float startPositionX = _scrollOffsetX;
             float startPositionY = _scrollOffsetY;
-            SizeF childSize = new SizeF(0, 0);
             foreach (FrameworkElement child in Children)
             {
               if (!child.IsVisible) 
                 continue;
+
               PointF location = new PointF(ActualPosition.X + startPositionX,
                   ActualPosition.Y + startPositionY);
-              child.TotalDesiredSize(ref childSize);
+
+              SizeF childSize = child.TotalDesiredSize();
               childSize.Height = (float) ActualHeight;
 
               ArrangeChildVertical(child, ref location, ref childSize);

@@ -358,39 +358,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Adds the element's margin to totalSize.
-    /// </summary>
-    public void AddMargin(ref SizeF totalSize)
-    {
-      if(!Double.IsNaN(totalSize.Width))
-        totalSize.Width += (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      if (!Double.IsNaN(totalSize.Height))
-        totalSize.Height += (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-    }
-
-    /// <summary>
-    /// Computes the inner rectangle from the outer rectangle. i.e. the rectangle 
-    /// without the margins.
-    /// </summary>
-    public void ComputeInnerRectangle(ref RectangleF outerRect)
-    {
-      outerRect.X += Margin.Left * SkinContext.Zoom.Width;
-      outerRect.Y += Margin.Top * SkinContext.Zoom.Height;
-
-      outerRect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      outerRect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-    }
-
-    /// <summary>
-    /// Computes the total desired width.
-    /// </summary>
-    public void TotalDesiredSize(ref SizeF totalSize)
-    {
-      totalSize.Width = _desiredSize.Width + (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      totalSize.Height = _desiredSize.Height + (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
-    }
-
-    /// <summary>
     /// Arranges the child horizontal and vertical in a given area. If the area is bigger than
     /// the child's desired size, the child will be arranged according to its
     /// <see cref="HorizontalAlignment"/> and <see cref="VerticalAlignment"/>.
@@ -402,57 +369,55 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// The area the child should take.</param>
     public void ArrangeChild(FrameworkElement child, ref PointF location, ref SizeF childSize)
     {
-      SizeF desiredSize = new SizeF();
-      child.TotalDesiredSize(ref desiredSize);
+      SizeF desiredSize = child.TotalDesiredSize();
 
-      if (Double.IsNaN(desiredSize.Width))
-        return;
-
-      if(desiredSize.Width < childSize.Width)
+      if (!double.IsNaN(desiredSize.Width))
       {
-        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        if (desiredSize.Width < childSize.Width)
         {
-          location.X += (childSize.Width - desiredSize.Width)/2;
-          childSize.Width = desiredSize.Width;
+          if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+          {
+            location.X += (childSize.Width - desiredSize.Width)/2;
+            childSize.Width = desiredSize.Width;
+          }
+          else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
+          {
+            location.X += childSize.Width - desiredSize.Width;
+            childSize.Width = desiredSize.Width;
+          }
+          else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Left)
+          {
+            // Leave location unchanged
+            childSize.Width = desiredSize.Width;
+          }
+          //else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch)
+          // Do nothing
         }
-        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-        {
-          location.X += childSize.Width - desiredSize.Width;
-          childSize.Width = desiredSize.Width;
-        }
-        else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Left)
-        {
-          // Leave location unchanged
-          childSize.Width = desiredSize.Width;
-        }
-        //else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch)
-        // Do nothing
       }
 
-      if (Double.IsNaN(desiredSize.Height))
-        return;
-
-      if (desiredSize.Height < childSize.Height)
+      if (!double.IsNaN(desiredSize.Height))
       {
-        if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+        if (desiredSize.Height < childSize.Height)
         {
-          location.Y += (childSize.Height - desiredSize.Height)/2;
-          childSize.Height = desiredSize.Height;
+          if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+          {
+            location.Y += (childSize.Height - desiredSize.Height)/2;
+            childSize.Height = desiredSize.Height;
+          }
+          else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
+          {
+            location.Y += childSize.Height - desiredSize.Height;
+            childSize.Height = desiredSize.Height;
+          }
+          else if (child.VerticalAlignment == VerticalAlignmentEnum.Top)
+          {
+            // Leave location unchanged
+            childSize.Height = desiredSize.Height;
+          }
+          //else if (child.VerticalAlignment == VerticalAlignmentEnum.Stretch)
+          // Do nothing
         }
-        else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-        {
-          location.Y += childSize.Height - desiredSize.Height;
-          childSize.Height = desiredSize.Height;
-        }
-        else if (child.VerticalAlignment == VerticalAlignmentEnum.Top)
-        {
-          // Leave location unchanged
-          childSize.Height = desiredSize.Height;
-        }
-        //else if (child.VerticalAlignment == VerticalAlignmentEnum.Stretch)
-        // Do nothing
       }
-      
     }
 
     /// <summary>
@@ -466,11 +431,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// The area the child should take.</param>
     public void ArrangeChildHorizontal(FrameworkElement child, ref PointF location, ref SizeF childSize)
     {
-      SizeF desiredSize = new SizeF();
-  
-      child.TotalDesiredSize(ref desiredSize);
+      SizeF desiredSize = child.TotalDesiredSize();
 
-      if (!Double.IsNaN(desiredSize.Width) && desiredSize.Width < childSize.Width)
+      if (!double.IsNaN(desiredSize.Width) && desiredSize.Width < childSize.Width)
       {
 
         if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
@@ -504,11 +467,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// The area the child should take.</param>
     public void ArrangeChildVertical(FrameworkElement child, ref PointF location, ref SizeF childSize)
     {
-      SizeF desiredSize = new SizeF();
+      SizeF desiredSize = child.TotalDesiredSize();
 
-      child.TotalDesiredSize(ref desiredSize);
-
-      if (!Double.IsNaN(desiredSize.Width) && desiredSize.Height < childSize.Height)
+      if (!double.IsNaN(desiredSize.Width) && desiredSize.Height < childSize.Height)
       {
         if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
         {
@@ -905,9 +866,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void Allocate()
     {
       if (_opacityMaskContext != null)
-      {
         ContentManager.Add(_opacityMaskContext);
-      }
     }
 
     public override void Deallocate()

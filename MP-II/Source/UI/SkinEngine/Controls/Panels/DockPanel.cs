@@ -71,10 +71,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF(0, 0);
-      SizeF size = new SizeF(0, 0);
-      SizeF sizeTop = new SizeF(0, 0);
-      SizeF sizeLeft = new SizeF(0, 0);
+      RemoveMargin(ref totalSize);
+
+      SizeF sizeBorderY = new SizeF(0, 0);
+      SizeF sizeBorderX = new SizeF(0, 0);
       SizeF sizeCenter = new SizeF(0, 0);
 
       if (LayoutTransform != null)
@@ -88,31 +88,31 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (!child.IsVisible)
           continue;
-        
+
+        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
+        if (!float.IsNaN(childSize.Width))
+          childSize.Width -= sizeBorderX.Width - Math.Max(sizeBorderY.Width, sizeCenter.Width);
+        if (!float.IsNaN(childSize.Height))
+          childSize.Height -= sizeBorderY.Height - Math.Max(sizeBorderX.Height, sizeCenter.Height);
         if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
         {
           child.Measure(ref childSize);
 
-          size.Height += childSize.Height;
-          sizeTop.Height += childSize.Height;
-          if (childSize.Width > sizeTop.Width)
-            sizeTop.Width = childSize.Width;
+          sizeBorderY.Height += childSize.Height;
+          if (childSize.Width > sizeBorderY.Width)
+            sizeBorderY.Width = childSize.Width;
         }
         else if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
         {
           child.Measure(ref childSize);
 
-          size.Width += childSize.Width;
-          sizeLeft.Width += childSize.Width;
-          if (childSize.Height > sizeLeft.Height)
-            sizeLeft.Height = childSize.Height;
+          sizeBorderX.Width += childSize.Width;
+          if (childSize.Height > sizeBorderX.Height)
+            sizeBorderX.Height = childSize.Height;
         }
         else if (GetDock(child) == Dock.Center)
         {
           child.Measure(ref childSize);
-
-          size.Width += childSize.Width;
-          size.Height += childSize.Height;
 
           if (childSize.Width > sizeCenter.Width)
             sizeCenter.Width = childSize.Width;
@@ -124,23 +124,18 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
       if (Double.IsNaN(Width))
-      {
-        _desiredSize.Width = sizeLeft.Width + Math.Max(sizeTop.Width, sizeCenter.Width);
-      }
+        _desiredSize.Width = sizeBorderX.Width + Math.Max(sizeBorderY.Width, sizeCenter.Width);
 
       if (Double.IsNaN(Height))
-      {
-        _desiredSize.Height = sizeTop.Height + Math.Max(sizeLeft.Height, sizeCenter.Height);
-      }
+        _desiredSize.Height = sizeBorderY.Height + Math.Max(sizeBorderX.Height, sizeCenter.Height);
 
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
+
       //Trace.WriteLine(String.Format("DockPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
@@ -148,7 +143,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       //Trace.WriteLine(String.Format("DockPanel:arrange {0} {1},{2} {3}x{4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
-      ComputeInnerRectangle(ref finalRect);
+      RemoveMargin(ref finalRect);
 
       ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
@@ -167,8 +162,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
 
       int count = 0;
-      // Size of the child
-      SizeF childSize = new SizeF();
       // Area allocated to child
       SizeF childArea;
 
@@ -180,7 +173,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (!child.IsVisible)
           continue;
 
-        child.TotalDesiredSize(ref childSize);
+        // Size of the child
+        SizeF childSize = child.TotalDesiredSize();
 
         if (GetDock(child) == Dock.Top)
         {

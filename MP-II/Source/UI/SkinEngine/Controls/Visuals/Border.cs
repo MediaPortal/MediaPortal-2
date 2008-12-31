@@ -209,9 +209,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Arrange(RectangleF finalRect)
     {
+      RemoveMargin(ref finalRect);
       RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-
-      ComputeInnerRectangle(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
@@ -234,51 +233,31 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_content != null)
       {
         PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
-        ArrangeContent(_content, ref location, layoutRect.Size);
-        _content.Arrange(new RectangleF(location, _content.DesiredSize));
-      }
-    }
-
-    protected virtual void ArrangeContent(FrameworkElement child, ref PointF p, SizeF s)
-    {
-      if (VisualParent == null) return;
-
-      if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
-      {
-        if (s.Width > 0)
-          p.X += ((s.Width - child.DesiredSize.Width) / 2);
-      }
-      else if (child.HorizontalAlignment == HorizontalAlignmentEnum.Right)
-      {
-        if (s.Width > 0)
-          p.X += (s.Width - child.DesiredSize.Width);
-      }
-      if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
-      {
-        if (s.Height > 0)
-          p.Y += ((s.Height - child.DesiredSize.Height) / 2);
-      }
-      else if (child.VerticalAlignment == VerticalAlignmentEnum.Bottom)
-      {
-        if (s.Height > 0)
-          p.Y += (s.Height - child.DesiredSize.Height);
+        SizeF size = new SizeF(layoutRect.Width, layoutRect.Height);
+        ArrangeChild(_content, ref location, ref size);
+        _content.Arrange(new RectangleF(location, _content.TotalDesiredSize()));
       }
     }
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize = new SizeF(0, 0);
-      if (_content != null)
+      RemoveMargin(ref totalSize);
+
+      SizeF childSize;
+      if (_content != null && _content.IsVisible)
       {
+         childSize = new SizeF(totalSize.Width, totalSize.Height);
         _content.Measure(ref childSize);
       }
+      else
+        childSize = new SizeF();
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
-      if (Double.IsNaN(Width))
+      if (double.IsNaN(Width))
         _desiredSize.Width = childSize.Width;
 
-      if (Double.IsNaN(Height))
+      if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
 
       totalSize = _desiredSize;
