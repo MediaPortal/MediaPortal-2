@@ -118,6 +118,7 @@
     <Compile Include="Controls\Panels\Panel.cs" />
     <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />
     <Compile Include="Controls\Visuals\ISearchableItem.cs" />
+    <Compile Include="Controls\Visuals\RadioButton.cs" />
     <Compile Include="Controls\Visuals\Styles\BindingSetter.cs" />
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
     <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />

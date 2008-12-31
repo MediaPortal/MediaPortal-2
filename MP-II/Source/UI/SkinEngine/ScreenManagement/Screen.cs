@@ -34,7 +34,7 @@ using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ScreenManagement
 {
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.

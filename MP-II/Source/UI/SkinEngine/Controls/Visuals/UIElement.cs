@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.Control.InputManager;
@@ -844,7 +845,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       else if (TemplateNameScope != null)
         return TemplateNameScope;
       else
-        return LogicalParent == null ? null : LogicalParent.FindNameScope();
+        return LogicalParent == null ? Screen : LogicalParent.FindNameScope();
     }
 
     /// <summary>

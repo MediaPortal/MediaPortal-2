@@ -24,6 +24,7 @@
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.MarkupExtensions;
+using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals

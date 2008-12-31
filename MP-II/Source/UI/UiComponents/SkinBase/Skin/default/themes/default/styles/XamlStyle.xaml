@@ -247,13 +247,38 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <!-- ********************** Control style for all buttons ********************** -->
+  <!-- ************************* Control styles for buttons ************************* -->
 
   <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="4" RadiusY="4">
+            <Rectangle.Fill>
+              <RadialGradientBrush GradientOrigin="0.85,0.82">
+                <RadialGradientBrush.RelativeTransform>
+                  <TransformGroup>
+                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
+                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+                    <TranslateTransform X="0.027" Y="-0.006"/>
+                  </TransformGroup>
+                </RadialGradientBrush.RelativeTransform>
+                <GradientStop Color="{ThemeResource ButtonGradientLightColor}" Offset="0"/>
+                <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
+              </RadialGradientBrush>
+            </Rectangle.Fill>
+          </Rectangle>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="RadioButtonControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="5" RadiusY="5" Width="18" Height="18" VerticalAlignment="Center">
             <Rectangle.Fill>
               <RadialGradientBrush GradientOrigin="0.85,0.82">
                 <RadialGradientBrush.RelativeTransform>
@@ -324,15 +349,21 @@
 
   <!-- ***************************** Radio buttons ******************************** -->
 
-  <Style x:Key="RadioButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <Grid Margin="0,2,0,2">
-            <Control Style="{ThemeResource ButtonControlStyle}"/>
-            <Ellipse x:Name="OuterCircle" Margin="0,0,10,0" HorizontalAlignment="Right" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
-            <Ellipse x:Name="InnerCircle" Margin="1,0,11,0" HorizontalAlignment="Right" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Control x:Name="OuterCircle" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="#AAFFFFFF" Visibility="Hidden"/>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -369,15 +400,21 @@
     </Setter>
   </Style>
 
-  <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type Button}">
+  <Style x:Key="RadioButtonLeftStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
           <Grid Margin="0,2,0,2">
-            <Control Style="{ThemeResource ButtonControlStyle}"/>
-            <Ellipse x:Name="OuterCircle" Margin="10,0,0,0" HorizontalAlignment="Left" Width="12" Height="12" Fill="#20FFFFFF" StrokeThickness="2" Stroke="#20FFFFFF"/>
-            <Ellipse x:Name="InnerCircle" Margin="11,0,0,0" HorizontalAlignment="Left" Width="10" Height="10" Fill="#AAFFFFFF" Visibility="Hidden"/>
-            <ContentPresenter x:Name="ContentPresenter" Margin="30,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Control Grid.Column="0" Grid.Row="0" x:Name="OuterCircle" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Ellipse Grid.Column="0" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="#AAFFFFFF" Visibility="Hidden"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
