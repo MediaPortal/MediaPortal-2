@@ -833,11 +833,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual void OnKeyPressed(ref Key key)
     { }
 
-    public virtual bool ReplaceElementType(Type t, UIElement newElement)
-    {
-      return false;
-    }
-
     public override INameScope FindNameScope()
     {
       if (this is INameScope)

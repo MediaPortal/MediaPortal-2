@@ -388,25 +388,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
 
-    public override bool ReplaceElementType(Type t, UIElement newElement)
-    {
-      for (int i = 0; i < Children.Count; ++i)
-      {
-        if (Children[i].GetType() == t)
-        {
-          Children[i] = newElement;
-          Children[i].VisualParent = this;
-          Children[i].SetScreen(Screen);
-          return true;
-        }
-      }
-      foreach (UIElement element in Children)
-      {
-        if (element.ReplaceElementType(t, newElement)) return true;
-      }
-      return false;
-    }
-
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
