@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
-  <Style x:Key="Style_button_pause" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="Style_button_pause" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -30,7 +30,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  <Style x:Key="Style_button_stop" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="Style_button_stop" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -48,7 +48,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  <Style x:Key="Style_button_rewind" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="Style_button_rewind" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  >
@@ -66,7 +66,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  <Style x:Key="Style_button_forward" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="Style_button_forward" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate  >
@@ -84,7 +84,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-  <Style x:Key="Style_button_mute" BasedOn="{x:Null}" TargetType="{x:Type Button}">
+  <Style x:Key="Style_button_mute" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>

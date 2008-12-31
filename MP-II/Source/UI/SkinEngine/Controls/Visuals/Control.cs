@@ -405,6 +405,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
 
         templateControl.Measure(ref childSize);
+
+        if (LayoutTransform != null)
+          SkinContext.RemoveLayoutTransform();
       }
       else
         childSize = new SizeF();
@@ -415,9 +418,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _desiredSize.Width = childSize.Width;
       if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
 
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 

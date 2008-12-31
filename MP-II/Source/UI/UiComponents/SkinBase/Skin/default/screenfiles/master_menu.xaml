@@ -44,29 +44,44 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
-      <DockPanel>
-        <Label Content="{DynamicResource Menu_Header_Text}" Margin="25,0,0,0" DockPanel.Dock="Top"/>
-        <StackPanel x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-          <ListView x:Name="MainMenu" Height="304" Width="200" Style="{StaticResource MenuListViewStyle}"
+      <DockPanel LastChildFill="True">
+        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Grid.Column="0" Grid.Row="0" Content="{DynamicResource Menu_Header_Text}" Margin="25,0,0,0" DockPanel.Dock="Top"/>
+          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Style="{StaticResource MenuListViewStyle}"
               ItemsSource="{Binding Source={Model Id=9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
-          <Button x:Name="VideoWindow" Style="{StaticResource VideoWindowButtonStyle}"
+          <Button x:Name="VideoWindow" Grid.Column="0" Grid.Row="2" Style="{StaticResource VideoWindowButtonStyle}"
               IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}" Width="160" Height="120" VerticalAlignment="Bottom"
               Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=fullscreenvideo}"/>
-        </StackPanel>
+        </Grid>
 
-        <!-- Order matters here: ContentViewer has to be the last control to fill the rest of the space -->
-        <StackPanel x:Name="OSDPanel" DockPanel.Dock="Bottom">
+        <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
+        <Grid DockPanel.Dock="Center">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <ContentPresenter Margin="10,0,10,0" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <ContentPresenter.Content>
+              <DynamicResource ResourceKey="Contents_Element"/>
+            </ContentPresenter.Content>
+          </ContentPresenter>
           <Include Source="screenfiles\osd.xaml"/>
-        </StackPanel>
-        <ContentPresenter Margin="10,0,10,0" x:Name="ContentViewer" DockPanel.Dock="Center">
-          <ContentPresenter.Content>
-            <DynamicResource ResourceKey="Contents_Element"/>
-          </ContentPresenter.Content>
-        </ContentPresenter>
+        </Grid>
       </DockPanel>
     </ResourceWrapper>
 

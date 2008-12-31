@@ -36,12 +36,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Context="{DynamicResource DataContext}"
     Background="{StaticResource BackgroundBrush}" Width="720" Height="576"
     LastChildFill="True">
-  <Grid x:Name="Grid1" DockPanel.Dock="Top">
+  <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>  
-    <StackPanel x:Name="HeaderPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
+    <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
       <Label Margin="60,0,0,0" FontFamily="RitzyNormal" FontSize="60" Content="{DynamicResource Header_Text}" />
       <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="RitzyNormal" FontSize="60" Content="{DynamicResource Header_Text}"
           Opacity="0.75" RenderTransformOrigin="0.4,0.4">
@@ -58,12 +58,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Label.OpacityMask>
       </Label>
     </StackPanel>
-    <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+    <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
       <Label x:Name="Date" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentDate}" />
       <Label x:Name="Time" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentTime}" />
     </StackPanel>
   </Grid>
 
   <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center" Margin="10,0,0,0"
-      VerticalAlignment="Top" HorizontalAlignment="Left" Content="{DynamicResource Client_Element}"/>
+      Content="{DynamicResource Client_Element}"/>
 </DockPanel>
