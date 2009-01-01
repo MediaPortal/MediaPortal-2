@@ -70,6 +70,7 @@
     <Compile Include="ConfigurationManagement\ConfigurationNode.cs" />
     <Compile Include="ConfigurationManagement\ConfigObjectSearchMatcher.cs" />
     <Compile Include="ConfigurationManagement\ConfigurationTree.cs" />
+    <Compile Include="ConfigurationManagement\Constants.cs" />
     <Compile Include="Settings\Regional\LocalizationSettings.cs" />
     <Compile Include="Settings\System\Balloontips.cs" />
     <Compile Include="Settings\Regional\City.cs" />

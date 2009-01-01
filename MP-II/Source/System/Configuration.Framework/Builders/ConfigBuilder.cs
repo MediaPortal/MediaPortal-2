@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Configuration;
 
-namespace Components.Configuration.Builders
+namespace MediaPortal.Configuration.Builders
 {
   /// <summary>
   /// Plugin item builder for building <i>Section</i>, <i>Group</i> and <i>Setting</i> plugin items.

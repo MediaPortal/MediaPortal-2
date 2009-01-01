@@ -10,9 +10,9 @@
     <Assembly FileName="ConfigurationManager.dll"/>
   </Runtime>
 
-  <Builder Name="ConfigSection" ClassName="Components.Configuration.Builders.ConfigBuilder"/>
-  <Builder Name="ConfigGroup" ClassName="Components.Configuration.Builders.ConfigBuilder"/>
-  <Builder Name="ConfigSetting" ClassName="Components.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="ConfigSection" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="ConfigGroup" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="ConfigSetting" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
 
   <Register Location="/Services">
     <Instance Id="IConfigurationManager" ClassName="MediaPortal.Configuration.ConfigurationManagement.ConfigurationManager"/>

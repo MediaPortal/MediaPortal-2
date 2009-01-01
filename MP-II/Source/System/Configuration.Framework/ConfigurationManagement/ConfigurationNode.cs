@@ -42,21 +42,6 @@ namespace MediaPortal.Configuration.ConfigurationManagement
   /// </summary>
   public class ConfigurationNode : IConfigurationNode, IDisposable
   {
-    #region Constants
-
-    /// <summary>
-    /// Location to start searching for configuration items, in the plugintree.
-    /// </summary>
-    protected const string PLUGINTREEBASELOCATION = "/Configuration/Settings";
-
-    /// <summary>
-    /// Section <see cref="ConfigBaseMetadata.Text"/> which will be used when child config objects are
-    /// located under a section which was not explicitly defined.
-    /// </summary>
-    protected const string INVALID_SECTION_TEXT = "[system.invalid]";
-
-    #endregion
-
     #region Protected fields
 
     protected bool _childrenLoaded = false;
@@ -120,7 +105,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       // to the outside. I think this is not worth the labor.
       _childPluginItemStateTracker = new FixedItemStateTracker();
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      string itemLocation = PLUGINTREEBASELOCATION + Location;
+      string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
       ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(itemLocation);
       IDictionary<string, object> childSet = new Dictionary<string, object>();
       foreach (PluginItemMetadata item in items)
@@ -139,7 +124,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
           continue;
         logger.Warn("Configuration: Configuration section '{0}' was found in the tree but not explicitly registered as section (config items in this section are registered by those plugins: {1})",
             childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
-        ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, INVALID_SECTION_TEXT, null, null);
+        ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, Constants.INVALID_SECTION_TEXT, null, null);
         ConfigSection dummySection = new ConfigSection();
         dummySection.SetMetadata(dummyMetadata);
         AddChildNode(dummySection);
@@ -269,7 +254,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       if (!_childrenLoaded)
         return;
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      string itemLocation = PLUGINTREEBASELOCATION + Location;
+      string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
       foreach (ConfigurationNode node in _childNodes)
       {
         node.DisposeChildren();
