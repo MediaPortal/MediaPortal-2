@@ -166,6 +166,12 @@ namespace MediaPortal.Services.Workflow
     /// <param name="modelId">Id of the model to free.</param>
     protected void FreeModel(Guid modelId)
     {
+      object model;
+      if (_modelCache.TryGetValue(modelId, out model))
+      {
+        if (model is IDisposable)
+          ((IDisposable) model).Dispose();
+      }
       ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       _modelCache.Remove(modelId);
     }
@@ -173,13 +179,8 @@ namespace MediaPortal.Services.Workflow
     protected void RemoveModelFromNavigationStack(Guid modelId)
     {
       while (IsModelContainedInNavigationStack(modelId))
-      {
-        // Pop others from stack
-        while (!CurrentNavigationContext.Models.ContainsKey(modelId))
-          DoPopNavigationContext(1);
-        // Pop navigation context with requested model
+        // Pop all navigation context until requested model isn't used any more
         DoPopNavigationContext(1);
-      }
       UpdateScreen();
     }
 
