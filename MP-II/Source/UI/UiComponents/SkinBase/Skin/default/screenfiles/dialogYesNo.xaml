@@ -2,7 +2,6 @@
 <Canvas
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    History="False"
     >
 <!-- TODO Albert78: Make more general - use master_dialog.xaml template, take button commands&texts from ScreenManager, ... -->
 

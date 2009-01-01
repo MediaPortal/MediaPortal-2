@@ -3,8 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model RegistrationLocation=Pictures,Id=PictureModel}}"
-    FocusedElement="{Binding ElementName=cropButton}"
-    History="False">
+    FocusedElement="{Binding ElementName=cropButton}">
 
   <Canvas Loaded="{Command Path=Editor.Reset}"  Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
 

@@ -79,7 +79,9 @@
     <Content Include="plugin.xml" />
     <Content Include="Language\strings_en.xml" />
     <Content Include="Skin\default\screenfiles\configuration-section.xaml" />
-    <Content Include="Skin\default\screenfiles\configuration_yesno.xaml" />
+    <Content Include="Skin\default\screenfiles\dialog_configuration_yesno.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\workflow\configuration-states.xml" />
     <Content Include="Skin\default\workflow\configuration-actions.xml" />
   </ItemGroup>

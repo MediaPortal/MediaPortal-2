@@ -340,7 +340,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         _targetDataDescriptor.Value = this;
         return true;
       }
-      DependencyObject current = _contextObject as DependencyObject;
+      DependencyObject current = _contextObject;
       while (current != null)
       {
         ResourceDictionary resources = null;

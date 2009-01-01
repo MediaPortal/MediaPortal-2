@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model RegistrationLocation=Pictures,Id=PictureModel}}"
     FocusedElement="{Binding ElementName=mainMenu}"
-    History="False" Width="720" Height="576" Background="Black">
+    Width="720" Height="576" Background="Black">
   <Canvas x:Name="tst" Loaded="{Command Path=SlideShow.UpdateCurrentPicture}">
     <Image x:Name="picture1" Stretch="UniformToFill" Source="{Binding SlideShow.PreviousPicture}"  Width="720" Height="576" Thumbnail="False" IsEnabled="{Binding SlideShow.PreviousPictureVisible}">
 

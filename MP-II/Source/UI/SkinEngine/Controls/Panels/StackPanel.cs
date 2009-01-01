@@ -501,31 +501,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #endregion
 
-    #region Input handling
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      foreach (UIElement element in Children)
-      {
-        if (false == element.IsVisible) continue;
-        element.OnKeyPressed(ref key);
-        if (key == Key.None) return;
-      }
-    }
-
-    public override void OnMouseMove(float x, float y)
-    {
-      if (y < ActualPosition.Y) return;
-      if (y > ActualHeight + ActualPosition.Y) return;
-      foreach (UIElement element in Children)
-      {
-        if (false == element.IsVisible) continue;
-        element.OnMouseMove(x, y);
-      }
-    }
-
-    #endregion
-
     #region IScrollInfo implementation
 
     public bool CanScroll

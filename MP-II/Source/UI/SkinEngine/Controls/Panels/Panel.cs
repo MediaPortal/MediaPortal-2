@@ -382,7 +382,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       foreach (UIElement element in Children)
       {
-        if (false == element.IsVisible) continue;
+        if (!element.IsVisible) continue;
         element.OnKeyPressed(ref key);
         if (key == Key.None) return;
       }

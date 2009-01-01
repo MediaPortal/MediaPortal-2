@@ -494,7 +494,6 @@ namespace MediaPortal.SkinEngine.Xaml
     protected static int ParseIndices(IParserContext context, string path,
         int pos, out object[] indices)
     {
-      string indexExpression;
       if (path[pos] != '[')
       {
         indices = null;
@@ -503,7 +502,7 @@ namespace MediaPortal.SkinEngine.Xaml
       int indexerEnd = path.IndexOf(']', pos);
       if (indexerEnd < pos + 1)
         throw new XamlParserException("Path '{0}': Error in indexer expression at position {1}", path, pos);
-      indexExpression = path.Substring(pos + 1, (indexerEnd - pos) - 1);
+      string indexExpression = path.Substring(pos + 1, (indexerEnd - pos) - 1);
       indices = ParserHelper.ParseIndexExpression(context, indexExpression);
       return indexerEnd + 1;
     }

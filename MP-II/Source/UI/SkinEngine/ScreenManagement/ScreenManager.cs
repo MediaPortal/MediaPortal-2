@@ -43,7 +43,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public const string HOME_SCREEN = "home";
 
-    private readonly IDictionary<string, Screen> _windowCache = new Dictionary<string, Screen>();
     private readonly object _syncRoot = new object();
     private Screen _currentScreen = null;
     private readonly Stack<Screen> _dialogStack = new Stack<Screen>();
@@ -53,7 +52,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     private Theme _theme = null;
 
     // Albert78: Next fields are to be removed
-    //public TimeUtils _utils = new TimeUtils();
     private string _dialogTitle;
     private string[] _dialogLines = new string[3];
     private bool _dialogResponse;  // Yes = true, No = false
@@ -120,7 +118,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (skin == null)
         throw new Exception(string.Format("Skin '{0}' not found", skinName));
       Theme theme = themeName == null ? null :
-                                                 (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
+          (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
       if (theme == null)
         theme = skin.DefaultTheme;
 
@@ -156,9 +154,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (_dialogStack.Count == 0)
         _currentScreen.DetachInput();
       else
-      {
         _dialogStack.Peek().DetachInput();
-      }
 
       newDialog.AttachInput();
       newDialog.Show();
@@ -238,16 +234,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       SkinContext.Now = DateTime.Now;
       lock (_syncRoot)
       {
-        lock (_windowCache)
-        {
-          if (_currentScreen == null)
-            return;
-          _currentScreen.Render();
-          foreach (Screen dialog in _dialogStack)
-          {
-            dialog.Render();
-          }
-        }
+        if (_currentScreen == null)
+          return;
+        _currentScreen.Render();
+        foreach (Screen dialog in _dialogStack)
+          dialog.Render();
       }
     }
 
@@ -270,8 +261,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
 
         InternalCloseCurrentScreenAndDialogs();
-
-        _windowCache.Clear();
 
         // FIXME Albert78: Find a better way to make the InputManager, PlayerCollection and
         // ContentManager observe the current skin
@@ -427,7 +416,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         // Close the children and the main dialog
         do
         {
-        } while (InternalCloseDialog()==true);
+        } while (InternalCloseDialog());
       }
     }
 
@@ -457,11 +446,9 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       InternalCloseCurrentScreenAndDialogs();
 
       Screen currentScreen;
-      lock (_windowCache)
+      lock (_syncRoot)
       {
         string name = _currentScreen.Name;
-        if (_windowCache.ContainsKey(name))
-          _windowCache.Remove(name);
         currentScreen = GetScreen(name);
       }
       if (currentScreen == null)

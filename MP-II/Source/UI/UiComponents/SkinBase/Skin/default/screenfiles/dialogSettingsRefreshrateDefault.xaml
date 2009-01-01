@@ -7,8 +7,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text1" Resource="[system.5]"/>
-    <ResourceWrapper x:Key="Dialog_Header_Text2" Resource="[refreshrate.9]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[refreshrate.9]"/>
 
     <!-- DataContext -->
     <Model x:Key="DataContext" RegistrationLocation="Settings" Id="RefreshrateSettings"/>

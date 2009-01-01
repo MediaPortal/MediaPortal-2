@@ -27,7 +27,7 @@
         <ListView
             Style="{StaticResource ContentsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
-            ItemsSource="{Binding ConfigItems}">
+            ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Command}"/>
           </ListView.Resources>

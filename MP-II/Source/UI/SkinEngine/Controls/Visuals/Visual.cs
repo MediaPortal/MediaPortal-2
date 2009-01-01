@@ -40,7 +40,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     Property _visualParentProperty;
     Property _focusedElement;
-    bool _history;
 
     #endregion
 
@@ -55,7 +54,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _history = true;
       _visualParentProperty = new Property(typeof(Visual), null);
       _focusedElement = new Property(typeof(FrameworkElement), null);
     }
@@ -64,7 +62,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       Visual v = (Visual) source;
-      History = copyManager.GetCopy(v.History);
       VisualParent = copyManager.GetCopy(v.VisualParent);
       Screen = copyManager.GetCopy(v.Screen);
     }
@@ -131,17 +128,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return _focusedElement.GetValue() as FrameworkElement; }
       set { _focusedElement.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Flag to be set on a root Visual to switch if the enclosing window
-    /// should be added to the window history.
-    /// FIXME Albert78: Choose another solution for this.
-    /// </summary>
-    public bool History
-    {
-      get { return _history; }
-      set { _history = value; }
     }
 
     /// <summary>

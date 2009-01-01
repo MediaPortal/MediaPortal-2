@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screenfiles\master.xaml"
-    > <!-- TODO: History=False -->
+    >
   <Include.Resources>
 
     <!-- Header_Text -->

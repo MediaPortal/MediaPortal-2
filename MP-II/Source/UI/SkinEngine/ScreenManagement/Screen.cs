@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 using MediaPortal.Core;
@@ -69,7 +68,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     private Property _opened;
     public event EventHandler Closed;
-    private bool _history;
     UIElement _visual;
     bool _setFocusedElement = false;
     Animator _animator;
@@ -92,7 +90,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         throw new ArgumentOutOfRangeException("name");
       }
 
-      _history = true;
       _opened = new Property(typeof(bool), true);
       _name = name;
       _animator = new Animator();
@@ -110,23 +107,13 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         _visual = value;
         if (_visual != null)
-        {
-          _history = _visual.History;
           _visual.SetScreen(this);
-        }
       }
     }
 
     public FrameworkElement RootElement
     {
       get { return _visual as FrameworkElement; }
-    }
-
-    // FIXME Albert78: Remove this - history is managed by workflow manager now
-    public bool History
-    {
-      get { return _history; }
-      set { _history = value; }
     }
 
     public bool IsChildDialog
@@ -184,7 +171,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void Deallocate()
     {
-      Trace.WriteLine("Screen Deallocate: " + Name);
+      //Trace.WriteLine("Screen Deallocate: " + Name);
       if (SkinContext.UseBatching)
         _visual.DestroyRenderTree();
       _visual.Deallocate();
@@ -244,9 +231,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         ServiceScope.Get<IInputManager>().MouseMoved -= OnMouseMove;
         FocusManager.DetachInput(this);
         _attachedInput = false;
-        // FIXME Albert78: Don't fire the Closed event in method DetachInput
-        if (Closed != null)
-          Closed(this, null);
       }
     }
 
@@ -280,6 +264,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         _visual.Deallocate();
         _invalidControls.Clear();
       }
+      if (Closed != null)
+        Closed(this, null);
     }
 
     private void OnKeyPressed(ref Key key)

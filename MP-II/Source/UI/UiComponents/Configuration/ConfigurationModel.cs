@@ -25,13 +25,16 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Configuration;
+using MediaPortal.Configuration.Settings;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
+using MediaPortal.Presentation.Screen;
 using MediaPortal.Presentation.Workflow;
 
 namespace UiComponents.Configuration
@@ -61,7 +64,7 @@ namespace UiComponents.Configuration
   /// </list>
   /// The menu will completely be provided by the workflow manager; the configuration of the workflow manager
   /// is done by method <see cref="UpdateMenuActions"/>.<br/>
-  /// The content menu entries are provided by property <see cref="ConfigItems"/>, containing items to be shown
+  /// The content menu entries are provided by property <see cref="ConfigSettings"/>, containing items to be shown
   /// in a list in the content part. Each item has an attached command which will trigger any state change
   /// in this model as well as the showing of the approppriate screen dialog.
   /// </para>
@@ -92,19 +95,29 @@ namespace UiComponents.Configuration
 
     protected const string CONTEXT_STATE_DATA_KEY = "ConfigurationModel: CONTEXT_STATE_DATA";
 
-    protected ItemsList _configItemsList = null;
+    protected static IDictionary<Type, string> REGISTERED_SETTING_TYPES = new Dictionary<Type, string>();
+
+    protected ItemsList _configSettingsList = null;
     protected string _currentLocation = null;
     protected ConfigSetting _currentConfigSetting = null;
     protected Property _headerTextProperty;
-    protected Property _yesNoProperty;
 
     #endregion
+
+    #region Ctor
+
+    static ConfigurationModel()
+    {
+      REGISTERED_SETTING_TYPES.Add(typeof(YesNo), "dialog_configuration_yesno");
+      // TODO: More setting types
+    }
 
     public ConfigurationModel()
     {
       _headerTextProperty = new Property(typeof(string), null);
-      _yesNoProperty = new Property(typeof(bool), false);
     }
+
+    #endregion
 
     #region Common properties for screens
 
@@ -123,25 +136,56 @@ namespace UiComponents.Configuration
     }
 
     /// <summary>
-    /// Returns a list of config items in the section associated with the current workflow state.
+    /// Returns a list of config settings in the section associated with the current workflow state.
     /// </summary>
-    public ItemsList ConfigItems
+    public ItemsList ConfigSettings
     {
-      get { return _configItemsList; }
+      get { return _configSettingsList; }
+    }
+
+    /// <summary>
+    /// Returns the current setting instance. The skin should update its data from and to this instance.
+    /// </summary>
+    public ConfigSetting CurrentConfigSetting
+    {
+      get { return _currentConfigSetting; }
     }
 
     #endregion
 
-    #region Properties for YesNo screen
+    #region Public methods for screens
 
-    public Property YesNoProperty
+    /// <summary>
+    /// Initializes the model state variables for the GUI to be used in the screen for the configuration
+    /// item of the specified <paramref name="configLocation"/> and shows the screen.
+    /// </summary>
+    /// <param name="configLocation">The configuration location to be shown.</param>
+    public void ShowConfigItem(string configLocation)
     {
-      get { return _yesNoProperty; }
+      _currentLocation = configLocation;
+      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
+      IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
+      _currentConfigSetting = currentNode == null ? null : currentNode.ConfigObj as ConfigSetting;
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      _currentConfigSetting.Load(_currentConfigSetting.SettingsObjectType == null ?
+          null : settingsManager.Load(_currentConfigSetting.SettingsObjectType));
+      string dialog = GetSettingDialog(_currentConfigSetting.GetType());
+      if (dialog != null)
+      {
+        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+        screenManager.ShowDialog(dialog);
+      }
     }
 
-    public bool Yes
+    /// <summary>
+    /// Saves the GUI model state variables in the config object for the current configuration item.
+    /// </summary>
+    public void SaveCurrentConfigItem()
     {
-      get { return (bool) _yesNoProperty.GetValue(); }
+      _currentConfigSetting.Apply();
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      _currentConfigSetting.Save(_currentConfigSetting.SettingsObjectType == null ?
+          null : settingsManager.Load(_currentConfigSetting.SettingsObjectType));
     }
 
     #endregion
@@ -193,24 +237,82 @@ namespace UiComponents.Configuration
       return dd.TryGetValue(context.WorkflowState.StateId, out result) ? result : null;
     }
 
-    protected void AddConfigItems(IConfigurationNode node, ItemsList itemsList)
+    /// <summary>
+    /// Returns the information if the specified <paramref name="setting"/> is supported by this
+    /// configuration plugin.
+    /// </summary>
+    /// <param name="setting">The setting to check.</param>
+    /// <returns><c>true</c>, if the setting is supported, i.e. it can be displayed in the GUI, else
+    /// <c>false</c>.</returns>
+    protected static bool IsSettingSupported(ConfigSetting setting)
     {
-      foreach (IConfigurationNode childNode in node.ChildNodes)
+      if (setting == null)
+        return false;
+      return GetSettingDialog(setting.GetType()) != null;
+    }
+
+    protected static string GetSettingDialog(Type settingType)
+    {
+      foreach (KeyValuePair<Type, string> registration in REGISTERED_SETTING_TYPES)
+        if (registration.Key.IsAssignableFrom(settingType))
+          return registration.Value;
+      return null;
+    }
+
+    /// <summary>
+    /// Returns the number of supported settings in or under the specified <paramref name="sectionOrGroupNode"/>.
+    /// </summary>
+    /// <param name="sectionOrGroupNode">Section or group node to check.</param>
+    /// <returns>Number of supported settings in the specified node.</returns>
+    protected static int NumSettingsSupported(IConfigurationNode sectionOrGroupNode)
+    {
+      int result = 0;
+      foreach (IConfigurationNode childNode in sectionOrGroupNode.ChildNodes)
       {
         if (childNode.ConfigObj is ConfigSetting)
         {
+          if (IsSettingSupported((ConfigSetting)childNode.ConfigObj))
+            result++;
+        }
+        else if (childNode.ConfigObj is ConfigGroup)
+          result += NumSettingsSupported(childNode);
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Adds all settings in the specified <paramref name="sectionOrGroupNode"/> to the specified
+    /// <paramref name="settingsList"/>. For each setting, a <see cref="ListItem"/> will be created
+    /// with the setting text as name and a command which triggers the method <see cref="ShowConfigItem"/>
+    /// with the according setting location.
+    /// </summary>
+    /// <param name="sectionOrGroupNode">Section or group node, whose contained settings should be added.</param>
+    /// <param name="settingsList">List where the extracted settings will be added to.</param>
+    protected void AddConfigSettings(IConfigurationNode sectionOrGroupNode, ItemsList settingsList)
+    {
+      foreach (IConfigurationNode childNode in sectionOrGroupNode.ChildNodes)
+      {
+        if (childNode.ConfigObj is ConfigSetting)
+        {
+          if (!IsSettingSupported((ConfigSetting) childNode.ConfigObj))
+            continue;
           string location = childNode.Location;
           ListItem item = new ListItem("Name", childNode.ConfigObj.Metadata.Text)
           {
               Command = new MethodDelegateCommand(() => ShowConfigItem(location))
           };
-          itemsList.Add(item);
+          settingsList.Add(item);
         }
         if (childNode.ConfigObj is ConfigGroup)
-          AddConfigItems(childNode, itemsList);
+          AddConfigSettings(childNode, settingsList);
       }
     }
 
+    /// <summary>
+    /// Sets up the internal and external states to conform to the specified <paramref name="newContext"/>.
+    /// </summary>
+    /// <param name="oldContext">Old workflow navigation context which is left.</param>
+    /// <param name="newContext">New workflow navigation context which is entered.</param>
     protected void PrepareConfigLocation(NavigationContext oldContext, NavigationContext newContext)
     {
       string configLocation = GetConfigLocation(newContext);
@@ -230,34 +332,8 @@ namespace UiComponents.Configuration
         HeaderText = currentNode.Id;
       else
         HeaderText = currentNode.ConfigObj.Text.Evaluate();
-      _configItemsList = new ItemsList();
-      AddConfigItems(currentNode, _configItemsList);
-    }
-
-    #endregion
-
-    #region Public (model) methods
-
-    /// <summary>
-    /// Initializes the model state variables for the GUI to be used in the screen for the configuration
-    /// item of the specified <paramref name="configLocation"/> and shows the screen.
-    /// </summary>
-    /// <param name="configLocation">The configuration location to be shown.</param>
-    public void ShowConfigItem(string configLocation)
-    {
-      _currentLocation = configLocation;
-      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
-      IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
-      _currentConfigSetting = currentNode == null ? null : currentNode.ConfigObj as ConfigSetting;
-       // TODO: Initialize model data for new dialog, show appropriate dialog for the specified config location
-    }
-
-    /// <summary>
-    /// Saves the GUI model state variables in the config object for the current configuration item.
-    /// </summary>
-    public void SaveCurrentConfigItem()
-    {
-      // TODO: Save model data in the current config object
+      _configSettingsList = new ItemsList();
+      AddConfigSettings(currentNode, _configSettingsList);
     }
 
     #endregion
@@ -321,6 +397,11 @@ namespace UiComponents.Configuration
       {
         if (childNode.ConfigObj is ConfigSection)
         {
+          bool supportedSettings = NumSettingsSupported(childNode) > 0;
+          // Albert78: Instead of skipping, we could disable the transition in case there are no supported
+          // settings contained in it
+          if (!supportedSettings)
+            continue;
           ConfigSection section = (ConfigSection) childNode.ConfigObj;
           // Create transient state for new config section
           WorkflowState newState = WorkflowState.CreateTransientState(

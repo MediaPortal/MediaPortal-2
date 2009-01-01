@@ -12,11 +12,8 @@ Usage:
       Source="screenfiles\master_dialog_menu.xaml"
       >
     <Include.Resources>
-      <ResourceWrapper x:Key="Dialog_Header_Text1">
-        [Header text to be at the left side in the dialog title]
-      </ResourceWrapper>
-      <ResourceWrapper x:Key="Dialog_Header_Text2">
-        [Header text to be at the right side in the dialog title]
+      <ResourceWrapper x:Key="Dialog_Header_Text">
+        [Header text to be displayed as dialog title]
       </ResourceWrapper>
       <ResourceWrapper x:Key="ListViewStyle">
         [Style for the ListView component]
@@ -31,8 +28,7 @@ Usage:
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Dialog_Header_Text1 (String): The text to be displayed as first header left
- - Dialog_Header_Text2 (String): The text to be displayed as second header right
+ - Dialog_Header_Text (String): The text to be displayed as dialog title
  - ListViewStyle (Style): The style to be used for the menu list view. Supported
    are only styles with an ItemContainerStyle of DefaultMenuItemContainerStyle.
  - Menu_Items (Collection of ListItem): Items to be displayed as menu items
@@ -46,8 +42,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Source="screenfiles\master_dialog.xaml"
     >
   <Include.Resources>
-
-    <!-- Header has to be defined by the includer: "Dialog_Header_Text1" and "Dialog_Header_Text2" -->
+    <!-- Header has to be defined by the includer: "Dialog_Header_Text" -->
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
@@ -66,5 +61,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </ListView>
     </ResourceWrapper>
 
+    <ResourceWrapper x:Key="Focused_Element" Resource="{Binding Source={StaticResource Contents_Element},Path=Resource}"/>
   </Include.Resources>
 </Include>

@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language>
-  <Section Name="system">
+  <Section Name="System">
+    <String Name="Yes" Text="Yes"/>
+    <String Name="No" Text="No"/>
+    <String Name="Done" Text="Done"/>
+    <String Name="Ok" Text="Ok"/>
+    <String Name="Cancel" Text="Cancel"/>
+    <String Name="Back" Text="Back"/>
+    <String Name="Add" Text="Add"/>
+    <String Name="Remove" Text="Remove"/>
+
     <String Name="0" Text="Exit"/>
     <String Name="1" Text="Invalid string"/>
     <String Name="2" Text="hours"/>
@@ -8,13 +17,6 @@
     <String Name="4" Text="secs"/>
     <String Name="5" Text="Menu"/>
     <String Name="eject" Text="Eject"/>
-    <String Name="yes" Text="Yes"/>
-    <String Name="no" Text="No"/>
-    <String Name="done" Text="Done"/>
-    <String Name="cancel" Text="Cancel"/>
-    <String Name="back" Text="Back"/>
-    <String Name="add" Text="Add"/>
-    <String Name="remove" Text="Remove"/>
   </Section>
   <Section Name="general">
     <String Name="name" Text="Name"/>

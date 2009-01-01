@@ -3,8 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model RegistrationLocation=Movies,Id=Model}}"
-    FocusedElement="{Binding ElementName=mainMenu}"
-    History="False">
+    FocusedElement="{Binding ElementName=mainMenu}">
 
   <Canvas Background="{StaticResource BackgroundBrush}" Width="720" Height="576"/>
   <Canvas Width="720" Height="576">
