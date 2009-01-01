@@ -109,6 +109,7 @@ namespace UiComponents.Configuration
     static ConfigurationModel()
     {
       REGISTERED_SETTING_TYPES.Add(typeof(YesNo), "dialog_configuration_yesno");
+      REGISTERED_SETTING_TYPES.Add(typeof(Entry), "dialog_configuration_entry");
       // TODO: More setting types
     }
 
@@ -183,8 +184,10 @@ namespace UiComponents.Configuration
     public void SaveCurrentConfigItem()
     {
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      _currentConfigSetting.Save(_currentConfigSetting.SettingsObjectType == null ?
-          null : settingsManager.Load(_currentConfigSetting.SettingsObjectType));
+      object setting = _currentConfigSetting.SettingsObjectType == null ? null :
+          settingsManager.Load(_currentConfigSetting.SettingsObjectType);
+      _currentConfigSetting.Save(setting);
+      settingsManager.Save(setting);
       _currentConfigSetting.Apply();
     }
 
@@ -317,9 +320,13 @@ namespace UiComponents.Configuration
     {
       string configLocation = GetConfigLocation(newContext);
       if (configLocation == null)
+      {
         // Should not happen - we run into this case if our internal data structures weren't initialized for
         // the new state
+        ServiceScope.Get<ILogger>().Error("ConfigurationModel: Workflow state '{0}' was not initialized in the context of this model",
+            newContext.WorkflowState.StateId);
         return;
+      }
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
       bool enteringConfiguration = GetConfigLocation(oldContext) == null;
       if (enteringConfiguration)
@@ -398,7 +405,7 @@ namespace UiComponents.Configuration
         if (childNode.ConfigObj is ConfigSection)
         {
           bool supportedSettings = NumSettingsSupported(childNode) > 0;
-          // Albert78: Instead of skipping, we could disable the transition in case there are no supported
+          // Hint (Albert): Instead of skipping, we could disable the transition in case there are no supported
           // settings contained in it
           if (!supportedSettings)
             continue;
@@ -409,7 +416,7 @@ namespace UiComponents.Configuration
               false, false);
           // Add action for menu
           actions.Add(new PushTransientStateNavigationTransition(
-              Guid.NewGuid(), context.WorkflowState.Name + "->" + configLocation,
+              Guid.NewGuid(), context.WorkflowState.Name + "->" + childNode.Location,
                   context.WorkflowState.StateId, newState, LocalizationHelper.CreateResourceString(section.Metadata.Text)));
           // Initialize status in internal dictionary
           stateDataDictionary[newState.StateId] = childNode.Location;

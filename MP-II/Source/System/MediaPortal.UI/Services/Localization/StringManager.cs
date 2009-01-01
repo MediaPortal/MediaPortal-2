@@ -27,7 +27,6 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Settings;

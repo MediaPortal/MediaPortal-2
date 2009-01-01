@@ -37,6 +37,13 @@
         Text="[Configuration.System]"/>
   </Register>
 
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Configuration.System.Skin]"/>
+  </Register>
+
   <Register Location="/Configuration/Settings/Appearance/Skin">
     <ConfigSetting
         Id="TimeFormat"

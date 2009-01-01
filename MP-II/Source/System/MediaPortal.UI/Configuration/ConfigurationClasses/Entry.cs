@@ -54,6 +54,11 @@ namespace MediaPortal.Configuration.ConfigurationClasses
       }
     }
 
+    /// <summary>
+    /// Returns the width in characters, the GUI should use for this setting.
+    /// </summary>
+    public abstract int DisplayLength { get; }
+
     #endregion
   }
 }

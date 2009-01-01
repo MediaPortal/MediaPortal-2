@@ -102,7 +102,7 @@ namespace MediaPortal.Presentation.Workflow
     public object GetContextVariable(string key, bool inheritFromPredecessor)
     {
       return _contextVariables.ContainsKey(key) ? _contextVariables[key] :
-        (inheritFromPredecessor && _predecessor != null ? _predecessor[key] : null);
+        (inheritFromPredecessor && _predecessor != null ? _predecessor.GetContextVariable(key, true) : null);
     }
 
     /// <summary>

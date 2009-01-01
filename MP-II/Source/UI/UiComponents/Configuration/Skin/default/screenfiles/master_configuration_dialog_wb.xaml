@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a standard configuration dialog with Ok and Cancel dialog buttons.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screenfiles\master_configuration_dialog_wb.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Config_Contents_Element">
+        [Element which represents the contents area of the dialog.]
+      </ResourceWrapper>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Config_Contents_Element (Any UI element): Configurable element to be displayed.
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screenfiles\master_configuration_dialog.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <ResourceWrapper x:Key="Config_Client_Element">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ContentPresenter Content="{DynamicResource Config_Contents_Element}"
+            Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button x:Name="CancelButton" Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}"
+            Content="[System.Cancel]" HorizontalAlignment="Center">
+          <Button.Command>
+            <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+          </Button.Command>
+        </Button>
+        <Button x:Name="OkButton" Grid.Column="1" Grid.Row="1" Style="{StaticResource ButtonStyle}"
+            Content="[System.Ok]" HorizontalAlignment="Center">
+          <Button.Command>
+            <CommandList>
+              <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
+              <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+    </ResourceWrapper>
+  </Include.Resources>
+</Include>

@@ -51,6 +51,11 @@ namespace UiComponents.SkinBase.Settings.Configuration
       SkinMessaging.SendSkinMessage(SkinMessaging.NotificationType.DateTimeFormatChanged);
     }
 
+    public override int DisplayLength
+    {
+      get { return 10; }
+    }
+
     #endregion
   }
 }

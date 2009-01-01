@@ -3,49 +3,33 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screenfiles\master_dialog.xaml"
+    Source="screenfiles\master_configuration_dialog_wob.xaml"
     >
   <Include.Resources>
     <!-- Configuration model -->
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
-    <!-- For convenience -->
-    <ResourceWrapper x:Key="SettingMetadata" Resource="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.SettingMetadata}"/>
-
-    <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={DynamicResource SettingMetadata},Path=Resource.Text}"/>
-
-    <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="20,20,20,20">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Label Grid.Column="0" Grid.Row="0" Content="{Binding Source={StaticResource SettingMetadata},Path=Resource.HelpText}" Wrap="True"/>
-        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-          <RadioButton x:Name="YesButton" Style="{StaticResource RadioButtonStyle}" Content="[System.Yes]" GroupName="DialogButtons"
-              IsChecked="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.Yes,Mode=TwoWay}">
-            <RadioButton.Command>
-              <CommandList>
-                <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
-                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
-              </CommandList>
-            </RadioButton.Command>
-          </RadioButton>
-          <RadioButton x:Name="NoButton" Style="{StaticResource RadioButtonStyle}" Content="[System.No]" GroupName="DialogButtons"
-              IsChecked="{Binding Source={StaticResource Model},Path=!CurrentConfigSetting.Yes,Mode=TwoWay}">
-            <RadioButton.Command>
-              <CommandList>
-                <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
-                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
-              </CommandList>
-            </RadioButton.Command>
-          </RadioButton>
-        </StackPanel>
-      </Grid>
+    <ResourceWrapper x:Key="Config_Contents_Element">
+      <StackPanel Orientation="Vertical">
+        <RadioButton x:Name="YesButton" Style="{StaticResource RadioButtonStyle}" Content="[System.Yes]" GroupName="DialogButtons"
+            IsChecked="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.Yes,Mode=TwoWay}">
+          <RadioButton.Command>
+            <CommandList>
+              <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
+              <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+            </CommandList>
+          </RadioButton.Command>
+        </RadioButton>
+        <RadioButton x:Name="NoButton" Style="{StaticResource RadioButtonStyle}" Content="[System.No]" GroupName="DialogButtons"
+            IsChecked="{Binding Source={StaticResource Model},Path=!CurrentConfigSetting.Yes,Mode=TwoWay}">
+          <RadioButton.Command>
+            <CommandList>
+              <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
+              <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+            </CommandList>
+          </RadioButton.Command>
+        </RadioButton>
+      </StackPanel>
     </ResourceWrapper>
   </Include.Resources>
 </Include>

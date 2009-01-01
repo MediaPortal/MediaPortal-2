@@ -404,7 +404,8 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public string GetAbsolutePath(string relativePath)
     {
-      return Path.Combine(Path.GetDirectoryName(_pluginFilePath), relativePath);
+      return relativePath == null ? null :
+          Path.Combine(Path.GetDirectoryName(_pluginFilePath), relativePath);
     }
 
     #endregion

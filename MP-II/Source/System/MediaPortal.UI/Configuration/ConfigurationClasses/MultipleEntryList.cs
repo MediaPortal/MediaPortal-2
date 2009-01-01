@@ -45,13 +45,23 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     /// </summary>
     public IList<string> Lines
     {
-      get { return this._lines; }
+      get { return _lines; }
       set
       {
-        this._lines = value;
-        base.NotifyChange();
+        _lines = value;
+        NotifyChange();
       }
     }
+
+    /// <summary>
+    /// Returns the width in characters, the GUI should use for this setting.
+    /// </summary>
+    public abstract int DisplayLength { get; }
+
+    /// <summary>
+    /// Returns the height in lines, the GUI should use for this setting.
+    /// </summary>
+    public abstract int DisplayHeight { get; }
 
     #endregion
   }

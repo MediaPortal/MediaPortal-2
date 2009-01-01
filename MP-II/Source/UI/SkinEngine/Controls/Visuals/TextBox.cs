@@ -44,8 +44,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     Property _caretIndexProperty;
     Property _textProperty;
-    Property _textWrappingProperty;
     Property _colorProperty;
+    Property _preferredTextLengthProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
 
@@ -68,7 +68,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _textProperty = new Property(typeof(string), "");
       _colorProperty = new Property(typeof(Color), Color.Black);
 
-      _textWrappingProperty = new Property(typeof(string), "");
+      _preferredTextLengthProperty = new Property(typeof(int?), null);
 
       // Yes, we can have focus
       Focusable = true;
@@ -90,12 +90,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _textProperty.Attach(OnTextChanged);
       _colorProperty.Attach(OnColorChanged);
+      _preferredTextLengthProperty.Attach(OnPreferredTextLengthChanged);
     }
 
     void Detach()
     {
       _textProperty.Detach(OnTextChanged);
       _colorProperty.Detach(OnColorChanged);
+      _preferredTextLengthProperty.Detach(OnPreferredTextLengthChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -105,7 +107,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       TextBox t = (TextBox) source;
       Text = copyManager.GetCopy(t.Text);
       Color = copyManager.GetCopy(t.Color);
-      TextWrapping = copyManager.GetCopy(t.TextWrapping);
       CaretIndex = copyManager.GetCopy(t.CaretIndex);
       Attach();
     }
@@ -122,11 +123,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       // The skin is setting the text, also update the caret
       if (!_editText)
-      {
         CaretIndex = Text.Length;
-      }
       if (Screen != null)
         Screen.Invalidate(this);
+    }
+
+    void OnPreferredTextLengthChanged(Property prop)
+    {
+      Invalidate();
     }
 
     protected override void OnFontChanged(Property prop)
@@ -151,9 +155,27 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         base.HasFocus = value;
         IInputManager manager = ServiceScope.Get<IInputManager>();
         
-        // We now have focus, so set that we need raw data
+        // If we have focus, set that we need raw data
         manager.NeedRawKeyData = value;
       }
+    }
+
+    public Property PreferredTextLengthProperty
+    {
+      get { return _preferredTextLengthProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the preferred length of the text in this <see cref="TextBox"/>.
+    /// </summary>
+    /// <remarks>
+    /// This is an extra property of the MPF. Setting it will make the <see cref="TextBox"/> size in that
+    /// way, that its width can easily host a text of <see cref="PreferredTextLength"/> characters.
+    /// </remarks>
+    public int? PreferredTextLength
+    {
+      get { return (int?) _preferredTextLengthProperty.GetValue(); }
+      set { _preferredTextLengthProperty.SetValue(value); }
     }
 
     public Property CaretIndexProperty
@@ -163,19 +185,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public int CaretIndex
     {
-      get { return (int)_caretIndexProperty.GetValue(); }
+      get { return (int) _caretIndexProperty.GetValue(); }
       set { _caretIndexProperty.SetValue(value); }
-    }
-
-    public Property TextWrappingProperty
-    {
-      get { return _textWrappingProperty; }
-    }
-
-    public string TextWrapping
-    {
-      get { return _textWrappingProperty.GetValue() as string; }
-      set { _textWrappingProperty.SetValue(value); }
     }
 
     public Property TextProperty
@@ -237,10 +248,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       else
         childSize = new SizeF();
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (double.IsNaN(Width))
-        _desiredSize.Width = childSize.Width;
+      {
+        if (PreferredTextLength.HasValue)
+          // We use the "W" character as the character which needs the most space in X-direction
+          _desiredSize.Width = PreferredTextLength.Value*_asset.Font.Width("W", FontSize);
+        else
+          _desiredSize.Width = childSize.Width;
+      }
 
       if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
@@ -440,14 +457,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       else if (key == Key.Left)
       {
         if (CaretIndex > 0)
+        {
           CaretIndex = CaretIndex - 1;
-        key = Key.None;
+          // Only consume the key if we can move the cared - else the key can be used by
+          // the focus management, for example
+          key = Key.None;
+        }
       }
       else if (key == Key.Right)
       {
         if (CaretIndex < Text.Length)
+        {
           CaretIndex = CaretIndex + 1;
-        key = Key.None;
+          // Only consume the key if we can move the cared - else the key can be used by
+          // the focus management, for example
+          key = Key.None;
+        }
       }
       else if (key == Key.Home)
       {

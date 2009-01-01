@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screenfiles\master_configuration_dialog_wb.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <ResourceWrapper x:Key="Config_Contents_Element">
+      <TextBox x:Name="EntryContent" PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.DisplayLength}"
+          Text="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.Value,Mode=TwoWay}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </ResourceWrapper>
+  </Include.Resources>
+</Include>

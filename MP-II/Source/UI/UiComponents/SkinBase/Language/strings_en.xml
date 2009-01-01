@@ -19,6 +19,7 @@
     <String Name="Eject" Text="Eject"/>
   </Section>
   <Section Name="Configuration">
+    <String Name="System.Skin" Text="Skin"/>
     <String Name="System.Skin.DateFormat" Text="Date format"/>
     <String Name="System.Skin.DateFormat.Help" Text="Date format used in the skin. Use the format specification of the .net DateTime class."/>
     <String Name="System.Skin.TimeFormat" Text="Time format"/>
