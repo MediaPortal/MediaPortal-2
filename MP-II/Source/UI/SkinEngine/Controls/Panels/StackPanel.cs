@@ -357,7 +357,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     protected FrameworkElement GetFocusedElementOrChild()
     {
-      FrameworkElement result = FocusManager.FocusedElement;
+      FrameworkElement result = Screen == null ? null : Screen.FocusedElement;
       if (result == null)
         foreach (UIElement child in Children)
         {

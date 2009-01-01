@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
@@ -51,11 +51,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     #endregion
 
-    #region Variables
+    #region Proteced fields
 
-    private string _name;
-    private bool _hasFocus;
-    private State _state = State.Running;
+    protected string _name;
+    protected State _state = State.Running;
 
     // TRUE if the sceen is a dialog and is a child of another dialog.
     private bool _isChildDialog;
@@ -64,14 +63,19 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// Holds the information if our input handlers are currently attached at
     /// the <see cref="IInputManager"/>.
     /// </summary>
-    private bool _attachedInput = false;
+    protected bool _attachedInput = false;
 
-    private Property _opened;
+    /// <summary>
+    /// Always contains the currently focused element in this screen.
+    /// </summary>
+    protected FrameworkElement _focusedElement = null;
+
+    protected Property _opened;
     public event EventHandler Closed;
-    UIElement _visual;
-    bool _setFocusedElement = false;
-    Animator _animator;
-    List<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
+    protected UIElement _visual;
+    protected bool _setFocusedElement = false;
+    protected Animator _animator;
+    protected List<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
 
     #endregion
 
@@ -144,16 +148,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       set { _state = value; }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this screen has focus.
-    /// </summary>
-    /// <value><c>true</c> if this screen has focus; otherwise, <c>false</c>.</value>
-    public bool HasFocus
-    {
-      get { return _hasFocus; }
-      set { _hasFocus = value; }
-    }
-
     public string Name
     {
       get { return _name; }
@@ -215,11 +209,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       if (!_attachedInput)
       {
-        ServiceScope.Get<IInputManager>().KeyPressed += OnKeyPressed;
-        ServiceScope.Get<IInputManager>().MouseMoved += OnMouseMove;
-        FocusManager.AttachInput(this);
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        inputManager.KeyPressed += OnKeyPressed;
+        inputManager.MouseMoved += OnMouseMove;
         _attachedInput = true;
-        HasFocus = true;
       }
     }
 
@@ -227,9 +220,9 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       if (_attachedInput)
       {
-        ServiceScope.Get<IInputManager>().KeyPressed -= OnKeyPressed;
-        ServiceScope.Get<IInputManager>().MouseMoved -= OnMouseMove;
-        FocusManager.DetachInput(this);
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        inputManager.KeyPressed -= OnKeyPressed;
+        inputManager.MouseMoved -= OnMouseMove;
         _attachedInput = false;
       }
     }
@@ -270,16 +263,17 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     private void OnKeyPressed(ref Key key)
     {
-      if (!HasFocus || !_attachedInput)
+      if (!_attachedInput)
         return;
       _visual.OnKeyPressed(ref key);
-      if (key != Key.None)
-        FocusManager.OnKeyPressed(ref key);
+      if (key == Key.None)
+        return;
+      UpdateFocus(ref key);
     }
 
     private void OnMouseMove(float x, float y)
     {
-      if (!HasFocus || !_attachedInput)
+      if (!_attachedInput)
         return;
       _visual.OnMouseMove(x, y);
     }
@@ -308,6 +302,97 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
       for (int i = 0; i < ctls.Count; ++i)
         ctls[i].Update();
+    }
+
+    /// <summary>
+    /// Returns the currently focused element in this screen.
+    /// </summary>
+    public FrameworkElement FocusedElement
+    {
+      get { return _focusedElement; }
+    }
+
+    /// <summary>
+    /// Informs the screen that the specified <paramref name="focusedElement"/> gained the
+    /// focus. This will reset the focus on the former focused element.
+    /// This will be called from the <see cref="FrameworkElement"/> class.
+    /// </summary>
+    /// <param name="focusedElement">The element which gained focus.</param>
+    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
+    {
+      if (_focusedElement != focusedElement)
+      {
+        RemoveCurrentFocus();
+        _focusedElement = focusedElement;
+      }
+    }
+
+    /// <summary>
+    /// Checks the specified <paramref name="key"/> if it changes the focus and uses it to set a new
+    /// focused element.
+    /// </summary>
+    /// <param name="key">A key which was pressed.</param>
+    protected void UpdateFocus(ref Key key)
+    {
+      FrameworkElement cntl = PredictFocus(FocusedElement == null ? new RectangleF?() :
+          FocusedElement.ActualBounds, key);
+      if (cntl != null)
+      {
+        cntl.HasFocus = true;
+        if (cntl.HasFocus)
+          key = Key.None;
+      }
+    }
+
+    /// <summary>
+    /// Removes the focus on the currently focused element. After this method, no element has the focus any
+    /// more.
+    /// </summary>
+    public void RemoveCurrentFocus()
+    {
+      if (_focusedElement != null)
+        if (_focusedElement.HasFocus)
+          _focusedElement.HasFocus = false; // Will trigger the FrameworkElementLostFocus method, which sets _focusedElement to null
+    }
+
+    /// <summary>
+    /// Informs the screen that the specified <paramref name="focusedElement"/> lost its
+    /// focus. This will be called from the <see cref="FrameworkElement"/> class.
+    /// </summary>
+    /// <param name="focusedElement">The element which had focus before.</param>
+    public void FrameworkElementLostFocus(FrameworkElement focusedElement)
+    {
+      if (_focusedElement == focusedElement)
+        _focusedElement = null;
+    }
+
+    public static FrameworkElement FindFirstFocusableElement(FrameworkElement searchRoot)
+    {
+      return searchRoot.PredictFocus(null, MoveFocusDirection.Down);
+    }
+
+    /// <summary>
+    /// Predicts which FrameworkElement should get the focus when the specified <paramref name="key"/>
+    /// was pressed.
+    /// </summary>
+    /// <param name="currentFocusRect">The borders of the currently focused control.</param>
+    /// <param name="key">The key to evaluate.</param>
+    /// <returns>Framework element whcih gets focus when the specified <paramref name="key"/> was
+    /// pressed, or <c>null</c>, if no focus change should take place.</returns>
+    public FrameworkElement PredictFocus(RectangleF? currentFocusRect, Key key)
+    {
+      FrameworkElement element = Visual as FrameworkElement;
+      if (element == null)
+        return null;
+      if (key == Key.Up)
+        return element.PredictFocus(currentFocusRect, MoveFocusDirection.Up);
+      if (key == Key.Down)
+        return element.PredictFocus(currentFocusRect, MoveFocusDirection.Down);
+      if (key == Key.Left)
+        return element.PredictFocus(currentFocusRect, MoveFocusDirection.Left);
+      if (key == Key.Right)
+        return element.PredictFocus(currentFocusRect, MoveFocusDirection.Right);
+      return null;
     }
   }
 }

@@ -120,7 +120,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     bool CheckFocusInScope()
     {
-      Visual focusPath = FocusManager.FocusedElement;
+      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
       while (focusPath != null)
       {
         if (focusPath == this)
@@ -154,7 +154,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           if (index == 0)
           {
-            FrameworkElement focusable = FocusManager.FindFirstFocusableElement(searchItem as FrameworkElement);
+            FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(searchItem as FrameworkElement);
             if (focusable != null)
               focusable.HasFocus = true;
             return true;

@@ -195,7 +195,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       lock (_syncRoot)
       {
         _currentScreen.ScreenState = Screen.State.Closing;
-        _currentScreen.HasFocus = false;
         _currentScreen.DetachInput();
         _currentScreen.Hide();
         _currentScreen = null;
@@ -218,7 +217,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       lock (_syncRoot)
       {
         _currentScreen = screen;
-        _currentScreen.HasFocus = true;
         _currentScreen.ScreenState = Screen.State.Running;
         _currentScreen.AttachInput();
         _currentScreen.Show();

@@ -244,7 +244,6 @@
     <Compile Include="GUI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputManagement\FocusManager.cs" />
     <Compile Include="InputManagement\InputManager.cs">
       <SubType>Code</SubType>
     </Compile>

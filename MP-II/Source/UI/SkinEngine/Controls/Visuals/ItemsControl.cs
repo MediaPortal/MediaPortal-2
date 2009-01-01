@@ -269,7 +269,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     protected void UpdateCurrentItem()
     {
-      Visual element = FocusManager.FocusedElement;
+      if (Screen == null)
+        return;
+      Visual element = Screen.FocusedElement;
       if (_itemsHostPanel == null)
         CurrentItem = null;
       else
@@ -355,28 +357,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public void SetFocusOnFirstItem()
     {
-      if (_itemsHostPanel != null)
-      {
-        FrameworkElement focusable = FocusManager.FindFirstFocusableElement(_itemsHostPanel);
-        if (focusable != null)
-          focusable.HasFocus = true;
-      }
+      if (_itemsHostPanel == null || Screen == null)
+        return;
+      FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(_itemsHostPanel);
+      if (focusable != null)
+        focusable.HasFocus = true;
     }
 
     public void SetFocusOnItem(object dataItem)
     {
-      if (_itemsHostPanel != null)
-      {
-        FrameworkElement item = null;
-        foreach (UIElement child in _itemsHostPanel.Children)
-          if (child.DataContext == dataItem)
-            item = child as FrameworkElement;
-        if (item == null)
-          return;
-        FrameworkElement focusable = FocusManager.FindFirstFocusableElement(item);
-        if (focusable != null)
-          focusable.HasFocus = true;
-      }
+      if (_itemsHostPanel == null || Screen == null)
+        return;
+      FrameworkElement item = null;
+      foreach (UIElement child in _itemsHostPanel.Children)
+        if (child.DataContext == dataItem)
+          item = child as FrameworkElement;
+      if (item == null)
+        return;
+      FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(item);
+      if (focusable != null)
+        focusable.HasFocus = true;
     }
 
     #endregion

@@ -200,12 +200,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (HasFocus)
       {
         MakeVisible(ActualBounds);
-        FocusManager.FrameworkElementGotFocus(this);
+        if (Screen != null)
+          Screen.FrameworkElementGotFocus(this);
         FireEvent(GOTFOCUS_EVENT);
       }
       else
       {
-        FocusManager.FrameworkElementLostFocus(this);
+        if (Screen != null)
+          Screen.FrameworkElementLostFocus(this);
         FireEvent(LOSTFOCUS_EVENT);
       }
     }

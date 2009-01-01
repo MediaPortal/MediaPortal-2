@@ -242,7 +242,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     bool CheckFocusInScope()
     {
-      Visual focusPath = FocusManager.FocusedElement;
+      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
       while (focusPath != null)
       {
         if (focusPath == this)
