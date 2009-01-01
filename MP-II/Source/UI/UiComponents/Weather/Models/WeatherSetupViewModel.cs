@@ -44,7 +44,6 @@ namespace UiComponents.Weather
     private readonly ItemsList _locationsSearchExposed = new ItemsList();
 
 
-    private ItemsList _mainMenu;
     private Property _searchCity;
 
     /// <summary>

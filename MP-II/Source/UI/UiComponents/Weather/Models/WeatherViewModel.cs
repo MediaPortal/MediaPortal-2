@@ -45,8 +45,6 @@ namespace UiComponents.Weather
     private readonly ItemsList _locationsList = new ItemsList();
     // Used to select a city... Items hold Name and ID
 
-    private ItemsList _mainMenu;
-
     public WeatherViewModel()
     {
       _currentLocation = new Property(typeof(City), new City("No Data", "No Data"));

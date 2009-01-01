@@ -41,6 +41,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     public GetModelMarkupExtension() { }
 
+    public GetModelMarkupExtension(string id)
+    {
+      _id = id;
+    }
+
     #region Properties
 
     public string Id

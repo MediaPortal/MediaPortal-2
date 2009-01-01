@@ -58,7 +58,7 @@ namespace MediaPortal.Services.UserManagement
       return _objects.Remove(item);
     }
 
-    public IList<IPermissionObject> GetPermissionObjects()
+    public virtual IList<IPermissionObject> GetPermissionObjects()
     {
       return _objects;
     }

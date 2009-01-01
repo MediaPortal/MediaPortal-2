@@ -57,7 +57,7 @@ namespace MediaPortal.Services.UserManagement
 
     #region Base overrides
 
-    public IList<IPermissionObject> GetPermissionObjects()
+    public override IList<IPermissionObject> GetPermissionObjects()
     {
       List<IPermissionObject> result = new List<IPermissionObject>(base.GetPermissionObjects());
       foreach (IPermission permission in _permissions)

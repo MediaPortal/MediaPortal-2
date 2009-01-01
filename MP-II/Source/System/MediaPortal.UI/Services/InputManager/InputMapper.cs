@@ -112,11 +112,15 @@ namespace MediaPortal.Services.InputManager
             // Switch to previous workflow state
             if (inputManager.NeedRawKeyData)
               return Key.BackSpace;
-            workflowManager.NavigatePop(1);
+            if (screenManager.IsDialogVisible)
+              screenManager.CloseDialog();
+            else
+              workflowManager.NavigatePop(1);
           }
           break;
         case Keys.Escape:
-          screenManager.CloseDialog();
+          if (screenManager.IsDialogVisible)
+            screenManager.CloseDialog();
           break;
         case Keys.Space:
           //pause/continue playback
