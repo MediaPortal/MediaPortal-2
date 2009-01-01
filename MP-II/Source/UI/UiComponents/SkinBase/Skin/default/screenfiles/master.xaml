@@ -59,8 +59,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Label>
     </StackPanel>
     <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-      <Label x:Name="Date" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentDate}" />
-      <Label x:Name="Time" FontSize="20" Content="{Binding Source={Service ScreenManager}, Path=TimeUtils.CurrentTime}" />
+      <Label x:Name="Date" FontSize="20" Content="{Binding Source={Model E821B1C8-0666-4339-8027-AA45A4F6F107}, Path=CurrentDate}" />
+      <Label x:Name="Time" FontSize="20" Content="{Binding Source={Model E821B1C8-0666-4339-8027-AA45A4F6F107}, Path=CurrentTime}" />
     </StackPanel>
   </Grid>
 

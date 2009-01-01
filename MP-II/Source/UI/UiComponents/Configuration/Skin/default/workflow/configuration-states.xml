@@ -8,6 +8,7 @@
         WorkflowModel="545674F1-D92A-4383-B6C1-D758CECDBDF5"/> <!-- Workflow model = Configuration model -->
     <AdditionalModels StateId="E7422BB8-2779-49ab-BC99-E3F56138061B">
       <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/> <!-- Menu model -->
+      <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/> <!-- Time model -->
     </AdditionalModels>
   </States>
 </Workflow>

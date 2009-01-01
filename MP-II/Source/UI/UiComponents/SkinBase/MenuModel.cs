@@ -80,8 +80,10 @@ namespace UiComponents.SkinBase
       ItemsList result = new ItemsList();
       foreach (WorkflowStateAction action in actions)
       {
-        ListItem item = new ListItem("Name", action.DisplayTitle);
-        item.Command = new MethodDelegateCommand(action.Execute);
+        ListItem item = new ListItem("Name", action.DisplayTitle)
+        {
+            Command = new MethodDelegateCommand(action.Execute)
+        };
         result.Add(item);
       }
       return result;

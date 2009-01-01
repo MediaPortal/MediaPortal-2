@@ -298,7 +298,6 @@
     <Compile Include="MarkupExtensions\StaticResourceMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\GetModelMarkupExtension.cs" />
     <Compile Include="ScreenManagement\Animator.cs" />
-    <Compile Include="ScreenManagement\TimeUtils.cs" />
     <Compile Include="ScreenManagement\Screen.cs" />
     <Compile Include="ScreenManagement\ScreenManager.cs" />
     <Compile Include="ScreenManagement\ScreenSettings.cs" />

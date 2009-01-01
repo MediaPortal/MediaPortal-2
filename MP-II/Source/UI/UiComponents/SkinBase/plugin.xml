@@ -14,6 +14,10 @@
     <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="UiComponents.SkinBase.MenuModel"/>
   </Register>
 
+  <Register Location="/Models">
+    <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="UiComponents.SkinBase.TimeModel"/>
+  </Register>
+
   <Register Location="/Resources/Language">
     <Resource Id="DefaultLanguage" Directory="Language" Type="Language"/>
   </Register>

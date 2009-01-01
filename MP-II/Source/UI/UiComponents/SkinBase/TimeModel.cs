@@ -1,152 +1,128 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
 
 using System;
 using System.Timers;
 using MediaPortal.Core;
-using MediaPortal.SkinEngine.Controls;
 using MediaPortal.Utilities;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.DataObjects;
 
-namespace MediaPortal.SkinEngine
+namespace UiComponents.SkinBase
 {
-  public class TimeUtils : DependencyObject
+  public class TimeModel
   {
-    /// <summary>
-    /// Singleton instance variable.
-    /// </summary>
-    private static TimeUtils _instance;
+    #region Protected fields
 
-    Timer _timer;
+    protected Timer _timer;
 
     // Todo: read this from settings
     string _dateFormat = "<Day> <Month> <DD>";
     string _timeFormat = "<h>:<M>";
 
-    Property _currentTimeProperty = new Property(typeof(string), string.Empty);
-    Property _currentDateProperty = new Property(typeof(string), string.Empty);
+    protected Property _currentTimeProperty = new Property(typeof(string), string.Empty);
+    protected Property _currentDateProperty = new Property(typeof(string), string.Empty);
 
-    Property _hourAngleProperty = new Property(typeof(double), 0.0);
-    Property _minuteAngleProperty = new Property(typeof(double), 0.0);
+    protected Property _hourAngleProperty = new Property(typeof(double), 0.0);
+    protected Property _minuteAngleProperty = new Property(typeof(double), 0.0);
 
-    private TimeUtils()
+    #endregion
+
+    public TimeModel()
     {
-      _update();
+      Update();
 
-      //setup a timer 
+      // Setup timer to update the time properties
       _timer = new Timer(500);
-      _timer.Elapsed += new ElapsedEventHandler(_timer_Elapsed);
+      _timer.Elapsed += OnTimerElapsed;
       _timer.Enabled = true;
     }
 
-    /// <summary>
-    /// Returns the Singleton TimeUtils instance.
-    /// </summary>
-    /// <value>The Singleton TimeUtils instance.</value>
-    public static TimeUtils Instance
+    protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
-      get
-      {
-        if (_instance == null)
-          _instance = new TimeUtils();
-        return _instance;
-      }
+      Update();
+    }
+
+    protected void Update()
+    {
+
+      double Angle = DateTime.Now.Hour * 30;
+      HourAngle = Angle + 12 * DateTime.Now.Minute / 60.0;
+
+      MinuteAngle = DateTime.Now.Minute * 6;
+
+      CurrentTime = FormatTime(DateTime.Now);
+      CurrentDate = FormatDate(DateTime.Now);
     }
 
     public Property CurrentDateProperty
     {
-      get
-      {
-        return _currentDateProperty;
-      }
-      set
-      {
-        _currentDateProperty = value;
-      }
+      get { return _currentDateProperty; }
+      set { _currentDateProperty = value; }
     }
 
     public string CurrentDate
     {
-      get
-      {
-        return _currentDateProperty.GetValue() as string;
-      }
-      set
-      {
-        _currentDateProperty.SetValue(value);
-      }
+      get { return _currentDateProperty.GetValue() as string; }
+      set { _currentDateProperty.SetValue(value); }
     }
 
 
     public Property CurrentTimeProperty
     {
-      get
-      {
-        return _currentTimeProperty;
-      }
-      set
-      {
-        _currentTimeProperty = value;
-      }
+      get { return _currentTimeProperty; }
+      set { _currentTimeProperty = value; }
     }
 
     public string CurrentTime
     {
-      get
-      {
-        return _currentTimeProperty.GetValue() as string;
-      }
-      set
-      {
-        _currentTimeProperty.SetValue(value);
-      }
+      get { return _currentTimeProperty.GetValue() as string; }
+      set { _currentTimeProperty.SetValue(value); }
     }
 
 
     public Property HourAngleProperty
     {
-      get
-      {
-        return _hourAngleProperty;
-      }
-      set
-      {
-        _hourAngleProperty = value;
-      }
+      get { return _hourAngleProperty; }
+      set { _hourAngleProperty = value; }
     }
 
     public double HourAngle
     {
-      get
-      {
-        return (double)_hourAngleProperty.GetValue();
-      }
-      set
-      {
-        _hourAngleProperty.SetValue(value);
-      }
+      get { return (double)_hourAngleProperty.GetValue(); }
+      set { _hourAngleProperty.SetValue(value); }
     }
     public Property MinuteAngleProperty
     {
-      get
-      {
-        return _minuteAngleProperty;
-      }
-      set
-      {
-        _minuteAngleProperty = value;
-      }
+      get { return _minuteAngleProperty; }
+      set { _minuteAngleProperty = value; }
     }
 
     public double MinuteAngle
     {
-      get
-      {
-        return (double)_minuteAngleProperty.GetValue();
-      }
-      set
-      {
-        _minuteAngleProperty.SetValue(value);
-      }
+      get { return (double)_minuteAngleProperty.GetValue(); }
+      set { _minuteAngleProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -264,24 +240,6 @@ namespace MediaPortal.SkinEngine
       StringUtils.ReplaceTag(ref timeString, "<S>", second);
 
       return timeString;
-    }
-
-
-    protected void _update()
-    {
-      
-      double Angle = DateTime.Now.Hour * 30;
-      HourAngle = (double)(Angle + 12 * DateTime.Now.Minute / 60);
-
-      MinuteAngle = (double)(DateTime.Now.Minute * 6);
-
-      CurrentTime = FormatTime(DateTime.Now);
-      CurrentDate = FormatDate(DateTime.Now);
-    }
-
-    protected void _timer_Elapsed(object sender, ElapsedEventArgs e)
-    {
-      _update();
     }
   }
 }

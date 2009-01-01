@@ -7,6 +7,7 @@
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
     <AdditionalModels StateId="B393C6D8-9F37-4481-B403-0D5B17F52EC8">
       <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/> <!-- Menu model -->
+      <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/> <!-- Time model -->
       <!-- TODO: Model Id="..." (Player-Model) -->
     </AdditionalModels>
   </States>

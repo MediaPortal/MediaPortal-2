@@ -476,16 +476,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    // FIXME Albert78: Move this, if needed, to an own service in ServiceScope
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public TimeUtils TimeUtils
-    {
-      get
-      {
-        return TimeUtils.Instance;
-      }
-    }
-
     [Obsolete("This method will be replaced by a generic approach in the future")]
     public void SetDialogResponse(string response)
     {
