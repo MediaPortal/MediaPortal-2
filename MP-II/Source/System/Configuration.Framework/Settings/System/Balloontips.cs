@@ -26,12 +26,12 @@
 using System;
 using System.IO;
 using System.Security;
-using MediaPortal.Configuration.Settings.System;
+using MediaPortal.Configuration.ConfigurationClasses.System;
 using Microsoft.Win32;
 
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.Configuration.ConfigurationClasses;
 
 namespace Components.Configuration.Settings.System
 {

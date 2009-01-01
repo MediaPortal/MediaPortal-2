@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.SkinEngine.Settings
 {

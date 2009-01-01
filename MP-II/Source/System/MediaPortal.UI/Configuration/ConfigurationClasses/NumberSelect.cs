@@ -23,34 +23,61 @@
 
 #endregion
 
-using System.Collections.Generic;
-
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class MultipleEntryList : ConfigSetting
+  public abstract class NumberSelect : ConfigSetting
   {
-    #region Variables
+    #region Enums
 
     /// <summary>
-    /// The content of the MultipleEntryList.
+    /// Specifies the type of the number, fixed point or floating point.
     /// </summary>
-    protected IList<string> _lines = new List<string>();
+    public enum NumberType
+    {
+      /// <summary>
+      /// Specifies that the number is an integer.
+      /// </summary>
+      FixedPoint,
+      /// <summary>
+      /// Specifies that the number is a double.
+      /// </summary>
+      FloatingPoint
+    }
+
+    #endregion
+
+    #region Variables
+
+    protected double _value;
+    protected NumberType _type;
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets the lines.
+    /// Gets or sets the value.
     /// </summary>
-    public IList<string> Lines
+    public double Value
     {
-      get { return this._lines; }
+      get { return this._value; }
       set
       {
-        this._lines = value;
-        base.NotifyChange();
+        if (this._value != value)
+        {
+          this._value = value;
+          base.NotifyChange();
+        }
       }
+    }
+
+    /// <summary>
+    /// Gets the type of the number.
+    /// </summary>
+    public NumberType ValueType
+    {
+      get { return this._type; }
+      protected set { this._type = value; }
     }
 
     #endregion

@@ -24,8 +24,8 @@
 #endregion
 
 using System;
-using MediaPortal.Configuration.Settings;
-using MediaPortal.Configuration.Settings.Regional;
+using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Configuration.ConfigurationClasses.Regional;
 
 namespace Components.Configuration.Settings.Regional
 {

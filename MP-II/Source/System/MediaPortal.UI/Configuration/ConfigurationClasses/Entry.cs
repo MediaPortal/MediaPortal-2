@@ -23,35 +23,32 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class SingleSelectionList : ConfigItemList
+  public abstract class Entry : ConfigSetting
   {
     #region Variables
 
-    // Private because we want to make sure NotifyChange() is called on a change.
-    private int _selected;
+    /// <summary>
+    /// Value of the entry.
+    /// </summary>
+    protected string _value;
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets the index of the selected item.
+    /// Gets or sets the value of the current entry.
     /// </summary>
-    public int Selected
+    public string Value
     {
-      get
-      {
-        if (_selected == -1 && _items.Count > 0)
-          _selected = 0;
-        return _selected;
-      }
+      get { return _value; }
       set
       {
-        if (_selected != value)
+        if (_value != value)
         {
-          _selected = value;
+          _value = value;
           NotifyChange();
         }
       }

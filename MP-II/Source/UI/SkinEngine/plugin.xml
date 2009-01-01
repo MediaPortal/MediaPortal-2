@@ -1,7 +1,7 @@
 <Plugin
     Version="1.0"
     Name="SkinEngine"
-    Author="Frodo, Albert78"
+    Author="Frodo, Albert"
     Copyright="GPL"
     AutoActivate="true" 
     Description="DirectX Window Manager"

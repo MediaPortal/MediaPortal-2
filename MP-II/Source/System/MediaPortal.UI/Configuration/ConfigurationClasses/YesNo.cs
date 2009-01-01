@@ -23,35 +23,32 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class LimitedNumberSelect : NumberSelect
+  public abstract class YesNo : ConfigSetting
   {
     #region Variables
 
-    protected double _lowerLimit;
-    protected double _upperLimit;
+    protected bool _yes = false;
 
     #endregion
 
-    #region Protected Properties
+    #region Properties
 
     /// <summary>
-    /// Gets the lower limit.
+    /// Gets or sets.
     /// </summary>
-    public double LowerLimit
+    public bool Yes
     {
-      get { return _lowerLimit; }
-      protected set { _lowerLimit = value; }
-    }
-
-    /// <summary>
-    /// Gets the lower limit.
-    /// </summary>
-    public double UpperLimit
-    {
-      get { return _upperLimit; }
-      protected set { _upperLimit = value; }
+      get { return _yes; }
+      set
+      {
+        if (_yes != value)
+        {
+          _yes = value;
+          NotifyChange();
+        }
+      }
     }
 
     #endregion

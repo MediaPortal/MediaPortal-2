@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.Exceptions;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager.Builders;
@@ -118,7 +117,7 @@ namespace MediaPortal.Core.Services.PluginManager
         ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
       _maintenanceMode = maintenanceMode;
       _state = PluginManagerState.Starting;
-      SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Startup);
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Startup);
       PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
       ICollection<string> disabledPlugins = settings.UserDisabledPlugins;
       ServiceScope.Get<ILogger>().Debug("PluginManager: Checking dependencies");
@@ -129,7 +128,7 @@ namespace MediaPortal.Core.Services.PluginManager
         else
           TryEnable(plugin, !_maintenanceMode);
       }
-      SendPluginManagerMessage(PluginManagerMessaging.NotificationType.PluginsInitialized);
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.NotificationType.PluginsInitialized);
       _state = PluginManagerState.Running;
       if (maintenanceMode)
         ServiceScope.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
@@ -141,7 +140,7 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       ServiceScope.Get<ILogger>().Info("PluginManager: Shutdown");
       _state = PluginManagerState.ShuttingDown;
-      SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Shutdown);
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Shutdown);
       foreach (PluginRuntime plugin in _availablePlugins.Values)
       {
         if (plugin.StateTracker != null)
@@ -407,15 +406,6 @@ namespace MediaPortal.Core.Services.PluginManager
     #endregion
 
     #region Private & protected methods
-
-    protected static void SendPluginManagerMessage(PluginManagerMessaging.NotificationType notificationType)
-    {
-      // Send Startup Finished Message.
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[PluginManagerMessaging.Notification] = notificationType;
-      queue.Send(msg);
-    }
 
     protected static bool IsEnabledOrActive(PluginRuntime pr)
     {

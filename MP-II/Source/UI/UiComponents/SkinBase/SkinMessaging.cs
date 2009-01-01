@@ -22,18 +22,18 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Core.PluginManager
+namespace UiComponents.SkinBase
 {
   /// <summary>
-  /// This class provides an interface for the messages sent by the <see cref="PluginManager"/>.
-  /// This class is part of the plugin manager interface.
+  /// This class provides an interface for the messages sent in this plugin.
   /// </summary>
-  public static class PluginManagerMessaging
+  public static class SkinMessaging
   {
     // Message Queue name
-    public const string Queue = "Plugin";
+    public const string Queue = "SkinMessages";
 
     // Message data
     public const string Notification = "Notification"; // Notification stored as NotificationType
@@ -41,28 +41,12 @@ namespace MediaPortal.Core.PluginManager
     public enum NotificationType
     {
       /// <summary>
-      /// This message will be sent before the plugin manager performs its startup tasks.
-      /// When this message is sent, the plugin manager is in state
-      /// <see cref="PluginManagerState.Initializing"/>.
+      /// This message will be sent when the skin's date format or time format was changed.
       /// </summary>
-      Startup,
-
-      /// <summary>
-      /// This message will be sent after all plugins were loaded, enabled and auto-started.
-      /// After this message is sent, the plugin manager will change its state to
-      /// <see cref="PluginManagerState.Running"/>.
-      /// </summary>
-      PluginsInitialized,
-
-      /// <summary>
-      /// This message will be sent before the plugin manager shuts down.
-      /// When this message is sent, the plugin manager is in state
-      /// <see cref="PluginManagerState.ShuttingDown"/>.
-      /// </summary>
-      Shutdown
+      DateTimeFormatChanged,
     }
 
-    public static void SendPluginManagerMessage(PluginManagerMessaging.NotificationType notificationType)
+    public static void SendSkinMessage(NotificationType notificationType)
     {
       // Send Startup Finished Message.
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(Queue);

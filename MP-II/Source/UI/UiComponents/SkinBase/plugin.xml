@@ -6,6 +6,10 @@
     Description = "Base services for the skin and default skin"
     PluginVersion = "1.0">
 
+  <DependsOn>
+    <PluginReference Name="ConfigurationManager"/>
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="SkinBase.dll"/>
   </Runtime>
@@ -24,5 +28,28 @@
 
   <Register Location="/Resources/Skin">
     <Resource Id="DefaultSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Appearance">
+    <ConfigGroup
+        Id="System"
+        Redundant="true"
+        Text="[Configuration.System]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSetting
+        Id="TimeFormat"
+        Text="[Configuration.System.Skin.TimeFormat]"
+        HelpText="[Configuration.System.Skin.TimeFormat.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.TimeFormat"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigSetting
+        Id="DateFormat"
+        Text="[Configuration.System.Skin.DateFormat]"
+        HelpText="[Configuration.System.Skin.DateFormat.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.DateFormat"/>
   </Register>
 </Plugin>

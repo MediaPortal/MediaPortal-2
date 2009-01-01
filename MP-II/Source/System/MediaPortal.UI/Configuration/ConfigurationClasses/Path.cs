@@ -23,35 +23,58 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class Entry : ConfigSetting
+  public abstract class Path : ConfigSetting
   {
+    #region Enums
+
+    public enum PathType
+    {
+      /// <summary>
+      /// Specifies to browse for files.
+      /// </summary>
+      FILE,
+      /// <summary>
+      /// Specifies to browse for folders.
+      /// </summary>
+      FOLDER
+    }
+
+    #endregion
+
     #region Variables
 
-    /// <summary>
-    /// Value of the entry.
-    /// </summary>
-    protected string _value;
+    protected string _path;
+    protected PathType _pathType;
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets the value of the current entry.
+    /// Gets or sets the path.
     /// </summary>
-    public string Value
+    public string SelectedPath
     {
-      get { return this._value; }
+      get { return this._path; }
       set
       {
-        if (this._value != value)
+        if (this._path != value)
         {
-          this._value = value;
+          this._path = value;
           base.NotifyChange();
         }
       }
+    }
+
+    /// <summary>
+    /// Gets or sets the type.
+    /// </summary>
+    public PathType SelectedPathType
+    {
+      get { return this._pathType; }
+      set { this._pathType = value; }
     }
 
     #endregion

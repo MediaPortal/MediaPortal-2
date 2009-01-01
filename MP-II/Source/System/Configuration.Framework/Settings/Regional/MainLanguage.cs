@@ -29,7 +29,7 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.Configuration.ConfigurationClasses;
 
 namespace Components.Configuration.Settings.Regional
 {

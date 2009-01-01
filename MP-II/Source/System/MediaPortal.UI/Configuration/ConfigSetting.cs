@@ -122,6 +122,10 @@ namespace MediaPortal.Configuration
     /// Saves the setting to the specified <paramref name="settingsObject"/>. The specified
     /// <paramref name="settingsObject"/> will be loaded from the <see cref="ISettingsManager"/> service.
     /// </summary>
+    /// <remarks>
+    /// This method should not apply the setting to the system, as the <see cref="Apply"/> method will
+    /// also be called. The <see cref="Apply"/> method will be called after this method was called.
+    /// </remarks>
     /// <param name="settingsObject">Object to save setting to. This settings object is of
     /// type <see cref="SettingsObjectType"/>, if given.</param>
     public virtual void Save(object settingsObject) { }
@@ -129,6 +133,9 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Applies the setting in the application.
     /// </summary>
+    /// <remarks>
+    /// Before this method is called, method <see cref="Save"/> will be called.
+    /// </remarks>
     public virtual void Apply() { }
 
     /// <summary>

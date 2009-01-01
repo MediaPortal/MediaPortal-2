@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using MediaPortal.Core;
 
 namespace MediaPortal.Presentation.Localization
@@ -165,7 +166,7 @@ namespace MediaPortal.Presentation.Localization
 
     #region Private methods
 
-    private void LanguageChange(object o)
+    private void LanguageChange(ILocalization localization, CultureInfo newCulture)
     {
       _localised = null;
     }

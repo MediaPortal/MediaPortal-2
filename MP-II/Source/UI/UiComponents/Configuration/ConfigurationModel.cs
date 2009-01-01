@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Configuration;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Exceptions;
@@ -182,10 +182,10 @@ namespace UiComponents.Configuration
     /// </summary>
     public void SaveCurrentConfigItem()
     {
-      _currentConfigSetting.Apply();
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       _currentConfigSetting.Save(_currentConfigSetting.SettingsObjectType == null ?
           null : settingsManager.Load(_currentConfigSetting.SettingsObjectType));
+      _currentConfigSetting.Apply();
     }
 
     #endregion

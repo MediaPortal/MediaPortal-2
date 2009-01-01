@@ -27,7 +27,7 @@ using System.Globalization;
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Configuration.Settings.Regional
+namespace MediaPortal.Configuration.ConfigurationClasses.Regional
 {
   /// <summary>
   /// Holds all settings related to localization.

@@ -23,23 +23,25 @@
 #endregion
 
 using System;
+using System.Globalization;
 using System.Timers;
 using MediaPortal.Core;
-using MediaPortal.Utilities;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Localization;
+using UiComponents.SkinBase.Settings;
 
 namespace UiComponents.SkinBase
 {
-  public class TimeModel
+  public class TimeModel : IDisposable
   {
     #region Protected fields
 
     protected Timer _timer;
 
-    // Todo: read this from settings
-    string _dateFormat = "<Day> <Month> <DD>";
-    string _timeFormat = "<h>:<M>";
+    protected string _dateFormat = "D";
+    protected string _timeFormat = "t";
 
     protected Property _currentTimeProperty = new Property(typeof(string), string.Empty);
     protected Property _currentDateProperty = new Property(typeof(string), string.Empty);
@@ -51,12 +53,48 @@ namespace UiComponents.SkinBase
 
     public TimeModel()
     {
+      RegisterQueue();
+      ReadSettings();
       Update();
 
       // Setup timer to update the time properties
       _timer = new Timer(500);
       _timer.Elapsed += OnTimerElapsed;
       _timer.Enabled = true;
+    }
+
+    public void Dispose()
+    {
+      UnregisterQueue();
+    }
+
+    protected void RegisterQueue()
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(SkinMessaging.Queue);
+      queue.OnMessageReceive += OnSkinMessageReceive;
+    }
+
+    protected void UnregisterQueue()
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(SkinMessaging.Queue);
+      queue.OnMessageReceive -= OnSkinMessageReceive;
+    }
+
+    protected void ReadSettings()
+    {
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
+      _dateFormat = settings.DateFormat;
+      _timeFormat = settings.TimeFormat;
+    }
+
+    protected void OnSkinMessageReceive(QueueMessage message)
+    {
+      if (((SkinMessaging.NotificationType) message.MessageData[SkinMessaging.Notification]) ==
+          SkinMessaging.NotificationType.DateTimeFormatChanged)
+        // The DateFormat and TimeFormat configuration classes will send this message when they
+        // changed the formats, so we have to update our format here
+        ReadSettings();
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -66,14 +104,18 @@ namespace UiComponents.SkinBase
 
     protected void Update()
     {
+      ILocalization localization = ServiceScope.Get<ILocalization>();
+      CultureInfo culture = localization.CurrentCulture;
 
-      double Angle = DateTime.Now.Hour * 30;
-      HourAngle = Angle + 12 * DateTime.Now.Minute / 60.0;
+      DateTime now = DateTime.Now;
 
-      MinuteAngle = DateTime.Now.Minute * 6;
+      double Angle = now.Hour * 30;
+      HourAngle = Angle + 12 * now.Minute / 60.0;
 
-      CurrentTime = FormatTime(DateTime.Now);
-      CurrentDate = FormatDate(DateTime.Now);
+      MinuteAngle = now.Minute * 6;
+
+      CurrentTime = now.ToString(_timeFormat, culture);
+      CurrentDate = now.ToString(_dateFormat, culture);
     }
 
     public Property CurrentDateProperty
@@ -88,7 +130,6 @@ namespace UiComponents.SkinBase
       set { _currentDateProperty.SetValue(value); }
     }
 
-
     public Property CurrentTimeProperty
     {
       get { return _currentTimeProperty; }
@@ -100,7 +141,6 @@ namespace UiComponents.SkinBase
       get { return _currentTimeProperty.GetValue() as string; }
       set { _currentTimeProperty.SetValue(value); }
     }
-
 
     public Property HourAngleProperty
     {
@@ -123,123 +163,6 @@ namespace UiComponents.SkinBase
     {
       get { return (double)_minuteAngleProperty.GetValue(); }
       set { _minuteAngleProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// Formats the date based on the user preferences.
-    /// </summary>
-    /// <returns>A string containing the localized version of the date.</returns>
-    public string FormatDate(DateTime cur)
-    {
-      string dateString = _dateFormat;
-
-      string day;
-
-      switch (cur.DayOfWeek)
-      {
-        case DayOfWeek.Monday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "1");
-          break;
-        case DayOfWeek.Tuesday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "2");
-          break;
-        case DayOfWeek.Wednesday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "3");
-          break;
-        case DayOfWeek.Thursday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "4");
-          break;
-        case DayOfWeek.Friday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "5");
-          break;
-        case DayOfWeek.Saturday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "6");
-          break;
-        case DayOfWeek.Sunday:
-          day = ServiceScope.Get<ILocalization>().ToString("days", "0");;
-          break;
-        default:
-          throw new ArgumentException("Invalid DayOfWeek");
-      }
-      string month;
-      switch (cur.Month)
-      {
-        case 1:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "1");
-          break;
-        case 2:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "2");
-          break;
-        case 3:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "3");
-          break;
-        case 4:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "4");
-          break;
-        case 5:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "5");
-          break;
-        case 6:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "6");
-          break;
-        case 7:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "7");
-          break;
-        case 8:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "8");
-          break;
-        case 9:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "9");
-          break;
-        case 10:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "10");
-          break;
-        case 11:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "11");
-          break;
-        case 12:
-          month = ServiceScope.Get<ILocalization>().ToString("months", "12");
-          break;
-        default:
-          throw new ArgumentException("Invalid Month");
-      }
-      StringUtils.ReplaceTag(ref dateString, "<Day>", day);
-      StringUtils.ReplaceTag(ref dateString, "<DD>", cur.Day.ToString());
-      StringUtils.ReplaceTag(ref dateString, "<Month>", month);
-      StringUtils.ReplaceTag(ref dateString, "<MM>", cur.Month.ToString());
-      StringUtils.ReplaceTag(ref dateString, "<Year>", cur.Year.ToString());
-      StringUtils.ReplaceTag(ref dateString, "<YY>", (cur.Year - 2000).ToString("00"));
-      return dateString;
-    }
-
-    /// Todo: Add time formats
-    /// <summary>
-    /// Formats the time based on the user preferences.
-    /// </summary>
-    /// <returns>A string containing the localized version of the time.</returns>
-    public string FormatTime(DateTime cur)
-    {
-      string timeString = _timeFormat;
-      
-      // Hour 0-24
-      StringUtils.ReplaceTag(ref timeString, "<h>", cur.Hour.ToString());
-      // Hour 00-24
-      string hour = string.Format("{0:00}", cur.Hour);
-      StringUtils.ReplaceTag(ref timeString, "<H>", hour);
-
-      // Minutes 0-59
-      StringUtils.ReplaceTag(ref timeString, "<m>", cur.Minute.ToString());
-      // Minutes 00-59
-      string minute = string.Format("{0:00}", cur.Minute);
-      StringUtils.ReplaceTag(ref timeString, "<M>", minute);
-
-      // Seconds 0-59
-      StringUtils.ReplaceTag(ref timeString, "<s>", cur.Second.ToString());
-      // Seconds 00-59
-      string second = string.Format("{0:00}", cur.Second);
-      StringUtils.ReplaceTag(ref timeString, "<S>", second);
-
-      return timeString;
     }
   }
 }

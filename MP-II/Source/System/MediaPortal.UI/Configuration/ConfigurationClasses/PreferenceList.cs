@@ -25,7 +25,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
   public abstract class PreferenceList : ConfigItemList
   {

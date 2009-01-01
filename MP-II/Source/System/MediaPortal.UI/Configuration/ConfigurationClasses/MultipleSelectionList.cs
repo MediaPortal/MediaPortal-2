@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
   public abstract class MultipleSelectionList : ConfigItemList
   {

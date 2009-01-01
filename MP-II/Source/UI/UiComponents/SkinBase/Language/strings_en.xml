@@ -16,17 +16,23 @@
     <String Name="3" Text="mins"/>
     <String Name="4" Text="secs"/>
     <String Name="5" Text="Menu"/>
-    <String Name="eject" Text="Eject"/>
+    <String Name="Eject" Text="Eject"/>
   </Section>
-  <Section Name="general">
-    <String Name="name" Text="Name"/>
-    <String Name="date" Text="Date"/>
-    <String Name="size" Text="Size"/>
-    <String Name="view" Text="View"/>
-    <String Name="sort" Text="Sort"/>
-    <String Name="options" Text="Options"/>
-    <String Name="tags" Text="Tags"/>
-    <String Name="filename" Text="File Name"/>
+  <Section Name="Configuration">
+    <String Name="System.Skin.DateFormat" Text="Date format"/>
+    <String Name="System.Skin.DateFormat.Help" Text="Date format used in the skin. Use the format specification of the .net DateTime class."/>
+    <String Name="System.Skin.TimeFormat" Text="Time format"/>
+    <String Name="System.Skin.TimeFormat.Help" Text="Time format used in the skin. Use the format specification of the .net DateTime class."/>
+  </Section>
+  <Section Name="General">
+    <String Name="Name" Text="Name"/>
+    <String Name="Date" Text="Date"/>
+    <String Name="Size" Text="Size"/>
+    <String Name="View" Text="View"/>
+    <String Name="Sort" Text="Sort"/>
+    <String Name="Options" Text="Options"/>
+    <String Name="Tags" Text="Tags"/>
+    <String Name="Filename" Text="File Name"/>
   </Section>
   <Section Name="days">
     <String Name="0" Text="Sunday"/>

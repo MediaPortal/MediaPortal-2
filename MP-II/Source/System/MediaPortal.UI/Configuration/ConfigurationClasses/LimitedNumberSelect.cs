@@ -23,58 +23,35 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class Path : ConfigSetting
+  public abstract class LimitedNumberSelect : NumberSelect
   {
-    #region Enums
-
-    public enum PathType
-    {
-      /// <summary>
-      /// Specifies to browse for files.
-      /// </summary>
-      FILE,
-      /// <summary>
-      /// Specifies to browse for folders.
-      /// </summary>
-      FOLDER
-    }
-
-    #endregion
-
     #region Variables
 
-    protected string _path;
-    protected PathType _pathType;
+    protected double _lowerLimit;
+    protected double _upperLimit;
 
     #endregion
 
-    #region Properties
+    #region Protected Properties
 
     /// <summary>
-    /// Gets or sets the path.
+    /// Gets the lower limit.
     /// </summary>
-    public string SelectedPath
+    public double LowerLimit
     {
-      get { return this._path; }
-      set
-      {
-        if (this._path != value)
-        {
-          this._path = value;
-          base.NotifyChange();
-        }
-      }
+      get { return _lowerLimit; }
+      protected set { _lowerLimit = value; }
     }
 
     /// <summary>
-    /// Gets or sets the type.
+    /// Gets the lower limit.
     /// </summary>
-    public PathType SelectedPathType
+    public double UpperLimit
     {
-      get { return this._pathType; }
-      set { this._pathType = value; }
+      get { return _upperLimit; }
+      protected set { _upperLimit = value; }
     }
 
     #endregion

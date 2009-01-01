@@ -26,9 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Configuration.Settings.Regional;
+using MediaPortal.Configuration.ConfigurationClasses.Regional;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Presentation.Localization;
 
 namespace Components.Configuration.Settings.Regional

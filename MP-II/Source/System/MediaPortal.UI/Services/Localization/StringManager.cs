@@ -183,7 +183,7 @@ namespace MediaPortal.Services.Localization
       ServiceScope.Get<ISettingsManager>().Save(settings);
 
       //send language change event
-      LanguageChange(this);
+      LanguageChange(this, culture);
     }
 
     public string ToString(string section, string name, object[] parameters)

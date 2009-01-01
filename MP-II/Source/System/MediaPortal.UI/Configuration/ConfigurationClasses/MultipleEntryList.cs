@@ -23,31 +23,33 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.Settings
+using System.Collections.Generic;
+
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class YesNo : ConfigSetting
+  public abstract class MultipleEntryList : ConfigSetting
   {
     #region Variables
 
-    protected bool _yes = false;
+    /// <summary>
+    /// The content of the MultipleEntryList.
+    /// </summary>
+    protected IList<string> _lines = new List<string>();
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets.
+    /// Gets or sets the lines.
     /// </summary>
-    public bool Yes
+    public IList<string> Lines
     {
-      get { return _yes; }
+      get { return this._lines; }
       set
       {
-        if (_yes != value)
-        {
-          _yes = value;
-          NotifyChange();
-        }
+        this._lines = value;
+        base.NotifyChange();
       }
     }
 

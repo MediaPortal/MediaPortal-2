@@ -27,7 +27,7 @@ using System.Globalization;
 
 namespace MediaPortal.Presentation.Localization
 {
-  public delegate void LanguageChangeHandler(object o);
+  public delegate void LanguageChangeHandler(ILocalization localization, CultureInfo newCulture);
 
   /// <summary>
   /// Interface for accessing the localization module. The localization module is responsible

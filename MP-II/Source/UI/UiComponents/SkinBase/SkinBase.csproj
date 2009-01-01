@@ -83,6 +83,10 @@
   <ItemGroup>
     <Compile Include="MenuModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\DateFormat.cs" />
+    <Compile Include="Settings\Configuration\TimeFormat.cs" />
+    <Compile Include="Settings\SkinBaseSettings.cs" />
+    <Compile Include="SkinMessaging.cs" />
     <Compile Include="TimeModel.cs" />
   </ItemGroup>
   <ItemGroup>

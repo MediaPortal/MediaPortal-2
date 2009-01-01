@@ -23,61 +23,38 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.Settings
+namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class NumberSelect : ConfigSetting
+  public abstract class SingleSelectionList : ConfigItemList
   {
-    #region Enums
-
-    /// <summary>
-    /// Specifies the type of the number, fixed point or floating point.
-    /// </summary>
-    public enum NumberType
-    {
-      /// <summary>
-      /// Specifies that the number is an integer.
-      /// </summary>
-      FixedPoint,
-      /// <summary>
-      /// Specifies that the number is a double.
-      /// </summary>
-      FloatingPoint
-    }
-
-    #endregion
-
     #region Variables
 
-    protected double _value;
-    protected NumberType _type;
+    // Private because we want to make sure NotifyChange() is called on a change.
+    private int _selected;
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets or sets the value.
+    /// Gets or sets the index of the selected item.
     /// </summary>
-    public double Value
+    public int Selected
     {
-      get { return this._value; }
+      get
+      {
+        if (_selected == -1 && _items.Count > 0)
+          _selected = 0;
+        return _selected;
+      }
       set
       {
-        if (this._value != value)
+        if (_selected != value)
         {
-          this._value = value;
-          base.NotifyChange();
+          _selected = value;
+          NotifyChange();
         }
       }
-    }
-
-    /// <summary>
-    /// Gets the type of the number.
-    /// </summary>
-    public NumberType ValueType
-    {
-      get { return this._type; }
-      protected set { this._type = value; }
     }
 
     #endregion

@@ -25,7 +25,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Configuration.Settings.System
+namespace MediaPortal.Configuration.ConfigurationClasses.System
 {
   /// <summary>
   /// Class to save all systemsettings (registry, start menu, ...),
