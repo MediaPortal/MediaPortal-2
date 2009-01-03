@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.Exceptions
+namespace MediaPortal.Utilities.Exceptions
 {
   /// <summary>
   /// Fatal exception, will be thrown if something happened what must not happen. The reason
@@ -57,6 +57,17 @@ namespace MediaPortal.Core.Exceptions
     public IllegalCallException(string msg, params object[] args) :
       base(string.Format(msg, args)) { }
     public IllegalCallException(string msg, Exception ex, params object[] args):
+      base(string.Format(msg, args), ex) { }
+  }
+
+  /// <summary>
+  /// Thrown if the environment doesn't act like expected.
+  /// </summary>
+  public class EnvironmentException : ApplicationException
+  {
+    public EnvironmentException(string msg, params object[] args) :
+      base(string.Format(msg, args)) { }
+    public EnvironmentException(string msg, Exception ex, params object[] args) :
       base(string.Format(msg, args), ex) { }
   }
 }

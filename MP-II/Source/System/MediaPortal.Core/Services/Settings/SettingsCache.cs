@@ -26,7 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Timers;
-using MediaPortal.Core.Exceptions;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.Settings
 {

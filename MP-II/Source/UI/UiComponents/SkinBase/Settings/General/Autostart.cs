@@ -24,34 +24,62 @@
 #endregion
 
 using System;
-using MediaPortal.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.SkinEngine.Settings
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.PathManager;
+using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Utilities.SystemAPI;
+
+namespace UiComponents.SkinBase.Settings.System
 {
-  /// <summary>
-  /// Configuration item for the fullscreen setting.
-  /// </summary>
-  public class Fullscreen : YesNo
+  public class Autostart : YesNo
   {
+    #region Constants
+
+    protected const string AUTOSTART_REGISTER_NAME = "MediaPortal-II";
+
+    #endregion
+
     #region Public properties
 
-    public override Type SettingsObjectType
+    public bool IsAutostart
     {
-      get { return typeof(AppSettings); }
+      get { return !string.IsNullOrEmpty(WindowsAPI.GetAutostartApplicationPath(AUTOSTART_REGISTER_NAME, true)); }
+      set
+      {
+        try
+        {
+          string applicationPath = ServiceScope.Get<IPathManager>().GetPath("<APPLICATION_PATH>");
+          if (value)
+            WindowsAPI.AddAutostartApplication(applicationPath, AUTOSTART_REGISTER_NAME, true);
+          else
+            WindowsAPI.RemoveAutostartApplication(AUTOSTART_REGISTER_NAME, true);
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("Can't write autostart-value '{0}' to registry", ex, _yes);
+        }
+      }
     }
 
     #endregion
 
-    #region Public Methods
+    #region Base overrides
+
+    public override Type SettingsObjectType
+    {
+      get { return null; }
+    }
 
     public override void Load(object settingsObject)
     {
-      _yes = ((AppSettings) settingsObject).FullScreen;
+      _yes = IsAutostart;
     }
 
     public override void Save(object settingsObject)
     {
-      ((AppSettings) settingsObject).FullScreen = _yes;
+      IsAutostart = _yes;
     }
 
     #endregion

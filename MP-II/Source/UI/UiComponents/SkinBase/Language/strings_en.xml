@@ -18,12 +18,25 @@
     <String Name="5" Text="Menu"/>
     <String Name="Eject" Text="Eject"/>
   </Section>
-  <Section Name="Configuration">
-    <String Name="System.Skin" Text="Skin"/>
-    <String Name="System.Skin.DateFormat" Text="Date format"/>
-    <String Name="System.Skin.DateFormat.Help" Text="Date format used in the skin. Use the format specification of the .net DateTime class."/>
-    <String Name="System.Skin.TimeFormat" Text="Time format"/>
-    <String Name="System.Skin.TimeFormat.Help" Text="Time format used in the skin. Use the format specification of the .net DateTime class."/>
+  <Section Name="Settings">
+    <String Name="Appearance" Text="Appearance"/>
+    <String Name="Appearance.Skin" Text="Skin"/>
+    <String Name="Appearance.Skin.Formats.DateFormat" Text="Date format"/>
+    <String Name="Appearance.Skin.Formats.DateFormat.Help" Text="Date format used in the skin. Use the format specification of the .net DateTime class."/>
+    <String Name="Appearance.Skin.Formats.TimeFormat" Text="Time format"/>
+    <String Name="Appearance.Skin.Formats.TimeFormat.Help" Text="Time format used in the skin. Use the format specification of the .net DateTime class."/>
+
+    <String Name="General" Text="General"/>
+    <String Name="General.System" Text="System"/>
+    <String Name="General.System.Autostart" Text="Autostart"/>
+    <String Name="General.System.Autostart.Help" Text="MediaPortal will start automatically on Windows startup"/>
+    <String Name="General.System.Balloontips" Text="Balloon Tips"/>
+    <String Name="General.System.Balloontips.Help" Text="Disable tray area's balloon tips (system wide setting)"/>
+
+    <String Name="Regional" Text="Regional"/>
+    <String Name="Regional.Language" Text="Language"/>
+    <String Name="Regional.Language.Main" Text="Language"/>
+    <String Name="Regional.Language.Main.Help" Text="Sets the main language used in the application"/>
   </Section>
   <Section Name="General">
     <String Name="Name" Text="Name"/>

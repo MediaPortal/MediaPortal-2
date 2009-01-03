@@ -28,7 +28,7 @@ using MediaPortal.Configuration;
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
-using MediaPortal.Core.Exceptions;
+using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;

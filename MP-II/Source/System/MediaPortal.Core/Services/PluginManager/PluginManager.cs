@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core.Exceptions;
+using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;

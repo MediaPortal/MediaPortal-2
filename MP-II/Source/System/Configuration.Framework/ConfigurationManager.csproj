@@ -71,15 +71,7 @@
     <Compile Include="ConfigurationManagement\ConfigObjectSearchMatcher.cs" />
     <Compile Include="ConfigurationManagement\ConfigurationTree.cs" />
     <Compile Include="ConfigurationManagement\Constants.cs" />
-    <Compile Include="Settings\Regional\LocalizationSettings.cs" />
-    <Compile Include="Settings\System\Balloontips.cs" />
-    <Compile Include="Settings\Regional\City.cs" />
-    <Compile Include="Settings\System\Autostart.cs" />
-    <Compile Include="Settings\Regional\MainLanguage.cs" />
-    <Compile Include="Settings\Regional\Country.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Regional\Region.cs" />
-    <Compile Include="Settings\System\SystemSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />

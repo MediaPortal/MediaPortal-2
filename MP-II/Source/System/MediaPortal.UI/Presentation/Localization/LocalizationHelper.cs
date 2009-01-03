@@ -41,5 +41,10 @@ namespace MediaPortal.Presentation.Localization
         return new LocalizedStringBuilder(new StringId(maybeLocalizationResource));
       return new StaticStringBuilder(maybeLocalizationResource);
     }
+
+    public static IResourceString CreateStaticString(string unlocalizedString)
+    {
+      return new StaticStringBuilder(unlocalizedString);
+    }
   }
 }

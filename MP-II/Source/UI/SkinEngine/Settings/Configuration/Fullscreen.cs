@@ -24,20 +24,36 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using MediaPortal.Configuration.ConfigurationClasses;
 
-using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
-using MediaPortal.Configuration;
-using MediaPortal.Configuration.Settings;
-
-namespace Components.Configuration.Settings
+namespace MediaPortal.SkinEngine.Settings.Configuration
 {
-  public class Region : SingleSelectionList
+  /// <summary>
+  /// Configuration item for the fullscreen setting.
+  /// </summary>
+  public class Fullscreen : YesNo
   {
-    public Region()
+    #region Public properties
+
+    public override Type SettingsObjectType
     {
+      get { return typeof(AppSettings); }
     }
+
+    #endregion
+
+    #region Public Methods
+
+    public override void Load(object settingsObject)
+    {
+      _yes = ((AppSettings) settingsObject).FullScreen;
+    }
+
+    public override void Save(object settingsObject)
+    {
+      ((AppSettings) settingsObject).FullScreen = _yes;
+    }
+
+    #endregion
   }
 }

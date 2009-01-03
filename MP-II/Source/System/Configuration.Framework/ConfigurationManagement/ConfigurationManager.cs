@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.Exceptions;
+using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Configuration.ConfigurationManagement

@@ -31,7 +31,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Configuration.ConfigurationClasses;
 
-namespace Components.Configuration.Settings.Regional
+namespace UiComponents.SkinBase.Settings.Configuration.Regional
 {
   public class MainLanguage : SingleSelectionList
   {
@@ -41,29 +41,16 @@ namespace Components.Configuration.Settings.Regional
 
     #endregion
 
-    #region Constructors
-
-    public MainLanguage()
+    protected static int CompareByName(CultureInfo culture1, CultureInfo culture2)
     {
-      // Nothing to register
+      return string.Compare(culture1.DisplayName, culture2.DisplayName);
     }
 
-    #endregion
-
-    #region Public properties
+    #region Base overrides
 
     public override Type SettingsObjectType
     {
       get { return null; }
-    }
-
-    #endregion
-
-    #region Public Methods
-
-    protected static int CompareByName(CultureInfo culture1, CultureInfo culture2)
-    {
-      return string.Compare(culture1.DisplayName, culture2.DisplayName);
     }
 
     public override void Load(object settingsObject)
@@ -77,8 +64,8 @@ namespace Components.Configuration.Settings.Regional
       for (int i = 0; i < _cultures.Count; i++)
       {
         CultureInfo ci = _cultures[i];
-        _items.Add(LocalizationHelper.CreateResourceString(ci.DisplayName));
-        if (ci.Name == current.Name)
+        _items.Add(LocalizationHelper.CreateStaticString(ci.DisplayName));
+        if (ci == current)
           Selected = i;
       }
     }

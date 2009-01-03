@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="Settings">
+    <String Name="Appearance.System" Text="System"/>
+    <String Name="Appearance.System.Fullscreen" Text="Fullscreen"/>
+    <String Name="Appearance.System.Fullscreen.Help" Text="Show MediaPortal in fullscreen mode"/>
+  </Section>
+</Language>

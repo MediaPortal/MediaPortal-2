@@ -81,7 +81,6 @@
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\MethodDelegateCommand.cs" />
-    <Compile Include="Exceptions\Exceptions.cs" />
     <Compile Include="FileEventNotification\FileEventHandlerDelegate.cs" />
     <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
     <Compile Include="FileEventNotification\FileWatchInfo.cs" />

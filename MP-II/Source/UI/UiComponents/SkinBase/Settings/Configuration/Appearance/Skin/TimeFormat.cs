@@ -25,9 +25,9 @@
 using System;
 using MediaPortal.Configuration.ConfigurationClasses;
 
-namespace UiComponents.SkinBase.Settings.Configuration
+namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
 {
-  public class DateFormat : Entry
+  public class TimeFormat : Entry
   {
     #region Base overrides
 
@@ -38,12 +38,12 @@ namespace UiComponents.SkinBase.Settings.Configuration
 
     public override void Load(object settingsObject)
     {
-      _value = ((SkinBaseSettings) settingsObject).DateFormat;
+      _value = ((SkinBaseSettings) settingsObject).TimeFormat;
     }
 
     public override void Save(object settingsObject)
     {
-      ((SkinBaseSettings) settingsObject).DateFormat = _value;
+      ((SkinBaseSettings) settingsObject).TimeFormat = _value;
     }
 
     public override void Apply()

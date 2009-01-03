@@ -81,6 +81,7 @@
     <Compile Include="DeepCopy\CopyManager.cs" />
     <Compile Include="DeepCopy\ICopyManager.cs" />
     <Compile Include="DeepCopy\IDeepCopyable.cs" />
+    <Compile Include="Exceptions\Exceptions.cs" />
     <Compile Include="FileSystem\DriveUtils.cs" />
     <Compile Include="FileSystem\FileUtils.cs" />
     <Compile Include="FileSystem\WindowsFilesystemPathComparer.cs" />

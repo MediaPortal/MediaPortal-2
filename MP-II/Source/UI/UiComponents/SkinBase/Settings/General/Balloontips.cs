@@ -24,28 +24,39 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-
+using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localisation;
-using MediaPortal.Configuration;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.Core.Logging;
+using MediaPortal.Utilities.SystemAPI;
 
-namespace Components.Configuration.Settings
+namespace UiComponents.SkinBase.Settings.System
 {
-  public class Country : SingleSelectionList
+  public class Balloontips : YesNo
   {
-    public Country()
+    #region Base overrides
+
+    public override Type SettingsObjectType
     {
-      // some test data
-      base._items = new List<StringId>();
-      base._items.Add(new StringId("The Netherlands"));
-      base._items.Add(new StringId("Germany"));
-      base._items.Add(new StringId("Switzerland"));
-      base._items.Add(new StringId("Austria"));
-      base._selected = 1;
-      //base._items.Sort();
+      get { return null; }
     }
+
+    public override void Load(object settingsObject)
+    {
+      _yes = WindowsAPI.IsShowBalloonTips;
+    }
+
+    public override void Save(object settingsObject)
+    {
+      try
+      {
+        WindowsAPI.IsShowBalloonTips = _yes;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("Can't change 'Enable Balloon Tips' value in registry", ex);
+      }
+    }
+
+    #endregion
   }
 }

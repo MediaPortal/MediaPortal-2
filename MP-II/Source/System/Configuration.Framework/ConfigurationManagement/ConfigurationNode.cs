@@ -113,6 +113,8 @@ namespace MediaPortal.Configuration.ConfigurationManagement
         ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(
             item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
         ConfigBase childObj = Instantiate(metadata, item.PluginRuntime);
+        if (childObj == null)
+          continue;
         AddChildNode(childObj);
         childSet.Add(metadata.Id, null);
       }
@@ -167,20 +169,30 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       else if (metadata.GetType() == typeof(ConfigSettingMetadata))
       {
         ConfigSettingMetadata csm = (ConfigSettingMetadata) metadata;
-        ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
-        cs.Load(cs.SettingsObjectType == null ? null : settingsManager.Load(cs.SettingsObjectType));
-        if (csm.ListenTo != null)
-          foreach (string listenToLocation in csm.ListenTo)
-          {
-            IConfigurationNode node;
-            if (FindNode(listenToLocation, out node))
-              if (node.ConfigObj is ConfigSetting)
-                cs.ListenTo((ConfigSetting) node.ConfigObj);
-              else
-                ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
-                  Location, listenToLocation, node.ConfigObj.GetType().Name);
-          }
-        result = cs;
+        try
+        {
+          ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
+          if (cs == null)
+            throw new ArgumentException(string.Format("Configuration class '{0}' not found", csm.ClassName));
+          cs.Load(cs.SettingsObjectType == null ? null : settingsManager.Load(cs.SettingsObjectType));
+          if (csm.ListenTo != null)
+            foreach (string listenToLocation in csm.ListenTo)
+            {
+              IConfigurationNode node;
+              if (FindNode(listenToLocation, out node))
+                if (node.ConfigObj is ConfigSetting)
+                  cs.ListenTo((ConfigSetting) node.ConfigObj);
+                else
+                  ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
+                    Location, listenToLocation, node.ConfigObj.GetType().Name);
+            }
+          result = cs;
+        }
+        catch (Exception ex)
+        {
+          ServiceScope.Get<ILogger>().Error("Error loading configuration class '{0}'", ex, csm.ClassName);
+          return null;
+        }
       }
       else
         throw new NotImplementedException(string.Format("Unknown child class '{0}' of '{1}'", metadata.GetType().FullName, typeof(ConfigBaseMetadata).FullName));

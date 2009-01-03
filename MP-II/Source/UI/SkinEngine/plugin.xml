@@ -16,18 +16,23 @@
     <PluginStateTracker ClassName="MediaPortal.SkinEngine.SkinEnginePlugin"/>
   </Runtime>
 
+  <Register Location="/Resources/Language">
+    <Resource Id="SkinEngineLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigGroup
         Id="System"
         Redundant="true"
-        Text="[configuration.system]"/>
+        Text="[Settings.Appearance.System]"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Appearance/System">
     <ConfigSetting
         Id="Fullscreen"
-        Text="[configuration.system.fullscreen]"
-        HelpText="[configuration.system.fullscreen.help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Fullscreen"/>
+        Text="[Settings.Appearance.System.Fullscreen]"
+        HelpText="[Settings.Appearance.System.Fullscreen.help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Fullscreen"/>
   </Register>
 </Plugin>

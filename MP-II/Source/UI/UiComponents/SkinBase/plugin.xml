@@ -30,33 +30,94 @@
     <Resource Id="DefaultSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
-  <Register Location="/Configuration/Settings/Appearance">
-    <ConfigGroup
-        Id="System"
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Appearance"
         Redundant="true"
-        Text="[Configuration.System]"/>
+        Text="[Settings.Appearance]"
+        IconSmallPath="Images\skin-22.png"
+        IconLargePath="Images\skin-48.png"/>
+    <ConfigSection
+        Id="General"
+        Redundant="true"
+        Text="[Settings.General]"
+        IconSmallPath="Images\general-22.png"
+        IconLargePath="Images\general-48.png"/>
+    <ConfigSection
+        Id="Regional"
+        Redundant="true"
+        Text="[Settings.Regional]"
+        IconSmallPath="Images\globe-22.png"
+        IconLargePath="Images\globe-48.png"/>
   </Register>
 
+  <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection
         Id="Skin"
         Redundant="true"
-        Text="[Configuration.System.Skin]"/>
+        Text="[Settings.Appearance.Skin]"/>
   </Register>
 
+  <!-- Contents of '/Appearance/Skin' section -->
   <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigGroup
+        Id="Formats"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin.Formats]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin/Formats' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/Formats">
     <ConfigSetting
         Id="TimeFormat"
-        Text="[Configuration.System.Skin.TimeFormat]"
-        HelpText="[Configuration.System.Skin.TimeFormat.Help]"
-        ClassName="UiComponents.SkinBase.Settings.Configuration.TimeFormat"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Appearance/Skin">
+        Text="[Settings.Appearance.Skin.Formats.TimeFormat]"
+        HelpText="[Settings.Appearance.Skin.Formats.TimeFormat.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.Appearance.Skin.TimeFormat"/>
     <ConfigSetting
         Id="DateFormat"
-        Text="[Configuration.System.Skin.DateFormat]"
-        HelpText="[Configuration.System.Skin.DateFormat.Help]"
-        ClassName="UiComponents.SkinBase.Settings.Configuration.DateFormat"/>
+        Text="[Settings.Appearance.Skin.Formats.DateFormat]"
+        HelpText="[Settings.Appearance.Skin.Formats.DateFormat.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.Appearance.Skin.DateFormat"/>
+  </Register>
+
+  <!-- Contents of '/General' section -->
+  <Register Location="/Configuration/Settings/General">
+    <ConfigGroup
+        Id="System"
+        Redundant="true"
+        Text="[Settings.General.System]"/>
+  </Register>
+
+  <!-- Contents of '/General/System' group -->
+  <Register Location="/Configuration/Settings/General/System">
+    <ConfigSetting
+        Id="Autostart"
+        Text="[Settings.General.System.Autostart]"
+        HelpText="[Settings.General.System.Autostart.Help]"
+        ClassName="UiComponents.SkinBase.Settings.System.Autostart"/>
+    <ConfigSetting
+        Id="Balloontips"
+        Text="[Settings.General.System.Balloontips]"
+        HelpText="[Settings.General.System.Balloontips.Help]"
+        ClassName="UiComponents.SkinBase.Settings.System.Balloontips"/>
+  </Register>
+
+  <!-- Contents of '/Regional' section -->
+  <Register Location="/Configuration/Settings/Regional">
+    <ConfigGroup
+        Id="Language"
+        Redundant="true"
+        Text="[Settings.Language]"/>
+  </Register>
+
+  <!-- Contents of '/Regional/Language' group -->
+  <Register Location="/Configuration/Settings/Regional/Language">
+    <ConfigSetting
+        Id="MainLanguage"
+        Text="[Settings.Regional.Language.MainLanguage]"
+        HelpText="[Settings.Regional.Language.MainLanguage.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.Regional.MainLanguage"/>
   </Register>
 </Plugin>
