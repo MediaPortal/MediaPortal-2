@@ -26,13 +26,10 @@
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 
-
 namespace MediaPortal.Configuration
 {
-
   /// <summary>
-  /// ConfigItemList has no actual functionality implemented,
-  /// it's only used to define that the ConfigBase has a list of items.
+  /// Base class for all configuration setting classes holding a list of localizable string items.
   /// </summary>
   public abstract class ConfigItemList : ConfigSetting
   {

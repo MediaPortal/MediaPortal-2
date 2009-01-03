@@ -27,6 +27,10 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a ranking of a predefined list of
+  /// (localizable) string items.
+  /// </summary>
   public abstract class PreferenceList : ConfigItemList
   {
     #region Variables

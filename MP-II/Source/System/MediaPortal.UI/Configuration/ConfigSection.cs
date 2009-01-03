@@ -26,6 +26,9 @@
 
 namespace MediaPortal.Configuration
 {
+  /// <summary>
+  /// Configuration class storing the data of a configuration section.
+  /// </summary>
   public sealed class ConfigSection : ConfigBase
   {
     public ConfigSectionMetadata SectionMetadata

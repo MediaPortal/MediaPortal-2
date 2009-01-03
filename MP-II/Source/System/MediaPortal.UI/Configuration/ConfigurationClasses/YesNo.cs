@@ -25,6 +25,9 @@
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a simple boolean (yes/no) setting.
+  /// </summary>
   public abstract class YesNo : ConfigSetting
   {
     #region Variables

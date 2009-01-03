@@ -31,6 +31,9 @@ using MediaPortal.Presentation.Localization;
 
 namespace MediaPortal.Configuration
 {
+  /// <summary>
+  /// Base class for all configuration settings classes.
+  /// </summary>
   public abstract class ConfigSetting : ConfigBase
   {
     #region Variables

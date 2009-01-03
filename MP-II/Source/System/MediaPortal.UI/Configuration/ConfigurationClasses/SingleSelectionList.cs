@@ -25,6 +25,10 @@
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a single selection in a list of
+  /// predefined (localizable) string items.
+  /// </summary>
   public abstract class SingleSelectionList : ConfigItemList
   {
     #region Variables

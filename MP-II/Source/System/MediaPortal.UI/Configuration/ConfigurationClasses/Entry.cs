@@ -25,6 +25,9 @@
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a single string value.
+  /// </summary>
   public abstract class Entry : ConfigSetting
   {
     #region Variables

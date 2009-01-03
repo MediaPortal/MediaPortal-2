@@ -25,6 +25,10 @@
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a single number
+  /// (floating point or integer).
+  /// </summary>
   public abstract class NumberSelect : ConfigSetting
   {
     #region Enums
@@ -37,7 +41,8 @@ namespace MediaPortal.Configuration.ConfigurationClasses
       /// <summary>
       /// Specifies that the number is an integer.
       /// </summary>
-      FixedPoint,
+      Integer,
+
       /// <summary>
       /// Specifies that the number is a double.
       /// </summary>
@@ -60,13 +65,13 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     /// </summary>
     public double Value
     {
-      get { return this._value; }
+      get { return _value; }
       set
       {
-        if (this._value != value)
+        if (_value != value)
         {
-          this._value = value;
-          base.NotifyChange();
+          _value = value;
+          NotifyChange();
         }
       }
     }
@@ -76,8 +81,8 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     /// </summary>
     public NumberType ValueType
     {
-      get { return this._type; }
-      protected set { this._type = value; }
+      get { return _type; }
+      protected set { _type = value; }
     }
 
     #endregion

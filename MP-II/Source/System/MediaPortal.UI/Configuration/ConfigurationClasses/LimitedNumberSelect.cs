@@ -25,6 +25,10 @@
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a number
+  /// (floating point or integer) in a defined range.
+  /// </summary>
   public abstract class LimitedNumberSelect : NumberSelect
   {
     #region Variables
@@ -46,7 +50,7 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     }
 
     /// <summary>
-    /// Gets the lower limit.
+    /// Gets the upper limit.
     /// </summary>
     public double UpperLimit
     {

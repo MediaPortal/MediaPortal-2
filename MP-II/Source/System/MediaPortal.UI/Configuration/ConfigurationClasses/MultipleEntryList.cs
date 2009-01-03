@@ -27,6 +27,9 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a list of string entries.
+  /// </summary>
   public abstract class MultipleEntryList : ConfigSetting
   {
     #region Variables

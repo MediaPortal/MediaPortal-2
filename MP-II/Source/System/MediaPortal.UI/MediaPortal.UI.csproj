@@ -90,7 +90,7 @@
     <Compile Include="Configuration\ConfigurationClasses\MultipleEntryList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\MultipleSelectionList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\NumberSelect.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\Path.cs" />
+    <Compile Include="Configuration\ConfigurationClasses\PathEntry.cs" />
     <Compile Include="Configuration\ConfigurationClasses\PreferenceList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\SingleSelectionList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\YesNo.cs" />

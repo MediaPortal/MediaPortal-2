@@ -29,15 +29,19 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
+  /// <summary>
+  /// Base class for configuration setting classes for configuring the selection of items in a
+  /// predefined list of (localizable) strings.
+  /// </summary>
   public abstract class MultipleSelectionList : ConfigItemList
   {
-    #region Variables
+    #region Protected fields
 
     protected List<int> _selected = new List<int>();
 
     #endregion
 
-    #region Properties
+    #region Public properties
 
     /// <summary>
     /// Gets or sets all indices of selected items.
@@ -69,37 +73,39 @@ namespace MediaPortal.Configuration.ConfigurationClasses
 
     #endregion
 
-    //#region Public methods
+    #region Public methods
 
-    ///// <summary>
-    ///// Adds an index to the selection.
-    ///// </summary>
-    ///// <param name="index"></param>
-    //public void AddToSelection(int index)
-    //{
-    //  if (!_selected.Contains(index))
-    //    _selected.Add(index);
-    //}
+    /// <summary>
+    /// Adds an index to the selection.
+    /// </summary>
+    /// <param name="index"></param>
+    public void AddToSelection(int index)
+    {
+      if (!_selected.Contains(index))
+        _selected.Add(index);
+      NotifyChange();
+    }
 
-    ///// <summary>
-    ///// Removes an index from the selection.
-    ///// </summary>
-    ///// <param name="index"></param>
-    ///// <returns></returns>
-    //public bool RemoveFromSelection(int index)
-    //{
-    //  return this._selected.Remove(index);
-    //}
+    /// <summary>
+    /// Removes an index from the selection.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public bool RemoveFromSelection(int index)
+    {
+      return _selected.Remove(index);
+      NotifyChange();
+    }
 
-    ///// <summary>
-    ///// Clears the selection.
-    ///// </summary>
-    //public void ClearSelection()
-    //{
-    //  this._selected.Clear();
-    //}
+    /// <summary>
+    /// Clears the selection.
+    /// </summary>
+    public void ClearSelection()
+    {
+      _selected.Clear();
+      NotifyChange();
+    }
 
-    //#endregion
-
+    #endregion
   }
 }

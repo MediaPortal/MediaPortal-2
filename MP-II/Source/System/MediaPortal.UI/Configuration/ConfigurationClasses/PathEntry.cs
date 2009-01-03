@@ -25,20 +25,24 @@
 
 namespace MediaPortal.Configuration.ConfigurationClasses
 {
-  public abstract class Path : ConfigSetting
+  /// <summary>
+  /// Base class for configuration setting classes for configuring a file or folder path.
+  /// </summary>
+  public abstract class PathEntry : ConfigSetting
   {
     #region Enums
 
-    public enum PathType
+    public enum PathSelectionType
     {
       /// <summary>
       /// Specifies to browse for files.
       /// </summary>
-      FILE,
+      File,
+
       /// <summary>
       /// Specifies to browse for folders.
       /// </summary>
-      FOLDER
+      Folder
     }
 
     #endregion
@@ -46,7 +50,7 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     #region Variables
 
     protected string _path;
-    protected PathType _pathType;
+    protected PathSelectionType _pathSelectionType;
 
     #endregion
 
@@ -55,15 +59,15 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     /// <summary>
     /// Gets or sets the path.
     /// </summary>
-    public string SelectedPath
+    public string Path
     {
-      get { return this._path; }
+      get { return _path; }
       set
       {
-        if (this._path != value)
+        if (_path != value)
         {
-          this._path = value;
-          base.NotifyChange();
+          _path = value;
+          NotifyChange();
         }
       }
     }
@@ -71,10 +75,10 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     /// <summary>
     /// Gets or sets the type.
     /// </summary>
-    public PathType SelectedPathType
+    public PathSelectionType PathType
     {
-      get { return this._pathType; }
-      set { this._pathType = value; }
+      get { return _pathSelectionType; }
+      set { _pathSelectionType = value; }
     }
 
     #endregion

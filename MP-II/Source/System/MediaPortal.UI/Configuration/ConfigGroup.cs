@@ -26,6 +26,9 @@
 
 namespace MediaPortal.Configuration
 {
+  /// <summary>
+  /// Configuration class storing the data of a configuration items group.
+  /// </summary>
   public sealed class ConfigGroup : ConfigBase
   {
     public ConfigGroupMetadata GroupMetadata
