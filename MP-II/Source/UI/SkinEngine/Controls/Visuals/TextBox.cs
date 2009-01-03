@@ -46,6 +46,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _textProperty;
     Property _colorProperty;
     Property _preferredTextLengthProperty;
+    Property _textAlignProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
 
@@ -69,6 +70,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _colorProperty = new Property(typeof(Color), Color.Black);
 
       _preferredTextLengthProperty = new Property(typeof(int?), null);
+      _textAlignProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
 
       // Yes, we can have focus
       Focusable = true;
@@ -91,6 +93,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _textProperty.Attach(OnTextChanged);
       _colorProperty.Attach(OnColorChanged);
       _preferredTextLengthProperty.Attach(OnPreferredTextLengthChanged);
+      _textAlignProperty.Attach(OnTextAlignChanged);
     }
 
     void Detach()
@@ -98,6 +101,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _textProperty.Detach(OnTextChanged);
       _colorProperty.Detach(OnColorChanged);
       _preferredTextLengthProperty.Detach(OnPreferredTextLengthChanged);
+      _textAlignProperty.Detach(OnTextAlignChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -115,7 +119,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnColorChanged(Property prop)
     {
-      if (Screen != null) 
+      if (Screen != null)
+        Screen.Invalidate(this);
+    }
+
+    void OnTextAlignChanged(Property prop)
+    {
+      if (Screen != null)
         Screen.Invalidate(this);
     }
 
@@ -209,6 +219,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return (Color) _colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
+    }
+
+    public Property TextAlignProperty
+    {
+      get { return _textAlignProperty; }
+    }
+
+    public HorizontalAlignmentEnum TextAlign
+    {
+      get { return (HorizontalAlignmentEnum)_textAlignProperty.GetValue(); }
+      set { _textAlignProperty.SetValue(value); }
     }
 
     void AllocFont()
@@ -334,9 +355,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       Rectangle rect = new Rectangle((int)x, (int)y, (int)w, (int)h);
       Font.Align align = Font.Align.Left;
-      if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      if (TextAlign == HorizontalAlignmentEnum.Right)
         align = Font.Align.Right;
-      else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -384,9 +405,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
       Font.Align align = Font.Align.Left;
-      if (HorizontalAlignment == HorizontalAlignmentEnum.Right)
+      if (TextAlign == HorizontalAlignmentEnum.Right)
         align = Font.Align.Right;
-      else if (HorizontalAlignment == HorizontalAlignmentEnum.Center)
+      else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
       ExtendedMatrix m = new ExtendedMatrix();
