@@ -62,9 +62,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
-          <Button x:Name="VideoWindow" Grid.Column="0" Grid.Row="2" Style="{StaticResource VideoWindowButtonStyle}"
-              IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}" Width="160" Height="120" VerticalAlignment="Bottom"
-              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=fullscreenvideo}"/>
+          <Grid Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Button x:Name="VideoWindow" Style="{StaticResource VideoWindowButtonStyle}"
+                IsVisible="{Binding Source={Service Players},Path=OSD.IsVideo}" Width="160" Height="120" VerticalAlignment="Bottom"
+                Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=fullscreenvideo}"/>
+            <Include Source="screenfiles\osd.xaml"/>
+          </Grid>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
@@ -80,7 +83,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <DynamicResource ResourceKey="Contents_Element"/>
             </ContentPresenter.Content>
           </ContentPresenter>
-          <Include Source="screenfiles\osd.xaml"/>
         </Grid>
       </DockPanel>
     </ResourceWrapper>

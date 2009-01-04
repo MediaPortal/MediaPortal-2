@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    Source="screenfiles\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.Shares.Overview]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Light blue with some green -->
+    <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
+
+    <!-- Data template for a simple share entry in the shares list -->
+    <DataTemplate x:Key="ShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+      <Control Focusable="true">
+        <Control.Template>
+          <ControlTemplate>
+            <Grid x:Name="ParentPanel">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Label x:Name="ShareName" Grid.Column="0" Margin="5,0,0,0" Content="{Binding [Name]}" FontSize="22"/>
+              <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22"/>
+            </Grid>
+          </ControlTemplate>
+        </Control.Template>
+        <Control.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
+            <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+            <Setter TargetName="ParentPanel" Property="Background">
+              <Setter.Value>
+                <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+              </Setter.Value>
+            </Setter>
+          </Trigger>
+        </Control.Triggers>
+      </Control>
+    </DataTemplate>
+
+    <!-- Container style for the shares list -->
+    <Style x:Key="ShareItemContainerStyle" TargetType="{x:Type ListViewItem}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListViewItem}">
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch"/>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!-- ListView style to be used for the shares list -->
+    <Style x:Key="SharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+      <Setter Property="ItemTemplate" Value="{StaticResource ShareItemDataTemplate}"/>
+      <Setter Property="ItemContainerStyle" Value="{StaticResource ShareItemContainerStyle}"/>
+    </Style>
+
+    <ResourceWrapper x:Key="SharesAddChooseMediaProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
+    <ResourceWrapper x:Key="RemoveSharesStateId" Resource="900BA520-F989-48c0-B076-5DAD61945845"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid Margin="10,0,10,10">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ListView Grid.Row="0"
+            Style="{StaticResource SharesListViewStyle}"
+            DataContext="{Binding Source={StaticResource Model}}"
+            ItemsSource="{Binding Shares}"/>
+        <Grid Grid.Row="1">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="AddButton" Grid.Column="0" Margin="10,10,10,0" Height="40" Style="{StaticResource ButtonStyle}"
+              Content="[SharesConfig.AddShare]" HorizontalAlignment="Stretch"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource SharesAddChooseMediaProviderStateId}}"/>
+          <Button x:Name="RemoveButton" Grid.Column="1" Margin="10,10,20,0" Height="40" Style="{StaticResource ButtonStyle}"
+              Content="[SharesConfig.RemoveShares]" HorizontalAlignment="Stretch"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource RemoveSharesStateId}}"/>
+        </Grid>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

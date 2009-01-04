@@ -22,40 +22,11 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.Logging;
+using MediaPortal.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.Core.Commands
+namespace UiComponents.Media.Settings.Configuration
 {
-  public delegate void ParameterlessMethod();
-
-  public class MethodDelegateCommand : ICommand
+  public class SharesConfiguration : CustomConfiguration
   {
-    #region Protected fields
-
-    protected ParameterlessMethod _methodDelegate;
-
-    #endregion
-
-    public MethodDelegateCommand(ParameterlessMethod methodDelegate)
-    {
-      _methodDelegate = methodDelegate;
-    }
-
-    #region ICommand implementation
-
-    public void Execute()
-    {
-      try
-      {
-        _methodDelegate();
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
-      }
-    }
-
-    #endregion
   }
 }

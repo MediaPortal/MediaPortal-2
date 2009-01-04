@@ -10,5 +10,29 @@
       <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/> <!-- Time model -->
       <!-- TODO: Model Id="..." (Player-Model) -->
     </AdditionalModels>
+
+    <State Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
+        Name="SharesConfigurationOverview" MainScreen="shares_config_overview"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Workflow model = Shares config model -->
+    <AdditionalModels StateId="36B3F24A-29B4-4cb4-BC7D-434C51491CD2">
+      <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/> <!-- Menu model -->
+      <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/> <!-- Time model -->
+    </AdditionalModels>
+
+    <State Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
+        Name="SharesAddChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Workflow model = Shares config model -->
+    <AdditionalModels StateId="F3163500-3015-4a6f-91F6-A3DA5DC3593C">
+      <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/> <!-- Menu model -->
+      <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/> <!-- Time model -->
+    </AdditionalModels>
+
+    <State Id="900BA520-F989-48c0-B076-5DAD61945845"
+        Name="RemoveShares" MainScreen="shares_config_remove_shares"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Workflow model = Shares config model -->
+    <AdditionalModels StateId="900BA520-F989-48c0-B076-5DAD61945845">
+      <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/> <!-- Menu model -->
+      <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/> <!-- Time model -->
+    </AdditionalModels>
   </States>
 </Workflow>

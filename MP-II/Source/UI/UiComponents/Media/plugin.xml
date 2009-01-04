@@ -6,12 +6,17 @@
     Description="Media Navigation Plugin"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference Name="ConfigurationManager"/>
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="Media.dll"/>
   </Runtime>
 
   <Register Location="/Models">
     <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" ClassName="UiComponents.Media.MediaModel"/>
+    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" ClassName="UiComponents.Media.Settings.Configuration.SharesConfigModel"/>
   </Register>
 
   <Register Location="/Resources/Language">
@@ -20,5 +25,31 @@
 
   <Register Location="/Resources/Skin">
     <Resource Id="MediaSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Shares"
+        Redundant="true"
+        Text="[Settings.Shares]"/>
+  </Register>
+
+  <!-- Contents of '/Shares' section -->
+  <Register Location="/Configuration/Settings/Shares">
+    <ConfigGroup
+        Id="ConfigureShares"
+        Redundant="true"
+        Text="[Settings.Shares.Configure]"/>
+  </Register>
+
+  <!-- Contents of '/Shares/ConfigureShares' group -->
+  <Register Location="/Configuration/Settings/Shares/ConfigureShares">
+    <CustomConfigSetting
+        Id="SharesConfiguration"
+        Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
+        HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
+        ClassName="UiComponents.Media.Settings.Configuration.SharesConfiguration"
+        AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
   </Register>
 </Plugin>

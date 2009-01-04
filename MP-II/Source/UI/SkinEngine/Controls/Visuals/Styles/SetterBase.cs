@@ -21,10 +21,7 @@
 */
 #endregion
 
-using System;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.Xaml;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 {

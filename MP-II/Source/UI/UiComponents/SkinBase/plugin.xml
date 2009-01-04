@@ -96,12 +96,12 @@
         Id="Autostart"
         Text="[Settings.General.System.Autostart]"
         HelpText="[Settings.General.System.Autostart.Help]"
-        ClassName="UiComponents.SkinBase.Settings.System.Autostart"/>
+        ClassName="UiComponents.SkinBase.Settings.General.Autostart"/>
     <ConfigSetting
         Id="Balloontips"
         Text="[Settings.General.System.Balloontips]"
         HelpText="[Settings.General.System.Balloontips.Help]"
-        ClassName="UiComponents.SkinBase.Settings.System.Balloontips"/>
+        ClassName="UiComponents.SkinBase.Settings.General.Balloontips"/>
   </Register>
 
   <!-- Contents of '/Regional' section -->

@@ -104,8 +104,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _styleProperty;
     Property _focusableProperty;
     Property _hasFocusProperty;
+    Property _isMouseOverProperty;
     bool _updateOpacityMask;
-    bool _mouseOver = false;
     VisualAssetContext _opacityMaskContext;
 
     #endregion
@@ -138,6 +138,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // Focus properties
       _focusableProperty = new Property(typeof(bool), false);
       _hasFocusProperty = new Property(typeof(bool), false);
+
+      _isMouseOverProperty = new Property(typeof(bool), false);
     }
 
     void Attach()
@@ -333,7 +335,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public virtual bool HasFocus
     {
       get { return (bool) _hasFocusProperty.GetValue(); }
-      set { _hasFocusProperty.SetValue(value); }
+      internal set { _hasFocusProperty.SetValue(value); }
     }
 
     public Property FocusableProperty
@@ -345,6 +347,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return (bool) _focusableProperty.GetValue(); }
       set { _focusableProperty.SetValue(value); }
+    }
+
+    public Property IsMouseOverProperty
+    {
+      get { return _isMouseOverProperty; }
+    }
+
+    public bool IsMouseOver
+    {
+      get { return (bool) _isMouseOverProperty.GetValue(); }
+      internal set { _isMouseOverProperty.SetValue(value); }
     }
 
     #endregion
@@ -498,9 +511,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         if (y >= ActualPosition.Y && y < ActualPosition.Y + ActualHeight)
         {
-          if (!_mouseOver)
+          if (!IsMouseOver)
           {
-            _mouseOver = true;
+            IsMouseOver = true;
             FireEvent(MOUSEENTER_EVENT);
           }
           if (!HasFocus)
@@ -508,13 +521,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           return;
         }
       }
-      if (_mouseOver)
+      if (IsMouseOver)
       {
-        _mouseOver = false;
+        IsMouseOver = false;
         FireEvent(MOUSELEAVE_EVENT);
       }
       if (HasFocus)
         HasFocus = false;
+      base.OnMouseMove(x, y);
     }
 
 

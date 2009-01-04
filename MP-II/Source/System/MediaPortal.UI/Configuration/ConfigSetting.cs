@@ -23,8 +23,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
@@ -38,25 +38,11 @@ namespace MediaPortal.Configuration
   {
     #region Variables
 
-    protected int _columns = 0;
-    protected int _rows = 0;
     protected IResourceString _help = null;
 
     #endregion
 
     #region Properties
-
-    public int Columns
-    {
-      get { return _columns; }
-      set { _columns = value; }
-    }
-
-    public int Rows
-    {
-      get { return _rows; }
-      set { _rows = value; }
-    }
 
     public IResourceString Help
     {
@@ -70,12 +56,12 @@ namespace MediaPortal.Configuration
     }
 
     /// <summary>
-    /// Returns the type of the settings this configuration object can handle.
-    /// The methods <see cref="Load"/> and <see cref="Save"/> will be called with the setting
-    /// of this type.
-    /// If this property returns <c>null</c>, this configuration object isn't based on a setting.
+    /// Convenience property to quickly access the <see cref="ISettingsManager"/> service.
     /// </summary>
-    public abstract Type SettingsObjectType { get; }
+    public ISettingsManager SettingsManager
+    {
+      get { return ServiceScope.Get<ISettingsManager>(); }
+    }
 
     #endregion
 
@@ -114,24 +100,21 @@ namespace MediaPortal.Configuration
     #region Public Methods
 
     /// <summary>
-    /// Loads the setting from the specified object. The specified <paramref name="settingsObject"/>
-    /// will be loaded from the <see cref="ISettingsManager"/> service.
+    /// Loads the setting from the underlaying setting. The setting can be loaded from the
+    /// <see cref="ISettingsManager"/> service, for example.
     /// </summary>
-    /// <param name="settingsObject">Object to extract setting from. This settings object is of
-    /// type <see cref="SettingsObjectType"/>, if given.</param>
-    public virtual void Load(object settingsObject) { }
+    public virtual void Load() { }
 
     /// <summary>
-    /// Saves the setting to the specified <paramref name="settingsObject"/>. The specified
-    /// <paramref name="settingsObject"/> will be loaded from the <see cref="ISettingsManager"/> service.
+    /// Saves the setting to the underlaying setting. The setting can be loaded from the
+    /// <see cref="ISettingsManager"/> service, changed, and saved again at the
+    /// <see cref="ISettingsManager"/> service.
     /// </summary>
     /// <remarks>
     /// This method should not apply the setting to the system, as the <see cref="Apply"/> method will
     /// also be called. The <see cref="Apply"/> method will be called after this method was called.
     /// </remarks>
-    /// <param name="settingsObject">Object to save setting to. This settings object is of
-    /// type <see cref="SettingsObjectType"/>, if given.</param>
-    public virtual void Save(object settingsObject) { }
+    public virtual void Save() { }
 
     /// <summary>
     /// Applies the setting in the application.

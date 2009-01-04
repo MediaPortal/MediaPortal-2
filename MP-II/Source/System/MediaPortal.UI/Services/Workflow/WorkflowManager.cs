@@ -310,15 +310,20 @@ namespace MediaPortal.Services.Workflow
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
+      // Adapt number of navigation contexts to be removed if stack doesn't contain enough entries
       if (_navigationContextStack.Count <= count)
       {
+        if (_navigationContextStack.Count <= 1)
+        {
+          logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but we cannot remove the initial state... skipping",
+              count);
+          return;
+        }
         int newCount = _navigationContextStack.Count - 1;
-        logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but only {1} contexts available... limiting to {2} contexts",
+        logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but there are only {1} contexts available... we'll only remove {2} contexts",
             count, _navigationContextStack.Count, newCount);
         count = newCount;
       }
-      if (count == 0)
-        return;
       logger.Info("WorkflowManager: Removing {0} workflow states from navigation stack...", count);
       IDictionary<Guid, object> oldModels = new Dictionary<Guid, object>();
       for (int i=0; i<count; i++)

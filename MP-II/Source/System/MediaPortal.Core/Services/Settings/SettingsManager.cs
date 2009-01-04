@@ -206,6 +206,14 @@ namespace MediaPortal.Core.Services.Settings
       _batchUpdate = true;
     }
 
+    public void CancelBatchUpdate()
+    {
+      if (!_batchUpdate)
+        return;
+      _cache.StopKeep();
+      _cache.Clear();
+    }
+
     public void EndBatchUpdate()
     {
       if (!_batchUpdate)

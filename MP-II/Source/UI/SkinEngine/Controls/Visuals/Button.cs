@@ -67,7 +67,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override bool HasFocus
     {
       get { return base.HasFocus; }
-      set
+      internal set
       {
         base.HasFocus = value;
         if (!value)

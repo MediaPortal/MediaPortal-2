@@ -331,7 +331,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         try
         {
           UIElement root = LoadSkinFile(screenName);
-          if (root == null) return null;
+          if (root == null)
+          {
+            ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
+            return null;
+          }
           result.Visual = root;
         }
         catch (Exception ex)

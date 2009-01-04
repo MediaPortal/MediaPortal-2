@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Media.ClientMediaManager.Settings
 {
   /// <summary>
   /// Settings data for the local shares management of a MediaPortal client's MediaManager.

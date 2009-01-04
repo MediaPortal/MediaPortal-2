@@ -132,8 +132,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected void OnTemplateChanged(Property property)
     {
       if (Template != null)
+      {
+        Resources.Merge(Template.Resources);
+        foreach (TriggerBase t in Template.Triggers)
+          Triggers.Add(t);
         ///@optimize: 
         TemplateControl = Template.LoadContent() as FrameworkElement;
+      }
       else
         TemplateControl = null;
     }
@@ -144,9 +149,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (element != null)
       {
         element.VisualParent = this;
-        Resources.Merge(Template.Resources);
-        foreach (TriggerBase t in Template.Triggers)
-          Triggers.Add(t);
         element.SetScreen(Screen);
       }
       Invalidate();

@@ -33,25 +33,18 @@ namespace MediaPortal.SkinEngine.Settings.Configuration
   /// </summary>
   public class Fullscreen : YesNo
   {
-    #region Public properties
-
-    public override Type SettingsObjectType
-    {
-      get { return typeof(AppSettings); }
-    }
-
-    #endregion
-
     #region Public Methods
 
-    public override void Load(object settingsObject)
+    public override void Load()
     {
-      _yes = ((AppSettings) settingsObject).FullScreen;
+      _yes = SettingsManager.Load<AppSettings>().FullScreen;
     }
 
-    public override void Save(object settingsObject)
+    public override void Save()
     {
-      ((AppSettings) settingsObject).FullScreen = _yes;
+      AppSettings settings = SettingsManager.Load<AppSettings>();
+      settings.FullScreen = _yes;
+      SettingsManager.Save(settings);
     }
 
     #endregion

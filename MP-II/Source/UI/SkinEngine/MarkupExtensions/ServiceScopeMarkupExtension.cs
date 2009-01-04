@@ -30,6 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
@@ -43,6 +44,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     static ServiceScopeMarkupExtension()
     {
       TYPE_MAPPING.Add("ScreenManager", typeof(IScreenManager));
+      TYPE_MAPPING.Add("WorkflowManager", typeof(IWorkflowManager));
       TYPE_MAPPING.Add("InputManager", typeof(IInputManager));
       TYPE_MAPPING.Add("Players", typeof(IPlayerCollection));
     }

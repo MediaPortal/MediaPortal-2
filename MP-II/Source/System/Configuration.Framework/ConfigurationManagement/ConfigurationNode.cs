@@ -160,7 +160,6 @@ namespace MediaPortal.Configuration.ConfigurationManagement
 
     protected ConfigBase Instantiate(ConfigBaseMetadata metadata, PluginRuntime pluginRuntime)
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       ConfigBase result;
       if (metadata.GetType() == typeof(ConfigGroupMetadata))
         result = new ConfigGroup();
@@ -174,7 +173,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
           ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
           if (cs == null)
             throw new ArgumentException(string.Format("Configuration class '{0}' not found", csm.ClassName));
-          cs.Load(cs.SettingsObjectType == null ? null : settingsManager.Load(cs.SettingsObjectType));
+          cs.Load();
           if (csm.ListenTo != null)
             foreach (string listenToLocation in csm.ListenTo)
             {

@@ -23,7 +23,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Core;
@@ -48,12 +47,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Regional
 
     #region Base overrides
 
-    public override Type SettingsObjectType
-    {
-      get { return null; }
-    }
-
-    public override void Load(object settingsObject)
+    public override void Load()
     {
       List<CultureInfo> cultures = new List<CultureInfo>(ServiceScope.Get<ILocalization>().AvailableLanguages);
       cultures.Sort(CompareByName);
@@ -70,7 +64,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Regional
       }
     }
 
-    public override void Save(object settingsObject)
+    public override void Save()
     {
       ServiceScope.Get<ILocalization>().ChangeLanguage(_cultures[Selected]);
     }

@@ -29,6 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Settings;
+using MediaPortal.Media.ClientMediaManager.Settings;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 

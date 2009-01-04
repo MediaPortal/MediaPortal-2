@@ -557,8 +557,8 @@ namespace MediaPortal.Core.Services.PluginManager
             if (builderRegistration.PluginRuntime != null) // If builder is no default builder
               if (!plugin.Metadata.DependsOn.Contains(builderRegistration.PluginRuntime.Metadata.Name))
               {
-                logger.Warn(
-                    "Plugin '{0}': Builder '{1}' (implemented by plugin '{2}') is used, but this plugin dependency is not explicitly specified",
+                logger.Error(
+                    "Plugin '{0}': Builder '{1}' (implemented by plugin '{2}') is used, but this plugin dependency is not explicitly specified - plugin won't be enabled",
                     pluginName, builderName, builderRegistration.PluginRuntime.Metadata.Name);
                 return false;
               }
@@ -625,7 +625,7 @@ namespace MediaPortal.Core.Services.PluginManager
           {
             object obj = plugin.InstanciatePluginObject(plugin.Metadata.StateTrackerClassName);
             if (obj == null)
-              logger.Warn("PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin '{1}'",
+              logger.Error("PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin '{1}'",
                   plugin.Metadata.StateTrackerClassName, plugin.Metadata.Name);
             else if (obj is IPluginStateTracker)
             {
@@ -633,7 +633,7 @@ namespace MediaPortal.Core.Services.PluginManager
               plugin.StateTracker.Activated();
             }
             else
-              logger.Warn("PluginManager: Plugin state tracker class '{0}' of plugin '{1}' doesn't implement interface {2}",
+              logger.Error("PluginManager: Plugin state tracker class '{0}' of plugin '{1}' doesn't implement interface {2}",
                   plugin.Metadata.StateTrackerClassName, plugin.Metadata.Name, typeof(IPluginStateTracker).Name);
           }
           catch (Exception e)

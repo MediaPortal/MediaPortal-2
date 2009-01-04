@@ -13,6 +13,7 @@
   <Builder Name="ConfigSection" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
   <Builder Name="ConfigGroup" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
   <Builder Name="ConfigSetting" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
+  <Builder Name="CustomConfigSetting" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
 
   <Register Location="/Services">
     <Instance Id="IConfigurationManager" ClassName="MediaPortal.Configuration.ConfigurationManagement.ConfigurationManager"/>

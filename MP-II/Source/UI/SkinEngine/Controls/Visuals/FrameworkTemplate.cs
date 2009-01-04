@@ -45,7 +45,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   /// <see cref="ListView">ListViews</see> implement several properties holding
   /// instances of <see cref="FrameworkTemplate"/>, for each templated feature.
   /// </remarks>
-  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>, IDeepCopyable
+  public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>
   {
     #region Private fields
 

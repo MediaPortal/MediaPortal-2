@@ -167,9 +167,30 @@ namespace UiComponents.Configuration
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
       IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
       _currentConfigSetting = currentNode == null ? null : currentNode.ConfigObj as ConfigSetting;
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      _currentConfigSetting.Load(_currentConfigSetting.SettingsObjectType == null ?
-          null : settingsManager.Load(_currentConfigSetting.SettingsObjectType));
+      _currentConfigSetting.Load();
+      // Now handle different configuration types...
+      if (_currentConfigSetting is CustomConfiguration)
+      {
+        ConfigSettingMetadata metadata = (ConfigSettingMetadata) _currentConfigSetting.Metadata;
+        if (metadata.AdditionalData.ContainsKey("WorkflowState"))
+        { // Custom configuration workflow
+          IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+          workflowManager.NavigatePush(new Guid(metadata.AdditionalData["WorkflowState"]));
+          // New configuration workflow has to take over the configuration "life cycle" for the
+          // current config setting object (which can be accessed in this model via CurrentConfigSetting):
+          // - Configure data (providing workflow states and screens for doing that, change the data, ...)
+          // - Calling Save and Apply, or discard the setting by not saving it
+          // The the sub workflow should step out again to give the control back to this model again.
+          return;
+        }
+        if (metadata.AdditionalData.ContainsKey("DialogScreen"))
+        { // Custom configuration dialog
+          string customDialog = metadata.AdditionalData["DialogScreen"];
+          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          screenManager.ShowDialog(customDialog);
+        }
+        return;
+      }
       string dialog = GetSettingDialog(_currentConfigSetting.GetType());
       if (dialog != null)
       {
@@ -183,11 +204,7 @@ namespace UiComponents.Configuration
     /// </summary>
     public void SaveCurrentConfigItem()
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      object setting = _currentConfigSetting.SettingsObjectType == null ? null :
-          settingsManager.Load(_currentConfigSetting.SettingsObjectType);
-      _currentConfigSetting.Save(setting);
-      settingsManager.Save(setting);
+      _currentConfigSetting.Save();
       _currentConfigSetting.Apply();
     }
 
@@ -251,7 +268,17 @@ namespace UiComponents.Configuration
     {
       if (setting == null)
         return false;
-      return GetSettingDialog(setting.GetType()) != null;
+      if (setting is CustomConfiguration)
+      {
+        ConfigSettingMetadata metadata = (ConfigSettingMetadata) setting.Metadata;
+        if (metadata.AdditionalData.ContainsKey("WorkflowState"))
+          return true;
+        if (metadata.AdditionalData.ContainsKey("DialogScreen"))
+          return true;
+      }
+      else
+        return GetSettingDialog(setting.GetType()) != null;
+      return false;
     }
 
     protected static string GetSettingDialog(Type settingType)

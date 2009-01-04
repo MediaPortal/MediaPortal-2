@@ -35,8 +35,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
   /// </summary>
   public class ConfigurationManager : IConfigurationManager
   {
-
-    #region Variables
+    #region Protected fields
 
     /// <summary>
     /// Tree which holds the configuration nodes with our config objects.

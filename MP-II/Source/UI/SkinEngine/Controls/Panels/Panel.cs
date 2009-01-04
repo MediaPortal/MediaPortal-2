@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
@@ -101,10 +100,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     void Attach()
     {
+      _backgroundProperty.Attach(OnBackgroundPropertyChanged);
     }
 
     void Detach()
     {
+      _backgroundProperty.Detach(OnBackgroundPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -132,7 +133,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// we're simply calling Invalidate() here to invalidate the layout
     /// </summary>
     /// <param name="property">The property.</param>
-    protected void OnPropertyInvalidate(Property property)
+    protected void OnLayoutPropertyChanged(Property property)
     {
       Invalidate();
     }
@@ -142,13 +143,28 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// we're simply calling Free() which will do a performlayout
     /// </summary>
     /// <param name="property">The property.</param>
-    /// FIXME Albert78: this method is never called?
-    protected void OnPropertyChanged(Property property)
+    protected void OnNonLayoutPropertyChanged(Property property)
     {
       if (_backgroundAsset != null)
       {
-        _backgroundAsset.Free(false);
+        VisualAssetContext vac = _backgroundAsset;
+        _backgroundAsset = null;
+        vac.Free(false);
       }
+    }
+
+    protected void OnBackgroundPropertyChanged(Property property)
+    {
+      if (_backgroundAsset != null)
+      {
+        VisualAssetContext vac = _backgroundAsset;
+        _backgroundAsset = null;
+        vac.Free(false);
+      }
+      // TODO: Remove change handler from old Background brush, as soon as the
+      // signature of this change handler will include the old value
+      if (Background != null)
+        Background.ObjectChanged += OnBrushChanged;
     }
 
     public Property BackgroundProperty
@@ -159,14 +175,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public Brush Background
     {
       get { return (Brush) _backgroundProperty.GetValue(); }
-      set {
-        // FIXME Albert78: Move this into a change handler of BackgroundProperty
-        if (value != _backgroundProperty.GetValue())
-        {
-          _backgroundProperty.SetValue(value);
-          value.ObjectChanged += OnBrushChanged;
-        }
-      }
+      set { _backgroundProperty.SetValue(value); }
     }
 
     public Property ChildrenProperty
@@ -314,7 +323,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
         }
         Background.SetupBrush(this, ref verts);
-        if (SkinContext.UseBatching == false)
+        if (!SkinContext.UseBatching)
         {
           if (_backgroundAsset == null)
           {
@@ -357,6 +366,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override void OnMouseMove(float x, float y)
     {
+      base.OnMouseMove(x, y);
       if (!ActualBounds.Contains(x, y))
         return;
       foreach (UIElement element in Children)

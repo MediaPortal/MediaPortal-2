@@ -122,10 +122,66 @@ namespace MediaPortal.Configuration.Builders
       return new ConfigSettingMetadata(location, text, className, helpText, listenTo);
     }
 
+    protected static ConfigSettingMetadata BuildCustomSetting(
+        PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
+      string text = null;
+      string className = null;
+      string helpText = null;
+      IDictionary<string, string> additionalData = null;
+      ICollection<string> listenTo = null;
+      foreach (KeyValuePair<string, string> attr in itemData.Attributes)
+      {
+        switch (attr.Key)
+        {
+          case "Text":
+            text = attr.Value;
+            break;
+          case "ClassName":
+            className = attr.Value;
+            break;
+          case "HelpText":
+            helpText = attr.Value;
+            break;
+          case "ListenTo":
+            listenTo = ParseListenTo(attr.Value);
+            break;
+          case "AdditionalData":
+            additionalData = ParseAdditionalData(attr.Value);
+            break;
+          default:
+            throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key + "'");
+        }
+      }
+      if (text == null)
+        throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
+      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, className, helpText, listenTo);
+      result.AdditionalData = additionalData;
+      return result;
+    }
+
     protected static ICollection<string> ParseListenTo(string listenTo)
     {
       return listenTo == null ? null : new List<string>(
         listenTo.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    protected static IDictionary<string, string> ParseAdditionalData(string additionalData)
+    {
+      IDictionary<string, string> result = new Dictionary<string, string>();
+      if (additionalData == null)
+        return result;
+      string[] entries = additionalData.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+      foreach (string entry in entries)
+      {
+        int index = entry.IndexOf('=');
+        if (index == -1)
+          result.Add(entry, null);
+        else
+          result.Add(entry.Substring(0, index).Trim(), entry.Substring(index+1, entry.Length-index-1));
+      }
+      return result;
     }
 
     #endregion
@@ -142,8 +198,11 @@ namespace MediaPortal.Configuration.Builders
           return BuildGroup(itemData, plugin);
         case "ConfigSetting":
           return BuildSetting(itemData, plugin);
+        case "CustomConfigSetting":
+          return BuildCustomSetting(itemData, plugin);
       }
-      throw new ArgumentException(string.Format("Setting builder cannot build setting of type '{0}'", itemData.BuilderName));
+      throw new ArgumentException(string.Format("{0} builder cannot build setting of type '{1}'",
+          typeof(ConfigBuilder).Name, itemData.BuilderName));
     }
 
     public bool NeedsPluginActive

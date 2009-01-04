@@ -7,4 +7,18 @@
     <String Name="MyVideos" Text="Videos"/>
     <String Name="MyPictures" Text="Pictures"/>
   </Section>
+  <Section Name="Settings">
+    <String Name="Shares" Text="Shares"/>
+    <String Name="Shares.Configure" Text="Configure shares"/>
+    <String Name="Shares.ConfigureShares.SharesConfiguration" Text="Shares configuration"/>
+    <String Name="Shares.ConfigureShares.SharesConfiguration.Help" Text="Configure all local shares"/>
+  </Section>
+  <!-- Shares configuration workflow -->
+  <Section Name="SharesConfig">
+    <String Name="Shares.Overview" Text="Shares overview"/>
+    <String Name="CancelSharesConfig" Text="Cancel shares configuration"/>
+    <String Name="AddShare" Text="Add share"/>
+    <String Name="RemoveShares" Text="Remove shares"/>
+    <String Name="RemoveSelectedShares" Text="Remove selected shares"/>
+  </Section>
 </Language>

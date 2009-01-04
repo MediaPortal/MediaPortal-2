@@ -72,15 +72,20 @@ namespace MediaPortal.Core.Settings
     /// <summary>
     /// Switches on the batch update mode. In batch update mode, the settings manager neither won't dispose
     /// loaded settings objects in its cache, nor will it write settings objects to disk.
-    /// To stop the batch update mode, call <see cref="EndBatchUpdate"/>.
+    /// To stop the batch update mode, call <see cref="EndBatchUpdate"/> or <see cref="CancelBatchUpdate"/>.
     /// </summary>
     void StartBatchUpdate();
 
     /// <summary>
     /// Leaves the batch update mode. Any settings for which method <see cref="Save"/> was called in
-    /// batch update mode will be saved on disk.
+    /// batch update mode will be saved to disk.
     /// </summary>
     void EndBatchUpdate();
+
+    /// <summary>
+    /// Leaves the batch update mode. Any changes to settings in the batch update mode will be lost.
+    /// </summary>
+    void CancelBatchUpdate();
 
     /// <summary>
     /// Removes the application setting with the specified <paramref name="settingsType"/> from the system.

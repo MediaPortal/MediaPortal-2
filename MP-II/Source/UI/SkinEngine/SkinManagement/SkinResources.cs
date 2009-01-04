@@ -176,7 +176,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       string skinFile = GetSkinFilePath(screenName);
       if (skinFile == null)
+      {
+        ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", screenName);
         return null;
+      }
       return XamlLoader.Load(skinFile);
     }
 

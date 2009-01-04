@@ -34,6 +34,7 @@ namespace MediaPortal.Configuration
     protected string _className;
     protected string _helpText;
     protected ICollection<string> _listenTo;
+    protected IDictionary<string, string> _additionalData = null;
 
     public ConfigSettingMetadata(string location, string text, string className,
         string helpText, ICollection<string> listenTo) : base(location, text)
@@ -56,6 +57,15 @@ namespace MediaPortal.Configuration
     public ICollection<string> ListenTo
     {
       get { return _listenTo; }
+    }
+
+    /// <summary>
+    /// Additional data used for complex settings.
+    /// </summary>
+    public IDictionary<string, string> AdditionalData
+    {
+      get { return _additionalData; }
+      set { _additionalData = value; }
     }
   }
 }

@@ -86,19 +86,19 @@ namespace MediaPortal.Presentation.Players
     /// Gets or sets the active players property.
     /// </summary>
     /// <value>The active players property.</value>
-    Property ActivePlayersProperty { get; set; }
+    Property ActivePlayersProperty { get; }
 
     /// <summary>
     /// Gets or sets the paused property.
     /// </summary>
     /// <value>The paused property.</value>
-    Property PausedProperty { get; set; }
+    Property PausedProperty { get; }
 
     /// <summary>
     /// Gets or sets the is muted property.
     /// </summary>
     /// <value>The is muted property.</value>
-    Property IsMutedProperty { get; set; }
+    Property IsMutedProperty { get; }
     /// <summary>
     /// Gets or sets a value indicating whether playback  is muted.
     /// </summary>

@@ -80,6 +80,7 @@
     <Compile Include="Configuration\ConfigGroupMetadata.cs" />
     <Compile Include="Configuration\ConfigSectionMetadata.cs" />
     <Compile Include="Configuration\ConfigSettingMetadata.cs" />
+    <Compile Include="Configuration\ConfigurationClasses\CustomConfiguration.cs" />
     <Compile Include="Configuration\IConfigurationManager.cs" />
     <Compile Include="Configuration\IConfigurationNode.cs" />
     <Compile Include="Configuration\NodeNotFoundException.cs" />

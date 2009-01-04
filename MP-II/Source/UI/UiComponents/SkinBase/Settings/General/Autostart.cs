@@ -31,7 +31,7 @@ using MediaPortal.Core.PathManager;
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace UiComponents.SkinBase.Settings.System
+namespace UiComponents.SkinBase.Settings.General
 {
   public class Autostart : YesNo
   {
@@ -67,17 +67,12 @@ namespace UiComponents.SkinBase.Settings.System
 
     #region Base overrides
 
-    public override Type SettingsObjectType
-    {
-      get { return null; }
-    }
-
-    public override void Load(object settingsObject)
+    public override void Load()
     {
       _yes = IsAutostart;
     }
 
-    public override void Save(object settingsObject)
+    public override void Save()
     {
       IsAutostart = _yes;
     }

@@ -29,23 +29,18 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace UiComponents.SkinBase.Settings.System
+namespace UiComponents.SkinBase.Settings.General
 {
   public class Balloontips : YesNo
   {
     #region Base overrides
 
-    public override Type SettingsObjectType
-    {
-      get { return null; }
-    }
-
-    public override void Load(object settingsObject)
+    public override void Load()
     {
       _yes = WindowsAPI.IsShowBalloonTips;
     }
 
-    public override void Save(object settingsObject)
+    public override void Save()
     {
       try
       {

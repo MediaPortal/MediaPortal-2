@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Configuration.ConfigurationClasses;
 
 namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
@@ -31,19 +30,16 @@ namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
   {
     #region Base overrides
 
-    public override Type SettingsObjectType
+    public override void Load()
     {
-      get { return typeof(SkinBaseSettings); }
+      _value = SettingsManager.Load<SkinBaseSettings>().TimeFormat;
     }
 
-    public override void Load(object settingsObject)
+    public override void Save()
     {
-      _value = ((SkinBaseSettings) settingsObject).TimeFormat;
-    }
-
-    public override void Save(object settingsObject)
-    {
-      ((SkinBaseSettings) settingsObject).TimeFormat = _value;
+      SkinBaseSettings settings = SettingsManager.Load<SkinBaseSettings>();
+      settings.TimeFormat = _value;
+      SettingsManager.Save(settings);
     }
 
     public override void Apply()

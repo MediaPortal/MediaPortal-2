@@ -101,7 +101,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       DependencyObject target = null;
       if (!string.IsNullOrEmpty(TargetName))
       {
-        target = element.FindElement(new NameFinder(TargetName));
+        // Search the element in "normal" namescope and in the dynamic structure via the FindElement method
+        // I think this is more than WPF does. It makes it possible to find elements instantiated
+        // by a template, for example.
+        target = element.FindElementInNamescope(TargetName) ??
+            element.FindElement(new NameFinder(TargetName));
         if (target == null)
           return null;
       }

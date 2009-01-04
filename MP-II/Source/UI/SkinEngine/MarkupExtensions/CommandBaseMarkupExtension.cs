@@ -141,12 +141,20 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     {
       IDataDescriptor start;
       if (!_source.Evaluate(out start))
+      {
+        ServiceScope.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find source value, could not execute command ({0})",
+            ToString());
         return;
+      }
       object obj;
       MethodInfo mi;
       _compiledPath.GetMethod(start, out obj, out mi);
       if (mi == null)
+      {
+        ServiceScope.Get<ILogger>().Warn("CommandBaseMarkupExtension: Could not find method, could not execute command ({0})",
+            ToString());
         return;
+      }
       ParameterInfo[] parameterInfos = mi.GetParameters();
       IList<object> paramsList = LateBoundValue.ConvertLateBoundValues(parameters);
       object[] convertedParameters;
@@ -157,7 +165,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Error("Error executing command '{0}'", e, this);
+          ServiceScope.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
         }
     }
 

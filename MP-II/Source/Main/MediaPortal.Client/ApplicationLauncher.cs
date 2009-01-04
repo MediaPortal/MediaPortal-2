@@ -23,9 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Players;
 using MediaPortal.UserManagement;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
@@ -51,6 +54,88 @@ namespace MediaPortal
 {
   internal static class ApplicationLauncher
   {
+    class DummyPlayerManager : IPlayerCollection
+    {
+      Property _activePlayersProperty = new Property(typeof(object), new List<object>());
+      Property _pausedProperty = new Property(typeof(bool), false);
+      Property _isMutedProperty = new Property(typeof(bool), false);
+
+      #region Implementation of IDisposable
+
+      public void Dispose()
+      {
+      }
+
+      #endregion
+
+      #region Implementation of IPlayerCollection
+
+      public void ReleaseResources()
+      {
+      }
+
+      public void ReallocResources()
+      {
+      }
+
+      public void OnMessage(object m)
+      {
+      }
+
+      public int Count
+      {
+        get { return 0; }
+      }
+
+      public void Add(IPlayer player)
+      {
+      }
+
+      public void Remove(IPlayer player)
+      {
+      }
+
+      public bool CollectionContainsPlayer(IPlayer player)
+      {
+        return false;
+      }
+
+      public IPlayer this[int index]
+      {
+        get { return null; }
+        set { }
+      }
+
+      public Property ActivePlayersProperty
+      {
+        get { return _activePlayersProperty; }
+      }
+
+      public Property PausedProperty
+      {
+        get { return _pausedProperty; }
+      }
+
+      public Property IsMutedProperty
+      {
+        get { return _isMutedProperty; }
+      }
+
+      public bool IsMuted
+      {
+        get { return false; }
+        set { }
+      }
+
+      public bool Paused
+      {
+        get { return false; }
+        set { }
+      }
+
+      #endregion
+    }
+
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
@@ -109,6 +194,11 @@ namespace MediaPortal
         logger.Debug("ApplicationLauncher: Create IWorkflowManager service");
         WorkflowManager workflowManager = new WorkflowManager();
         ServiceScope.Add<IWorkflowManager>(workflowManager);
+
+        // FIXME: Replace by correct player manager, when it is reworked
+        logger.Debug("ApplicationLauncher: Create dummy PlayerManager service");
+        DummyPlayerManager playerManager = new DummyPlayerManager();
+        ServiceScope.Add<IPlayerCollection>(playerManager);
 
         logger.Debug("ApplicationLauncher: Create UserService service");
         UserService userservice = new UserService();
