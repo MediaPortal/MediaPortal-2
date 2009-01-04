@@ -336,7 +336,7 @@ namespace MediaPortal.SkinEngine.Xaml
 
         // Step 3: Namescope registration
         if (elementContext.Instance is INameScope && oldNameScope != null)
-          oldNameScope.RegisterParent(oldNameScope);
+          ((INameScope) elementContext.Instance).RegisterParent(oldNameScope);
 
         // Step 4: Name registration and check for x:Key (to be done before child objects are built)
         foreach (XmlAttribute attr in remainingAttributes)
