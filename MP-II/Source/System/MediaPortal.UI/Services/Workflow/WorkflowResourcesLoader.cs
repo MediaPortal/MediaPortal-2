@@ -42,6 +42,8 @@ namespace MediaPortal.Services.Workflow
     public const int WORKFLOW_RESOURCE_SPEC_VERSION_HIGH = 1;
     public const int MIN_WORKFLOW_RESOURCE_SPEC_VERSION_LOW = 0;
 
+    public const string WORKFLOW_DIRECTORY = "workflow";
+
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, ICollection<Guid>> _additionalModels =
         new Dictionary<Guid, ICollection<Guid>>();
@@ -76,7 +78,7 @@ namespace MediaPortal.Services.Workflow
       _menuActions.Clear();
       _contextMenuActions.Clear();
       IDictionary<string, string> workflowResources = ServiceScope.Get<ISkinResourceManager>().
-          SkinResourceContext.GetResourceFilePaths("workflow\\\\.*\\.xml");
+          SkinResourceContext.GetResourceFilePaths("^" + WORKFLOW_DIRECTORY + "\\\\.*\\.xml$");
       foreach (string workflowResourceFilePath in workflowResources.Values)
         LoadWorkflowResourceFile(workflowResourceFilePath);
 

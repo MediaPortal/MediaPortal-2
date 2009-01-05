@@ -89,7 +89,7 @@ namespace MediaPortal.SkinEngine.Fonts
       _families.Clear();
       // Iterate over font family descriptors
       foreach (string descriptorFilePath in resourcesCollection.GetResourceFilePaths(
-          "^" + SkinResources.FONTS_DIRECTORY + "\\\\.*.desc$").Values)
+          "^" + SkinResources.FONTS_DIRECTORY + "\\\\.*\\.desc$").Values)
       {
         doc.Load(descriptorFilePath);
         string familyName = doc.DocumentElement.GetAttribute("Name");

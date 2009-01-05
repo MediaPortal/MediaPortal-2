@@ -58,6 +58,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public const string FONTS_DIRECTORY = "fonts";
     public const string SHADERS_DIRECTORY = "shaders";
     public const string MEDIA_DIRECTORY = "media";
+    public const string WORKFLOW_DIRECTORY = "workflow";
 
     #region Protected fields
 
