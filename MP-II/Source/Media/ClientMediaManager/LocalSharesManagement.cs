@@ -183,6 +183,7 @@ namespace MediaPortal.Media.ClientMediaManager
     public void RemoveShare(Guid shareId)
     {
       _shares.Remove(shareId);
+      SaveSharesToSettings();
     }
 
     public IDictionary<Guid, ShareDescriptor> GetShares()
@@ -233,6 +234,7 @@ namespace MediaPortal.Media.ClientMediaManager
         return;
       foreach (Guid metadataExtractorId in metadataExtractorIds)
         sd.MetadataExtractorIds.Remove(metadataExtractorId);
+      SaveSharesToSettings();
     }
 
     #endregion

@@ -299,18 +299,18 @@ namespace MediaPortal.SkinEngine.Players
       if (fps > 1000.0f)
         fps /= 1000.0f;
 
-      IScreenControl app = ServiceScope.Get<IScreenControl>();
+      IScreenControl sc = ServiceScope.Get<IScreenControl>();
 
-      if (app.RefreshRateControlEnabled && app.IsFullScreen)
+      if (sc.RefreshRateControlEnabled && sc.IsFullScreen)
       {
         if (fps == 24.0f)
-          app.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_24);
+          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_24);
         else if (fps == 25.0f)
-          app.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_25);
+          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_25);
         else if (fps == 30.0f)
-          app.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_30);
+          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_30);
         else
-          app.SwitchMode(ScreenMode.ExclusiveMode, FPS.Default);
+          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.Default);
       }
     }
 
@@ -322,11 +322,11 @@ namespace MediaPortal.SkinEngine.Players
       if (players[0] != this)
         return;
 
-      IScreenControl app = ServiceScope.Get<IScreenControl>();
+      IScreenControl sc = ServiceScope.Get<IScreenControl>();
 
-      if (!(app.RefreshRateControlEnabled && app.IsFullScreen))
+      if (!(sc.RefreshRateControlEnabled && sc.IsFullScreen))
         return;
-      app.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+      sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
     }
 
     /// <summary>

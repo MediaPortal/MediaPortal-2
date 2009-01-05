@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -97,12 +97,8 @@
     <Content Include="Skin\default\screenfiles\media.xaml" />
     <Content Include="Skin\default\screenfiles\shares_config_overview.xaml" />
     <Content Include="Skin\default\screenfiles\shares_config_remove_shares.xaml" />
-    <Content Include="Skin\default\themes\default\styles\shares_list_style.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Skin\default\themes\default\styles\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

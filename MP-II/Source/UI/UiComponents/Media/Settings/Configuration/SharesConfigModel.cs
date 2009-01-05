@@ -51,6 +51,7 @@ namespace UiComponents.Media.Settings.Configuration
     public const string REMOVE_SHARES_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
 
     public const string SHARE_NAME_KEY = "Name";
+    public const string SHARE_ID_KEY = "Id";
     public const string SHARE_PATH_KEY = "Path";
     public const string SHARE_MEDIAPROVIDER_KEY = "MediaProvider";
     public const string SHARE_CATEGORY_KEY = "Category";
@@ -73,11 +74,29 @@ namespace UiComponents.Media.Settings.Configuration
 
     #endregion
 
-    #region Properties
+    #region Public properties
 
     public ItemsList Shares
     {
       get { return _sharesList; }
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public void RemoveSelectedShares()
+    {
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      foreach (ListItem shareItem in _sharesList)
+      {
+        if (shareItem.Selected)
+        {
+          Guid shareId = new Guid(shareItem[SHARE_ID_KEY]);
+          mediaManager.RemoveShare(shareId);
+        }
+      }
+      UpdateSharesList();
     }
 
     #endregion
@@ -87,11 +106,13 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateSharesList()
     {
       // TODO: Re-validate this when we have implemented the communication with the MP-II server
+      // Perhaps we should show the server's shares too?
       _sharesList.Clear();
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       foreach (ShareDescriptor share in mediaManager.GetSharesBySystem(SystemName.GetLocalSystemName()).Values)
       {
         ListItem shareItem = new ListItem(SHARE_NAME_KEY, share.Name);
+        shareItem.SetLabel(SHARE_ID_KEY, share.ShareId.ToString());
         shareItem.SetLabel(SHARE_PATH_KEY, share.Path);
         IMediaProvider mediaProvider;
         if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))

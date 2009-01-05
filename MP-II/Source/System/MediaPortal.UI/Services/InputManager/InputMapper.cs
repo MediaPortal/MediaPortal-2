@@ -91,12 +91,11 @@ namespace MediaPortal.Services.InputManager
           if (alt)
           {
             //switch to fullscreen
-            IScreenControl app = ServiceScope.Get<IScreenControl>();
-            bool windowed = !app.IsFullScreen;
-            if (windowed)
-              app.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+            IScreenControl sc = ServiceScope.Get<IScreenControl>();
+            if (sc.IsFullScreen)
+              sc.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
             else
-              app.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
+              sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
           }
           else
           {

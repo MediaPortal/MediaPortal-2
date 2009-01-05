@@ -8,13 +8,10 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.Shares.Overview]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.RemoveShares]"/>
 
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
-
-    <ResourceWrapper x:Key="SharesAddChooseMediaProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
-    <ResourceWrapper x:Key="RemoveSharesStateId" Resource="900BA520-F989-48c0-B076-5DAD61945845"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
@@ -27,7 +24,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <ListView Grid.Row="0"
-            Style="{StaticResource SharesListViewStyle}"
+            Style="{StaticResource MarkableSharesListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding Shares}"/>
         <Grid Grid.Row="1">
@@ -36,14 +33,16 @@
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="AddButton" Grid.Column="0" Margin="10,10,10,0" Height="40" Style="{StaticResource ButtonStyle}"
-              Content="[SharesConfig.AddShare]" HorizontalAlignment="Stretch"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource SharesAddChooseMediaProviderStateId}}"/>
-          <Button x:Name="RemoveButton" Grid.Column="1" Margin="10,10,20,0" Height="40" Style="{StaticResource ButtonStyle}"
-              Content="[SharesConfig.RemoveShares]" HorizontalAlignment="Stretch"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource RemoveSharesStateId}}"/>
+          <Button x:Name="RemoveButton" Margin="20,10,0,0" Height="40" Style="{StaticResource ButtonStyle}"
+              Content="[SharesConfig.RemoveSelectedShares]" HorizontalAlignment="Right">
+            <Button.Command>
+              <CommandList>
+                <Command Source="{StaticResource Model}" Path="RemoveSelectedShares"/>
+                <Command Source="{Service WorkflowManager}" Path="NavigatePop" Parameters="1"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
         </Grid>
       </Grid>
     </ResourceWrapper>

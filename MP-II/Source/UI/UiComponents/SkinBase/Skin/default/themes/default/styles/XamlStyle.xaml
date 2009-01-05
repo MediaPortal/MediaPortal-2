@@ -62,6 +62,9 @@
   <!-- Middle blue, a bit transparent -->
   <ResourceWrapper x:Key="DisabledButtonColor" Resource="#6F2A5EB4"/>
 
+  <!-- Light blue with some green -->
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
+
   <!-- Blue, a bit lighter than the background -->
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FF2866BD"/>
 
@@ -75,6 +78,27 @@
   <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20000000"/>
 
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
+  <!-- White, little bit transparent -->
+  <ResourceWrapper x:Key="RadioButtonDotColor" Resource="#AAFFFFFF"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="CheckBoxCheckColor" Resource="#FFFFFFFF"/>
+
+  <!-- Black -->
+  <ResourceWrapper x:Key="VideoPreviewBorderDarkColor" Resource="#FF000000"/>
+
+  <!-- Dark green -->
+  <ResourceWrapper x:Key="VideoPreviewBorderLightColor" Resource="#FF045935"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="CurrentMediaItemTitleColor" Resource="White"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="CurrentMediaItemArtistColor" Resource="#A0FFFFFF"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
 
   <!-- ************************** Default conversions ****************************** -->
 <!-- Example:
@@ -111,7 +135,7 @@
 
   <!-- ***************************** Storyboards ******************************** -->
 
-  <!-- Storyboard which shows the animation when a Button has focus -->
+  <!-- Storyboard which shows an animation when a Button has focus -->
   <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="Stop">
     <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
       <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
@@ -149,7 +173,7 @@
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <!-- Storyboard which shows the animation when a Button is pressed -->
+  <!-- Storyboard which shows an animation when a Button is pressed -->
   <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradientDark2Color}"/>
@@ -362,7 +386,7 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Control x:Name="OuterCircle" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="#AAFFFFFF" Visibility="Hidden"/>
+            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
             <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -414,7 +438,7 @@
             </Grid.RowDefinitions>
             <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <Control Grid.Column="0" Grid.Row="0" x:Name="OuterCircle" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <Ellipse Grid.Column="0" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="#AAFFFFFF" Visibility="Hidden"/>
+            <Ellipse Grid.Column="0" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -459,7 +483,7 @@
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid Margin="0,2,0,2">
             <Control Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="Check" Visibility="Hidden" Stretch="None" Stroke="#FFFFFFFF" StrokeThickness="2" HorizontalAlignment="Left" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
+            <Path x:Name="Check" Visibility="Hidden" Stretch="None" Stroke="{ThemeResource CheckBoxCheckColor}" StrokeThickness="2" HorizontalAlignment="Left" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -505,10 +529,10 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
-            <Storyboard x:Key="Timeline" FillBehavior="Stop">
+            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="Stroke.Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF000000"/>
-                <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="#FF045935"/>
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource VideoPreviewBorderDarkColor}"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="{ThemeResource VideoPreviewBorderLightColor}"/>
               </ColorAnimationUsingKeyFrames>
               <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="StrokeThickness">
                 <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
@@ -516,25 +540,22 @@
               </DoubleAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
-          <Canvas Width="160" Height="104" Background="Black"/>
-<!-- TODO: Replace canvas by this comment when players service works again
           <Canvas Width="160" Height="104" DataContext="{Binding Source={Service Players}}">
-            <Rectangle x:Name="Border" Width="160" Height="104" Stroke="#FF000000" StrokeThickness="0">
+            <Rectangle x:Name="Border" Width="160" Height="104" Stroke="{ThemeResource VideoPreviewBorderDarkColor}" StrokeThickness="0">
               <Rectangle.Fill>
                 <VideoBrush>
                 </VideoBrush>
               </Rectangle.Fill>
             </Rectangle>
             <Image Canvas.Left="48" Canvas.Top="20" Source="logo_pause.png" Width="64" Height="64" IsVisible="{Binding Paused}"/>
-            <Label Canvas.Left="170" Canvas.Top="10" x:Name="label1" FontSize="28" Width="400" Height="32" Content="{Binding OSD.Title}" Color="White" IsVisible="False"/>
-            <Label Canvas.Left="170" Canvas.Top="42" x:Name="label2" FontSize="20" Width="400" Height="32" Content="{Binding OSD.MediaItem[artist]}" Color="#A0FFFFFF" IsVisible="False"/>
-            <Label Canvas.Left="170" Canvas.Top="72" x:Name="label3" FontSize="20" Width="104" Height="32" Content="{Binding OSD.CurrentTime}" Color="#A0FFFFFF" IsVisible="False"/>
+            <Label Canvas.Left="170" Canvas.Top="10" x:Name="TitleLabel" FontSize="28" Width="400" Height="32" Content="{Binding OSD.Title}" Color="{ThemeResource CurrentMediaItemTitleColor}" IsVisible="False"/>
+            <Label Canvas.Left="170" Canvas.Top="42" x:Name="ArtistLabel" FontSize="20" Width="400" Height="32" Content="{Binding OSD.MediaItem[artist]}" Color="{ThemeResource CurrentMediaItemArtistColor}" IsVisible="False"/>
+            <Label Canvas.Left="170" Canvas.Top="72" x:Name="CurrentTimeLabel" FontSize="20" Width="104" Height="32" Content="{Binding OSD.CurrentTime}" Color="{ThemeResource CurrentMediaItemTimeColor}" IsVisible="False"/>
           </Canvas>
--->
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource Timeline}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.Setters>
                 <Setter TargetName="label1" Property="Visibility" Value="Visible"/>
@@ -1157,6 +1178,17 @@
     </Setter>
   </Style>
 
+  <!-- Container style for the shares list -->
+  <Style x:Key="ShareItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- An item list container for usage as playlist, DOESN'T WORK YET (because of the commands which won't work) -->
   <Style x:Key="ItemPlayListContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
@@ -1204,6 +1236,79 @@
     </Grid>
   </DataTemplate>
 
+   <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
+  <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="Grd1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a simple share entry in the shares list -->
+  <DataTemplate x:Key="ShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Control Focusable="true">
+      <Control.Template>
+        <ControlTemplate>
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="ShareName" Grid.Column="0" Margin="5,0,0,0" Content="{Binding [Name]}" FontSize="22"/>
+            <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22"/>
+          </Grid>
+        </ControlTemplate>
+      </Control.Template>
+      <Control.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
+          <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Control.Triggers>
+    </Control>
+  </DataTemplate>
+
+  <!-- Data template for a markable share entry in the shares list -->
+  <DataTemplate x:Key="MarkableShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="200"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <CheckBox x:Name="Checker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}"/>
+      <Label x:Name="ShareName" Grid.Column="1" Margin="10,0,0,0" Content="{Binding [Name]}" FontSize="22" VerticalAlignment="Center"/>
+      <Label x:Name="SharePath" Grid.Column="2" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
+          <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
   <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
   <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid Height="46">
@@ -1225,18 +1330,6 @@
       </Grid.RowDefinitions>
       <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
       <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Content="{Binding [Name]}" FontSize="28"/>
-    </Grid>
-  </DataTemplate>
-
-   <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
-  <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Grid x:Name="Grd1">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-      </Grid.ColumnDefinitions>
-      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [CoverArt]}" FallbackSource="{Binding [defaulticon]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -1262,16 +1355,28 @@
     </Setter>
   </Style>
 
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
+  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
   <!-- ListView style to be used in the content area of the screens -->
   <Style x:Key="ContentsMenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
-  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
-  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="SharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ShareItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="MarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource MarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ShareItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
