@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -73,10 +74,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       RemoveMargin(ref totalSize);
 
-      SizeF sizeBorderY = new SizeF(0, 0);
-      SizeF sizeBorderX = new SizeF(0, 0);
-      SizeF sizeCenter = new SizeF(0, 0);
-
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -89,50 +86,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height;
 
-      foreach (UIElement child in Children)
-      {
-        if (!child.IsVisible)
-          continue;
-
-        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
-        if (!float.IsNaN(childSize.Width))
-          childSize.Width -= sizeBorderX.Width - Math.Max(sizeBorderY.Width, sizeCenter.Width);
-        if (!float.IsNaN(childSize.Height))
-          childSize.Height -= sizeBorderY.Height - Math.Max(sizeBorderX.Height, sizeCenter.Height);
-        if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
-        {
-          child.Measure(ref childSize);
-
-          sizeBorderY.Height += childSize.Height;
-          if (childSize.Width > sizeBorderY.Width)
-            sizeBorderY.Width = childSize.Width;
-        }
-        else if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
-        {
-          child.Measure(ref childSize);
-
-          sizeBorderX.Width += childSize.Width;
-          if (childSize.Height > sizeBorderX.Height)
-            sizeBorderX.Height = childSize.Height;
-        }
-        else if (GetDock(child) == Dock.Center)
-        {
-          child.Measure(ref childSize);
-
-          if (childSize.Width > sizeCenter.Width)
-            sizeCenter.Width = childSize.Width;
-          if (childSize.Height > sizeCenter.Height)
-            sizeCenter.Height = childSize.Height;
-        }
-      }
+      SizeF cummulatedSize = CalculateDesiredSize(Children.GetEnumerator(), totalSize);
 
       _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
 
       if (double.IsNaN(Width))
-        _desiredSize.Width = sizeBorderX.Width + Math.Max(sizeBorderY.Width, sizeCenter.Width);
+        _desiredSize.Width = cummulatedSize.Width;
 
       if (double.IsNaN(Height))
-        _desiredSize.Height = sizeBorderY.Height + Math.Max(sizeBorderX.Height, sizeCenter.Height);
+        _desiredSize.Height = cummulatedSize.Height;
 
       if (LayoutTransform != null)
         SkinContext.RemoveLayoutTransform();
@@ -303,6 +265,43 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (Screen != null) Screen.Invalidate(this);
       }
       base.Arrange(finalRect);
+    }
+
+    protected static SizeF CalculateDesiredSize(IEnumerator<UIElement> currentChildEnumerator,
+        SizeF currentAvailableSize)
+    {
+      if (!currentChildEnumerator.MoveNext())
+        return new SizeF(0, 0);
+      // Skip invisible children
+      while (!currentChildEnumerator.Current.IsVisible)
+        if (!currentChildEnumerator.MoveNext())
+          return new SizeF(0, 0);
+
+      UIElement child = currentChildEnumerator.Current;
+      SizeF childSize = new SizeF(currentAvailableSize.Width, currentAvailableSize.Height);
+      SizeF nextChildrenDesiredSize;
+
+      if (GetDock(child) == Dock.Top || GetDock(child) == Dock.Bottom)
+      {
+        child.Measure(ref childSize);
+        currentAvailableSize.Height -= childSize.Height;
+        nextChildrenDesiredSize = CalculateDesiredSize(currentChildEnumerator, currentAvailableSize);
+        return new SizeF(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
+            childSize.Height + nextChildrenDesiredSize.Height);
+      }
+      if (GetDock(child) == Dock.Left || GetDock(child) == Dock.Right)
+      {
+        child.Measure(ref childSize);
+        currentAvailableSize.Width -= childSize.Width;
+        nextChildrenDesiredSize = CalculateDesiredSize(currentChildEnumerator, currentAvailableSize);
+        return new SizeF(childSize.Width + nextChildrenDesiredSize.Width,
+            Math.Max(childSize.Height, nextChildrenDesiredSize.Height));
+      }
+      // Else assume center
+      child.Measure(ref childSize);
+      nextChildrenDesiredSize = CalculateDesiredSize(currentChildEnumerator, currentAvailableSize);
+      return new SizeF(Math.Max(childSize.Width, nextChildrenDesiredSize.Width),
+          Math.Max(childSize.Height, nextChildrenDesiredSize.Height));
     }
 
     #region Attached properties
