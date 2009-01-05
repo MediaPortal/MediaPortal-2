@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Language>
   <Section Name="Media">
     <String Name="Name" Text="Media"/>
@@ -19,6 +19,7 @@
     <String Name="CancelSharesConfig" Text="Cancel shares configuration"/>
     <String Name="AddShare" Text="Add share"/>
     <String Name="RemoveShares" Text="Remove shares"/>
-    <String Name="RemoveSelectedShares" Text="Remove selected shares"/>
+    <String Name="SelectSharesToBeRemoved" Text="Please select the shares to be removed"/>
+    <String Name="SelectMediaProviderForNewShare" Text="Please select the media provider for the new share"/>
   </Section>
 </Language>

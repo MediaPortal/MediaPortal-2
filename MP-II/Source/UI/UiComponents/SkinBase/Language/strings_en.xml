@@ -4,9 +4,11 @@
     <String Name="Yes" Text="Yes"/>
     <String Name="No" Text="No"/>
     <String Name="Done" Text="Done"/>
+    <String Name="Finish" Text="Finish"/>
     <String Name="Ok" Text="Ok"/>
     <String Name="Cancel" Text="Cancel"/>
     <String Name="Back" Text="Back"/>
+    <String Name="Continue" Text="Continue"/>
     <String Name="Add" Text="Add"/>
     <String Name="Remove" Text="Remove"/>
 
@@ -31,7 +33,7 @@
     <String Name="General.System.Autostart" Text="Autostart"/>
     <String Name="General.System.Autostart.Help" Text="MediaPortal will start automatically on Windows startup"/>
     <String Name="General.System.Balloontips" Text="Balloon Tips"/>
-    <String Name="General.System.Balloontips.Help" Text="Disable tray area's balloon tips (system wide setting)"/>
+    <String Name="General.System.Balloontips.Help" Text="Disable tray area's balloon tips (setting will be changed system-wide)"/>
 
     <String Name="Regional" Text="Regional"/>
     <String Name="Regional.Language" Text="Language"/>

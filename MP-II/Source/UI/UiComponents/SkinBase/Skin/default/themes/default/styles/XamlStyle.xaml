@@ -1178,8 +1178,8 @@
     </Setter>
   </Style>
 
-  <!-- Container style for the shares list -->
-  <Style x:Key="ShareItemContainerStyle" TargetType="{x:Type ListViewItem}">
+  <!-- Container style for a simple list -->
+  <Style x:Key="DefaultItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -1280,8 +1280,8 @@
     </Control>
   </DataTemplate>
 
-  <!-- Data template for a markable share entry in the shares list -->
-  <DataTemplate x:Key="MarkableShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+  <!-- Data template for a share entry markable by a checkbox in the shares list -->
+  <DataTemplate x:Key="MultiMarkableShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ParentPanel">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -1291,7 +1291,7 @@
         <ColumnDefinition Width="200"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <CheckBox x:Name="Checker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+      <CheckBox x:Name="Marker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
           IsChecked="{Binding Path=Selected,Mode=TwoWay}"/>
       <Label x:Name="ShareName" Grid.Column="1" Margin="10,0,0,0" Content="{Binding [Name]}" FontSize="22" VerticalAlignment="Center"/>
       <Label x:Name="SharePath" Grid.Column="2" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
@@ -1299,6 +1299,32 @@
         <Trigger Property="IsMouseOver" Value="True">
           <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
           <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a share entry markable by a checkbox in the shares list -->
+  <DataTemplate x:Key="SingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <RadioButton x:Name="Marker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"/>
+      <Label x:Name="NameLabel" Grid.Column="1" Margin="10,0,0,0" Content="{Binding [Name]}" FontSize="22" VerticalAlignment="Center"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
               <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
@@ -1370,13 +1396,19 @@
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{StaticResource ShareItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ShareItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="MarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource MarkableShareItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ShareItemContainerStyle}"/>
+  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource MultiMarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource SingleMarkableItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->

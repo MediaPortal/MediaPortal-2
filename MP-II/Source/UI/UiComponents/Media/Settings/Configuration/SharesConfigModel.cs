@@ -47,20 +47,29 @@ namespace UiComponents.Media.Settings.Configuration
     public const string SHARESCONFIG_MODEL_ID_STR = "1768FC91-86B9-4f78-8A4C-E204F0D51502";
 
     public const string SHARES_OVERVIEW_STATE_ID_STR = "36B3F24A-29B4-4cb4-BC7D-434C51491CD2";
-    public const string SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
-    public const string REMOVE_SHARES_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
 
-    public const string SHARE_NAME_KEY = "Name";
-    public const string SHARE_ID_KEY = "Id";
-    public const string SHARE_PATH_KEY = "Path";
+    public const string REMOVE_SHARES_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
+    
+    public const string SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+
+    public const string NAME_KEY = "Name";
+    public const string ID_KEY = "Id";
+    public const string PATH_KEY = "Path";
     public const string SHARE_MEDIAPROVIDER_KEY = "MediaProvider";
     public const string SHARE_CATEGORY_KEY = "Category";
+
+    public static Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
+    
+    public static Guid REMOVE_SHARES_STATE_ID = new Guid(REMOVE_SHARES_STATE_ID_STR);
+
+    public static Guid SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
 
     #endregion
 
     #region Protected fields
 
     protected ItemsList _sharesList;
+    protected ItemsList _mediaProvidersList;
 
     #endregion
 
@@ -69,7 +78,7 @@ namespace UiComponents.Media.Settings.Configuration
     public SharesConfigModel()
     {
       _sharesList = new ItemsList();
-      UpdateSharesList();
+      _mediaProvidersList = new ItemsList();
     }
 
     #endregion
@@ -79,6 +88,11 @@ namespace UiComponents.Media.Settings.Configuration
     public ItemsList Shares
     {
       get { return _sharesList; }
+    }
+
+    public ItemsList MediaProviders
+    {
+      get { return _mediaProvidersList; }
     }
 
     #endregion
@@ -92,11 +106,16 @@ namespace UiComponents.Media.Settings.Configuration
       {
         if (shareItem.Selected)
         {
-          Guid shareId = new Guid(shareItem[SHARE_ID_KEY]);
+          Guid shareId = new Guid(shareItem[ID_KEY]);
           mediaManager.RemoveShare(shareId);
         }
       }
       UpdateSharesList();
+    }
+
+    public void SelectMediaProviderAndContinue()
+    {
+      // TODO
     }
 
     #endregion
@@ -111,9 +130,9 @@ namespace UiComponents.Media.Settings.Configuration
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       foreach (ShareDescriptor share in mediaManager.GetSharesBySystem(SystemName.GetLocalSystemName()).Values)
       {
-        ListItem shareItem = new ListItem(SHARE_NAME_KEY, share.Name);
-        shareItem.SetLabel(SHARE_ID_KEY, share.ShareId.ToString());
-        shareItem.SetLabel(SHARE_PATH_KEY, share.Path);
+        ListItem shareItem = new ListItem(NAME_KEY, share.Name);
+        shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
+        shareItem.SetLabel(PATH_KEY, share.Path);
         IMediaProvider mediaProvider;
         if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
           mediaProvider = null;
@@ -121,6 +140,35 @@ namespace UiComponents.Media.Settings.Configuration
         string categories = StringUtils.Join(", ", share.MediaCategories);
         shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
         _sharesList.Add(shareItem);
+      }
+    }
+
+    protected void UpdateMediaProviderList()
+    {
+      _mediaProvidersList.Clear();
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      foreach (IMediaProvider mediaProvider in mediaManager.LocalMediaProviders.Values)
+      {
+        MediaProviderMetadata metadata = mediaProvider.Metadata;
+        ListItem mediaProviderItem = new ListItem(NAME_KEY, metadata.Name);
+        mediaProviderItem.SetLabel(ID_KEY, metadata.MediaProviderId.ToString());
+        _mediaProvidersList.Add(mediaProviderItem);
+      }
+    }
+
+    protected void PrepareState(Guid workflowState)
+    {
+      if (workflowState == SHARES_OVERVIEW_STATE_ID)
+      {
+        UpdateSharesList();
+      }
+      else if (workflowState == REMOVE_SHARES_STATE_ID)
+      {
+        UpdateSharesList();
+      }
+      else if (workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
+      {
+        UpdateMediaProviderList();
       }
     }
 
@@ -135,7 +183,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      PrepareState(newContext.WorkflowState.StateId);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -145,7 +193,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      // TODO
+      PrepareState(newContext.WorkflowState.StateId);
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -155,7 +203,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      PrepareState(newContext.WorkflowState.StateId);
     }
 
     public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
