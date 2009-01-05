@@ -1,8 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="Settings">
     <String Name="Appearance.System" Text="System"/>
+    <String Name="Appearance.Skin" Text="Skin"/>
     <String Name="Appearance.System.Fullscreen" Text="Fullscreen"/>
     <String Name="Appearance.System.Fullscreen.Help" Text="Show MediaPortal in fullscreen mode"/>
+    <String Name="Appearance.Skin.SkinAndTheme" Text="Skin and theme"/>
+    <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin" Text="Change skin"/>
+    <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin.Help" Text="Change the look&amp;feel of MediaPortal II"/>
+    <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme" Text="Change theme"/>
+    <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme.Help" Text="Change the current skin's presentation"/>
   </Section>
 </Language>

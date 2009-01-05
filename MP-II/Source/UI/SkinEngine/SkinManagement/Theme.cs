@@ -61,6 +61,16 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public Theme(string name, Skin parentSkin): base(name, parentSkin)
     { }
 
+    public string ShortDescription
+    {
+      get { return _description; }
+    }
+
+    public string PreviewResourceKey
+    {
+      get { return _previewResourceKey; }
+    }
+
     /// <summary>
     /// Returns the information if the resources of this skin are complete
     /// (i.e. if the theme meta file could be read).

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,9 +23,10 @@
 #endregion
 
 using MediaPortal.Core.Settings;
-namespace MediaPortal.SkinEngine
+
+namespace MediaPortal.SkinEngine.Settings
 {
-  public class ScreenSettings
+  public class SkinSettings
   {
     string _skin;
     string _theme;

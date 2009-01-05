@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -143,6 +143,7 @@
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
+    <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
@@ -244,9 +245,7 @@
     <Compile Include="GUI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="InputManagement\InputManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="InputManagement\InputManager.cs" />
     <Compile Include="MarkupExtensions\BindingDependency.cs" />
     <Compile Include="MarkupExtensions\BindingBase.cs" />
     <Compile Include="MarkupExtensions\CommandMarkupExtension.cs" />
@@ -291,7 +290,9 @@
     <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
-    <Compile Include="Settings\Configuration\Fullscreen.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Fullscreen.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfiguration.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfiguration.cs" />
     <Compile Include="Xaml\ParserHelper.cs" />
     <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
@@ -300,7 +301,6 @@
     <Compile Include="ScreenManagement\Animator.cs" />
     <Compile Include="ScreenManagement\Screen.cs" />
     <Compile Include="ScreenManagement\ScreenManager.cs" />
-    <Compile Include="ScreenManagement\ScreenSettings.cs" />
     <Compile Include="Xaml\Interfaces\IInitializable.cs" />
     <Compile Include="Xaml\DefaultNamespaceHandler.cs" />
     <Compile Include="Xaml\ElementContextStack.cs" />
@@ -329,6 +329,8 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\screenfiles\skinengine_config_skin_dialog.xaml"/>
+    <Content Include="Skin\default\screenfiles\skinengine_config_theme_dialog.xaml"/>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\MainForm.resx">
@@ -348,6 +350,8 @@
     <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
 xcopy /Y /S "$(ProjectDir)Language\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
+xcopy /Y /S "$(ProjectDir)Skin\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimDx.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"

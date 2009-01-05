@@ -123,24 +123,33 @@ namespace MediaPortal.SkinEngine.SkinManagement
       // they are not implemented in the current theme/skin.
       // If we wanted strictly not to mix resources between themes, the next
       // if-block should be removed. This will avoid the fallback to our inherited resources.
-      else if (_inheritedSkinResources != null)
+      if (_inheritedSkinResources != null)
         return _inheritedSkinResources.FindStyleResource(resourceKey);
-      else
-        return null;
+      return null;
     }
 
     public string GetResourceFilePath(string resourceName)
+    {
+      return GetResourceFilePath(resourceName, true);
+    }
+
+    public string GetResourceFilePath(string resourceName, bool searchInheritedResources)
     {
       CheckResourcesInitialized();
       string key = resourceName.ToLower();
       if (_localResourceFilePaths.ContainsKey(key))
         return _localResourceFilePaths[key];
-      else if (_inheritedSkinResources != null)
+      if (searchInheritedResources && _inheritedSkinResources != null)
         return _inheritedSkinResources.GetResourceFilePath(resourceName);
       return null;
     }
 
     public IDictionary<string, string> GetResourceFilePaths(string regExPattern)
+    {
+      return GetResourceFilePaths(regExPattern, true);
+    }
+
+    public IDictionary<string, string> GetResourceFilePaths(string regExPattern, bool searchInheritedResources)
     {
       CheckResourcesInitialized();
       Dictionary<string, string> result = new Dictionary<string, string>();
@@ -148,7 +157,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       foreach (KeyValuePair<string, string> kvp in _localResourceFilePaths)
         if (regex.IsMatch(kvp.Key))
           result.Add(kvp.Key, kvp.Value);
-      if (_inheritedSkinResources != null)
+      if (searchInheritedResources && _inheritedSkinResources != null)
         foreach (KeyValuePair<string, string> kvp in _inheritedSkinResources.GetResourceFilePaths(regExPattern))
           if (!result.ContainsKey(kvp.Key))
             result.Add(kvp.Key, kvp.Value);

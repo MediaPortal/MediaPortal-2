@@ -20,19 +20,52 @@
     <Resource Id="SkinEngineLanguage" Directory="Language" Type="Language"/>
   </Register>
 
+  <Register Location="/Resources/Skin">
+    <Resource Id="SkinEngineSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigGroup
         Id="System"
         Redundant="true"
         Text="[Settings.Appearance.System]"/>
+    <ConfigSection
+        Id="Skin"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin]"/>
   </Register>
 
+  <!-- Contents of '/Appearance/System' group -->
   <Register Location="/Configuration/Settings/Appearance/System">
     <ConfigSetting
         Id="Fullscreen"
         Text="[Settings.Appearance.System.Fullscreen]"
-        HelpText="[Settings.Appearance.System.Fullscreen.help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Fullscreen"/>
+        HelpText="[Settings.Appearance.System.Fullscreen.Help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Fullscreen"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin' section -->
+  <Register Location="/Configuration/Settings/Appearance/Skin">
+    <ConfigGroup
+        Id="SkinAndTheme"
+        Redundant="true"
+        Text="[Settings.Appearance.Skin.SkinAndTheme]"/>
+  </Register>
+
+  <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
+  <Register Location="/Configuration/Settings/Appearance/Skin/SkinAndTheme">
+    <CustomConfigSetting
+        Id="Skin"
+        Text="[Settings.Appearance.Skin.SkinAndTheme.ChangeSkin]"
+        HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfiguration"
+        AdditionalData="DialogScreen=skinengine_config_skin_dialog,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="Theme"
+        Text="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme]"
+        HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfiguration"
+        AdditionalData="DialogScreen=skinengine_config_theme_dialog,ConfAppPanel=..."/>
   </Register>
 </Plugin>

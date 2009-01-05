@@ -78,6 +78,21 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
     }
 
+    public string ShortDescription
+    {
+      get { return _description; }
+    }
+
+    public string UsageNote
+    {
+      get { return _usageNote; }
+    }
+
+    public string PreviewResourceKey
+    {
+      get { return _previewResourceKey; }
+    }
+
     /// <summary>
     /// Returns the information if the resources of this skin are complete
     /// (i.e. if the skin meta file could be read).

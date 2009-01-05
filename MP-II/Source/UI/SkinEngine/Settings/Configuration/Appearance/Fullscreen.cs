@@ -23,13 +23,14 @@
 
 #endregion
 
-using System;
 using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core;
+using MediaPortal.Presentation.Screen;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration
+namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
-  /// Configuration item for the fullscreen setting.
+  /// Configuration setting class to change the fullscreen setting.
   /// </summary>
   public class Fullscreen : YesNo
   {
@@ -45,6 +46,15 @@ namespace MediaPortal.SkinEngine.Settings.Configuration
       AppSettings settings = SettingsManager.Load<AppSettings>();
       settings.FullScreen = _yes;
       SettingsManager.Save(settings);
+    }
+
+    public override void Apply()
+    {
+      IScreenControl sc = ServiceScope.Get<IScreenControl>();
+      if (_yes)
+        sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+      else
+        sc.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
     }
 
     #endregion

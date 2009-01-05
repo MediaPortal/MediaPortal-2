@@ -33,6 +33,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
+using MediaPortal.SkinEngine.Settings;
 using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.ScreenManagement
@@ -60,7 +61,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public ScreenManager()
     {
-      ScreenSettings screenSettings = ServiceScope.Get<ISettingsManager>().Load<ScreenSettings>();
+      SkinSettings screenSettings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       _skinManager = new SkinManager();
 
       string skinName = screenSettings.Skin;
@@ -293,7 +294,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         InternalShowScreen(_currentScreen);
       }
-      ScreenSettings settings = ServiceScope.Get<ISettingsManager>().Load<ScreenSettings>();
+      SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
       ServiceScope.Get<ISettingsManager>().Save(settings);
