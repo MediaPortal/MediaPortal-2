@@ -58,14 +58,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _isCheckedProperty.Attach(OnCheckChanged);
       _groupNameProperty.Attach(OnGroupNameChanged);
-      _isPressedProperty.Attach(OnButtonPressed);
+      _isPressedProperty.Attach(OnButtonPressedChanged);
     }
 
     void Detach()
     {
       _isCheckedProperty.Detach(OnCheckChanged);
       _groupNameProperty.Detach(OnGroupNameChanged);
-      _isPressedProperty.Detach(OnButtonPressed);
+      _isPressedProperty.Detach(OnButtonPressedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -83,12 +83,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Private/protected methods
 
-    void OnButtonPressed(Property property)
+    void OnButtonPressedChanged(Property property)
     {
       // Copy the "IsPressed" status to "IsChecked". This will automatically clear the
       // "IsChecked" status at other radio buttons.
       // This event will be triggered before the button executes its command.
-      IsChecked = IsPressed;
+      if (IsPressed)
+        IsChecked = IsPressed;
     }
 
     void OnGroupNameChanged(Property property)
