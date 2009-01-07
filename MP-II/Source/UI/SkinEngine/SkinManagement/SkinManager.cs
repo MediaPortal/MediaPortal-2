@@ -59,7 +59,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
       public void Stop(PluginItemRegistration itemRegistration)
       {
-        _skinManager.ReloadSkins();
+        _skinManager.SkinResourcesWereChanged();
       }
 
       public void Continue(PluginItemRegistration itemRegistration) { }
@@ -78,7 +78,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
       public void ItemsWereAdded(string location, ICollection<PluginItemMetadata> items)
       {
-        _skinManager.ReloadSkins();
+        _skinManager.SkinResourcesWereChanged();
       }
 
       public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
@@ -166,7 +166,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       // We won't clear the skins so we don't loose our object references to the skins
       foreach (Skin skin in _skins.Values)
+      {
         skin.Release();
+        skin.ClearRootDirectories();
+      }
 
       foreach (string rootDirectoryPath in GetSkinRootDirectoryPaths())
         if (Directory.Exists(rootDirectoryPath))
@@ -178,9 +181,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
               if (skinName.StartsWith("."))
                 continue;
               Skin skin;
-              if (_skins.ContainsKey(skinName))
-                skin = _skins[skinName];
-              else
+              if (!_skins.TryGetValue(skinName, out skin))
                 skin = _skins[skinName] = new Skin(skinName);
               skin.AddRootDirectory(skinDirectoryPath);
             }

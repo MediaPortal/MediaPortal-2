@@ -175,7 +175,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
       base.Release();
       if (_themes != null)
         foreach (Theme theme in _themes.Values)
+        {
           theme.Release();
+          theme.ClearRootDirectories();
+        }
     }
 
     /// <summary>

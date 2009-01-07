@@ -25,11 +25,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.SkinEngine.SkinManagement
@@ -60,6 +62,35 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public const string MEDIA_DIRECTORY = "media";
     public const string WORKFLOW_DIRECTORY = "workflow";
 
+    protected enum LoadState
+    {
+      Pending,
+      Loading,
+    }
+
+    protected class PendingResource
+    {
+      protected string _resourcePath;
+      protected LoadState _loadState;
+
+      public PendingResource(string resourcePath)
+      {
+        _resourcePath = resourcePath;
+        _loadState = LoadState.Pending;
+      }
+
+      public string ResourcePath
+      {
+        get { return _resourcePath; }
+      }
+
+      public LoadState State
+      {
+        get { return _loadState; }
+        set { _loadState = value; }
+      }
+    }
+
     #region Protected fields
 
     protected IList<string> _rootDirectoryPaths = new List<string>();
@@ -76,9 +107,17 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected IDictionary<string, string> _localResourceFilePaths = null;
 
     /// <summary>
-    /// Lazy initialized style resources.
+    /// Lazy initialized style resources. Will contain the total of all style resources when
+    /// the style loading has finished.
     /// </summary>
     protected ResourceDictionary _localStyleResources = null;
+
+    /// <summary>
+    /// Dictionary where we store the load state of all style resource files,
+    /// for resolving style dependencies.
+    /// </summary>
+    protected IDictionary<string, PendingResource> _pendingStyleResources = null;
+
     protected SkinResources _inheritedSkinResources;
 
     // Meta information
@@ -195,7 +234,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     public void ClearRootDirectories()
     {
-      Release();
       _rootDirectoryPaths.Clear();
     }
 
@@ -235,7 +273,69 @@ namespace MediaPortal.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Will trigger the lazy initialization on request.
+    /// Tries to load a single style resource file. This method is for the special case
+    /// that we are currently in the process of loading styles and while loading a style
+    /// resource, another style resource is referenced.
+    /// </summary>
+    /// <remarks>
+    /// If this method is called during the process of initializing the styles (like specified),
+    /// it will prepone the loading of the style resource with the specified
+    /// <paramref name="styleResourceName"/>. It will also detect cyclic dependencies.
+    /// If it is called before the styles initialization, it will simply initialize all
+    /// style resources.
+    /// If called after the process of styles initialization, it will simply return
+    /// (all style resources already have been initialized before).
+    /// </remarks>
+    internal void CheckStyleResourceWasLoaded(string styleResourceName)
+    {
+      if (_localStyleResources == null)
+        // Method was called before the styles initialization
+        CheckStylesInitialized();
+      else if (_pendingStyleResources == null)
+        // Method was called after the styles initialization has already finished
+        return;
+      else
+      { // Do the actual work
+        string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName + ".xaml";
+        if (!_pendingStyleResources.ContainsKey(resourceKey))
+        {
+          if (_inheritedSkinResources != null)
+            _inheritedSkinResources.CheckStyleResourceWasLoaded(resourceKey);
+          return;
+        }
+        LoadStyleResource(resourceKey);
+      }
+    }
+
+    protected void LoadStyleResource(string resourceKey)
+    {
+      PendingResource pr;
+      if (!_pendingStyleResources.TryGetValue(resourceKey, out pr))
+        return;
+      if (pr.State == LoadState.Loading)
+        throw new CircularReferenceException(
+            string.Format("Style resource '{0}' is part of a circular reference", resourceKey));
+      pr.State = LoadState.Loading;
+      try
+      {
+        ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath) as ResourceDictionary;
+        if (rd == null)
+          throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
+              "' has to contain a ResourceDictionary as root element");
+        _localStyleResources.Merge(rd);
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("SkinResources: Error loading style resource '{0}'", ex, pr.ResourcePath);
+      }
+      finally
+      {
+        _pendingStyleResources.Remove(resourceKey);
+      }
+    }
+
+    /// <summary>
+    /// Will trigger the lazy initialization of styles on request.
     /// </summary>
     protected virtual void CheckStylesInitialized()
     {
@@ -247,26 +347,21 @@ namespace MediaPortal.SkinEngine.SkinManagement
         // style resources from lower priority skin resource styles.
         // Setting _localStyleResources to an empty ResourceDictionary here will avoid the repeated call of this method.
         _localStyleResources = new ResourceDictionary();
-        foreach (KeyValuePair<string, string> resource in _localResourceFilePaths)
-        {
-          string resourceKey = resource.Key;
-          if (resourceKey.StartsWith(STYLES_DIRECTORY) &&
-              resourceKey.Substring(STYLES_DIRECTORY.Length + 1).IndexOf('\\') == -1)
-          {
-            try
-            {
-              ResourceDictionary rd = XamlLoader.Load(resource.Value) as ResourceDictionary;
-              if (rd == null)
-                throw new InvalidCastException("Style resource file '" + resource.Value +
-                    "' doesn't contain a ResourceDictionary");
-              _localStyleResources.Merge(rd);
-            }
-            catch (Exception ex)
-            {
-              ServiceScope.Get<ILogger>().Error("SkinResources: Error loading style resource '{0}'", ex, resource.Value);
-            }
-          }
-        }
+
+        // Collect all style resources to be loaded
+        _pendingStyleResources = new Dictionary<string, PendingResource>();
+        foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
+            "^" + STYLES_DIRECTORY + "\\\\.*\\.xaml", false))
+          _pendingStyleResources[resource.Key] = new PendingResource(resource.Value);
+        // Load all pending resources. We use this complicated way because during the loading of
+        // each style resource, another dependent resource might be requested to be loaded first.
+        // Thats why we have to make use of this mixture of sequential and recursive
+        // loading algorithm.
+        KeyValuePair<string, PendingResource> kvp;
+        while ((kvp = _pendingStyleResources.FirstOrDefault(
+            kvpArg => kvpArg.Value.State == LoadState.Pending)).Key != null)
+          LoadStyleResource(kvp.Key);
+        _pendingStyleResources = null;
       }
     }
 
@@ -279,7 +374,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
         string resourceName = resourceFilePath.Substring(directoryNameLength).ToLower();
         if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
           resourceName = resourceName.Substring(1);
-        if (!_localResourceFilePaths.ContainsKey(resourceName))
+        if (_localResourceFilePaths.ContainsKey(resourceName))
+          ServiceScope.Get<ILogger>().Warn("SkinResources: Duplicate skin resource '{0}', using resource from '{1}'",
+              resourceName, _localResourceFilePaths[resourceName]);
+        else
           _localResourceFilePaths[resourceName] = resourceFilePath;
       }
     }

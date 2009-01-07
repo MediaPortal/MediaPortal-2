@@ -70,4 +70,15 @@ namespace MediaPortal.Utilities.Exceptions
     public EnvironmentException(string msg, Exception ex, params object[] args) :
       base(string.Format(msg, args), ex) { }
   }
+
+  /// <summary>
+  /// Thrown if a circular reference is detected.
+  /// </summary>
+  public class CircularReferenceException : ApplicationException
+  {
+    public CircularReferenceException(string msg, params object[] args) :
+      base(string.Format(msg, args)) { }
+    public CircularReferenceException(string msg, Exception ex, params object[] args) :
+      base(string.Format(msg, args), ex) { }
+  }
 }

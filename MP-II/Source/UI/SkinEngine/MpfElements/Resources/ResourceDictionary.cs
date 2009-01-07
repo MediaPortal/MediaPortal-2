@@ -40,6 +40,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     #region Protected fields
 
     protected string _source = "";
+    protected ICollection<string> _dependsOnStyleResources = new List<string>();
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected INameScope _parent = null;
@@ -83,6 +84,22 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       set { _source = value; }
     }
 
+    /// <summary>
+    /// Can be used to declare dependencies to some style resources. If specified, this
+    /// <see cref="ResourceDictionary"/> will try to load the specified style resources
+    /// first.
+    /// </summary>
+    /// <remarks>
+    /// Each value specified in this collection should denote the name of a style resource
+    /// file, that means a file name relative to the style directory, without the ".xaml"
+    /// extension.
+    /// </remarks>
+    public ICollection<string> DependsOnStyleResources
+    {
+      get { return _dependsOnStyleResources; }
+      set { _dependsOnStyleResources = value; }
+    }
+
     public IDictionary<object, object> UnderlayingDictionary
     {
       get { return _resources; }
@@ -119,6 +136,8 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     public override void Initialize(IParserContext context)
     {
       base.Initialize(context);
+      foreach (string styleResource in _dependsOnStyleResources)
+        SkinContext.SkinResources.CheckStyleResourceWasLoaded(styleResource);
       if (!string.IsNullOrEmpty(_source))
       {
         string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);
