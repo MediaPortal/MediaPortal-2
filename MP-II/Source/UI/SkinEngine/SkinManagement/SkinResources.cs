@@ -296,7 +296,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return;
       else
       { // Do the actual work
-        string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName + ".xaml";
+        string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
         if (!_pendingStyleResources.ContainsKey(resourceKey))
         {
           if (_inheritedSkinResources != null)
@@ -351,7 +351,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         // Collect all style resources to be loaded
         _pendingStyleResources = new Dictionary<string, PendingResource>();
         foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
-            "^" + STYLES_DIRECTORY + "\\\\.*\\.xaml", false))
+            "^" + STYLES_DIRECTORY + "\\\\.*\\.xaml$", false))
           _pendingStyleResources[resource.Key] = new PendingResource(resource.Value);
         // Load all pending resources. We use this complicated way because during the loading of
         // each style resource, another dependent resource might be requested to be loaded first.

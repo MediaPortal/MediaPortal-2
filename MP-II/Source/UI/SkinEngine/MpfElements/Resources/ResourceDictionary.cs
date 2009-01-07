@@ -29,13 +29,14 @@ using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 
-  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, IInitializable, INameScope, IDeepCopyable
+  public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope
   {
     #region Protected fields
 
@@ -90,14 +91,26 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     /// first.
     /// </summary>
     /// <remarks>
-    /// Each value specified in this collection should denote the name of a style resource
+    /// The styles have to be given in a comma-separated list of style resources.
+    /// Each value specified in this list should denote the name of a style resource
     /// file, that means a file name relative to the style directory, without the ".xaml"
     /// extension.
     /// </remarks>
-    public ICollection<string> DependsOnStyleResources
+    public string DependsOnStyleResources
     {
-      get { return _dependsOnStyleResources; }
-      set { _dependsOnStyleResources = value; }
+      get { return StringUtils.Join(", ", _dependsOnStyleResources); }
+      set
+      {
+        if (value == null)
+          return;
+        string[] styleResources = value.Split(',');
+        _dependsOnStyleResources.Clear();
+        foreach (string styleResource in styleResources)
+        {
+          _dependsOnStyleResources.Add(styleResource.Trim());
+          SkinContext.SkinResources.CheckStyleResourceWasLoaded(styleResource);
+        }
+      }
     }
 
     public IDictionary<object, object> UnderlayingDictionary
@@ -136,8 +149,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     public override void Initialize(IParserContext context)
     {
       base.Initialize(context);
-      foreach (string styleResource in _dependsOnStyleResources)
-        SkinContext.SkinResources.CheckStyleResourceWasLoaded(styleResource);
       if (!string.IsNullOrEmpty(_source))
       {
         string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_source);

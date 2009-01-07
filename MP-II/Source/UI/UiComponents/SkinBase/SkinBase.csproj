@@ -479,7 +479,11 @@
     <Content Include="Skin\default\themes\default\theme.xml" />
     <Content Include="Skin\default\themes\default\media\preview.png" />
     <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml" />
-    <Content Include="Skin\default\themes\default\styles\XamlStyle.xaml" />
+    <Content Include="Skin\default\themes\default\styles\OtherControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\default\themes\default\styles\Buttons.xaml" />
     <Content Include="Skin\default\themes\default\styles\styles_osd.xaml" />
   </ItemGroup>
   <ItemGroup>

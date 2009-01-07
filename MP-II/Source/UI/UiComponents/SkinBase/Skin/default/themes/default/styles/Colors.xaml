@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- ***************************** Colors ******************************** -->
+
+  <!-- Light blue -->
+  <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF5C9AE6"/>
+
+  <!-- Dark blue -->
+  <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF1253A3"/>
+
+  <!-- Light blue, little bit darker than BackgroundGradientLightColor and a bit transparent -->
+  <ResourceWrapper x:Key="DialogBackgroundGradientLightColor" Resource="#EF105EB8"/>
+
+  <!-- Dark blue, little bit darker than BackgroundGradientDarkColor and a bit transparent -->
+  <ResourceWrapper x:Key="DialogBackgroundGradientDarkColor" Resource="#EF0C4191"/>
+
+  <!-- Light blue progressbar border -->
+  <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FF8DA7CD"/>
+
+  <!-- Green progressbar fill -->
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF19A05D"/>
+
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Blue, a bit darker than the stroke -->
+  <ResourceWrapper x:Key="ButtonGradientLightColor" Resource="#FF2A5EB4"/>
+
+  <!-- Blue, a bit darker than the stroke -->
+  <ResourceWrapper x:Key="ButtonGradientDarkColor" Resource="#FF2A5EB4"/>
+
+  <!-- Light green -->
+  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#FF49D5B4"/>
+
+  <!-- Lighter green -->
+  <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FF52E5C2"/>
+
+  <!-- Dark green -->
+  <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FF05814D"/>
+
+  <!-- A bit lighter than dark green -->
+  <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#FF19A05D"/>
+
+  <!-- Very light green -->
+  <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#FFFCFCFC"/>
+
+  <!-- Darker light green -->
+  <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#FF49D5B4"/>
+
+  <!-- Dark green -->
+  <ResourceWrapper x:Key="PressedButtonGradientDark1Color" Resource="#FF22B578"/>
+
+  <!-- Darker dark green -->
+  <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF045935"/>
+
+  <!-- Middle blue, a bit transparent -->
+  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#6F2A5EB4"/>
+
+  <!-- Light blue with some green -->
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
+
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Black with background shining through -->
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10000000"/>
+
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Light blue -->
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20000000"/>
+
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
+  <!-- White, little bit transparent -->
+  <ResourceWrapper x:Key="RadioButtonDotColor" Resource="#AAFFFFFF"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="CheckBoxCheckColor" Resource="#FFFFFFFF"/>
+
+  <!-- Black -->
+  <ResourceWrapper x:Key="VideoPreviewBorderDarkColor" Resource="#FF000000"/>
+
+  <!-- Dark green -->
+  <ResourceWrapper x:Key="VideoPreviewBorderLightColor" Resource="#FF045935"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="CurrentMediaItemTitleColor" Resource="White"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="CurrentMediaItemArtistColor" Resource="#A0FFFFFF"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
+
+</ResourceDictionary>
