@@ -612,9 +612,14 @@ namespace MediaPortal.Core.Services.PluginManager
         foreach (string parentName in plugin.Metadata.DependsOn)
         {
           PluginRuntime parent = _availablePlugins[parentName];
-          logger.Debug("PluginManager: Processing dependency '{0}' for plugin '{1}'", parentName, pluginName);
+          logger.Debug("PluginManager: Checking activation of plugin dependency '{0}' for plugin '{1}'",
+              parentName, pluginName);
           if (!TryActivate(parent))
+          {
+            logger.Debug("PluginManager: Dependent plugin '{0}' could not be activated. Activation of plugin '{1}' was not successful.",
+                parentName, pluginName);
             return false;
+          }
         }
         // Activate plugin
         plugin.LoadAssemblies();
