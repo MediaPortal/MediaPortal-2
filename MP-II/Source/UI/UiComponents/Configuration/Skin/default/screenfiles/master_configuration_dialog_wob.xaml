@@ -48,7 +48,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <ContentPresenter Content="{DynamicResource Config_Contents_Element}"
-            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       </Grid>
     </ResourceWrapper>
   </Include.Resources>

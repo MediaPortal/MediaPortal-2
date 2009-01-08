@@ -31,7 +31,6 @@ using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals

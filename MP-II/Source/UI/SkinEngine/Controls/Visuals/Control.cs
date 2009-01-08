@@ -393,6 +393,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       RemoveMargin(ref totalSize);
 
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
       FrameworkElement templateControl = TemplateControl;
       SizeF childSize;
 
