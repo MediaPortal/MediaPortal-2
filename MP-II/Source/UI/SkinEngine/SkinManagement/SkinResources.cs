@@ -288,6 +288,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </remarks>
     internal void CheckStyleResourceWasLoaded(string styleResourceName)
     {
+      string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
       if (_localStyleResources == null)
         // Method was called before the styles initialization
         CheckStylesInitialized();
@@ -296,7 +297,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return;
       else
       { // Do the actual work
-        string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
         if (!_pendingStyleResources.ContainsKey(resourceKey))
         {
           if (_inheritedSkinResources != null)
@@ -305,6 +305,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
         }
         LoadStyleResource(resourceKey);
       }
+      if (GetResourceFilePath(resourceKey) == null)
+        ServiceScope.Get<ILogger>().Warn("SkinResources: Requested style resource '{0}' could not be found", resourceKey);
     }
 
     protected void LoadStyleResource(string resourceKey)
