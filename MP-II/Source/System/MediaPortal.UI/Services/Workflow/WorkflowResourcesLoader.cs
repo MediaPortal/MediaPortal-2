@@ -45,8 +45,6 @@ namespace MediaPortal.Services.Workflow
     public const string WORKFLOW_DIRECTORY = "workflow";
 
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
-    protected IDictionary<Guid, ICollection<Guid>> _additionalModels =
-        new Dictionary<Guid, ICollection<Guid>>();
     protected IDictionary<Guid, WorkflowStateAction> _menuActions =
         new Dictionary<Guid, WorkflowStateAction>();
     protected IDictionary<Guid, WorkflowStateAction> _contextMenuActions =
@@ -74,25 +72,12 @@ namespace MediaPortal.Services.Workflow
     public void Load()
     {
       _states.Clear();
-      _additionalModels.Clear();
       _menuActions.Clear();
       _contextMenuActions.Clear();
       IDictionary<string, string> workflowResources = ServiceScope.Get<ISkinResourceManager>().
           SkinResourceContext.GetResourceFilePaths("^" + WORKFLOW_DIRECTORY + "\\\\.*\\.xml$");
       foreach (string workflowResourceFilePath in workflowResources.Values)
         LoadWorkflowResourceFile(workflowResourceFilePath);
-
-      foreach (Guid stateId in new List<Guid>(_additionalModels.Keys))
-        if (_states.ContainsKey(stateId))
-        {
-          CollectionUtils.AddAll(_states[stateId].AdditionalModels, _additionalModels[stateId]);
-          // Not necessary to remove the entry here but this reflects the fact that the additional models
-          // for this state have been moved to the state instance
-          _additionalModels.Remove(stateId);
-        }
-        else
-          ServiceScope.Get<ILogger>().Info(
-              "There are additional model attachments for workflow state '{0}', but the state is not known. The current skin might cover more workflow states than available.", stateId);
     }
 
     protected void LoadWorkflowResourceFile(string filePath)
@@ -181,15 +166,6 @@ namespace MediaPortal.Services.Workflow
                   state.StateId, _states[state.StateId].Name, state.Name));
             _states.Add(state.StateId, state);
             break;
-          case "AdditionalModels":
-            Guid stateId;
-            ICollection<Guid> additionalModels = new List<Guid>();
-            LoadAdditionalModels(childElement, out stateId, additionalModels);
-            if (_additionalModels.ContainsKey(stateId))
-              CollectionUtils.AddAll(_additionalModels[stateId], additionalModels);
-            else
-              _additionalModels[stateId] = additionalModels;
-            break;
           default:
             throw new ArgumentException("'" + statesElement.Name + "' element doesn't support a child element '" + child.Name + "'");
         }
@@ -262,54 +238,6 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'MainScreen' attribute missing", stateElement.Name, name));
       return new WorkflowState(new Guid(id), name, mainScreen, inheritMenu, inheritContextMenu, false,
           string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), new List<Guid>());
-    }
-
-    protected static void LoadAdditionalModels(XmlElement additionalModelsElement,
-        out Guid stateId, ICollection<Guid> additionalModels)
-    {
-      string stateIdStr = null;
-      foreach (XmlAttribute attr in additionalModelsElement.Attributes)
-      {
-        switch (attr.Name)
-        {
-          case "StateId":
-            stateIdStr = attr.Value;
-            break;
-          default:
-            throw new ArgumentException("'" + additionalModelsElement.Name + "' element doesn't support an attribute '" + attr.Name + "'");
-        }
-      }
-      if (string.IsNullOrEmpty(stateIdStr))
-        throw new ArgumentException(string.Format("'" + additionalModelsElement.Name + "' element: StateId attribute is missing"));
-      stateId = new Guid(stateIdStr);
-      foreach (XmlNode child in additionalModelsElement.ChildNodes)
-      {
-        XmlElement childElement = child as XmlElement;
-        if (childElement == null)
-          continue;
-        switch (childElement.Name)
-        {
-          case "Model":
-            string modelIdStr = null;
-            foreach (XmlAttribute attr in childElement.Attributes)
-            {
-              switch (attr.Name)
-              {
-                case "Id":
-                  modelIdStr = attr.Value;
-                  break;
-                default:
-                  throw new ArgumentException("'" + childElement.Name + "' element doesn't support an attribute '" + attr.Name + "'");
-              }
-            }
-            if (string.IsNullOrEmpty(modelIdStr))
-              throw new ArgumentException(string.Format("'" + childElement.Name + "' element: Id attribute is missing"));
-            additionalModels.Add(new Guid(modelIdStr));
-            break;
-          default:
-            throw new ArgumentException("'" + additionalModelsElement.Name + "' element doesn't support a child element '" + child.Name + "'");
-        }
-      }
     }
 
     protected static WorkflowStateAction LoadPushNavigationTransition(XmlElement actionElement)

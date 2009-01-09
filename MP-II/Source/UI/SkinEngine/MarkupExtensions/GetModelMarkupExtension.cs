@@ -23,8 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
@@ -62,17 +61,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     {
       if (Id == null)
         throw new XamlBindingException("GetModelMarkupExtension: Property Id has to be given");
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      Guid modelId = new Guid(Id);
-      NavigationContext currentContext = workflowManager.CurrentNavigationContext;
-      if (currentContext == null)
-        throw new XamlBindingException("Navigation context is not initialized - Workflow manager might not be initialized");
-      object model;
-      if (!currentContext.Models.TryGetValue(modelId, out model))
-        throw new XamlBindingException(
-            "GetModelMarkupExtension: Model with id '{0}' is not present in current navigation context (state='{1}')",
-            modelId, currentContext.WorkflowState.StateId);
-      return model;
+      IModelLoader loader = context.GetContextVariable(typeof(IModelLoader)) as IModelLoader;
+      if (loader == null)
+        throw new XamlBindingException("GetModelMarkupExtension: No model loader instance present in parser context");
+      return loader.GetOrLoadModel(new Guid(Id));
     }
 
     #endregion

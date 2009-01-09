@@ -49,14 +49,15 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     /// <param name="skinFileUri">The URI to the XAML skin file. This may be an URI with any of
     /// the supported protocols.</param>
+    /// <param name="loader">Loader callback for GUI models.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(string skinFileUri)
+    public static object Load(string skinFileUri, IModelLoader loader)
     {
       try
       {
         using (TextReader reader = OpenURI(skinFileUri))
-          return Load(reader);
+          return Load(reader, loader);
       }
       catch (XamlLoadException e)
       {
@@ -73,14 +74,16 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// Loads a skin file from the specified <paramref name="reader"/> and returns the root UIElement.
     /// </summary>
     /// <param name="reader">The reader containing the XAML contents of the skin file.</param>
+    /// <param name="loader">Loader callback for GUI models.</param>
     /// <returns><see cref="UIElement"/> descendant corresponding to the root element in the
     /// specified skin file.</returns>
-    public static object Load(TextReader reader)
+    public static object Load(TextReader reader, IModelLoader loader)
     {
       try
       {
         Parser parser = new Parser(reader, parser_ImportNamespace, parser_GetEventHandler);
         parser.SetCustomTypeConverter(Registration.ConvertType);
+        parser.SetContextVariable(typeof(IModelLoader), loader);
         return parser.Parse();
       }
       catch (Exception e)

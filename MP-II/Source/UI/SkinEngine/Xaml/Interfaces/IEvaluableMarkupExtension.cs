@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.SkinEngine.Xaml.Exceptions;
+
 namespace MediaPortal.SkinEngine.Xaml.Interfaces
 {
   /// <summary>

@@ -93,7 +93,8 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       string includeFilePath = SkinContext.SkinResources.GetResourceFilePath(_includeName);
       if (includeFilePath == null)
         throw new XamlLoadException("Include: Could not open include file '{0}'", includeFilePath);
-      _content = XamlLoader.Load(includeFilePath);
+      _content = XamlLoader.Load(includeFilePath,
+          (IModelLoader) context.GetContextVariable(typeof(IModelLoader)));
       if (_content is UIElement)
       {
         UIElement target = (UIElement) _content;

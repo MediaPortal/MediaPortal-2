@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Models;
@@ -72,16 +71,50 @@ namespace MediaPortal.Services.Workflow
       #endregion
     }
 
+    protected class ModelEntry
+    {
+      protected object _instance;
+      protected int _statesUnused = 0;
+
+      public ModelEntry(object modelInstance)
+      {
+        _instance = modelInstance;
+      }
+
+      public object ModelInstance
+      {
+        get { return _instance; }
+      }
+
+      public int StatesUnused
+      {
+        get { return _statesUnused; }
+        set { _statesUnused = value; }
+      }
+
+      public void Use()
+      {
+        _statesUnused = 0;
+      }
+
+      public void Iterate()
+      {
+        _statesUnused++;
+      }
+    }
+
     #region Consts
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
+    public const int MODEL_CACHE_MAX_NUM_UNUSED = 50;
 
     #endregion
 
     #region Protected fields
 
     protected Stack<NavigationContext> _navigationContextStack = new Stack<NavigationContext>();
-    protected IDictionary<Guid, object> _modelCache = new Dictionary<Guid, object>();
+
+    protected IDictionary<Guid, ModelEntry> _modelCache = new Dictionary<Guid, ModelEntry>();
     protected ModelItemStateTracker _modelItemStateTracker;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowStateAction> _menuActions =  new Dictionary<Guid, WorkflowStateAction>();
@@ -150,13 +183,18 @@ namespace MediaPortal.Services.Workflow
     /// <exception cref="ArgumentException">If the specified <paramref name="modelId"/> is not registered.</exception>
     protected object GetOrLoadModel(Guid modelId)
     {
-      if (_modelCache.ContainsKey(modelId))
-        return _modelCache[modelId];
+      ModelEntry entry;
+      if (_modelCache.TryGetValue(modelId, out entry))
+      {
+        entry.Use();
+        return entry.ModelInstance;
+      }
+      ServiceScope.Get<ILogger>().Debug("WorkflowManager: Loading GUI model '{0}'", modelId);
       object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
           MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       if (model == null)
         throw new ArgumentException(string.Format("WorkflowManager: Model with id '{0}' is not available", modelId));
-      _modelCache[modelId] = model;
+      _modelCache[modelId] = new ModelEntry(model);
       return model;
     }
 
@@ -166,11 +204,11 @@ namespace MediaPortal.Services.Workflow
     /// <param name="modelId">Id of the model to free.</param>
     protected void FreeModel(Guid modelId)
     {
-      object model;
-      if (_modelCache.TryGetValue(modelId, out model))
+      ModelEntry entry;
+      if (_modelCache.TryGetValue(modelId, out entry))
       {
-        if (model is IDisposable)
-          ((IDisposable) model).Dispose();
+        if (entry.ModelInstance is IDisposable)
+          ((IDisposable) entry.ModelInstance).Dispose();
       }
       ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       _modelCache.Remove(modelId);
@@ -191,7 +229,7 @@ namespace MediaPortal.Services.Workflow
           yield return action;
     }
 
-    protected WorkflowState FindNonTransientState()
+    protected WorkflowState FindLastNonTransientState()
     {
       NavigationContext current = CurrentNavigationContext;
       while (current != null && current.WorkflowState.IsTransient)
@@ -205,11 +243,10 @@ namespace MediaPortal.Services.Workflow
       ILogger logger = ServiceScope.Get<ILogger>();
       NavigationContext predecessor = CurrentNavigationContext;
 
-      logger.Info("WorkflowManager: Pushing workflow state '{0}' (id='{1}') on the navigation stack...", state.Name, state.StateId);
-      logger.Debug("WorkflowManager: Loading models for workflow state '{0}'", state.Name);
+      logger.Info("WorkflowManager: Pushing workflow state '{0}' (id='{1}') onto the navigation stack...", state.Name, state.StateId);
 
       // Find non-transient state. If new state is transient, search for last non-transient state on stack.
-      WorkflowState nonTransientState = state.IsTransient ? FindNonTransientState() : state;
+      WorkflowState nonTransientState = state.IsTransient ? FindLastNonTransientState() : state;
       if (nonTransientState == null)
       {
         logger.Error("WorkflowManager: No non-transient state found on workflow context stack to be used as reference state. Workflow state to be pushed is '{0}' (id: '{1}')",
@@ -234,15 +271,8 @@ namespace MediaPortal.Services.Workflow
               workflowModelId.Value, state.StateId, typeof(IWorkflowModel).Name);
       }
 
-      // Initialize models dictionary
-      IDictionary<Guid, object> models = new Dictionary<Guid, object>();
-      if (workflowModel != null)
-        models.Add(workflowModel.ModelId, workflowModel);
-      foreach (Guid modelId in nonTransientState.AdditionalModels)
-        models.Add(modelId, GetOrLoadModel(modelId));
-
       // Create new workflow context
-      NavigationContext newContext = new NavigationContext(state, predecessor, workflowModelId, models);
+      NavigationContext newContext = new NavigationContext(state, predecessor, workflowModel);
 
       // Push new context
       _navigationContextStack.Push(newContext);
@@ -280,7 +310,7 @@ namespace MediaPortal.Services.Workflow
         else
         {
           logger.Debug("WorkflowManager: Changing model context to workflow state '{0}' (old state was '{1}') in workflow model '{2}'",
-              newContext.WorkflowState.StateId, predecessor.WorkflowState.StateId, workflowModelId.Value);
+              newContext.WorkflowState.StateId, predecessor == null ? null : predecessor.WorkflowState.StateId.ToString(), workflowModelId.Value);
           workflowModel.ChangeModelContext(predecessor, newContext, true);
         }
 
@@ -304,6 +334,8 @@ namespace MediaPortal.Services.Workflow
         newContext.MenuActions.Add(menuAction.ActionId, menuAction);
       foreach (WorkflowStateAction contextMenuAction in contextMenuActions)
         newContext.MenuActions.Add(contextMenuAction.ActionId, contextMenuAction);
+
+      IterateCache();
     }
 
     protected void DoPopNavigationContext(int count)
@@ -325,7 +357,6 @@ namespace MediaPortal.Services.Workflow
         count = newCount;
       }
       logger.Info("WorkflowManager: Removing {0} workflow states from navigation stack...", count);
-      IDictionary<Guid, object> oldModels = new Dictionary<Guid, object>();
       for (int i=0; i<count; i++)
       {
         NavigationContext oldContext = _navigationContextStack.Pop();
@@ -333,7 +364,6 @@ namespace MediaPortal.Services.Workflow
         Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
         IWorkflowModel workflowModel = workflowModelId.HasValue ?
             GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
-        CollectionUtils.AddAll(oldModels, oldContext.Models);
 
         // Communicate context change to models
         bool modelChange = oldContext.WorkflowModelId.HasValue != workflowModelId.HasValue ||
@@ -365,18 +395,25 @@ namespace MediaPortal.Services.Workflow
             workflowModel.ChangeModelContext(oldContext, newContext, false);
           }
       }
-      if (oldModels.Count > 0)
+      IterateCache();
+    }
+
+    protected void IterateCache()
+    {
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("WorkflowManager: Tidying up...");
+      foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
       {
-        logger.Debug("WorkflowManager: Tidying up...");
-        foreach (Guid modelId in oldModels.Keys)
-          if (!IsModelContainedInNavigationStack(modelId))
+        Guid modelId = modelEntry.Key;
+        if (!IsModelContainedInNavigationStack(modelId))
+          if (modelEntry.Value.StatesUnused > MODEL_CACHE_MAX_NUM_UNUSED)
           {
-            logger.Debug("WorkflowManager: Freeing model with id '{0}'", modelId);
+            logger.Debug("WorkflowManager: Freeing unused model with id '{0}'", modelId);
             FreeModel(modelId);
           }
+          else
+            modelEntry.Value.Iterate();
       }
-      else
-        logger.Debug("WorkflowManager: Nothing to tidy up");
     }
 
     protected bool UpdateScreen()
@@ -447,12 +484,28 @@ namespace MediaPortal.Services.Workflow
         DoPopNavigationContext(1);
     }
 
+    public object GetModel(Guid modelId)
+    {
+      object model = GetOrLoadModel(modelId);
+      ServiceScope.Get<ILogger>().Debug("WorkflowManager: Attaching GUI model '{0}' to workflow state '{1}'",
+          modelId, CurrentNavigationContext.WorkflowState.StateId);
+      CurrentNavigationContext.Models[modelId] = model;
+      return model;
+    }
+
     public bool IsModelContainedInNavigationStack(Guid modelId)
     {
       foreach (NavigationContext context in _navigationContextStack)
         if (context.Models.ContainsKey(modelId))
           return true;
       return false;
+    }
+
+    public void FlushModelCache()
+    {
+      foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
+        if (!IsModelContainedInNavigationStack(modelEntry.Key))
+          _modelCache.Remove(modelEntry);
     }
 
     #endregion

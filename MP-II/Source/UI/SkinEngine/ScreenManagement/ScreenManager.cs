@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Presentation.SkinResources;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
@@ -40,6 +41,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 {
   public class ScreenManager : IScreenManager
   {
+    protected class WorkflowManagerModelLoader : IModelLoader
+    {
+      public object GetOrLoadModel(Guid modelId)
+      {
+        return ServiceScope.Get<IWorkflowManager>().GetModel(modelId);
+      }
+    }
+
     #region Variables
 
     public const string HOME_SCREEN = "home";
@@ -306,7 +315,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// <param name="screenName">The screen to load.</param>
     protected UIElement LoadSkinFile(string screenName)
     {
-      return SkinContext.SkinResources.LoadSkinFile(screenName) as UIElement;
+      return SkinContext.SkinResources.LoadSkinFile(screenName, new WorkflowManagerModelLoader()) as UIElement;
     }
 
     /// <summary>

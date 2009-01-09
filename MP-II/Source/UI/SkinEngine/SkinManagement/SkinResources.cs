@@ -29,6 +29,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.Exceptions;
@@ -62,6 +63,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public const string MEDIA_DIRECTORY = "media";
     public const string WORKFLOW_DIRECTORY = "workflow";
 
+    public const string MODELS_REGISTRATION_LOCATION = "/Models";
+
     protected enum LoadState
     {
       Pending,
@@ -89,6 +92,54 @@ namespace MediaPortal.SkinEngine.SkinManagement
         get { return _loadState; }
         set { _loadState = value; }
       }
+    }
+
+    protected class StyleResourceModelLoader : IModelLoader
+    {
+      protected SkinResources _parent;
+      public StyleResourceModelLoader(SkinResources parent)
+      {
+        _parent = parent;
+      }
+
+      public object GetOrLoadModel(Guid modelId)
+      {
+        return _parent.GetOrLoadGUIModel(modelId);
+      }
+    }
+
+    protected class ModelItemStateTracker : IPluginItemStateTracker
+    {
+      #region Protected fields
+
+      protected SkinResources _parent;
+
+      #endregion
+
+      #region Ctor
+
+      public ModelItemStateTracker(SkinResources parent)
+      {
+        _parent = parent;
+      }
+
+      #endregion
+
+      #region IPluginItemStateTracker implementation
+
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
+      {
+        return !_parent.StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id));
+      }
+
+      public void Stop(PluginItemRegistration itemRegistration)
+      {
+        _parent.Release();
+      }
+
+      public void Continue(PluginItemRegistration itemRegistration) { }
+
+      #endregion
     }
 
     #region Protected fields
@@ -123,12 +174,24 @@ namespace MediaPortal.SkinEngine.SkinManagement
     // Meta information
     protected string _name;
 
+    /// <summary>
+    /// We request GUI models for our style resources - this plugin item tracker is present for
+    /// those models.
+    /// </summary>
+    protected ModelItemStateTracker _modelItemStateTracker;
+
+    /// <summary>
+    /// Models currently loaded for the style.
+    /// </summary>
+    protected IDictionary<Guid, object> _styleGUIModels = new Dictionary<Guid, object>();
+
     #endregion
 
     public SkinResources(string name, SkinResources inherited)
     {
       _name = name;
       _inheritedSkinResources = inherited;
+      _modelItemStateTracker = new ModelItemStateTracker(this);
     }
 
     /// <summary>
@@ -142,6 +205,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public string Name
     {
       get { return _name; }
+    }
+
+    public IDictionary<Guid, object> StyleGUIModels
+    {
+      get { return _styleGUIModels; }
     }
 
     /// <summary>
@@ -219,9 +287,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// Loads the skin file with the specified name and returns its root element.
     /// </summary>
     /// <param name="screenName">Logical name of the screen.</param>
+    /// <param name="loader">Loader used for GUI models.</param>
     /// <returns>Root element of the loaded skin or <c>null</c>, if the screen
     /// is not defined in this skin.</returns>
-    public object LoadSkinFile(string screenName)
+    public object LoadSkinFile(string screenName, IModelLoader loader)
     {
       string skinFile = GetSkinFilePath(screenName);
       if (skinFile == null)
@@ -229,7 +298,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", screenName);
         return null;
       }
-      return XamlLoader.Load(skinFile);
+      return XamlLoader.Load(skinFile, loader);
     }
 
     public void ClearRootDirectories()
@@ -257,6 +326,24 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       _localResourceFilePaths = null;
       _localStyleResources = null;
+      ReleaseAllGUIModels();
+    }
+
+    protected object GetOrLoadGUIModel(Guid modelId)
+    {
+      object result = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+          MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
+      if (result == null)
+        throw new ArgumentException(string.Format("StyleResources: Model with id '{0}' is not available", modelId));
+      _styleGUIModels.Add(modelId, result);
+      return result;
+    }
+
+    protected void ReleaseAllGUIModels()
+    {
+      foreach (Guid modelId in _styleGUIModels.Keys)
+        ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
+      _styleGUIModels.Clear();
     }
 
     /// <summary>
@@ -286,7 +373,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// If called after the process of styles initialization, it will simply return
     /// (all style resources already have been initialized before).
     /// </remarks>
-    internal void CheckStyleResourceWasLoaded(string styleResourceName)
+    internal void CheckStyleResourceFileWasLoaded(string styleResourceName)
     {
       string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
       if (_localStyleResources == null)
@@ -300,7 +387,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         if (!_pendingStyleResources.ContainsKey(resourceKey))
         {
           if (_inheritedSkinResources != null)
-            _inheritedSkinResources.CheckStyleResourceWasLoaded(resourceKey);
+            _inheritedSkinResources.CheckStyleResourceFileWasLoaded(resourceKey);
           return;
         }
         LoadStyleResource(resourceKey);
@@ -320,7 +407,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
       pr.State = LoadState.Loading;
       try
       {
-        ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath) as ResourceDictionary;
+        ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
+            new StyleResourceModelLoader(this)) as ResourceDictionary;
         if (rd == null)
           throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
               "' has to contain a ResourceDictionary as root element");

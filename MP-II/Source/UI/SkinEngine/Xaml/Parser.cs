@@ -188,6 +188,11 @@ namespace MediaPortal.SkinEngine.Xaml
     /// </summary>
     protected ElementContextStack _elementContextStack = new ElementContextStack();
 
+    /// <summary>
+    /// Contains context variables to be accessed via the <see cref="IParserContext"/>.
+    /// </summary>
+    protected IDictionary<object ,object> _contextVariables = new Dictionary<object, object>();
+
     #endregion
 
     #region Constructor
@@ -868,11 +873,9 @@ namespace MediaPortal.SkinEngine.Xaml
 
     #region IParserContext implementation
 
-    /// <see cref="IParserContext.ContextStack"/>
     public ElementContextStack ContextStack
     { get { return _elementContextStack; } }
 
-    /// <see cref="IParserContext.LookupNamespace(string,out string,out string)"/>
     public void LookupNamespace(string elementName, out string localName, out string namespaceURI)
     {
       string prefix;
@@ -890,13 +893,11 @@ namespace MediaPortal.SkinEngine.Xaml
       namespaceURI = _elementContextStack.GetNamespaceOfPrefix(prefix);
     }
 
-    /// <see cref="IParserContext.GetNamespaceHandler(string)"/>
     public INamespaceHandler GetNamespaceHandler(string namespaceURI)
     {
       return _elementContextStack.GetNamespaceHandler(namespaceURI);
     }
 
-    /// <see cref="IParserContext.HandleMemberAssignment"/>
     public void HandleMemberAssignment(IDataDescriptor dd, object value)
     {
       if (value is IBinding)
@@ -919,6 +920,24 @@ namespace MediaPortal.SkinEngine.Xaml
       { }
       else
         dd.Value = Convert(value, dd.DataType);
+    }
+
+    public void SetContextVariable(object key, object value)
+    {
+      _contextVariables[key] = value;
+    }
+
+    public void ResetContextVariable(object key)
+    {
+      _contextVariables.Remove(key);
+    }
+
+    public object GetContextVariable(object key)
+    {
+      object result;
+      if (!_contextVariables.TryGetValue(key, out result))
+        return null;
+      return result;
     }
 
     #endregion

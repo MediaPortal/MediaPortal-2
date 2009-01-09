@@ -28,7 +28,7 @@ using System.Collections.Generic;
 namespace MediaPortal.Presentation.Workflow
 {
   /// <summary>
-  /// Component for tracking application states and managing application workflows.
+  /// Component for tracking application states, managing application workflows and GUI models.
   /// </summary>
   public interface IWorkflowManager
   {
@@ -93,6 +93,14 @@ namespace MediaPortal.Presentation.Workflow
     void NavigatePop(int count);
 
     /// <summary>
+    /// Returns the model with the requested <paramref name="modelId"/> and assigns it to be related
+    /// to the current <see cref="NavigationContext"/>.
+    /// </summary>
+    /// <param name="modelId">Id of the model to return.</param>
+    /// <returns>Instance of the model with the specified <paramref name="modelId"/>.</returns>
+    object GetModel(Guid modelId);
+
+    /// <summary>
     /// Returns the information if one of the active navigation contexts on the stack contains the model
     /// with the specified <paramref name="modelId"/>.
     /// </summary>
@@ -100,6 +108,12 @@ namespace MediaPortal.Presentation.Workflow
     /// <returns><c>true</c>, if the specified model is currently used in any navigation context, else
     /// <c>false</c>.</returns>
     bool IsModelContainedInNavigationStack(Guid modelId);
+
+    /// <summary>
+    /// Clears the cache of GUI models, i.e. removes GUI models which aren't used in any of the navigation
+    /// states.
+    /// </summary>
+    void FlushModelCache();
 
     // TODO: State and model context listeners
   }

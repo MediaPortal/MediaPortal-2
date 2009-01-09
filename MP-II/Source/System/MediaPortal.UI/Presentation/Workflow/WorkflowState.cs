@@ -43,7 +43,6 @@ namespace MediaPortal.Presentation.Workflow
     protected bool _inheritMenu;
     protected bool _inheritContextMenu;
     protected Guid? _workflowModelId;
-    protected ICollection<Guid> _additionalModels;
 
     #endregion
 
@@ -57,7 +56,6 @@ namespace MediaPortal.Presentation.Workflow
       _inheritContextMenu = inheritContextMenu;
       _isTransient = isTransient;
       _workflowModelId = workflowModelId;
-      _additionalModels = additionalModels;
     }
 
     /// <summary>
@@ -108,17 +106,6 @@ namespace MediaPortal.Presentation.Workflow
     public Guid? WorkflowModelId
     {
       get { return _workflowModelId; }
-    }
-
-    /// <summary>
-    /// Returns a collection of ids of additional models providing information for screens of this
-    /// workflow state.
-    /// Screens may only access models which were registered at their workflow state(s), either as
-    /// workflow model or as one of those additional models.
-    /// </summary>
-    public ICollection<Guid> AdditionalModels
-    {
-      get { return _additionalModels; }
     }
 
     /// <summary>

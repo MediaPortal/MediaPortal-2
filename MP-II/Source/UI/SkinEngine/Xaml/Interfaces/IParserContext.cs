@@ -72,5 +72,28 @@ namespace MediaPortal.SkinEngine.Xaml.Interfaces
     /// <param name="value">Value to set the member to. The value type will
     /// be converted to the member's type, if necessary.</param>
     void HandleMemberAssignment(IDataDescriptor dd, object value);
+
+    /// <summary>
+    /// Sets a context variable which is available for the lifetime of this parser contexts, or until
+    /// it is reset.
+    /// </summary>
+    /// <param name="key">Key of the variable.</param>
+    /// <param name="value">Value of the variable.</param>
+    void SetContextVariable(object key, object value);
+
+    /// <summary>
+    /// Resets a context variable. After this method is called, the specified variable cannot be accessed
+    /// any more via this parser context.
+    /// </summary>
+    /// <param name="key">Key of the variable.</param>
+    void ResetContextVariable(object key);
+
+    /// <summary>
+    /// Returns the context variable which was set for the specified <paramref name="key"/>.
+    /// </summary>
+    /// <param name="key">Key of the variable.</param>
+    /// <returns>Context variable of the specified <paramref name="key"/> or <c>null</c>, if the variable
+    /// is not present in this parser context.</returns>
+    object GetContextVariable(object key);
   }
 }

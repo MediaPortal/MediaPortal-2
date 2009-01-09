@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Presentation.Models;
 
 namespace MediaPortal.Presentation.Workflow
 {
@@ -44,7 +45,7 @@ namespace MediaPortal.Presentation.Workflow
     protected WorkflowState _workflowState;
     protected IDictionary<Guid, WorkflowStateAction> _menuActions = new Dictionary<Guid, WorkflowStateAction>();
     protected IDictionary<Guid, WorkflowStateAction> _contextMenuActions = new Dictionary<Guid, WorkflowStateAction>();
-    protected Guid? _workflowModelId;
+    protected Guid? _workflowModelId = null;
     protected IDictionary<Guid, object> _models = new Dictionary<Guid, object>();
 
     #endregion
@@ -55,12 +56,15 @@ namespace MediaPortal.Presentation.Workflow
     /// This constructor has to be called from the component managing the navigation context stack.
     /// </summary>
     public NavigationContext(WorkflowState workflowState, NavigationContext predecessor,
-        Guid? workflowModelId, IDictionary<Guid, object> models)
+        IWorkflowModel workflowModel)
     {
       _workflowState = workflowState;
       _predecessor = predecessor;
-      _workflowModelId = workflowModelId;
-      _models = models;
+      if (workflowModel != null)
+      {
+        _workflowModelId = workflowModel.ModelId;
+        _models.Add(workflowModel.ModelId, workflowModel);
+      }
     }
 
     #endregion
