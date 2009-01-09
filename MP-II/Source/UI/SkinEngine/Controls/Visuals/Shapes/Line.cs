@@ -146,6 +146,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      base.PerformLayout();
       //Trace.WriteLine("Line.PerformLayout() " + this.Name);
 
       double w = ActualWidth;

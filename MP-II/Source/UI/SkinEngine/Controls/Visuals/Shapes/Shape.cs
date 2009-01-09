@@ -212,14 +212,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     }
 
     protected virtual void PerformLayout()
-    { }
+    {
+      _performLayout = false;
+    }
 
     public override void DoBuildRenderTree()
     {
       if (!IsVisible) 
         return;
       PerformLayout();
-      _performLayout = false;
       _lastEvent = UIEvent.None;
     }
 
@@ -271,11 +272,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         return;
       }
       UpdateLayout();
-      if (_performLayout)
-      {
-        PerformLayout();
-        _performLayout = false;
-      }
+      PerformLayout();
       if ((_lastEvent & UIEvent.Hidden) != 0)
       {
         if (_fillContext != null)
@@ -308,11 +305,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
           _performLayout = true;
       }
-      if (_performLayout)
-      {
-        PerformLayout();
-        _performLayout = false;
-      }
+      PerformLayout();
 
       SkinContext.AddOpacity(Opacity);
       if (_fillAsset != null)

@@ -82,6 +82,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      base.PerformLayout();
       TimeSpan ts;
       DateTime now = DateTime.Now;
       double w = ActualWidth;

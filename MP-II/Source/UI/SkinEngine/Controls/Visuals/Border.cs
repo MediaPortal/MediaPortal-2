@@ -306,7 +306,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_performLayout)
       {
         PerformLayout();
-        _performLayout = false;
         _lastEvent = UIEvent.None;
       }
       else if (_lastEvent != UIEvent.None)
@@ -337,11 +336,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _performLayout = true;
         if (BorderBrush != null && _borderAsset != null && _borderAsset.IsAllocated == false)
           _performLayout = true;
-        if (_performLayout)
-        {
-          PerformLayout();
-          _performLayout = false;
-        }
+        PerformLayout();
         SkinContext.AddOpacity(this.Opacity);
         //ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
@@ -441,6 +436,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     protected override void PerformLayout()
     {
+      base.PerformLayout();
       //Trace.WriteLine("Border.PerformLayout() " + this.Name);
 
       double w = ActualWidth;
@@ -755,7 +751,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (!IsVisible) return;
       PerformLayout();
-      _performLayout = false;
       _lastEvent = UIEvent.None;
       if (_content != null)
       {

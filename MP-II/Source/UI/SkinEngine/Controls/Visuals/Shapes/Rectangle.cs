@@ -136,6 +136,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      base.PerformLayout();
       double w = ActualWidth;
       double h = ActualHeight;
       SizeF rectSize = new SizeF((float)w, (float)h);

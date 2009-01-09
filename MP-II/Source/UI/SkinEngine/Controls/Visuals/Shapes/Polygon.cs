@@ -85,6 +85,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      base.PerformLayout();
       //Trace.WriteLine("Polygon.PerformLayout() " + this.Name);
       
       double w = ActualWidth;

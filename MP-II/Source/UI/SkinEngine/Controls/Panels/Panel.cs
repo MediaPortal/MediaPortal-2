@@ -74,7 +74,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected Property _childrenProperty;
     protected Property _backgroundProperty;
     protected bool _isItemsHost = false;
-    protected bool _adaptToLayoutChange = true; // Mark panel to adapt background brush and related contents to the layout
+    protected bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
     protected List<UIElement> _renderOrder; // Cache for the render order of our children
     protected bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected VisualAssetContext _backgroundAsset;
@@ -137,21 +137,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected void OnLayoutPropertyChanged(Property property, object oldValue)
     {
       Invalidate();
-    }
-
-    /// <summary>
-    /// Called when a non layout property value has been changed
-    /// we're simply calling Free() which will do a performlayout
-    /// </summary>
-    /// <param name="property">The property.</param>
-    protected void OnNonLayoutPropertyChanged(Property property)
-    {
-      if (_backgroundAsset != null)
-      {
-        VisualAssetContext vac = _backgroundAsset;
-        _backgroundAsset = null;
-        vac.Free(false);
-      }
     }
 
     protected void OnBackgroundPropertyChanged(Property property, object oldValue)
@@ -236,9 +221,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       UpdateLayout();
       UpdateRenderOrder();
-      if (_adaptToLayoutChange)
+      if (_performLayout)
       {
-        AdaptToLayoutChange();
+        PerformLayout();
         _lastEvent = UIEvent.None;
       }
       else if (_lastEvent != UIEvent.None)
@@ -247,7 +232,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           RenderPipeline.Instance.Remove(_backgroundContext);
           _backgroundContext = null;
-          _adaptToLayoutChange = true;
+          _performLayout = true;
         }
         if ((_lastEvent & UIEvent.OpacityChange) != 0)
           SetupBrush();
@@ -262,8 +247,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SkinContext.AddOpacity(Opacity);
       if (Background != null)
       {
-        if (_adaptToLayoutChange || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
-          AdaptToLayoutChange();
+        if (_performLayout || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
+          PerformLayout();
 
         // ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
@@ -283,13 +268,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SkinContext.RemoveOpacity();
     }
 
-    public void AdaptToLayoutChange()
+    public void PerformLayout()
     {
-      if (!_adaptToLayoutChange)
+      if (!_performLayout)
         return;
-      _adaptToLayoutChange = false;
+      _performLayout = false;
 
-      //Trace.WriteLine("Panel.PerformLayout() " + Name + " -" + GetType().ToString());
+      //Trace.WriteLine("Panel.AdaptToLayoutChange() " + Name + " -" + GetType().ToString());
 
       if (Background != null)
       {
@@ -426,15 +411,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         ContentManager.Add(_backgroundAsset);
       if (Background != null)
         Background.Allocate();
-      _adaptToLayoutChange = true;
+      _performLayout = true;
     }
 
     public override void DoBuildRenderTree()
     {
       if (!IsVisible) return;
-      if (_adaptToLayoutChange)
+      if (_performLayout)
       {
-        AdaptToLayoutChange();
+        PerformLayout();
         _lastEvent = UIEvent.None;
       }
       foreach (UIElement child in Children)
