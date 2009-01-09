@@ -107,36 +107,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnColorChanged(Property prop)
+    void OnColorChanged(Property prop, object oldValue)
     {
       if (Screen != null) 
         Screen.Invalidate(this);
     }
 
-    void OnContentChanged(Property prop)
+    void OnContentChanged(Property prop, object oldValue)
     {
       _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
       Invalidate();
     }
 
-    void OnScrollChanged(Property prop)
+    void OnScrollChanged(Property prop, object oldValue)
     {
       if (Screen != null) 
         Screen.Invalidate(this);
     }
 
-    void OnWrapChanged(Property prop)
+    void OnWrapChanged(Property prop, object oldValue)
     {
       Invalidate();
     }
 
-    void OnTextAlignChanged(Property prop)
+    void OnTextAlignChanged(Property prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
-    protected override void OnFontChanged(Property prop)
+    protected override void OnFontChanged(Property prop, object oldValue)
     {
       if (_asset != null)
       {

@@ -144,20 +144,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Attach()
     {
-      _widthProperty.Attach(OnPropertyChanged);
-      _heightProperty.Attach(OnPropertyChanged);
-      _actualHeightProperty.Attach(OnActualHeightChanged);
-      _actualWidthProperty.Attach(OnActualWidthChanged);
+      _widthProperty.Attach(OnLayoutPropertyChanged);
+      _heightProperty.Attach(OnLayoutPropertyChanged);
+      _actualHeightProperty.Attach(OnActualSizeChanged);
+      _actualWidthProperty.Attach(OnActualSizeChanged);
       _styleProperty.Attach(OnStyleChanged);
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
     }
 
     void Detach()
     {
-      _widthProperty.Detach(OnPropertyChanged);
-      _heightProperty.Detach(OnPropertyChanged);
-      _actualHeightProperty.Detach(OnActualHeightChanged);
-      _actualWidthProperty.Detach(OnActualWidthChanged);
+      _widthProperty.Detach(OnLayoutPropertyChanged);
+      _heightProperty.Detach(OnLayoutPropertyChanged);
+      _actualHeightProperty.Detach(OnActualSizeChanged);
+      _actualWidthProperty.Detach(OnActualSizeChanged);
       _styleProperty.Detach(OnStyleChanged);
       _hasFocusProperty.Detach(OnFocusPropertyChanged);
     }
@@ -180,24 +180,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected virtual void OnStyleChanged(Property property)
+    protected virtual void OnStyleChanged(Property property, object oldValue)
     {
       ///@optimize: 
       Style.Set(this);
       Invalidate();
     }
 
-    void OnActualHeightChanged(Property property)
+    void OnActualSizeChanged(Property property, object oldValue)
     {
       _updateOpacityMask = true;
     }
 
-    void OnActualWidthChanged(Property property)
-    {
-      _updateOpacityMask = true;
-    }
-
-    void OnFocusPropertyChanged(Property property)
+    void OnFocusPropertyChanged(Property property, object oldValue)
     {
       if (HasFocus)
       {
@@ -220,7 +215,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// we're simply calling Invalidate() here to invalidate the layout
     /// </summary>
     /// <param name="property">The property.</param>
-    void OnPropertyChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    void OnLayoutPropertyChanged(Property property, object oldValue)
     {
       Invalidate();
     }

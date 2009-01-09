@@ -103,13 +103,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
     public override void Setup(UIElement element)
     {
       base.Setup(element);
-      OnBindingValueChanged(_bindingProperty);
+      OnBindingValueChanged(_bindingProperty, null);
     }
 
     /// <summary>
     /// Listens for changes of our trigger property data descriptor.
     /// </summary>
-    void OnBindingValueChanged(Property bindingValue)
+    void OnBindingValueChanged(Property bindingValue, object oldValue)
     {
       if (!IsInitialized)
         return;

@@ -90,7 +90,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
     #endregion
 
-    void OnContentChanged(Property property)
+    void OnContentChanged(Property property, object oldValue)
     {
       UpdateScrollBars();
       ConfigureContentScrollFacility();

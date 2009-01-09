@@ -67,12 +67,17 @@ namespace MediaPortal.SkinEngine.Controls.Animations
       SplinePointKeyFrame kf = (SplinePointKeyFrame) source;
       KeySpline = copyManager.GetCopy(kf.KeySpline);
       Attach();
-      OnSplineChanged(_keySplineProperty);
+      InvalidateSpline();
     }
 
     #endregion
 
-    void OnSplineChanged(Property prop)
+    void OnSplineChanged(Property prop, object oldValue)
+    {
+      InvalidateSpline();
+    }
+
+    void InvalidateSpline()
     {
       if (KeySpline.X != 0 && KeySpline.Y != 0 && KeySpline.Z != 0 && KeySpline.W != 0)
         _spline = new KeySpline(KeySpline.X, KeySpline.Y, KeySpline.Z, KeySpline.W);

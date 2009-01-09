@@ -94,7 +94,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         ObjectChanged(this);
     }
 
-    protected void OnPropertyChanged(Property prop)
+    protected void OnPropertyChanged(Property prop, object oldValue)
     {
       Fire();
     }

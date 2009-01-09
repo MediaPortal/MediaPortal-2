@@ -310,6 +310,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Opacity = copyManager.GetCopy(el.Opacity);
       Loaded = copyManager.GetCopy(el.Loaded);
       OpacityMask = copyManager.GetCopy(el.OpacityMask);
+      object oldLayoutTransform = LayoutTransform;
       LayoutTransform = copyManager.GetCopy(el.LayoutTransform);
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
@@ -317,7 +318,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // Simply reuse the Resources
       SetResources(el._resources);
 
-      OnLayoutTransformPropertyChanged(_layoutTransformProperty); // Need to manually call this because we are in a detached state
+      // Need to manually call this because we are in a detached state
+      OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
 
       foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
@@ -326,12 +328,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnOpacityPropertyChanged(Property property)
+    void OnOpacityPropertyChanged(Property property, object oldValue)
     {
       FireUIEvent(UIEvent.OpacityChange, this);
     }
 
-    void OnVisibilityPropertyChanged(Property property)
+    void OnVisibilityPropertyChanged(Property property, object oldValue)
     {
       if (VisualParent is UIElement)
       {
@@ -348,7 +350,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// This method will call Invalidate() to invalidate the layout.
     /// </summary>
     /// <param name="property">The property which was changed.</param>
-    void OnLayoutPropertyChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    void OnLayoutPropertyChanged(Property property, object oldValue)
     {
       Invalidate();
     }
@@ -358,8 +361,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Invalidate();
     }
 
-    void OnLayoutTransformPropertyChanged(Property property)
+    void OnLayoutTransformPropertyChanged(Property property, object oldValue)
     {
+      if (oldValue is Transform)
+        ((Transform) oldValue).ObjectChanged -= OnLayoutTransformChanged;
       if (LayoutTransform != null)
         LayoutTransform.ObjectChanged += OnLayoutTransformChanged;
     }

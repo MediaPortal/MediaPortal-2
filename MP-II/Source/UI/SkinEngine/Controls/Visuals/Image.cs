@@ -125,7 +125,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// Simply sets a variable to indicate a layout needs to be performed
     /// </summary>
     /// <param name="property">The property.</param>
-    void OnPropertyChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    void OnPropertyChanged(Property property, object oldValue)
     {
       _performImageLayout = true;
       if (Screen != null) Screen.Invalidate(this);
@@ -137,7 +138,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// with the new image source
     /// </summary>
     /// <param name="property">The property.</param>
-    void OnImageChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    void OnImageChanged(Property property, object oldValue)
     {
       if (_image != null)
       {

@@ -26,7 +26,7 @@ using System;
 
 namespace MediaPortal.Presentation.DataObjects
 {
-  public delegate void PropertyChangedHandler(Property property);
+  public delegate void PropertyChangedHandler(Property property, object oldValue);
 
   /// <summary>
   /// Represents a typed property which can have a value. Changes on the value
@@ -104,23 +104,24 @@ namespace MediaPortal.Presentation.DataObjects
     /// </summary>
     public void SetValue(object value)
     {
-      bool changed;
       if (value != null && _type != null && !_type.IsAssignableFrom(value.GetType()))
         throw new InvalidCastException(
           String.Format("Value '{0}' cannot be assigned to property of type '{1}'", value, _type.Name));
+      bool changed;
       if (_value == null)
         changed = value != null;
       else
         changed = !(_value.Equals(value));
+      object oldValue = _value;
       _value = value;
       if (changed)
-        Fire();
+        Fire(oldValue);
     }
 
-    public void Fire()
+    public void Fire(object oldValue)
     {
       if (PropertyChanged != null)
-        PropertyChanged(this);
+        PropertyChanged(this, oldValue);
     }
 
     /// <summary>

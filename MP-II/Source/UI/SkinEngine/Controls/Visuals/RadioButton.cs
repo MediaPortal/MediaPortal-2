@@ -83,7 +83,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Private/protected methods
 
-    void OnButtonPressedChanged(Property property)
+    void OnButtonPressedChanged(Property property, object oldValue)
     {
       // Copy the "IsPressed" status to "IsChecked". This will automatically clear the
       // "IsChecked" status at other radio buttons.
@@ -92,12 +92,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         IsChecked = IsPressed;
     }
 
-    void OnGroupNameChanged(Property property)
+    void OnGroupNameChanged(Property property, object oldValue)
     {
       InitializeGroup();
     }
 
-    void OnCheckChanged(Property property)
+    void OnCheckChanged(Property property, object oldValue)
     {
       if (IsChecked)
       {

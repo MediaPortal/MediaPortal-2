@@ -83,7 +83,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    void OnRadiusChanged(Property property)
+    void OnRadiusChanged(Property property, object oldValue)
     {
       Invalidate();
       if (Screen != null) Screen.Invalidate(this);

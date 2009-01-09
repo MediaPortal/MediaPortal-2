@@ -129,7 +129,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Change handlers
 
-    protected void OnTemplateChanged(Property property)
+    protected void OnTemplateChanged(Property property, object oldValue)
     {
       if (Template != null)
       {
@@ -143,9 +143,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         TemplateControl = null;
     }
 
-    protected void OnTemplateControlChanged(Property property)
+    protected void OnTemplateControlChanged(Property property, object oldValue)
     {
-      FrameworkElement element = TemplateControl;
+      FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
+      if (oldTemplateControl != null)
+        oldTemplateControl.VisualParent = null;
+
+      FrameworkElement element = property.GetValue() as FrameworkElement;
       if (element != null)
       {
         element.VisualParent = this;
@@ -154,13 +158,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Invalidate();
     }
 
-    void OnPropertyChanged(Property property)
+    void OnPropertyChanged(Property property, object oldValue)
     {
       _performLayout = true;
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    protected virtual void OnFontChanged(Property property)
+    protected virtual void OnFontChanged(Property property, object oldValue)
     {
     }
 
@@ -203,7 +207,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public double BorderThickness
     {
-      get { return (double)_borderThicknessProperty.GetValue(); }
+      get { return (double) _borderThicknessProperty.GetValue(); }
       set { _borderThicknessProperty.SetValue(value); }
     }
 
@@ -214,7 +218,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public double CornerRadius
     {
-      get { return (double)_cornerRadiusProperty.GetValue(); }
+      get { return (double) _cornerRadiusProperty.GetValue(); }
       set { _cornerRadiusProperty.SetValue(value); }
     }
 
@@ -225,7 +229,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public ControlTemplate Template
     {
-      get { return _templateProperty.GetValue() as ControlTemplate; }
+      get { return (ControlTemplate) _templateProperty.GetValue(); }
       set { _templateProperty.SetValue(value); }
     }
 
@@ -236,9 +240,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public string FontFamily
     {
-      get { return _fontFamilyProperty.GetValue() as string; }
+      get { return (string) _fontFamilyProperty.GetValue(); }
       set { _fontFamilyProperty.SetValue(value); }
     }
+
     public Property FontSizeProperty
     {
       get { return _fontSizeProperty; }
@@ -246,7 +251,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public int FontSize
     {
-      get { return (int)_fontSizeProperty.GetValue(); }
+      get { return (int) _fontSizeProperty.GetValue(); }
       set { _fontSizeProperty.SetValue(value); }
     }
 
@@ -326,7 +331,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void RenderBorder()
     {
-
       if (!IsVisible) return;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
@@ -370,7 +374,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         //SkinContext.RemoveTransform();
         SkinContext.RemoveOpacity();
       }
-
     }
 
     public override void DoRender()

@@ -42,8 +42,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>  
     <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
-      <Label Margin="60,0,0,0" FontFamily="RitzyNormal" FontSize="60" Content="{DynamicResource Header_Text}" />
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="RitzyNormal" FontSize="60" Content="{DynamicResource Header_Text}"
+      <Label Margin="60,0,0,0" FontFamily="RitzyNormal" FontSize="60" Color="{StaticResource WindowHeaderColor}"
+          Content="{DynamicResource Header_Text}" />
+      <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="RitzyNormal" FontSize="60" Color="{StaticResource WindowHeaderColor}"
+          Content="{DynamicResource Header_Text}"
           Opacity="0.75" RenderTransformOrigin="0.4,0.4">
         <Label.RenderTransform>
           <TransformGroup>

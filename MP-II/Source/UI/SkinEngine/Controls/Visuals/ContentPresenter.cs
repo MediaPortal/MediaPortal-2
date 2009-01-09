@@ -77,12 +77,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(p.Content);
       ContentTemplate = copyManager.GetCopy(p.ContentTemplate);
       Attach();
-      OnContentTemplateChanged(_contentTemplateProperty);
+      OnContentTemplateChanged(_contentTemplateProperty, false);
     }
 
     #endregion
 
-    void OnContentChanged(Property property)
+    void OnContentChanged(Property property, object oldValue)
     {
       if (_templateControl == null)
       { // No ContentTemplate set
@@ -125,7 +125,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _templateControl.SetScreen(Screen);
     }
 
-    void OnContentTemplateChanged(Property property)
+    void OnContentTemplateChanged(Property property, object oldValue)
     {
       if (ContentTemplate == null)
       {

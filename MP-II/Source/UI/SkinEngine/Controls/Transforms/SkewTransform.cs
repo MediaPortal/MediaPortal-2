@@ -85,12 +85,6 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
 
     #endregion
 
-    protected void OnPropertyChanged(Property property)
-    {
-      _needUpdate = true;
-      Fire();
-    }
-
     public Property CenterXProperty
     {
       get { return _centerXProperty; }

@@ -61,20 +61,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       DataString = copyManager.GetCopy(DataString);
+      Attach();
     }
 
     #endregion
 
-    void OnContentTemplateChanged(Property property)
+    void OnContentTemplateChanged(Property property, object oldValue)
     {
       DataTemplate dt = ContentTemplate;
       dt.DataStringProperty.Attach(OnTemplateDataStringChanged);
       DataString = dt.DataString;
     }
 
-    void OnTemplateDataStringChanged(Property property)
+    void OnTemplateDataStringChanged(Property property, object oldValue)
     {
       DataString = (string) property.GetValue();
     }

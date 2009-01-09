@@ -112,7 +112,12 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         ObjectChanged(this);
     }
 
-    protected virtual void OnPropertyChanged(Property prop)
+    /// <summary>
+    /// Called when a property changed.
+    /// </summary>
+    /// <param name="prop">The property.</param>
+    /// <param name="oldValue">The old value of the property.</param>
+    protected virtual void OnPropertyChanged(Property prop, object oldValue)
     { }
 
     #endregion

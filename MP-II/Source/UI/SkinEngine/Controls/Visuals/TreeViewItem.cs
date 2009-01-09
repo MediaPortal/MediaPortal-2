@@ -58,16 +58,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
+      object oldItemTemplate = ItemTemplate;
       base.DeepCopy(source, copyManager);
       DataString = copyManager.GetCopy(DataString);
       Attach();
-      OnItemTemplateChanged(null);
+      OnItemTemplateChanged(_itemTemplateProperty, oldItemTemplate);
     }
 
     #endregion
 
-    void OnItemTemplateChanged(Property property)
+    void OnItemTemplateChanged(Property property, object oldValue)
     {
+      if (oldValue is HierarchicalDataTemplate)
+        ((HierarchicalDataTemplate) oldValue).ItemsSourceProperty.Detach(OnTemplateItemsSourceChanged);
       if (!(ItemTemplate is HierarchicalDataTemplate)) return;
       HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ItemTemplate;
       hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
@@ -76,12 +79,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       DataString = hdt.DataString;
     }
 
-    void OnTemplateItemsSourceChanged(Property property)
+    void OnTemplateItemsSourceChanged(Property property, object oldValue)
     {
       ItemsSource = (IEnumerable) property.GetValue();
     }
 
-    void OnTemplateDataStringChanged(Property property)
+    void OnTemplateDataStringChanged(Property property, object oldValue)
     {
       DataString = (string) property.GetValue();
     }

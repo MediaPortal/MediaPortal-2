@@ -74,12 +74,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected Property _childrenProperty;
     protected Property _backgroundProperty;
     protected bool _isItemsHost = false;
-    protected bool _performLayout = true;
-    protected List<UIElement> _renderOrder;
-    bool _updateRenderOrder = true;
+    protected bool _adaptToLayoutChange = true; // Mark panel to adapt background brush and related contents to the layout
+    protected List<UIElement> _renderOrder; // Cache for the render order of our children
+    protected bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected VisualAssetContext _backgroundAsset;
     protected PrimitiveContext _backgroundContext;
-    UIEvent _lastEvent = UIEvent.None;
+    protected UIEvent _lastEvent = UIEvent.None;
 
     #endregion
 
@@ -133,7 +133,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     /// we're simply calling Invalidate() here to invalidate the layout
     /// </summary>
     /// <param name="property">The property.</param>
-    protected void OnLayoutPropertyChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    protected void OnLayoutPropertyChanged(Property property, object oldValue)
     {
       Invalidate();
     }
@@ -153,7 +154,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
 
-    protected void OnBackgroundPropertyChanged(Property property)
+    protected void OnBackgroundPropertyChanged(Property property, object oldValue)
     {
       if (_backgroundAsset != null)
       {
@@ -161,8 +162,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _backgroundAsset = null;
         vac.Free(false);
       }
-      // TODO: Remove change handler from old Background brush, as soon as the
-      // signature of this change handler will include the old value
+      Brush oldBackground = oldValue as Brush;
+      if (oldBackground != null)
+        oldBackground.ObjectChanged -= OnBrushChanged;
       if (Background != null)
         Background.ObjectChanged += OnBrushChanged;
     }
@@ -226,22 +228,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected virtual void RenderChildren()
     {
       foreach (UIElement element in _renderOrder)
-      {
         if (element.IsVisible)
-        {
           element.Render();
-        }
-      }
     }
 
     public void Update()
     {
       UpdateLayout();
       UpdateRenderOrder();
-      if (_performLayout)
+      if (_adaptToLayoutChange)
       {
-        PerformLayout();
-        _performLayout = false;
+        AdaptToLayoutChange();
         _lastEvent = UIEvent.None;
       }
       else if (_lastEvent != UIEvent.None)
@@ -250,12 +247,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           RenderPipeline.Instance.Remove(_backgroundContext);
           _backgroundContext = null;
-          _performLayout = true;
+          _adaptToLayoutChange = true;
         }
         if ((_lastEvent & UIEvent.OpacityChange) != 0)
-        {
           SetupBrush();
-        }
         _lastEvent = UIEvent.None;
       }
     }
@@ -267,8 +262,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SkinContext.AddOpacity(Opacity);
       if (Background != null)
       {
-        if (_performLayout || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
-          PerformLayout();
+        if (_adaptToLayoutChange || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
+          AdaptToLayoutChange();
 
         // ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
@@ -288,15 +283,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SkinContext.RemoveOpacity();
     }
 
-    public void PerformLayout()
+    public void AdaptToLayoutChange()
     {
+      if (!_adaptToLayoutChange)
+        return;
+      _adaptToLayoutChange = false;
+
       //Trace.WriteLine("Panel.PerformLayout() " + Name + " -" + GetType().ToString());
 
       if (Background != null)
       {
-        double w = ActualWidth;
-        double h = ActualHeight;
-        SizeF rectSize = new SizeF((float)w, (float)h);
+        SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
         ExtendedMatrix m = new ExtendedMatrix();
         if (_finalLayoutTransform != null)
@@ -307,8 +304,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           LayoutTransform.GetTransform(out em);
           m.Matrix *= em.Matrix;
         }
-        m.InvertSize(ref rectSize);
-        RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+        m.InvertSize(ref actualSize);
+        RectangleF rect = new RectangleF(-0.5f, -0.5f, actualSize.Width + 0.5f, actualSize.Height + 0.5f);
         rect.X += ActualPosition.X;
         rect.Y += ActualPosition.Y;
         PositionColored2Textured[] verts = new PositionColored2Textured[6];
@@ -320,20 +317,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           verts[3].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Top, 1.0f));
           verts[4].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
           verts[5].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
-
         }
         Background.SetupBrush(this, ref verts);
-        if (!SkinContext.UseBatching)
-        {
-          if (_backgroundAsset == null)
-          {
-            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + Name);
-            ContentManager.Add(_backgroundAsset);
-          }
-          _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
-          PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
-        }
-        else
+        if (SkinContext.UseBatching)
         {
           if (_backgroundContext == null)
           {
@@ -344,9 +330,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           else
             _backgroundContext.OnVerticesChanged(2, ref verts);
         }
+        else
+        {
+          if (_backgroundAsset == null)
+          {
+            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + Name);
+            ContentManager.Add(_backgroundAsset);
+          }
+          _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
+          PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
+        }
       }
-
-      _performLayout = false;
     }
 
     protected void UpdateRenderOrder()
@@ -381,9 +375,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       if (Children == null)
         return;
       foreach (UIElement element in Children)
-      {
         element.FireUIEvent(eventType, source);
-      }
       _lastEvent |= eventType;
       if (Screen != null) Screen.Invalidate(this);
     }
@@ -408,9 +400,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       base.Deallocate();
       foreach (FrameworkElement child in Children)
-      {
         child.Deallocate();
-      }
       if (_backgroundAsset != null)
       {
         _backgroundAsset.Free(true);
@@ -431,40 +421,24 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       base.Allocate();
       foreach (FrameworkElement child in Children)
-      {
         child.Allocate();
-      }
       if (_backgroundAsset != null)
-      {
         ContentManager.Add(_backgroundAsset);
-      }
       if (Background != null)
         Background.Allocate();
-      _performLayout = true;
+      _adaptToLayoutChange = true;
     }
-
-    #region IAddChild Members
-
-    public void AddChild(UIElement o)
-    {
-      Children.Add(o);
-    }
-
-    #endregion
 
     public override void DoBuildRenderTree()
     {
       if (!IsVisible) return;
-      if (_performLayout)
+      if (_adaptToLayoutChange)
       {
-        PerformLayout();
-        _performLayout = false;
+        AdaptToLayoutChange();
         _lastEvent = UIEvent.None;
       }
       foreach (UIElement child in Children)
-      {
         child.BuildRenderTree();
-      }
     }
 
     public override void DestroyRenderTree()
@@ -475,10 +449,17 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         _backgroundContext = null;
       }
       foreach (UIElement child in Children)
-      {
         child.DestroyRenderTree();
-      }
     }
+
+    #region IAddChild<UIElement> Members
+
+    public void AddChild(UIElement o)
+    {
+      Children.Add(o);
+    }
+
+    #endregion
 
     #region Attached properties
 

@@ -73,22 +73,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(c.Content);
       ContentTemplate = copyManager.GetCopy(c.ContentTemplate);
       Attach();
-      OnContentChanged(ContentProperty);
-      OnContentTemplateChanged(ContentTemplateProperty);
+      OnContentChanged(ContentProperty, null);
+      OnContentTemplateChanged(ContentTemplateProperty, null);
     }
 
     #endregion
 
     #region Eventhandlers
 
-    void OnContentChanged(Property property)
+    void OnContentChanged(Property property, object oldValue)
     {
       ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
         presenter.Content = Content;
     }
 
-    void OnContentTemplateChanged(Property property)
+    void OnContentTemplateChanged(Property property, object oldValue)
     {
       ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)

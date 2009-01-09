@@ -102,11 +102,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #endregion
 
-    /// <summary>
-    /// Called when a property changed.
-    /// </summary>
-    /// <param name="prop">The prop.</param>
-    protected override void OnPropertyChanged(Property prop)
+    protected override void OnPropertyChanged(Property prop, object oldValue)
     {
       _refresh = true;
       Fire();

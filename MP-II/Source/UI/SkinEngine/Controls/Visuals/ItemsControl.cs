@@ -53,13 +53,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected bool _prepare = false;
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
-    protected IObservable _attachedItemsCollection = null;
 
     #endregion
 
     #region Ctor
 
-    public ItemsControl()
+    protected ItemsControl()
     {
       Init();
       Attach();
@@ -96,6 +95,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       ItemsControl c = (ItemsControl) source;
+      object oldItemsSource = ItemsSource;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
@@ -103,7 +103,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       Attach();
-      OnItemsSourceChanged(_itemsSourceProperty);
+      OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       InvalidateItems();
     }
 
@@ -111,19 +111,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Event handlers
 
-    void OnItemsSourceChanged(Property property)
+    void OnItemsSourceChanged(Property property, object oldValue)
     {
-      if (_attachedItemsCollection != null)
-      {
-        _attachedItemsCollection.ObjectChanged -= OnCollectionChanged;
-        _attachedItemsCollection = null;
-      }
+      IObservable oldItemsSource = oldValue as IObservable;
+      if (oldItemsSource != null)
+        oldItemsSource.ObjectChanged -= OnCollectionChanged;
       IObservable coll = ItemsSource as IObservable;
       if (coll != null)
-      {
         coll.ObjectChanged += OnCollectionChanged;
-        _attachedItemsCollection = coll;
-      }
       InvalidateItems();
     }
 
@@ -132,18 +127,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       InvalidateItems();
     }
 
-    void OnItemTemplateChanged(Property property)
+    void OnItemTemplateChanged(Property property, object oldValue)
     {
       InvalidateItems();
     }
 
-    void OnItemsPanelChanged(Property property)
+    void OnItemsPanelChanged(Property property, object oldValue)
     {
       _templateApplied = false;
       InvalidateItems();
     }
 
-    void OnItemContainerStyleChanged(Property property)
+    void OnItemContainerStyleChanged(Property property, object oldValue)
     {
       InvalidateItems();
     }

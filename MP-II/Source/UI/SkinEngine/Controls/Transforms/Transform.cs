@@ -70,15 +70,25 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
 
     public event ObjectChangedHandler ObjectChanged;
 
+    #region Protected methods
+
+    protected void OnPropertyChanged(Property property, object oldValue)
+    {
+      _needUpdate = true;
+      Fire();
+    }
+
+    #endregion
+
+    void OnZoomChanged(Property prop, object oldValue)
+    {
+      _needUpdate = true;
+    }
+
     protected void Fire()
     {
       if (ObjectChanged != null)
         ObjectChanged(this);
-    }
-
-    void OnZoomChanged(Property prop)
-    {
-      _needUpdate = true;
     }
 
     public void GetTransform(out ExtendedMatrix m)

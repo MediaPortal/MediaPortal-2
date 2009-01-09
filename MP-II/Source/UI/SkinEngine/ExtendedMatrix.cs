@@ -73,8 +73,8 @@ namespace MediaPortal.SkinEngine
       float h = p.Y;
       float w1 = w * Matrix.M11 + h * Matrix.M21;
       float h1 = w * Matrix.M12 + h * Matrix.M22;
-      p.X = (int)w1;
-      p.Y = (int)h1;
+      p.X = (int) w1;
+      p.Y = (int) h1;
     }
 
 
@@ -86,8 +86,8 @@ namespace MediaPortal.SkinEngine
       float h = size.Height;
       float w1 = w * Matrix.M11 + h * Matrix.M21;
       float h1 = w * Matrix.M12 + h * Matrix.M22;
-      size.Width = (float)w1;
-      size.Height = (float)h1;
+      size.Width = w1;
+      size.Height = h1;
     }
 
     public void TransformRect(ref System.Drawing.RectangleF rect)

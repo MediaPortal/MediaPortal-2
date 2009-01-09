@@ -35,9 +35,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     FocusedElement="{DynamicResource Focused_Element}">
 
-  <Border Canvas.Left="50" Canvas.Top="44" Width="620" Height="470" Background="#AFFFFFFF" CornerRadius="10">
+  <Border Canvas.Left="50" Canvas.Top="44" Width="620" Height="470" Background="{StaticResource DialogBorderColor}" CornerRadius="10">
     <Canvas Width="600" Height="450" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DialogBackgroundBrush}">
-      <Label FontSize="30" Canvas.Left="25" Canvas.Top="0" Content="{DynamicResource Dialog_Header_Text}" Width="400" Color="#FFADADAD" VerticalAlignment="Top"/>
+      <Label FontSize="30" Canvas.Left="25" Canvas.Top="0" Content="{DynamicResource Dialog_Header_Text}" Width="400" Color="{StaticResource DialogHeaderColor}" VerticalAlignment="Top"/>
       <Button x:Name="CloseBtn" Canvas.Left="545" Canvas.Top="5" Style="{StaticResource DialogCloseButtonStyle}"
           Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
       <ContentPresenter x:Name="ContentPanel" Canvas.Left="34" Canvas.Top="50" Height="380" Width="500" Content="{DynamicResource Contents_Element}"/>

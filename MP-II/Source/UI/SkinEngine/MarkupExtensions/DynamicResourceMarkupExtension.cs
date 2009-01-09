@@ -206,7 +206,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected methods & properties
 
-    protected void OnPropertyChanged(Property property)
+    protected void OnPropertyChanged(Property property, object oldValue)
     {
       if (_active)
         UpdateTarget();
@@ -224,7 +224,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         UpdateTarget();
     }
 
-    protected void OnSourcePathChanged(Property property)
+    protected void OnSourcePathChanged(Property property, object oldValue)
     {
       if (_active)
         UpdateTarget();

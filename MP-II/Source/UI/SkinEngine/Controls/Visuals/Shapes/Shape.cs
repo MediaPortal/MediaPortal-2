@@ -131,7 +131,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    void OnStrokeThicknessChanged(Property property)
+    void OnStrokeThicknessChanged(Property property, object oldValue)
     {
       _performLayout = true;
       if (Screen != null) Screen.Invalidate(this);
@@ -149,13 +149,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnFillBrushPropertyChanged(Property property)
+    void OnFillBrushPropertyChanged(Property property, object oldValue)
     {
+      if (oldValue is Brush)
+        ((Brush)oldValue).ObjectChanged -= OnFillBrushChanged;
+      if (Fill != null)
+        Fill.ObjectChanged += OnFillBrushChanged;
       OnFillBrushChanged(null);
     }
 
-    void OnStrokeBrushPropertyChanged(Property property)
+    void OnStrokeBrushPropertyChanged(Property property, object oldValue)
     {
+      if (oldValue is Brush)
+        ((Brush) oldValue).ObjectChanged -= OnStrokeBrushChanged;
+      if (Stroke != null)
+        Stroke.ObjectChanged += OnStrokeBrushChanged;
       OnStrokeBrushChanged(null);
     }
 
@@ -178,15 +186,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     public Brush Fill
     {
       get { return (Brush) _fillProperty.GetValue(); }
-      set
-      {
-        if (Fill != null)
-          Fill.ObjectChanged -= OnFillBrushChanged;
-
-        _fillProperty.SetValue(value);
-        if (value != null)
-          value.ObjectChanged += OnFillBrushChanged;
-      }
+      set { _fillProperty.SetValue(value); }
     }
 
     public Property StrokeProperty
@@ -197,16 +197,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     public Brush Stroke
     {
       get { return (Brush) _strokeProperty.GetValue(); }
-      set
-      {
-        // FIXME: Move this into change handler of StrokeProperty
-        if (Stroke != null)
-          Stroke.ObjectChanged -= OnStrokeBrushChanged;
-
-        _strokeProperty.SetValue(value);
-        if (value != null)
-          _strokeProperty.Attach(OnStrokeBrushPropertyChanged);
-      }
+      set { _strokeProperty.SetValue(value); }
     }
 
     public Property StrokeThicknessProperty

@@ -94,7 +94,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    void OnCoordinateChanged(Property property)
+    void OnCoordinateChanged(Property property, object oldValue)
     {
       Invalidate();
       if (Screen != null) Screen.Invalidate(this);
@@ -107,7 +107,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public double X1
     {
-      get { return (double)_x1Property.GetValue(); }
+      get { return (double) _x1Property.GetValue(); }
       set { _x1Property.SetValue(value); }
     }
 
@@ -118,7 +118,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public double Y1
     {
-      get { return (double)_y1Property.GetValue(); }
+      get { return (double) _y1Property.GetValue(); }
       set { _y1Property.SetValue(value); }
     }
 
@@ -129,7 +129,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public double X2
     {
-      get { return (double)_x2Property.GetValue(); }
+      get { return (double) _x2Property.GetValue(); }
       set { _x2Property.SetValue(value); }
     }
 
@@ -140,7 +140,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public double Y2
     {
-      get { return (double)_y2Property.GetValue(); }
+      get { return (double) _y2Property.GetValue(); }
       set { _y2Property.SetValue(value); }
     }
 

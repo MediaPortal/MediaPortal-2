@@ -118,22 +118,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Change event handlers
 
-    void OnBackgroundBrushPropertyChanged(Property property)
+    void OnBackgroundBrushPropertyChanged(Property property, object oldValue)
     {
+      Brush oldBrush = oldValue as Brush;
+      if (oldBrush != null)
+        oldBrush.ObjectChanged -= OnBackgroundBrushChanged;
       Brush brush = property.GetValue() as Brush;
       if (brush != null)
-      {
         brush.ObjectChanged += OnBackgroundBrushChanged;
-      }
     }
 
-    void OnBorderBrushPropertyChanged(Property property)
+    void OnBorderBrushPropertyChanged(Property property, object oldValue)
     {
+      Brush oldBrush = oldValue as Brush;
+      if (oldBrush != null)
+        oldBrush.ObjectChanged -= OnBorderBrushChanged;
       Brush brush = property.GetValue() as Brush;
       if (brush != null)
-      {
         brush.ObjectChanged += OnBorderBrushChanged;
-      }
     }
 
     void OnBackgroundBrushChanged(IObservable observable)
@@ -148,7 +150,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnLayoutPropertyChanged(Property property)
+    void OnLayoutPropertyChanged(Property property, object oldValue)
     {
       _performLayout = true;
       if (Screen != null) Screen.Invalidate(this);

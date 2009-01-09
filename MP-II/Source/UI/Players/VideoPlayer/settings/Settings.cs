@@ -485,7 +485,7 @@ namespace MediaPortal.SkinEngine.Players
 
     #endregion
 
-    void OnSpeakerConnectionChanged(Property prop)
+    void OnSpeakerConnectionChanged(Property prop, object oldValue)
     {
       if ((bool)prop.GetValue() == false) return;
       if (prop == IsBuildInProperty)
@@ -509,7 +509,7 @@ namespace MediaPortal.SkinEngine.Players
       ServiceScope.Get<ISettingsManager>().Save(_audioSettings);
     }
 
-    void OnSpeakerAmountChanged(Property prop)
+    void OnSpeakerAmountChanged(Property prop, object oldValue)
     {
       if ((bool)prop.GetValue() == false) return;
       if (prop == IsStereoProperty)

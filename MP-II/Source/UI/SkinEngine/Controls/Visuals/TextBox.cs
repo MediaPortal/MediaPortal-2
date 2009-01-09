@@ -117,19 +117,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnColorChanged(Property prop)
+    void OnColorChanged(Property prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
-    void OnTextAlignChanged(Property prop)
+    void OnTextAlignChanged(Property prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
-    void OnTextChanged(Property prop)
+    void OnTextChanged(Property prop, object oldValue)
     {
       // The skin is setting the text, also update the caret
       if (!_editText)
@@ -138,12 +138,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
-    void OnPreferredTextLengthChanged(Property prop)
+    void OnPreferredTextLengthChanged(Property prop, object oldValue)
     {
       Invalidate();
     }
 
-    protected override void OnFontChanged(Property prop)
+    protected override void OnFontChanged(Property prop, object oldValue)
     {
       if (_asset != null)
       {
@@ -265,7 +265,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       if (_asset != null)
         childSize = new SizeF(_asset.Font.Width(Text, FontSize) * SkinContext.Zoom.Width,
-                 _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
+            _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
       else
         childSize = new SizeF();
 

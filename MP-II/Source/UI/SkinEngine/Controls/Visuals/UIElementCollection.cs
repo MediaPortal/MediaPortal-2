@@ -30,49 +30,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class UIElementCollection : IEnumerable<UIElement>
   {
-    public class UIElementEnumerator : IEnumerator<UIElement>
-    {
-      int index = -1;
-      List<UIElement> _elements;
-      public UIElementEnumerator(List<UIElement> elements)
-      {
-        _elements = elements;
-      }
-      public UIElement Current
-      {
-        get
-        {
-          return _elements[index];
-        }
-      }
-
-      public void Dispose()
-      {
-      }
-
-      object System.Collections.IEnumerator.Current
-      {
-        get
-        {
-          return _elements[index];
-        }
-      }
-
-      public bool MoveNext()
-      {
-        index++;
-        return (index < _elements.Count);
-      }
-
-      public void Reset()
-      {
-        index = -1;
-      }
-    }
-
-    UIElement _parent;
-    List<UIElement> _elements;
-    bool _zIndexFixed = false;
+    protected UIElement _parent;
+    protected IList<UIElement> _elements;
+    protected bool _zIndexFixed = false;
 
     public UIElementCollection(UIElement parent)
     {
@@ -80,9 +40,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _elements = new List<UIElement>();
     }
 
+    protected void InvalidateParent()
+    {
+      if (_parent != null)
+        _parent.Invalidate();
+    }
+
     public void FixZIndex()
     {
-      if (MediaPortal.SkinEngine.SkinManagement.SkinContext.UseBatching == true)
+      if (SkinManagement.SkinContext.UseBatching)
         return;
       if (_zIndexFixed) return;
       _zIndexFixed = true;
@@ -106,51 +72,39 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _parent = parent;
       foreach (UIElement element in _elements)
-      {
         element.VisualParent = _parent;
-      }
+      InvalidateParent();
     }
 
     public void Add(UIElement element)
     {
       element.VisualParent = _parent;
       _elements.Add(element);
-      if (_parent != null)
-        _parent.Invalidate();
+      InvalidateParent();
     }
 
     public void Remove(UIElement element)
     {
       _elements.Remove(element);
-      if (_parent != null)
-        _parent.Invalidate();
+      InvalidateParent();
     }
 
     public void Clear()
     {
       foreach (UIElement element in _elements)
-      {
         element.Deallocate();
-      }
       _elements.Clear();
-      if (_parent != null)
-        _parent.Invalidate();
+      InvalidateParent();
     }
 
     public int Count
     {
-      get
-      {
-        return _elements.Count;
-      }
+      get { return _elements.Count; }
     }
 
     public UIElement this[int index]
     {
-      get
-      {
-        return _elements[index];
-      }
+      get { return _elements[index]; }
       set
       {
         if (value != _elements[index])
@@ -169,7 +123,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public IEnumerator<UIElement> GetEnumerator()
     {
-      return new UIElementEnumerator(_elements);
+      return _elements.GetEnumerator();
     }
 
     #endregion
@@ -178,7 +132,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return new UIElementEnumerator(_elements);
+      return _elements.GetEnumerator();
     }
 
     #endregion

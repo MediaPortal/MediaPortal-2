@@ -750,7 +750,7 @@ namespace MediaPortal.SkinEngine.Xaml
 
     #region Protected methods
 
-    protected void OnPropertyChanged(Property property)
+    protected void OnPropertyChanged(Property property, object oldValue)
     {
       if (_valueChanged != null)
         // Delegate to our handlers

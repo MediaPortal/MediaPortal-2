@@ -71,14 +71,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnValueChanged(Property property)
+    void OnValueChanged(Property property, object oldValue)
     {
       if (_partIndicator != null)
       {
-        double w = this.ActualWidth;
+        double w = ActualWidth;
         w /= 100.0f;
-        w *= (double)(this.Value);
-        _partIndicator.Width = (double)w;
+        w *= Value;
+        _partIndicator.Width = w;
 
       }
     }

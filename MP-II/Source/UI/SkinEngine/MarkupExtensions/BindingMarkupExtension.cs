@@ -366,7 +366,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// Will trigger an update of our source value here.
     /// </summary>
     /// <param name="property">The binding property which changed.</param>
-    protected void OnBindingPropertyChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    protected void OnBindingPropertyChanged(Property property, object oldValue)
     {
       CheckTypeOfSource();
       if (_active)
@@ -389,7 +390,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// Will trigger an update of our source value here.
     /// </summary>
     /// <param name="property">The data context property which changed its value.</param>
-    protected void OnDataContextChanged(Property property)
+    /// <param name="oldValue">The old value of the property.</param>
+    protected void OnDataContextChanged(Property property, object oldValue)
     {
       if (_active)
         UpdateSourceValue();

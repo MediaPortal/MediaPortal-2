@@ -29,7 +29,6 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.SkinManagement;
 

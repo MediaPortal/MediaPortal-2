@@ -278,7 +278,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       if (!finalRect.IsEmpty)
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
-          _performLayout = true;
+          _adaptToLayoutChange = true;
         if (Screen != null) Screen.Invalidate(this);
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
