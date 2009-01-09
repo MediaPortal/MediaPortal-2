@@ -487,9 +487,13 @@ namespace MediaPortal.Services.Workflow
     public object GetModel(Guid modelId)
     {
       object model = GetOrLoadModel(modelId);
-      ServiceScope.Get<ILogger>().Debug("WorkflowManager: Attaching GUI model '{0}' to workflow state '{1}'",
-          modelId, CurrentNavigationContext.WorkflowState.StateId);
-      CurrentNavigationContext.Models[modelId] = model;
+      if (!CurrentNavigationContext.Models.ContainsKey(modelId))
+      {
+        ServiceScope.Get<ILogger>().Debug(
+            "WorkflowManager: Attaching GUI model '{0}' to workflow state '{1}'",
+            modelId, CurrentNavigationContext.WorkflowState.StateId);
+        CurrentNavigationContext.Models[modelId] = model;
+      }
       return model;
     }
 

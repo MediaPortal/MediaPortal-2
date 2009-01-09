@@ -115,7 +115,8 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void SelectMediaProviderAndContinue()
     {
-      // TODO
+      // TODO: Check, if the choosen MP implements a known navigation interface
+      // and go to the navigation screen, if supported
     }
 
     #endregion

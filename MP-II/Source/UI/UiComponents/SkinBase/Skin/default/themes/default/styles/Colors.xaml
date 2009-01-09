@@ -12,11 +12,19 @@
   <!-- Dark blue -->
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF1253A3"/>
 
+  <!-- White -->
+  <ResourceWrapper x:Key="WindowHeaderColor" Resource="White"/>
+
   <!-- Light blue, little bit darker than BackgroundGradientLightColor and a bit transparent -->
   <ResourceWrapper x:Key="DialogBackgroundGradientLightColor" Resource="#EF105EB8"/>
 
   <!-- Dark blue, little bit darker than BackgroundGradientDarkColor and a bit transparent -->
   <ResourceWrapper x:Key="DialogBackgroundGradientDarkColor" Resource="#EF0C4191"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="DialogBorderColor" Resource="#AFFFFFFF"/>
+
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFADADAD"/>
 
   <!-- Light blue progressbar border -->
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FF8DA7CD"/>

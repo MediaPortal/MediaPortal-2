@@ -24,20 +24,22 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.SkinEngine.MpfElements.Resources;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.MpfElements;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Styles      
 {
-  public class Style: NameScope, IAddChild<SetterBase>, IImplicitKey, IDeepCopyable
+  public class Style: INameScope, IAddChild<SetterBase>, IImplicitKey
   {
     #region Protected fields
+
+    protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected INameScope _parent = null;
 
     protected Style _basedOn = null;
     protected IList<SetterBase> _setters = new List<SetterBase>();
     protected Property _targetTypeProperty;
+    protected ResourceDictionary _resources;
 
     #endregion
 
@@ -51,15 +53,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     void Init()
     {
       _targetTypeProperty = new Property(typeof(Type), null);
-    }
-
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      Style s = source as Style;
-      foreach (SetterBase sb in s._setters)
-        _setters.Add(copyManager.GetCopy(sb));
-      TargetType = copyManager.GetCopy(s.TargetType);
-      BasedOn = copyManager.GetCopy(s.BasedOn);
+      _resources = new ResourceDictionary();
     }
 
     #endregion
@@ -84,15 +78,27 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       set { _targetTypeProperty.SetValue(value); }
     }
 
+    public ResourceDictionary Resources
+    {
+      get { return _resources; }
+    }
+
     /// <summary>
     /// Applies this <see cref="Style"/> to the specified <paramref name="element"/>.
     /// </summary>
     /// <param name="element">The element to apply this <see cref="Style"/> to.</param>
     public void Set(UIElement element)
     {
-      // We should use a HashSet<string> instead of a list here, but HashSet<T> will
-      // be introduced in .net 3.5, and by now we want to be compatible with .net 2.0
-      Update(element, new List<string>());
+      MergeResources(element);
+      Update(element, new HashSet<string>());
+    }
+
+    protected void MergeResources(UIElement element)
+    {
+      if (_basedOn != null)
+        _basedOn.MergeResources(element);
+      // Merge resources with those from the target element
+      element.Resources.Merge(Resources);
     }
 
     /// <summary>
@@ -115,6 +121,35 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       if (_basedOn != null)
         _basedOn.Update(element, finishedProperties);
     }
+
+    #region INamescope implementation
+
+    public object FindName(string name)
+    {
+      if (_names.ContainsKey(name))
+        return _names[name];
+      else if (_parent != null)
+        return _parent.FindName(name);
+      else
+        return null;
+    }
+
+    public void RegisterName(string name, object instance)
+    {
+      _names.Add(name, instance);
+    }
+
+    public void UnregisterName(string name)
+    {
+      _names.Remove(name);
+    }
+
+    public void RegisterParent(INameScope parent)
+    {
+      _parent = parent;
+    }
+
+    #endregion
 
     #region IAddChild implementation
 

@@ -463,9 +463,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
 
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      Initialize();
-      InitializeTriggers();
-      IsInvalidLayout = false;
+
       if (!finalRect.IsEmpty)
       {
         if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
@@ -473,6 +471,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (Screen != null) Screen.Invalidate(this);
         _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       }
+      base.Arrange(finalRect);
     }
 
     #endregion
@@ -516,6 +515,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _lastEvent |= eventType;
         if (Screen != null) Screen.Invalidate(this);
       }
+      base.FireUIEvent(eventType, source);
     }
 
     public override void OnMouseMove(float x, float y)

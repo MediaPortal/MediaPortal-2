@@ -34,7 +34,7 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 {
   public class Include : NameScope, IInclude, IInitializable
   {
-    #region Private fields
+    #region Protected fields
 
     protected object _content = null;
     protected string _includeName = null;

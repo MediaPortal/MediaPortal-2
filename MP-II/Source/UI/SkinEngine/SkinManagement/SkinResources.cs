@@ -331,11 +331,14 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     protected object GetOrLoadGUIModel(Guid modelId)
     {
-      object result = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+      object result;
+      if (_styleGUIModels.TryGetValue(modelId, out result))
+        return result;
+      result = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
           MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       if (result == null)
         throw new ArgumentException(string.Format("StyleResources: Model with id '{0}' is not available", modelId));
-      _styleGUIModels.Add(modelId, result);
+      _styleGUIModels[modelId] = result;
       return result;
     }
 
@@ -403,10 +406,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return;
       if (pr.State == LoadState.Loading)
         throw new CircularReferenceException(
-            string.Format("Style resource '{0}' is part of a circular reference", resourceKey));
+            string.Format("SkinResources: Style resource '{0}' is part of a circular reference", resourceKey));
       pr.State = LoadState.Loading;
+      ILogger logger = ServiceScope.Get<ILogger>();
       try
       {
+        logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
         ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
             new StyleResourceModelLoader(this)) as ResourceDictionary;
         if (rd == null)
@@ -416,7 +421,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error("SkinResources: Error loading style resource '{0}'", ex, pr.ResourcePath);
+        logger.Error("SkinResources: Error loading style resource '{0}'", ex, pr.ResourcePath);
       }
       finally
       {
@@ -457,6 +462,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     protected virtual void LoadDirectory(string rootDirectoryPath)
     {
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Info("SkinResources: Adding skin resource directory '{0}' to {1} '{2}'", rootDirectoryPath, GetType().Name, Name);
       // Add resource files for this directory
       int directoryNameLength = rootDirectoryPath.Length;
       foreach (string resourceFilePath in FileUtils.GetAllFilesRecursively(rootDirectoryPath))
@@ -465,7 +472,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
           resourceName = resourceName.Substring(1);
         if (_localResourceFilePaths.ContainsKey(resourceName))
-          ServiceScope.Get<ILogger>().Warn("SkinResources: Duplicate skin resource '{0}', using resource from '{1}'",
+          logger.Warn("SkinResources: Duplicate skin resource '{0}', using resource from '{1}'",
               resourceName, _localResourceFilePaths[resourceName]);
         else
           _localResourceFilePaths[resourceName] = resourceFilePath;

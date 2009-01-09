@@ -313,12 +313,15 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         parentProperty = obj.LogicalParentProperty;
         if (parentProperty.GetValue() == null && obj is Visual)
+        {
+          AttachToSourcePathProperty(parentProperty); // Attach to LP too
           parentProperty = ((Visual) obj).VisualParentProperty;
+        }
       }
       else
         throw new XamlBindingException("TreeSearchMode value {0} is not implemented", TreeSearchMode);
 
-      // Attach change handler to LogicalParent property
+      // Attach change handler to parent property
       AttachToSourcePathProperty(parentProperty);
       parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
