@@ -80,15 +80,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
+      base.OnKeyPressed(ref key);
+
+      if (key == Key.None)
+        // Key event was handeled by child
+        return;
       int updatedStartsWithIndex = -1;
       try
       {
-        base.OnKeyPressed(ref key);
-
-        if (key == Key.None)
-          // Key event was handeled by child
-          return;
-
         if (!CheckFocusInScope())
           return;
 

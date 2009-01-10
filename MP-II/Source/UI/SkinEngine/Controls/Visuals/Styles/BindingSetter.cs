@@ -21,9 +21,7 @@
 */
 #endregion
 
-using System;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.MarkupExtensions;
 using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using MediaPortal.SkinEngine.Xaml;

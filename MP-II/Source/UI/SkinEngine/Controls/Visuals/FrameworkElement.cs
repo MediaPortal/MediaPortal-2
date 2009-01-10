@@ -503,19 +503,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnMouseMove(float x, float y)
     {
-      if (x >= ActualPosition.X && x < ActualPosition.X + ActualWidth)
+      if (ActualBounds.Contains(x, y))
       {
-        if (y >= ActualPosition.Y && y < ActualPosition.Y + ActualHeight)
+        if (!IsMouseOver)
         {
-          if (!IsMouseOver)
-          {
-            IsMouseOver = true;
-            FireEvent(MOUSEENTER_EVENT);
-          }
-          if (!HasFocus)
-            TrySetFocus();
-          return;
+          IsMouseOver = true;
+          FireEvent(MOUSEENTER_EVENT);
         }
+        if (!HasFocus)
+          TrySetFocus();
+        base.OnMouseMove(x, y);
+        return;
       }
       if (IsMouseOver)
       {
@@ -524,7 +522,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       if (HasFocus)
         HasFocus = false;
-      base.OnMouseMove(x, y);
     }
 
 

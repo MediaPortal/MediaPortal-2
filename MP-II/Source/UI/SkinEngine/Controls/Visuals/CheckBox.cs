@@ -87,14 +87,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
-      if (!HasFocus) return;
-      if (key == MediaPortal.Control.InputManager.Key.Enter)
+      bool checkedChanged = false;
+      if (HasFocus && key == Key.Enter)
+      {
+        checkedChanged = true;
         IsChecked = !IsChecked; // First toggle the state, then execute the base handler
+      }
 
       base.OnKeyPressed(ref key);
-      if (key == MediaPortal.Control.InputManager.Key.Enter)
+      if (checkedChanged)
       {
-        key = MediaPortal.Control.InputManager.Key.None;
+        key = Key.None;
         if (IsChecked)
         {
           if (Checked != null)

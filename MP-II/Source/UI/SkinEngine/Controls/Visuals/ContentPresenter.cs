@@ -269,25 +269,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _templateControl.DestroyRenderTree();
     }
 
-    public override void OnMouseMove(float x, float y)
-    {
-      if (_templateControl != null)
-        _templateControl.OnMouseMove(x, y);
-      base.OnMouseMove(x, y);
-    }
-
-    public override void FireUIEvent(UIEvent eventType, UIElement source)
-    {
-      if (_templateControl != null)
-        _templateControl.FireUIEvent(eventType, source);
-    }
-
-    public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
-    {
-      if (_templateControl != null)
-        _templateControl.OnKeyPressed(ref key);
-    }
-
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);

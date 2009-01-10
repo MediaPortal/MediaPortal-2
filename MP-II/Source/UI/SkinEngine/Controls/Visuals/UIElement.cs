@@ -336,9 +336,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void OnVisibilityPropertyChanged(Property property, object oldValue)
     {
       if (VisualParent is UIElement)
-      {
         ((UIElement) VisualParent).Invalidate();
-      }
       if (IsVisible)
         FireUIEvent(UIEvent.Visible, this);
       else
@@ -368,9 +366,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (LayoutTransform != null)
         LayoutTransform.ObjectChanged += OnLayoutTransformChanged;
     }
-
-    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
-    { }
 
     public void SetResources(ResourceDictionary resources)
     {
@@ -798,6 +793,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
+    public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
+    {
+      Screen.Animator.StartStoryboard(board, this, handoffBehavior);
+    }
+
+    public void StopStoryboard(Storyboard board)
+    {
+      Screen.Animator.StopStoryboard(board, this);
+    }
+
+    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
+    { }
+
     public virtual void FireEvent(string eventName)
     {
       foreach (TriggerBase trigger in Triggers)
@@ -813,22 +821,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (_loaded != null)
           _loaded.Execute();
       }
+      foreach (UIElement child in GetChildren())
+        child.FireEvent(eventName);
       if (EventOccured != null)
         EventOccured(eventName);
     }
 
-    public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
-    {
-      Screen.Animator.StartStoryboard(board, this, handoffBehavior);
-    }
-
-    public void StopStoryboard(Storyboard board)
-    {
-      Screen.Animator.StopStoryboard(board, this);
-    }
-
     public virtual void OnMouseMove(float x, float y)
-    { }
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnMouseMove(x, y);
+      }
+    }
 
     /// <summary>
     /// Will be called when a key is pressed. Derived classes may override this method
@@ -836,7 +842,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="key">The key. Will be set to 'Key.None' if handled by child.</param> 
     public virtual void OnKeyPressed(ref Key key)
-    { }
+    {
+      foreach (UIElement children in GetChildren())
+      {
+        if (!children.IsVisible) continue;
+        children.OnKeyPressed(ref key);
+        if (key == Key.None) return;
+      }
+    }
 
     public override INameScope FindNameScope()
     {

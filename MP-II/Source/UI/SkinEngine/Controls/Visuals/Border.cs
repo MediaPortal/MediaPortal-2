@@ -383,8 +383,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
-      if (_content != null)
-        _content.FireUIEvent(eventType, source);
+      base.FireUIEvent(eventType, source);
+
       if (SkinContext.UseBatching)
       {
         _lastEvent |= eventType;
@@ -392,36 +392,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    public override void OnKeyPressed(ref MediaPortal.Control.InputManager.Key key)
-    {
-      base.OnKeyPressed(ref key);
-      if (_content != null)
-      {
-        _content.OnKeyPressed(ref key);
-      }
-    }
-
-    public override void OnMouseMove(float x, float y)
-    {
-      base.OnMouseMove(x, y);
-      if (_content != null)
-      {
-        _content.OnMouseMove(x, y);
-      }
-    }
-
     #endregion
 
-    #region findXXX methods
-
-    public override void FireEvent(string eventName)
-    {
-      if (_content != null)
-      {
-        _content.FireEvent(eventName);
-      }
-      base.FireEvent(eventName);
-    }
+    #region Children handling
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {

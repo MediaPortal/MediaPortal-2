@@ -460,6 +460,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
+      base.OnKeyPressed(ref key);
       if (!HasFocus) 
         return;
       if (key == Key.None)

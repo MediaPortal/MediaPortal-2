@@ -86,9 +86,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void OnKeyPressed(ref Key key)
     {
       if (key == Key.None)
-      {
         return;
-      }
       if (key.ToString() == KeyPress)
       {
         if (Command != null)

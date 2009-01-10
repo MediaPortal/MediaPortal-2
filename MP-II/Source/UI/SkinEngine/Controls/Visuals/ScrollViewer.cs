@@ -26,7 +26,6 @@ using System;
 using System.Drawing;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -203,12 +202,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPressed(ref Key key)
     {
-      FrameworkElement content = TemplateControl;
-      if (content == null)
-        return;
-
-      // Let the children handle the key event first.
-      content.OnKeyPressed(ref key);
+      base.OnKeyPressed(ref key);
 
       if (key == Key.None)
         // Key event was handeled by child

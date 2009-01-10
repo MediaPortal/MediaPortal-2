@@ -337,7 +337,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
-
+      base.FireUIEvent(eventType, source);
       if (SkinContext.UseBatching)
       {
         if ((_lastEvent & UIEvent.Hidden) != 0 && eventType == UIEvent.Visible)
@@ -353,6 +353,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         if (Screen != null) Screen.Invalidate(this);
       }
     }
+
     /// <summary>
     /// Converts the graphicspath to an array of vertices using trianglist.
     /// </summary>

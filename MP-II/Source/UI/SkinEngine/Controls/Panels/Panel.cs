@@ -342,37 +342,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
 
-
-    public override void OnMouseMove(float x, float y)
-    {
-      base.OnMouseMove(x, y);
-      if (!ActualBounds.Contains(x, y))
-        return;
-      foreach (UIElement element in Children)
-      {
-        if (!element.IsVisible) continue;
-        element.OnMouseMove(x, y);
-      }
-    }
-
     public override void FireUIEvent(UIEvent eventType, UIElement source)
     {
-      if (Children == null)
-        return;
-      foreach (UIElement element in Children)
-        element.FireUIEvent(eventType, source);
+      base.FireUIEvent(eventType, source);
+
       _lastEvent |= eventType;
       if (Screen != null) Screen.Invalidate(this);
-    }
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      foreach (UIElement element in Children)
-      {
-        if (!element.IsVisible) continue;
-        element.OnKeyPressed(ref key);
-        if (key == Key.None) return;
-      }
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

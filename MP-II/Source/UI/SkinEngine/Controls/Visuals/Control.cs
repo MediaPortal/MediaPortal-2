@@ -303,7 +303,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _backgroundContext = null;
         _borderContext = null;
         _performLayout = true;
-        if (_hidden == false)
+        if (!_hidden)
         {
           _hidden = true;
           BecomesHidden();
@@ -472,16 +472,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void FireEvent(string eventName)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl != null)
-      {
-        templateControl.FireEvent(eventName);
-      }
-      base.FireEvent(eventName);
-    }
-
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
@@ -502,32 +492,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         _lastEvent = UIEvent.None;
       }
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl != null)
-        templateControl.FireUIEvent(eventType, source);
+      base.FireUIEvent(eventType, source);
 
       if (SkinContext.UseBatching)
       {
         _lastEvent |= eventType;
         if (Screen != null) Screen.Invalidate(this);
       }
-      base.FireUIEvent(eventType, source);
-    }
-
-    public override void OnMouseMove(float x, float y)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      if (templateControl != null)
-        templateControl.OnMouseMove(x, y);
-      base.OnMouseMove(x, y);
-    }
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      FrameworkElement templateControl = TemplateControl;
-      base.OnKeyPressed(ref key);
-      if (templateControl != null)
-        templateControl.OnKeyPressed(ref key);
     }
 
     public override void Deallocate()
