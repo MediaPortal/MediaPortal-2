@@ -114,6 +114,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         IsPressed = true;
         if (Command != null)
           Command.Execute();
+        key = Key.None;
       }
     }
   }
