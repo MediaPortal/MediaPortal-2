@@ -864,7 +864,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Adds all children in the visual tree to the specified <paramref name="childrenOut"/> collection.
     /// </summary>
-    /// <param name="childrenOut">Colletion to add children to.</param>
+    /// <param name="childrenOut">Collection to add children to.</param>
     public virtual void AddChildren(ICollection<UIElement> childrenOut) { }
 
     /// <summary>

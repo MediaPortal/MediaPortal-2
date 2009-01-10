@@ -137,17 +137,5 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       return TemplateControl == null ? null : TemplateControl.FindElement(
           new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;
     }
-
-    #region Base overrides
-
-    public override void AddChildren(ICollection<UIElement> childrenOut)
-    {
-      base.AddChildren(childrenOut);
-      ContentPresenter presenter = FindContentPresenter();
-      if (presenter != null && presenter.TemplateControl != null)
-        childrenOut.Add(presenter.TemplateControl);
-    }
-
-    #endregion
   }
 }
