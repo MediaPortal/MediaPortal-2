@@ -64,6 +64,17 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       get { return _displayName; }
     }
 
+    [XmlIgnore]
+    public override bool IsValid
+    {
+      get { return true; }
+    }
+
+    public override bool IsBasedOnShare(System.Guid shareId)
+    {
+      return false;
+    }
+
     internal override void Loaded(View parentView)
     {
       base.Loaded(parentView);
@@ -71,7 +82,24 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         subView.Loaded(this);
     }
 
-    protected override IList<MediaItem> ReLoadItems() { return new List<MediaItem>(); }
+    protected override IList<MediaItem> ReLoadItems()
+    {
+      return new List<MediaItem>();
+    }
+
+    public void AddSubView(View subView)
+    {
+      _viewCollection.Add(subView);
+      if (IsSubViewsInitialized)
+        RefreshSubViews();
+    }
+
+    public void RemoveSubView(View subView)
+    {
+      _viewCollection.Remove(subView);
+      if (IsSubViewsInitialized)
+        RefreshSubViews();
+    }
 
     protected override IList<View> ReLoadSubViews()
     {

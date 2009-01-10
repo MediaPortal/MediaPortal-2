@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.Xaml.Interfaces;

@@ -341,7 +341,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <returns>UI element which renders the specified <paramref name="dataItem"/>.</returns>
     protected abstract UIElement PrepareItemContainer(object dataItem);
 
-
     public void DoUpdateItems()
     {
       if (_prepare)

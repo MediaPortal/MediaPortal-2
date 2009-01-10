@@ -549,13 +549,15 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         FindParentMode findParentMode)
     {
       Visual v = obj as Visual;
-      Property parentProperty;
+      Property parentProperty = null;
+      parent = null;
       if (findParentMode == FindParentMode.HybridPreferVisualTree && v != null)
       { // The visual tree has priority to search our parent
         parentProperty = v.VisualParentProperty;
         AttachToSourcePathProperty(parentProperty);
+        parent = parentProperty.GetValue() as DependencyObject;
       }
-      else
+      if (parent == null)
       { // If no visual parent exists, use the logical tree
         parentProperty = obj.LogicalParentProperty;
         AttachToSourcePathProperty(parentProperty);
@@ -736,7 +738,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       _sourceValueValid = false;
       IDataDescriptor evaluatedValue;
       if (!GetSourceDataDescriptor(out evaluatedValue))
-          // Do nothing if not all necessary properties can be resolved at the current time
+        // Do nothing if not all necessary properties can be resolved at the current time
         return false;
       if (_compiledPath != null)
         try

@@ -14,7 +14,7 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid>
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -31,40 +31,25 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom"
-              DataContext="{Binding Source={StaticResource Model},Path=CurrentView}"
-              Content="{Binding DisplayName}"/>
-          <!-- Binding Content to NavigatableParentItem[Name] doesn't work here, because the BindingMarkupExtension
-               doesn't use change listeners for each single path segment, and NavigatableParentItem is null in the first view -->
+              Content="{Binding CurrentView.DisplayName}"/>
           <Button Grid.Row="0" Grid.Column="1" Width="60" Margin="0,0,20,0"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{StaticResource ButtonStyle}"
-              DataContext="{Binding Source={StaticResource Model}}"
               Content=".."
-              Command="{Command Path=Select,Parameters={LateBoundValue Value={Binding NavigatableParentItem}}}"
-              IsVisible="{Binding Path=HasParentDirectory}"/>
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+              IsVisible="{Binding HasParentDirectory}"/>
         </Grid>
-<!-- Another solution for displaying the ".." button as a list item:
-        <ContentControl Grid.Row="0" Grid.Column="0"
-            Style="{StaticResource DefaultMenuItemContainerStyle}"
-            DataContext="{Binding Source={StaticResource Model}}"
-            Content="{Binding Source={StaticResource Model},Path=NavigatableParentItem}"
-            ContentTemplate="{StaticResource ContentsMenuItemDataTemplate}"
-            IsVisible="{Binding HasParentDirectory}">
-          <ContentControl.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
-                Parameters="{LateBoundValue Value={Binding NavigatableParentItem}}"/>
-          </ContentControl.Resources>
-        </ContentControl>
--->
         <ListView Grid.Row="1"
             Style="{StaticResource ContentsMenuListViewStyle}"
-            DataContext="{Binding Source={StaticResource Model}}"
-            ItemsSource="{Binding Items}">
+            ItemsSource="{Binding Items}" IsVisible="{Binding CurrentView.IsValid}">
           <ListView.Resources>
             <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
                 Parameters="{LateBoundValue Value={Binding}}"/>
           </ListView.Resources>
         </ListView>
+        <Label Grid.Row="1" IsVisible="{Binding !CurrentView.IsValid}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Media.ViewInvalid]" Color="{StaticResource ErrorTextColor}"/>
       </Grid>
     </ResourceWrapper>
 

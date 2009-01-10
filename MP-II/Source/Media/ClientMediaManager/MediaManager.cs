@@ -93,7 +93,7 @@ namespace MediaPortal.Media.ClientMediaManager
         mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
         mediaItemAspectIds.Add(MediaAspect.ASPECT_ID);
         LocalShareView lsvm = new LocalShareView(share.ShareId, share.Name, string.Empty, _rootView, mediaItemAspectIds);
-        vcv.SubViews.Add(lsvm);
+        vcv.AddSubView(lsvm);
       }
       // TODO: Create default database views
     }
@@ -111,7 +111,6 @@ namespace MediaPortal.Media.ClientMediaManager
         // The views are still uninitialized - use defaults
         InitializeDefaultViews();
         SaveViews();
-        return;
       }
       else
         _rootView.Loaded(null);
@@ -122,6 +121,35 @@ namespace MediaPortal.Media.ClientMediaManager
       ViewsSettings settings = new ViewsSettings();
       settings.RootView = _rootView;
       ServiceScope.Get<ISettingsManager>().Save(settings);
+    }
+
+    /// <summary>
+    /// Checks the provided <paramref name="view"/> recursively for <see cref="ViewCollectionView"/>s
+    /// containing <see cref="LocalShareView"/>s based on the deleted share with the specified
+    /// <paramref name="shareId"/>.
+    /// </summary>
+    /// <param name="view">View to check recursively.</param>
+    /// <param name="shareId">Id of the deleted share.</param>
+    protected void PropagateShareRemoval(View view, Guid shareId)
+    {
+      if (view == null || view.SubViews == null)
+        return;
+      ICollection<View> invalidViews = new List<View>();
+      foreach (View subView in view.SubViews)
+      {
+        if (subView.IsBasedOnShare(shareId))
+          invalidViews.Add(subView);
+        else
+          PropagateShareRemoval(subView, shareId);
+      }
+      ViewCollectionView vcv = view as ViewCollectionView;
+      if (vcv != null && invalidViews.Count > 0)
+      {
+        vcv.Invalidate();
+        foreach (View invalidView in invalidViews)
+          vcv.RemoveSubView(invalidView);
+        SaveViews();
+      }
     }
 
     /// <summary>
@@ -195,6 +223,7 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
       _localLocalSharesManagement.RemoveShare(shareId);
+      PropagateShareRemoval(_rootView, shareId);
     }
 
     public IDictionary<Guid, ShareDescriptor> GetShares()

@@ -88,6 +88,13 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     public abstract string DisplayName { get; }
 
     /// <summary>
+    /// Returns the information if this view can be built (i.e. if all of its providers are present).
+    /// An invalid view might get valid later.
+    /// </summary>
+    [XmlIgnore]
+    public abstract bool IsValid { get; }
+
+    /// <summary>
     /// Returns the parent view of this view.
     /// </summary>
     [XmlIgnore]
@@ -110,8 +117,8 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     {
       get
       {
-        if (_items == null)
-          Refresh();
+        if (!IsItemsInitialized)
+          RefreshItems();
         return _items;
       }
     }
@@ -124,10 +131,28 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     {
       get
       {
-        if (_subViews == null)
-          Refresh();
+        if (!IsSubViewsInitialized)
+          RefreshSubViews();
         return _subViews;
       }
+    }
+
+    /// <summary>
+    /// Returns the information if the (lazily initialized) sub views collection already has been initialized.
+    /// </summary>
+    [XmlIgnore]
+    protected bool IsSubViewsInitialized
+    {
+      get { return _subViews != null; }
+    }
+
+    /// <summary>
+    /// Returns the information if the (lazily initialized) items collection already has been initialized.
+    /// </summary>
+    [XmlIgnore]
+    protected bool IsItemsInitialized
+    {
+      get { return _items != null; }
     }
 
     /// <summary>
@@ -136,7 +161,23 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// </summary>
     public void Refresh()
     {
+      if (!IsValid)
+        return;
+      RefreshItems();
+      RefreshSubViews();
+    }
+
+    public void RefreshItems()
+    {
+      if (!IsValid)
+        return;
       _items = ReLoadItems();
+    }
+
+    public void RefreshSubViews()
+    {
+      if (!IsValid)
+        return;
       _subViews = ReLoadSubViews();
     }
 
@@ -174,6 +215,15 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// </remarks>
     /// <returns>List of sub views of this view.</returns>
     protected abstract IList<View> ReLoadSubViews();
+
+    /// <summary>
+    /// Returns the information if this view cannot exist without the share of the specified
+    /// <paramref name="shareId"/>.
+    /// </summary>
+    /// <param name="shareId">Id of the share to check.</param>
+    /// <returns><c>true</c>, if this view neither can evaluated its items nor its sub views if the
+    /// share of the specified <paramref name="shareId"/> isn't preent, else <c>false</c>.</returns>
+    public abstract bool IsBasedOnShare(Guid shareId);
 
     #region Additional members for the XML serialization
 

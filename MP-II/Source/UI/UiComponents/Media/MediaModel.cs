@@ -41,11 +41,14 @@ namespace UiComponents.Media
   {
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
 
+    public const string MEDIA_MAIN_SCREEN = "media";
+
+    protected const string VIEW_KEY = "MediaModel: VIEW";
+
     #region Protected fields
 
     protected readonly ItemsList _items; // Only one items list allowed as the UI databinds to it.
     protected Property _currentViewProperty;
-    protected Property _navigatableParentItemProperty;
     protected Property _hasParentDirectoryProperty;
 
     #endregion
@@ -53,10 +56,8 @@ namespace UiComponents.Media
     public MediaModel()
     {
       _items = new ItemsList();
-      _currentViewProperty = new Property(typeof(View), ServiceScope.Get<MediaManager>().RootView);
-      _navigatableParentItemProperty = new Property(typeof(NavigationItem), null);
+      _currentViewProperty = new Property(typeof(View), RootView);
       _hasParentDirectoryProperty = new Property(typeof(bool), false);
-      ReloadItems();
     }
 
     /// <summary>
@@ -70,24 +71,7 @@ namespace UiComponents.Media
     }
 
     /// <summary>
-    /// Provides a <see cref="NavigationItem"/> to the GUI which denotes the parent view of the current
-    /// view.
-    /// </summary>
-    public NavigationItem NavigatableParentItem
-    {
-      get { return (NavigationItem) _navigatableParentItemProperty.GetValue(); }
-      set { _navigatableParentItemProperty.SetValue(value); }
-    }
-
-    public Property NavigatableParentItemProperty
-    {
-      get { return _navigatableParentItemProperty; }
-    }
-
-    /// <summary>
-    /// Gets the information whether the current view has a navigatable parent view. In this case, the
-    /// property <see cref="NavigatableParentItem"/> will contain the navigation item to the parent
-    /// view. Else, <see cref="NavigatableParentItem"/> will be <c>null</c>.
+    /// Gets the information whether the current view has a navigatable parent view.
     /// </summary>
     public bool HasParentDirectory
     {
@@ -114,12 +98,17 @@ namespace UiComponents.Media
       get { return _currentViewProperty; }
     }
 
+    public View RootView
+    {
+      get { return ServiceScope.Get<MediaManager>().RootView; }
+    }
+
     /// <summary>
     /// Provides a callable method for the skin to select an item.
     /// Depending on the item type, we will navigate to the choosen view or play the choosen item.
     /// </summary>
-    /// <param name="item">The choosen item. This item should be either <see cref="NavigatableParentItem"/> or
-    /// one of the items in the <see cref="Items"/> list.</param>
+    /// <param name="item">The choosen item. This item should be one of the items in the
+    /// <see cref="Items"/> list.</param>
     public void Select(ListItem item)
     {
       if (item == null)
@@ -142,13 +131,18 @@ namespace UiComponents.Media
 
     /// <summary>
     /// Does the actual work of navigating to the specifield view. This will exchange our
-    /// <see cref="CurrentView"/> to the specified <paramref name="view"/>.
+    /// <see cref="CurrentView"/> to the specified <paramref name="view"/> and push a state onto
+    /// the workflow manager's navigation stack.
     /// </summary>
     /// <param name="view">View to navigate to.</param>
     protected void NavigateToView(View view)
     {
-      CurrentView = view;
-      ReloadItems();
+      WorkflowState newState = WorkflowState.CreateTransientState(
+          "View: " + view.DisplayName, MEDIA_MAIN_SCREEN, true, true);
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IDictionary<string, object> variables = new Dictionary<string, object>();
+      variables.Add(VIEW_KEY, view);
+      workflowManager.NavigatePushTransient(newState, variables);
     }
 
     /// <summary>
@@ -164,17 +158,22 @@ namespace UiComponents.Media
     {
       _items.Clear();
       View currentView = CurrentView;
-      NavigatableParentItem = currentView.ParentView == null ? null : new NavigationItem(currentView.ParentView, "..");
       HasParentDirectory = currentView.ParentView != null;
-      // Note: we don't add the NavigateParentItem to _items - it is the job of the screenfile to
-      // provide an item to navigate to the view denoted by NavigateParentItem
-
-      // Add items for sub views
-      foreach (View subView in currentView.SubViews)
-        _items.Add(new NavigationItem(subView, null));
-      foreach (MediaItem item in currentView.MediaItems)
-        _items.Add(new PlayableItem(item));
+      if (currentView.IsValid)
+      {
+        // Add items for sub views
+        foreach (View subView in currentView.SubViews)
+          _items.Add(new NavigationItem(subView, null));
+        foreach (MediaItem item in currentView.MediaItems)
+          _items.Add(new PlayableItem(item));
+      }
       _items.FireChange();
+    }
+
+    protected View GetViewFromContext(NavigationContext context)
+    {
+      View view = context.GetContextVariable(VIEW_KEY, true) as View;
+      return view ?? RootView;
     }
 
     #endregion
@@ -188,7 +187,8 @@ namespace UiComponents.Media
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // We could initialize some data here when entering the media navigation state
+      CurrentView = GetViewFromContext(newContext);
+      ReloadItems();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -198,7 +198,8 @@ namespace UiComponents.Media
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      // We could initialize some data here when changing the media navigation state
+      CurrentView = GetViewFromContext(newContext);
+      ReloadItems();
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -207,6 +208,8 @@ namespace UiComponents.Media
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
+      CurrentView = GetViewFromContext(newContext);
+      ReloadItems();
     }
 
     public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)

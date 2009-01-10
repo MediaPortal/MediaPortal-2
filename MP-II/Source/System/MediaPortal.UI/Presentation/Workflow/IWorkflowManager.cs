@@ -74,8 +74,33 @@ namespace MediaPortal.Presentation.Workflow
     /// containing the specified state on top of the navigation context stack. This realizes a
     /// forward navigation.
     /// </summary>
+    /// <remarks>
+    /// This is a convenience method for calling <c>NavigatePush(stateId, null);</c>.
+    /// </remarks>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
     void NavigatePush(Guid stateId);
+
+    /// <summary>
+    /// Navigates to the specified non-transient state. This will push a new navigation context entry
+    /// containing the specified state on top of the navigation context stack. This realizes a
+    /// forward navigation.
+    /// </summary>
+    /// <param name="stateId">Id of the non-transient state to enter.</param>
+    /// <param name="additionalContextVariables">Additional variables to be set at the
+    /// <see cref="NavigationContext"/> before entering the new state. If set to <c>null</c>,
+    /// no additional variables will be added to the navigation context.</param>
+    void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables);
+
+    /// <summary>
+    /// Navigates to the specified transient state. This will push a new navigation context entry
+    /// containing the specified state on top of the navigation context stack. This realizes a
+    /// forward navigation.
+    /// </summary>
+    /// <remarks>
+    /// This is a convenience method for calling <c>NavigatePushTransient(stateId, null);</c>.
+    /// </remarks>
+    /// <param name="state">Id of the new transient state to add and enter.</param>
+    void NavigatePushTransient(WorkflowState state);
 
     /// <summary>
     /// Navigates to the specified transient state. This will push a new navigation context entry
@@ -83,7 +108,10 @@ namespace MediaPortal.Presentation.Workflow
     /// forward navigation.
     /// </summary>
     /// <param name="state">Id of the new transient state to add and enter.</param>
-    void NavigatePushTransient(WorkflowState state);
+    /// <param name="additionalContextVariables">Additional variables to be set at the
+    /// <see cref="NavigationContext"/> before entering the new state. If set to <c>null</c>,
+    /// no additional variables will be added to the navigation context.</param>
+    void NavigatePushTransient(WorkflowState state, IDictionary<string, object> additionalContextVariables);
 
     /// <summary>
     /// Removes the <paramref name="count"/> youngest navigation context levels from the

@@ -6,6 +6,7 @@
     <String Name="MyMusic" Text="Music"/>
     <String Name="MyVideos" Text="Videos"/>
     <String Name="MyPictures" Text="Pictures"/>
+    <String Name="ViewInvalid" Text="This view is invalid"/>
   </Section>
   <Section Name="Settings">
     <String Name="Shares" Text="Shares"/>

@@ -80,6 +80,15 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
+    /// Returns a (key; value) mapping of all context variables. Changing the returned dictionary will
+    /// change the context variables.
+    /// </summary>
+    public IDictionary<string, object> ContextVariables
+    {
+      get { return _contextVariables; }
+    }
+
+    /// <summary>
     /// Gets or sets context variables in the current navigation context.
     /// </summary>
     /// <remarks>

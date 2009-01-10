@@ -238,7 +238,7 @@ namespace MediaPortal.Services.Workflow
       return current == null ? null : current.WorkflowState;
     }
 
-    protected void DoPushNavigationContext(WorkflowState state)
+    protected void DoPushNavigationContext(WorkflowState state, IDictionary<string, object> additionalContextVariables)
     {
       ILogger logger = ServiceScope.Get<ILogger>();
       NavigationContext predecessor = CurrentNavigationContext;
@@ -273,6 +273,8 @@ namespace MediaPortal.Services.Workflow
 
       // Create new workflow context
       NavigationContext newContext = new NavigationContext(state, predecessor, workflowModel);
+      if (additionalContextVariables != null)
+        CollectionUtils.AddAll(newContext.ContextVariables, additionalContextVariables);
 
       // Push new context
       _navigationContextStack.Push(newContext);
@@ -459,22 +461,32 @@ namespace MediaPortal.Services.Workflow
       get { return _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek(); }
     }
 
-    public void NavigatePush(Guid stateId)
+    public void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables)
     {
       WorkflowState state;
       if (!_states.TryGetValue(stateId, out state))
         throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
-      DoPushNavigationContext(state);
+      DoPushNavigationContext(state, additionalContextVariables);
+      if (!UpdateScreen())
+        NavigatePop(1);
+    }
+
+    public void NavigatePush(Guid stateId)
+    {
+      NavigatePush(stateId, null);
+    }
+
+    public void NavigatePushTransient(WorkflowState state, IDictionary<string, object> additionalContextVariables)
+    {
+      DoPushNavigationContext(state, additionalContextVariables);
       if (!UpdateScreen())
         NavigatePop(1);
     }
 
     public void NavigatePushTransient(WorkflowState state)
     {
-      DoPushNavigationContext(state);
-      if (!UpdateScreen())
-        NavigatePop(1);
+      NavigatePushTransient(state, null);
     }
 
     public void NavigatePop(int count)

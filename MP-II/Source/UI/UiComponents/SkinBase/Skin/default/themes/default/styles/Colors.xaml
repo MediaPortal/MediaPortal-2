@@ -26,6 +26,12 @@
 
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFADADAD"/>
 
+  <!-- White -->
+  <ResourceWrapper x:Key="TextColor" Resource="White"/>
+
+  <!-- Red -->
+  <ResourceWrapper x:Key="ErrorTextColor" Resource="Red"/>
+
   <!-- Light blue progressbar border -->
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FF8DA7CD"/>
 

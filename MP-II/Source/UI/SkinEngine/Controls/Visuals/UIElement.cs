@@ -843,10 +843,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <param name="key">The key. Will be set to 'Key.None' if handled by child.</param> 
     public virtual void OnKeyPressed(ref Key key)
     {
-      foreach (UIElement children in GetChildren())
+      foreach (UIElement child in GetChildren())
       {
-        if (!children.IsVisible) continue;
-        children.OnKeyPressed(ref key);
+        if (!child.IsVisible) continue;
+        child.OnKeyPressed(ref key);
         if (key == Key.None) return;
       }
     }

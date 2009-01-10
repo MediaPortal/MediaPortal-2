@@ -63,14 +63,30 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     }
 
     [XmlIgnore]
+    public override bool IsValid
+    {
+      get
+      {
+        // TODO (Albert 2009-01-10): Return if the media library is present
+        return false;
+      }
+    }
+
+    [XmlIgnore]
     public override ICollection<Guid> MediaItemAspectIds
     {
       get { return _queryHierarchyNode.MediaItemAspectIds; }
     }
 
+    public override bool IsBasedOnShare(Guid shareId)
+    {
+        // TODO (Albert 2009-01-10): Maybe check the query if it is based on the specified view
+      return false;
+    }
+
     protected override IList<MediaItem> ReLoadItems()
     {
-      // TODO (Albert78, 2008-11-15): Load view contents from the media library, if connected
+      // TODO (Albert, 2008-11-15): Load view contents from the media library, if connected
       return new List<MediaItem>();
     }
 

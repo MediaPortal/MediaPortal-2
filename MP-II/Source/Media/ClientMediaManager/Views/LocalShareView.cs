@@ -108,13 +108,39 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       get { return _overrideName ?? Path.GetFileName(_relativePath); }
     }
 
+    [XmlIgnore]
+    public override bool IsValid
+    {
+      get
+      {
+        ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
+        if (share == null)
+          return false;
+        MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+        Guid providerId = share.MediaProviderId;
+        IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
+        if (provider == null)
+          return false;
+        return true;
+      }
+    }
+
+    public override bool IsBasedOnShare(Guid shareId)
+    {
+      return _shareId == shareId;
+    }
+
     protected override IList<MediaItem> ReLoadItems()
     {
-      IList<MediaItem> result = new List<MediaItem>();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
+      if (share == null)
+        return null;
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
+      if (provider == null)
+        return null;
+      IList<MediaItem> result = new List<MediaItem>();
       string path = Path.Combine(share.Path, _relativePath);
       IEnumerable<Guid> metadataExtractorIds = share.MetadataExtractorIds;
       if (provider is IFileSystemMediaProvider)
@@ -131,11 +157,15 @@ namespace MediaPortal.Media.ClientMediaManager.Views
 
     protected override IList<View> ReLoadSubViews()
     {
-      IList<View> result = new List<View>();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
+      if (share == null)
+        return null;
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
+      if (provider == null)
+        return null;
+      IList<View> result = new List<View>();
       string path = Path.Combine(share.Path, _relativePath);
       if (provider is IFileSystemMediaProvider)
       { // Add all items at the specified path
