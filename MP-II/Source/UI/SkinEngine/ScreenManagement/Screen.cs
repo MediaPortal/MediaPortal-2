@@ -190,8 +190,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         lock (_visual)
         {
-          _visual.Render();
           _animator.Animate();
+          _visual.Render();
         }
       }
       if (_setFocusedElement)

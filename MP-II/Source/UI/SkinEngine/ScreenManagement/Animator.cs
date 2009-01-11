@@ -42,6 +42,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
   {
     protected Timeline _timeline;
     protected TimelineContext _timelineContext;
+    protected bool _isStopped;
     protected ICollection<AnimationContext> _waitingFor = new List<AnimationContext>();
 
     /// <summary>
@@ -73,6 +74,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get { return _waitingFor; }
     }
+
+    /// <summary>
+    /// Marks the animation of this context as stopped. The animation will be stopped by the
+    /// animation main method next time.
+    /// </summary>
+    public bool IsStopped
+    {
+      get { return _isStopped; }
+      set { _isStopped = value; }
+    }
   }
 
   /// <summary>
@@ -88,21 +99,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
   /// </remarks>
   public class Animator
   {
-    protected List<AnimationContext> _scheduledAnimations;
+    protected object _syncObject = new object();
+    protected IList<AnimationContext> _scheduledAnimations;
+    protected IDictionary<IDataDescriptor, object> _valuesToSet;
 
     public Animator()
     {
       _scheduledAnimations = new List<AnimationContext>();
-    }
-
-    protected AnimationContext GetContext(Timeline line, UIElement element)
-    {
-      lock (_scheduledAnimations)
-      {
-        foreach (AnimationContext context in _scheduledAnimations)
-          if (context.Timeline == line && context.TimelineContext.VisualParent == element) return context;
-      }
-      return null;
+      _valuesToSet = new Dictionary<IDataDescriptor, object>();
     }
 
     /// <summary>
@@ -123,7 +127,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public void StartStoryboard(Storyboard board, UIElement element,
         HandoffBehavior handoffBehavior)
     {
-      lock (_scheduledAnimations)
+      lock (_syncObject)
       {
         AnimationContext context = new AnimationContext();
         context.Timeline = board;
@@ -139,8 +143,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         _scheduledAnimations.Add(context);
         board.Start(context.TimelineContext, SkinContext.TimePassed);
 
-        // Avoid flickering when conflicting properties are reset by their former animations
-        context.Timeline.Animate(context.TimelineContext, SkinContext.TimePassed);
+        // No animation here - has to be done in the Animate method
       }
     }
 
@@ -152,23 +155,105 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// <param name="element">Context element on which the <paramref name="board"/> runs.</param>
     public void StopStoryboard(Storyboard board, UIElement element)
     {
-      lock (_scheduledAnimations)
+      lock (_syncObject)
       {
         AnimationContext context = GetContext(board, element);
         if (context == null) return;
-        _scheduledAnimations.Remove(context);
-        context.Timeline.Stop(context.TimelineContext);
+        context.IsStopped = true;
       }
     }
 
+    /// <summary>
+    /// Stops all storyboards.
+    /// </summary>
     public void StopAll()
     {
-      lock (_scheduledAnimations)
+      lock (_syncObject)
       {
         foreach (AnimationContext ac in _scheduledAnimations)
-          ac.Timeline.Stop(ac.TimelineContext);
-        _scheduledAnimations.Clear();
+          ac.IsStopped = true;
       }
+    }
+
+    /// <summary>
+    /// Schedules the specified <paramref name="value"/> to be set at the specified
+    /// <paramref name="dataDescriptor"/> the next time the <see cref="Animate"/> method runs.
+    /// If the specified <paramref name="dataDescriptor"/> is already scheduled to be set to another
+    /// value, the other job will be overridden by this call.
+    /// </summary>
+    /// <param name="dataDescriptor">Data descriptor to be used as target for the
+    /// <paramref name="value"/>.</param>
+    /// <param name="value">Value to be set.</param>
+    public void SetValue(IDataDescriptor dataDescriptor, object value)
+    {
+      lock (_syncObject)
+      {
+        _valuesToSet[dataDescriptor] = value;
+      }
+    }
+
+    /// <summary>
+    /// Returns the informatio if we have a value pending to be set. This can be the case if
+    /// <see cref="SetValue"/> was called before with the specified <paramref name="dataDescriptor"/>
+    /// but the <see cref="Animate"/> method wasn't called since then.
+    /// </summary>
+    /// <param name="dataDescriptor">Data descriptor to search for.</param>
+    /// <param name="value">Will be set to the value which is pending to be set to the
+    /// <paramref name="dataDescriptor"/>.</param>
+    /// <returns><c>true</c>, if the method found a pending value for the specified
+    /// <paramref name="dataDescriptor"/>, else <c>false</c>.</returns>
+    public bool TryGetPendingValue(IDataDescriptor dataDescriptor, out object value)
+    {
+      lock (_syncObject)
+      {
+        return _valuesToSet.TryGetValue(dataDescriptor, out value);
+      }
+    }
+
+    /// <summary>
+    /// Animates all timelines and sets all scheduled values to set.
+    /// This method has to be called periodically to do all animation work.
+    /// </summary>
+    public void Animate()
+    {
+      lock (_syncObject)
+      {
+        foreach (AnimationContext ac in _scheduledAnimations)
+        {
+          if (ac.IsStopped)
+          { // Stopped from the outside
+            stoppedAnimations.Add(ac);
+            ac.Timeline.Stop(ac.TimelineContext);
+          }
+          if (!CanRun(ac))
+            continue;
+          // Animate timeline
+          ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
+          if (ac.Timeline.IsStopped(ac.TimelineContext))
+            // Only remove stopped animations here, not ended animations. Ended animations
+            // will remain active.
+            stoppedAnimations.Add(ac);
+        }
+        foreach (AnimationContext ac in stoppedAnimations)
+        {
+          ac.Timeline.Finish(ac.TimelineContext);
+          _scheduledAnimations.Remove(ac);
+        }
+        foreach (KeyValuePair<IDataDescriptor, object> valueToSet in _valuesToSet)
+          valueToSet.Key.Value = valueToSet.Value;
+        _valuesToSet.Clear();
+      }
+      stoppedAnimations.Clear();
+    }
+
+    protected AnimationContext GetContext(Timeline line, UIElement element)
+    {
+      lock (_syncObject)
+      {
+        foreach (AnimationContext context in _scheduledAnimations)
+          if (context.Timeline == line && context.TimelineContext.VisualParent == element) return context;
+      }
+      return null;
     }
 
     // For performance reasons, store those local variables as fields
@@ -221,34 +306,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Animates all timelines. This method has to be called periodically to do all animation work.
-    /// </summary>
-    public void Animate()
-    {
-      lock (_scheduledAnimations)
-      {
-        if (_scheduledAnimations.Count == 0) return;
-        foreach (AnimationContext ac in _scheduledAnimations)
-        {
-          if (!CanRun(ac))
-            continue;
-          // Animate timeline
-          ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
-          if (ac.Timeline.IsStopped(ac.TimelineContext))
-            // Only remove stopped animations here, not ended animations. Ended animations
-            // will remain active.
-            stoppedAnimations.Add(ac);
-        }
-        foreach (AnimationContext ac in stoppedAnimations)
-        {
-          ac.Timeline.Finish(ac.TimelineContext);
-          _scheduledAnimations.Remove(ac);
-        }
-      }
-      stoppedAnimations.Clear();
-    }
-
-    /// <summary>
     /// Will check the specified <paramref name="animationContext"/> for conflicts with already
     /// scheduled animations and returns those conflicts.
     /// </summary>
@@ -271,7 +328,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       line.AddAllAnimatedProperties(context, newProperties);
       conflictingAnimations = new List<AnimationContext>();
       conflictingProperties = new Dictionary<IDataDescriptor, object>();
-      lock (_scheduledAnimations)
+      lock (_syncObject)
       {
         // Find conflicting animations and conflicting animated properties
         foreach (AnimationContext ac in _scheduledAnimations)

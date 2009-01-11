@@ -795,12 +795,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public void StartStoryboard(Storyboard board, HandoffBehavior handoffBehavior)
     {
+      if (Screen == null)
+        return;
       Screen.Animator.StartStoryboard(board, this, handoffBehavior);
     }
 
     public void StopStoryboard(Storyboard board)
     {
+      if (Screen == null)
+        return;
       Screen.Animator.StopStoryboard(board, this);
+    }
+
+    public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
+    {
+      if (Screen != null)
+        Screen.Animator.SetValue(dataDescriptor, value);
+      else
+        dataDescriptor.Value = value;
+    }
+
+    public bool TryGetPendingValue(IDataDescriptor dataDescriptor, out object value)
+    {
+      if (Screen != null)
+        return Screen.Animator.TryGetPendingValue(dataDescriptor, out value);
+      value = null;
+      return false;
     }
 
     public virtual void FireUIEvent(UIEvent eventType, UIElement source)

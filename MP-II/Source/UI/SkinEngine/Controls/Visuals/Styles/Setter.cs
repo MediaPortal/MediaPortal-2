@@ -128,19 +128,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
         return;
       if (!WasApplied)
       { // We have to prepare our internal data the first time
-        _originalValue = dd.Value;
         object obj;
         if (TypeConverter.Convert(Value, dd.DataType, out obj))
           SetterValue = obj;
         else
           // We cannot execute
           return;
+        // The next lines are necessary because the render thread is setting our values.
+        // If the render thread wasn't able to set the value yet, we would get the old, unchanged and
+        // thus wrong value dd.Value for _originalValue.
+        if (!element.TryGetPendingValue(dd, out obj))
+          obj = dd.Value;
+        _originalValue = obj;
         WasApplied = true;
       }
       // We have to copy the SetterValue because the Setter doesn't belong exclusively
       // to the UIElement. It may be part of a style for example, which is shared across
       // multiple controls.
-      dd.Value = MpfCopyManager.DeepCopyCutLP(SetterValue);
+      element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(SetterValue));
     }
 
     /// <summary>
@@ -154,7 +159,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       if (dd == null)
         return;
       if (WasApplied)
-        dd.Value = _originalValue;
+        element.SetValueInRenderThread(dd, _originalValue);
       _isSet = false;
     }
   }
