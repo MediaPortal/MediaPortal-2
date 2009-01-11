@@ -105,7 +105,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     internal override void DoAnimation(TimelineContext context, uint timepassed)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
 
       Vector2 from = From ?? (Vector2) patc.StartValue;
@@ -124,7 +124,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     Vector2 GetValue(TimelineContext context)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return new Vector2(0, 0);
       object o = patc.DataDescriptor.Value;
       if (o.GetType() == typeof(Vector2)) return (Vector2) o;
@@ -139,7 +139,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     void SetValue(TimelineContext context,Vector2 vector)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
       object o = patc.DataDescriptor.Value;
       if (o.GetType() == typeof(Vector2))

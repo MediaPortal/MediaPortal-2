@@ -86,16 +86,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
-    public void Restore(UIElement element)
-    {
-      IDataDescriptor dd = GetPropertyDescriptor(element);
-      if (dd == null)
-        return;
-      if (WasApplied)
-        dd.Value = _originalValue;
-      _isSet = false;
-    }
-
     protected IDataDescriptor GetPropertyDescriptor(UIElement element)
     {
       DependencyObject target = null;
@@ -126,9 +116,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
         IDataDescriptor result;
         if (ReflectionHelper.FindMemberDescriptor(target, propertyName, out result))
           return result;
-        else
-          throw new ArgumentException(
-              string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
+        throw new ArgumentException(
+            string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
       }
     }
 
@@ -152,6 +141,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       // to the UIElement. It may be part of a style for example, which is shared across
       // multiple controls.
       dd.Value = MpfCopyManager.DeepCopyCutLP(SetterValue);
+    }
+
+    /// <summary>
+    /// Restore the target element's original value which was set to the setter's value before.
+    /// </summary>
+    /// <param name="element">The UI element which is used as starting point for this setter
+    /// to earch the target element.</param>
+    public void Restore(UIElement element)
+    {
+      IDataDescriptor dd = GetPropertyDescriptor(element);
+      if (dd == null)
+        return;
+      if (WasApplied)
+        dd.Value = _originalValue;
+      _isSet = false;
     }
   }
 }

@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     internal override void DoAnimation(TimelineContext context, uint timepassed)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
 
       Color from = From ?? (Color) patc.StartValue;
@@ -130,7 +130,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
       distB *= timepassed;
       distB += from.B;
 
-      patc.DataDescriptor.Value = Color.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);;
+      patc.DataDescriptor.Value = Color.FromArgb((int) distA, (int) distR, (int) distG, (int) distB);
     }
 
     #endregion

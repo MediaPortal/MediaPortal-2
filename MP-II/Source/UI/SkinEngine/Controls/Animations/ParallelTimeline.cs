@@ -32,7 +32,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void Start(TimelineContext context, uint timePassed)
     {
       base.Start(context, timePassed);
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
         Children[i].Start(tgc[i], timePassed);
     }
@@ -40,7 +40,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     internal override void DoAnimation(TimelineContext context, uint reltime)
     {
       base.DoAnimation(context, reltime);
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
         // Call Animate at the children, because the children have to do their own time management
         Children[i].Animate(tgc[i], reltime);
@@ -50,7 +50,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     {
       if (base.HasEnded(context))
         return true;
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
         if (!Children[i].HasEnded(tgc[i])) return false;
       return true;

@@ -71,6 +71,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 
     #endregion
 
+    /// <summary>
+    /// Sets the setter's value to the target property.
+    /// </summary>
+    /// <param name="element">The UI element which is used as starting point for this setter
+    /// to earch the target element.</param>
     public abstract void Set(UIElement element);
   }
 }

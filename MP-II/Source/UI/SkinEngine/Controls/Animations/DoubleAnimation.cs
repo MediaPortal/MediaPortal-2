@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     internal override void DoAnimation(TimelineContext context, uint timepassed)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;
 
       double from = From ?? (double)patc.StartValue;

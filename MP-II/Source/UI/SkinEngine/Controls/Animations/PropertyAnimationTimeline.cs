@@ -109,11 +109,10 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     public override void Start(TimelineContext context, uint timePassed)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null)
         return;
-      else
-        patc.State = State.Idle;
+      patc.State = State.Idle;
       base.Start(context, timePassed);
     }
 
@@ -146,7 +145,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void AddAllAnimatedProperties(TimelineContext context,
         IDictionary<IDataDescriptor, object> result)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null)
         return;
       result.Add(patc.DataDescriptor, patc.OriginalValue);
@@ -156,7 +155,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
         IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
       base.Setup(context, propertyConfigurations);
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null)
         return;
       if (propertyConfigurations.ContainsKey(patc.DataDescriptor))
@@ -168,7 +167,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     public override void Reset(TimelineContext context)
     {
-      PropertyAnimationTimelineContext patc = context as PropertyAnimationTimelineContext;
+      PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null)
         return;
       patc.DataDescriptor.Value = patc.OriginalValue;

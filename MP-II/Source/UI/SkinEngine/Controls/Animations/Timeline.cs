@@ -126,7 +126,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     #region Ctor
 
-    public Timeline()
+    protected Timeline()
     {
       Init();
     }
@@ -365,7 +365,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
               passed = 0;
               goto case State.Reverse;
             }
-            else if (RepeatBehavior == RepeatBehavior.Forever)
+            if (RepeatBehavior == RepeatBehavior.Forever)
             {
               context.TimeStarted = timePassed;
               DoAnimation(context, timePassed - context.TimeStarted);
@@ -421,6 +421,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     /// done before this method will be called and will be reflected in the
     /// <paramref name="reltime"/> parameter. 
     /// </remarks>
+    /// <param name="context">Current animation context.</param>
     /// <param name="reltime">This parameter holds the relative animation time in
     /// milliseconds from the <see cref="BeginTime"/> on, up to a maximum value
     /// of Duration.Milliseconds.</param>

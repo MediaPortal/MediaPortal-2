@@ -30,7 +30,7 @@ using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.SkinEngine.ScreenManagement
 {
   /// <summary>
   /// Context for a single animation. This data class holds

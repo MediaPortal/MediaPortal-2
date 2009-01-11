@@ -181,7 +181,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void Stop(TimelineContext context)
     {
       base.Stop(context);
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
         Children[i].Stop(tgc[i]);
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     public override void AddAllAnimatedProperties(TimelineContext context,
         IDictionary<IDataDescriptor, object> result)
     {
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
         Children[i].AddAllAnimatedProperties(tgc[i], result);
     }
@@ -209,7 +209,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
         IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
       base.Setup(context, propertyConfigurations);
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
         Children[i].Setup(tgc[i], propertyConfigurations);
     }
@@ -221,7 +221,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     internal override void Ended(TimelineContext context)
     {
       base.Ended(context);
-      TimelineGroupContext tgc = context as TimelineGroupContext;
+      TimelineGroupContext tgc = (TimelineGroupContext) context;
       for (int i = 0; i < Children.Count; i++)
       {
         Timeline child = Children[i];
