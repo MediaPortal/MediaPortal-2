@@ -42,7 +42,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
   {
     protected Timeline _timeline;
     protected TimelineContext _timelineContext;
-    protected bool _isStopped;
     protected ICollection<AnimationContext> _waitingFor = new List<AnimationContext>();
 
     /// <summary>
@@ -74,16 +73,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get { return _waitingFor; }
     }
-
-    /// <summary>
-    /// Marks the animation of this context as stopped. The animation will be stopped by the
-    /// animation main method next time.
-    /// </summary>
-    public bool IsStopped
-    {
-      get { return _isStopped; }
-      set { _isStopped = value; }
-    }
   }
 
   /// <summary>
@@ -101,11 +90,13 @@ namespace MediaPortal.SkinEngine.ScreenManagement
   {
     protected object _syncObject = new object();
     protected IList<AnimationContext> _scheduledAnimations;
+    protected IList<AnimationContext> _canceledAnimations;
     protected IDictionary<IDataDescriptor, object> _valuesToSet;
 
     public Animator()
     {
       _scheduledAnimations = new List<AnimationContext>();
+      _canceledAnimations = new List<AnimationContext>();
       _valuesToSet = new Dictionary<IDataDescriptor, object>();
     }
 
@@ -159,7 +150,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         AnimationContext context = GetContext(board, element);
         if (context == null) return;
-        context.IsStopped = true;
+        _canceledAnimations.Add(context);
+        _scheduledAnimations.Remove(context);
       }
     }
 
@@ -171,7 +163,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       lock (_syncObject)
       {
         foreach (AnimationContext ac in _scheduledAnimations)
-          ac.IsStopped = true;
+          _canceledAnimations.Add(ac);
+        _scheduledAnimations.Clear();
       }
     }
 
@@ -218,14 +211,12 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       lock (_syncObject)
       {
+        foreach (AnimationContext ac in _canceledAnimations)
+          ac.Timeline.Stop(ac.TimelineContext);
+        _canceledAnimations.Clear();
         foreach (AnimationContext ac in _scheduledAnimations)
         {
-          if (ac.IsStopped)
-          { // Stopped from the outside
-            stoppedAnimations.Add(ac);
-            ac.Timeline.Stop(ac.TimelineContext);
-          }
-          if (!CanRun(ac))
+          if (IsWaiting(ac))
             continue;
           // Animate timeline
           ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
@@ -239,11 +230,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           ac.Timeline.Finish(ac.TimelineContext);
           _scheduledAnimations.Remove(ac);
         }
+        stoppedAnimations.Clear();
         foreach (KeyValuePair<IDataDescriptor, object> valueToSet in _valuesToSet)
           valueToSet.Key.Value = valueToSet.Value;
         _valuesToSet.Clear();
       }
-      stoppedAnimations.Clear();
     }
 
     protected AnimationContext GetContext(Timeline line, UIElement element)
@@ -265,11 +256,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// <paramref name="context"/> and tidies up the wait hierarchy, if appropriate.
     /// </summary>
     /// <returns><c>true</c>, if the specified animation is ready to be animated, else <c>false</c>.</returns>
-    protected bool CanRun(AnimationContext context)
+    protected bool IsWaiting(AnimationContext context)
     {
       // Tidy up wait dependencies
       if (context.WaitingFor.Count == 0)
-        return true;
+        return false;
 
       bool allEnded = true;
       foreach (AnimationContext waitForAc in context.WaitingFor)
@@ -293,11 +284,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           // the new animation starts.
           context.WaitingFor.Clear();
           ExecuteHandoff(context, endedWaitForAnimations, HandoffBehavior.SnapshotAndReplace);
-          return true;
+          return false;
         }
         else
           // Animation isn't ready yet.
-          return false;
+          return true;
       }
       finally
       {
@@ -311,8 +302,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="animationContext">The new animation context to check against the running
     /// animations.</param>
-    /// <param name="handoffBehavior">The handoff behavior which defines what will be done
-    /// with conflicting animations.</param>
     /// <param name="conflictingProperties">Conflicting data descriptors mapped to their original
     /// values. This returned value can be used to initialize the original values of the new animation.</param>
     /// <param name="conflictingAnimations">Returns all already running or sleeping animations with
