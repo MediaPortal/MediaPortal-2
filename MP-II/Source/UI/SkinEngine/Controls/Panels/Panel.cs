@@ -247,8 +247,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       SkinContext.AddOpacity(Opacity);
       if (Background != null)
       {
-        if (_performLayout || (_backgroundAsset == null) || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
-          PerformLayout();
+        if (_backgroundAsset == null || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
+          _performLayout = true;
+        PerformLayout();
 
         // ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
