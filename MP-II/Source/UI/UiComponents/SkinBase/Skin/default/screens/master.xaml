@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for all screens:
+A header text and a client area.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master.xaml">
+    <Include.Resources>
+      <ResourceWrapper x:Key="Header_Text">
+        [Header text]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Client_Element">
+        [UI element to be displayed in the client area]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Focused_Element">
+        [UI element to be focused]
+      </ResourceWrapper>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Header_Text (String): The text to be displayed as header
+ - Focused_Element (Any existing UI element): Element to be focused at startup
+ - Client_Element (Any UI element): Element to be shown in the client area
+-->
+
+<DockPanel
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    FocusedElement="{DynamicResource Focused_Element}"
+    Context="{DynamicResource DataContext}"
+    Background="{StaticResource BackgroundBrush}" Width="720" Height="576"
+    LastChildFill="True">
+  <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>  
+    <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
+      <Label Margin="60,0,0,0" FontFamily="RitzyNormal" FontSize="60" Color="{StaticResource WindowHeaderColor}"
+          Content="{DynamicResource Header_Text}" />
+      <Label Margin="60,0,0,0" DockPanel.Dock="Top" FontFamily="RitzyNormal" FontSize="60" Color="{StaticResource WindowHeaderColor}"
+          Content="{DynamicResource Header_Text}"
+          Opacity="0.75" RenderTransformOrigin="0.4,0.4">
+        <Label.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="-0.75"/>
+          </TransformGroup>
+        </Label.RenderTransform>
+        <Label.OpacityMask>
+          <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+            <GradientStop Offset="0.0" Color="#FF000000" />
+            <GradientStop Offset="1.0" Color="#00000000" />
+          </LinearGradientBrush>
+        </Label.OpacityMask>
+      </Label>
+    </StackPanel>
+    <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
+      <Label x:Name="Date" FontSize="20" Content="{Binding Source={Model E821B1C8-0666-4339-8027-AA45A4F6F107}, Path=CurrentDate}" />
+      <Label x:Name="Time" FontSize="20" Content="{Binding Source={Model E821B1C8-0666-4339-8027-AA45A4F6F107}, Path=CurrentTime}" />
+    </StackPanel>
+  </Grid>
+
+  <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center" Margin="10,0,0,0"
+      Content="{DynamicResource Client_Element}"/>
+</DockPanel>

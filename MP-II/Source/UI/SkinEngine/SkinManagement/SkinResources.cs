@@ -57,7 +57,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
   public class SkinResources: IResourceAccessor
   {
     public const string STYLES_DIRECTORY = "styles";
-    public const string SCREENFILES_DIRECTORY = "screenfiles";
+    public const string SCREENFILES_DIRECTORY = "screens";
     public const string FONTS_DIRECTORY = "fonts";
     public const string SHADERS_DIRECTORY = "shaders";
     public const string MEDIA_DIRECTORY = "media";

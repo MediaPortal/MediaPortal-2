@@ -94,9 +94,9 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\screenfiles\media.xaml" />
-    <Content Include="Skin\default\screenfiles\shares_config_overview.xaml" />
-    <Content Include="Skin\default\screenfiles\shares_config_remove_shares.xaml" />
+    <Content Include="Skin\default\screens\media.xaml" />
+    <Content Include="Skin\default\screens\shares_config_overview.xaml" />
+    <Content Include="Skin\default\screens\shares_config_remove_shares.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
   </ItemGroup>

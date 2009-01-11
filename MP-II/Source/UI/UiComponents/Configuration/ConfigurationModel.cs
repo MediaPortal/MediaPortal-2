@@ -30,7 +30,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.Name]"/>
+
+    <!-- Media model -->
+    <Model x:Key="Model" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom"
+              Content="{Binding CurrentView.DisplayName}"/>
+          <Button Grid.Row="0" Grid.Column="1" Width="60" Margin="0,0,20,0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{StaticResource ButtonStyle}"
+              Content=".."
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+              IsVisible="{Binding HasParentDirectory}"/>
+        </Grid>
+        <ListView Grid.Row="1"
+            Style="{StaticResource ContentsMenuListViewStyle}"
+            ItemsSource="{Binding Items}" IsVisible="{Binding CurrentView.IsValid}">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
+                Parameters="{LateBoundValue Value={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+        <Label Grid.Row="1" IsVisible="{Binding !CurrentView.IsValid}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Media.ViewInvalid]" Color="{StaticResource ErrorTextColor}"/>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

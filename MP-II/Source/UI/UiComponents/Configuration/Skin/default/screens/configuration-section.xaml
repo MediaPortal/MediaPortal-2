@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Configuration.Name]"/>
+
+    <!-- Menu header -->
+    <ResourceWrapper x:Key="Menu_Header_Text" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ListView
+            Style="{StaticResource ContentsMenuListViewStyle}"
+            DataContext="{Binding Source={StaticResource Model}}"
+            ItemsSource="{Binding ConfigSettings}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Command}"/>
+          </ListView.Resources>
+        </ListView>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

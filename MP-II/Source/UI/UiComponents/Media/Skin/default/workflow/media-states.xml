@@ -2,9 +2,14 @@
 <!-- Media workflow states -->
 <Workflow DescriptorVersion="1.0">
   <States>
+
+    <!-- Media main screen(s) -->
+
     <State Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
         Name="MediaNavigation" MainScreen="media"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
+
+    <!-- Shares configuration -->
 
     <State Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         Name="SharesConfigurationOverview" MainScreen="shares_config_overview"

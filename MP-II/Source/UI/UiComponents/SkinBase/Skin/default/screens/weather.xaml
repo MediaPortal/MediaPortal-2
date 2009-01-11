@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[weather.0]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherModel"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <Binding Source="{StaticResource DataContext}" Path="MainMenu" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Menu command -->
+    <!-- Access the (Core type) command from the current menu ListItem, which is
+         accessible via the data context -->
+    <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
+          DataContext="{Binding Source={StaticResource DataContext}}">
+        <Grid x:Name="Grid1" HorizontalAlignment="Left">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel x:Name="S1" Margin="0,0,10,0" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image x:Name="BigIcon" Width="128" Height="128" Source="{Binding CurrentLocation.Condition.BigIcon}"/>
+            <Label x:Name="LocName" FontSize="20"  Content="{Binding Path=CurrentLocation.Name}"/>
+          </StackPanel>
+          <StackPanel x:Name="S2" Margin="0,0,30,0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Label x:Name="Txt1" FontSize="20" Content="[weather.6]" />
+            <Label x:Name="Txt2" FontSize="20" Content="[weather.7]" />
+            <Label x:Name="Txt3" FontSize="20" Content="[weather.8]" />
+            <Label x:Name="Txt4" FontSize="20" Content="[weather.9]" />
+            <Label x:Name="Txt5" FontSize="20" Content="[weather.10]" />
+            <Label x:Name="Txt6" FontSize="20" Content="[weather.11]" />
+            <Label x:Name="Txt7" FontSize="20" Content="[weather.12]" />
+            <Label x:Name="Txt8" FontSize="20" Content="[weather.13]" />
+          </StackPanel>
+          <StackPanel x:Name="S3" Margin="0,0,10,0" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Temperature}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.FeelsLikeTemp}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.UVIndex}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Wind}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.Humidity}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.Condition.DewPoint}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunRise}"/>
+            <Label FontSize="20" Content="{Binding CurrentLocation.LocationInfo.SunSet}"/>
+          </StackPanel>
+        </Grid>
+        <Grid x:Name="Grid2" HorizontalAlignment="Left">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Label FontSize="20" x:Name="Day1" Content="{Binding CurrentLocation.ForecastCollection[0].Day}" />
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[0].SmallIcon}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Top">
+            <Label FontSize="20" x:Name="Day2" Content="{Binding CurrentLocation.ForecastCollection[1].Day}" />
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[1].SmallIcon}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Label FontSize="20" x:Name="Day3" Content="{Binding CurrentLocation.ForecastCollection[2].Day}" />
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[2].SmallIcon}"/>
+          </StackPanel>
+          <StackPanel Grid.Column="3" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Label FontSize="20" x:Name="Day4" Content="{Binding CurrentLocation.ForecastCollection[3].Day}" />
+            <Image Width="64" Height="64" Source="{Binding CurrentLocation.ForecastCollection[3].SmallIcon}"/>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

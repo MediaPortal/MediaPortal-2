@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header_Text -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[settings.shares]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" RegistrationLocation="Shares" Id="Model"/>
+
+    <!-- Focused_Element -->
+    <ResourceWrapper x:Key="Focused_Element" Resource="{Binding ElementName=list}"/>
+
+    <!-- Client_Element -->
+    <ResourceWrapper x:Key="Client_Element">
+      <DockPanel DataContext="{Binding Source={StaticResource DataContext}}">
+        <Label Margin="60,0,0,0" FontSize="30" Content="[shares.removeshares]" Width="660" Height="32" DockPanel.Dock="Top"/>
+        <Label Margin="60,0,0,0" FontSize="30" Content="[shares.selectsharetoremove]" Width="660" Height="32" DockPanel.Dock="Top"/>
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+          <Button Style="{StaticResource ButtonStyle}" Margin="0,0,10,0"   Width="160" Height="32"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=sharescancel}">
+            <Label FontSize="30" Content="[system.cancel]" Height="32" />
+          </Button>
+          <Button Style="{StaticResource ButtonStyle}" Margin="10,0,10,10"  Width="160" Height="32"
+              Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}" >
+            <Label FontSize="30" Content="[system.done]" Height="32" />
+          </Button>
+        </StackPanel>
+        <ListView x:Name="list" Width="480" Height="476" Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Shares}"
+            SelectionChanged="{CommandStencil Path=OnSelectionChange}">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="RemoveShare" Parameters="{LateBoundValue Value={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+      </DockPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

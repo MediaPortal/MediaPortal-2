@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[login.welcome]"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <Binding Source="{Model 9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0}" Path="MenuItems" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Menu command -->
+    <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element"/>
+
+  </Include.Resources>
+</Include>

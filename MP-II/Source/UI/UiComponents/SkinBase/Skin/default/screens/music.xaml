@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[music.3]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" RegistrationLocation="Music" Id="Model"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <Binding Source="{StaticResource DataContext}" Path="MainMenu" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Menu command -->
+    <!-- Access the (Core type) command from the current menu ListItem, which is
+         accessible via the data context -->
+    <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <ListView DataContext="{Binding Source={StaticResource DataContext}}"
+          Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Songs}"
+          SelectionChanged="{CommandStencil Path=OnSelectionChange}">
+        <ListView.Resources>
+          <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="Select" Parameters="{LateBoundValue Value={Binding}}"/>
+        </ListView.Resources>
+      </ListView>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

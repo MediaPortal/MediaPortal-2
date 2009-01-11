@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weathersetup.1]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherSetupModel"/>
+
+    <!-- Contents_Element -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <StackPanel DataContext="{Binding Source={StaticResource DataContext}}" Orientation="Vertical">
+        <Label Margin="10,5,10,5" HorizontalAlignment="Left" Content="[weathersetup.0]" Color="White"/>
+        <TextBox Margin="10,5,10,5" HorizontalAlignment="Left" BorderThickness="1" Width="250"
+            Text="{Binding Path=SearchCity,Mode=OneWayToSource}"/>
+        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+          <Button Name="ButtonDone" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.done]">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SearchLocations" Parameters="{LateBoundValue Value={Binding Path=SearchCity}}"/>
+                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+                <Command Source="{Service ScreenManager}" Path="ShowDialog" Parameters="dialogWeatherSearchResult"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
+          <Button Name="ButtonCancel" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.cancel]"
+              Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+        </StackPanel>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header_Text -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[settings.music]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="MusicSettings"/>
+
+    <!-- Client_Element -->
+    <ResourceWrapper x:Key="Client_Element">
+      <StackPanel DataContext="{Binding Source={StaticResource DataContext}}">
+        <CheckBox Style="{StaticResource RadioButtonStyle}" IsChecked="{Binding IsEnabledFadeOut}" Checked="{Binding EnableFadeOut}" Unchecked="{Binding DisableFadeOut}" Height="32">
+          <Label FontSize="30" Content="[music.settingsfade]" Height="32"/>
+        </CheckBox>
+        <CheckBox Style="{StaticResource RadioButtonStyle}" IsChecked="{Binding IsGaplessPlayback}" Checked="{Binding EnableGapless}" Unchecked="{Binding DisableGapless}" Height="32">
+          <Label FontSize="30" Content="[music.settingsgapless]"  Height="32"/>
+        </CheckBox>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[weather.4]"/>
+
+    <!-- DataContext -->
+    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherSetupModel"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
+          DataContext="{Binding Source={StaticResource DataContext}}">
+		  
+		<ListView Name="mainMenu"  Height="300" Width="400" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding SetupLocations}" >
+        </ListView>
+		
+        <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+		  <Button  Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.add]"
+              Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
+    	  <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.remove]"
+              Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
+        </StackPanel>
+		<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+    	  <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.cancel]"
+              Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+		   <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.done]">
+		     <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings"/>
+                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+              </CommandList>
+             </Button.Command>
+          </Button>
+        </StackPanel>
+      </StackPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

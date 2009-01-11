@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is the master template for a standard configuration dialog without Ok and Cancel dialog buttons.
+It can be used if a config element is so simple that it can itself trigger the dialog close, like
+a list of buttons, radio buttons, a single selection list box, etc.
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\master_configuration_dialog_wob.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Config_Contents_Element">
+        [Element which represents the contents area of the dialog.
+         Here, the configurable element should be displayed.]
+      </ResourceWrapper>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Config_Contents_Element (Any UI element): Configurable element to be displayed.
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_dialog.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <!-- For convenience -->
+    <ResourceWrapper x:Key="SettingMetadata" Resource="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.SettingMetadata,Mode=OneTime}"/>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={DynamicResource SettingMetadata},Path=Resource.Text,Mode=OneTime}"/>
+
+    <ResourceWrapper x:Key="Config_Client_Element">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ContentPresenter Content="{DynamicResource Config_Contents_Element}"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      </Grid>
+    </ResourceWrapper>
+  </Include.Resources>
+</Include>
