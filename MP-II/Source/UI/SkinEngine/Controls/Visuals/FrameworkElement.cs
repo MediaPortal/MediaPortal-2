@@ -512,16 +512,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
         if (!HasFocus)
           TrySetFocus();
-        base.OnMouseMove(x, y);
-        return;
       }
-      if (IsMouseOver)
+      else
       {
-        IsMouseOver = false;
-        FireEvent(MOUSELEAVE_EVENT);
+        if (IsMouseOver)
+        {
+          IsMouseOver = false;
+          FireEvent(MOUSELEAVE_EVENT);
+        }
+        if (HasFocus)
+          HasFocus = false;
       }
-      if (HasFocus)
-        HasFocus = false;
+      base.OnMouseMove(x, y);
     }
 
 
