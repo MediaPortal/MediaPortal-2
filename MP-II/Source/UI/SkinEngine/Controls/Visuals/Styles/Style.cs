@@ -34,7 +34,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     #region Protected fields
 
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
 
     protected Style _basedOn = null;
     protected IList<SetterBase> _setters = new List<SetterBase>();
@@ -128,10 +127,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     {
       if (_names.ContainsKey(name))
         return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
+      return null;
     }
 
     public void RegisterName(string name, object instance)
@@ -142,11 +138,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     public void UnregisterName(string name)
     {
       _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

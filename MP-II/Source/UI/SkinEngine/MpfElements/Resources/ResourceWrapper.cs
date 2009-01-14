@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -39,7 +40,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     protected bool _freezable = false;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
 
     #endregion
 
@@ -54,7 +54,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper) source;
       Freezable = copyManager.GetCopy(rw.Freezable);
-      _parent = copyManager.GetCopy(rw._parent);
       foreach (KeyValuePair<string, object> kvp in rw._names)
         if (_names.ContainsKey(kvp.Key))
           continue;
@@ -86,10 +85,22 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     {
       if (_names.ContainsKey(name))
         return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
+      INameScope parent = FindParentNamescope();
+      if (parent != null)
+        return parent.FindName(name);
+      return null;
+    }
+
+    protected INameScope FindParentNamescope()
+    {
+      DependencyObject current = this;
+      while (current.LogicalParent != null)
+      {
+        current = current.LogicalParent;
+        if (current is INameScope)
+          return (INameScope) current;
+      }
+      return null;
     }
 
     public void RegisterName(string name, object instance)
@@ -100,11 +111,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     public void UnregisterName(string name)
     {
       _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

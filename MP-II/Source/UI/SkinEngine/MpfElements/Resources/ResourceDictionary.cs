@@ -44,7 +44,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     protected ICollection<string> _dependsOnStyleResources = new List<string>();
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
     protected IDictionary<object, object> _resources = new Dictionary<object, object>();
 
     #endregion
@@ -65,7 +64,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
           continue;
         else
           _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
-      _parent = copyManager.GetCopy(rd._parent);
     }
 
     #endregion
@@ -176,10 +174,22 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     {
       if (_names.ContainsKey(name))
         return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
+      INameScope parent = FindParentNamescope();
+      if (parent != null)
+        return parent.FindName(name);
+      return null;
+    }
+
+    protected INameScope FindParentNamescope()
+    {
+      DependencyObject current = this;
+      while (current.LogicalParent != null)
+      {
+        current = current.LogicalParent;
+        if (current is INameScope)
+          return (INameScope) current;
+      }
+      return null;
     }
 
     public void RegisterName(string name, object instance)
@@ -190,11 +200,6 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
     public void UnregisterName(string name)
     {
       _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

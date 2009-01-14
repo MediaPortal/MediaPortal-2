@@ -31,12 +31,10 @@ namespace MediaPortal.SkinEngine.Xaml
   public class NameScope: INameScope, IDeepCopyable
   {
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       NameScope ns = (NameScope) source;
-      _parent = copyManager.GetCopy(ns._parent);
       foreach (KeyValuePair<string, object> kvp in ns._names)
         if (_names.ContainsKey(kvp.Key))
           continue;
@@ -50,10 +48,7 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       if (_names.ContainsKey(name))
         return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
+      return null;
     }
 
     public void RegisterName(string name, object instance)
@@ -64,11 +59,6 @@ namespace MediaPortal.SkinEngine.Xaml
     public void UnregisterName(string name)
     {
       _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

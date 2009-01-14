@@ -333,17 +333,12 @@ namespace MediaPortal.SkinEngine.Xaml
         }
 
         // Step 2: Instantiate the element
-        INameScope oldNameScope = _elementContextStack.GetCurrentNameScope();
         elementContext.Instance =
             GetNamespaceHandler(currentElement.NamespaceURI).
                 InstantiateElement(this, currentElement.LocalName,
                     currentElement.NamespaceURI, new List<object>());
 
-        // Step 3: Namescope registration
-        if (elementContext.Instance is INameScope && oldNameScope != null)
-          ((INameScope) elementContext.Instance).RegisterParent(oldNameScope);
-
-        // Step 4: Name registration and check for x:Key (to be done before child objects are built)
+        // Step 3: Name registration and check for x:Key (to be done before child objects are built)
         foreach (XmlAttribute attr in remainingAttributes)
         {
           CheckNameOrKey(attr, ref name, ref key);
@@ -355,13 +350,13 @@ namespace MediaPortal.SkinEngine.Xaml
         if (name != null)
           RegisterName(name, elementContext.Instance);
 
-        // Step 5: Members and events in attribute syntax
+        // Step 4: Members and events in attribute syntax
         foreach (XmlAttribute attr in remainingAttributes)
         {
           HandleMemberOrEventAssignment(attr);
         }
 
-        // Step 6: Member values in member element syntax
+        // Step 5: Member values in member element syntax
         foreach (XmlNode node in currentElement.ChildNodes)
         {
           // Hint: We do not enforce, that object elements, which are used to fill the
@@ -379,7 +374,7 @@ namespace MediaPortal.SkinEngine.Xaml
           }
         }
 
-        // Step 7: Handle child elements
+        // Step 6: Handle child elements
         if (elementContext.Instance is INativeXamlObject)
         { // Implementors of INativeXamlObject will handle their XAML child elements theirselves
           ((INativeXamlObject)elementContext.Instance).HandleChildren(this, currentElement);
@@ -403,7 +398,7 @@ namespace MediaPortal.SkinEngine.Xaml
           }
         }
 
-        // Step 8: Initialize
+        // Step 7: Initialize
         if (elementContext.Instance is IInitializable)
           ((IInitializable) elementContext.Instance).Initialize(this);
 
@@ -722,7 +717,6 @@ namespace MediaPortal.SkinEngine.Xaml
         try
         {
           // Step 1: Process namespace declarations (doesn't apply here)
-          INameScope oldNameScope = _elementContextStack.GetCurrentNameScope();
           string extensionName;
           IList<KeyValuePair<string, string>> parameters;
           bool namedParams;
@@ -736,11 +730,8 @@ namespace MediaPortal.SkinEngine.Xaml
             elementContext.Instance = GetNamespaceHandler(namespaceURI).
                 InstantiateElement(this, extensionName, namespaceURI,
                                    new List<object>()); // Invoke default constructor
-            // Step 3: Namescope registration
-            if (elementContext.Instance is INameScope && oldNameScope != null)
-              oldNameScope.RegisterParent(oldNameScope);
 
-            // Step 5: Members and events in attribute syntax
+            // Step 4: Members and events in attribute syntax
 
             // We only process the given parameters and assign their values to the
             // target members. Property value inheritance, for example the
@@ -779,15 +770,12 @@ namespace MediaPortal.SkinEngine.Xaml
             }
             elementContext.Instance = GetNamespaceHandler(namespaceURI).
                 InstantiateElement(this, extensionName, namespaceURI, flatParams);
-            // Step 3: Namescope registration
-            if (elementContext.Instance is INameScope && oldNameScope != null)
-              oldNameScope.RegisterParent(oldNameScope);
 
-            // Step 5: Members and events in attribute syntax (doesn't apply here)
+            // Step 4: Members and events in attribute syntax (doesn't apply here)
           }
-          // Step 6: Member values in member element syntax (doesn't apply here)
-          // Step 7: Handle child elements (doesn't apply here)
-          // Step 8: Initialize
+          // Step 5: Member values in member element syntax (doesn't apply here)
+          // Step 6: Handle child elements (doesn't apply here)
+          // Step 7: Initialize
           if (elementContext.Instance is IInitializable)
             ((IInitializable) elementContext.Instance).Initialize(this);
           return elementContext.Instance;

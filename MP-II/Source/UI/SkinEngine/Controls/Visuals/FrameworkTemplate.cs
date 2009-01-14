@@ -47,12 +47,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   /// </remarks>
   public class FrameworkTemplate: DependencyObject, INameScope, IAddChild<UIElement>
   {
-    #region Private fields
+    #region Protected fields
 
-    ResourceDictionary _resourceDictionary;
-    UIElement _templateElement;
+    protected ResourceDictionary _resourceDictionary;
+    protected UIElement _templateElement;
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected INameScope _parent = null;
 
     #endregion
 
@@ -74,7 +73,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       FrameworkTemplate ft = (FrameworkTemplate) source;
       _templateElement = copyManager.GetCopy(ft._templateElement);
       _resourceDictionary = copyManager.GetCopy(ft._resourceDictionary);
-      _parent = copyManager.GetCopy(ft._parent);
       foreach (KeyValuePair<string, object> kvp in ft._names)
         if (_names.ContainsKey(kvp.Key))
           continue;
@@ -128,10 +126,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_names.ContainsKey(name))
         return _names[name];
-      else if (_parent != null)
-        return _parent.FindName(name);
-      else
-        return null;
+      INameScope parent = FindParentNamescope();
+      if (parent != null)
+        return parent.FindName(name);
+      return null;
+    }
+
+    protected INameScope FindParentNamescope()
+    {
+      DependencyObject current = this;
+      while (current.LogicalParent != null)
+      {
+        current = current.LogicalParent;
+        if (current is INameScope)
+          return (INameScope) current;
+      }
+      return null;
     }
 
     public void RegisterName(string name, object instance)
@@ -142,11 +152,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public void UnregisterName(string name)
     {
       _names.Remove(name);
-    }
-
-    public void RegisterParent(INameScope parent)
-    {
-      _parent = parent;
     }
 
     #endregion

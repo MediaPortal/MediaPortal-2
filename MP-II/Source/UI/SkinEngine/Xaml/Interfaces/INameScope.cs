@@ -58,11 +58,5 @@ namespace MediaPortal.SkinEngine.Xaml.Interfaces
     /// </summary>
     /// <param name="name">Name to unregister.</param>
     void UnregisterName(string name);
-
-    /// <summary>
-    /// Sets the parent name scope.
-    /// </summary>
-    /// <param name="parent">Parent naming scope.</param>
-    void RegisterParent(INameScope parent);
   }
 }
