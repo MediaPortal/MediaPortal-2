@@ -26,15 +26,18 @@ using System.Collections;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-  public class TreeViewItem : HeaderedItemsControl, ISearchableItem
+  public class TreeViewItem : HeaderedItemsControl, ISearchableItem, IAddChild<FrameworkElement>
   {
     #region Protected fields
 
-    protected Property _dataStringProperty = new Property(typeof(string), "");
+    protected Property _dataStringProperty;
+    protected Property _contentProperty;
+    protected Property _contentTemplateProperty;
 
     #endregion
 
@@ -42,42 +45,72 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public TreeViewItem()
     {
+      Init();
       Attach();
+    }
+
+    void Init()
+    {
+      _dataStringProperty = new Property(typeof(string), "");
+      _contentProperty = new Property(typeof(object), null);
+      _contentTemplateProperty = new Property(typeof(DataTemplate), null);
     }
 
     void Attach()
     {
-      ItemTemplateProperty.Attach(OnItemTemplateChanged);
+      _contentTemplateProperty.Attach(OnContentTemplateChanged);
+      _contentProperty.Attach(OnContentChanged);
     }
 
     void Detach()
     {
-      ItemTemplateProperty.Detach(OnItemTemplateChanged);
+      _contentTemplateProperty.Detach(OnContentTemplateChanged);
+      _contentProperty.Detach(OnContentChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
-      object oldItemTemplate = ItemTemplate;
+      object oldContentTemplate = ContentTemplate;
       base.DeepCopy(source, copyManager);
-      DataString = copyManager.GetCopy(DataString);
+      TreeViewItem twi = (TreeViewItem) source;
+      DataString = copyManager.GetCopy(twi.DataString);
+
+      Content = copyManager.GetCopy(twi.Content);
+      ContentTemplate = copyManager.GetCopy(twi.ContentTemplate);
       Attach();
-      OnItemTemplateChanged(_itemTemplateProperty, oldItemTemplate);
+      OnContentChanged(_contentProperty, null);
+      OnContentTemplateChanged(_contentTemplateProperty, oldContentTemplate);
     }
 
     #endregion
 
-    void OnItemTemplateChanged(Property property, object oldValue)
+    #region Eventhandlers
+
+    void OnContentChanged(Property property, object oldValue)
+    {
+      ContentPresenter presenter = FindContentPresenter();
+      if (presenter != null)
+        presenter.Content = Content;
+    }
+
+    void OnContentTemplateChanged(Property property, object oldValue)
     {
       if (oldValue is HierarchicalDataTemplate)
         ((HierarchicalDataTemplate) oldValue).ItemsSourceProperty.Detach(OnTemplateItemsSourceChanged);
-      if (!(ItemTemplate is HierarchicalDataTemplate)) return;
-      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ItemTemplate;
+      if (!(ContentTemplate is HierarchicalDataTemplate)) return;
+      HierarchicalDataTemplate hdt = (HierarchicalDataTemplate) ContentTemplate;
       hdt.ItemsSourceProperty.Attach(OnTemplateItemsSourceChanged);
       ItemsSource = hdt.ItemsSource;
       hdt.DataStringProperty.Attach(OnTemplateDataStringChanged);
       DataString = hdt.DataString;
+
+      ContentPresenter presenter = FindContentPresenter();
+      if (presenter != null)
+        presenter.ContentTemplate = ContentTemplate;
     }
+
+    #endregion
 
     void OnTemplateItemsSourceChanged(Property property, object oldValue)
     {
@@ -90,6 +123,28 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #region Public properties
+
+    public Property ContentProperty
+    {
+      get { return _contentProperty; }
+    }
+
+    public object Content
+    {
+      get { return _contentProperty.GetValue(); }
+      set { _contentProperty.SetValue(value); }
+    }
+
+    public Property ContentTemplateProperty
+    {
+      get { return _contentTemplateProperty; }
+    }
+
+    public DataTemplate ContentTemplate
+    {
+      get { return _contentTemplateProperty.GetValue() as DataTemplate; }
+      set { _contentTemplateProperty.SetValue(value); }
+    }
 
     public Property DataStringProperty
     {
@@ -118,5 +173,20 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return true;
       return base.Prepare();
     }
+
+    protected ContentPresenter FindContentPresenter()
+    {
+      return TemplateControl == null ? null : TemplateControl.FindElement(
+          new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;
+    }
+
+    #region IAddChild Members
+
+    public void AddChild(FrameworkElement o)
+    {
+      Content = o;
+    }
+
+    #endregion
   }
 }

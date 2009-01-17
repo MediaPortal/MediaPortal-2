@@ -39,10 +39,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="AddButton" Grid.Column="0" Height="40" Style="{StaticResource ButtonStyle}"
+          <Button x:Name="AddButton" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
               Content="[SharesConfig.AddShare]" HorizontalAlignment="Right"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource SharesAddChooseMediaProviderStateId}}"/>
-          <Button x:Name="RemoveButton" Grid.Column="2" Height="40" Style="{StaticResource ButtonStyle}"
+          <Button x:Name="RemoveButton" Grid.Column="2" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
               Content="[SharesConfig.RemoveShares]" HorizontalAlignment="Right"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource RemoveSharesStateId}}"/>
         </Grid>

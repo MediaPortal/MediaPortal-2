@@ -216,9 +216,10 @@ namespace MediaPortal.Services.Workflow
 
     protected void RemoveModelFromNavigationStack(Guid modelId)
     {
+      // Pop all navigation context until requested model isn't used any more
       while (IsModelContainedInNavigationStack(modelId))
-        // Pop all navigation context until requested model isn't used any more
-        DoPopNavigationContext(1);
+        if (!DoPopNavigationContext(1))
+          break;
       UpdateScreen();
     }
 
@@ -340,7 +341,7 @@ namespace MediaPortal.Services.Workflow
       IterateCache();
     }
 
-    protected void DoPopNavigationContext(int count)
+    protected bool DoPopNavigationContext(int count)
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
@@ -351,7 +352,7 @@ namespace MediaPortal.Services.Workflow
         {
           logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but we cannot remove the initial state... skipping",
               count);
-          return;
+          return false;
         }
         int newCount = _navigationContextStack.Count - 1;
         logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but there are only {1} contexts available... we'll only remove {2} contexts",
@@ -398,6 +399,7 @@ namespace MediaPortal.Services.Workflow
           }
       }
       IterateCache();
+      return true;
     }
 
     protected void IterateCache()
@@ -493,7 +495,16 @@ namespace MediaPortal.Services.Workflow
     {
       DoPopNavigationContext(count);
       while (!UpdateScreen())
-        DoPopNavigationContext(1);
+        if (!DoPopNavigationContext(1))
+          break;
+    }
+
+    public void NavigatePop(Guid stateId)
+    {
+      while (CurrentNavigationContext.WorkflowState.StateId != stateId)
+        if (!DoPopNavigationContext(1))
+          break;
+      UpdateScreen();
     }
 
     public object GetModel(Guid modelId)

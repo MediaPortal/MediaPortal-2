@@ -13,4 +13,8 @@
   <Register Location = "/Media/MediaProviders">
     <Instance Id = "LocalFsProvider" ClassName = "MediaPortal.Media.MediaProviders.LocalFsMediaProvider.LocalFsMediaProvider"/>
   </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="LocalFsMediaProviderLanguage" Directory="Language" Type="Language"/>
+  </Register>
 </Plugin>

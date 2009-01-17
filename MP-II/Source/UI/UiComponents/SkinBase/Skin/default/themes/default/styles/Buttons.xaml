@@ -249,7 +249,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid Margin="0,2,0,2">
+          <Grid Margin="2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -309,8 +309,8 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Control Grid.Column="0" Grid.Row="0" x:Name="OuterCircle" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <Ellipse Grid.Column="0" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
+            <Control Grid.Column="1" Grid.Row="0" x:Name="OuterCircle" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Ellipse Grid.Column="1" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -354,8 +354,18 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid Margin="0,2,0,2">
-            <Control Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="Check" Visibility="Hidden" Stretch="None" Stroke="{ThemeResource CheckBoxCheckColor}" StrokeThickness="2" HorizontalAlignment="Left" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Control x:Name="CheckBoxControl" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"
+                HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Visibility="Hidden" Stretch="None" Stroke="{ThemeResource CheckBoxCheckColor}" StrokeThickness="2"
+                HorizontalAlignment="Left" VerticalAlignment="Center" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
+            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,10,0"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">

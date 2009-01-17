@@ -22,9 +22,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -33,6 +33,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   public class RadioButton : Button
   {
     #region Protected fields
+
+    protected const string GROUPCONTEXT_ATTACHED_PROPERTY = "RadioButton.GroupContext";
 
     protected ICollection<RadioButton> _radioButtonGroup = null;
     protected Property _isCheckedProperty;
@@ -75,7 +77,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       RadioButton rb = (RadioButton) source;
       IsChecked = copyManager.GetCopy(rb.IsChecked);
       GroupName = copyManager.GetCopy(rb.GroupName);
-      _radioButtonGroup = copyManager.GetCopy(rb._radioButtonGroup);
       Attach();
     }
 
@@ -101,6 +102,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (IsChecked)
       {
+        if (_radioButtonGroup == null)
+          InitializeGroup();
         if (_radioButtonGroup != null)
           foreach (RadioButton radioButton in _radioButtonGroup)
             if (!ReferenceEquals(this, radioButton))
@@ -108,6 +111,28 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Searches the namescope where our radio button group should be registered.
+    /// This is the first parent which has the attached property "RadioButton.GroupContext" set,
+    /// or the top-level visual parent, if the property is not set at any parent.
+    /// </summary>
+    protected INameScope FindGroupNamescope()
+    {
+      Visual current = this;
+      while (current.VisualParent != null)
+      {
+        ICollection<string> groups = new List<string>(GetGroupContext(current).Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries));
+        if (groups.Contains(GroupName))
+          break;
+        current = current.VisualParent;
+      }
+      return current.FindNameScope();
+    }
+
+    /// <summary>
+    /// Searches the radio button group and adds this radio button to the specified
+    /// group.
+    /// </summary>
     protected void InitializeGroup()
     {
       if (_radioButtonGroup != null)
@@ -115,7 +140,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _radioButtonGroup = null;
       if (!string.IsNullOrEmpty(GroupName))
       {
-        INameScope ns = FindNameScope();
+        INameScope ns = FindGroupNamescope();
         if (ns == null)
           return;
         _radioButtonGroup = ns.FindName(GroupName) as ICollection<RadioButton>;
@@ -163,6 +188,63 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (eventName == LOADED_EVENT)
         InitializeGroup();
       base.FireEvent(eventName);
+    }
+
+    #endregion
+
+    #region Attached properties
+
+    /// <summary>
+    /// Getter method for the attached property <c>GroupContext</c>.
+    /// </summary>
+    /// <param name="targetObject">The object whose property value will
+    /// be returned.</param>
+    /// <returns>Value of the <c>GroupContext</c> property on the
+    /// <paramref name="targetObject"/>.</returns>
+    public static string GetGroupContext(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue(GROUPCONTEXT_ATTACHED_PROPERTY, string.Empty);
+    }
+
+    /// <summary>
+    /// Setter method for the attached property <c>GroupContext</c>.
+    /// </summary>
+    /// <remarks>
+    /// The <c>GroupContext</c> should be set at the nearest parent of this radio button,
+    /// which contains all other radio buttons of the same radio button group.
+    /// This limits the scope of the search for the radio button group to this element's
+    /// name scope.
+    /// If this property isn't set at any of the visual parents up to the root,
+    /// the root visual will be used as group context.
+    /// To specify the group context on a visual <c>V</c>, use this syntax:
+    /// <c>&lt;V RadioButtoon.GroupContext="GroupName1,GroupName2,...,GroupNameN"&gt;</c>
+    /// All the specifed groups will then be created in <c>V</c>'s name scope and all
+    /// radio buttons under <c>V</c>, which use one of the specified group names, will then
+    /// be contained in those groups. Radio buttons not located in <c>V</c>'s namescope
+    /// (or child namescopes) will use other group instances, even if they are using the
+    /// same <see cref="GroupName"/>.
+    /// </remarks>
+    /// <param name="targetObject">The object whose property value will
+    /// be set.</param>
+    /// <param name="value">Value of the <c>GroupContext</c> property on the
+    /// <paramref name="targetObject"/> to be set.</returns>
+    public static void SetGroupContext(DependencyObject targetObject, string value)
+    {
+      targetObject.SetAttachedPropertyValue<string>(GROUPCONTEXT_ATTACHED_PROPERTY, value);
+    }
+
+    /// <summary>
+    /// Returns the <c>GroupContext</c> attached property for the
+    /// <paramref name="targetObject"/>. When this method is called,
+    /// the property will be created if it is not yet attached to the
+    /// <paramref name="targetObject"/>.
+    /// </summary>
+    /// <param name="targetObject">The object whose attached
+    /// property should be returned.</param>
+    /// <returns>Attached <c>GroupContext</c> property.</returns>
+    public static Property GetGroupContextAttachedProperty(DependencyObject targetObject)
+    {
+      return targetObject.GetOrCreateAttachedProperty<string>(GROUPCONTEXT_ATTACHED_PROPERTY, string.Empty);
     }
 
     #endregion

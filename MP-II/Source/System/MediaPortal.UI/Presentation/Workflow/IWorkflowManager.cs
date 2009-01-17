@@ -121,6 +121,15 @@ namespace MediaPortal.Presentation.Workflow
     void NavigatePop(int count);
 
     /// <summary>
+    /// Removes all youngest navigation context levels from the <see cref="NavigationContextStack"/>
+    /// until the workflow state with the specified <paramref name="stateId"/> is on the top of
+    /// the navigation stack. This realizes a "cancel" navigation which breaks the current workflow
+    /// until the specified state.
+    /// </summary>
+    /// <param name="stateId">Id of the state until that the navigation stack should be cleaned.</param>
+    void NavigatePop(Guid stateId);
+
+    /// <summary>
     /// Returns the model with the requested <paramref name="modelId"/> and assigns it to be related
     /// to the current <see cref="NavigationContext"/>.
     /// </summary>

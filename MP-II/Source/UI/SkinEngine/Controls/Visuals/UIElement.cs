@@ -436,7 +436,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public bool IsEnabled
     {
-      get { return (bool)_isEnabledProperty.GetValue(); }
+      get { return (bool) _isEnabledProperty.GetValue(); }
       set { _isEnabledProperty.SetValue(value); }
     }
 
@@ -447,7 +447,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public VisibilityEnum Visibility
     {
-      get { return (VisibilityEnum)_visibilityProperty.GetValue(); }
+      get { return (VisibilityEnum) _visibilityProperty.GetValue(); }
       set { _visibilityProperty.SetValue(value); }
     }
 
@@ -458,7 +458,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public IList<TriggerBase> Triggers
     {
-      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
+      get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
     }
 
     public Property ActualPositionProperty

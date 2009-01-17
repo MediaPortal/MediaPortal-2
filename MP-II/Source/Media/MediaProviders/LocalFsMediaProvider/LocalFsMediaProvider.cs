@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 {
@@ -102,8 +103,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     public LocalFsMediaProvider()
     {
-      // TODO (Albert78 2008-11-16): localize provider name with plugin language resource
-      _metadata = new MediaProviderMetadata(PROVIDER_ID, "Local Filesystem Provider");
+      _metadata = new MediaProviderMetadata(PROVIDER_ID, "[LocalFsMediaProvider.Name]");
     }
 
     #endregion
@@ -180,6 +180,25 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return result;
     }
 
+    protected static string ToDosPath(string providerPath)
+    {
+      if (string.IsNullOrEmpty(providerPath) || providerPath == "/" || !providerPath.StartsWith("/"))
+        return string.Empty;
+      providerPath = providerPath.Substring(1);
+      return providerPath.Replace('/', Path.DirectorySeparatorChar);
+    }
+
+    protected static ICollection<string> ConcatPaths(string rootPath,
+        IEnumerable<string> namesWithPathPrefix, bool isDirectory)
+    {
+      if (!rootPath.EndsWith("/"))
+        rootPath = rootPath + "/";
+      ICollection<string> result = new List<string>();
+      foreach (string file in namesWithPathPrefix)
+        result.Add(rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty));
+      return result;
+    }
+
     #endregion
 
     #region IFileSystemMediaProvider implementation
@@ -191,22 +210,81 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     public FileStream OpenRead(string path)
     {
-      return File.OpenRead(path);
+      string dosPath = ToDosPath(path);
+      if (string.IsNullOrEmpty(dosPath))
+        return null;
+      return File.OpenRead(dosPath);
     }
 
-    public ICollection<string> GetMediaItems(string path)
+    public FileStream OpenWrite(string path)
     {
-      return Directory.Exists(path) ? new List<string>(Directory.GetFiles(path)) : new List<string>();
+      string dosPath = ToDosPath(path);
+      if (string.IsNullOrEmpty(dosPath))
+        return null;
+      return File.OpenWrite(dosPath);
+    }
+
+    public ICollection<string> GetFiles(string path)
+    {
+      if (string.IsNullOrEmpty(path))
+        return null;
+      if (path == "/")
+        // No files at root level - there are only logical drives
+        return new List<string>();
+      string dosPath = ToDosPath(path);
+      if (!Directory.Exists(dosPath))
+        return new List<string>();
+      return ConcatPaths(path, Directory.GetFiles(dosPath), false);
     }
 
     public ICollection<string> GetChildDirectories(string path)
     {
-      return Directory.Exists(path) ? new List<string>(Directory.GetDirectories(path)) : new List<string>();
+      if (string.IsNullOrEmpty(path))
+        return null;
+      if (path == "/")
+      {
+        ICollection<string> result = new List<string>();
+        foreach (string drive in Directory.GetLogicalDrives())
+          result.Add("/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/");
+        return result;
+      }
+      string dosPath = ToDosPath(path);
+      if (!Directory.Exists(dosPath))
+        return new List<string>();
+      return ConcatPaths(path, Directory.GetDirectories(dosPath), true);
     }
 
     public bool IsResource(string path)
     {
-      return File.Exists(path);
+      if (string.IsNullOrEmpty(path) || path == "/")
+        return false;
+      string dosPath = ToDosPath(path);
+      return File.Exists(dosPath) || Directory.Exists(dosPath);
+    }
+
+    public string GetShortName(string path)
+    {
+      if (string.IsNullOrEmpty(path))
+        return null;
+      if (path == "/")
+        return "/";
+      if (!path.StartsWith("/"))
+        return null;
+      path = path.Substring(1);
+      if (path.EndsWith(":/"))
+        return path;
+      if (path.EndsWith("/"))
+        path = path.Substring(0, path.Length-1);
+      return Path.GetFileName(path);
+    }
+
+    public string GetFullName(string path)
+    {
+      if (string.IsNullOrEmpty(path))
+        return null;
+      if (path == "/")
+        return "/";
+      return ToDosPath(path);
     }
 
     #endregion

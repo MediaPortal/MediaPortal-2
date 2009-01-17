@@ -104,17 +104,17 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
       public string Name
       {
-        get { return _path; }
+        get { return _provider.GetFullName(_path); }
       }
 
       public Stream ReadStream
       {
-        get { return System.IO.File.OpenRead(_path); }
+        get { return _provider.OpenRead(_path); }
       }
 
       public Stream WriteStream
       {
-        get { return System.IO.File.OpenWrite(_path); }
+        get { return _provider.OpenWrite(_path); }
       }
 
       #endregion
@@ -192,7 +192,8 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
     public bool TryExtractMetadata(IMediaProvider provider, string path, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      if (!HasAudioExtension(path))
+      string humanReadablePath = provider.GetFullName(path);
+      if (!HasAudioExtension(humanReadablePath))
         return false;
 
       MediaItemAspect mediaAspect = extractedAspectData[MediaAspect.ASPECT_ID];
@@ -204,8 +205,8 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         ByteVector.UseBrokenLatin1Behavior = true;
         File tag = File.Create(new MediaProviderFileAbstraction(provider, path));
 
-        string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(path) : tag.Tag.Title;
-        IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ? GuessArtists(path) : tag.Tag.Performers;
+        string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
+        IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ? GuessArtists(humanReadablePath) : tag.Tag.Performers;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
         musicAspect.SetCollectionAttribute(MusicAspect.ATTR_ARTISTS, artists);
         musicAspect.SetAttribute(MusicAspect.ATTR_ALBUM, tag.Tag.Album);
@@ -250,14 +251,14 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       }
       catch (UnsupportedFormatException)
       {
-        ServiceScope.Get<ILogger>().Info("Music metadata extractor: Unsupported music file '{0}'", path);
+        ServiceScope.Get<ILogger>().Info("Music metadata extractor: Unsupported music file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
         return false;
       }
       catch (Exception ex)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("Music metadata extractor: Exception reading file '{0}'", ex, path);
+        ServiceScope.Get<ILogger>().Info("Music metadata extractor: Exception reading file '{0}' (media provider: '{1}')", ex, path, provider.Metadata.Name);
         return false;
       }
       return true;

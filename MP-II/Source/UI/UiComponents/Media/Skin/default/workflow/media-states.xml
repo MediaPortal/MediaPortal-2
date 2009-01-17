@@ -13,14 +13,34 @@
 
     <State Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         Name="SharesConfigurationOverview" MainScreen="shares_config_overview"
-        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Workflow model = Shares config model -->
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <State Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
         Name="SharesAddChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
-        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Workflow model = Shares config model -->
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
+        Name="SharesAddEditPath" MainScreen="shares_config_edit_path"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="5652A9C9-6B20-45f0-889E-CFBF6086FB0A"
+        Name="SharesAddChoosePath" MainScreen="shares_config_choose_path"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="ACDD705B-E60B-454a-9671-1A12A3A3985A"
+        Name="SharesAddEditName" MainScreen="shares_config_edit_name"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="6218FE5B-767E-48e6-9691-65E466B6020B"
+        Name="SharesAddChooseCategories" MainScreen="shares_config_choose_categories"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D"
+        Name="SharesAddChooseMetadataExtractors" MainScreen="shares_config_choose_metadata_extractors"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <State Id="900BA520-F989-48c0-B076-5DAD61945845"
         Name="RemoveShares" MainScreen="shares_config_remove_shares"
-        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Workflow model = Shares config model -->
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
   </States>
 </Workflow>

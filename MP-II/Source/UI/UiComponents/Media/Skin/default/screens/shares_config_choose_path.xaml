@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.AddShare]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <ResourceWrapper x:Key="EditShareNameStateId" Resource="ACDD705B-E60B-454a-9671-1A12A3A3985A"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid Margin="10,0,10,10"
+            DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Content="[SharesConfig.ChooseMediaProviderPathForShare]" Wrap="True"/>
+        <TreeView Grid.Row="1" Style="{StaticResource DefaultSingleMarkableTreeViewStyle}"
+            ItemsSource="{Binding MediaProviderPathsTree}">
+          <TreeView.Resources>
+            <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data directly. We use a dummy. -->
+            <BindingWrapper x:Key="Expander_Binding"/>
+
+            <CommandList x:Key="Expander_Command">
+              <Command Source="{StaticResource Model}" Path="RefreshOrClearSubPathItems">
+                <Command.Parameters>
+                  <LateBoundValue Value="{Binding}"/>
+                  <LateBoundValue Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=!IsExpanded}"/>
+                </Command.Parameters>
+              </Command>
+            </CommandList>
+
+            <BindingWrapper x:Key="IsChecked_Binding" Binding="{Binding Path=Selected,Mode=TwoWay}"/>
+
+            <!-- Checker_Command isn't necessary here - the selection state will be propagated via the IsChecked_Binding.
+                 We use a dummy. -->
+            <ResourceWrapper x:Key="Checker_Command"/>
+          </TreeView.Resources>
+        </TreeView>
+        <Label Grid.Row="2" Content="{Binding MediaProviderPathDisplayName}" Margin="10,5,10,0" Scroll="True"/>
+        <Grid Grid.Row="3" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
+              Content="[System.Back]" HorizontalAlignment="Right"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          <Button x:Name="ContinueButton" Grid.Column="2" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
+              Content="[System.Continue]" HorizontalAlignment="Right" IsEnabled="{Binding IsMediaProviderPathValid}"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
+        </Grid>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

@@ -37,7 +37,7 @@ namespace MediaPortal.Presentation.DataObjects
   /// to be displayed menu point, button, tree view item or similar object.
   /// It can hold one or more named "labels", which are typically short texts for different
   /// properties/attributes of the item, like the name, the artist and the play time of a song.
-  /// Labels can be accessed by their label name.
+  /// There is also a dictionary of properties, which can be set individually.
   /// </summary>
   /// <remarks>
   /// Instances of the <see cref="ListItem"/> class can store different information about an item:
@@ -56,6 +56,7 @@ namespace MediaPortal.Presentation.DataObjects
 
     protected Property _commandProperty = new Property(typeof(ICommand), null);
     protected IDictionary<string, IResourceString> _labels = new Dictionary<string, IResourceString>();
+    protected IDictionary<string, object> _additionalProperties = new Dictionary<string, object>();
     protected Property _selectedProperty = new Property(typeof(bool), false);
 
     /// <summary>
@@ -193,6 +194,15 @@ namespace MediaPortal.Presentation.DataObjects
     {
       get { return _labels; }
       set { _labels = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the dictionary of properties for this item.
+    /// </summary>
+    public IDictionary<string, object> AdditionalProperties
+    {
+      get { return _additionalProperties; }
+      set { _additionalProperties = value; }
     }
 
     /// <summary>

@@ -55,10 +55,33 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
     bool IsResource(string path);
 
     /// <summary>
+    /// Returns a short, human readable name for the resource specified by <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path">The resource path.</param>
+    /// <returns>A human readable name of the <paramref name="path"/>. For a filesystem media provider,
+    /// this could be the file name.</returns>
+    string GetShortName(string path);
+
+    /// <summary>
+    /// Returns the full human readable name for the resource specified by <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path">The resource path.</param>
+    /// <returns>A human readable name of the <paramref name="path"/>. For a filesystem media provider,
+    /// this could be the file path.</returns>
+    string GetFullName(string path);
+
+    /// <summary>
     /// Opens the media item at the specified <paramref name="path"/> for read operations.
     /// </summary>
     /// <param name="path">Path of a media item provided by this media provider.</param>
     /// <returns>Filestream opened for read operations.</returns>
     FileStream OpenRead(string path);
+
+    /// <summary>
+    /// Opens the media item at the specified <paramref name="path"/> for write operations.
+    /// </summary>
+    /// <param name="path">Path of a media item provided by this media provider.</param>
+    /// <returns>Filestream opened for write operations.</returns>
+    FileStream OpenWrite(string path);
   }
 }

@@ -45,7 +45,7 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
     /// </summary>
     /// <param name="path">The path so search the media items.</param>
     /// <returns>Collection of strings containing the paths of media items.</returns>
-    ICollection<string> GetMediaItems(string path);
+    ICollection<string> GetFiles(string path);
 
     /// <summary>
     /// Returns the paths of child directories of the specified <paramref name="path"/>.

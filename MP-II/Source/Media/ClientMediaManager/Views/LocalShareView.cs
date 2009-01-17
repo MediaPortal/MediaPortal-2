@@ -118,10 +118,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
           return false;
         MediaManager mediaManager = ServiceScope.Get<MediaManager>();
         Guid providerId = share.MediaProviderId;
-        IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
-        if (provider == null)
-          return false;
-        return true;
+        return mediaManager.LocalMediaProviders.ContainsKey(providerId);
       }
     }
 
@@ -137,8 +134,8 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         return null;
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       Guid providerId = share.MediaProviderId;
-      IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
-      if (provider == null)
+      IMediaProvider provider;
+      if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
         return null;
       IList<MediaItem> result = new List<MediaItem>();
       string path = Path.Combine(share.Path, _relativePath);
@@ -146,7 +143,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       if (provider is IFileSystemMediaProvider)
       { // Add all items at the specified path
         IFileSystemMediaProvider fsmp = (IFileSystemMediaProvider) provider;
-        foreach (string mediaItemPath in fsmp.GetMediaItems(path))
+        foreach (string mediaItemPath in fsmp.GetFiles(path))
           AddMetadata(mediaManager, providerId, mediaItemPath, metadataExtractorIds, result);
       }
       else

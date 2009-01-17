@@ -71,8 +71,8 @@
   <!-- Darker dark green -->
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF045935"/>
 
-  <!-- Middle blue, a bit transparent -->
-  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#6F2A5EB4"/>
+  <!-- Light gray -->
+  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF696969"/>
 
   <!-- Light blue with some green -->
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
@@ -111,5 +111,8 @@
 
   <!-- White, a bit transparent -->
   <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
+
+  <!-- Black, almost transparent -->
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#20000000"/>
 
 </ResourceDictionary>

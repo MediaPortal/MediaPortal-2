@@ -561,8 +561,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       { // If no visual parent exists, use the logical tree
         parentProperty = obj.LogicalParentProperty;
         AttachToSourcePathProperty(parentProperty);
+        parent = parentProperty.GetValue() as DependencyObject;
       }
-      parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
     }
 

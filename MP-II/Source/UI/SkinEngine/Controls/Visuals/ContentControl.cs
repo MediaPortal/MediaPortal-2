@@ -31,10 +31,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ContentControl : Control, IAddChild<FrameworkElement>
   {
-    #region Private fields
+    #region Protected fields
 
-    private Property _contentProperty;
-    private Property _contentTemplateProperty;
+    protected Property _contentProperty;
+    protected Property _contentTemplateProperty;
 
     #endregion
 
@@ -72,8 +72,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(c.Content);
       ContentTemplate = copyManager.GetCopy(c.ContentTemplate);
       Attach();
-      OnContentChanged(ContentProperty, null);
-      OnContentTemplateChanged(ContentTemplateProperty, null);
+      OnContentChanged(_contentProperty, null);
+      OnContentTemplateChanged(_contentTemplateProperty, null);
     }
 
     #endregion
@@ -122,6 +122,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
+    protected ContentPresenter FindContentPresenter()
+    {
+      return TemplateControl == null ? null : TemplateControl.FindElement(
+          new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;
+    }
+
     #region IAddChild Members
 
     public void AddChild(FrameworkElement o)
@@ -130,11 +136,5 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    protected ContentPresenter FindContentPresenter()
-    {
-      return TemplateControl == null ? null : TemplateControl.FindElement(
-          new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;
-    }
   }
 }

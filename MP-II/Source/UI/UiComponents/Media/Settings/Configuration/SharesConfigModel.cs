@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
@@ -51,9 +52,16 @@ namespace UiComponents.Media.Settings.Configuration
     public const string REMOVE_SHARES_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
     
     public const string SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+    public const string SHARE_ADD_EDIT_PATH_STATE_ID_STR = "652C5A9F-EA50-4076-886B-B28FD167AD66";
+    public const string SHARE_ADD_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
+    public const string SHARE_ADD_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
+    public const string SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID_STR = "6218FE5B-767E-48e6-9691-65E466B6020B";
+    public const string SHARE_ADD_CHOOSE_METADATA_EXTRACTOR_STATE_ID_STR = "B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D";
 
+    // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
     public const string ID_KEY = "Id";
+    public const string MP_PATH_KEY = "MediaProviderPath";
     public const string PATH_KEY = "Path";
     public const string SHARE_MEDIAPROVIDER_KEY = "MediaProvider";
     public const string SHARE_CATEGORY_KEY = "Category";
@@ -63,6 +71,11 @@ namespace UiComponents.Media.Settings.Configuration
     public static Guid REMOVE_SHARES_STATE_ID = new Guid(REMOVE_SHARES_STATE_ID_STR);
 
     public static Guid SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
+    public static Guid SHARE_ADD_EDIT_PATH_STATE_ID = new Guid(SHARE_ADD_EDIT_PATH_STATE_ID_STR);
+    public static Guid SHARE_ADD_CHOOSE_PATH_STATE_ID = new Guid(SHARE_ADD_CHOOSE_PATH_STATE_ID_STR);
+    public static Guid SHARE_ADD_EDIT_NAME_STATE_ID = new Guid(SHARE_ADD_EDIT_NAME_STATE_ID_STR);
+    public static Guid SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID_STR);
+    public static Guid SHARE_ADD_CHOOSE_METADATA_EXTRACTOR_STATE_ID = new Guid(SHARE_ADD_CHOOSE_METADATA_EXTRACTOR_STATE_ID_STR);
 
     #endregion
 
@@ -70,6 +83,15 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected ItemsList _sharesList;
     protected ItemsList _mediaProvidersList;
+    protected Property _isSharesSelectedProperty;
+    protected Property _isMediaProviderSelectedProperty;
+    protected Property _mediaProviderProperty;
+    protected Property _mediaProviderPathProperty;
+    protected Property _isMediaProviderPathValidProperty;
+    protected Property _mediaProviderPathDisplayNameProperty;
+    protected ItemsList _mediaProviderPathsTree;
+    protected Property _shareNameProperty;
+    protected Property _isShareNameEmptyProperty;
 
     #endregion
 
@@ -77,8 +99,20 @@ namespace UiComponents.Media.Settings.Configuration
 
     public SharesConfigModel()
     {
+      // TODO Albert: break the event handler reference from the lists to the Skin's controls
       _sharesList = new ItemsList();
       _mediaProvidersList = new ItemsList();
+      _isSharesSelectedProperty = new Property(typeof(bool), false);
+      _isMediaProviderSelectedProperty = new Property(typeof(bool), false);
+      _mediaProviderProperty = new Property(typeof(IMediaProvider), null);
+      _mediaProviderPathProperty = new Property(typeof(string), string.Empty);
+      _mediaProviderPathProperty.Attach(OnMediaProviderPathChanged);
+      _isMediaProviderPathValidProperty = new Property(typeof(bool), false);
+      _mediaProviderPathDisplayNameProperty = new Property(typeof(string), string.Empty);
+      _mediaProviderPathsTree = new ItemsList();
+      _shareNameProperty = new Property(typeof(string), string.Empty);
+      _shareNameProperty.Attach(OnShareNameChanged);
+      _isShareNameEmptyProperty = new Property(typeof(bool), true);
     }
 
     #endregion
@@ -93,6 +127,99 @@ namespace UiComponents.Media.Settings.Configuration
     public ItemsList MediaProviders
     {
       get { return _mediaProvidersList; }
+    }
+
+    public Property IsSharesSelectedProperty
+    {
+      get { return _isSharesSelectedProperty; }
+    }
+
+    public bool IsSharesSelected
+    {
+      get { return (bool) _isSharesSelectedProperty.GetValue(); }
+      set { _isSharesSelectedProperty.SetValue(value); }
+    }
+
+    public Property IsMediaProviderSelectedProperty
+    {
+      get { return _isMediaProviderSelectedProperty; }
+    }
+
+    public bool IsMediaProviderSelected
+    {
+      get { return (bool) _isMediaProviderSelectedProperty.GetValue(); }
+      set { _isMediaProviderSelectedProperty.SetValue(value); }
+    }
+
+    public Property MediaProviderProperty
+    {
+      get { return _mediaProviderProperty; }
+    }
+
+    public IMediaProvider MediaProvider
+    {
+      get { return (IMediaProvider) _mediaProviderProperty.GetValue(); }
+      set { _mediaProviderProperty.SetValue(value); }
+    }
+
+    public Property MediaProviderPathProperty
+    {
+      get { return _mediaProviderPathProperty; }
+    }
+
+    public string MediaProviderPath
+    {
+      get { return (string) _mediaProviderPathProperty.GetValue(); }
+      set { _mediaProviderPathProperty.SetValue(value); }
+    }
+
+    public Property IsMediaProviderPathValidProperty
+    {
+      get { return _isMediaProviderPathValidProperty; }
+    }
+
+    public bool IsMediaProviderPathValid
+    {
+      get { return (bool) _isMediaProviderPathValidProperty.GetValue(); }
+      set { _isMediaProviderPathValidProperty.SetValue(value); }
+    }
+
+    public string MediaProviderPathDisplayName
+    {
+      get { return (string) _mediaProviderPathDisplayNameProperty.GetValue(); }
+      set { _mediaProviderPathDisplayNameProperty.SetValue(value); }
+    }
+
+    public Property MediaProviderPathDisplayNameProperty
+    {
+      get { return _mediaProviderPathDisplayNameProperty; }
+    }
+
+    public ItemsList MediaProviderPathsTree
+    {
+      get { return _mediaProviderPathsTree; }
+    }
+
+    public Property ShareNameProperty
+    {
+      get { return _shareNameProperty; }
+    }
+
+    public string ShareName
+    {
+      get { return (string) _shareNameProperty.GetValue(); }
+      set { _shareNameProperty.SetValue(value); }
+    }
+
+    public Property IsShareNameEmptyProperty
+    {
+      get { return _isShareNameEmptyProperty; }
+    }
+
+    public bool IsShareNameEmpty
+    {
+      get { return (bool) _isShareNameEmptyProperty.GetValue(); }
+      set { _isShareNameEmptyProperty.SetValue(value); }
     }
 
     #endregion
@@ -115,13 +242,128 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void SelectMediaProviderAndContinue()
     {
-      // TODO: Check, if the choosen MP implements a known navigation interface
-      // and go to the navigation screen, if supported
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaProvider mediaProvider = null;
+      foreach (ListItem mediaProviderItem in _mediaProvidersList)
+      {
+        if (mediaProviderItem.Selected)
+        {
+          Guid mediaProviderId = new Guid(mediaProviderItem[ID_KEY]);
+          if (mediaManager.LocalMediaProviders.TryGetValue(mediaProviderId, out mediaProvider))
+            break;
+        }
+      }
+      MediaProvider = mediaProvider;
+      // Check, if the choosen MP implements a known navigation interface and go to the navigation screen,
+      // if supported
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      if (mediaProvider is IFileSystemMediaProvider)
+        workflowManager.NavigatePush(SHARE_ADD_CHOOSE_PATH_STATE_ID);
+      else
+        // Fallback
+        workflowManager.NavigatePush(SHARE_ADD_EDIT_PATH_STATE_ID);
+    }
+
+    public void RefreshOrClearSubPathItems(TreeItem pathItem, bool clearSubItems)
+    {
+      if (clearSubItems)
+      {
+        pathItem.SubItems.Clear();
+        pathItem.SubItems.FireChange();
+      }
+      else
+        RefreshMediaProviderPathList(pathItem.SubItems, pathItem[MP_PATH_KEY]);
     }
 
     #endregion
 
     #region Protected methods
+
+    protected void OnShareItemSelectionChanged(Property shareItem, object oldValue)
+    {
+      UpdateIsSharesSelected();
+    }
+
+    protected void OnMediaProviderItemSelectionChanged(Property shareItem, object oldValue)
+    {
+      UpdateIsMediaProviderSelected();
+    }
+
+    protected void OnMediaProviderPathChanged(Property mediaProviderURL, object oldValue)
+    {
+      UpdateIsMediaProviderPathValid();
+      UpdateMediaProviderPathDisplayName();
+    }
+
+    protected void OnTreePathSelectionChanged(Property property, object oldValue)
+    {
+      UpdateMediaProviderTreePath();
+    }
+
+    protected void OnShareNameChanged(Property shareName, object oldValue)
+    {
+      UpdateIsShareNameEmpty();
+    }
+
+    protected void UpdateIsSharesSelected()
+    {
+      bool result = false;
+      foreach (ListItem shareItem in _sharesList)
+        if (shareItem.Selected)
+        {
+          result = true;
+          break;
+        }
+      IsSharesSelected = result;
+    }
+
+    protected void UpdateIsMediaProviderSelected()
+    {
+      bool result = false;
+      foreach (ListItem mediaProviderItem in _mediaProvidersList)
+        if (mediaProviderItem.Selected)
+        {
+          result = true;
+          break;
+        }
+      IsMediaProviderSelected = result;
+    }
+
+    protected static string FindMediaProviderTreePath(ItemsList items)
+    {
+      foreach (TreeItem directoryItem in items)
+        if (directoryItem.Selected)
+          return directoryItem.Label(MP_PATH_KEY, null).Evaluate();
+        else
+        {
+          string childPath = FindMediaProviderTreePath(directoryItem.SubItems);
+          if (!string.IsNullOrEmpty(childPath))
+            return childPath;
+        }
+      return null;
+    }
+
+    protected void UpdateMediaProviderTreePath()
+    {
+      MediaProviderPath = FindMediaProviderTreePath(MediaProviderPathsTree);
+    }
+
+    protected void UpdateIsMediaProviderPathValid()
+    {
+      IMediaProvider mediaProvider = MediaProvider;
+      IsMediaProviderPathValid = mediaProvider != null && mediaProvider.IsResource(MediaProviderPath);
+    }
+
+    protected void UpdateMediaProviderPathDisplayName()
+    {
+      IMediaProvider mediaProvider = MediaProvider;
+      MediaProviderPathDisplayName = mediaProvider != null ? mediaProvider.GetFullName(MediaProviderPath) : string.Empty;
+    }
+
+    protected void UpdateIsShareNameEmpty()
+    {
+      IsShareNameEmpty = string.IsNullOrEmpty(ShareName);
+    }
 
     protected void UpdateSharesList()
     {
@@ -133,28 +375,72 @@ namespace UiComponents.Media.Settings.Configuration
       {
         ListItem shareItem = new ListItem(NAME_KEY, share.Name);
         shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
-        shareItem.SetLabel(PATH_KEY, share.Path);
         IMediaProvider mediaProvider;
         if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
           mediaProvider = null;
+        shareItem.SetLabel(MP_PATH_KEY, share.Path);
+        shareItem.SetLabel(PATH_KEY, mediaProvider == null ? share.Path : mediaProvider.GetFullName(share.Path));
         shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, mediaProvider == null ? null : mediaProvider.Metadata.Name);
         string categories = StringUtils.Join(", ", share.MediaCategories);
         shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
+        shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
         _sharesList.Add(shareItem);
       }
+      IsSharesSelected = false;
     }
 
-    protected void UpdateMediaProviderList()
+    protected void UpdateMediaProvidersList()
     {
       _mediaProvidersList.Clear();
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      bool selected = false;
       foreach (IMediaProvider mediaProvider in mediaManager.LocalMediaProviders.Values)
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         ListItem mediaProviderItem = new ListItem(NAME_KEY, metadata.Name);
         mediaProviderItem.SetLabel(ID_KEY, metadata.MediaProviderId.ToString());
+        if (MediaProvider != null && MediaProvider.Metadata.MediaProviderId == metadata.MediaProviderId)
+        {
+          mediaProviderItem.Selected = true;
+          selected = true;
+        }
+        mediaProviderItem.SelectedProperty.Attach(OnMediaProviderItemSelectionChanged);
         _mediaProvidersList.Add(mediaProviderItem);
       }
+      IsMediaProviderSelected = selected;
+    }
+
+    protected void RefreshMediaProviderPathList(ItemsList items, string path)
+    {
+      IMediaProvider mp = MediaProvider;
+      if (!(mp is IFileSystemMediaProvider))
+        // Error case - The path tree can only be shown if the media provider is a file system provider
+        return;
+      IFileSystemMediaProvider mediaProvider = (IFileSystemMediaProvider) mp;
+      foreach (string childPath in mediaProvider.GetChildDirectories(path))
+      {
+        TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetShortName(childPath));
+        directoryItem.SetLabel(MP_PATH_KEY, childPath);
+        directoryItem.SetLabel(PATH_KEY, mediaProvider.GetFullName(childPath));
+        if (!string.IsNullOrEmpty(MediaProviderPath) && MediaProviderPath == childPath)
+          directoryItem.Selected = true;
+        directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
+        items.Add(directoryItem);
+      }
+      items.FireChange();
+    }
+
+    protected void UpdateMediaProviderPathTree()
+    {
+      _mediaProviderPathsTree.Clear();
+      RefreshMediaProviderPathList(_mediaProviderPathsTree, "/");
+    }
+
+    protected void ClearAllProperties()
+    {
+      MediaProvider = null;
+      MediaProviderPath = string.Empty;
+      ShareName = string.Empty;
     }
 
     protected void PrepareState(Guid workflowState)
@@ -162,6 +448,7 @@ namespace UiComponents.Media.Settings.Configuration
       if (workflowState == SHARES_OVERVIEW_STATE_ID)
       {
         UpdateSharesList();
+        ClearAllProperties();
       }
       else if (workflowState == REMOVE_SHARES_STATE_ID)
       {
@@ -169,7 +456,11 @@ namespace UiComponents.Media.Settings.Configuration
       }
       else if (workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
       {
-        UpdateMediaProviderList();
+        UpdateMediaProvidersList();
+      }
+      else if (workflowState == SHARE_ADD_CHOOSE_PATH_STATE_ID)
+      {
+        UpdateMediaProviderPathTree();
       }
     }
 
