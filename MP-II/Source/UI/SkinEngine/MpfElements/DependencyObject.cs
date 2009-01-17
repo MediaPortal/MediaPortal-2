@@ -158,6 +158,13 @@ namespace MediaPortal.SkinEngine.Controls
       return result;
     }
 
+    public void RemoveAttachedProperty(string name)
+    {
+      if (_attachedProperties == null)
+        return;
+      _attachedProperties.Remove(name);
+    }
+
     private Property AddAttachedProperty(string name, object defaultValue, Type t)
     {
       if (_attachedProperties == null)

@@ -291,10 +291,12 @@ namespace MediaPortal.SkinEngine.Controls.Animations
 
     /// <summary>
     /// Adds the descriptors for all properties which are animated by this animation and
-    /// by sub animations to the specified <paramref name="result"/> parameter.
+    /// by sub animations mapped to their original value to the specified
+    /// <paramref name="result"/> parameter.
     /// </summary>
     /// <param name="context">The animation context.</param>
-    /// <param name="result">Dictionary to add all animated properties from this animation.</param>
+    /// <param name="result">Dictionary to add all animated properties mapped to their original
+    /// values from this animation.</param>
     public abstract void AddAllAnimatedProperties(TimelineContext context,
         IDictionary<IDataDescriptor, object> result);
 

@@ -33,9 +33,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     #region Protected fields
 
     protected object _value;
-    protected Object _originalValue = null;
-    protected bool _isSet = false;
-    protected object _setterValue;
 
     #endregion
 
@@ -64,88 +61,111 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
       set { _value = value; }
     }
 
-    /// <summary>
-    /// Gets or sets the information if this setter was already initialized, that
-    /// means value or binding instance has been applied to the setter target property.
-    /// </summary>
-    public bool WasApplied
-    {
-      get { return _isSet; }
-      set { _isSet = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the value to be set which has already the right type.
-    /// This value was converted from the <see cref="Value"/> property.
-    /// </summary>
-    public object SetterValue
-    {
-      get { return _setterValue; }
-      set { _setterValue = value; }
-    }
-
     #endregion
 
-    protected IDataDescriptor GetPropertyDescriptor(UIElement element)
+    #region Protected methods
+
+    protected bool FindPropertyDescriptor(UIElement element,
+        out IDataDescriptor propertyDescriptor, out DependencyObject targetObject)
     {
-      DependencyObject target = null;
+      targetObject = null;
+      propertyDescriptor = null;
       if (!string.IsNullOrEmpty(TargetName))
       {
         // Search the element in "normal" namescope and in the dynamic structure via the FindElement method
         // I think this is more than WPF does. It makes it possible to find elements instantiated
         // by a template, for example.
-        target = element.FindElementInNamescope(TargetName) ??
+        targetObject = element.FindElementInNamescope(TargetName) ??
             element.FindElement(new NameFinder(TargetName));
-        if (target == null)
-          return null;
+        if (targetObject == null)
+          return false;
       }
-      if (target == null)
-        target = element;
+      else
+        targetObject = element;
       int index = Property.IndexOf('.');
       if (index != -1)
       {
         string propertyProvider = Property.Substring(0, index);
         string propertyName = Property.Substring(index + 1);
         MpfAttachedPropertyDataDescriptor result;
-        return MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
-            element, propertyProvider, propertyName, out result) ? result : null;
+        if (!MpfAttachedPropertyDataDescriptor.CreateAttachedPropertyDataDescriptor(
+            element, propertyProvider, propertyName, out result))
+          throw new ArgumentException(
+            string.Format("Attached property '{0}' cannot be set on element '{1}'", Property, targetObject));
+        propertyDescriptor = result;
+        return true;
       }
       else
       {
         string propertyName = Property;
         IDataDescriptor result;
-        if (ReflectionHelper.FindMemberDescriptor(target, propertyName, out result))
-          return result;
-        throw new ArgumentException(
-            string.Format("Property '{0}' cannot be set on element '{1}'", Property, target));
+        if (!ReflectionHelper.FindMemberDescriptor(targetObject, propertyName, out result))
+          throw new ArgumentException(
+              string.Format("Property '{0}' cannot be set on element '{1}'", Property, targetObject));
+        propertyDescriptor = result;
+        return true;
       }
     }
 
+    protected string GetAttachedPropertyName_OriginalValue()
+    {
+      return "Setter." + Property + ".OriginalValue";
+    }
+
+    protected string GetAttachedPropertyName_CurrentSetter()
+    {
+      return "Setter." + Property + ".CurrentSetter";
+    }
+
+    protected object GetOriginalValue(DependencyObject targetObject)
+    {
+      return targetObject.GetAttachedPropertyValue<object>(GetAttachedPropertyName_OriginalValue(), null);
+    }
+
+    protected void SetOriginalValue(DependencyObject targetObject, object value)
+    {
+      targetObject.SetAttachedPropertyValue<object>(GetAttachedPropertyName_OriginalValue(), value);
+      targetObject.SetAttachedPropertyValue<object>(GetAttachedPropertyName_CurrentSetter(), this);
+    }
+
+    protected bool WasApplied(DependencyObject targetObject)
+    {
+      return ReferenceEquals(targetObject.GetAttachedPropertyValue<object>(
+          GetAttachedPropertyName_CurrentSetter(), null), this);
+    }
+
+    protected void ClearSetterData(DependencyObject targetObject)
+    {
+      targetObject.RemoveAttachedProperty(GetAttachedPropertyName_OriginalValue());
+      targetObject.RemoveAttachedProperty(GetAttachedPropertyName_CurrentSetter());
+    }
+
+    #endregion
+
+    #region Public methods
+
     public override void Set(UIElement element)
     {
-      IDataDescriptor dd = GetPropertyDescriptor(element);
-      if (dd == null)
+      IDataDescriptor dd;
+      DependencyObject targetObject;
+      if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
-      if (!WasApplied)
-      { // We have to prepare our internal data the first time
-        object obj;
-        if (TypeConverter.Convert(Value, dd.DataType, out obj))
-          SetterValue = obj;
-        else
-          // We cannot execute
-          return;
+      object obj;
+      if (!WasApplied(targetObject))
+      { // We have to the original property value the first time for this target object
+
         // The next lines are necessary because the render thread is setting our values.
         // If the render thread wasn't able to set the value yet, we would get the old, unchanged and
         // thus wrong value dd.Value for _originalValue.
         if (!element.TryGetPendingValue(dd, out obj))
           obj = dd.Value;
-        _originalValue = obj;
-        WasApplied = true;
+        SetOriginalValue(targetObject, obj);
       }
-      // We have to copy the SetterValue because the Setter doesn't belong exclusively
-      // to the UIElement. It may be part of a style for example, which is shared across
-      // multiple controls.
-      element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(SetterValue));
+      if (TypeConverter.Convert(Value, dd.DataType, out obj))
+        element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+      else
+        // Value is not compatible: We cannot execute
+        return;
     }
 
     /// <summary>
@@ -155,12 +175,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     /// to earch the target element.</param>
     public void Restore(UIElement element)
     {
-      IDataDescriptor dd = GetPropertyDescriptor(element);
-      if (dd == null)
+      IDataDescriptor dd;
+      DependencyObject targetObject;
+      if (!FindPropertyDescriptor(element, out dd, out targetObject))
         return;
-      if (WasApplied)
-        element.SetValueInRenderThread(dd, _originalValue);
-      _isSet = false;
+      if (WasApplied(targetObject))
+      {
+        element.SetValueInRenderThread(dd, GetOriginalValue(targetObject));
+        ClearSetterData(targetObject);
+      }
     }
+
+    #endregion
   }
 }

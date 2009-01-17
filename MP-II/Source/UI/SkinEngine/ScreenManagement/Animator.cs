@@ -90,13 +90,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
   {
     protected object _syncObject = new object();
     protected IList<AnimationContext> _scheduledAnimations;
-    protected IList<AnimationContext> _canceledAnimations;
     protected IDictionary<IDataDescriptor, object> _valuesToSet;
 
     public Animator()
     {
       _scheduledAnimations = new List<AnimationContext>();
-      _canceledAnimations = new List<AnimationContext>();
       _valuesToSet = new Dictionary<IDataDescriptor, object>();
     }
 
@@ -150,7 +148,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         AnimationContext context = GetContext(board, element);
         if (context == null) return;
-        _canceledAnimations.Add(context);
+        ResetAllValues(context);
         _scheduledAnimations.Remove(context);
       }
     }
@@ -163,7 +161,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       lock (_syncObject)
       {
         foreach (AnimationContext ac in _scheduledAnimations)
-          _canceledAnimations.Add(ac);
+          ResetAllValues(ac);
         _scheduledAnimations.Clear();
       }
     }
@@ -211,9 +209,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       lock (_syncObject)
       {
-        foreach (AnimationContext ac in _canceledAnimations)
-          ac.Timeline.Stop(ac.TimelineContext);
-        _canceledAnimations.Clear();
         foreach (AnimationContext ac in _scheduledAnimations)
         {
           if (IsWaiting(ac))
@@ -235,6 +230,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           valueToSet.Key.Value = valueToSet.Value;
         _valuesToSet.Clear();
       }
+    }
+
+    protected void ResetAllValues(AnimationContext ac)
+    {
+      IDictionary<IDataDescriptor, object> animProperties = new Dictionary<IDataDescriptor, object>();
+      ac.Timeline.AddAllAnimatedProperties(ac.TimelineContext, animProperties);
+      foreach (KeyValuePair<IDataDescriptor, object> animProperty in animProperties)
+        SetValue(animProperty.Key, animProperty.Value);
     }
 
     protected AnimationContext GetContext(Timeline line, UIElement element)
@@ -311,10 +314,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         out ICollection<AnimationContext> conflictingAnimations,
         out IDictionary<IDataDescriptor, object> conflictingProperties)
     {
-      Timeline line = animationContext.Timeline;
+      Timeline newTL = animationContext.Timeline;
       TimelineContext context = animationContext.TimelineContext;
       IDictionary<IDataDescriptor, object> newProperties = new Dictionary<IDataDescriptor, object>();
-      line.AddAllAnimatedProperties(context, newProperties);
+      newTL.AddAllAnimatedProperties(context, newProperties);
+      ICollection<IDataDescriptor> newPDs = newProperties.Keys;
       conflictingAnimations = new List<AnimationContext>();
       conflictingProperties = new Dictionary<IDataDescriptor, object>();
       lock (_syncObject)
@@ -324,13 +328,25 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         {
           IDictionary<IDataDescriptor, object> animProperties = new Dictionary<IDataDescriptor, object>();
           ac.Timeline.AddAllAnimatedProperties(ac.TimelineContext, animProperties);
-          ICollection<IDataDescriptor> conflicts = CollectionUtils.Intersection(
-              newProperties.Keys, animProperties.Keys);
-          if (conflicts.Count > 0)
+          bool isConflict = false;
+          foreach (KeyValuePair<IDataDescriptor, object> animProperty in animProperties)
           {
+            if (newPDs.Contains(animProperty.Key))
+            {
+              isConflict = true;
+              conflictingProperties.Add(animProperty.Key, animProperty.Value);
+            }
+          }
+          if (isConflict)
             conflictingAnimations.Add(ac);
-            foreach (IDataDescriptor prop in conflicts)
-              conflictingProperties.Add(prop, animProperties[prop]);
+        }
+        foreach (KeyValuePair<IDataDescriptor, object> property in
+            new Dictionary<IDataDescriptor, object>(_valuesToSet))
+        {
+          if (newPDs.Contains(property.Key))
+          {
+            conflictingProperties.Add(property.Key, property.Value);
+            _valuesToSet.Remove(property.Key);
           }
         }
       }
@@ -358,7 +374,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           ac.WaitingFor.Add(animationContext);
       else if (handoffBehavior == HandoffBehavior.SnapshotAndReplace)
         foreach (AnimationContext ac in conflictingAnimations)
-          ac.Timeline.Stop(ac.TimelineContext);
+          ResetAllValues(ac);
       else
         throw new NotImplementedException("Animator.HandleConflicts: handoff behavior '" + handoffBehavior.ToString() +
                                           "' is not implemented");
