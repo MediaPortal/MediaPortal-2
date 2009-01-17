@@ -125,15 +125,18 @@ namespace MediaPortal.SkinEngine.Controls
     {
       if (this is INameScope)
         return this as INameScope;
-      else
-        return LogicalParent == null ? null : LogicalParent.FindNameScope();
+      return LogicalParent == null ? null : LogicalParent.FindNameScope();
     }
 
     #region Attached properties implementation
 
     public void SetAttachedPropertyValue<T>(string name, T value)
     {
-      GetOrCreateAttachedProperty<T>(name, value);
+      Property result = GetAttachedProperty(name);
+      if (result == null)
+        AddAttachedProperty(name, value, typeof(T));
+      else
+        result.SetValue(value);
     }
 
     public T GetAttachedPropertyValue<T>(string name, T defaultValue)
@@ -146,8 +149,7 @@ namespace MediaPortal.SkinEngine.Controls
     {
       if (_attachedProperties != null && _attachedProperties.ContainsKey(name))
         return _attachedProperties[name];
-      else
-        return null;
+      return null;
     }
 
     public Property GetOrCreateAttachedProperty<T>(string name, T defaultValue)
@@ -165,12 +167,12 @@ namespace MediaPortal.SkinEngine.Controls
       _attachedProperties.Remove(name);
     }
 
-    private Property AddAttachedProperty(string name, object defaultValue, Type t)
+    private Property AddAttachedProperty(string name, object value, Type t)
     {
       if (_attachedProperties == null)
         _attachedProperties = new Dictionary<string, Property>();
       Property result = new Property(t);
-      result.SetValue(defaultValue);
+      result.SetValue(value);
       _attachedProperties[name] = result;
       return result;
     }
