@@ -169,7 +169,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     protected IDictionary<string, PendingResource> _pendingStyleResources = null;
 
-    protected SkinResources _inheritedSkinResources;
+    protected SkinResources _inheritedSkinResources = null;
 
     // Meta information
     protected string _name;
@@ -187,10 +187,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     #endregion
 
-    public SkinResources(string name, SkinResources inherited)
+    public SkinResources(string name)
     {
       _name = name;
-      _inheritedSkinResources = inherited;
       _modelItemStateTracker = new ModelItemStateTracker(this);
     }
 
@@ -222,6 +221,16 @@ namespace MediaPortal.SkinEngine.SkinManagement
       set { _inheritedSkinResources = value; }
     }
 
+    protected bool IsResourcesInitialized
+    {
+      get { return _localResourceFilePaths != null; }
+    }
+
+    protected bool IsStylesInitialized
+    {
+      get { return _localStyleResources != null; }
+    }
+
     public object FindStyleResource(object resourceKey)
     {
       CheckStylesInitialized();
@@ -243,6 +252,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     public string GetResourceFilePath(string resourceName, bool searchInheritedResources)
     {
+      if (resourceName == null)
+        return null;
       CheckResourcesInitialized();
       string key = resourceName.ToLower();
       if (_localResourceFilePaths.ContainsKey(key))
@@ -354,12 +365,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     protected virtual void CheckResourcesInitialized()
     {
-      if (_localResourceFilePaths == null)
-      {
-        _localResourceFilePaths = new Dictionary<string, string>();
-        foreach (string rootDirectoryPath in _rootDirectoryPaths)
-          LoadDirectory(rootDirectoryPath);
-      }
+      if (IsResourcesInitialized)
+        return;
+      _localResourceFilePaths = new Dictionary<string, string>();
+      foreach (string rootDirectoryPath in _rootDirectoryPaths)
+        LoadDirectory(rootDirectoryPath);
     }
 
     /// <summary>
@@ -378,6 +388,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </remarks>
     internal void CheckStyleResourceFileWasLoaded(string styleResourceName)
     {
+      if (_inheritedSkinResources != null)
+        _inheritedSkinResources.CheckStyleResourceFileWasLoaded(styleResourceName);
       string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
       if (_localStyleResources == null)
         // Method was called before the styles initialization
@@ -388,11 +400,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       else
       { // Do the actual work
         if (!_pendingStyleResources.ContainsKey(resourceKey))
-        {
-          if (_inheritedSkinResources != null)
-            _inheritedSkinResources.CheckStyleResourceFileWasLoaded(resourceKey);
           return;
-        }
         LoadStyleResource(resourceKey);
       }
       if (GetResourceFilePath(resourceKey) == null)
@@ -434,30 +442,29 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     protected virtual void CheckStylesInitialized()
     {
-      if (_localStyleResources == null)
-      {
-        CheckResourcesInitialized();
-        // We need to avoid indirect recursive calls here. We need to initialize our _localStyleResources before
-        // loading the style resource files, because the elements in the resource files sometimes also access
-        // style resources from lower priority skin resource styles.
-        // Setting _localStyleResources to an empty ResourceDictionary here will avoid the repeated call of this method.
-        _localStyleResources = new ResourceDictionary();
+      if (IsStylesInitialized)
+        return;
+      CheckResourcesInitialized();
+      // We need to avoid indirect recursive calls here. We need to initialize our _localStyleResources before
+      // loading the style resource files, because the elements in the resource files sometimes also access
+      // style resources from lower priority skin resource styles.
+      // Setting _localStyleResources to an empty ResourceDictionary here will avoid the repeated call of this method.
+      _localStyleResources = new ResourceDictionary();
 
-        // Collect all style resources to be loaded
-        _pendingStyleResources = new Dictionary<string, PendingResource>();
-        foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
-            "^" + STYLES_DIRECTORY + "\\\\.*\\.xaml$", false))
-          _pendingStyleResources[resource.Key] = new PendingResource(resource.Value);
-        // Load all pending resources. We use this complicated way because during the loading of
-        // each style resource, another dependent resource might be requested to be loaded first.
-        // Thats why we have to make use of this mixture of sequential and recursive
-        // loading algorithm.
-        KeyValuePair<string, PendingResource> kvp;
-        while ((kvp = _pendingStyleResources.FirstOrDefault(
-            kvpArg => kvpArg.Value.State == LoadState.Pending)).Key != null)
-          LoadStyleResource(kvp.Key);
-        _pendingStyleResources = null;
-      }
+      // Collect all style resources to be loaded
+      _pendingStyleResources = new Dictionary<string, PendingResource>();
+      foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
+          "^" + STYLES_DIRECTORY + "\\\\.*\\.xaml$", false))
+        _pendingStyleResources[resource.Key] = new PendingResource(resource.Value);
+      // Load all pending resources. We use this complicated way because during the loading of
+      // each style resource, another dependent resource might be requested to be loaded first.
+      // Thats why we have to make use of this mixture of sequential and recursive
+      // loading algorithm.
+      KeyValuePair<string, PendingResource> kvp;
+      while ((kvp = _pendingStyleResources.FirstOrDefault(
+          kvpArg => kvpArg.Value.State == LoadState.Pending)).Key != null)
+        LoadStyleResource(kvp.Key);
+      _pendingStyleResources = null;
     }
 
     protected virtual void LoadDirectory(string rootDirectoryPath)

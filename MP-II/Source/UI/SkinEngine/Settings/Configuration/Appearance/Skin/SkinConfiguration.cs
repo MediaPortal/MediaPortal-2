@@ -23,7 +23,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
@@ -39,6 +38,10 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
   public class SkinConfiguration : CustomConfiguration
   {
     #region Protected fields
+
+    protected const string KEY_TECHNAME = "TechName";
+    protected const string KEY_NAME = "Name";
+    protected const string KEY_IMAGESRC = "ImageSrc";
 
     protected ItemsList _allSkins;
     protected ListItem _choosenSkinItem;
@@ -63,7 +66,7 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
 
     public string ChoosenSkin
     {
-      get { return _choosenSkinItem["TechName"]; }
+      get { return _choosenSkinItem[KEY_TECHNAME]; }
     }
 
     #region Public Methods
@@ -80,10 +83,10 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
       {
         if (!skin.IsValid)
           continue;
-        ListItem skinItem = new ListItem("Name", skin.ShortDescription);
-        skinItem.SetLabel("TechName", skin.Name);
+        ListItem skinItem = new ListItem(KEY_NAME, skin.ShortDescription);
+        skinItem.SetLabel(KEY_TECHNAME, skin.Name);
         string preview = skin.GetResourceFilePath(skin.PreviewResourceKey, false);
-        skinItem.SetLabel("ImageSrc", preview);
+        skinItem.SetLabel(KEY_IMAGESRC, preview);
         _allSkins.Add(skinItem);
         if (currentSkinName == skin.Name)
           _choosenSkinItem = skinItem;

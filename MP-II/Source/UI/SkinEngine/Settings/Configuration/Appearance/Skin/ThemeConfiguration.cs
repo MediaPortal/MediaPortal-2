@@ -23,7 +23,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
@@ -39,6 +38,10 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
   public class ThemeConfiguration : CustomConfiguration
   {
     #region Protected fields
+
+    protected const string KEY_TECHNAME = "TechName";
+    protected const string KEY_NAME = "Name";
+    protected const string KEY_IMAGESRC = "ImageSrc";
 
     protected ItemsList _allThemes;
     protected ListItem _choosenThemeItem;
@@ -63,7 +66,7 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
 
     public string ChoosenTheme
     {
-      get { return _choosenThemeItem["TechName"]; }
+      get { return _choosenThemeItem[KEY_TECHNAME]; }
     }
 
     #region Public Methods
@@ -84,10 +87,10 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
       {
         if (!theme.IsValid)
           continue;
-        ListItem themeItem = new ListItem("Name", theme.ShortDescription);
-        themeItem.SetLabel("TechName", theme.Name);
+        ListItem themeItem = new ListItem(KEY_NAME, theme.ShortDescription);
+        themeItem.SetLabel(KEY_TECHNAME, theme.Name);
         string preview = theme.GetResourceFilePath(theme.PreviewResourceKey, false);
-        themeItem.SetLabel("ImageSrc", preview);
+        themeItem.SetLabel(KEY_IMAGESRC, preview);
         _allThemes.Add(themeItem);
         if (currentThemeName == theme.Name)
           _choosenThemeItem = themeItem;

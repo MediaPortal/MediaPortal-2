@@ -195,12 +195,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
       // Setup the resource chain: Inherit the default theme resources for all
       // skins other than the default skin
       Skin defaultSkin = DefaultSkin;
-      SkinResources inheritedResources = defaultSkin == null ? null : defaultSkin.DefaultTheme;
-      if (inheritedResources == null)
-        inheritedResources = defaultSkin;
+      SkinResources inheritResources = defaultSkin == null ? null : defaultSkin.DefaultTheme;
+      if (inheritResources == null)
+        inheritResources = defaultSkin;
       foreach (KeyValuePair<string, Skin> kvp in _skins)
-        if (kvp.Value != defaultSkin)
-          kvp.Value.InheritedSkinResources = inheritedResources;
+        if (kvp.Key != DEFAULT_SKIN)
+          kvp.Value.InheritedSkinResources = inheritResources;
     }
 
     /// <summary>

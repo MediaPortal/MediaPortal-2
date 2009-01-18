@@ -74,7 +74,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     #endregion
 
-    public Skin(string name): base(name, null)
+    public Skin(string name): base(name)
     {
     }
 
@@ -276,9 +276,19 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     protected override void CheckResourcesInitialized()
     {
+      if (IsResourcesInitialized)
+        return;
       if (_themes == null)
         _themes = new Dictionary<string, Theme>();
       base.CheckResourcesInitialized();
+      Theme defaultTheme = DefaultTheme;
+      foreach (KeyValuePair<string, Theme> theme in _themes)
+      {
+        if (defaultTheme == null || theme.Key == _defaultThemeName)
+          theme.Value.InheritedSkinResources = this;
+        else
+          theme.Value.InheritedSkinResources = defaultTheme;
+      }
     }
 
     /// <summary>

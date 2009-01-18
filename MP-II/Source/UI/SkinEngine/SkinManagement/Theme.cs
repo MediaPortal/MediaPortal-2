@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.IO;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -48,6 +47,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public const int MIN_THEME_DESCRIPTOR_VERSION_HIGH = 1;
     public const int MIN_THEME_DESCRIPTOR_VERSION_LOW = 0;
 
+    protected Skin _parentSkin;
+
     // Meta information of the theme
     protected bool _metadataInitialized = false;
     protected string _author = null;
@@ -58,8 +59,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected string _skinEngineVersion = null;
     protected int _minColorDepth = -1;
 
-    public Theme(string name, Skin parentSkin): base(name, parentSkin)
-    { }
+    public Theme(string name, Skin parentSkin): base(name)
+    {
+      _parentSkin = parentSkin;
+    }
 
     public string ShortDescription
     {
@@ -89,7 +92,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     public Skin ParentSkin
     {
-      get { return InheritedSkinResources as Skin; }
+      get { return _parentSkin; }
     }
 
     /// <summary>

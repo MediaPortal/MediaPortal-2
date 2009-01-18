@@ -47,7 +47,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     private static string _skinName = null;
     private static string _themeName = null;
-    private static SkinResources _skinResources = new SkinResources("[not initialized]", null); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
+    private static SkinResources _skinResources = new SkinResources("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
     private static int _skinWidth = 0;
     private static int _skinHeight = 0;
     private static int _idleTime = 30;
