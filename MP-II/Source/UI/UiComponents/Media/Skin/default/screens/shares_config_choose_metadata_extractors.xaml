@@ -17,7 +17,7 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="10,0,10,10"
+      <Grid Margin="10,0,10,0"
             DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>

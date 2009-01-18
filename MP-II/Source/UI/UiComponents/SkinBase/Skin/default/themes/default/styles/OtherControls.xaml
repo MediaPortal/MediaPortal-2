@@ -157,7 +157,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch"/>
+          <ContentPresenter x:Name="ContentPresenter" HorizontalAlignment="Stretch"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -347,7 +347,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel IsItemsHost="True" VerticalAlignment="Top"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" VerticalAlignment="Top"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -492,7 +492,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="TreeStackPanel" IsItemsHost="True" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          <StackPanel x:Name="TreeItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>

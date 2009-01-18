@@ -74,6 +74,51 @@
   <!-- Light gray -->
   <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF696969"/>
 
+  <!-- White -->
+  <ResourceWrapper x:Key="PlusMinusButtonCrossColor" Resource="White"/>
+
+  <!-- Blue, a bit purple -->
+  <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="#FF213F9E"/>
+
+  <!-- A bit darker than normal -->
+  <ResourceWrapper x:Key="DisabledArrowButtonArrowColor" Resource="#FF1B3483"/>
+
+  <!-- Very light blue, almost green -->
+  <ResourceWrapper x:Key="ArrowButtonFillGradientLightColor" Resource="#FFE3E9F2"/>
+
+  <!-- Dirty dark blue -->
+  <ResourceWrapper x:Key="ArrowButtonFillGradientDarkColor" Resource="#FF0B3A88"/>
+
+  <!-- Light green, a little bit blue -->
+  <ResourceWrapper x:Key="FocusedArrowButtonFillGradientLightColor" Resource="#FFE3F2E9"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="FocusedArrowButtonFillGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="PressedArrowButtonFillGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Grey, a little bit blue, a bit transparent -->
+  <ResourceWrapper x:Key="DisabledArrowButtonFillGradientLightColor" Resource="#7FE3E9F2"/>
+
+  <!-- Blue, a little bit green, a bit transparent -->
+  <ResourceWrapper x:Key="DisabledArrowButtonFillGradientDarkColor" Resource="#7F2A5EB4"/>
+
+  <!-- Light green, almost grey -->
+  <ResourceWrapper x:Key="ArrowButtonStrokeGradientLightColor" Resource="#FFCCCED1"/>
+
+  <!-- Dark blue, a little bit green -->
+  <ResourceWrapper x:Key="ArrowButtonStrokeGradientDarkColor" Resource="#FF113F88"/>
+
+  <!-- Grey, darker than the unfocused color -->
+  <ResourceWrapper x:Key="FocusedArrowButtonStrokeGradientLightColor" Resource="#FFCCD1CD"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="FocusedArrowButtonStrokeGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="PressedArrowButtonStrokeGradientDarkColor" Resource="#FF19A05D"/>
+
   <!-- Light violet -->
   <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius1Color" Resource="#FF173D6D"/>
 

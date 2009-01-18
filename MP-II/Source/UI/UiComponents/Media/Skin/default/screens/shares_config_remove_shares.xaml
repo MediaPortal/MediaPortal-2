@@ -15,7 +15,7 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="10,0,10,10"
+      <Grid Margin="10,0,10,0"
           DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -38,12 +38,6 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="CancelButton" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[System.Cancel]" HorizontalAlignment="Right">
-            <Button.Command>
-              <Command Source="{Service WorkflowManager}" Path="NavigatePop" Parameters="1"/>
-            </Button.Command>
-          </Button>
           <Button x:Name="RemoveButton" Grid.Column="2" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
               Content="[System.Finish]" HorizontalAlignment="Right" IsEnabled="{Binding IsSharesSelected}">
             <Button.Command>

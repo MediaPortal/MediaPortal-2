@@ -89,57 +89,53 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="Stop">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF0B3A88"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
-    </ColorAnimationUsingKeyFrames>
+  <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFE3E9F2"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFE3F2E9"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonFillGradientLightColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonFillGradientLightColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF113F88"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonFillGradientDarkColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonFillGradientDarkColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFCCCED1"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFCCD1CD"/>
-    </ColorAnimationUsingKeyFrames>
-  </Storyboard>
-
-  <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="Stop">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonStrokeGradientLightColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonStrokeGradientLightColor}"/>
     </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF19A05D"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FF19A05D"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonStrokeGradientDarkColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonStrokeGradientDarkColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].(GradientStop.Offset)">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="1"/>
-    </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+  </Storyboard>
+
+  <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="HoldEnd">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedArrowButtonFillGradientDarkColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedArrowButtonFillGradientDarkColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedArrowButtonStrokeGradientDarkColor}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedArrowButtonStrokeGradientDarkColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="DisabledArrowButtonStoryBoard" FillBehavior="Stop">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F2A5EB4"/>
+  <Storyboard x:Key="DisabledArrowButtonStoryBoard" RepeatBehavior="Forever" Duration="00:00:01">
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledArrowButtonFillGradientLightColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7FE3E9F2"/>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledArrowButtonFillGradientDarkColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Duration="00:00:00.0010000" Storyboard.TargetName="arrow" Storyboard.TargetProperty="Fill.Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="#7F213F9E"/>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Fill.Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledArrowButtonArrowColor}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -564,8 +560,8 @@
                     <TranslateTransform X="0.036" Y="0.023"/>
                   </TransformGroup>
                 </RadialGradientBrush.RelativeTransform>
-                <GradientStop Color="#FFE3E9F2" Offset="0"/>
-                <GradientStop Color="{ThemeResource ButtonGradientDarkColor}" Offset="1"/>
+                <GradientStop Color="{ThemeResource ArrowButtonFillGradientLightColor}" Offset="0"/>
+                <GradientStop Color="{ThemeResource ArrowButtonFillGradientDarkColor}" Offset="1"/>
               </RadialGradientBrush>
             </Rectangle.Fill>
             <Rectangle.Stroke>
@@ -578,8 +574,8 @@
                     <TranslateTransform X="0.003" Y="0.002"/>
                   </TransformGroup>
                 </RadialGradientBrush.RelativeTransform>
-                <GradientStop Color="#FFCCCED1" Offset="0"/>
-                <GradientStop Color="#FF113F88" Offset="1"/>
+                <GradientStop Color="{ThemeResource ArrowButtonStrokeGradientLightColor}" Offset="0"/>
+                <GradientStop Color="{ThemeResource ArrowButtonStrokeGradientDarkColor}" Offset="1"/>
               </RadialGradientBrush>
             </Rectangle.Stroke>
           </Rectangle>
@@ -594,7 +590,9 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
             <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="Arrow" Fill="#FF213F9E" Stretch="Fill" Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
+            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
+                Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
+                RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -616,7 +614,8 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                    HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -642,7 +641,9 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
             <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="Arrow" Fill="#FF213F9E" Stretch="Fill" Margin="9.889,7,8.971,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
+            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
+                Margin="9.889,7,8.971,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
+                RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -664,7 +665,8 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                    HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -690,7 +692,9 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
             <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.529,7,9.331,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
+            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
+                Margin="9.529,7,9.331,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
+                RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -712,7 +716,8 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                    HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -738,7 +743,9 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
             <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.529,7.9,9.331,6.1" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
+            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
+                Margin="9.529,7.9,9.331,6.1" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
+                RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -760,7 +767,8 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                    HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
@@ -788,8 +796,10 @@
         <ControlTemplate TargetType="{x:Type CheckBox}">
           <Grid x:Name="GrdA" Margin="0,2,0,2">
             <Control Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="PathHorz" Stretch="None" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Height="26" Width="26" Data="M6,13 L20,13" StrokeThickness="2"/>
-            <Path x:Name="PathVert" Stretch="None" Stroke="#FFFFFFFF" HorizontalAlignment="Left" Height="26" Width="26" Data="M13,6 L13,20" StrokeThickness="2"/>
+            <Path x:Name="PathHorz" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}" HorizontalAlignment="Left"
+                Height="26" Width="26" Data="M6,13 L20,13" StrokeThickness="2"/>
+            <Path x:Name="PathVert" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}" HorizontalAlignment="Left"
+                Height="26" Width="26" Data="M13,6 L13,20" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">

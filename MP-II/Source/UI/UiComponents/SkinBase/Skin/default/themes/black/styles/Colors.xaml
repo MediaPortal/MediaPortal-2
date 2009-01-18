@@ -52,7 +52,37 @@
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF404040"/>
 
   <!-- Dark green -->
-  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF425D14"/>
+  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF050505"/>
+
+  <ResourceWrapper x:Key="PlusMinusButtonCrossColor" Resource="White"/>
+
+  <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="#FFCCCCCC"/>
+
+  <ResourceWrapper x:Key="DisabledArrowButtonArrowColor" Resource="#FF6D6D6D"/>
+
+  <ResourceWrapper x:Key="ArrowButtonFillGradientLightColor" Resource="#FF868686"/>
+
+  <ResourceWrapper x:Key="ArrowButtonFillGradientDarkColor" Resource="#FF0B0B0B"/>
+
+  <ResourceWrapper x:Key="FocusedArrowButtonFillGradientLightColor" Resource="#FFA0A0A0"/>
+
+  <ResourceWrapper x:Key="FocusedArrowButtonFillGradientDarkColor" Resource="#FF707070"/>
+
+  <ResourceWrapper x:Key="PressedArrowButtonFillGradientDarkColor" Resource="#FFB0B0B0"/>
+
+  <ResourceWrapper x:Key="DisabledArrowButtonFillGradientLightColor" Resource="#7F050505"/>
+
+  <ResourceWrapper x:Key="DisabledArrowButtonFillGradientDarkColor" Resource="#7F050505"/>
+
+  <ResourceWrapper x:Key="ArrowButtonStrokeGradientLightColor" Resource="#FFCCCCCC"/>
+
+  <ResourceWrapper x:Key="ArrowButtonStrokeGradientDarkColor" Resource="#FF888888"/>
+
+  <ResourceWrapper x:Key="FocusedArrowButtonStrokeGradientLightColor" Resource="#FFCDCDCD"/>
+
+  <ResourceWrapper x:Key="FocusedArrowButtonStrokeGradientDarkColor" Resource="#FF999999"/>
+
+  <ResourceWrapper x:Key="PressedArrowButtonStrokeGradientDarkColor" Resource="#FFA0A0A0"/>
 
   <!-- Grey -->
   <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius1Color" Resource="#FF828282"/>
@@ -119,6 +149,6 @@
   <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
 
   <!-- Dark yellow -->
-  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#FF393900"/>
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#FF1E1E00"/>
 
 </ResourceDictionary>
