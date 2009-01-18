@@ -463,28 +463,27 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <ControlTemplate.Resources>
             <Storyboard x:Key="FocusedStoryboard" FillBehavior="HoldEnd">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FF5F8FC9"/>
-                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFC7D3E4"/>
-              </ColorAnimationUsingKeyFrames>
               <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="#FFECF2F8"/>
-                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="#FFFFFFFF"/>
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape2Color}"/>
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape2HighlightColor}"/>
+              </ColorAnimationUsingKeyFrames>
+              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="ButtonShape" Storyboard.TargetProperty="Fill.GradientStops[2].Color">
+                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DialogCloseButtonShape3Color}"/> <!-- Dreckig hellblau -->
+                <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource DialogCloseButtonShape3HighlightColor}"/> <!-- sehr hellblau, fast grau -->
               </ColorAnimationUsingKeyFrames>
             </Storyboard>
           </ControlTemplate.Resources>
           <Grid Width="48" Height="48">
-            <Ellipse x:Name="ButtonBackground" Stroke="{x:Null}" StrokeThickness="4" Margin="0.022,-0.026,-0.022,0.026" Width="48" Height="48">
+            <Ellipse x:Name="ButtonBackground" StrokeThickness="4" Margin="0.022,-0.026,-0.022,0.026" Width="48" Height="48">
               <Ellipse.Fill>
                 <RadialGradientBrush>
-                  <GradientStop Color="#FF051E3C" Offset="0"/>
-                  <GradientStop Color="#FF173D6D" Offset="0.827"/>
-                  <GradientStop Color="#FF1A5196" Offset="0.909"/>
-                  <GradientStop Color="#E5105EB9" Offset="1"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius1Color}" Offset="0.827"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius2Color}" Offset="0.909"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius2Color}" Offset="1"/>
                 </RadialGradientBrush>
               </Ellipse.Fill>
             </Ellipse>
-            <Ellipse x:Name="ButtonShape" Stroke="{x:Null}" StrokeThickness="2" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41" RenderTransformOrigin="0.5,0.5">
+            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41" RenderTransformOrigin="0.5,0.5">
               <Ellipse.Fill>
                 <RadialGradientBrush GradientOrigin="0.499,0.915">
                   <RadialGradientBrush.RelativeTransform>
@@ -495,10 +494,10 @@
                       <TranslateTransform X="0.001" Y="0.001"/>
                     </TransformGroup>
                   </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#FFFFFFFF" Offset="0"/>
-                  <GradientStop Color="#FFECF2F8" Offset="0.332"/>
-                  <GradientStop Color="#FF5F8FC9" Offset="0.798"/>
-                  <GradientStop Color="#FF0F529F" Offset="1"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonShape1Color}" Offset="0"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonShape2Color}" Offset="0.332"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonShape3Color}" Offset="0.798"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonShape4Color}" Offset="1"/>
                 </RadialGradientBrush>
               </Ellipse.Fill>
               <Ellipse.RenderTransform>
@@ -510,7 +509,8 @@
                 </TransformGroup>
               </Ellipse.RenderTransform>
             </Ellipse>
-            <Path Stretch="Fill" Stroke="#FF17488B" StrokeThickness="4" HorizontalAlignment="Left" Margin="15.025,15.056,0,0" VerticalAlignment="Top" Width="18" Height="18" Data="M530,102.75 L550,83" RenderTransformOrigin="0.5,0.5" x:Name="Part1Of_X">
+            <Path x:Name="CrossPart1_LLUR" Stretch="Fill" Stroke="{ThemeResource DialogCloseButtonCrossColor}" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="15.025,15.056,0,0" Width="18" Height="18" Data="M530,102.75 L550,83" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -520,7 +520,8 @@
                 </TransformGroup>
               </Path.RenderTransform>
             </Path>
-            <Path Fill="#FFFFFFFF" Stretch="Fill" Stroke="#FF17488B" StrokeThickness="4" HorizontalAlignment="Left" Margin="15.025,15.056,0,0" VerticalAlignment="Top" Width="18" Height="18" Data="M532.875,87 L545.34523,99.52806" RenderTransformOrigin="0.5,0.5" x:Name="Part2Of_X">
+            <Path x:Name="CrossPart2_LRUL" Stretch="Fill" Stroke="{ThemeResource DialogCloseButtonCrossColor}" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="15.025,15.056,0,0" Width="18" Height="18" Data="M532.875,87 L545.34523,99.52806" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -529,23 +530,6 @@
                   <TranslateTransform X="0" Y="0"/>
                 </TransformGroup>
               </Path.RenderTransform>
-            </Path>
-            <Path Stretch="Fill" Stroke="{x:Null}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="3.513,3.53,0,19.47" x:Name="Highlight" Width="41" Height="25" Data="M21.515036,0.10254623 C33.858738,0.47503549 41.915491,7.5945522 43.263354,18.631958 36.818281,25.975738 4.5835854,25.755277 0.75664204,18.690969 1.592944,8.1747201 9.8216492,0.58923798 21.515036,0.10254623 z">
-              <Path.Fill>
-                <RadialGradientBrush GradientOrigin="0.502,1.296">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.97" ScaleY="1.257"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.01" Y="0.334"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
-                  <GradientStop Color="#59FFFFFF" Offset="0"/>
-                  <GradientStop Color="#66E5EFF2" Offset="0.74"/>
-                  <GradientStop Color="#19FFFFFF" Offset="0.99"/>
-                </RadialGradientBrush>
-              </Path.Fill>
             </Path>
           </Grid>
           <ControlTemplate.Triggers>
@@ -610,7 +594,7 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
             <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
+            <Path x:Name="Arrow" Fill="#FF213F9E" Stretch="Fill" Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -658,7 +642,7 @@
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid Width="40" Height="40">
             <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="arrow" Fill="#FF213F9E" Stretch="Fill" Stroke="{x:Null}" Margin="9.889,7,8.971,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
+            <Path x:Name="Arrow" Fill="#FF213F9E" Stretch="Fill" Margin="9.889,7,8.971,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z" RenderTransformOrigin="0.5,0.5">
               <Path.RenderTransform>
                 <TransformGroup>
                   <ScaleTransform ScaleX="1" ScaleY="1"/>
