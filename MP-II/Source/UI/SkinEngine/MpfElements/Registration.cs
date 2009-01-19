@@ -31,7 +31,6 @@ using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Transforms;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using TypeConverter = MediaPortal.SkinEngine.Xaml.TypeConverter;
@@ -166,6 +165,7 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("CommandStencil", typeof(SkinEngine.MarkupExtensions.CommandStencilMarkupExtension));
       objectClassRegistrations.Add("Model", typeof(SkinEngine.MarkupExtensions.GetModelMarkupExtension));
       objectClassRegistrations.Add("Service", typeof(SkinEngine.MarkupExtensions.ServiceScopeMarkupExtension));
+      objectClassRegistrations.Add("Color", typeof(SkinEngine.MarkupExtensions.ColorMarkupExtension));
 
       // Others
       objectClassRegistrations.Add("RelativeSource", typeof(SkinEngine.MarkupExtensions.RelativeSource));
