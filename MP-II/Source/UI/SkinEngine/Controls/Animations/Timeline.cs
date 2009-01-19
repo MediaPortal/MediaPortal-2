@@ -258,7 +258,6 @@ namespace MediaPortal.SkinEngine.Controls.Animations
     /// </remarks>
     public virtual void Start(TimelineContext context, uint timePassed)
     {
-      Stop(context);
       Started(context, timePassed);
     }
 
