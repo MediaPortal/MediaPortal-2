@@ -406,6 +406,9 @@ namespace MediaPortal.SkinEngine.Controls.Animations
             }
           }
           break;
+        case State.Ended:
+          DoAnimation(context, passed);
+          break;
       }
     }
 

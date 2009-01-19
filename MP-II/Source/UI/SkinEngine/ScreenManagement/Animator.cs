@@ -226,6 +226,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           _scheduledAnimations.Remove(ac);
         }
         stoppedAnimations.Clear();
+
         foreach (KeyValuePair<IDataDescriptor, object> valueToSet in _valuesToSet)
           valueToSet.Key.Value = valueToSet.Value;
         _valuesToSet.Clear();
@@ -265,24 +266,25 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (context.WaitingFor.Count == 0)
         return false;
 
-      bool allEnded = true;
+      bool allEndedOrStopped = true;
       foreach (AnimationContext waitForAc in context.WaitingFor)
       {
         int index = _scheduledAnimations.IndexOf(waitForAc);
         AnimationContext ac;
-        if (index == -1 || (ac = _scheduledAnimations[index]).Timeline.HasEnded(ac.TimelineContext))
-          endedWaitForAnimations.Add(waitForAc);
-        else
-        {
-          allEnded = false;
-          break;
-        }
+        if (index != -1)
+          if ((ac = _scheduledAnimations[index]).Timeline.HasEnded(ac.TimelineContext))
+            endedWaitForAnimations.Add(waitForAc);
+          else
+          {
+            allEndedOrStopped = false;
+            break;
+          }
       }
       try
       {
-        if (allEnded)
+        if (allEndedOrStopped)
         {
-          // Stop all parent animations at once via the DoHandoff method, when the last
+          // Stop all parent animations at once via the ExecuteHandoff method, when the last
           // one ended. This will preserve all animations with FillBehavior.HoldEnd until
           // the new animation starts.
           context.WaitingFor.Clear();
@@ -373,10 +375,19 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         foreach (AnimationContext ac in conflictingAnimations)
           ac.WaitingFor.Add(animationContext);
       else if (handoffBehavior == HandoffBehavior.SnapshotAndReplace)
+      {
+        // Reset values of conflicting animations
         foreach (AnimationContext ac in conflictingAnimations)
           ResetAllValues(ac);
+        // And remove those values which are handled by the new animation -
+        // avoids flickering
+        IDictionary<IDataDescriptor, object> animProperties = new Dictionary<IDataDescriptor, object>();
+        animationContext.Timeline.AddAllAnimatedProperties(animationContext.TimelineContext, animProperties);
+        foreach (IDataDescriptor dd in animProperties.Keys)
+          _valuesToSet.Remove(dd);
+      }
       else
-        throw new NotImplementedException("Animator.HandleConflicts: handoff behavior '" + handoffBehavior.ToString() +
+        throw new NotImplementedException("Animator.HandleConflicts: HandoffBehavior '" + handoffBehavior.ToString() +
                                           "' is not implemented");
     }
   }
