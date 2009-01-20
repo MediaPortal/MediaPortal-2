@@ -252,7 +252,11 @@ namespace MediaPortal.Services.Logging
     private static void CopyLogFiles(string logPath, string crashLogPath)
     {
       foreach (string logFilePath in Directory.GetFiles(logPath, "*.log"))
-        File.Copy(logFilePath, Path.Combine(crashLogPath, Path.GetFileName(logFilePath)));
+      {
+        string destPath = Path.Combine(crashLogPath, Path.GetFileName(logFilePath));
+        File.Delete(destPath);
+        File.Copy(logFilePath, destPath);
+      }
     }
 
     private static void CreateDxDiagLog(string destinationFolder)

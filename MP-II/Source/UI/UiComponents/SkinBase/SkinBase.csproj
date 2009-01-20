@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -16,25 +16,6 @@
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -50,13 +31,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|AnyCPU' ">
-    <OutputPath>bin\Xml Documentation\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Xml Documentation|x86' ">
-    <OutputPath>bin\x86\Xml Documentation\</OutputPath>
-    <DocumentationFile>bin\x86\Xml Documentation\SkinBase.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -420,9 +394,7 @@
     <Content Include="Skin\default\screens\dialogSettingsAudioCodec.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsAudioLanguage.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsDivXVideoCodec.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsFullscreen.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsH264VideoCodec.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsLanguage.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsMpg2VideoCodec.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsRefreshrate.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsRefreshrate24FPS.xaml" />
@@ -430,9 +402,7 @@
     <Content Include="Skin\default\screens\dialogSettingsRefreshrate30FPS.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsRefreshrateControl.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsRefreshrateDefault.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsSkin.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsSubtitleLanguage.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsTheme.xaml" />
     <Content Include="Skin\default\screens\dialogSubtitles.xaml" />
     <Content Include="Skin\default\screens\dialogVideoContextMenu.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherLocations.xaml" />
@@ -470,11 +440,6 @@
     <Content Include="Skin\default\screens\settingsPlayback.xaml" />
     <Content Include="Skin\default\screens\settingsRefreshrate.xaml" />
     <Content Include="Skin\default\screens\settingsScreen.xaml" />
-    <Content Include="Skin\default\screens\shares.xaml" />
-    <Content Include="Skin\default\screens\sharesAdd.xaml" />
-    <Content Include="Skin\default\screens\sharesCancel.xaml" />
-    <Content Include="Skin\default\screens\sharesRefreshing.xaml" />
-    <Content Include="Skin\default\screens\sharesRemove.xaml" />
     <Content Include="Skin\default\screens\weather.xaml" />
     <Content Include="Skin\default\themes\default\theme.xml" />
     <Content Include="Skin\default\themes\default\media\preview.png" />
