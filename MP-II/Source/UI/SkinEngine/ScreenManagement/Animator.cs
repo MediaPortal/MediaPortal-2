@@ -325,6 +325,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       conflictingProperties = new Dictionary<IDataDescriptor, object>();
       lock (_syncObject)
       {
+        // Find conflicting properties in the values to be set
+        foreach (KeyValuePair<IDataDescriptor, object> property in
+            new Dictionary<IDataDescriptor, object>(_valuesToSet))
+        {
+          if (newPDs.Contains(property.Key))
+          {
+            conflictingProperties[property.Key] = property.Value;
+            _valuesToSet.Remove(property.Key);
+          }
+        }
         // Find conflicting animations and conflicting animated properties
         foreach (AnimationContext ac in _scheduledAnimations)
         {
@@ -336,20 +346,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
             if (newPDs.Contains(animProperty.Key))
             {
               isConflict = true;
-              conflictingProperties.Add(animProperty.Key, animProperty.Value);
+              conflictingProperties[animProperty.Key] = animProperty.Value;
             }
           }
           if (isConflict)
             conflictingAnimations.Add(ac);
-        }
-        foreach (KeyValuePair<IDataDescriptor, object> property in
-            new Dictionary<IDataDescriptor, object>(_valuesToSet))
-        {
-          if (newPDs.Contains(property.Key))
-          {
-            conflictingProperties.Add(property.Key, property.Value);
-            _valuesToSet.Remove(property.Key);
-          }
         }
       }
     }
