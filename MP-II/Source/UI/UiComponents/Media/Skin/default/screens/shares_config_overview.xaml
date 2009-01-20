@@ -29,7 +29,7 @@
         <ListView Grid.Row="0"
             Style="{StaticResource SharesListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
-            ItemsSource="{Binding Shares}"/>
+            ItemsSource="{Binding Path=Shares,Mode=OneTime}"/>
         <Grid Grid.Row="1" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

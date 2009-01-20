@@ -499,7 +499,7 @@ namespace MediaPortal.Services.Workflow
           break;
     }
 
-    public void NavigatePop(Guid stateId)
+    public void NavigatePopToState(Guid stateId)
     {
       while (CurrentNavigationContext.WorkflowState.StateId != stateId)
         if (!DoPopNavigationContext(1))

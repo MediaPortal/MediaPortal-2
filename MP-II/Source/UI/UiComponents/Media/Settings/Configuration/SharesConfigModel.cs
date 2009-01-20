@@ -56,11 +56,12 @@ namespace UiComponents.Media.Settings.Configuration
     public const string SHARE_ADD_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
     public const string SHARE_ADD_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
     public const string SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID_STR = "6218FE5B-767E-48e6-9691-65E466B6020B";
-    public const string SHARE_ADD_CHOOSE_METADATA_EXTRACTOR_STATE_ID_STR = "B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D";
+    public const string SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR = "B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D";
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
     public const string ID_KEY = "Id";
+    public const string DESCRIPTION_KEY = "Description";
     public const string MP_PATH_KEY = "MediaProviderPath";
     public const string PATH_KEY = "Path";
     public const string SHARE_MEDIAPROVIDER_KEY = "MediaProvider";
@@ -75,14 +76,14 @@ namespace UiComponents.Media.Settings.Configuration
     public static Guid SHARE_ADD_CHOOSE_PATH_STATE_ID = new Guid(SHARE_ADD_CHOOSE_PATH_STATE_ID_STR);
     public static Guid SHARE_ADD_EDIT_NAME_STATE_ID = new Guid(SHARE_ADD_EDIT_NAME_STATE_ID_STR);
     public static Guid SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID_STR);
-    public static Guid SHARE_ADD_CHOOSE_METADATA_EXTRACTOR_STATE_ID = new Guid(SHARE_ADD_CHOOSE_METADATA_EXTRACTOR_STATE_ID_STR);
+    public static Guid SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID = new Guid(SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR);
 
     #endregion
 
     #region Protected fields
 
     protected ItemsList _sharesList;
-    protected ItemsList _mediaProvidersList;
+    protected ItemsList _allMediaProvidersList;
     protected Property _isSharesSelectedProperty;
     protected Property _isMediaProviderSelectedProperty;
     protected Property _mediaProviderProperty;
@@ -92,6 +93,11 @@ namespace UiComponents.Media.Settings.Configuration
     protected ItemsList _mediaProviderPathsTree;
     protected Property _shareNameProperty;
     protected Property _isShareNameEmptyProperty;
+    protected ItemsList _allMediaCategoriesList;
+    protected Property _isMetadataExtractorsSelectedProperty;
+    protected ItemsList _allMetadataExtractorsList;
+    protected ICollection<string> _mediaCategories = new HashSet<string>();
+    protected ICollection<Guid> _metadataExtractorIds = new HashSet<Guid>();
 
     #endregion
 
@@ -101,7 +107,7 @@ namespace UiComponents.Media.Settings.Configuration
     {
       // TODO Albert: break the event handler reference from the lists to the Skin's controls
       _sharesList = new ItemsList();
-      _mediaProvidersList = new ItemsList();
+      _allMediaProvidersList = new ItemsList();
       _isSharesSelectedProperty = new Property(typeof(bool), false);
       _isMediaProviderSelectedProperty = new Property(typeof(bool), false);
       _mediaProviderProperty = new Property(typeof(IMediaProvider), null);
@@ -113,20 +119,31 @@ namespace UiComponents.Media.Settings.Configuration
       _shareNameProperty = new Property(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
       _isShareNameEmptyProperty = new Property(typeof(bool), true);
+      _allMediaCategoriesList = new ItemsList();
+      _isMetadataExtractorsSelectedProperty = new Property(typeof(bool), false);
+      _allMetadataExtractorsList = new ItemsList();
+      _mediaCategories = new HashSet<string>();
+      _metadataExtractorIds = new HashSet<Guid>();
     }
 
     #endregion
 
     #region Public properties
 
+    /// <summary>
+    /// List of all shares to be displayed in the shares config screens. To be used in the GUI.
+    /// </summary>
     public ItemsList Shares
     {
       get { return _sharesList; }
     }
 
-    public ItemsList MediaProviders
+    /// <summary>
+    /// List of all available media providers. To be used in the GUI.
+    /// </summary>
+    public ItemsList AllMediaProviders
     {
-      get { return _mediaProvidersList; }
+      get { return _allMediaProvidersList; }
     }
 
     public Property IsSharesSelectedProperty
@@ -134,6 +151,9 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _isSharesSelectedProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if at least one share is selected. To be used in the GUI.
+    /// </summary>
     public bool IsSharesSelected
     {
       get { return (bool) _isSharesSelectedProperty.GetValue(); }
@@ -145,6 +165,9 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _isMediaProviderSelectedProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if at least one media provider is selected. To be used in the GUI.
+    /// </summary>
     public bool IsMediaProviderSelected
     {
       get { return (bool) _isMediaProviderSelectedProperty.GetValue(); }
@@ -156,6 +179,9 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _mediaProviderProperty; }
     }
 
+    /// <summary>
+    /// Selected media provider. To be used in the GUI.
+    /// </summary>
     public IMediaProvider MediaProvider
     {
       get { return (IMediaProvider) _mediaProviderProperty.GetValue(); }
@@ -167,6 +193,9 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _mediaProviderPathProperty; }
     }
 
+    /// <summary>
+    /// Selected media provider path. To be used in the GUI.
+    /// </summary>
     public string MediaProviderPath
     {
       get { return (string) _mediaProviderPathProperty.GetValue(); }
@@ -178,16 +207,14 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _isMediaProviderPathValidProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if the selected media provider path is valid in the media provider.
+    /// To be used in the GUI.
+    /// </summary>
     public bool IsMediaProviderPathValid
     {
       get { return (bool) _isMediaProviderPathValidProperty.GetValue(); }
       set { _isMediaProviderPathValidProperty.SetValue(value); }
-    }
-
-    public string MediaProviderPathDisplayName
-    {
-      get { return (string) _mediaProviderPathDisplayNameProperty.GetValue(); }
-      set { _mediaProviderPathDisplayNameProperty.SetValue(value); }
     }
 
     public Property MediaProviderPathDisplayNameProperty
@@ -195,6 +222,19 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _mediaProviderPathDisplayNameProperty; }
     }
 
+    /// <summary>
+    /// Human-readable display name of the selected media provider path. To be used in the GUI.
+    /// </summary>
+    public string MediaProviderPathDisplayName
+    {
+      get { return (string) _mediaProviderPathDisplayNameProperty.GetValue(); }
+      set { _mediaProviderPathDisplayNameProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Paths tree of the selected media provider, if the media provider supports path
+    /// navigation. To be used in the GUI.
+    /// </summary>
     public ItemsList MediaProviderPathsTree
     {
       get { return _mediaProviderPathsTree; }
@@ -205,6 +245,9 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _shareNameProperty; }
     }
 
+    /// <summary>
+    /// Edited name for the current share. To be used in the GUI.
+    /// </summary>
     public string ShareName
     {
       get { return (string) _shareNameProperty.GetValue(); }
@@ -216,10 +259,59 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _isShareNameEmptyProperty; }
     }
 
+    /// <summary>
+    /// <c>true</c> if the edited share name is empty. To be used in the GUI.
+    /// </summary>
     public bool IsShareNameEmpty
     {
       get { return (bool) _isShareNameEmptyProperty.GetValue(); }
       set { _isShareNameEmptyProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// List of all media categories. To be used in the GUI.
+    /// </summary>
+    public ItemsList AllMediaCategories
+    {
+      get { return _allMediaCategoriesList; }
+    }
+
+    /// <summary>
+    /// Collection of choosen media categories for the current share.
+    /// </summary>
+    public ICollection<string> MediaCategories
+    {
+      get { return _mediaCategories; }
+    }
+
+    public Property IsMetadataExtractorsSelectedProperty
+    {
+      get { return _isMetadataExtractorsSelectedProperty; }
+    }
+
+    /// <summary>
+    /// <c>true</c> if at least one metadata extractor was selected. To be used in the GUI.
+    /// </summary>
+    public bool IsMetadataExtractorsSelected
+    {
+      get { return (bool) _isMetadataExtractorsSelectedProperty.GetValue(); }
+      set { _isMetadataExtractorsSelectedProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// List of all available metadata extractors. To be used in the GUI.
+    /// </summary>
+    public ItemsList AllMetadataExtractors
+    {
+      get { return _allMetadataExtractorsList; }
+    }
+
+    /// <summary>
+    /// Collection of the ids of the choosen metadata extractors.
+    /// </summary>
+    public ICollection<Guid> MetadataExtractorIds
+    {
+      get { return _metadataExtractorIds; }
     }
 
     #endregion
@@ -237,14 +329,14 @@ namespace UiComponents.Media.Settings.Configuration
           mediaManager.RemoveShare(shareId);
         }
       }
-      UpdateSharesList();
+      ClearAllConfiguredProperties();
     }
 
     public void SelectMediaProviderAndContinue()
     {
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       IMediaProvider mediaProvider = null;
-      foreach (ListItem mediaProviderItem in _mediaProvidersList)
+      foreach (ListItem mediaProviderItem in _allMediaProvidersList)
       {
         if (mediaProviderItem.Selected)
         {
@@ -253,14 +345,20 @@ namespace UiComponents.Media.Settings.Configuration
             break;
         }
       }
+      if (mediaProvider == null)
+        // Error case: Should not happen
+        return;
+      if (MediaProvider == null ||
+          MediaProvider.Metadata.MediaProviderId != mediaProvider.Metadata.MediaProviderId)
+        ClearAllConfiguredProperties();
       MediaProvider = mediaProvider;
-      // Check, if the choosen MP implements a known navigation interface and go to the navigation screen,
+      // Check if the choosen MP implements a known path navigation interface and go to that screen,
       // if supported
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       if (mediaProvider is IFileSystemMediaProvider)
         workflowManager.NavigatePush(SHARE_ADD_CHOOSE_PATH_STATE_ID);
-      else
-        // Fallback
+      else // If needed, add other path navigation screens here
+        // Fallback: Simple TextBox path editor screen
         workflowManager.NavigatePush(SHARE_ADD_EDIT_PATH_STATE_ID);
     }
 
@@ -273,6 +371,14 @@ namespace UiComponents.Media.Settings.Configuration
       }
       else
         RefreshMediaProviderPathList(pathItem.SubItems, pathItem[MP_PATH_KEY]);
+    }
+
+    public void AddConfiguredShare()
+    {
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      mediaManager.RegisterShare(SystemName.GetLocalSystemName(), MediaProvider.Metadata.MediaProviderId,
+          MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds);
+      ClearAllConfiguredProperties();
     }
 
     #endregion
@@ -305,6 +411,16 @@ namespace UiComponents.Media.Settings.Configuration
       UpdateIsShareNameEmpty();
     }
 
+    protected void OnMediaCategoryItemSelectionChanged(Property property, object oldValue)
+    {
+      UpdateMediaCategories();
+    }
+
+    protected void OnMetadataExtractorItemSelectionChanged(Property property, object oldValue)
+    {
+      UpdateMetadataExtractors();
+    }
+
     protected void UpdateIsSharesSelected()
     {
       bool result = false;
@@ -320,7 +436,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateIsMediaProviderSelected()
     {
       bool result = false;
-      foreach (ListItem mediaProviderItem in _mediaProvidersList)
+      foreach (ListItem mediaProviderItem in _allMediaProvidersList)
         if (mediaProviderItem.Selected)
         {
           result = true;
@@ -365,10 +481,42 @@ namespace UiComponents.Media.Settings.Configuration
       IsShareNameEmpty = string.IsNullOrEmpty(ShareName);
     }
 
+    protected void UpdateMediaCategories()
+    {
+      _mediaCategories.Clear();
+      foreach (ListItem categoryItem in _allMediaCategoriesList)
+        if (categoryItem.Selected)
+          _mediaCategories.Add(categoryItem[NAME_KEY]);
+      UpdateMetadataExtractorsFromMediaCategories();
+    }
+
+    protected void UpdateMetadataExtractors()
+    {
+      _metadataExtractorIds.Clear();
+      foreach (ListItem metadataExtractorItem in _allMetadataExtractorsList)
+        if (metadataExtractorItem.Selected)
+          _metadataExtractorIds.Add(new Guid(metadataExtractorItem[ID_KEY]));
+      IsMetadataExtractorsSelected = _metadataExtractorIds.Count > 0;
+    }
+
+    protected void UpdateMetadataExtractorsFromMediaCategories()
+    {
+      _metadataExtractorIds.Clear();
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
+      {
+        MetadataExtractorMetadata metadata = me.Metadata;
+        if (CollectionUtils.Intersection(metadata.ShareCategories, MediaCategories).Count > 0)
+          _metadataExtractorIds.Add(metadata.MetadataExtractorId);
+      }
+      IsMetadataExtractorsSelected = _metadataExtractorIds.Count > 0;
+    }
+
     protected void UpdateSharesList()
     {
       // TODO: Re-validate this when we have implemented the communication with the MP-II server
-      // Perhaps we should show the server's shares too?
+      // Perhaps we should show the server's shares too? In this case, we also have to re-validate
+      // the way of building the list of media providers and metadata extractors
       _sharesList.Clear();
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       foreach (ShareDescriptor share in mediaManager.GetSharesBySystem(SystemName.GetLocalSystemName()).Values)
@@ -391,7 +539,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected void UpdateMediaProvidersList()
     {
-      _mediaProvidersList.Clear();
+      _allMediaProvidersList.Clear();
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       bool selected = false;
       foreach (IMediaProvider mediaProvider in mediaManager.LocalMediaProviders.Values)
@@ -405,7 +553,7 @@ namespace UiComponents.Media.Settings.Configuration
           selected = true;
         }
         mediaProviderItem.SelectedProperty.Attach(OnMediaProviderItemSelectionChanged);
-        _mediaProvidersList.Add(mediaProviderItem);
+        _allMediaProvidersList.Add(mediaProviderItem);
       }
       IsMediaProviderSelected = selected;
     }
@@ -436,19 +584,71 @@ namespace UiComponents.Media.Settings.Configuration
       RefreshMediaProviderPathList(_mediaProviderPathsTree, "/");
     }
 
-    protected void ClearAllProperties()
+    protected static ICollection<string> GetAllAvailableCategories()
+    {
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      ICollection<string> result = new HashSet<string>();
+      foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
+      {
+        MetadataExtractorMetadata metadata = me.Metadata;
+        CollectionUtils.AddAll(result, metadata.ShareCategories);
+      }
+      return result;
+    }
+
+    protected void UpdateMediaCategoriesList()
+    {
+      _allMediaCategoriesList.Clear();
+      List<string> allCategories = new List<string>(GetAllAvailableCategories());
+      allCategories.Sort();
+      foreach (string mediaCategory in allCategories)
+      {
+        ListItem categoryItem = new ListItem(NAME_KEY, mediaCategory);
+        if (MediaCategories.Contains(mediaCategory))
+          categoryItem.Selected = true;
+        categoryItem.SelectedProperty.Attach(OnMediaCategoryItemSelectionChanged);
+        _allMediaCategoriesList.Add(categoryItem);
+      }
+    }
+
+    protected void UpdateMetadataExtractorsList()
+    {
+      _allMetadataExtractorsList.Clear();
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
+      {
+        MetadataExtractorMetadata metadata = me.Metadata;
+        ListItem metadataExtractorItem = new ListItem(NAME_KEY, metadata.Name);
+        metadataExtractorItem.SetLabel(ID_KEY, metadata.MetadataExtractorId.ToString());
+        if (MetadataExtractorIds.Contains(metadata.MetadataExtractorId))
+          metadataExtractorItem.Selected = true;
+        metadataExtractorItem.SelectedProperty.Attach(OnMetadataExtractorItemSelectionChanged);
+        _allMetadataExtractorsList.Add(metadataExtractorItem);
+      }
+    }
+
+    protected void ClearAllConfiguredProperties()
     {
       MediaProvider = null;
       MediaProviderPath = string.Empty;
       ShareName = string.Empty;
+      MediaCategories.Clear();
+      MetadataExtractorIds.Clear();
+      // IsMetadataExtractorsSelected has to be cleared also because it is derived from
+      // MediaCategories and MetadataExtractors
+      IsMetadataExtractorsSelected = false;
     }
 
+    /// <summary>
+    /// Prepares the internal data of this model to match the specified new
+    /// <paramref name="workflowState"/>. This method will be called in result of a
+    /// forward state navigation as well as for a backward navigation.
+    /// </summary>
     protected void PrepareState(Guid workflowState)
     {
       if (workflowState == SHARES_OVERVIEW_STATE_ID)
       {
         UpdateSharesList();
-        ClearAllProperties();
       }
       else if (workflowState == REMOVE_SHARES_STATE_ID)
       {
@@ -461,6 +661,19 @@ namespace UiComponents.Media.Settings.Configuration
       else if (workflowState == SHARE_ADD_CHOOSE_PATH_STATE_ID)
       {
         UpdateMediaProviderPathTree();
+      }
+      else if (workflowState == SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID)
+      {
+        UpdateMediaCategoriesList();
+        // We'll reset the choosen metadata extractors here, if the user goes back
+        // to the categories screen - thats for simplicity, else, we would have
+        // to track which MEs the user has choosen explicitly and which are in the
+        // list because a category was choosen
+        UpdateMetadataExtractorsFromMediaCategories();
+      }
+      else if (workflowState == SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID)
+      {
+        UpdateMetadataExtractorsList();
       }
     }
 

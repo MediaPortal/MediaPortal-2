@@ -184,7 +184,7 @@
     </Setter>
   </Style>
 
-  <!-- *************************** ListView Item data templates ****************************** -->
+  <!-- *************************** ListView item data templates ****************************** -->
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
@@ -254,7 +254,7 @@
     </Control>
   </DataTemplate>
 
-  <!-- Data template for a share entry markable by a checkbox in the shares list -->
+  <!-- Data template for a share entry markable with a checkbox in the shares list -->
   <DataTemplate x:Key="MultiMarkableShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ParentPanel">
       <Grid.RowDefinitions>
@@ -269,7 +269,6 @@
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
       <Grid.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-          <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
           <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
@@ -281,7 +280,30 @@
     </Grid>
   </DataTemplate>
 
-  <!-- Data template for a share entry markable by a checkbox in the shares list -->
+  <!-- Data template for a share entry markable with a checkbox -->
+  <DataTemplate x:Key="DefaultMultiMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <CheckBox x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a share entry markable with a radio button -->
   <DataTemplate x:Key="SingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ParentPanel">
       <Grid.RowDefinitions>
@@ -375,6 +397,13 @@
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{StaticResource MultiMarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMultiMarkableItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>

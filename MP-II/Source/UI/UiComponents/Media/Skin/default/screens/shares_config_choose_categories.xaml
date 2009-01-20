@@ -16,6 +16,7 @@
     <ResourceWrapper x:Key="SharesConfigurationOverviewStateId" Resource="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"/>
     <ResourceWrapper x:Key="ChooseShareMetadataExtractorsStateId" Resource="B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D"/>
 
+
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <Grid Margin="10,0,10,0"
@@ -29,10 +30,9 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.ChooseShareCategories]" Wrap="True"/>
-        <ListView Grid.Row="1"/>
-
-        <Label Grid.Row="1" Content="To be done"/>
-
+        <ListView Grid.Row="1" Margin="0,10,0,0"
+            Style="{StaticResource MultiMarkableListViewStyle}"
+            ItemsSource="{Binding Path=AllMediaCategories,Mode=OneTime}"/>
         <Grid Grid.Row="2" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -50,8 +50,14 @@
               Content="[System.Back]" HorizontalAlignment="Right"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="FinishButton" Grid.Row="1" Grid.Column="2" Height="40" Style="{StaticResource ButtonStyle}"
-              Content="[System.Finish]" HorizontalAlignment="Stretch" IsEnabled="{Binding xxx}"
-              Command="{Command Source={StaticResource Model},Path=AddShare}"/>
+              Content="[System.Finish]" HorizontalAlignment="Stretch" IsEnabled="{Binding IsMetadataExtractorsSelected}">
+            <Button.Command>
+              <CommandList>
+                <Command Source="{StaticResource Model}" Path="AddConfiguredShare"/>
+                <Command Source="{Service WorkflowManager}" Path="NavigatePopToState" Parameters="{StaticResource SharesConfigurationOverviewStateId}"/>
+              </CommandList>
+            </Button.Command>
+          </Button>
         </Grid>
       </Grid>
     </ResourceWrapper>

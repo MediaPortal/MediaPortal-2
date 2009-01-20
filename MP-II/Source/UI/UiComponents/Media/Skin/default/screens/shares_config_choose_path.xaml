@@ -30,7 +30,7 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.ChooseMediaProviderPathForShare]" Wrap="True"/>
         <TreeView Grid.Row="1" Style="{StaticResource DefaultSingleMarkableTreeViewStyle}"
-            ItemsSource="{Binding MediaProviderPathsTree}">
+            ItemsSource="{Binding Path=MediaProviderPathsTree,Mode=OneTime}">
           <TreeView.Resources>
             <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data directly. We use a dummy. -->
             <BindingWrapper x:Key="Expander_Binding"/>

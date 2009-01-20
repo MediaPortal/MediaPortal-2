@@ -19,15 +19,15 @@
     <String Name="Shares.Overview" Text="Shares overview"/>
     <String Name="CancelSharesConfig" Text="Cancel shares configuration"/>
     <String Name="RemoveShares" Text="Remove shares"/>
-    <String Name="SelectSharesToBeRemoved" Text="Please select the shares to be removed"/>
-    <String Name="AddShare" Text="Add share"/>
-    <String Name="SelectMediaProviderForNewShare" Text="Please select the media provider for the new share"/>
+    <String Name="ChooseSharesToBeRemoved" Text="Please select the shares to be removed"/>
+    <String Name="ChooseMediaProviderForNewShare" Text="Please select the media provider for the new share"/>
     <String Name="EditMediaProviderPathForShare" Text="Edit the path to the share"/>
     <String Name="ChooseMediaProviderPathForShare" Text="Choose the path of the share"/>
     <String Name="MediaProviderPathIsNotValid" Text="Edit a valid path in the choosen media provider"/>
     <String Name="EditShareName" Text="Edit the share's display name"/>
-    <String Name="ChooseShareMetadataExtractors" Text="Choose the metadata extractors which should be applied to the share"/>
     <String Name="ChooseShareCategories" Text="Choose the categories of media contents located in the share"/>
     <String Name="ChooseMetadataExtractorsManually" Text="Choose metadata extractors manually"/>
+    <String Name="ChooseShareMetadataExtractors" Text="Choose the metadata extractors which should be applied to the share"/>
+    <String Name="AddShare" Text="Add share"/>
   </Section>
 </Language>

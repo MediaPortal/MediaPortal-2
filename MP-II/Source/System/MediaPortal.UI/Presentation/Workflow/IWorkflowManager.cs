@@ -127,7 +127,7 @@ namespace MediaPortal.Presentation.Workflow
     /// until the specified state.
     /// </summary>
     /// <param name="stateId">Id of the state until that the navigation stack should be cleaned.</param>
-    void NavigatePop(Guid stateId);
+    void NavigatePopToState(Guid stateId);
 
     /// <summary>
     /// Returns the model with the requested <paramref name="modelId"/> and assigns it to be related
