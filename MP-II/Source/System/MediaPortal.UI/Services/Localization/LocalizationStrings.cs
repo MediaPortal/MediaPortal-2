@@ -58,7 +58,7 @@ namespace MediaPortal.Services.Localization
         new Dictionary<string, Dictionary<string, StringLocalised>>(
             StringComparer.Create(CultureInfo.InvariantCulture, true));
     readonly ICollection<CultureInfo> _availableLanguages =
-        new List<CultureInfo>();
+        new HashSet<CultureInfo>();
     readonly ICollection<string> _languageDirectories = new List<string>();
     CultureInfo _currentLanguage;
     
@@ -140,9 +140,6 @@ namespace MediaPortal.Services.Localization
     /// <param name="culture">The new culture.</param>
     public void ChangeLanguage(CultureInfo culture)
     {
-      if (!_availableLanguages.Contains(culture))
-        throw new ArgumentException(string.Format("Language '{0}' is not available", culture.Name));
-
       _currentLanguage = culture;
 
       ReloadAll();
