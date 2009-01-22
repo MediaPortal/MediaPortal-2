@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Brushes;
 using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Transforms;
@@ -298,6 +299,11 @@ namespace MediaPortal.SkinEngine.MpfElements
             result = new GridLength(GridUnitType.Star, 1.0);
           }
         }
+        return true;
+      }
+      else if (targetType == typeof(string) && value is IResourceString)
+      {
+        result = ((IResourceString) value).Evaluate();
         return true;
       }
       else if (targetType.IsAssignableFrom(typeof(FrameworkElement)) && value is string)
