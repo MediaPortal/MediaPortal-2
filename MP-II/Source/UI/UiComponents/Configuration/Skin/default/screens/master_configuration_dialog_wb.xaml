@@ -52,7 +52,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             Content="[System.Ok]" HorizontalAlignment="Center">
           <Button.Command>
             <CommandList>
-              <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
+              <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
               <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
             </CommandList>
           </Button.Command>

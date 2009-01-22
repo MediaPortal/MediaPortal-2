@@ -23,9 +23,9 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Screen;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -35,45 +35,35 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
   /// <summary>
   /// Custom configuration setting class to change the current skin.
   /// </summary>
-  public class ThemeConfiguration : CustomConfiguration
+  public class ThemeConfigSetting : CustomConfigSetting
   {
     #region Protected fields
 
-    protected const string KEY_TECHNAME = "TechName";
-    protected const string KEY_NAME = "Name";
-    protected const string KEY_IMAGESRC = "ImageSrc";
-
-    protected ItemsList _allThemes;
-    protected ListItem _choosenThemeItem;
+    protected ICollection<Theme> _themes = new List<Theme>();
+    protected string _currentThemeName = null;
 
     #endregion
 
-    public ThemeConfiguration()
+    public ThemeConfigSetting()
     {
-      _allThemes = new ItemsList();
     }
 
-    public ItemsList AllThemes
+    public ICollection<Theme> Themes
     {
-      get { return _allThemes; }
+      get { return _themes; }
     }
 
-    public ListItem ChoosenItem
+    public string CurrentThemeName
     {
-      get { return _choosenThemeItem; }
-      set { _choosenThemeItem = value; }
-    }
-
-    public string ChoosenTheme
-    {
-      get { return _choosenThemeItem[KEY_TECHNAME]; }
+      get { return _currentThemeName; }
+      set { _currentThemeName = value; }
     }
 
     #region Public Methods
 
     public override void Load()
     {
-      _allThemes.Clear();
+      _themes.Clear();
       SkinManager skinManager = ServiceScope.Get<ISkinResourceManager>() as SkinManager;
       if (skinManager == null)
         return;
@@ -82,32 +72,30 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
       SkinManagement.Skin currentSkin = skinManager.Skins.ContainsKey(currentSkinName) ? skinManager.Skins[currentSkinName] : null;
       if (currentSkin == null)
         return;
-      string currentThemeName = settings.Theme;
+      _currentThemeName = settings.Theme;
       foreach (Theme theme in currentSkin.Themes.Values)
       {
         if (!theme.IsValid)
           continue;
-        ListItem themeItem = new ListItem(KEY_NAME, theme.ShortDescription);
-        themeItem.SetLabel(KEY_TECHNAME, theme.Name);
-        string preview = theme.GetResourceFilePath(theme.PreviewResourceKey, false);
-        themeItem.SetLabel(KEY_IMAGESRC, preview);
-        _allThemes.Add(themeItem);
-        if (currentThemeName == theme.Name)
-          _choosenThemeItem = themeItem;
+        _themes.Add(theme);
       }
     }
 
     public override void Save()
     {
+      if (_currentThemeName == null)
+        return;
       SkinSettings settings = SettingsManager.Load<SkinSettings>();
-      settings.Theme = ChoosenTheme;
+      settings.Theme = _currentThemeName;
       SettingsManager.Save(settings);
     }
 
     public override void Apply()
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.SwitchTheme(ChoosenTheme);
+      if (screenManager == null)
+        return;
+      screenManager.SwitchTheme(_currentThemeName);
     }
 
     #endregion

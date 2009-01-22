@@ -49,7 +49,7 @@
         Id="SharesConfiguration"
         Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
         HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
-        ClassName="UiComponents.Media.Settings.Configuration.SharesConfiguration"
+        ClassName="UiComponents.Media.Settings.Configuration.SharesConfigSetting"
         AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
   </Register>
 </Plugin>

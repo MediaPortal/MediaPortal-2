@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Configuration
@@ -35,6 +36,7 @@ namespace MediaPortal.Configuration
     protected string _helpText;
     protected ICollection<string> _listenTo;
     protected IDictionary<string, string> _additionalData = null;
+    protected IDictionary<string, Type> _additionalTypes = null;
 
     public ConfigSettingMetadata(string location, string text, string className,
         string helpText, ICollection<string> listenTo) : base(location, text)
@@ -66,6 +68,15 @@ namespace MediaPortal.Configuration
     {
       get { return _additionalData; }
       set { _additionalData = value; }
+    }
+
+    /// <summary>
+    /// Additional types used for complex settings.
+    /// </summary>
+    public IDictionary<string, Type> AdditionalTypes
+    {
+      get { return _additionalTypes; }
+      set { _additionalTypes = value; }
     }
   }
 }

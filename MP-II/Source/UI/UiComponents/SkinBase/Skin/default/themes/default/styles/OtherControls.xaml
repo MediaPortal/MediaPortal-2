@@ -140,7 +140,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{StaticResource ButtonStyle}"
-              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              IsEnabled="{Binding Enabled}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
@@ -199,20 +200,18 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [DefaultIcon]}" Source="{Binding [ImageSrc]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-      <Label Grid.Row="0" Grid.Column="2" Content="{Binding [Size]}" FontSize="20" HorizontalAlignment="Right" VerticalAlignment="Center"/>
     </Grid>
   </DataTemplate>
 
    <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
   <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Grid x:Name="Grd1">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -304,7 +303,7 @@
   </DataTemplate>
 
   <!-- Data template for a share entry markable with a radio button -->
-  <DataTemplate x:Key="SingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+  <DataTemplate x:Key="DafaultSingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ParentPanel">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -410,7 +409,7 @@
 
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SingleMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource SingleMarkableItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{StaticResource DafaultSingleMarkableItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>

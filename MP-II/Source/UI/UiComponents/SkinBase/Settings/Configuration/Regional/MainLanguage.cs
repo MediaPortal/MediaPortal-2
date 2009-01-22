@@ -49,7 +49,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Regional
 
     public override void Load()
     {
-      List<CultureInfo> cultures = new List<CultureInfo>(ServiceScope.Get<ILocalization>().AvailableLanguages);
+      List<CultureInfo> cultures = new List<CultureInfo>(CultureInfo.GetCultures(CultureTypes.SpecificCultures));
       cultures.Sort(CompareByName);
       _cultures = cultures;
       CultureInfo current = ServiceScope.Get<ILocalization>().CurrentCulture;

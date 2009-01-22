@@ -23,19 +23,13 @@
 
 #endregion
 
-using MediaPortal.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
+using MediaPortal.Configuration;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Screen;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.SkinEngine.SkinManagement;
+using UiComponents.Configuration.ConfigurationControllers;
 
 namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
 {
-  /// <summary>
-  /// Custom configuration setting class to change the current skin.
-  /// </summary>
-  public class SkinConfiguration : CustomConfiguration
+  public class SkinConfigurationController : DialogConfigurationController
   {
     #region Protected fields
 
@@ -43,67 +37,70 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
     protected const string KEY_NAME = "Name";
     protected const string KEY_IMAGESRC = "ImageSrc";
 
-    protected ItemsList _allSkins;
-    protected ListItem _choosenSkinItem;
+    protected ItemsList _items;
+    protected ListItem _choosenItem;
 
     #endregion
 
-    public SkinConfiguration()
+    public SkinConfigurationController()
     {
-      _allSkins = new ItemsList();
+      _items = new ItemsList();
     }
 
-    public ItemsList AllSkins
+    public ItemsList Items
     {
-      get { return _allSkins; }
+      get { return _items; }
     }
 
     public ListItem ChoosenItem
     {
-      get { return _choosenSkinItem; }
-      set { _choosenSkinItem = value; }
+      get { return _choosenItem; }
+      set { _choosenItem = value; }
     }
 
-    public string ChoosenSkin
+    public string ChoosenItemName
     {
-      get { return _choosenSkinItem[KEY_TECHNAME]; }
+      get { return _choosenItem == null ? null : _choosenItem[KEY_TECHNAME]; }
     }
 
-    #region Public Methods
+    #region Base overrides
 
-    public override void Load()
+    protected override void SettingChanged()
     {
-      _allSkins.Clear();
-      SkinManager skinManager = ServiceScope.Get<ISkinResourceManager>() as SkinManager;
-      if (skinManager == null)
-        return;
-
-      string currentSkinName = SettingsManager.Load<SkinSettings>().Skin;
-      foreach (SkinManagement.Skin skin in skinManager.Skins.Values)
+      _items.Clear();
+      SkinConfigSetting skinSetting = (SkinConfigSetting) _setting;
+      foreach (SkinManagement.Skin skin in skinSetting.Skins)
       {
-        if (!skin.IsValid)
-          continue;
         ListItem skinItem = new ListItem(KEY_NAME, skin.ShortDescription);
         skinItem.SetLabel(KEY_TECHNAME, skin.Name);
         string preview = skin.GetResourceFilePath(skin.PreviewResourceKey, false);
         skinItem.SetLabel(KEY_IMAGESRC, preview);
-        _allSkins.Add(skinItem);
-        if (currentSkinName == skin.Name)
-          _choosenSkinItem = skinItem;
+        _items.Add(skinItem);
+        if (skinSetting.CurrentSkinName == skin.Name)
+          _choosenItem = skinItem;
       }
     }
 
-    public override void Save()
+    protected override void UpdateSetting()
     {
-      SkinSettings settings = SettingsManager.Load<SkinSettings>();
-      settings.Skin = ChoosenSkin;
-      SettingsManager.Save(settings);
+      SkinConfigSetting skinSetting = (SkinConfigSetting) _setting;
+      skinSetting.CurrentSkinName = ChoosenItemName;
+      base.UpdateSetting();
     }
 
-    public override void Apply()
+    public override bool IsSettingSupported(ConfigSetting setting)
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.SwitchSkin(ChoosenSkin);
+      return setting == null ? false : setting is SkinConfigSetting;
+    }
+
+    protected override string DialogScreen
+    {
+      get { return "skinengine_config_skinresource_dialog"; }
+    }
+
+    public override System.Type ConfigSettingType
+    {
+      get { return typeof(SkinConfigSetting); }
     }
 
     #endregion

@@ -144,23 +144,32 @@ namespace MediaPortal.Core.PluginManager
       get { return _dependentPlugins; }
     }
 
+    public Type GetPluginType(string typeName)
+    {
+      LoadAssemblies();
+      foreach (Assembly assembly in _loadedAssemblies)
+      {
+        Type type = assembly.GetType(typeName, false);
+        if (type != null)
+          return type;
+      }
+      return null;
+    }
+
     /// <summary>
     /// Instantiates classes from this plugin's assemblies.
     /// </summary>
-    public object InstanciatePluginObject(string className)
+    public object InstanciatePluginObject(string typeName)
     {
       LoadAssemblies();
       if (_instantiatedObjects == null)
         _instantiatedObjects = new Dictionary<string, object>();
-      else if (_instantiatedObjects.ContainsKey(className))
-        return _instantiatedObjects[className];
+      else if (_instantiatedObjects.ContainsKey(typeName))
+        return _instantiatedObjects[typeName];
 
-      foreach (Assembly assembly in _loadedAssemblies)
-      {
-        Type type = assembly.GetType(className, false);
-        if (type != null)
-          return _instantiatedObjects[className] = Activator.CreateInstance(type);
-      }
+      Type type = GetPluginType(typeName);
+      if (type != null)
+        return _instantiatedObjects[typeName] = Activator.CreateInstance(type);
       return null;
     }
 

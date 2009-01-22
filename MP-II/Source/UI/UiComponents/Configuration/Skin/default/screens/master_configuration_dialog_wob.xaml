@@ -30,15 +30,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Source="screens\master_configuration_dialog.xaml"
     >
   <Include.Resources>
-    <!-- Configuration model -->
-    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
-
-    <!-- For convenience -->
-    <ResourceWrapper x:Key="SettingMetadata" Resource="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.SettingMetadata,Mode=OneTime}"/>
-
-    <!-- Dialog title -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={DynamicResource SettingMetadata},Path=Resource.Text,Mode=OneTime}"/>
-
     <ResourceWrapper x:Key="Config_Client_Element">
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>

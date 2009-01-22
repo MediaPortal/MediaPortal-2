@@ -10,26 +10,38 @@
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <ResourceWrapper x:Key="Config_Contents_Element">
-      <StackPanel Orientation="Vertical">
-        <RadioButton x:Name="YesButton" Style="{StaticResource RadioButtonStyle}" Content="[System.Yes]" GroupName="DialogButtons"
-            IsChecked="{Binding Source={StaticResource Model},Path=CurrentConfigSetting.Yes,Mode=TwoWay}">
-          <RadioButton.Command>
-            <CommandList>
-              <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
-              <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
-            </CommandList>
-          </RadioButton.Command>
-        </RadioButton>
-        <RadioButton x:Name="NoButton" Style="{StaticResource RadioButtonStyle}" Content="[System.No]" GroupName="DialogButtons"
-            IsChecked="{Binding Source={StaticResource Model},Path=!CurrentConfigSetting.Yes,Mode=TwoWay}">
-          <RadioButton.Command>
-            <CommandList>
-              <Command Source="{StaticResource Model}" Path="SaveCurrentConfigItem"/>
-              <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
-            </CommandList>
-          </RadioButton.Command>
-        </RadioButton>
-      </StackPanel>
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
+          <RadioButton x:Name="YesButton" Style="{StaticResource RadioButtonStyle}" Content="[System.Yes]" GroupName="DialogButtons"
+              IsChecked="{Binding Source={StaticResource Model},Path=CurrentConfigController.Yes,Mode=TwoWay}">
+            <RadioButton.Command>
+              <CommandList>
+                <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
+                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+              </CommandList>
+            </RadioButton.Command>
+          </RadioButton>
+          <RadioButton x:Name="NoButton" Style="{StaticResource RadioButtonStyle}" Content="[System.No]" GroupName="DialogButtons"
+              IsChecked="{Binding Source={StaticResource Model},Path=!CurrentConfigController.Yes,Mode=TwoWay}">
+            <RadioButton.Command>
+              <CommandList>
+                <Command Source="{StaticResource Model}" Path="CurrentConfigController.Save"/>
+                <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+              </CommandList>
+            </RadioButton.Command>
+          </RadioButton>
+        </StackPanel>
+      </Grid>
     </ResourceWrapper>
   </Include.Resources>
 </Include>

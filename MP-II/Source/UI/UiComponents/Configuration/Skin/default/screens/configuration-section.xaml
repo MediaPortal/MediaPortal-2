@@ -18,13 +18,14 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <Grid>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ListView
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ListView x:Name="ConfigItemsList"
+            Grid.Row="0" Grid.Column="0"
             Style="{StaticResource ContentsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">

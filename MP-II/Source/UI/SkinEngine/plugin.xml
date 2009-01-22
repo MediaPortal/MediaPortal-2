@@ -9,6 +9,7 @@
 
   <DependsOn>
     <PluginReference Name="ConfigurationManager"/>
+    <PluginReference Name="Configuration"/>
   </DependsOn>
 
   <Runtime>
@@ -59,13 +60,13 @@
         Id="Skin"
         Text="[Settings.Appearance.Skin.SkinAndTheme.ChangeSkin]"
         HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfiguration"
-        AdditionalData="DialogScreen=skinengine_config_skin_dialog,ConfAppPanel=..."/>
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfigSetting"
+        AdditionalTypes="CustomConfigController=MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfigurationController,ConfAppPanel=..."/>
     <CustomConfigSetting
         Id="Theme"
         Text="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme]"
         HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfiguration"
-        AdditionalData="DialogScreen=skinengine_config_theme_dialog,ConfAppPanel=..."/>
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigSetting"
+        AdditionalTypes="CustomConfigController=MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigurationController,ConfAppPanel=..."/>
   </Register>
 </Plugin>

@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Configuration;
-using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Utilities.Exceptions;
@@ -33,8 +32,8 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Screen;
 using MediaPortal.Presentation.Workflow;
+using UiComponents.Configuration.ConfigurationControllers;
 
 namespace UiComponents.Configuration
 {
@@ -68,11 +67,15 @@ namespace UiComponents.Configuration
   /// in this model as well as the showing of the approppriate screen dialog.
   /// </para>
   /// </remarks>
-  public class ConfigurationModel : IWorkflowModel
+  public class ConfigurationModel : IWorkflowModel, IDisposable
   {
     public const string CONFIGURATION_MODEL_ID_STR = "545674F1-D92A-4383-B6C1-D758CECDBDF5";
     public const string CONFIGURATION_MAIN_STATE_ID_STR = "E7422BB8-2779-49ab-BC99-E3F56138061B";
     public const string CONFIGURATION_SECTION_SCREEN = "configuration-section";
+
+    public const string KEY_NAME = "Name";
+    public const string KEY_HELPTEXT = "HelpText";
+    public const string KEY_ENABLED = "Enabled";
 
     /// <summary>
     /// Holds the information about all of the (already initialized) workflow states corresponding to config
@@ -85,8 +88,8 @@ namespace UiComponents.Configuration
     /// lazily on-the-fly and transient. We'll assign the relevant information for each of those lazily
     /// created workflow states in this instance.
     /// It is necessary to use an own data structure in this case rather than using the workflow context
-    /// data because we need to build up the mapping data structure before the states are navigated
-    /// to. At this time, there is workflow context for those transient states yet.
+    /// data because we need to build up the mapping data structure before the navigation to those states
+    /// takes place. At that time, there is no workflow context for those transient states yet.
     /// </remarks>
     protected class ContextStateDataDictionary : Dictionary<Guid, string> { }
 
@@ -94,27 +97,52 @@ namespace UiComponents.Configuration
 
     protected const string CONTEXT_STATE_DATA_KEY = "ConfigurationModel: CONTEXT_STATE_DATA";
 
-    protected static IDictionary<Type, string> REGISTERED_SETTING_TYPES = new Dictionary<Type, string>();
+    protected WorkflowConfigurationController _workflowConfigurationController;
+
+    protected IDictionary<Type, ConfigurationController> _registeredSettingTypes = new Dictionary<Type, ConfigurationController>();
 
     protected ItemsList _configSettingsList = null;
     protected string _currentLocation = null;
-    protected ConfigSetting _currentConfigSetting = null;
+    protected ConfigurationController _currentConfigController = null;
     protected Property _headerTextProperty;
+    protected ICollection<Property> _trackedVisibleEnabledProperties = new List<Property>();
 
     #endregion
 
     #region Ctor
 
-    static ConfigurationModel()
+    /// <summary>
+    /// Registers the specified configuration <paramref name="controller"/> for the configuration
+    /// type, the controller specifies in its <see cref="ConfigurationController.ConfigSettingType"/> property.
+    /// </summary>
+    void Register(ConfigurationController controller)
     {
-      REGISTERED_SETTING_TYPES.Add(typeof(YesNo), "dialog_configuration_yesno");
-      REGISTERED_SETTING_TYPES.Add(typeof(Entry), "dialog_configuration_entry");
-      // TODO: More setting types
+      _registeredSettingTypes[controller.ConfigSettingType] = controller;
     }
 
     public ConfigurationModel()
     {
       _headerTextProperty = new Property(typeof(string), null);
+      Initialize();
+    }
+
+    protected void Initialize()
+    {
+      Register(new YesNoController());
+      Register(new EntryController());
+      Register(new SingleSelectionListController());
+      Register(new MultiSelectionListController());
+      // More generic controller types go here
+
+      _workflowConfigurationController = new WorkflowConfigurationController();
+    }
+
+    public void Dispose()
+    {
+      ReleaseAllVisibleEnabledNotifications();
+      _registeredSettingTypes.Clear();
+      _workflowConfigurationController = null;
+      _currentConfigController = null;
     }
 
     #endregion
@@ -146,9 +174,9 @@ namespace UiComponents.Configuration
     /// <summary>
     /// Returns the current setting instance. The skin should update its data from and to this instance.
     /// </summary>
-    public ConfigSetting CurrentConfigSetting
+    public ConfigurationController CurrentConfigController
     {
-      get { return _currentConfigSetting; }
+      get { return _currentConfigController; }
     }
 
     #endregion
@@ -165,46 +193,17 @@ namespace UiComponents.Configuration
       _currentLocation = configLocation;
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
       IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
-      _currentConfigSetting = currentNode == null ? null : currentNode.ConfigObj as ConfigSetting;
-      _currentConfigSetting.Load();
-      // Now handle different configuration types...
-      if (_currentConfigSetting is CustomConfiguration)
-      {
-        ConfigSettingMetadata metadata = (ConfigSettingMetadata) _currentConfigSetting.Metadata;
-        if (metadata.AdditionalData.ContainsKey("WorkflowState"))
-        { // Custom configuration workflow
-          IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-          workflowManager.NavigatePush(new Guid(metadata.AdditionalData["WorkflowState"]));
-          // New configuration workflow has to take over the configuration "life cycle" for the
-          // current config setting object (which can be accessed in this model via CurrentConfigSetting):
-          // - Configure data (providing workflow states and screens for doing that, change the data, ...)
-          // - Calling Save and Apply, or discard the setting by not saving it
-          // The the sub workflow should step out again to give the control back to this model again.
-          return;
-        }
-        if (metadata.AdditionalData.ContainsKey("DialogScreen"))
-        { // Custom configuration dialog
-          string customDialog = metadata.AdditionalData["DialogScreen"];
-          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-          screenManager.ShowDialog(customDialog);
-        }
+      ConfigSetting configSetting = currentNode == null ? null : currentNode.ConfigObj as ConfigSetting;
+      _currentConfigController = FindConfigurationController(configSetting);
+      if (_currentConfigController == null)
+      { // Error case: We don't have a configuration controller for the setting to be shown
+        ServiceScope.Get<ILogger>().Warn(
+            "ConfigurationModel: Cannot show configuration for setting '{0}', no configuration controller available",
+            configSetting);
         return;
       }
-      string dialog = GetSettingDialog(_currentConfigSetting.GetType());
-      if (dialog != null)
-      {
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-        screenManager.ShowDialog(dialog);
-      }
-    }
-
-    /// <summary>
-    /// Saves the GUI model state variables in the config object for the current configuration item.
-    /// </summary>
-    public void SaveCurrentConfigItem()
-    {
-      _currentConfigSetting.Save();
-      _currentConfigSetting.Apply();
+      _currentConfigController.Initialize(configSetting);
+      _currentConfigController.ExecuteConfiguration();
     }
 
     #endregion
@@ -257,35 +256,72 @@ namespace UiComponents.Configuration
     }
 
     /// <summary>
+    /// Returns the configuration controller class which is responsible for the specified
+    /// <paramref name="setting"/>.
+    /// </summary>
+    /// <param name="setting">The setting to check.</param>
+    /// <returns>Configuration controller class which is responsible for the specified
+    /// <paramref name="setting"/>, or <c>null</c>, if the setting is not supported.</returns>
+    protected ConfigurationController FindConfigurationController(ConfigSetting setting)
+    {
+      if (setting == null)
+        return null;
+      ConfigurationController result = null;
+      // Check if a custom configuration controller is requested
+      ConfigSettingMetadata metadata = (ConfigSettingMetadata) setting.Metadata;
+      if (metadata.AdditionalTypes != null && metadata.AdditionalTypes.ContainsKey("CustomConfigController"))
+      {
+        Type controllerType = metadata.AdditionalTypes["CustomConfigController"];
+        if (controllerType == null)
+        {
+          ServiceScope.Get<ILogger>().Warn(
+            "ConfigurationModel: Custom configuration controller could not be loaded (config setting at location '{0}')",
+            metadata.Location);
+          return null;
+        }
+        // Check if we already have the required controller available
+        foreach (KeyValuePair<Type, ConfigurationController> registration in _registeredSettingTypes)
+          if (registration.Value.GetType() == controllerType)
+          {
+            result = registration.Value;
+            break;
+          }
+        if (result == null)
+        {
+          result = Activator.CreateInstance(controllerType) as ConfigurationController;
+          if (result != null)
+            // Lazily add the new controller type to our registered controllers
+            Register(result);
+        }
+        if (result != null)
+          return result;
+      }
+      // Check if the workflow configuration controller can handle the setting
+      if (_workflowConfigurationController.IsSettingSupported(setting))
+        return _workflowConfigurationController;
+      // Else try a default configuration controller
+      return FindConfigurationController(setting.GetType());
+    }
+
+    protected ConfigurationController FindConfigurationController(Type settingType)
+    {
+      foreach (KeyValuePair<Type, ConfigurationController> registration in _registeredSettingTypes)
+        if (registration.Key.IsAssignableFrom(settingType))
+          return registration.Value;
+      return null;
+    }
+
+    /// <summary>
     /// Returns the information if the specified <paramref name="setting"/> is supported by this
     /// configuration plugin.
     /// </summary>
     /// <param name="setting">The setting to check.</param>
     /// <returns><c>true</c>, if the setting is supported, i.e. it can be displayed in the GUI, else
     /// <c>false</c>.</returns>
-    protected static bool IsSettingSupported(ConfigSetting setting)
+    protected bool IsSettingSupported(ConfigSetting setting)
     {
-      if (setting == null)
-        return false;
-      if (setting is CustomConfiguration)
-      {
-        ConfigSettingMetadata metadata = (ConfigSettingMetadata) setting.Metadata;
-        if (metadata.AdditionalData.ContainsKey("WorkflowState"))
-          return true;
-        if (metadata.AdditionalData.ContainsKey("DialogScreen"))
-          return true;
-      }
-      else
-        return GetSettingDialog(setting.GetType()) != null;
-      return false;
-    }
-
-    protected static string GetSettingDialog(Type settingType)
-    {
-      foreach (KeyValuePair<Type, string> registration in REGISTERED_SETTING_TYPES)
-        if (registration.Key.IsAssignableFrom(settingType))
-          return registration.Value;
-      return null;
+      ConfigurationController controller = FindConfigurationController(setting);
+      return controller != null && controller.IsSettingSupported(setting);
     }
 
     /// <summary>
@@ -293,14 +329,14 @@ namespace UiComponents.Configuration
     /// </summary>
     /// <param name="sectionOrGroupNode">Section or group node to check.</param>
     /// <returns>Number of supported settings in the specified node.</returns>
-    protected static int NumSettingsSupported(IConfigurationNode sectionOrGroupNode)
+    protected int NumSettingsSupported(IConfigurationNode sectionOrGroupNode)
     {
       int result = 0;
       foreach (IConfigurationNode childNode in sectionOrGroupNode.ChildNodes)
       {
         if (childNode.ConfigObj is ConfigSetting)
         {
-          if (IsSettingSupported((ConfigSetting)childNode.ConfigObj))
+          if (IsSettingSupported((ConfigSetting) childNode.ConfigObj))
             result++;
         }
         else if (childNode.ConfigObj is ConfigGroup)
@@ -310,7 +346,7 @@ namespace UiComponents.Configuration
     }
 
     /// <summary>
-    /// Adds all settings in the specified <paramref name="sectionOrGroupNode"/> to the specified
+    /// Adds all supported settings in the specified <paramref name="sectionOrGroupNode"/> to the specified
     /// <paramref name="settingsList"/>. For each setting, a <see cref="ListItem"/> will be created
     /// with the setting text as name and a command which triggers the method <see cref="ShowConfigItem"/>
     /// with the according setting location.
@@ -323,18 +359,52 @@ namespace UiComponents.Configuration
       {
         if (childNode.ConfigObj is ConfigSetting)
         {
-          if (!IsSettingSupported((ConfigSetting) childNode.ConfigObj))
+          ConfigSetting setting = (ConfigSetting) childNode.ConfigObj;
+          if (!setting.Visible || !IsSettingSupported(setting))
             continue;
           string location = childNode.Location;
-          ListItem item = new ListItem("Name", childNode.ConfigObj.Metadata.Text)
+          ListItem item = new ListItem(KEY_NAME, setting.SettingMetadata.Text)
           {
               Command = new MethodDelegateCommand(() => ShowConfigItem(location))
           };
+          item.SetLabel(KEY_HELPTEXT, setting.SettingMetadata.HelpText);
+          item.Enabled = setting.Enabled;
+          TrackItemVisibleEnabledProperty(setting.VisibleProperty);
+          TrackItemVisibleEnabledProperty(setting.EnabledProperty);
           settingsList.Add(item);
         }
         if (childNode.ConfigObj is ConfigGroup)
           AddConfigSettings(childNode, settingsList);
       }
+    }
+
+    protected void TrackItemVisibleEnabledProperty(Property property)
+    {
+      property.Attach(OnVisibleEnabledChanged);
+      _trackedVisibleEnabledProperties.Add(property);
+    }
+
+    protected void ReleaseAllVisibleEnabledNotifications()
+    {
+      foreach (Property property in _trackedVisibleEnabledProperties)
+        property.Detach(OnVisibleEnabledChanged);
+      _trackedVisibleEnabledProperties.Clear();
+    }
+
+    void OnVisibleEnabledChanged(Property visibleOrEnabledProperty, object oldValue)
+    {
+      UpdateConfigSettings();
+    }
+
+    protected void UpdateConfigSettings()
+    {
+      _configSettingsList.Clear();
+      IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
+      IConfigurationNode currentNode = configurationManager.GetNode(_currentLocation);
+      if (currentNode == null)
+        // This is an error case, should not happen
+        return;
+      AddConfigSettings(currentNode, _configSettingsList);
     }
 
     /// <summary>
@@ -344,6 +414,8 @@ namespace UiComponents.Configuration
     /// <param name="newContext">New workflow navigation context which is entered.</param>
     protected void PrepareConfigLocation(NavigationContext oldContext, NavigationContext newContext)
     {
+      _currentConfigController = null;
+      ReleaseAllVisibleEnabledNotifications();
       string configLocation = GetConfigLocation(newContext);
       if (configLocation == null)
       {
@@ -365,8 +437,9 @@ namespace UiComponents.Configuration
         HeaderText = currentNode.Id;
       else
         HeaderText = currentNode.ConfigObj.Text.Evaluate();
-      _configSettingsList = new ItemsList();
-      AddConfigSettings(currentNode, _configSettingsList);
+      _currentLocation = configLocation;
+      _configSettingsList = new ItemsList(); // Break references to old GUI screens by creating a new list (can be removed as soon as weak references are used in the change events of ItemsList)
+      UpdateConfigSettings();
     }
 
     #endregion

@@ -31,6 +31,8 @@ using MediaPortal.Presentation.Localization;
 
 namespace MediaPortal.Configuration
 {
+  public delegate void ConfigChangedEventHandler(ConfigSetting sender);
+
   /// <summary>
   /// Base class for all configuration settings classes.
   /// </summary>
@@ -52,7 +54,7 @@ namespace MediaPortal.Configuration
 
     public ConfigSettingMetadata SettingMetadata
     {
-      get { return (ConfigSettingMetadata)Metadata; }
+      get { return (ConfigSettingMetadata) Metadata; }
     }
 
     /// <summary>
@@ -70,27 +72,26 @@ namespace MediaPortal.Configuration
     /// <summary>
     /// Gets called if this setting changes.
     /// </summary>
-    public event ConfigChangedEventHandler OnChangeEvent;
+    public event ConfigChangedEventHandler Changed;
 
     #endregion
 
     #region Protected Methods
 
     /// <summary>
-    /// Notifies all registered items that the current setting is changed.
+    /// Notifies all registered listeners about a change in this setting.
     /// </summary>
     protected void NotifyChange()
     {
-      if (OnChangeEvent != null)
-        OnChangeEvent(this, _metadata.Location);
+      if (Changed != null)
+        Changed(this);
     }
 
     /// <summary>
     /// Override this to handle changes in other instances of ConfigBase.
     /// </summary>
     /// <param name="sender">Sender of the change notification.</param>
-    /// <param name="senderLocation">Location of the sender in the configurationtree.</param>
-    protected virtual void ConfigChangedHandler(ConfigBase sender, string senderLocation)
+    protected virtual void ConfigChangedHandler(ConfigSetting sender)
     {
       // Needs to be overriden by the inheriting class.
     }
@@ -125,14 +126,14 @@ namespace MediaPortal.Configuration
     public virtual void Apply() { }
 
     /// <summary>
-    /// Registers this instance to the <see cref="OnChangeEvent"/> of the <paramref name="other"/>
+    /// Registers this instance to the <see cref="Changed"/> of the <paramref name="other"/>
     /// setting.
     /// This object will be notified by the other object on a change.
     /// </summary>
     /// <param name="other">Other setting which should notify this setting when it changes.</param>
     public void ListenTo(ConfigSetting other)
     {
-      other.OnChangeEvent += ConfigChangedHandler;
+      other.Changed += ConfigChangedHandler;
     }
 
     public override IEnumerable<string> GetSearchTexts()

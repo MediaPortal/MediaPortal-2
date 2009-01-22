@@ -22,12 +22,34 @@
 
 #endregion
 
-namespace MediaPortal.Configuration.ConfigurationClasses
+using MediaPortal.Configuration;
+using MediaPortal.Core;
+using MediaPortal.Presentation.Screen;
+
+namespace UiComponents.Configuration.ConfigurationControllers
 {
   /// <summary>
-  /// Base class for all configuration setting classes which provide a custom GUI for the configuration.
+  /// Configuration controllers showing a configuration dialog.
   /// </summary>
-  public abstract class CustomConfiguration : ConfigSetting
+  public abstract class DialogConfigurationController : ConfigurationController
   {
+    public override void ExecuteConfiguration()
+    {
+      if (_setting != null)
+        _setting.Load();
+      string dialog = DialogScreen;
+      if (dialog != null)
+      {
+        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+        screenManager.ShowDialog(dialog);
+      }
+    }
+
+    public override bool IsSettingSupported(ConfigSetting setting)
+    {
+      return setting == null ? false : !string.IsNullOrEmpty(DialogScreen);
+    }
+
+    protected abstract string DialogScreen { get; }
   }
 }

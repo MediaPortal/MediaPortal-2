@@ -35,7 +35,7 @@ namespace MediaPortal.Configuration.ConfigurationClasses
   {
     #region Variables
 
-    protected IList<int> _ranking = new List<int>(0);
+    protected IList<int> _ranking = new List<int>();
 
     #endregion
 

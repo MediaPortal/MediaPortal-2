@@ -116,8 +116,8 @@
   <Register Location="/Configuration/Settings/Regional/Language">
     <ConfigSetting
         Id="MainLanguage"
-        Text="[Settings.Regional.Language.MainLanguage]"
-        HelpText="[Settings.Regional.Language.MainLanguage.Help]"
+        Text="[Settings.Regional.Language.Main]"
+        HelpText="[Settings.Regional.Language.Main.Help]"
         ClassName="UiComponents.SkinBase.Settings.Configuration.Regional.MainLanguage"/>
   </Register>
 </Plugin>

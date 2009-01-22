@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -46,7 +46,7 @@
     <Compile Include="PlayableItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\SharesConfigModel.cs" />
-    <Compile Include="Settings\Configuration\SharesConfiguration.cs" />
+    <Compile Include="Settings\Configuration\SharesConfigSetting.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Media\ClientMediaManager\ClientMediaManager.csproj">
@@ -74,10 +74,10 @@
     <Content Include="Skin\default\screens\shares_config_overview.xaml" />
     <Content Include="Skin\default\screens\shares_config_remove_shares.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml" />
-    <Content Include="Skin\default\screens\shares_config_choose_path.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_edit_path.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml"/>
+    <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
+    <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
+    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
+    <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
   </ItemGroup>

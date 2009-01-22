@@ -26,7 +26,7 @@ using MediaPortal.Configuration.ConfigurationClasses;
 
 namespace UiComponents.Media.Settings.Configuration
 {
-  public class SharesConfiguration : CustomConfiguration
+  public class SharesConfigSetting : CustomConfigSetting
   {
   }
 }

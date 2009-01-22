@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -49,13 +49,12 @@
     <Compile Include="Configuration\ConfigSetting.cs" />
     <Compile Include="Configuration\ConfigBase.cs" />
     <Compile Include="Configuration\ConfigGroup.cs" />
-    <Compile Include="Configuration\ConfigChangedEventHandler.cs" />
     <Compile Include="Configuration\ConfigItemList.cs" />
     <Compile Include="Configuration\ConfigSection.cs" />
     <Compile Include="Configuration\ConfigGroupMetadata.cs" />
     <Compile Include="Configuration\ConfigSectionMetadata.cs" />
     <Compile Include="Configuration\ConfigSettingMetadata.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\CustomConfiguration.cs" />
+    <Compile Include="Configuration\ConfigurationClasses\CustomConfigSetting.cs" />
     <Compile Include="Configuration\IConfigurationManager.cs" />
     <Compile Include="Configuration\IConfigurationNode.cs" />
     <Compile Include="Configuration\NodeNotFoundException.cs" />

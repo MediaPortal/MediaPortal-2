@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -116,6 +116,8 @@
     <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="SkinManagement\IModelLoader.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />
@@ -265,8 +267,8 @@
     <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Configuration\Appearance\Fullscreen.cs" />
-    <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfiguration.cs" />
-    <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfiguration.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigSetting.cs" />
+    <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigSetting.cs" />
     <Compile Include="Xaml\ParserHelper.cs" />
     <Compile Include="MarkupExtensions\BindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\TemplateBindingMarkupExtension.cs" />
@@ -298,6 +300,10 @@
     <ProjectReference Include="..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UiComponents\Configuration\Configuration.csproj">
+      <Project>{9665887D-BEBF-4051-9151-7F189356682C}</Project>
+      <Name>Configuration</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

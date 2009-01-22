@@ -130,6 +130,7 @@ namespace MediaPortal.Configuration.Builders
       string className = null;
       string helpText = null;
       IDictionary<string, string> additionalData = null;
+      IDictionary<string, Type> additionalTypes = null;
       ICollection<string> listenTo = null;
       foreach (KeyValuePair<string, string> attr in itemData.Attributes)
       {
@@ -150,6 +151,9 @@ namespace MediaPortal.Configuration.Builders
           case "AdditionalData":
             additionalData = ParseAdditionalData(attr.Value);
             break;
+          case "AdditionalTypes":
+            additionalTypes = ParseAdditionalTypes(attr.Value, plugin);
+            break;
           default:
             throw new ArgumentException("'ConfigSetting' builder doesn't define an attribute '" + attr.Key + "'");
         }
@@ -158,6 +162,7 @@ namespace MediaPortal.Configuration.Builders
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
       ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, className, helpText, listenTo);
       result.AdditionalData = additionalData;
+      result.AdditionalTypes = additionalTypes;
       return result;
     }
 
@@ -180,6 +185,27 @@ namespace MediaPortal.Configuration.Builders
           result.Add(entry, null);
         else
           result.Add(entry.Substring(0, index).Trim(), entry.Substring(index+1, entry.Length-index-1));
+      }
+      return result;
+    }
+
+    protected static IDictionary<string, Type> ParseAdditionalTypes(string additionalTypesList, PluginRuntime plugin)
+    {
+      IDictionary<string, Type> result = new Dictionary<string, Type>();
+      if (additionalTypesList == null)
+        return result;
+      string[] entries = additionalTypesList.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+      foreach (string entry in entries)
+      {
+        int index = entry.IndexOf('=');
+        if (index == -1)
+          throw new ArgumentException("AdditionTypes must contain entries in the form 'entry=typename'");
+        else
+        {
+          string typeName = entry.Substring(index + 1, entry.Length - index - 1).Trim();
+          Type type = plugin.GetPluginType(typeName);
+          result.Add(entry.Substring(0, index).Trim(), type);
+        }
       }
       return result;
     }

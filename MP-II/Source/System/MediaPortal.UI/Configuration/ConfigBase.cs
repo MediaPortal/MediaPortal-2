@@ -40,10 +40,16 @@ namespace MediaPortal.Configuration
     /// Text to display for the current ConfigBase.
     /// </summary>
     protected IResourceString _text;
-    protected bool _hidden;
-    protected bool _disabled;
+    protected Property _visibleProperty;
+    protected Property _enabledProperty;
 
     #endregion
+
+    protected ConfigBase()
+    {
+      _visibleProperty = new Property(typeof(bool), true);
+      _enabledProperty = new Property(typeof(bool), true);
+    }
 
     #region Public properties
 
@@ -61,16 +67,38 @@ namespace MediaPortal.Configuration
       set { _text = value; }
     }
 
-    // TODO: There is no API yet to set this property. Should it be set in subclasses?
-    public bool Hidden
+    public Property VisibleProperty
     {
-      get { return _hidden; }
+       get { return _visibleProperty; }
     }
 
-    // TODO: There is no API yet to set this property. Should it be set in subclasses?
-    public bool Disabled
+    /// <summary>
+    /// Gets or sets the visibility of this config object.
+    /// </summary>
+    /// <remarks>
+    /// Will be set in subclasses.
+    /// </remarks>
+    public bool Visible
     {
-      get { return _disabled; }
+      get { return (bool) _visibleProperty.GetValue(); }
+      set { _visibleProperty.SetValue(value); }
+    }
+
+    public Property EnabledProperty
+    {
+       get { return _enabledProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets if this config object is enabled.
+    /// </summary>
+    /// <remarks>
+    /// Will be set in subclasses.
+    /// </remarks>
+    public bool Enabled
+    {
+      get { return (bool) _enabledProperty.GetValue(); }
+      set { _enabledProperty.SetValue(value); }
     }
 
     #endregion

@@ -41,7 +41,6 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigurationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +58,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationControllers\DialogConfigurationController.cs" />
+    <Compile Include="ConfigurationControllers\MultiSelectionListController.cs" />
+    <Compile Include="ConfigurationControllers\SingleSelectionListController.cs" />
+    <Compile Include="ConfigurationControllers\WorkflowConfigurationController.cs" />
+    <Compile Include="ConfigurationModel.cs" />
+    <Compile Include="ConfigurationController.cs" />
+    <Compile Include="ConfigurationControllers\YesNoController.cs" />
+    <Compile Include="ConfigurationControllers\EntryController.cs" />
+    <Compile Include="ConfigurationControllers\SelectionListController.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="plugin.xml" />
     <Content Include="Language\strings_en.xml" />
     <Content Include="Skin\default\screens\configuration-section.xaml" />
@@ -67,6 +77,8 @@
     <Content Include="Skin\default\screens\master_configuration_dialog_wb.xaml" />
     <Content Include="Skin\default\screens\dialog_configuration_yesno.xaml" />
     <Content Include="Skin\default\screens\dialog_configuration_entry.xaml" />
+    <Content Include="Skin\default\screens\dialog_configuration_singleselectionlist.xaml" />
+    <Content Include="Skin\default\screens\dialog_configuration_multiselectionlist.xaml" />
     <Content Include="Skin\default\workflow\configuration-states.xml" />
     <Content Include="Skin\default\workflow\configuration-actions.xml" />
   </ItemGroup>

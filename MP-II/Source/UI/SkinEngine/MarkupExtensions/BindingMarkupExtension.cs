@@ -105,7 +105,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected enum FindParentMode
     {
       LogicalTree,
-      HybridPreferVisualTree
+      HybridPreferVisualTree,
+      HybridPreferLogicalTree
     }
 
     #endregion
@@ -548,21 +549,42 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected bool FindParent(DependencyObject obj, out DependencyObject parent,
         FindParentMode findParentMode)
     {
-      Visual v = obj as Visual;
-      Property parentProperty = null;
+      switch (findParentMode)
+      {
+        case FindParentMode.HybridPreferVisualTree:
+          if (FindParent_VT(obj, out parent))
+            return true;
+          return FindParent_LT(obj, out parent);
+        case FindParentMode.HybridPreferLogicalTree:
+          if (FindParent_LT(obj, out parent))
+            return true;
+          return FindParent_VT(obj, out parent);
+        case FindParentMode.LogicalTree:
+          return FindParent_LT(obj, out parent);
+        default:
+          // Should never occur. If so, we have forgotten to handle a SourceType
+          throw new NotImplementedException(
+              string.Format("FindParentMode '{0}' is not implemented", findParentMode));
+      }
+    }
+
+    protected bool FindParent_LT(DependencyObject obj, out DependencyObject parent)
+    {
       parent = null;
-      if (findParentMode == FindParentMode.HybridPreferVisualTree && v != null)
-      { // The visual tree has priority to search our parent
-        parentProperty = v.VisualParentProperty;
-        AttachToSourcePathProperty(parentProperty);
-        parent = parentProperty.GetValue() as DependencyObject;
-      }
-      if (parent == null)
-      { // If no visual parent exists, use the logical tree
-        parentProperty = obj.LogicalParentProperty;
-        AttachToSourcePathProperty(parentProperty);
-        parent = parentProperty.GetValue() as DependencyObject;
-      }
+      Visual v = obj as Visual;
+      if (v == null)
+        return false;
+      Property parentProperty = v.VisualParentProperty;
+      AttachToSourcePathProperty(parentProperty);
+      parent = parentProperty.GetValue() as DependencyObject;
+      return parent != null;
+    }
+
+    protected bool FindParent_VT(DependencyObject obj, out DependencyObject parent)
+    {
+      Property parentProperty = obj.LogicalParentProperty;
+      AttachToSourcePathProperty(parentProperty);
+      parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
     }
 
@@ -626,7 +648,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           if ((result = ((INameScope) templateNameScopeProperty.GetValue())) != null)
             return true;
         }
-        if (!FindParent(current, out current, FindParentMode.LogicalTree))
+        if (!FindParent(current, out current, FindParentMode.HybridPreferLogicalTree))
           return false;
       }
       return false;
