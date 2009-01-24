@@ -33,12 +33,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ResourceWrapper x:Key="Config_Client_Element">
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="20"/>
           <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="20"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+          <RowDefinition Height="10"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Content="{DynamicResource Config_Contents_Element}"
+        <ContentPresenter Grid.Column="1" Grid.Row="1" Content="{DynamicResource Config_Contents_Element}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       </Grid>
     </ResourceWrapper>

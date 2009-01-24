@@ -31,7 +31,7 @@
     <String Name="General" Text="General"/>
     <String Name="General.System" Text="System"/>
     <String Name="General.System.Autostart" Text="Autostart"/>
-    <String Name="General.System.Autostart.Help" Text="MediaPortal will start automatically on Windows startup"/>
+    <String Name="General.System.Autostart.Help" Text="Start MediaPortal automatically on Windows startup"/>
     <String Name="General.System.Balloontips" Text="Balloon Tips"/>
     <String Name="General.System.Balloontips.Help" Text="Disable tray area's balloon tips (setting will be changed system-wide)"/>
 
