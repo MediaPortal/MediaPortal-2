@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Xaml;
 
@@ -38,6 +39,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected bool _attachedToTarget = false;
     protected UIElement _attachedToLostFocus = null;
     protected bool _negate = false;
+    protected ITypeConverter _typeConverter = null;
 
     /// <summary>
     /// Creates a new <see cref="BindingDependency"/> object.
@@ -61,14 +63,17 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// specified <paramref name="targetDd"/> data descriptor.</param>
     /// <param name="negate">If set to <c>true</c>, the bool value will be converted between source and
     /// target updates.</param>
+    /// <param name="customTypeConverter">Set a custom type converter with this parameter. If this parameter
+    /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
     public BindingDependency(
         IDataDescriptor sourceDd, IDataDescriptor targetDd,
         bool autoAttachToSource, UpdateSourceTrigger updateSourceTrigger,
-        UIElement targetParent, bool negate)
+        UIElement targetParent, bool negate, ITypeConverter customTypeConverter)
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
       _negate = negate;
+      _typeConverter = customTypeConverter;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
       {
         sourceDd.Attach(OnSourceChanged);
@@ -112,6 +117,22 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       UpdateSource();
     }
 
+    protected bool Convert(object val, Type targetType, out object result)
+    {
+      if (_typeConverter != null)
+        return _typeConverter.Convert(val, targetType, out result);
+      return TypeConverter.Convert(val, targetType, out result);
+    }
+
+    /// <summary>
+    /// Gets or sets a custom type converter.
+    /// </summary>
+    public ITypeConverter Converter
+    {
+      get { return _typeConverter; }
+      set { _typeConverter = value; }
+    }
+
     public void Detach()
     {
       if (_attachedToSource)
@@ -127,7 +148,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     public void UpdateSource()
     {
       object newValue;
-      if (!TypeConverter.Convert(_targetDd.Value, _sourceDd.DataType, out newValue))
+      if (!Convert(_targetDd.Value, _sourceDd.DataType, out newValue))
         return;
       if (_negate)
         newValue = !(bool)newValue;
@@ -142,12 +163,12 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       if (_negate && value != null)
       {
         // If negate, we need to convert to bool
-        if (!TypeConverter.Convert(value, typeof(bool), out value))
+        if (!Convert(value, typeof(bool), out value))
           return;
         if (_negate)
           value = !(bool) value;
       }
-      if (!TypeConverter.Convert(value, _targetDd.DataType, out value))
+      if (!Convert(value, _targetDd.DataType, out value))
         return;
       if (_targetDd.Value == value)
         return;

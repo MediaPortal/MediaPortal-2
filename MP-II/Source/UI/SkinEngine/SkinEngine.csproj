@@ -114,8 +114,10 @@
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
+    <Compile Include="MarkupExtensions\ITypeConverter.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
+    <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\SkinSettings.cs" />

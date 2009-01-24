@@ -122,10 +122,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected Property _modeProperty = new Property(typeof(BindingMode), BindingMode.Default);
     protected Property _updateSourceTriggerProperty =
         new Property(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
+    protected ITypeConverter _typeConverter = null;
 
     // State variables
     protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
-    protected bool _sourceValueValid = false; // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
+    protected Property _sourceValueValidProperty = new Property(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
     protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which data contexts and other properties are we attached?
@@ -239,7 +240,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       result = null;
       try
       {
-        if (!_sourceValueValid && !UpdateSourceValue())
+        if (!IsSourceValueValid && !UpdateSourceValue())
           return false;
         result = _evaluatedSourceValue;
         return true;
@@ -348,6 +349,15 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
+    /// Gets or sets a custom type converter.
+    /// </summary>
+    public ITypeConverter Converter
+    {
+      get { return _typeConverter; }
+      set { _typeConverter = value; }
+    }
+
+    /// <summary>
     /// Holds the evaluated source value for this binding. Clients may attach
     /// change handlers to the returned data descriptor; if the evaluated
     /// source value changes, this data descriptor will remain the same,
@@ -358,9 +368,19 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       get { return _evaluatedSourceValue; }
     }
 
-    public bool SourceValueValid
+    public Property IsSourceValueValidProperty
     {
-      get { return _sourceValueValid; }
+      get { return _sourceValueValidProperty; }
+    }
+
+    /// <summary>
+    /// Returns the information if the <see cref="EvaluatedSourceValue"/> data descriptor contains a correctly
+    /// bound value. This is the case, if the last call to <see cref="Evaluate"/> was successful.
+    /// </summary>
+    public bool IsSourceValueValid
+    {
+      get { return (bool) _sourceValueValidProperty.GetValue(); }
+      set { _sourceValueValidProperty.SetValue(value); }
     }
 
     #endregion
@@ -767,25 +787,39 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// could be evaluated, else <c>false</c>.</returns>
     protected virtual bool UpdateSourceValue()
     {
-      _sourceValueValid = false;
-      IDataDescriptor evaluatedValue;
-      if (!GetSourceDataDescriptor(out evaluatedValue))
-        // Do nothing if not all necessary properties can be resolved at the current time
-        return false;
-      if (_compiledPath != null)
-        try
-        {
-          if (!_compiledPath.Evaluate(evaluatedValue, out evaluatedValue))
-            return false;
-        }
-        catch (XamlBindingException)
-        {
+      bool sourceValueValid = false;
+      try
+      {
+        IDataDescriptor evaluatedValue;
+        if (!GetSourceDataDescriptor(out evaluatedValue))
+            // Do nothing if not all necessary properties can be resolved at the current time
           return false;
-        }
-      // If no path is specified, evaluatedValue will be the source value
-      _evaluatedSourceValue.SourceValue = evaluatedValue;
-      _sourceValueValid = true;
-      return true;
+        if (_compiledPath != null)
+          try
+          {
+            if (!_compiledPath.Evaluate(evaluatedValue, out evaluatedValue))
+              return false;
+          }
+          catch (XamlBindingException)
+          {
+            return false;
+          }
+        // If no path is specified, evaluatedValue will be the source value
+        _evaluatedSourceValue.SourceValue = evaluatedValue;
+        sourceValueValid = true;
+        return true;
+      }
+      finally
+      {
+        IsSourceValueValid = sourceValueValid;
+      }
+    }
+
+    protected bool Convert(object val, Type targetType, out object result)
+    {
+      if (_typeConverter != null)
+        return _typeConverter.Convert(val, targetType, out result);
+      return TypeConverter.Convert(val, targetType, out result);
     }
 
     protected virtual bool UpdateBinding()
@@ -833,7 +867,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         else if (Mode == BindingMode.OneTime)
         {
           object value = sourceDd.Value;
-          if (!TypeConverter.Convert(value, _targetDataDescriptor.DataType, out value))
+          if (!Convert(value, _targetDataDescriptor.DataType, out value))
             return false;
           _targetDataDescriptor.Value = value;
           _retryBinding = false;
@@ -847,7 +881,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           FindParent(_contextObject, out parent, FindParentMode.HybridPreferVisualTree);
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
             attachToTarget ? UpdateSourceTrigger : MarkupExtensions.UpdateSourceTrigger.Explicit,
-            parent as UIElement, _negate);
+            parent as UIElement, _negate, _typeConverter);
         if (attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.LostFocus)
         {
           // TODO: attach to LostFocus event of the next visual in the tree, create
