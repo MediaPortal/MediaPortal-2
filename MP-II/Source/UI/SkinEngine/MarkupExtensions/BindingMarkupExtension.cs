@@ -822,9 +822,12 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         }
         else if (Mode == BindingMode.OneTime)
         {
-          Dispose();
-          _targetDataDescriptor.Value = sourceDd.Value;
+          object value = sourceDd.Value;
+          if (!TypeConverter.Convert(value, _targetDataDescriptor.DataType, out value))
+            return false;
+          _targetDataDescriptor.Value = value;
           _retryBinding = false;
+          Dispose();
           return true; // In this case, we have finished with only assigning the value
         }
         if (_bindingDependency != null)
@@ -837,7 +840,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
             parent as UIElement, _negate);
         if (attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.LostFocus)
         {
-          // FIXME: attach to LostFocus event of the next visual in the tree, create
+          // TODO: attach to LostFocus event of the next visual in the tree, create
           // change handler and call bd.UpdateSource() in the handler notification method
           throw new NotImplementedException("UpdateSourceTrigger.LostFocus is not implemented");
         }
