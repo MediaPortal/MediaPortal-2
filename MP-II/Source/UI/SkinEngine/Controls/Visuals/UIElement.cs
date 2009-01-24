@@ -668,6 +668,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         parent.MakeVisible(childRect);
     }
 
+    /// <summary>
+    /// Returns the information if the specified (absolute) coordinates lay in this element's visible range.
+    /// </summary>
+    /// <param name="x">Absolute X-coordinate.</param>
+    /// <param name="y">Absolute Y-coordinate.</param>
+    /// <returns><c>true</c> if the specified coordinates lay in this element's visible range.</returns>
     public virtual bool IsInVisibleArea(float x, float y)
     {
       return false;
