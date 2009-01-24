@@ -2,6 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MediaPortal.SkinEngine.MpfElements.Converters"
     Source="screens\master_menu.xaml"
     >
   <Include.Resources>
@@ -15,6 +16,8 @@
     <!-- Menu header -->
     <ResourceWrapper x:Key="Menu_Header_Text" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
 
+    <converters:ReferenceNotNull_BoolConverter x:Key="RefToBoolConverter"/>
+
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <Grid>
@@ -23,6 +26,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
         <ListView x:Name="ConfigItemsList"
             Grid.Row="0" Grid.Column="0"
@@ -33,6 +37,10 @@
             <CommandBridge x:Key="Menu_Command" Command="{Binding Command}"/>
           </ListView.Resources>
         </ListView>
+        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20"
+            DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
+            Content="{Binding [Help]}" Wrap="True"
+            IsVisible="{Binding Converter={StaticResource RefToBoolConverter}}"/>
       </Grid>
     </ResourceWrapper>
 

@@ -74,7 +74,7 @@ namespace UiComponents.Configuration
     public const string CONFIGURATION_SECTION_SCREEN = "configuration-section";
 
     public const string KEY_NAME = "Name";
-    public const string KEY_HELPTEXT = "HelpText";
+    public const string KEY_HELPTEXT = "Help";
     public const string KEY_ENABLED = "Enabled";
 
     /// <summary>
