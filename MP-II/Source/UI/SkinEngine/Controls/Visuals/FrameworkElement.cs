@@ -199,13 +199,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         MakeVisible(ActualBounds);
         if (Screen != null)
           Screen.FrameworkElementGotFocus(this);
-        FireEvent(GOTFOCUS_EVENT);
       }
       else
       {
         if (Screen != null)
           Screen.FrameworkElementLostFocus(this);
-        FireEvent(LOSTFOCUS_EVENT);
       }
     }
 

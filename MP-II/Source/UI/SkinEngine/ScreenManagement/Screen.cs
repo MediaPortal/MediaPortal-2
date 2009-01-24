@@ -323,6 +323,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         RemoveCurrentFocus();
         _focusedElement = focusedElement;
+        _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
       }
     }
 
@@ -362,7 +363,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public void FrameworkElementLostFocus(FrameworkElement focusedElement)
     {
       if (_focusedElement == focusedElement)
+      {
         _focusedElement = null;
+        _visual.FireEvent(FrameworkElement.LOSTFOCUS_EVENT);
+      }
     }
 
     public static FrameworkElement FindFirstFocusableElement(FrameworkElement searchRoot)

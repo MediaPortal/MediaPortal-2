@@ -245,16 +245,23 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Item management
 
-    public override void OnMouseMove(float x, float y)
+    /// <summary>
+    /// Checks if the currently focused element is contained in this items control.
+    /// </summary>
+    bool CheckFocusInScope()
     {
-      base.OnMouseMove(x, y);
-      UpdateCurrentItem();
-    }
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      base.OnKeyPressed(ref key);
-      UpdateCurrentItem();
+      Visual focusPath = Screen == null ? null : Screen.FocusedElement;
+      while (focusPath != null)
+      {
+        if (focusPath == this)
+          // Focused control is located in our focus scope
+          return true;
+        if (focusPath is ItemsControl)
+          // Focused control is located in another itemscontrol's focus scope
+          return false;
+        focusPath = focusPath.VisualParent;
+      }
+      return false;
     }
 
     /// <summary>
@@ -263,13 +270,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     protected void UpdateCurrentItem()
     {
-      if (Screen == null)
-        return;
-      Visual element = Screen.FocusedElement;
-      if (_itemsHostPanel == null)
+      if (_itemsHostPanel == null || !CheckFocusInScope())
         CurrentItem = null;
       else
       {
+        Visual element = Screen.FocusedElement;
         while (element != null && element.VisualParent != _itemsHostPanel)
           element = element.VisualParent;
         CurrentItem = element == null ? null : element.Context;
@@ -384,6 +389,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.Update();
       DoUpdateItems();
+    }
+
+    public override void  FireEvent(string eventName)
+    {
+      if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
+        UpdateCurrentItem();
+ 	    base.FireEvent(eventName);
     }
   }
 }
