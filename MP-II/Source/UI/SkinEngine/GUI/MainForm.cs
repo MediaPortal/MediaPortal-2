@@ -54,8 +54,8 @@ namespace MediaPortal.SkinEngine.GUI
     private DateTime _fpsTimer;
     private float fixed_aspect_ratio = 0;
     private FormWindowState _windowState;
-    private Size _previousClientSize;
-    private Point _previousPosition;
+    private Size _previousWindowClientSize;
+    private Point _previousWindowPosition;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
     private bool _hasFocus = false;
@@ -80,7 +80,7 @@ namespace MediaPortal.SkinEngine.GUI
       fixed_aspect_ratio = SkinContext.SkinHeight/(float) SkinContext.SkinWidth;
 
       // Remember prev size
-      _previousClientSize = ClientSize;
+      _previousWindowClientSize = ClientSize;
 
       // Setup for fullscreen
       if (appSettings.FullScreen)
@@ -340,13 +340,9 @@ namespace MediaPortal.SkinEngine.GUI
     protected override void OnSizeChanged(EventArgs e)
     {
       base.OnSizeChanged(e);
-      //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnSizeChanged {0} {1}", Bounds.ToString(), ScreenState);
-
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
-      {
         return;
-      }
-      if (ClientSize != _previousClientSize)
+      if (ClientSize != _previousWindowClientSize)
       {
         if (WindowState != _windowState)
         {
@@ -363,13 +359,13 @@ namespace MediaPortal.SkinEngine.GUI
       if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
       {
         base.OnResizeEnd(e);
-        _previousClientSize = ClientSize;
+        _previousWindowClientSize = ClientSize;
         return;
       }
-      if (ClientSize != _previousClientSize)
+      if (ClientSize != _previousWindowClientSize)
       {
         base.OnResizeEnd(e);
-        _previousClientSize = ClientSize;
+        _previousWindowClientSize = ClientSize;
         //Trace.WriteLine("DirectX MainForm: Stop render thread");
         StopRenderThread();
 
@@ -417,26 +413,20 @@ namespace MediaPortal.SkinEngine.GUI
           displaySetting = GraphicsDevice.DesktopDisplayMode;
           break;
         default:
-          displaySetting = string.Empty;
+          displaySetting = null;
           break;
       }
 
       // Fallback if nothing is found
-      if (mode == ScreenMode.ExclusiveMode && displaySetting == string.Empty)
+      if (string.IsNullOrEmpty(displaySetting))
         displaySetting = GraphicsDevice.DesktopDisplayMode;
 
       // Already done, no need to do it twice
-      if (mode == ScreenMode.ExclusiveMode && _mode == ScreenMode.ExclusiveMode && _displaySetting.CompareTo(displaySetting) == 0)
+      if (mode == _mode && _displaySetting == displaySetting)
         return;
 
       _displaySetting = displaySetting;
       _mode = mode;
-
-      if (newFullscreen && !oldFullscreen)
-      {
-        _previousClientSize = ClientSize;
-      }
-
 
       settings.FullScreen = newFullscreen;
       ServiceScope.Get<ISettingsManager>().Save(settings);
@@ -450,7 +440,11 @@ namespace MediaPortal.SkinEngine.GUI
       // Must be done before reset. Otherwise we will lose the device after reset.
       if (newFullscreen)
       {
-        _previousPosition = Location;
+        if (!oldFullscreen)
+        {
+          _previousWindowPosition = Location;
+          _previousWindowClientSize = ClientSize;
+        }
         Location = new Point(0, 0);
         // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
         ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
@@ -460,8 +454,8 @@ namespace MediaPortal.SkinEngine.GUI
       {
         WindowState = FormWindowState.Normal;
         FormBorderStyle = FormBorderStyle.Sizable;
-        ClientSize = _previousClientSize;
-        Location = _previousPosition;
+        Location = _previousWindowPosition;
+        ClientSize = _previousWindowClientSize;
       }
       CheckTopMost();
       Update();
