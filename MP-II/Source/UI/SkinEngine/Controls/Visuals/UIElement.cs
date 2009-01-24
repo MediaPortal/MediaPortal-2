@@ -668,6 +668,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         parent.MakeVisible(childRect);
     }
 
+    public virtual bool IsInVisibleArea(float x, float y)
+    {
+      return false;
+    }
+
     /// <summary>
     /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
     /// </summary>
