@@ -358,6 +358,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       get { return _evaluatedSourceValue; }
     }
 
+    public bool SourceValueValid
+    {
+      get { return _sourceValueValid; }
+    }
+
     #endregion
 
     #region Event handlers
@@ -568,7 +573,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       }
     }
 
-    protected bool FindParent_LT(DependencyObject obj, out DependencyObject parent)
+    protected bool FindParent_VT(DependencyObject obj, out DependencyObject parent)
     {
       parent = null;
       Visual v = obj as Visual;
@@ -580,7 +585,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       return parent != null;
     }
 
-    protected bool FindParent_VT(DependencyObject obj, out DependencyObject parent)
+    protected bool FindParent_LT(DependencyObject obj, out DependencyObject parent)
     {
       Property parentProperty = obj.LogicalParentProperty;
       AttachToSourcePathProperty(parentProperty);
@@ -612,8 +617,13 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         BindingMarkupExtension parentBinding;
         if (GetDataContext(current, out parentBinding))
-          // Data context found
-          return parentBinding.Evaluate(out result);
+        { // Data context found
+          if (parentBinding.Evaluate(out result))
+            return true;
+          // else simply return the parent's evaluated source data descriptor
+          result = parentBinding.EvaluatedSourceValue;
+          return false;
+        }
         if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree))
           return false;
       }
