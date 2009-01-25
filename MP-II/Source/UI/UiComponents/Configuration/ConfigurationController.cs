@@ -66,8 +66,10 @@ namespace UiComponents.Configuration
         _setting.Changed -= OnSettingChanged;
       _setting = setting;
       if (_setting != null)
+      {
         _setting.Changed += OnSettingChanged;
-      _setting.Load();
+        _setting.Load();
+      }
       SettingChanged();
     }
 

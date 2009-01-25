@@ -134,6 +134,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (row < 0) row = 0;
 
         SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
+        // FIXME Albert: Would be better to use the size which is really available for the child here,
+        // but this is not so easy to calculate (depends on col/row definition(s), colspan/rowspan)
         child.Measure(ref childSize);
 
         ColumnDefinitions.SetDesiredLength(col, GetColumnSpan(child), childSize.Width);

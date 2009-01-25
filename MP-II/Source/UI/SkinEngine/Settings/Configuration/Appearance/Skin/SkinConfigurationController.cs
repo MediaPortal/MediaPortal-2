@@ -79,6 +79,7 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
         if (skinSetting.CurrentSkinName == skin.Name)
           _choosenItem = skinItem;
       }
+      base.SettingChanged();
     }
 
     protected override void UpdateSetting()

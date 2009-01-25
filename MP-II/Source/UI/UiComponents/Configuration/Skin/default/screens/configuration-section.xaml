@@ -37,7 +37,7 @@
             <CommandBridge x:Key="Menu_Command" Command="{Binding Command}"/>
           </ListView.Resources>
         </ListView>
-        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20"
+        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{StaticResource HintTextColor}"
             DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
             Content="{Binding [Help]}" Wrap="True"
             IsVisible="{Binding Converter={StaticResource RefToBoolConverter}}"/>

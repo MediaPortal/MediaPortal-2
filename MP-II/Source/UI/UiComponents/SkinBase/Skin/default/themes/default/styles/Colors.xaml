@@ -29,6 +29,9 @@
   <!-- White -->
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
+  <!-- Light gray -->
+  <ResourceWrapper x:Key="HintTextColor" Resource="LightGray"/>
+
   <!-- Red -->
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Red"/>
 

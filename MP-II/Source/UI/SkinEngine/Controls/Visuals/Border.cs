@@ -209,38 +209,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Measure&arrange
 
-    public override void Arrange(RectangleF finalRect)
-    {
-      RemoveMargin(ref finalRect);
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      Initialize();
-      InitializeTriggers();
-      IsInvalidLayout = false;
-
-      if (!finalRect.IsEmpty)
-      {
-        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
-          _performLayout = true;
-        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      }
-      if (_content != null)
-      {
-        PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
-        SizeF size = new SizeF(layoutRect.Width, layoutRect.Height);
-        ArrangeChild(_content, ref location, ref size);
-        _content.Arrange(new RectangleF(location, _content.TotalDesiredSize()));
-      }
-    }
-
     public override void Measure(ref SizeF totalSize)
     {
       RemoveMargin(ref totalSize);
@@ -271,6 +239,38 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       AddMargin(ref totalSize);
 
       //Trace.WriteLine(String.Format("Border.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
+    }
+
+    public override void Arrange(RectangleF finalRect)
+    {
+      RemoveMargin(ref finalRect);
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+
+      Initialize();
+      InitializeTriggers();
+      IsInvalidLayout = false;
+
+      if (!finalRect.IsEmpty)
+      {
+        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
+          _performLayout = true;
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+      }
+      if (_content != null)
+      {
+        PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
+        SizeF size = new SizeF(layoutRect.Width, layoutRect.Height);
+        ArrangeChild(_content, ref location, ref size);
+        _content.Arrange(new RectangleF(location, size));
+      }
     }
 
     #endregion

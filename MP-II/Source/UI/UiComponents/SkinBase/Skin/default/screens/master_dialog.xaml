@@ -30,17 +30,48 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Contents_Element (Any UI element): Contents area of the dialog.
 -->
 
-<Canvas
+<Grid x:Name="DialogLayoutGrid"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     FocusedElement="{DynamicResource Focused_Element}">
-
-  <Border Canvas.Left="50" Canvas.Top="44" Width="620" Height="470" Background="{StaticResource DialogBorderColor}" CornerRadius="10">
-    <Canvas Width="600" Height="450" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{StaticResource DialogBackgroundBrush}">
-      <Label FontSize="30" Canvas.Left="25" Canvas.Top="0" Content="{DynamicResource Dialog_Header_Text}" Width="400" Color="{StaticResource DialogHeaderColor}" VerticalAlignment="Top"/>
-      <Button x:Name="CloseBtn" Canvas.Left="545" Canvas.Top="5" Style="{StaticResource DialogCloseButtonStyle}"
-          Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
-      <ContentPresenter x:Name="ContentPanel" Canvas.Left="34" Canvas.Top="50" Height="380" Width="500" Content="{DynamicResource Contents_Element}"/>
-    </Canvas>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="50"/>
+    <ColumnDefinition Width="*"/>
+    <ColumnDefinition Width="50"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="50"/>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="50"/>
+  </Grid.RowDefinitions>
+  <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{StaticResource DialogBorderColor}" CornerRadius="10"
+      VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Grid x:Name="DialogBackgroundGrid" Background="{StaticResource DialogBackgroundBrush}"
+        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid x:Name="DialogHeaderGrid" Grid.Column="0" Grid.Row="0" Margin="5"
+          VerticalAlignment="Top" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="30" Margin="20,0,10,0"
+            Content="{DynamicResource Dialog_Header_Text}" Color="{StaticResource DialogHeaderColor}"
+            VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+        <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{StaticResource DialogCloseButtonStyle}"
+            Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+      </Grid>
+      <ContentPresenter x:Name="ContentPanel" Margin="10" Grid.Column="0" Grid.Row="1"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="{DynamicResource Contents_Element}"/>
+    </Grid>
   </Border>
-</Canvas>
+</Grid>

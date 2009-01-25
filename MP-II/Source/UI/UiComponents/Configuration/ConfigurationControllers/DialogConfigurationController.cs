@@ -35,8 +35,6 @@ namespace UiComponents.Configuration.ConfigurationControllers
   {
     public override void ExecuteConfiguration()
     {
-      if (_setting != null)
-        _setting.Load();
       string dialog = DialogScreen;
       if (dialog != null)
       {

@@ -23,6 +23,8 @@
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
+  <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
+
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FFD3D3D3"/>
