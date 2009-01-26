@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.SkinManagement;
 

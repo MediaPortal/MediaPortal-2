@@ -24,7 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -60,11 +60,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     private readonly SkinManager _skinManager;
     private Skin _skin = null;
     private Theme _theme = null;
-
-    // Albert78: Next fields are to be removed
-    private string _dialogTitle;
-    private string[] _dialogLines = new string[3];
-    private bool _dialogResponse;  // Yes = true, No = false
 
     #endregion
 
@@ -152,7 +147,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _theme = theme;
     }
 
-    private void InternalShowDialog(string dialogName, bool isChild)
+    private void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback, bool isChild)
     {
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
@@ -166,6 +161,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       else
         _dialogStack.Peek().DetachInput();
 
+      if (dialogCloseCallback != null)
+        newDialog.Closed += (sender, e) => dialogCloseCallback(dialogName);
       newDialog.AttachInput();
       newDialog.Show();
       newDialog.ScreenState = Screen.State.Running;
@@ -434,10 +431,15 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void ShowDialog(string dialogName)
     {
+      ShowDialog(dialogName, null);
+    }
+
+    public void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
       lock (_syncRoot)
       {
-        InternalShowDialog(dialogName, false);
+        InternalShowDialog(dialogName, dialogCloseCallback, false);
       }
     }
 
@@ -446,7 +448,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing child dialog '{0}'...", dialogName);
       lock (_syncRoot)
       {
-        InternalShowDialog(dialogName, true);
+        InternalShowDialog(dialogName, null, true);
       }
     }
 
@@ -487,75 +489,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         InternalCloseCurrentScreenAndDialogs();
 
         return InternalShowScreen(newScreen);
-      }
-    }
-
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public void SetDialogResponse(string response)
-    {
-      if (response.ToLower() == "yes")
-        _dialogResponse = true;
-      else
-        _dialogResponse = false;
-
-      CloseDialog();
-    }
-
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public bool GetDialogResponse()
-    {
-      return _dialogResponse;
-    }
-
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public string DialogTitle
-    {
-      get
-      {
-        return _dialogTitle;
-      }
-      set
-      {
-        _dialogTitle = value;
-      }
-    }
-
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public string DialogLine1
-    {
-      get
-      {
-        return _dialogLines[0];
-      }
-      set
-      {
-        _dialogLines[0] = value;
-      }
-    }
-
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public string DialogLine2
-    {
-      get
-      {
-        return _dialogLines[1];
-      }
-      set
-      {
-        _dialogLines[1] = value;
-      }
-    }
-
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    public string DialogLine3
-    {
-      get
-      {
-        return _dialogLines[2];
-      }
-      set
-      {
-        _dialogLines[2] = value;
       }
     }
   }

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 

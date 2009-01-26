@@ -25,7 +25,7 @@
 
 using MediaPortal.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 
 namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance
 {

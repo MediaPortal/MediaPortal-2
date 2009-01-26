@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 
 namespace UiComponents.Settings
 {

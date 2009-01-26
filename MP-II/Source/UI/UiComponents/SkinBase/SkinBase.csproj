@@ -413,6 +413,7 @@
     <Content Include="Skin\default\screens\dialogYesNo.xaml" />
     <Content Include="Skin\default\screens\dialogZoomModes.xaml" />
     <Content Include="Skin\default\screens\fullscreenvideo.xaml" />
+    <Content Include="Skin\default\screens\generic_dialog.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />
     <Content Include="Skin\default\screens\imdbresultchoice.xaml" />
     <Content Include="Skin\default\screens\master.xaml" />

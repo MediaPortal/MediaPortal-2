@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -121,7 +121,6 @@
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
-    <Compile Include="SkinManagement\IModelLoader.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />
@@ -242,6 +241,7 @@
     <Compile Include="SkinManagement\Theme.cs" />
     <Compile Include="SkinManagement\Skin.cs" />
     <Compile Include="SkinManagement\SkinManager.cs" />
+    <Compile Include="SkinManagement\IModelLoader.cs" />
     <Compile Include="SkinManagement\XamlLoader.cs" />
     <Compile Include="Xaml\AssemblyHelper.cs" />
     <Compile Include="Xaml\AttributeValueInstantiationParser.cs" />
@@ -279,6 +279,7 @@
     <Compile Include="ScreenManagement\Animator.cs" />
     <Compile Include="ScreenManagement\Screen.cs" />
     <Compile Include="ScreenManagement\ScreenManager.cs" />
+    <Compile Include="ScreenManagement\DialogManager.cs" />
     <Compile Include="Xaml\Interfaces\IInitializable.cs" />
     <Compile Include="Xaml\DefaultNamespaceHandler.cs" />
     <Compile Include="Xaml\ElementContextStack.cs" />

@@ -29,7 +29,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 
 using MediaPortal.Media.MediaManagement;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 
 namespace Media.Players.PicturePlayer
 {

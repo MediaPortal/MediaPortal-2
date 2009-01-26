@@ -24,8 +24,10 @@
 
 using System;
 
-namespace MediaPortal.Presentation.Screen
+namespace MediaPortal.Presentation.Screens
 {
+  public delegate void DialogCloseCallbackDlgt(string dialogName);
+
   /// <summary>
   /// External interface for the screen manager. The screen manager is responsible
   /// for managing (logical) screens in the current skin and theme.
@@ -40,16 +42,25 @@ namespace MediaPortal.Presentation.Screen
     void CloseDialog();
 
     /// <summary>
-    /// Shows a (main) dialog with the specified name.
+    /// Shows the dialog screen with the specified name.
     /// </summary>
-    /// <param name="dialogName">The dialog name.</param>
+    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
     void ShowDialog(string dialogName);
+
+    /// <summary>
+    /// Shows the dialog screen with the specified name and calls the specified notification
+    /// callback method when the dialog is closed.
+    /// </summary>
+    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
+    /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
+    /// gets closed, or <c>null</c>.</param>
+    void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
 
     /// <summary>
     /// Shows a child dialog with the specified name. The dialog will be marked as child and will 
     /// be closed when main dialog is closed.
     /// </summary>
-    /// <param name="dialogName">The dialog name.</param>
+    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
     void ShowChildDialog(string dialogName);
 
     /// <summary>
@@ -102,47 +113,5 @@ namespace MediaPortal.Presentation.Screen
     /// Returns <c>true</c> if a dialog is currently visible, else <c>false</c>.
     /// </summary>
     bool IsDialogVisible { get; }
-
-    #region To be removed
-
-    /// <summary>
-    /// Gets / Sets the Title of a Dialog
-    /// </summary>
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    string DialogTitle { get; set; }
-
-    /// <summary>
-    /// Gets / Sets Dialog Line 1
-    /// </summary>
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    string DialogLine1 { get; set; }
-
-    /// <summary>
-    /// Gets / Sets Dialog Line 2
-    /// </summary>
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    string DialogLine2 { get; set; }
-
-    /// <summary>
-    /// Gets / Sets Dialog Line 3
-    /// </summary>
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    string DialogLine3 { get; set; }
-
-    /// <summary>
-    /// Gets the Dialog Response (Yes/No)
-    /// </summary>
-    /// <returns></returns>
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    bool GetDialogResponse();
-
-    /// <summary>
-    /// Sets the Dialog Response
-    /// </summary>
-    /// <param name="response"></param>
-    [Obsolete("This method will be replaced by a generic approach in the future")]
-    void SetDialogResponse(string response);
-
-    #endregion
   }
 }

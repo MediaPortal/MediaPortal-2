@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.Utilities;

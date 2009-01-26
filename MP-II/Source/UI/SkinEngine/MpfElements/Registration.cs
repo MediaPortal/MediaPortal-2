@@ -193,8 +193,8 @@ namespace MediaPortal.SkinEngine.MpfElements
         result = value;
         return true;
       }
-      else if (value.GetType() == typeof(ResourceWrapper))
-        return TypeConverter.Convert(((ResourceWrapper) value).Resource, targetType, out result);
+      else if (typeof(ValueWrapper).IsAssignableFrom(value.GetType()))
+        return TypeConverter.Convert(((ValueWrapper) value).Value, targetType, out result);
       else if (targetType == typeof(Transform))
       {
         string v = value.ToString();

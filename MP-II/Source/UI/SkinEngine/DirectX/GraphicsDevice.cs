@@ -30,7 +30,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.ScreenManagement;
 using SlimDX;

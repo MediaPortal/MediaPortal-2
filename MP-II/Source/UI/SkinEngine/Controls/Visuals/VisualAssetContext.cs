@@ -27,7 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.SkinManagement;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {

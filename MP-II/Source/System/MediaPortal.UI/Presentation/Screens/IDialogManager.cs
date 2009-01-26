@@ -22,32 +22,27 @@
 
 #endregion
 
-using MediaPortal.Configuration;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
-
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.Presentation.Screens
 {
-  /// <summary>
-  /// Configuration controllers showing a configuration dialog.
-  /// </summary>
-  public abstract class DialogConfigurationController : ConfigurationController
+  public enum DialogType
   {
-    public override void ExecuteConfiguration()
-    {
-      string dialog = DialogScreen;
-      if (dialog != null)
-      {
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-        screenManager.ShowDialog(dialog);
-      }
-    }
+    OkDialog,
+    YesNoDialog
+  }
 
-    public override bool IsSettingSupported(ConfigSetting setting)
-    {
-      return setting == null ? false : !string.IsNullOrEmpty(DialogScreen);
-    }
+  public enum DialogResult
+  {
+    Ok,
+    Yes,
+    No,
+    Cancel
+  }
 
-    protected abstract string DialogScreen { get; }
+  public delegate void DialogResultDlgt(DialogResult result);
+
+  public interface IDialogManager
+  {
+    void ShowDialog(string headerText, string text, DialogType type,
+        bool showCancelButton, DialogResultDlgt resultDlgt);
   }
 }

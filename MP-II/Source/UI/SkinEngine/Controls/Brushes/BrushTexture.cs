@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;

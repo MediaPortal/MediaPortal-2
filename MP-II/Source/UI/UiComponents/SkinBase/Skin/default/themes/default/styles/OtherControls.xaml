@@ -134,7 +134,7 @@
 
   <!-- ************************* ListView Item container styles ************************** -->
 
-  <!-- An item list container represented by a standard "ButtonStyle", scrolling its "ItemLabel" label when focused -->
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>

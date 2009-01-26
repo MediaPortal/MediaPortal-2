@@ -46,8 +46,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
   </Grid.RowDefinitions>
   <Border x:Name="DialogBorder" Grid.Column="1" Grid.Row="1" Background="{StaticResource DialogBorderColor}" CornerRadius="10"
       VerticalAlignment="Center" HorizontalAlignment="Center">
-    <Grid x:Name="DialogBackgroundGrid" Background="{StaticResource DialogBackgroundBrush}"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10">
+    <Grid x:Name="DialogBackgroundGrid" Background="{StaticResource DialogBackgroundBrush}" Margin="10">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
@@ -66,7 +65,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid.RowDefinitions>
         <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="30" Margin="20,0,10,0"
             Content="{DynamicResource Dialog_Header_Text}" Color="{StaticResource DialogHeaderColor}"
-            VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+            VerticalAlignment="Center" HorizontalAlignment="Left"/>
         <Button x:Name="CloseButton" Grid.Column="1" Grid.Row="0" Style="{StaticResource DialogCloseButtonStyle}"
             Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
       </Grid>

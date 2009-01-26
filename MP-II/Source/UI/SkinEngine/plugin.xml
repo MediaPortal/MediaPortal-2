@@ -17,6 +17,10 @@
     <PluginStateTracker ClassName="MediaPortal.SkinEngine.SkinEnginePlugin"/>
   </Runtime>
 
+  <Register Location="/Services">
+    <Instance Id="IDialogManager" ClassName="MediaPortal.SkinEngine.SkinManagement.DialogManager"/>
+  </Register>
+
   <Register Location="/Resources/Language">
     <Resource Id="SkinEngineLanguage" Directory="Language" Type="Language"/>
   </Register>

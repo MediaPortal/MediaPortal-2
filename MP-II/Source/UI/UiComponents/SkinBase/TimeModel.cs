@@ -34,6 +34,9 @@ using UiComponents.SkinBase.Settings;
 
 namespace UiComponents.SkinBase
 {
+  /// <summary>
+  /// Model which provides data for the skin clock.
+  /// </summary>
   public class TimeModel : IDisposable
   {
     #region Protected fields
@@ -121,7 +124,6 @@ namespace UiComponents.SkinBase
     public Property CurrentDateProperty
     {
       get { return _currentDateProperty; }
-      set { _currentDateProperty = value; }
     }
 
     public string CurrentDate
@@ -133,7 +135,6 @@ namespace UiComponents.SkinBase
     public Property CurrentTimeProperty
     {
       get { return _currentTimeProperty; }
-      set { _currentTimeProperty = value; }
     }
 
     public string CurrentTime
@@ -145,7 +146,6 @@ namespace UiComponents.SkinBase
     public Property HourAngleProperty
     {
       get { return _hourAngleProperty; }
-      set { _hourAngleProperty = value; }
     }
 
     public double HourAngle
@@ -153,10 +153,10 @@ namespace UiComponents.SkinBase
       get { return (double)_hourAngleProperty.GetValue(); }
       set { _hourAngleProperty.SetValue(value); }
     }
+
     public Property MinuteAngleProperty
     {
       get { return _minuteAngleProperty; }
-      set { _minuteAngleProperty = value; }
     }
 
     public double MinuteAngle

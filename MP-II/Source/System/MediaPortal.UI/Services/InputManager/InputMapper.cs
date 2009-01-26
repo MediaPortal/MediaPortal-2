@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
 
 namespace MediaPortal.Services.InputManager

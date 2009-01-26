@@ -112,8 +112,9 @@
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
+    <Compile Include="Presentation\Screens\IDialogManager.cs" />
     <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
-    <Compile Include="Presentation\Screen\IScreenControl.cs" />
+    <Compile Include="Presentation\Screens\IScreenControl.cs" />
     <Compile Include="Presentation\Models\IWorkflowModel.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowManager.cs" />
@@ -128,7 +129,7 @@
     <Compile Include="Presentation\DataObjects\Property.cs" />
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\IResourceString.cs" />
-    <Compile Include="Presentation\Screen\IScreenManager.cs" />
+    <Compile Include="Presentation\Screens\IScreenManager.cs" />
     <Compile Include="Services\Burning\Burner.cs" />
     <Compile Include="Services\Burning\BurnManager.cs" />
     <Compile Include="Services\Burning\DeviceHelper.cs" />

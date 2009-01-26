@@ -35,7 +35,7 @@ using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManagement;
-using MediaPortal.Presentation.Screen;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Utilities;
 
 namespace Components.Services.AutoPlay

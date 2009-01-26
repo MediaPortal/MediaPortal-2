@@ -22,32 +22,46 @@
 
 #endregion
 
-using MediaPortal.Configuration;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core.Logging;
 
-namespace UiComponents.Configuration.ConfigurationControllers
+namespace MediaPortal.Core.Commands
 {
-  /// <summary>
-  /// Configuration controllers showing a configuration dialog.
-  /// </summary>
-  public abstract class DialogConfigurationController : ConfigurationController
+  public class CommandList : ICommand
   {
-    public override void ExecuteConfiguration()
+    #region Protected fields
+
+    protected IList<ICommand> _commands;
+
+    #endregion
+
+    public CommandList(IList<ICommand> commands)
     {
-      string dialog = DialogScreen;
-      if (dialog != null)
+      _commands = commands;
+    }
+
+    #region ICommand implementation
+
+    public void Execute()
+    {
+      int i = 0;
+      ICommand currentCommand = null;
+      try
       {
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-        screenManager.ShowDialog(dialog);
+        foreach (ICommand command in _commands)
+        {
+          currentCommand = command;
+          currentCommand.Execute();
+          i++;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("CommandList: Error executing command {0}: {1}", ex, i, currentCommand);
       }
     }
 
-    public override bool IsSettingSupported(ConfigSetting setting)
-    {
-      return setting == null ? false : !string.IsNullOrEmpty(DialogScreen);
-    }
-
-    protected abstract string DialogScreen { get; }
+    #endregion
   }
 }
