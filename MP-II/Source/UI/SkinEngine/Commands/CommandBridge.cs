@@ -46,6 +46,11 @@ namespace MediaPortal.SkinEngine.Commands
 
     public CommandBridge() { }
 
+    public CommandBridge(ICommand command)
+    {
+      _command = command;
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);

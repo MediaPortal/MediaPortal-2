@@ -26,7 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using MediaPortal.Core.Commands;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.Controls.Brushes;
 using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Transforms;
@@ -311,6 +313,11 @@ namespace MediaPortal.SkinEngine.MpfElements
         Label resultLabel = new Label();
         resultLabel.Content = (string)value;
         result = resultLabel;
+        return true;
+      }
+      else if (targetType.IsAssignableFrom(typeof(IExecutableCommand)) && value is ICommand)
+      {
+        result = new CommandBridge((ICommand) value);
         return true;
       }
       result = value;
