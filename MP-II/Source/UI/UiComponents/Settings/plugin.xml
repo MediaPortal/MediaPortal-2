@@ -10,10 +10,6 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="{A01DC02E-A289-4030-A516-5F04820152F8}" Name="GeneralSettingsModel" ClassName="UiComponents.Settings.General"/>
-    <Model Id="{BE56E0E6-A90C-4935-9460-EFAEA766EC66}" Name="AppearanceSettingsModel" ClassName = "UiComponents.Settings.Appearance"/>
-    <Model Id="{7E0951E0-9554-44c9-BED7-6AC0106BCEB8}" Name="LanguageSettingsModel" ClassName = "UiComponents.Settings.Language"/>
-    <Model Id="{61273BC1-9ACE-48a2-A198-0269680D9AA3}" Name="ScreenSettingsModel" ClassName = "UiComponents.Settings.ScreenSettings"/>
     <Model Id="{1E0332C8-A2D9-44ee-A87F-64B37673EACA}" Name="RefreshrateSettingsModel" ClassName = "UiComponents.Settings.RefreshrateSettings"/>
     <Model Id="{8D9D63A0-4FBB-48fb-B107-3804048C43FA}" Name="MusicSettingsModel" ClassName = "UiComponents.Settings.MusicSettings"/>
     <Model Id="{E5062924-0252-4561-B64D-1BB7C57950BF}" Name="VideoSettingsModel" ClassName = "UiComponents.Settings.VideoSettings"/>

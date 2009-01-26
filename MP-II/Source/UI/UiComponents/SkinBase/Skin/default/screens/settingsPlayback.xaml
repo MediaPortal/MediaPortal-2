@@ -9,19 +9,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[settings.playback]"/>
 
-    <!-- DataContext -->
-    <Model x:Key="DataContext" RegistrationLocation="Settings" Id="VideoSettings"/>
-
-    <!-- Menu -->
-    <ResourceWrapper x:Key="Menu_Items">
-      <Binding Source="{StaticResource DataContext}" Path="MainMenu" Mode="OneTime"/>
-    </ResourceWrapper>
-
-    <!-- Menu command -->
-    <!-- Access the (Core type) command from the current menu ListItem, which is
-         accessible via the data context -->
-    <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element"/>
 

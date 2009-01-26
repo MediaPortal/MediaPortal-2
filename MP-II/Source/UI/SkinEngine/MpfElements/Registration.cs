@@ -155,7 +155,6 @@ namespace MediaPortal.SkinEngine.MpfElements
       // Command
       objectClassRegistrations.Add("CommandList", typeof(SkinEngine.Commands.CommandList));
       objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Commands.InvokeCommand));
-      objectClassRegistrations.Add("CommandBridge", typeof(SkinEngine.Commands.CommandBridge));
 
       // Markup extensions
       objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));

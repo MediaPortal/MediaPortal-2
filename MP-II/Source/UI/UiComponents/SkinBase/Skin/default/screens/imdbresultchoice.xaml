@@ -12,17 +12,6 @@
     <!-- DataContext -->
     <Model x:Key="DataContext" RegistrationLocation="Movies" Id="Model"/>
 
-    <!-- Menu -->
-    <ResourceWrapper x:Key="Menu_Items">
-      <!-- Empty main menu -->
-    </ResourceWrapper>
-
-    <!-- Menu command -->
-    <!-- Access the (Core type) command from the current menu ListItem, which is
-         accessible via the data context -->
-    <CommandBridge x:Key="Menu_Command"
-        Command="{Binding Path=Command,Mode=OneTime}"/>
-
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <DockPanel DataContext="{Binding Source={StaticResource DataContext}}"
@@ -30,9 +19,7 @@
         <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font13" Content="{Binding ImdbMovietile}" Height="50"/>
         <ListView x:Name="MovieMenu" Height="300" Width="600" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding ImdbResultMovies}">
           <ListView.Resources>
-            <CommandBridge x:Key="Menu_Command"
-                Command="{Binding Path=Command,Mode=OneTime}"
-                CommandParameter="{Binding Path=CommandParameter,Mode=OneTime}"/>
+            <LateBoundValue x:Key="Menu_Command" Value="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
       </DockPanel>

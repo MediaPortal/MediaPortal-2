@@ -26,7 +26,7 @@
   <Canvas Canvas.Left="240" Canvas.Top="170">
   <ListView x:Name="MainMenu" Height="300" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding MovieStoppedMenu}">
     <ListView.Resources>
-      <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+      <LateBoundValue x:Key="Menu_Command" Value="{Binding Path=Command,Mode=OneTime}"/>
     </ListView.Resources>
   </ListView>
   </Canvas>
