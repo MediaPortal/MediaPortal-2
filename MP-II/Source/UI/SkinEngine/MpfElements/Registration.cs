@@ -192,8 +192,10 @@ namespace MediaPortal.SkinEngine.MpfElements
         result = value;
         return true;
       }
-      else if (typeof(ValueWrapper).IsAssignableFrom(value.GetType()))
-        return TypeConverter.Convert(((ValueWrapper) value).Value, targetType, out result);
+      // Don't convert LateBoundValue (or superclass ValueWrapper) here... instances of
+      // LateBoundValue must stay unchanged until some code part explicitly converts them!
+      else if (typeof(ResourceWrapper).IsAssignableFrom(value.GetType()))
+        return TypeConverter.Convert(((ResourceWrapper) value).Resource, targetType, out result);
       else if (targetType == typeof(Transform))
       {
         string v = value.ToString();

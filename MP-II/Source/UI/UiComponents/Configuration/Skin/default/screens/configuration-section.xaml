@@ -34,7 +34,7 @@
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>
-            <LateBoundValue x:Key="Menu_Command" Value="{Binding Command}"/>
+            <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Command}"/>
           </ListView.Resources>
         </ListView>
         <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{StaticResource HintTextColor}"
