@@ -250,10 +250,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     private GraphicsPath GetRoundedRect(RectangleF baseRect, float radiusX, float radiusY)
     {
       // if corner radius is less than or equal to zero, 
-
       // return the original rectangle 
 
-      if (radiusX <= 0.0f && radiusY <= 0.0f)
+      if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width == 0 || baseRect.Height == 0)
       {
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);
@@ -275,9 +274,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       }
 
       // if the corner radius is greater than or equal to 
-
       // half the width, or height (whichever is shorter) 
-
       // then return a capsule instead of a lozenge 
 
       if (radiusX >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
