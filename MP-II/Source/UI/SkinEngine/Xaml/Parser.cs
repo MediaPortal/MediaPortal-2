@@ -550,11 +550,11 @@ namespace MediaPortal.SkinEngine.Xaml
         // Ignore other attributes not located in the x: namespace
         return;
       // x: attributes
-      object value = ParseValue(memberDeclarationNode);
       if (memberDeclarationNode.LocalName == "Name") // x:Name
       { // x:Name
         if (name == null)
         {
+          object value = ParseValue(memberDeclarationNode);
           name = TypeConverter.Convert(value, typeof(string)) as string;
           // Assign name to "Name" member, if one exists
           IDataDescriptor dd;
@@ -568,12 +568,13 @@ namespace MediaPortal.SkinEngine.Xaml
       }
       else if (memberDeclarationNode.LocalName == "Key")
       { // x:Key
+        object value = ParseValue(memberDeclarationNode);
         if (key == null)
           key = value;
         else
           throw new XamlBindingException("Attribute '{0}' was specified multiple times", memberDeclarationNode.Name);
       }
-      else
+      else if (memberDeclarationNode is XmlAttribute)
         // TODO: Is it correct to reject all usages of x:Attr attributes except x:Key and x:Name?
         throw new XamlParserException("Attribute '{0}' cannot be used here", memberDeclarationNode.Name);
     }
