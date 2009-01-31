@@ -103,7 +103,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
         if (ReflectionHelper.FindMemberDescriptor(element, Property, out _dataDescriptor))
           _dataDescriptor.Attach(OnPropertyChanged);
       }
-      OnPropertyChanged(_dataDescriptor);
     }
 
     /// <summary>
