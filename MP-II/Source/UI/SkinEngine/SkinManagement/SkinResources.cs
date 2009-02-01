@@ -405,8 +405,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </remarks>
     internal void CheckStyleResourceFileWasLoaded(string styleResourceName)
     {
-      // We don't need to care about inherited resouces, because the inherited resources
-      // will automatically be loaded if a style resource isn't found in this resources
       string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
       if (_localStyleResources == null)
         // Method was called before the styles initialization
@@ -415,8 +413,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
         // Method was called after the styles initialization has already finished
         return;
       // Do the actual work
-      if (!_pendingStyleResources.ContainsKey(resourceKey))
-        return;
       LoadStyleResource(resourceKey);
       if (GetResourceFilePath(resourceKey) == null)
         ServiceScope.Get<ILogger>().Warn("SkinResources: Requested style resource '{0}' could not be found", resourceKey);
@@ -424,31 +420,34 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     protected void LoadStyleResource(string resourceKey)
     {
+      if (_inheritedSkinResources != null)
+        _inheritedSkinResources.LoadStyleResource(resourceKey);
       PendingResource pr;
-      if (!_pendingStyleResources.TryGetValue(resourceKey, out pr))
-        return;
-      if (pr.State == LoadState.Loading)
-        throw new CircularReferenceException(
-            string.Format("SkinResources: Style resource '{0}' is part of a circular reference", resourceKey));
-      pr.State = LoadState.Loading;
-      ILogger logger = ServiceScope.Get<ILogger>();
-      try
+      if (_pendingStyleResources.TryGetValue(resourceKey, out pr))
       {
-        logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
-        ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
-            new StyleResourceModelLoader(this)) as ResourceDictionary;
-        if (rd == null)
-          throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
-              "' doesn't contain a ResourceDictionary as root element");
-        _localStyleResources.Merge(rd);
-      }
-      catch (Exception ex)
-      {
-        logger.Error("SkinResources: Error loading style resource '{0}'", ex, pr.ResourcePath);
-      }
-      finally
-      {
-        _pendingStyleResources.Remove(resourceKey);
+        if (pr.State == LoadState.Loading)
+          throw new CircularReferenceException(
+              string.Format("SkinResources: Style resource '{0}' is part of a circular reference", resourceKey));
+        pr.State = LoadState.Loading;
+        ILogger logger = ServiceScope.Get<ILogger>();
+        try
+        {
+          logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
+          ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
+              new StyleResourceModelLoader(this)) as ResourceDictionary;
+          if (rd == null)
+            throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
+                "' doesn't contain a ResourceDictionary as root element");
+          _localStyleResources.Merge(rd);
+        }
+        catch (Exception ex)
+        {
+          logger.Error("SkinResources: Error loading style resource '{0}'", ex, pr.ResourcePath);
+        }
+        finally
+        {
+          _pendingStyleResources.Remove(resourceKey);
+        }
       }
     }
 
