@@ -8,11 +8,9 @@
     >
 
   <!-- ************************** Default conversions ****************************** -->
-<!-- Example:
   <DataTemplate DataType="{x:Type system:String}">
     <Label Content="{Binding}"/>
   </DataTemplate>
--->
 
   <!-- ***************************** Brushes ******************************** -->
 

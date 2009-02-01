@@ -309,13 +309,6 @@ namespace MediaPortal.SkinEngine.MpfElements
         result = ((IResourceString) value).Evaluate();
         return true;
       }
-      else if (targetType.IsAssignableFrom(typeof(FrameworkElement)) && value is string)
-      { // Albert78, 2008-12-03: Is this type conversion still necessary?
-        Label resultLabel = new Label();
-        resultLabel.Content = (string)value;
-        result = resultLabel;
-        return true;
-      }
       else if (targetType.IsAssignableFrom(typeof(IExecutableCommand)) && value is ICommand)
       {
         result = new CommandBridge((ICommand) value);
