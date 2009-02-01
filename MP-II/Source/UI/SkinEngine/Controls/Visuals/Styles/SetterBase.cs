@@ -36,7 +36,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 
     #region Ctor
 
-    public SetterBase() { }
+    protected SetterBase() { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {

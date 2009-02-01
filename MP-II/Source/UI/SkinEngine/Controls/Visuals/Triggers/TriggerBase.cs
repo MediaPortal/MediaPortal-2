@@ -118,13 +118,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
+    protected void Initialize(object triggerValue, object checkValue)
+    {
+      object obj;
+      if (triggerValue == null || !TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) ||
+          !Equals(triggerValue, obj)) return;
+      // Execute start actions
+      foreach (TriggerAction action in EnterActions)
+        action.Execute(_element);
+      foreach (Setter s in Setters)
+        s.Set(_element);
+    }
+
     protected void TriggerIfValuesEqual(object triggerValue, object checkValue)
     {
       object obj;
       if (triggerValue != null && TypeConverter.Convert(checkValue, triggerValue.GetType(), out obj) &&
           Equals(triggerValue, obj))
       {
-        //execute start actions
+        // Execute start actions
         foreach (TriggerAction action in EnterActions)
           action.Execute(_element);
         foreach (Setter s in Setters)
@@ -132,7 +144,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
       }
       else
       {
-        //execute stop actions
+        // Execute stop actions
         foreach (TriggerAction action in ExitActions)
           action.Execute(_element);
         foreach (Setter s in Setters)
