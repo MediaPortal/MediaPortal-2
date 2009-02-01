@@ -64,8 +64,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       _colorProperty = new Property(typeof(Color), Color.White);
       //ContentManager.Add(this);
-      _effect = ContentManager.GetEffect("solidbrush");
-      _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
     }
 
     void Attach()
@@ -112,6 +110,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       {
         UpdateBounds(element, ref verts);
         base.SetupBrush(element, ref verts);
+        _effect = ContentManager.GetEffect("solidbrush");
+        _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
         Color4 color = ColorConverter.FromColor(this.Color);
         color.Alpha *= (float)Opacity;
         for (int i = 0; i < verts.Length; ++i)

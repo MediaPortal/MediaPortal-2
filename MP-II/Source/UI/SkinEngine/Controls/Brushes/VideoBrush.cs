@@ -62,7 +62,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     void Init()
     {
       _streamProperty = new Property(typeof(int), 0);
-      _effect = ContentManager.GetEffect("normal");
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -97,6 +96,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       UpdateBounds(element, ref verts);
       base.SetupBrush(element, ref verts);
+      _effect = ContentManager.GetEffect("normal");
       _verts = verts;
       _videoSize = new Size(0, 0);
       _videoAspectRatio = new Size(0, 0);
