@@ -140,6 +140,31 @@ namespace MediaPortal.SkinEngine.SkinManagement
       get { return _skins.ContainsKey(DEFAULT_SKIN) ? _skins[DEFAULT_SKIN] : null; }
     }
 
+    public void InstallSkinResources(SkinResources skinResources)
+    {
+      // Initialize SkinContext with new values
+      skinResources.Prepare();
+      Theme theme;
+      Skin skin;
+      if (skinResources is Theme)
+      {
+        theme = (Theme) skinResources;
+        skin = theme.ParentSkin;
+      }
+      else if (skinResources is Skin)
+      {
+        theme = null;
+        skin = (Skin) skinResources;
+      }
+      else
+        throw new ArgumentException("The specified skin resources '{0}' cannot be installed; supported types are Skin and Theme");
+
+      SkinContext.SkinName = skin.Name;
+      SkinContext.SkinHeight = skin.NativeHeight;
+      SkinContext.SkinWidth = skin.NativeWidth;
+      SkinContext.ThemeName = theme == null ? null : theme.Name;
+    }
+
     /// <summary>
     /// Reduces memory consumption by releasing all cached data for all skins. The caches will be
     /// re-filled again on demand.

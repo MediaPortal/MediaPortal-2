@@ -170,7 +170,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
     }
 
-    public override void Release()
+    internal override void Release()
     {
       base.Release();
       if (_themes != null)
@@ -315,6 +315,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
             theme = _themes[themeName] = new Theme(themeName, this);
           theme.AddRootDirectory(themeDirectoryPath);
         }
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Skin '{0}'", _name);
     }
   }
 }

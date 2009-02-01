@@ -85,9 +85,9 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         Type scType = typeof(ServiceScope);
         MethodInfo mi = scType.GetMethod("Get",
           BindingFlags.Public | BindingFlags.Static,
-          null, new Type[] { }, null);
+          null, new Type[] { typeof(bool) }, null);
         mi = mi.MakeGenericMethod(t);
-        return mi.Invoke(null, new object[] { });
+        return mi.Invoke(null, new object[] { false });
       }
       catch (Exception ex)
       {

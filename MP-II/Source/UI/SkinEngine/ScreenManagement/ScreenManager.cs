@@ -136,12 +136,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
       Fonts.FontManager.Load(skinResources);
 
-      // Initialize SkinContext with new values
-      SkinContext.SkinResources = skinResources;
-      SkinContext.SkinName = skin.Name;
-      SkinContext.ThemeName = theme == null ? null : theme.Name;
-      SkinContext.SkinHeight = skin.NativeHeight;
-      SkinContext.SkinWidth = skin.NativeWidth;
+      _skinManager.InstallSkinResources(skinResources);
 
       _skin = skin;
       _theme = theme;
@@ -366,7 +361,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void SwitchTheme(string newThemeName)
     {
-      SwitchSkinAndTheme(SkinContext.SkinName, newThemeName);
+      SwitchSkinAndTheme(_skin.Name, newThemeName);
     }
 
     public void SwitchSkin(string newSkinName)

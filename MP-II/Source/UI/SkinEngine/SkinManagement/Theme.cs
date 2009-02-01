@@ -103,6 +103,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
       if (_metadataInitialized)
         return;
       string metaFilePath = GetResourceFilePath(THEME_META_FILE);
+      if (metaFilePath == null)
+        return;
       _metadataInitialized = LoadMetadata(metaFilePath);
     }
 
@@ -172,6 +174,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
         return false;
       }
       return true;
+    }
+
+    public override string ToString()
+    {
+      return string.Format("Theme '{0}' of skin '{1}'", _name, _parentSkin.Name);
     }
   }
 }

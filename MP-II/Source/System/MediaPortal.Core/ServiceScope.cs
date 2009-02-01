@@ -305,7 +305,7 @@ namespace MediaPortal.Core
         {
           throw new ServiceNotFoundException(type);
         }
-        return default(T);
+        return null;
       }
       return oldInstance.GetService<T>(throwIfNotFound);
     }
