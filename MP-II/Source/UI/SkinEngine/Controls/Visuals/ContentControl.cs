@@ -56,12 +56,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentProperty.Attach(OnContentChanged);
+      TemplateControlProperty.Attach(OnTemplateControlChanged);
     }
 
     void Detach()
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
+      TemplateControlProperty.Detach(OnTemplateControlChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -72,26 +74,36 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(c.Content);
       ContentTemplate = copyManager.GetCopy(c.ContentTemplate);
       Attach();
-      OnContentChanged(_contentProperty, null);
-      OnContentTemplateChanged(_contentTemplateProperty, null);
+      InitializeContentPresenter();
     }
 
     #endregion
 
     #region Eventhandlers
 
+    new void OnTemplateControlChanged(Property property, object oldValue)
+    {
+      InitializeContentPresenter();
+    }
+
     void OnContentChanged(Property property, object oldValue)
     {
-      ContentPresenter presenter = FindContentPresenter();
-      if (presenter != null)
-        presenter.Content = Content;
+      InitializeContentPresenter();
     }
 
     void OnContentTemplateChanged(Property property, object oldValue)
     {
+      InitializeContentPresenter();
+    }
+
+    protected void InitializeContentPresenter()
+    {
       ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
+      {
+        presenter.Content = Content;
         presenter.ContentTemplate = ContentTemplate;
+      }
     }
 
     #endregion
