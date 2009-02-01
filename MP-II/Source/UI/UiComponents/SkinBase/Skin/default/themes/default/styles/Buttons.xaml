@@ -87,6 +87,9 @@
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledButtonColor}"/>
     </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Stroke.Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledButtonStrokeColor}"/>
+    </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
   <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="HoldEnd">

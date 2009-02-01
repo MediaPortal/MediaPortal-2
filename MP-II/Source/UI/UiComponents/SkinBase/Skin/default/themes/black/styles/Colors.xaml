@@ -56,6 +56,8 @@
   <!-- Dark green -->
   <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF050505"/>
 
+  <ResourceWrapper x:Key="DisabledButtonStrokeColor" Resource="#00000000"/>
+
   <ResourceWrapper x:Key="PlusMinusButtonCrossColor" Resource="White"/>
 
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="#FFCCCCCC"/>

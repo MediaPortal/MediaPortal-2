@@ -75,7 +75,10 @@
   <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#FF045935"/>
 
   <!-- Light gray -->
-  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF696969"/>
+  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF606060"/>
+
+  <!-- Transparent -->
+  <ResourceWrapper x:Key="DisabledButtonStrokeColor" Resource="#00000000"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="PlusMinusButtonCrossColor" Resource="White"/>
