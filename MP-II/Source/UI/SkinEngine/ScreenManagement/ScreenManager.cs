@@ -351,9 +351,17 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         catch (Exception ex)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
-              LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
+          try
+          {
+            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
+                LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
+                DialogType.OkDialog, false, null);
+          }
+          catch (Exception)
+          {
+            ServiceScope.Get<ILogger>().Error("ScreenManager: Error showing generic dialog for error message");
+            return null;
+          }
           return null;
         }
       }
