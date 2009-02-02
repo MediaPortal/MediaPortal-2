@@ -47,11 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioSetup.cs" />
     <Compile Include="MusicSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RefreshrateSettings.cs" />
-    <Compile Include="VideoSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
