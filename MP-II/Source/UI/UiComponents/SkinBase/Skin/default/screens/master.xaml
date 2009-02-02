@@ -37,10 +37,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Background="{StaticResource BackgroundBrush}" Width="720" Height="576"
     LastChildFill="True">
   <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
+    <Grid.Resources>
+      <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+    </Grid.Resources>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="Auto"/>
-    </Grid.ColumnDefinitions>  
+    </Grid.ColumnDefinitions>
     <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
       <Label Margin="60,0,0,0" FontFamily="RitzyNormal" FontSize="60" Color="{StaticResource WindowHeaderColor}"
           Content="{DynamicResource Header_Text}" />
@@ -61,8 +64,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Label>
     </StackPanel>
     <StackPanel x:Name="DateTimePanel" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top">
-      <Label x:Name="Date" FontSize="20" Content="{Binding Source={Model E821B1C8-0666-4339-8027-AA45A4F6F107}, Path=CurrentDate}" />
-      <Label x:Name="Time" FontSize="20" Content="{Binding Source={Model E821B1C8-0666-4339-8027-AA45A4F6F107}, Path=CurrentTime}" />
+      <Label x:Name="Date" FontSize="20" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" />
+      <Label x:Name="Time" FontSize="20" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
     </StackPanel>
   </Grid>
 

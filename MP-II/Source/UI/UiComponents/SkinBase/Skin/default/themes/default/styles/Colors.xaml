@@ -196,4 +196,19 @@
   <!-- Black, almost transparent -->
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#20000000"/>
 
+  <!-- White -->
+  <ResourceWrapper x:Key="AnalogClockHandColor" Resource="White"/>
+
+  <!-- Dark gray -->
+  <ResourceWrapper x:Key="AnalogClockTickMarkColor" Resource="DarkGray"/>
+
+  <!-- Dark blue -->
+  <ResourceWrapper x:Key="AnalogClockBackgroundColor" Resource="#F8265381"/>
+
+  <!-- Gray -->
+  <ResourceWrapper x:Key="AnalogClockBorderGradientDarkColor" Resource="#F8555555"/>
+
+  <!-- Very light gray -->
+  <ResourceWrapper x:Key="AnalogClockBorderGradientLightColor" Resource="#F8AAAAAA"/>
+
 </ResourceDictionary>

@@ -155,4 +155,19 @@
   <!-- Dark yellow -->
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#FF1E1E00"/>
 
+  <!-- Light green -->
+  <ResourceWrapper x:Key="AnalogClockHandColor" Resource="LightGreen"/>
+
+  <!-- Light green, a bit darker than the clockhand -->
+  <ResourceWrapper x:Key="AnalogClockTickMarkColor" Resource="#F87ACA7A"/>
+
+  <!-- Dary yellow, brown -->
+  <ResourceWrapper x:Key="AnalogClockBackgroundColor" Resource="#F881811A"/>
+
+  <!-- Dark gray, almost black -->
+  <ResourceWrapper x:Key="AnalogClockBorderGradientDarkColor" Resource="#F8070707"/>
+
+  <!-- Very light gray -->
+  <ResourceWrapper x:Key="AnalogClockBorderGradientLightColor" Resource="#F8AAAAAA"/>
+
 </ResourceDictionary>
