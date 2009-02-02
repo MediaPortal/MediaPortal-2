@@ -224,6 +224,14 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return File.OpenWrite(dosPath);
     }
 
+    public bool IsDirectory(string path)
+    {
+      string dosPath = ToDosPath(path);
+      if (string.IsNullOrEmpty(dosPath))
+        return false;
+      return Directory.Exists(dosPath);
+    }
+
     public ICollection<string> GetFiles(string path)
     {
       if (string.IsNullOrEmpty(path))
@@ -233,7 +241,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         return new List<string>();
       string dosPath = ToDosPath(path);
       if (!Directory.Exists(dosPath))
-        return new List<string>();
+        return null;
       return ConcatPaths(path, Directory.GetFiles(dosPath), false);
     }
 
@@ -250,7 +258,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       }
       string dosPath = ToDosPath(path);
       if (!Directory.Exists(dosPath))
-        return new List<string>();
+        return null;
       return ConcatPaths(path, Directory.GetDirectories(dosPath), true);
     }
 

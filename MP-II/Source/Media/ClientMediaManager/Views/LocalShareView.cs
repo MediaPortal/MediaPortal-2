@@ -143,8 +143,10 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       if (provider is IFileSystemMediaProvider)
       { // Add all items at the specified path
         IFileSystemMediaProvider fsmp = (IFileSystemMediaProvider) provider;
-        foreach (string mediaItemPath in fsmp.GetFiles(path))
-          AddMetadata(mediaManager, providerId, mediaItemPath, metadataExtractorIds, result);
+        ICollection<string> files = fsmp.GetFiles(path);
+        if (files != null)
+          foreach (string mediaItemPath in files)
+            AddMetadata(mediaManager, providerId, mediaItemPath, metadataExtractorIds, result);
       }
       else
         // Add the path itself (Could be a single-item share)
@@ -167,8 +169,10 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       if (provider is IFileSystemMediaProvider)
       { // Add all items at the specified path
         IFileSystemMediaProvider fsmp = (IFileSystemMediaProvider) provider;
-        foreach (string childDirectory in fsmp.GetChildDirectories(path))
-          result.Add(new LocalShareView(_shareId, null, _relativePath, this, _mediaItemAspectIds));
+        ICollection<string> directories = fsmp.GetChildDirectories(path);
+        if (directories != null)
+          foreach (string childDirectory in directories)
+            result.Add(new LocalShareView(_shareId, null, _relativePath, this, _mediaItemAspectIds));
       }
       return result;
     }

@@ -41,17 +41,28 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
   public interface IFileSystemMediaProvider : IMediaProvider
   {
     /// <summary>
+    /// Returns the information if the specified <paramref name="path"/> is a directory which is
+    /// valid in this provider and which might contain files and sub directories.
+    /// </summary>
+    /// <param name="path">The path to check.</param>
+    /// <returns><c>true</c>, if the specified <paramref name="path"/> denotes a directory in this
+    /// provider.</returns>
+    bool IsDirectory(string path);
+
+    /// <summary>
     /// Returns the paths of the media items at the specified <paramref name="path"/>.
     /// </summary>
     /// <param name="path">The path so search the media items.</param>
-    /// <returns>Collection of strings containing the paths of media items.</returns>
+    /// <returns>Collection of strings containing the paths of media items or <c>null</c> if
+    /// the specified <paramref name="path"/> is invalid in this provider.</returns>
     ICollection<string> GetFiles(string path);
 
     /// <summary>
     /// Returns the paths of child directories of the specified <paramref name="path"/>.
     /// </summary>
     /// <param name="path">The path to search child directories.</param>
-    /// <returns>Collection of strings containing the paths of sub directories</returns>
+    /// <returns>Collection of strings containing the paths of sub directories or <c>null</c> if
+    /// the specified <paramref name="path"/> is invalid in this provider.</returns>
     ICollection<string> GetChildDirectories(string path);
   }
 }

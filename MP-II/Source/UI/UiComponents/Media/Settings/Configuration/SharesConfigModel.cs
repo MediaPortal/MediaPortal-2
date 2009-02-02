@@ -564,16 +564,18 @@ namespace UiComponents.Media.Settings.Configuration
         // Error case - The path tree can only be shown if the media provider is a file system provider
         return;
       IFileSystemMediaProvider mediaProvider = (IFileSystemMediaProvider) mp;
-      foreach (string childPath in mediaProvider.GetChildDirectories(path))
-      {
-        TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetShortName(childPath));
-        directoryItem.SetLabel(MP_PATH_KEY, childPath);
-        directoryItem.SetLabel(PATH_KEY, mediaProvider.GetFullName(childPath));
-        if (!string.IsNullOrEmpty(MediaProviderPath) && MediaProviderPath == childPath)
-          directoryItem.Selected = true;
-        directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
-        items.Add(directoryItem);
-      }
+      ICollection<string> directories = mediaProvider.GetChildDirectories(path);
+      if (directories != null)
+        foreach (string childPath in directories)
+        {
+          TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetShortName(childPath));
+          directoryItem.SetLabel(MP_PATH_KEY, childPath);
+          directoryItem.SetLabel(PATH_KEY, mediaProvider.GetFullName(childPath));
+          if (!string.IsNullOrEmpty(MediaProviderPath) && MediaProviderPath == childPath)
+            directoryItem.Selected = true;
+          directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
+          items.Add(directoryItem);
+        }
       items.FireChange();
     }
 
