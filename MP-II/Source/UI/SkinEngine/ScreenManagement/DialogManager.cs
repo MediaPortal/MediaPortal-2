@@ -29,7 +29,7 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Screens;
 
-namespace MediaPortal.SkinEngine.SkinManagement
+namespace MediaPortal.SkinEngine.ScreenManagement
 {
   public class DialogManager : IDialogManager
   {

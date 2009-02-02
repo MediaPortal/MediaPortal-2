@@ -28,7 +28,6 @@ using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Controls.Animations;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.ScreenManagement
 {

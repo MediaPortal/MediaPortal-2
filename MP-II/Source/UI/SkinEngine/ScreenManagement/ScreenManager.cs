@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.Presentation.Workflow;
@@ -33,7 +34,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
-using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Settings;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -52,6 +52,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     #region Variables
 
     public const string HOME_SCREEN = "home";
+
+    public const string ERROR_DIALOG_HEADER = "[Dialogs.ErrorHeaderText]";
+    public const string ERROR_LOADING_SCREEN_TEXT = "[ScreenManager.ErrorLoadingScreen]";
+    public const string SCREEN_MISSING_TEXT = "[ScreenManager.ScreenMissing]";
+    public const string SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
 
     private readonly object _syncRoot = new object();
     private Screen _currentScreen = null;
@@ -262,9 +267,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         InternalCloseCurrentScreenAndDialogs();
 
-        // FIXME Albert78: Find a better way to make the InputManager, PlayerCollection and
+        // FIXME Albert78: Find a better way to make the PlayerCollection and
         // ContentManager observe the current skin
-        ServiceScope.Get<IInputManager>().Reset();
         ServiceScope.Get<IPlayerCollection>().Dispose();
         ContentManager.Clear();
 
@@ -336,17 +340,22 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           if (root == null)
           {
             ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
+            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
+                LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT).Evaluate(screenName),
+                DialogType.OkDialog, false, null);
             return null;
           }
           result.Visual = root;
+          return result;
         }
         catch (Exception ex)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
-          // TODO Albert78: Show error dialog with skin loading message
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
+              LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
+              DialogType.OkDialog, false, null);
           return null;
         }
-        return result;
       }
       finally
       {

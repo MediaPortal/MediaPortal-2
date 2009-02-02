@@ -285,7 +285,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Returns the skin file for the specified screen name.
+    /// Returns the skin file path for the specified screen name.
     /// </summary>
     /// <param name="screenName">Logical name of the screen.</param>
     /// <returns>Absolute file path of the requested skin file.</returns>
@@ -304,13 +304,14 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// is not defined in this skin.</returns>
     public object LoadSkinFile(string screenName, IModelLoader loader)
     {
-      string skinFile = GetSkinFilePath(screenName);
-      if (skinFile == null)
+      string skinFilePath = GetSkinFilePath(screenName);
+      if (skinFilePath == null)
       {
         ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", screenName);
         return null;
       }
-      return XamlLoader.Load(skinFile, loader);
+      ServiceScope.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
+      return XamlLoader.Load(skinFilePath, loader);
     }
 
     public void ClearRootDirectories()

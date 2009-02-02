@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language>
+  <Section Name="Login">
+    <String Name="Welcome" Text="Welcome"/>
+  </Section>
+  <Section Name="Dialogs">
+    <String Name="InfoHeaderText" Text="Info"/>
+    <String Name="WarningHeaderText" Text="Warning"/>
+    <String Name="ErrorHeaderText" Text="Error"/>
+  </Section>
   <Section Name="System">
     <String Name="Yes" Text="Yes"/>
     <String Name="No" Text="No"/>
@@ -78,16 +86,6 @@
     <String Name="removeshare" Text="Remove share"/>
     <String Name="refresh" Text="Refresh library"/>
   </Section>
-  <Section Name="shares">
-    <String Name="addnewshares" Text="Add folders to watch"/>
-    <String Name="removeshares" Text="Stop watching folders"/>
-    <String Name="description" Text="Add or remove folders to the library"/>
-    <String Name="selectsharetoremove" Text="Select folders which you dont want to watch anymore"/>
-    <String Name="selectsharestoadd" Text="Select folders which you want to add to the library"/>
-    <String Name="canceled" Text="No changes have been made."/>
-    <String Name="pressfinish" Text="Press finish to continue working."/>
-    <String Name="refreshing" Text="The library is being refreshed in the background."/>
-  </Section>
   <Section Name="playback">
     <String Name="0" Text="Zoom modes"/>
     <String Name="1" Text="Previous Window"/>
@@ -161,9 +159,6 @@
   </Section>
   <Section Name="home">
     <String Name="title" Text="MediaPortal"/>
-  </Section>
-  <Section Name="login">
-    <String Name="welcome" Text="Welcome"/>
   </Section>
   <Section Name="weather">
     <String Name="0" Text="My Weather"/>
@@ -273,21 +268,11 @@
   </Section>
   <Section Name="settings">
     <String Name="0" Text="Settings"/>
-    <String Name="language" Text="Language"/>
     <String Name="menulanguage" Text="Menus"/>
     <String Name="audiolanguage" Text="Audio"/>
     <String Name="subtitlelanguage" Text="Subtitles"/>
     <String Name="screen" Text="Screen"/>
-    <String Name="fullscreen" Text="Fullscreen"/>
-    <String Name="refreshrate" Text="Refresh Rate"/>
 
-    <String Name="appearance" Text="Appearance"/>
-    <String Name="theme" Text="Theme"/>
-    <String Name="skin" Text="Skin"/>
-    
-    <String Name="shares" Text="Library"/>
-    <String Name="music" Text="Music"/>
-	
     <String Name="playback" Text="Playback"/>
     <String Name="mpg2videocodec" Text="MPEG-2 Video Codec"/>
     <String Name="h264videocodec" Text="H-264 Video Codec"/>

@@ -68,7 +68,5 @@ namespace MediaPortal.Control.InputManager
     /// </summary>
     /// <value>The keys.</value>
     ICollection<Key> Keys { get; }
-
-    void Reset();
   }
 }

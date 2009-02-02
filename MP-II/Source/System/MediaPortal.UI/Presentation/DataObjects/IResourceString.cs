@@ -40,7 +40,9 @@ namespace MediaPortal.Presentation.DataObjects
     /// Returns a string representing this instance, which can be used in the GUI, for example.
     /// The returned string might be localised to the user's culture and regional settings.
     /// </summary>
+    /// <param name="args">Additional params to be filled into the resource string. The resource needs
+    /// to contain placeholders (<see cref="string.Format(string,object[])"/>)</param>
     /// <returns>String to be used.</returns>
-    string Evaluate();
+    string Evaluate(params string[] args);
   }
 }

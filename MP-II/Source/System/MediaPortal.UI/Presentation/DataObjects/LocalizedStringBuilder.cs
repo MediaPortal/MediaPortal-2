@@ -55,9 +55,9 @@ namespace MediaPortal.Presentation.DataObjects
 
     #region IResourceString implementation
 
-    public string Evaluate()
+    public string Evaluate(params string[] args)
     {
-      return _localizedString.ToString();
+      return string.Format(_localizedString.ToString(), args);
     }
 
     public int CompareTo(IResourceString other)

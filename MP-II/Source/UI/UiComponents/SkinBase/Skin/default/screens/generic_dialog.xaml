@@ -65,7 +65,9 @@
         </Grid.RowDefinitions>
         <Label Grid.Column="0" Grid.Row="0" Wrap="True"
             Content="{Binding Source={Service DialogManager},Path=CurrentDialogData.Text,Mode=OneTime}"/>
-        <ListView Grid.Column="0" Grid.Row="2" Style="{StaticResource DialogButtonsListViewStyle}" ItemsSource="{Binding Source={Service DialogManager},Path=CurrentDialogData.DialogButtons}"/>
+        <ListView Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
+            Style="{StaticResource DialogButtonsListViewStyle}"
+            ItemsSource="{Binding Source={Service DialogManager},Path=CurrentDialogData.DialogButtons}"/>
       </Grid>
     </ResourceWrapper>
   </Include.Resources>

@@ -70,12 +70,6 @@ namespace MediaPortal.SkinEngine.InputManagement
       _registeredKeys.Add(Key.Space);
     }
 
-    public void Reset()
-    {
-      MouseMoved = null;
-      KeyPressed = null;
-    }
-
     public ICollection<Key> Keys
     {
       get { return _registeredKeys; }

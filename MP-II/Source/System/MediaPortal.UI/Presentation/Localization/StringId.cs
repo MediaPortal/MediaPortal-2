@@ -38,7 +38,7 @@ namespace MediaPortal.Presentation.Localization
   /// </remarks>
   public class StringId : IComparable<StringId>, IEquatable<StringId>
   {
-    public const string INVALID_LABEL = "[system.invalid]";
+    public const string INVALID_LABEL = "[System.Invalid]";
 
     #region Protected fields
 
