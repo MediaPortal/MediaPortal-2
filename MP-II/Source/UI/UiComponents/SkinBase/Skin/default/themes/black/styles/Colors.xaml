@@ -89,13 +89,13 @@
   <ResourceWrapper x:Key="PressedArrowButtonStrokeGradientDarkColor" Resource="#FFA0A0A0"/>
 
   <!-- Grey -->
-  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius1Color" Resource="#FF828282"/>
+  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius1Color" Resource="#FF555555"/>
 
   <!-- Darker grey -->
   <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius2Color" Resource="#FF636363"/>
 
   <!-- Grey, a bit transparent -->
-  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius3Color" Resource="#E5828282"/>
+  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius3Color" Resource="#E5838383"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="DialogCloseButtonShape1Color" Resource="#FFFFFFFF"/>
@@ -107,13 +107,13 @@
   <ResourceWrapper x:Key="DialogCloseButtonShape2HighlightColor" Resource="#FFFFFFFF"/>
 
   <!-- Light grey -->
-  <ResourceWrapper x:Key="DialogCloseButtonShape3Color" Resource="#FF878787"/>
+  <ResourceWrapper x:Key="DialogCloseButtonShape3Color" Resource="#FFC8C8C8"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="DialogCloseButtonShape3HighlightColor" Resource="#FFFFFFFF"/>
 
   <!-- Dark grey -->
-  <ResourceWrapper x:Key="DialogCloseButtonShape4Color" Resource="#FFA5A5A5"/>
+  <ResourceWrapper x:Key="DialogCloseButtonShape4Color" Resource="#FFA0A0A0"/>
 
   <!-- Black -->
   <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF484848"/>
