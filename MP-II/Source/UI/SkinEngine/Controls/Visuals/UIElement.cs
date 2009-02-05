@@ -995,15 +995,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    #region IContentEnabled members
-
-    public bool FindContentProperty(out IDataDescriptor dd)
-    {
-      return ReflectionHelper.FindMemberDescriptor(this, "Content", out dd);
-    }
-
-    #endregion
-
     public virtual void Initialize()
     {
       if (_fireLoaded)
@@ -1025,5 +1016,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
     }
+
+    public bool IsNear(double x, double y)
+    {
+      return Math.Abs(x - y) < 0.01;
+    }
+
+    #region IContentEnabled members
+
+    public bool FindContentProperty(out IDataDescriptor dd)
+    {
+      return ReflectionHelper.FindMemberDescriptor(this, "Content", out dd);
+    }
+
+    #endregion
   }
 }
