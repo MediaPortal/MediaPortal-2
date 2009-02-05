@@ -46,11 +46,17 @@ namespace MediaPortal.Presentation.DataObjects
 
     #endregion
 
+    /// <see cref="ListItem(string, string, bool)"/>
+    public TreeItem(string name, string value, bool testLocalized) : base(name, value, testLocalized) { }
+
     /// <see cref="ListItem(string, string)"/>
     public TreeItem(string name, string value) : base(name, value) { }
 
     /// <see cref="ListItem(string, StringId)"/>
     public TreeItem(string name, StringId value) : base(name, value) { }
+
+    /// <see cref="ListItem(string, IResourceString)"/>
+    public TreeItem(string name, IResourceString value) : base(name, value) { }
 
     /// <summary>
     /// Initializes a new empty instance of the <see cref="ListItem"/> class.
