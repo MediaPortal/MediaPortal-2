@@ -478,7 +478,7 @@
                 <RadialGradientBrush>
                   <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius1Color}" Offset="0.827"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius2Color}" Offset="0.909"/>
-                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius2Color}" Offset="1"/>
+                  <GradientStop Color="{ThemeResource DialogCloseButtonBackgroundRadius3Color}" Offset="1"/>
                 </RadialGradientBrush>
               </Ellipse.Fill>
             </Ellipse>
