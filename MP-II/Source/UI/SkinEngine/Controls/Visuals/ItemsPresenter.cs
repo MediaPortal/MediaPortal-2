@@ -299,6 +299,42 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
+    public bool IsViewPortAtTop
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? true : si.IsViewPortAtTop;
+      }
+    }
+
+    public bool IsViewPortAtBottom
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? true : si.IsViewPortAtBottom;
+      }
+    }
+
+    public bool IsViewPortAtLeft
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? true : si.IsViewPortAtLeft;
+      }
+    }
+
+    public bool IsViewPortAtRight
+    {
+      get
+      {
+        IScrollInfo si = _itemsHostPanel as IScrollInfo;
+        return si == null ? true : si.IsViewPortAtRight;
+      }
+    }
+
     #endregion
   }
 }

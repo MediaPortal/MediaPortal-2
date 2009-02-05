@@ -539,6 +539,26 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       get { return -_actualScrollOffsetY; }
     }
 
+    public bool IsViewPortAtTop
+    {
+      get { return IsNear(_actualScrollOffsetY, 0); }
+    }
+
+    public bool IsViewPortAtBottom
+    {
+      get { return IsNear(-_actualScrollOffsetY + ActualHeight, _totalHeight); }
+    }
+
+    public bool IsViewPortAtLeft
+    {
+      get { return IsNear(_actualScrollOffsetX, 0); }
+    }
+
+    public bool IsViewPortAtRight
+    {
+      get { return IsNear(-_actualScrollOffsetX + ActualWidth, _totalWidth); }
+    }
+
     #endregion
   }
 }

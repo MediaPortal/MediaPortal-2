@@ -82,5 +82,25 @@ namespace MediaPortal.SkinEngine.Controls
     /// Returns the starting position of the vertical viewport.
     /// </summary>
     float ViewPortStartY { get; }
+
+    /// <summary>
+    /// Returns the information if the viewport is at the top of the available area.
+    /// </summary>
+    bool IsViewPortAtTop { get; }
+
+    /// <summary>
+    /// Returns the information if the viewport is at the bottom of the available area.
+    /// </summary>
+    bool IsViewPortAtBottom { get; }
+
+    /// <summary>
+    /// Returns the information if the viewport is at the left side of the available area.
+    /// </summary>
+    bool IsViewPortAtLeft { get; }
+
+    /// <summary>
+    /// Returns the information if the viewport is at the right side of the available area.
+    /// </summary>
+    bool IsViewPortAtRight { get; }
   }
 }
