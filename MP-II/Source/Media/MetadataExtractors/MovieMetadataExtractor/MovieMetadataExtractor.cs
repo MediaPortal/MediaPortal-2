@@ -143,7 +143,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
               stream.Close();
           }
           // Before we start evaluating the file, check if it is a video at all
-          if (mediaInfo.IsOpened && mediaInfo.GetVideoCount() == 0)
+          if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
             return false;
 
           MediaItemAspect mediaAspect = extractedAspectData[MediaAspect.ASPECT_ID];
@@ -166,7 +166,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           }
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, info.CreationTime);
           movieAspect.SetAttribute(MovieAspect.ATTR_ISDVD, isDvd);
-          if (mediaInfo.IsOpened)
+          if (mediaInfo.IsValid)
           {
             int? i;
             long? l;
@@ -184,7 +184,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             i = mediaInfo.GetHeight();
             if (i.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_HEIGHT, i.Value);
-            i = mediaInfo.GetFPS();
+            i = mediaInfo.GetFramerate();
             if (i.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_FPS, i.Value);
             movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOSTREAMCOUNT, mediaInfo.GetAudioCount());
