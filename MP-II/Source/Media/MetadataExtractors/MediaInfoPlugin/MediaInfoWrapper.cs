@@ -57,7 +57,7 @@ namespace MediaInfoLib
       return float.TryParse(strValue, out result) ? result : new float?();
     }
 
-    // TODO: Method docs for all methods, change return values to sensible types where necessary (int, ...)
+    // TODO: Method docs for all methods
 
     public bool Open(string fileName)
     {

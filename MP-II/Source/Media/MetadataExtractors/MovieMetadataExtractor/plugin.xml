@@ -1,24 +1,22 @@
 <Plugin
     Version = "1.0"
-    Name = "MovieImporter"
-    Author = "Frodo"
+    Name = "MovieMetadataExtractor"
+    Author = "Frodo, Albert"
     Copyright = "GPL"
-    Description = "Movie Importer"
+    Description = "Movie metadata extractor"
     PluginVersion = "1.0">
 
   <DependsOn>
-    <PluginReference Name="ImporterManager"/>
+    <PluginReference Name="MediaInfoPlugin"/>
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName = "MovieImporter.dll"/>
-    <PluginStateTracker ClassName = "Media.Importers.MovieImporter.MovieImporter"/>
+    <Assembly FileName = "MovieMetadataExtractor.dll"/>
   </Runtime>
 
-  <Register Location = "/Media/Importers">
-    <Importer
-        Id = "MovieImporter"
-        ClassName = "Media.Importers.MovieImporter.MovieImporter"
-        Extensions=".wmv,.mpg,.avi,.mkv,.ts,.ifo"/>
+  <Register Location = "/Media/MetadataExtractors">
+    <Instance
+        Id = "MovieMetadataExtractor"
+        ClassName = "MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor.MovieMetadataExtractor"/>
   </Register>
 </Plugin>
