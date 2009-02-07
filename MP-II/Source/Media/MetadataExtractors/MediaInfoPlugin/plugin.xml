@@ -1,0 +1,12 @@
+<Plugin
+    Version = "1.0"
+    Name = "MediaInfoPlugin"
+    Author = "Team MediaPortal, Third party: Jerome Martinez"
+    Copyright = "GPL"
+    Description = "Library plugin needed for some default metadata extractors"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName = "MediaInfoLib.dll"/>
+  </Runtime>
+</Plugin>
