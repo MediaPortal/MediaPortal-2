@@ -186,6 +186,7 @@ namespace MediaPortal.Media.ClientMediaManager
       ShareDescriptor sd = ShareDescriptor.CreateNewShare(systemName, providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
+      SaveSharesToSettings();
       return sd;
     }
 
