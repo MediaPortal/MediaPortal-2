@@ -172,32 +172,32 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             long? l;
             string s;
             float? f;
-            s = mediaInfo.GetVidCodec();
+            s = mediaInfo.GetVidCodec(0);
             if (s != null)
               movieAspect.SetAttribute(MovieAspect.ATTR_VIDEOENCODING, s);
-            l = mediaInfo.GetVidBitrate();
+            l = mediaInfo.GetVidBitrate(0);
             if (l.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_VIDEOBITRATE, l.Value);
-            i = mediaInfo.GetWidth();
+            i = mediaInfo.GetWidth(0);
             if (i.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_WIDTH, i.Value);
-            i = mediaInfo.GetHeight();
+            i = mediaInfo.GetHeight(0);
             if (i.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_HEIGHT, i.Value);
-            i = mediaInfo.GetFramerate();
+            i = mediaInfo.GetFramerate(0);
             if (i.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_FPS, i.Value);
             movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOSTREAMCOUNT, mediaInfo.GetAudioCount());
-            s = mediaInfo.GetAudioCodec();
+            s = mediaInfo.GetAudioCodec(0);
             if (s != null)
               movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOENCODING, s);
-            l = mediaInfo.GetAudioBitrate();
+            l = mediaInfo.GetAudioBitrate(0);
             if (l.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOBITRATE, l.Value);
-            f = mediaInfo.GetAR();
+            f = mediaInfo.GetAR(0);
             if (f.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_ASPECTRATIO, f.Value);
-            l = mediaInfo.GetPlaytime();
+            l = mediaInfo.GetPlaytime(0);
             if (l.HasValue)
               movieAspect.SetAttribute(MovieAspect.ATTR_DURATION, l.Value);
           }

@@ -142,72 +142,80 @@ namespace MediaInfoLib
     }
 
     /// <summary>
-    /// Returns the name of the video codec used in the media resource.
+    /// Returns the name of the video codec used in the specified video <paramref name="stream"/> media resource.
     /// </summary>
-    /// <returns>Name of the video codec or <c>null</c>, if the media resource doesn't contain a video
-    /// stream.</returns>
-    public string GetVidCodec()
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Name of the video codec or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public string GetVidCodec(int stream)
     {
-      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, 0, "Codec"));
+      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Video, stream, "Codec"));
     }
 
     /// <summary>
-    /// Returns the bitrate of the video stream.
+    /// Returns the bitrate of the video specified video <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Bitrate in bits per second.</returns>
-    public long? GetVidBitrate()
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Bitrate in bits per second or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public long? GetVidBitrate(int stream)
     {
-      return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, 0, "BitRate"));
+      return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, stream, "BitRate"));
     }
 
     /// <summary>
-    /// Returns the width of the video.
+    /// Returns the width of the video in the specified video <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Width of the video in pixels or <c>null</c>, if there is no video stream in the media
-    /// resource.</returns>
-    public int? GetWidth()
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Width of the video in pixels or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public int? GetWidth(int stream)
     {
-      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, 0, "Width"));
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, stream, "Width"));
     }
 
     /// <summary>
-    /// Returns the height of the video.
+    /// Returns the height of the video in the specified video <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Height of the video in pixels or <c>null</c>, if there is no video stream in the media
-    /// resource.</returns>
-    public int? GetHeight()
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Height of the video in pixels or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public int? GetHeight(int stream)
     {
-      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, 0, "Height"));
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, stream, "Height"));
     }
 
     /// <summary>
-    /// Returns the aspect ratio of the video.
+    /// Returns the aspect ratio of the video in the specified video <paramref name="stream"/>.
     /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
     /// <returns>Aspect ratio as a floating point quotient of width/height or <c>null</c>,
-    /// if there is no video stream in the media resource.</returns>
-    public float? GetAR()
+    /// if the specified video stream doesn't exist.</returns>
+    public float? GetAR(int stream)
     {
-      return GetFloatOrNull(_mediaInfo.Get(StreamKind.Video, 0, "AspectRatio"));
+      return GetFloatOrNull(_mediaInfo.Get(StreamKind.Video, stream, "AspectRatio"));
     }
 
     /// <summary>
-    /// Returns the duration of the video.
+    /// Returns the duration of the video in the specified video <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Duration of the video in seconds or <c>null</c>, if the media resource doesn't contain
-    /// a video stream.</returns>
-    public long? GetPlaytime()
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Duration of the video in seconds or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public long? GetPlaytime(int stream)
     {
-      return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, 0, "PlayTime"));
+      return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, stream, "PlayTime"));
     }
 
     /// <summary>
-    /// Returns the framerate of the video
+    /// Returns the framerate of the video in the specified video <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Framerate in frames per second of the video <c>null</c>, if the media resource doesn't contain
-    /// a video stream.</returns>
-    public int? GetFramerate()
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Framerate in frames per second of the video or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public int? GetFramerate(int stream)
     {
-      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, 0, "FrameRate"));
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, stream, "FrameRate"));
     }
 
     /// <summary>
@@ -222,22 +230,23 @@ namespace MediaInfoLib
     }
 
     /// <summary>
-    /// Returns the name of the audio codec used in the media resource.
+    /// Returns the name of the audio codec in the specified audio <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Name of the audio codec or <c>null</c>, if the media resource doesn't contain an audio
-    /// stream.</returns>
-    public string GetAudioCodec()
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>Name of the audio codec or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public string GetAudioCodec(int stream)
     {
-      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, 0, "Codec"));
+      return StringUtils.TrimToNull(_mediaInfo.Get(StreamKind.Audio, stream, "Codec"));
     }
 
     /// <summary>
-    /// Returns the bitrate of the audio stream.
+    /// Returns the bitrate of the specified audio <paramref name="stream"/>.
     /// </summary>
-    /// <returns>Bitrate in bits per second.</returns>
-    public long? GetAudioBitrate()
+    /// <param name="stream">Number of audio stream to examine.</param>
+    /// <returns>Bitrate in bits per second or <c>null</c>, if the specified audio stream doesn't exist.</returns>
+    public long? GetAudioBitrate(int stream)
     {
-      return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, 0, "BitRate"));
+      return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "BitRate"));
     }
 
     // TODO: (cover art, ....)
