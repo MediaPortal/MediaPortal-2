@@ -206,6 +206,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PROVIDER_ID, providerId.ToString());
         providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PATH, path);
         providerResourceAspect.SetCollectionAttribute(ProviderResourceAspect.ATTR_PARENTPROVIDERS, new string[] {});
+        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_DATEADDED, DateTime.Now);
         result.Add(new MediaItem(aspects));
       }
     }

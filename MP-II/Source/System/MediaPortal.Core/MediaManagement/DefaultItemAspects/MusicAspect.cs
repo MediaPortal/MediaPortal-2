@@ -35,7 +35,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the media aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("{9BA3C559-41F7-4a5f-917C-E3EF65516D14}");
+    public static Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
 
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ARTISTS =
         MediaItemAspectMetadata.CreateAttributeSpecification("Artists", typeof(string), Cardinality.ManyToMany);
@@ -44,7 +44,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_GENRES =
         MediaItemAspectMetadata.CreateAttributeSpecification("Genres", typeof(string), Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_TRACK =
         MediaItemAspectMetadata.CreateAttributeSpecification("Track", typeof(int), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_NUMTRACKS =
@@ -55,6 +55,8 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("AlbumArtists", typeof(string), Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMPOSERS =
         MediaItemAspectMetadata.CreateAttributeSpecification("Composers", typeof(string), Cardinality.ManyToMany);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ENCODING =
+        MediaItemAspectMetadata.CreateAttributeSpecification("Encoding", typeof(string), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_BITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("BitRate", typeof(int), Cardinality.ManyToOne);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DISCID =
@@ -74,6 +76,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
             ATTR_PLAYCOUNT,
             ATTR_ALBUMARTISTS,
             ATTR_COMPOSERS,
+            ATTR_ENCODING,
             ATTR_BITRATE,
             ATTR_DISCID,
             ATTR_NUMDISCS,

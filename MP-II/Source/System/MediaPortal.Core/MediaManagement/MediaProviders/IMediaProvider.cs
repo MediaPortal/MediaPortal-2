@@ -60,15 +60,20 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
     /// <param name="path">The resource path.</param>
     /// <returns>A human readable name of the <paramref name="path"/>. For a filesystem media provider,
     /// this could be the file name.</returns>
-    string GetShortName(string path);
+    string GetResourceName(string path);
 
     /// <summary>
-    /// Returns the full human readable name for the resource specified by <paramref name="path"/>.
+    /// Returns the full human readable path for the resource specified by <paramref name="path"/>.
     /// </summary>
+    /// <remarks>
+    /// The returned path will differ from the <paramref name="path"/> used as parameter. The path
+    /// used for the media provider might contain additional encoded data used by this media provider,
+    /// while this method will return a rectified form of the provided path.
+    /// </remarks>
     /// <param name="path">The resource path.</param>
     /// <returns>A human readable name of the <paramref name="path"/>. For a filesystem media provider,
     /// this could be the file path.</returns>
-    string GetFullName(string path);
+    string GetResourcePath(string path);
 
     /// <summary>
     /// Opens the media item at the specified <paramref name="path"/> for read operations.

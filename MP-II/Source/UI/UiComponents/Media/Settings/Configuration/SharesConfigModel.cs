@@ -472,7 +472,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMediaProviderPathDisplayName()
     {
       IMediaProvider mediaProvider = MediaProvider;
-      MediaProviderPathDisplayName = mediaProvider != null ? mediaProvider.GetFullName(MediaProviderPath) : string.Empty;
+      MediaProviderPathDisplayName = mediaProvider != null ? mediaProvider.GetResourcePath(MediaProviderPath) : string.Empty;
     }
 
     protected void UpdateIsShareNameEmpty()
@@ -526,7 +526,7 @@ namespace UiComponents.Media.Settings.Configuration
         if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
           mediaProvider = null;
         shareItem.SetLabel(MP_PATH_KEY, share.Path);
-        shareItem.SetLabel(PATH_KEY, mediaProvider == null ? share.Path : mediaProvider.GetFullName(share.Path));
+        shareItem.SetLabel(PATH_KEY, mediaProvider == null ? share.Path : mediaProvider.GetResourcePath(share.Path));
         shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, mediaProvider == null ? null : mediaProvider.Metadata.Name);
         string categories = StringUtils.Join(", ", share.MediaCategories);
         shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
@@ -568,9 +568,9 @@ namespace UiComponents.Media.Settings.Configuration
       if (directories != null)
         foreach (string childPath in directories)
         {
-          TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetShortName(childPath));
+          TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetResourceName(childPath));
           directoryItem.SetLabel(MP_PATH_KEY, childPath);
-          directoryItem.SetLabel(PATH_KEY, mediaProvider.GetFullName(childPath));
+          directoryItem.SetLabel(PATH_KEY, mediaProvider.GetResourcePath(childPath));
           if (!string.IsNullOrEmpty(MediaProviderPath) && MediaProviderPath == childPath)
             directoryItem.Selected = true;
           directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);

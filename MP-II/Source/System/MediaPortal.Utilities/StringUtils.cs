@@ -136,5 +136,15 @@ namespace MediaPortal.Utilities
           return result.ToString();
       }
     }
+
+    public static string TrimToNull(string s)
+    {
+      return string.IsNullOrEmpty(s) ? null : s;
+    }
+
+    public static string TrimToEmpty(string s)
+    {
+      return string.IsNullOrEmpty(s) ? string.Empty : s;
+    }
   }
 }

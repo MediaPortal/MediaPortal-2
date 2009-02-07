@@ -35,27 +35,54 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// <summary>
     /// Media item aspect id of the media aspect.
     /// </summary>
-    public static Guid ASPECT_ID = new Guid("{A01B7D6E-A6F2-434b-AC12-49D7D5CBD377}");
+    public static Guid ASPECT_ID = new Guid("A01B7D6E-A6F2-434b-AC12-49D7D5CBD377");
 
+    /// <summary>
+    /// Contains a human readable title of the media item.
+    /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
         MediaItemAspectMetadata.CreateAttributeSpecification("Title", typeof(string), Cardinality.Inline);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_ENCODING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Encoding", typeof(string), Cardinality.Inline);
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DATE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Recording time", typeof(DateTime), Cardinality.Inline);
+
+    /// <summary>
+    /// Contains a rectified form of the provider resource path. This might be the DVD folder name, while
+    /// the underlaying provider resource path of the media item points to the 'video_ts.ifo' file.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECTIFIED_PATH =
+        MediaItemAspectMetadata.CreateAttributeSpecification("RectifiedPath", typeof(string), Cardinality.Inline);
+
+    /// <summary>
+    /// Contains the recording time date of the media item.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECORDINGTIME =
+        MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline);
+
+    /// <summary>
+    /// Contains a rating of the media item.
+    /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
         MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline);
+
+    /// <summary>
+    /// Contains a textual comment to this media item.
+    /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
         MediaItemAspectMetadata.CreateAttributeSpecification("Comment", typeof(string), Cardinality.Inline);
+
+    /// <summary>
+    /// Contains the date when the media item was last played.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
+        MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
-            ATTR_ENCODING,
-            ATTR_DATE,
+            ATTR_RECTIFIED_PATH,
+            ATTR_RECORDINGTIME,
             ATTR_RATING,
             ATTR_COMMENT,
+            ATTR_LASTPLAYED,
         });
   }
 }

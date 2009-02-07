@@ -270,7 +270,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return File.Exists(dosPath) || Directory.Exists(dosPath);
     }
 
-    public string GetShortName(string path)
+    public string GetResourceName(string path)
     {
       if (string.IsNullOrEmpty(path))
         return null;
@@ -286,7 +286,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return Path.GetFileName(path);
     }
 
-    public string GetFullName(string path)
+    public string GetResourcePath(string path)
     {
       if (string.IsNullOrEmpty(path))
         return null;

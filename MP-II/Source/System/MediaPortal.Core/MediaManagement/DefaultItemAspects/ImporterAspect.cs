@@ -33,7 +33,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ImporterAspect
   {
-    public static Guid ASPECT_ID = new Guid("{CC0163FE-55A5-426c-A29C-F1D64AF7E683}");
+    public static Guid ASPECT_ID = new Guid("CC0163FE-55A5-426c-A29C-F1D64AF7E683");
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_LAST_IMPORT_TIME =
         MediaItemAspectMetadata.CreateAttributeSpecification("Last import time", typeof(DateTime), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_LAST_IMPORT_DURATION =

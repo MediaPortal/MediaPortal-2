@@ -33,7 +33,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ProviderResourceAspect
   {
-    public static Guid ASPECT_ID = new Guid("{0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED}");
+    public static Guid ASPECT_ID = new Guid("0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED");
 
     /// <summary>
     /// Contains the source computer where the media item is located.
@@ -59,6 +59,12 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_PARENTPROVIDERS =
         MediaItemAspectMetadata.CreateAttributeSpecification("ParentProviders", typeof(string), Cardinality.ManyToMany);
 
+    /// <summary>
+    /// Contains the date when the media item was added to the media library.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DATEADDED =
+        MediaItemAspectMetadata.CreateAttributeSpecification("DateAdded", typeof(DateTime), Cardinality.Inline);
+
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
@@ -66,6 +72,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
             ATTR_PROVIDER_ID,
             ATTR_PATH,
             ATTR_PARENTPROVIDERS,
+            ATTR_DATEADDED,
         });
   }
 }
