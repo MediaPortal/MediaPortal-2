@@ -1,0 +1,12 @@
+<Plugin
+    Version = "1.0"
+    Name = "TagLibPlugin"
+    Author = "Team MediaPortal, Third party: Brian Nickel"
+    Copyright = "GPL"
+    Description = "Library plugin needed for some default metadata extractors"
+    PluginVersion = "1.0">
+
+  <Runtime>
+    <Assembly FileName = "TagLib.dll"/>
+  </Runtime>
+</Plugin>
