@@ -162,15 +162,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #endregion
 
-    #region IImporter implementation
-
-    public void ForceImport(Guid? shareId, string path)
-    {
-      // TODO
-      throw new System.NotImplementedException();
-    }
-
-    #endregion
+    #region Metadata extraction
 
     /// <summary>
     /// Synchronous metadata extraction method for an extraction of the specified metadata
@@ -206,16 +198,29 @@ namespace MediaPortal.Media.ClientMediaManager
       return success ? result : null;
     }
 
+    #endregion
+
+    #region IImporter implementation
+
+    public void ForceImport(Guid? shareId, string path)
+    {
+      // TODO
+      throw new System.NotImplementedException();
+    }
+
+    #endregion
+
     #region ISharesManagement implementation
 
-    public ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path,
+        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
       // TODO: When connected, assign result from the call of the method at the MP server's
       // ISharesManagement interface
       ShareDescriptor result = null;
       if (systemName == SystemName.GetLocalSystemName())
-        result = _localLocalSharesManagement.RegisterShare(systemName, providerId, path, shareName, mediaCategories,
-            metadataExtractorIds);
+        result = _localLocalSharesManagement.RegisterShare(systemName, providerId, path,
+            shareName, mediaCategories, metadataExtractorIds);
       return result;
     }
 

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -293,7 +293,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     {
       if (_vertexBuffer != null)
       {
-        //        ServiceScope.Get<ILogger>().Debug("FONTASSET dispose vertextbuffer");
+        //ServiceScope.Get<ILogger>().Debug("FONTASSET dispose vertextbuffer");
         _vertexBuffer.Dispose();
         _vertexBuffer = null;
         ContentManager.VertexReferences--;

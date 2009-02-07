@@ -410,10 +410,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
         return;
-      Color4 color = ColorConverter.FromColor(Color);
 
       base.DoRender();
-
 
       // The characters fits the textbox exactly, so to get some room between the top of the characters 
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
@@ -443,6 +441,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
+
+      Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
