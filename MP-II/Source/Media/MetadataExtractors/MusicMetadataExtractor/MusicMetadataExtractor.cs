@@ -47,7 +47,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
     /// <summary>
     /// GUID string for the music metadata extractor.
     /// </summary>
-    public const string METADATAEXTRACTOR_ID_STR = "{817FEE2E-8690-4355-9F24-3BDC65AEDFFE}";
+    public const string METADATAEXTRACTOR_ID_STR = "817FEE2E-8690-4355-9F24-3BDC65AEDFFE";
 
     /// <summary>
     /// Music metadata extractor GUID.
@@ -60,25 +60,6 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
     protected static IList<string> SHARE_CATEGORIES = new List<string>();
     protected static IList<string> AUDIO_EXTENSIONS = new List<string>();
-
-    static MusicMetadataExtractor()
-    {
-      SHARE_CATEGORIES.Add(DefaultMediaCategory.Audio.ToString());
-
-      AUDIO_EXTENSIONS.Add(".ape");
-      AUDIO_EXTENSIONS.Add(".flac");
-      AUDIO_EXTENSIONS.Add(".mp3");
-      AUDIO_EXTENSIONS.Add(".ogg");
-      AUDIO_EXTENSIONS.Add(".wv");
-      AUDIO_EXTENSIONS.Add(".wav");
-      AUDIO_EXTENSIONS.Add(".wma");
-      AUDIO_EXTENSIONS.Add(".mp4");
-      AUDIO_EXTENSIONS.Add(".m4a");
-      AUDIO_EXTENSIONS.Add(".m4p");
-      AUDIO_EXTENSIONS.Add(".mpc");
-      AUDIO_EXTENSIONS.Add(".mp+");
-      AUDIO_EXTENSIONS.Add(".mpp");
-    }
 
     /// <summary>
     /// Music file accessor class needed for our tag library implementation. This class maps
@@ -104,7 +85,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
       public string Name
       {
-        get { return _provider.GetFullName(_path); }
+        get { return _provider.GetResourcePath(_path); }
       }
 
       public Stream ReadStream
@@ -125,6 +106,25 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
     #endregion
 
     #region Ctor
+
+    static MusicMetadataExtractor()
+    {
+      SHARE_CATEGORIES.Add(DefaultMediaCategory.Audio.ToString());
+
+      AUDIO_EXTENSIONS.Add(".ape");
+      AUDIO_EXTENSIONS.Add(".flac");
+      AUDIO_EXTENSIONS.Add(".mp3");
+      AUDIO_EXTENSIONS.Add(".ogg");
+      AUDIO_EXTENSIONS.Add(".wv");
+      AUDIO_EXTENSIONS.Add(".wav");
+      AUDIO_EXTENSIONS.Add(".wma");
+      AUDIO_EXTENSIONS.Add(".mp4");
+      AUDIO_EXTENSIONS.Add(".m4a");
+      AUDIO_EXTENSIONS.Add(".m4p");
+      AUDIO_EXTENSIONS.Add(".mpc");
+      AUDIO_EXTENSIONS.Add(".mp+");
+      AUDIO_EXTENSIONS.Add(".mpp");
+    }
 
     public MusicMetadataExtractor()
     {
@@ -192,7 +192,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
     public bool TryExtractMetadata(IMediaProvider provider, string path, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      string humanReadablePath = provider.GetFullName(path);
+      string humanReadablePath = provider.GetResourcePath(path);
       if (!HasAudioExtension(humanReadablePath))
         return false;
 
@@ -200,10 +200,20 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       MediaItemAspect musicAspect = extractedAspectData[MusicAspect.ASPECT_ID];
       try
       {
-        // Set the flag to use the standard system encoding set by the user
-        // Otherwise Latin1 is used as default, which causes characters in various languages being displayed wrong
-        ByteVector.UseBrokenLatin1Behavior = true;
-        File tag = File.Create(new MediaProviderFileAbstraction(provider, path));
+        File tag;
+        try
+        {
+          tag = File.Create(new MediaProviderFileAbstraction(provider, path),
+              Path.GetFileName(humanReadablePath), null, ReadStyle.Fast);
+        }
+        catch (CorruptFileException ex)
+        {
+          // Only log at the info level here - And simply return false. This makes the importer know that we
+          // couldn't perform our task here
+          ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' (media provider: '{1}') seems to be broken", path, provider.Metadata.Name);
+          return false;
+        }
+
 
         string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
         IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ? GuessArtists(humanReadablePath) : tag.Tag.Performers;
@@ -215,53 +225,33 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         mediaAspect.SetAttribute(MediaAspect.ATTR_COMMENT, tag.Tag.Comment);
         musicAspect.SetCollectionAttribute(MusicAspect.ATTR_COMPOSERS, tag.Tag.Composers);
         // The following code gets cover art images - and there is no cover art attribute in any media item aspect
-        // defined yet. (Albert78, 2008-11-19)
+        // defined yet. (Albert, 2008-11-19)
         //IPicture[] pics = new IPicture[] { };
         //pics = tag.Tag.Pictures;
         //if (pics.Length > 0)
         //{
         //  musictag.CoverArtImageBytes = pics[0].Data.Data;
         //}
-        musicAspect.SetAttribute(MusicAspect.ATTR_DURATION, (int) tag.Properties.Duration.TotalSeconds);
+        musicAspect.SetAttribute(MusicAspect.ATTR_DURATION, (long) tag.Properties.Duration.TotalSeconds);
         musicAspect.SetCollectionAttribute(MusicAspect.ATTR_GENRES, tag.Tag.Genres);
         musicAspect.SetAttribute(MusicAspect.ATTR_TRACK, (int) tag.Tag.Track);
         musicAspect.SetAttribute(MusicAspect.ATTR_NUMTRACKS, (int) tag.Tag.TrackCount);
-        try
-        {
-          mediaAspect.SetAttribute(MediaAspect.ATTR_DATE, new DateTime((int) tag.Tag.Year, 1, 1));
-        }
-        catch (ArgumentOutOfRangeException) { }
-
-        if (tag.MimeType == "taglib/mp3")
-        {
-          // Handle the Rating, which comes from the POPM frame
-          Tag id32_tag = tag.GetTag(TagTypes.Id3v2) as Tag;
-          if (id32_tag != null)
-          {
-            PopularimeterFrame popm;
-            foreach (Frame frame in id32_tag)
-            {
-              if (!(frame is PopularimeterFrame))
-                continue;
-              popm = (PopularimeterFrame) frame;
-              mediaAspect.SetAttribute(MediaAspect.ATTR_RATING, (int) popm.Rating);
-            }
-          }
-        }
+        if (tag.Tag.Year >= 1 && tag.Tag.Year <= 9999)
+          mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, new DateTime((int) tag.Tag.Year, 1, 1));
+        return true;
       }
       catch (UnsupportedFormatException)
       {
-        ServiceScope.Get<ILogger>().Info("Music metadata extractor: Unsupported music file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
+        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
         return false;
       }
       catch (Exception ex)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("Music metadata extractor: Exception reading file '{0}' (media provider: '{1}')", ex, path, provider.Metadata.Name);
+        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
         return false;
       }
-      return true;
     }
 
     #endregion

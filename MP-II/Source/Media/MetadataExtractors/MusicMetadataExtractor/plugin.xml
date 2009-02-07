@@ -6,6 +6,10 @@
     Description = "Metadata extractor for many kinds of music file formats"
     PluginVersion = "1.0">
 
+  <DependsOn>
+    <PluginReference Name="TagLibPlugin"/>
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName = "MusicMetadataExtractor.dll"/>
   </Runtime>
