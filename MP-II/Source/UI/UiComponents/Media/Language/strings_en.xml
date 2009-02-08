@@ -35,5 +35,7 @@
     <String Name="EditShares" Text="Edit shares"/>
     <String Name="EditShare" Text="Edit share"/>
     <String Name="ChooseShareToBeEdited" Text="Please select the share to be edited"/>
+    <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
+    <String Name="UpdateShareRelocateItemsQueryText" Text="The share's media provider and/or path have been updated. Should all media items of that share be updated?"/>
   </Section>
 </Language>

@@ -38,13 +38,8 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="EditButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
-              Content="[SharesConfig.EditShare]" IsEnabled="{Binding IsSharesSelected}">
-            <Button.Command>
-              <CommandList>
-                <Command Source="{StaticResource Model}" Path="EditSelectedShare"/>
-              </CommandList>
-            </Button.Command>
-          </Button>
+              Content="[SharesConfig.EditShare]" IsEnabled="{Binding IsSharesSelected}"
+              Command="{Command Source={StaticResource Model},Path=EditSelectedShare}"/>
         </Grid>
       </Grid>
     </ResourceWrapper>

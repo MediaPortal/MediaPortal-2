@@ -13,7 +13,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ConfigShareTitle}"/>
 
-    <ResourceWrapper x:Key="SharesConfigurationOverviewStateId" Resource="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"/>
     <ResourceWrapper x:Key="ChooseShareMetadataExtractorsStateId" Resource="B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D"/>
 
     <!-- Contents -->
@@ -48,14 +47,8 @@
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="FinishButton" Grid.Row="1" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
-              Content="[System.Finish]" IsEnabled="{Binding IsMetadataExtractorsSelected}">
-            <Button.Command>
-              <CommandList>
-                <Command Source="{StaticResource Model}" Path="FinishShareConfiguration"/>
-                <Command Source="{Service WorkflowManager}" Path="NavigatePopToState" Parameters="{StaticResource SharesConfigurationOverviewStateId}"/>
-              </CommandList>
-            </Button.Command>
-          </Button>
+              Content="[System.Finish]" IsEnabled="{Binding IsMetadataExtractorsSelected}"
+              Command="{Command Source={StaticResource Model},Path=FinishShareConfiguration}"/>
         </Grid>
       </Grid>
     </ResourceWrapper>

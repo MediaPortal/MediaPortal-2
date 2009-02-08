@@ -28,9 +28,11 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.Utilities;
 
@@ -118,6 +120,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected ICollection<Guid> _metadataExtractorIds = new HashSet<Guid>();
     protected Guid _currentShareId;
+    protected Guid _queryDialogHandle;
 
     #endregion
 
@@ -352,7 +355,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     #region Public methods
 
-    public void RemoveSelectedShares()
+    public void RemoveSelectedSharesAndFinish()
     {
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       foreach (ListItem shareItem in _sharesList)
@@ -362,6 +365,7 @@ namespace UiComponents.Media.Settings.Configuration
           mediaManager.RemoveShare(shareId);
         }
       ClearAllConfiguredProperties();
+      NavigateBackToOverview();
     }
 
     public void SelectMediaProviderAndContinue()
@@ -412,19 +416,30 @@ namespace UiComponents.Media.Settings.Configuration
       {
         mediaManager.RegisterShare(SystemName.GetLocalSystemName(), MediaProvider.Metadata.MediaProviderId,
             MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds);
+        ClearAllConfiguredProperties();
+        NavigateBackToOverview();
       }
       else if (_editMode == ShareEditMode.EditShare)
       {
         ShareDescriptor share = mediaManager.GetShare(CurrentShareId);
         if (share != null)
         {
-          mediaManager.UpdateShare(CurrentShareId, share.NativeSystem, MediaProvider.Metadata.MediaProviderId,
-              MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, false);
+          if (share.MediaProviderId != MediaProvider.Metadata.MediaProviderId ||
+              share.Path != MediaProviderPath)
+          {
+            IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+            IMessageQueue queue = broker.GetOrCreate(DialogManagerMessaging.QUEUE);
+            queue.OnMessageReceive += OnUserReply_UpdateShareRelocateMediaItems;
+            IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+            _queryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
+                "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, true);
+          }
+          else
+            UpdateShareAndFinish(false);
         }
       }
       else
         throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _editMode));
-      ClearAllConfiguredProperties();
     }
 
     public void EditSelectedShare()
@@ -438,6 +453,12 @@ namespace UiComponents.Media.Settings.Configuration
         }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
+    }
+
+    public void NavigateBackToOverview()
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToState(SHARES_OVERVIEW_STATE_ID);
     }
 
     #endregion
@@ -720,6 +741,40 @@ namespace UiComponents.Media.Settings.Configuration
       // MediaCategories and MetadataExtractors
       IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;
       return true;
+    }
+
+    protected void OnUserReply_UpdateShareRelocateMediaItems(QueueMessage message)
+    {
+      Guid dialogHandle = (Guid) message.MessageData[DialogManagerMessaging.DIALOG_HANDLE];
+      if (dialogHandle != _queryDialogHandle)
+        return;
+      try
+      {
+        DialogResult dialogResult = (DialogResult) message.MessageData[DialogManagerMessaging.DIALOG_RESULT];
+        if (dialogResult == DialogResult.Cancel)
+        {
+          NavigateBackToOverview();
+          return;
+        }
+        bool relocateMediaItems = dialogResult == DialogResult.Yes;
+        UpdateShareAndFinish(relocateMediaItems);
+      }
+      finally
+      {
+        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+        IMessageQueue queue = broker.GetOrCreate(DialogManagerMessaging.QUEUE);
+        queue.OnMessageReceive -= OnUserReply_UpdateShareRelocateMediaItems;
+      }
+    }
+
+    protected void UpdateShareAndFinish(bool relocateItems)
+    {
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      ShareDescriptor share = mediaManager.GetShare(CurrentShareId);
+      mediaManager.UpdateShare(CurrentShareId, share.NativeSystem, MediaProvider.Metadata.MediaProviderId,
+          MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, relocateItems);
+      ClearAllConfiguredProperties();
+      NavigateBackToOverview();
     }
 
     /// <summary>

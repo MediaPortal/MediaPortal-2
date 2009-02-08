@@ -7,11 +7,11 @@
     >
   <Include.Resources>
 
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.AddShare]"/>
-
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ConfigShareTitle}"/>
 
     <ResourceWrapper x:Key="EditShareNameStateId" Resource="ACDD705B-E60B-454a-9671-1A12A3A3985A"/>
 
