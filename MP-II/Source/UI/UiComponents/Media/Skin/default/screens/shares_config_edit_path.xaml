@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
-    Source="screens\master_menu.xaml"
+    Source="screens\master.xaml"
     >
   <Include.Resources>
 
@@ -16,9 +16,8 @@
     <ResourceWrapper x:Key="EditShareNameStateId" Resource="ACDD705B-E60B-454a-9671-1A12A3A3985A"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="10,0,10,0"
-            DataContext="{Binding Source={StaticResource Model}}">
+    <ResourceWrapper x:Key="Client_Element">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -43,11 +42,11 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[System.Back]" HorizontalAlignment="Right"
+          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[System.Continue]" HorizontalAlignment="Right" IsEnabled="{Binding IsMediaProviderPathValid}"
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Continue]" IsEnabled="{Binding IsMediaProviderPathValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
       </Grid>

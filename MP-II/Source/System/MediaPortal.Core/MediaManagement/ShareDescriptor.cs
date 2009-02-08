@@ -167,6 +167,7 @@ namespace MediaPortal.Core.MediaManagement
     public string Name
     {
       get { return _name; }
+      set { _name = value; }
     }
 
     /// <summary>
@@ -174,7 +175,7 @@ namespace MediaPortal.Core.MediaManagement
     /// of shares or for the GUI to add default metadata extractors for the specified categories.
     /// </summary>
     [XmlIgnore]
-    public IEnumerable<string> MediaCategories
+    public ICollection<string> MediaCategories
     {
       get { return _mediaCategories; }
     }

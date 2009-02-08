@@ -110,21 +110,22 @@ namespace MediaPortal.Core.MediaManagement
     IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName);
 
     /// <summary>
-    /// Adds metadata extractors to the share with the specified <paramref name="shareId"/>. This will
-    /// automatically trigger a re-import of the share.
+    /// Changes the name of the share with the specified <paramref name="shareId"/>.
     /// </summary>
-    /// <param name="shareId">Id of the share to add the metadata extractors to.</param>
-    /// <param name="metadataExtractorIds">Ids of the to-be-added metadata extractors.
-    /// TODO: Do the MEs need to be currently registered at the system of the share?</param>
-    void AddMetadataExtractorsToShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds);
+    /// <param name="shareId">Id of the share to be changed.</param>
+    /// <param name="name">Name to set.</param>
+    void SetShareName(Guid shareId, string name);
 
     /// <summary>
-    /// Removes the assignment of metadata extractors to the share with the specified <paramref name="shareId"/>. This will
-    /// automatically remove media item aspects from all media items of the share, if no other assigned metadata extractor
-    /// fills them.
+    /// Reconfigures the share with the specified <paramref name="shareId"/>. Sets its media categories
+    /// and metadata extractor ids. This will automatically trigger a re-import of the share.
     /// </summary>
-    /// <param name="shareId">Id of the share to remove the metadata extractors from.</param>
-    /// <param name="metadataExtractorIds">Ids of the to-be-removed metadata extractors.</param>
-    void RemoveMetadataExtractorsFromShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds);
+    /// <param name="shareId">Id of the share to be changed.</param>
+    /// <param name="mediaCategories">Media categories to be set</param>
+    /// <param name="metadataExtractorIds">Ids of the metadata extractors.
+    /// TODO: Do the MEs need to be currently registered at the system of the share?</param>
+    void SetShareCategoriesAndMetadataExtractors(Guid shareId,
+        IEnumerable<string> mediaCategories,
+        IEnumerable<Guid> metadataExtractorIds);
   }
 }

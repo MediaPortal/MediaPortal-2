@@ -3,23 +3,22 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
-    Source="screens\master_menu.xaml"
+    Source="screens\master.xaml"
     >
   <Include.Resources>
 
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.AddShare]"/>
-
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ConfigShareTitle}"/>
 
     <ResourceWrapper x:Key="SharesConfigurationOverviewStateId" Resource="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"/>
     <ResourceWrapper x:Key="ChooseShareMetadataExtractorsStateId" Resource="B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="10,0,10,0"
-            DataContext="{Binding Source={StaticResource Model}}">
+    <ResourceWrapper x:Key="Client_Element">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -42,17 +41,17 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="ChooseMEsButton" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Height="40" Style="{StaticResource ButtonStyle}"
-              Content="[SharesConfig.ChooseMetadataExtractorsManually]" HorizontalAlignment="Stretch"
+          <Button x:Name="ChooseMEsButton" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource WizardButtonStyle}"
+              Content="[SharesConfig.ChooseMetadataExtractorsManually]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseShareMetadataExtractorsStateId}}"/>
-          <Button x:Name="BackButton" Grid.Row="1" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[System.Back]" HorizontalAlignment="Right"
+          <Button x:Name="BackButton" Grid.Row="1" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="FinishButton" Grid.Row="1" Grid.Column="2" Height="40" Style="{StaticResource ButtonStyle}"
-              Content="[System.Finish]" HorizontalAlignment="Stretch" IsEnabled="{Binding IsMetadataExtractorsSelected}">
+          <Button x:Name="FinishButton" Grid.Row="1" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Finish]" IsEnabled="{Binding IsMetadataExtractorsSelected}">
             <Button.Command>
               <CommandList>
-                <Command Source="{StaticResource Model}" Path="AddConfiguredShare"/>
+                <Command Source="{StaticResource Model}" Path="FinishShareConfiguration"/>
                 <Command Source="{Service WorkflowManager}" Path="NavigatePopToState" Parameters="{StaticResource SharesConfigurationOverviewStateId}"/>
               </CommandList>
             </Button.Command>

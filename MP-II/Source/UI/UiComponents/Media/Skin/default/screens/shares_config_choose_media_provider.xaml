@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
-    Source="screens\master_menu.xaml"
+    Source="screens\master.xaml"
     >
   <Include.Resources>
 
@@ -14,9 +14,8 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Contents -->
-    <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="10,0,10,0"
-            DataContext="{Binding Source={StaticResource Model}}">
+    <ResourceWrapper x:Key="Client_Element">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -38,10 +37,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[System.Back]" HorizontalAlignment="Right" IsEnabled="false"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[System.Continue]" HorizontalAlignment="Right" IsEnabled="{Binding IsMediaProviderSelected}">
+          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Back]" IsEnabled="false"/>
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
+              Content="[System.Continue]" IsEnabled="{Binding IsMediaProviderSelected}">
             <Button.Command>
               <Command Source="{StaticResource Model}" Path="SelectMediaProviderAndContinue"/>
             </Button.Command>

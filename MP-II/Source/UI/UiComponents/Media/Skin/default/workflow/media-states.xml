@@ -15,6 +15,10 @@
         Name="SharesConfigurationOverview" MainScreen="shares_config_overview"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
+    <State Id="900BA520-F989-48c0-B076-5DAD61945845"
+        Name="SharesRemove" MainScreen="shares_config_remove_shares"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
     <State Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
         Name="SharesAddChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
@@ -39,8 +43,20 @@
         Name="SharesAddChooseMetadataExtractors" MainScreen="shares_config_choose_metadata_extractors"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="900BA520-F989-48c0-B076-5DAD61945845"
-        Name="RemoveShares" MainScreen="shares_config_remove_shares"
+    <State Id="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
+        Name="SharesEdit" MainScreen="shares_config_edit_share"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="09AB8C58-AE4F-411d-AB53-BB02031A31BD"
+        Name="SharesEditEditName" MainScreen="shares_config_edit_name"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="B34CDB4A-2B3F-4df3-B5D1-2B560D8051FD"
+        Name="SharesEditChooseCategories" MainScreen="shares_config_choose_categories"
+        WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
+
+    <State Id="2820E9DE-4140-46bb-A36A-34C2EA765B88"
+        Name="SharesEditChooseMetadataExtractors" MainScreen="shares_config_choose_metadata_extractors"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
   </States>
 </Workflow>

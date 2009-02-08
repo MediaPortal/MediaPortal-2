@@ -270,15 +270,18 @@ namespace MediaPortal.Media.ClientMediaManager
         return new Dictionary<Guid, MetadataExtractorMetadata>();
     }
 
-    public void AddMetadataExtractorsToShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
+    public void SetShareName(Guid shareId, string name)
     {
-      _localLocalSharesManagement.AddMetadataExtractorsToShare(shareId, metadataExtractorIds);
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
+      _localLocalSharesManagement.SetShareName(shareId, name);
     }
 
-    public void RemoveMetadataExtractorsFromShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
+    public void SetShareCategoriesAndMetadataExtractors(Guid shareId,
+        IEnumerable<string> mediaCategories,
+        IEnumerable<Guid> metadataExtractorIds)
     {
-      _localLocalSharesManagement.RemoveMetadataExtractorsFromShare(shareId, metadataExtractorIds);
+      _localLocalSharesManagement.SetShareCategoriesAndMetadataExtractors(shareId,
+          mediaCategories, metadataExtractorIds);
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
     }
 

@@ -242,6 +242,11 @@
     </Setter>
   </Style>
 
+  <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="Height" Value="40"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+  </Style>
+
   <!-- ***************************** Radio buttons ******************************** -->
 
   <Style x:Key="RadioButtonStyle" TargetType="{x:Type RadioButton}">

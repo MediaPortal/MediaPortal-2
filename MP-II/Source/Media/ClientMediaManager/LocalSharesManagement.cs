@@ -228,23 +228,28 @@ namespace MediaPortal.Media.ClientMediaManager
       return result;
     }
 
-    public void AddMetadataExtractorsToShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
+    public void SetShareName(Guid shareId, string name)
     {
       ShareDescriptor sd = GetShare(shareId);
       if (sd == null)
         return;
-      foreach (Guid metadataExtractorId in metadataExtractorIds)
-        sd.MetadataExtractorIds.Add(metadataExtractorId);
+      sd.Name = name;
+      SaveSharesToSettings();
     }
 
-    public void RemoveMetadataExtractorsFromShare(Guid shareId, IEnumerable<Guid> metadataExtractorIds)
+    public void SetShareCategoriesAndMetadataExtractors(Guid shareId,
+        IEnumerable<string> mediaCategories,
+        IEnumerable<Guid> metadataExtractorIds)
     {
       ShareDescriptor sd = GetShare(shareId);
       if (sd == null)
         return;
-      foreach (Guid metadataExtractorId in metadataExtractorIds)
-        sd.MetadataExtractorIds.Remove(metadataExtractorId);
+      sd.MediaCategories.Clear();
+      CollectionUtils.AddAll(sd.MediaCategories, mediaCategories);
+      sd.MetadataExtractorIds.Clear();
+      CollectionUtils.AddAll(sd.MetadataExtractorIds, metadataExtractorIds);
       SaveSharesToSettings();
+      // TODO: Trigger re-import
     }
 
     #endregion

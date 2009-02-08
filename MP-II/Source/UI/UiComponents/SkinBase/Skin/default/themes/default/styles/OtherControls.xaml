@@ -275,6 +275,32 @@
     </Grid>
   </DataTemplate>
 
+  <!-- Data template for a share entry markable with a radiobutton in the shares list -->
+  <DataTemplate x:Key="SingleMarkableShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="200"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <RadioButton x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
+      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
   <!-- Data template for a share entry markable with a checkbox -->
   <DataTemplate x:Key="DefaultMultiMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ParentPanel">
@@ -392,6 +418,13 @@
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{StaticResource MultiMarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource SingleMarkableShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>

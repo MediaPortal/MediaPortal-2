@@ -28,6 +28,12 @@
     <String Name="ChooseShareCategories" Text="Choose the categories of media contents located in the share"/>
     <String Name="ChooseMetadataExtractorsManually" Text="Choose metadata extractors manually"/>
     <String Name="ChooseShareMetadataExtractors" Text="Choose the metadata extractors which should be applied to the share"/>
+    <String Name="MenuAddShare" Text="Add"/>
+    <String Name="MenuEditShares" Text="Edit"/>
+    <String Name="MenuRemoveShares" Text="Remove"/>
     <String Name="AddShare" Text="Add share"/>
+    <String Name="EditShares" Text="Edit shares"/>
+    <String Name="EditShare" Text="Edit share"/>
+    <String Name="ChooseShareToBeEdited" Text="Please select the share to be edited"/>
   </Section>
 </Language>

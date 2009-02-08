@@ -13,40 +13,12 @@
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
-    <ResourceWrapper x:Key="SharesAddChooseMediaProviderStateId" Resource="F3163500-3015-4a6f-91F6-A3DA5DC3593C"/>
-    <ResourceWrapper x:Key="RemoveSharesStateId" Resource="900BA520-F989-48c0-B076-5DAD61945845"/>
-
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid Margin="10,0,10,0">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <ListView Grid.Row="0"
-            Style="{StaticResource SharesListViewStyle}"
-            DataContext="{Binding Source={StaticResource Model}}"
-            ItemsSource="{Binding Path=Shares,Mode=OneTime}"/>
-        <Grid Grid.Row="1" Margin="10,10,10,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Button x:Name="AddButton" Grid.Column="0" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[SharesConfig.AddShare]" HorizontalAlignment="Right"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource SharesAddChooseMediaProviderStateId}}"/>
-          <Button x:Name="RemoveButton" Grid.Column="2" Height="40" Width="250" Style="{StaticResource ButtonStyle}"
-              Content="[SharesConfig.RemoveShares]" HorizontalAlignment="Right"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource RemoveSharesStateId}}"/>
-        </Grid>
-      </Grid>
+      <ListView Margin="10"
+          Style="{StaticResource SharesListViewStyle}"
+          DataContext="{Binding Source={StaticResource Model}}"
+          ItemsSource="{Binding Path=Shares,Mode=OneTime}"/>
     </ResourceWrapper>
 
   </Include.Resources>
