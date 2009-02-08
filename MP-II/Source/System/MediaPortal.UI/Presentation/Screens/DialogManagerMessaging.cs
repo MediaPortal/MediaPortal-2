@@ -23,30 +23,39 @@
 #endregion
 
 using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Presentation.Screens
 {
-  public enum DialogType
+  public enum DialogResult
   {
-    OkDialog,
-    YesNoDialog
+    Ok,
+    Yes,
+    No,
+    Cancel
   }
 
   /// <summary>
-  /// Dialog management API.
+  /// This class provides an interface for the messages sent by the dialog manager.
+  /// This class is part of the dialog manager API.
   /// </summary>
-  public interface IDialogManager
+  public static class DialogManagerMessaging
   {
-    /// <summary>
-    /// Shows a generic dialog with the specified header, text and type.
-    /// </summary>
-    /// <param name="headerText">The header text to display.</param>
-    /// <param name="text">The dialog text to show.</param>
-    /// <param name="type">The type of the dialog. Depending on the type, different buttons
-    /// will be shown.</param>
-    /// <param name="showCancelButton">If set to <c>true</c>, an additional cancel button will be
-    /// shown.</param>
-    /// <returns>Dialog handle. The dialog handle will be used in the dialog result message.</returns>
-    Guid ShowDialog(string headerText, string text, DialogType type, bool showCancelButton);
+    // Message Queue name
+    public const string QUEUE = "DialogManager";
+
+    // Message data
+    public const string DIALOG_HANDLE = "DialogHandle"; // Dialog handle stored as Guid
+    public const string DIALOG_RESULT = "DialogResult"; // Dialog result stored as DialogResult
+
+    public static void SendDialogManagerMessage(Guid dialogHandle, DialogResult result)
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[DIALOG_HANDLE] = dialogHandle;
+      msg.MessageData[DIALOG_RESULT] = result;
+      queue.Send(msg);
+    }
   }
 }

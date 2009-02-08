@@ -342,7 +342,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
             ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
             ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
                 LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT).Evaluate(screenName),
-                DialogType.OkDialog, false, null);
+                DialogType.OkDialog, false);
             return null;
           }
           result.Visual = root;
@@ -355,7 +355,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           {
             ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
                 LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
-                DialogType.OkDialog, false, null);
+                DialogType.OkDialog, false);
           }
           catch (Exception)
           {

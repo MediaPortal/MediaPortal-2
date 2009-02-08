@@ -37,14 +37,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       #region Protected fields
 
-      protected DialogResultDlgt _resultDlgt;
-      protected DialogResult _dialogResult;
+      protected readonly Guid _dialogHandle;
+      protected readonly DialogResult _dialogResult;
 
       #endregion
 
-      internal DialogResultCommand(DialogResultDlgt resultDlgt, DialogResult dialogResult)
+      internal DialogResultCommand(Guid dialogHandle, DialogResult dialogResult)
       {
-        _resultDlgt = resultDlgt;
+        _dialogHandle = dialogHandle;
         _dialogResult = dialogResult;
       }
 
@@ -52,7 +52,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
       public void Execute()
       {
-        _resultDlgt(_dialogResult);
+        DialogManagerMessaging.SendDialogManagerMessage(_dialogHandle, _dialogResult);
       }
 
       #endregion
@@ -65,17 +65,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       protected Property _headerTextProperty;
       protected Property _textProperty;
       protected ItemsList _dialogButtonsList;
-      protected DialogResultDlgt _resultDlgt;
+      protected Guid _dialogHandle;
 
       #endregion
 
-      internal GenericDialogData(string headerText, string text, ItemsList dialogButtons,
-          DialogResultDlgt resultDlgt)
+      internal GenericDialogData(string headerText, string text, ItemsList dialogButtons, Guid dialogHandle)
       {
         _headerTextProperty = new Property(typeof(string), headerText);
         _textProperty = new Property(typeof(string), text);
         _dialogButtonsList = dialogButtons;
-        _resultDlgt = resultDlgt;
+        _dialogHandle = dialogHandle;
       }
 
       public Property HeaderTextProperty
@@ -105,9 +104,9 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         get { return _dialogButtonsList; }
       }
 
-      public DialogResultDlgt ResultDlgt
+      public Guid DialogHandle
       {
-        get { return _resultDlgt; }
+        get { return _dialogHandle; }
       }
     }
 
@@ -142,22 +141,17 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     #region Protected methods
 
-    protected static ListItem CreateButtonListItem(string buttonText, DialogResultDlgt resultDlgt,
+    protected static ListItem CreateButtonListItem(string buttonText, Guid dialogHandle,
         DialogResult dialogResult)
     {
       ListItem result = new ListItem(KEY_NAME, buttonText);
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      ICommand command = new MethodDelegateCommand(screenManager.CloseDialog);
-      if (resultDlgt != null)
-      {
-        IList<ICommand> commands = new List<ICommand>
+      IList<ICommand> commands = new List<ICommand>
           {
-              new DialogResultCommand(resultDlgt, dialogResult),
-              command
+              new DialogResultCommand(dialogHandle, dialogResult),
+              new MethodDelegateCommand(screenManager.CloseDialog)
           };
-        command = new CommandList(commands);
-      }
-      result.Command = command;
+      result.Command = new CommandList(commands);
       return result;
     }
 
@@ -170,8 +164,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       if (_dialogData != null && dialogName == GENERIC_DIALOG_SCREEN)
       {
-        if (_dialogData.ResultDlgt != null)
-          _dialogData.ResultDlgt(DialogResult.Cancel);
+        DialogManagerMessaging.SendDialogManagerMessage(_dialogData.DialogHandle, DialogResult.Cancel);
         _dialogData = null;
       }
     }
@@ -180,28 +173,30 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     #region IDialogManager implementation
 
-    public void ShowDialog(string headerText, string text, DialogType type,
-        bool showCancelButton, DialogResultDlgt resultDlgt)
+    public Guid ShowDialog(string headerText, string text, DialogType type,
+        bool showCancelButton)
     {
+      Guid dialogHandle = Guid.NewGuid();
       ItemsList buttons = new ItemsList();
       switch (type)
       {
         case DialogType.OkDialog:
-          buttons.Add(CreateButtonListItem(OK_BUTTON_TEXT, resultDlgt, DialogResult.Ok));
+          buttons.Add(CreateButtonListItem(OK_BUTTON_TEXT, dialogHandle, DialogResult.Ok));
           break;
         case DialogType.YesNoDialog:
-          buttons.Add(CreateButtonListItem(YES_BUTTON_TEXT, resultDlgt, DialogResult.Yes));
-          buttons.Add(CreateButtonListItem(NO_BUTTON_TEXT, resultDlgt, DialogResult.No));
+          buttons.Add(CreateButtonListItem(YES_BUTTON_TEXT, dialogHandle, DialogResult.Yes));
+          buttons.Add(CreateButtonListItem(NO_BUTTON_TEXT, dialogHandle, DialogResult.No));
           break;
         default:
           throw new NotImplementedException(string.Format("DialogManager: DialogType {0} is not implemented yet", type));
       }
       if (showCancelButton)
-        buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, resultDlgt, DialogResult.Cancel));
+        buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel));
 
-      CurrentDialogData = new GenericDialogData(headerText, text, buttons, resultDlgt);
+      CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, new DialogCloseCallbackDlgt(OnDialogCancelled));
+      screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogCancelled);
+      return dialogHandle;
     }
 
     #endregion

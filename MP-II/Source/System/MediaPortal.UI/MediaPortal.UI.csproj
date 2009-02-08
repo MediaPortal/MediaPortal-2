@@ -112,6 +112,7 @@
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
+    <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\IDialogManager.cs" />
     <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
     <Compile Include="Presentation\Screens\IScreenControl.cs" />
