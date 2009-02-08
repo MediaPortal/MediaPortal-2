@@ -50,6 +50,7 @@ namespace MediaPortal.Core
 #if DEBUG
       ILogger logger = new ConsoleLogger(LogLevel.Information, false);
 #else
+      FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
       ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), LogLevel.Information, false);
 #endif
       logger.Debug("ApplicationCore: Registering ILogger");
