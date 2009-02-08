@@ -399,7 +399,7 @@ namespace Components.Services.AutoPlay
     /// <param name="message">Message containing the notification data.</param>
     private void OnPluginManagerMessageReceived(QueueMessage message)
     {
-      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.Notification]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
+      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
       {
         IScreenControl sc = ServiceScope.Get<IScreenControl>();
         _windowHandle = sc.MainWindowHandle;
@@ -413,7 +413,7 @@ namespace Components.Services.AutoPlay
 
     public void Activated()
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
       queue.OnMessageReceive += OnPluginManagerMessageReceived;
     }
 

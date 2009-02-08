@@ -83,7 +83,7 @@ namespace MediaPortal.Services.Localization
     {
       _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
 
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.Queue);
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
       queue.OnMessageReceive += OnPluginManagerMessageReceived;
     }
 
@@ -233,7 +233,7 @@ namespace MediaPortal.Services.Localization
     /// <param name="message">Message containing the notification data.</param>
     private void OnPluginManagerMessageReceived(QueueMessage message)
     {
-      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.Notification]) ==
+      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) ==
           PluginManagerMessaging.NotificationType.PluginsInitialized)
         InitializeLanguageResources();
     }

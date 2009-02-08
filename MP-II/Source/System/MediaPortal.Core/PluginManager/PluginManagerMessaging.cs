@@ -27,16 +27,16 @@ using MediaPortal.Core.Messaging;
 namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
-  /// This class provides an interface for the messages sent by the <see cref="PluginManager"/>.
-  /// This class is part of the plugin manager interface.
+  /// This class provides an interface for the messages sent by the plugin manager.
+  /// This class is part of the plugin manager API.
   /// </summary>
   public static class PluginManagerMessaging
   {
     // Message Queue name
-    public const string Queue = "Plugin";
+    public const string QUEUE = "Plugin";
 
     // Message data
-    public const string Notification = "Notification"; // Notification stored as NotificationType
+    public const string NOTIFICATION = "Notification"; // Notification stored as NotificationType
 
     public enum NotificationType
     {
@@ -64,10 +64,9 @@ namespace MediaPortal.Core.PluginManager
 
     public static void SendPluginManagerMessage(PluginManagerMessaging.NotificationType notificationType)
     {
-      // Send Startup Finished Message.
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(Queue);
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
-      msg.MessageData[Notification] = notificationType;
+      msg.MessageData[NOTIFICATION] = notificationType;
       queue.Send(msg);
     }
   }
