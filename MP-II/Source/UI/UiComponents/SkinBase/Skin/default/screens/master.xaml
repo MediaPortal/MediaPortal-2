@@ -69,6 +69,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </StackPanel>
   </Grid>
 
-  <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center" Margin="10,0,0,0"
+  <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center"
       Content="{DynamicResource Client_Element}"/>
 </DockPanel>

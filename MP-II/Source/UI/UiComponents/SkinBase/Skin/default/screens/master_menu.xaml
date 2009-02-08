@@ -39,7 +39,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Client_Element -->
     <ResourceWrapper x:Key="Client_Element">
-      <DockPanel LastChildFill="True">
+      <DockPanel LastChildFill="True" Margin="10">
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" Margin="10,0,0,10" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
