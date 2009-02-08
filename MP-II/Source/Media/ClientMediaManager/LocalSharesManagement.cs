@@ -178,12 +178,12 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #region ISharesManagement implementation
 
-    public ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path,
+    public ShareDescriptor RegisterShare(SystemName nativeSystem, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
-      if (systemName != SystemName.GetLocalSystemName())
+      if (nativeSystem != SystemName.GetLocalSystemName())
         return null;
-      ShareDescriptor sd = ShareDescriptor.CreateNewShare(systemName, providerId, path,
+      ShareDescriptor sd = ShareDescriptor.CreateNewShare(nativeSystem, providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
@@ -194,6 +194,26 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       _shares.Remove(shareId);
       SaveSharesToSettings();
+    }
+
+    public ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
+        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds,
+        bool relocateMediaItems)
+    {
+      ShareDescriptor result = GetShare(shareId);
+      if (result == null)
+        return null;
+      result.NativeSystem = nativeSystem;
+      result.MediaProviderId = providerId;
+      result.Path = path;
+      result.Name = shareName;
+      result.MediaCategories.Clear();
+      CollectionUtils.AddAll(result.MediaCategories, mediaCategories);
+      result.MetadataExtractorIds.Clear();
+      CollectionUtils.AddAll(result.MetadataExtractorIds, metadataExtractorIds);
+      SaveSharesToSettings();
+      // TODO: Trigger re-import and relocate media items (if relocateMediaItems is set)
+      return result;
     }
 
     public IDictionary<Guid, ShareDescriptor> GetShares()
@@ -226,30 +246,6 @@ namespace MediaPortal.Media.ClientMediaManager
       foreach (MetadataExtractorMetadata metadata in ServiceScope.Get<MediaManager>().LocalMetadataExtractors.Values)
         result.Add(metadata.MetadataExtractorId, metadata);
       return result;
-    }
-
-    public void SetShareName(Guid shareId, string name)
-    {
-      ShareDescriptor sd = GetShare(shareId);
-      if (sd == null)
-        return;
-      sd.Name = name;
-      SaveSharesToSettings();
-    }
-
-    public void SetShareCategoriesAndMetadataExtractors(Guid shareId,
-        IEnumerable<string> mediaCategories,
-        IEnumerable<Guid> metadataExtractorIds)
-    {
-      ShareDescriptor sd = GetShare(shareId);
-      if (sd == null)
-        return;
-      sd.MediaCategories.Clear();
-      CollectionUtils.AddAll(sd.MediaCategories, mediaCategories);
-      sd.MetadataExtractorIds.Clear();
-      CollectionUtils.AddAll(sd.MetadataExtractorIds, metadataExtractorIds);
-      SaveSharesToSettings();
-      // TODO: Trigger re-import
     }
 
     #endregion

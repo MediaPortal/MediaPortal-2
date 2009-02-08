@@ -11,7 +11,7 @@
     <PushNavigationTransition Id="5138D8EC-A8D5-4f2b-941A-EE7BD8401A1F"
         Name="SharesOverview->ShareAdd"
         SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        TargetState="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
+        TargetState="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
         DisplayTitle="[SharesConfig.MenuAddShare]"/>
 
     <PushNavigationTransition Id="F1BCC545-5859-4a67-805F-86F9540C0F82"

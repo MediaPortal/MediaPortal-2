@@ -44,7 +44,7 @@ namespace UiComponents.Media.Settings.Configuration
   {
     #region Enums
 
-    protected enum ShareConfigMode
+    protected enum ShareEditMode
     {
       AddShare,
       EditShare,
@@ -60,17 +60,15 @@ namespace UiComponents.Media.Settings.Configuration
 
     public const string SHARES_REMOVE_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
     
-    public const string SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
-    public const string SHARE_ADD_EDIT_PATH_STATE_ID_STR = "652C5A9F-EA50-4076-886B-B28FD167AD66";
-    public const string SHARE_ADD_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
-    public const string SHARE_ADD_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
-    public const string SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID_STR = "6218FE5B-767E-48e6-9691-65E466B6020B";
-    public const string SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR = "B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D";
+    public const string SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
+    public const string SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+    public const string SHARE_EDIT_EDIT_PATH_STATE_ID_STR = "652C5A9F-EA50-4076-886B-B28FD167AD66";
+    public const string SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
+    public const string SHARE_EDIT_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
+    public const string SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR = "6218FE5B-767E-48e6-9691-65E466B6020B";
+    public const string SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR = "B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D";
 
     public const string SHARE_EDIT_STATE_ID_STR = "F68E8EB1-00B2-4951-9948-110CFCA93E8D";
-    public const string SHARE_EDIT_EDIT_NAME_STATE_ID_STR = "09AB8C58-AE4F-411d-AB53-BB02031A31BD";
-    public const string SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR = "B34CDB4A-2B3F-4df3-B5D1-2B560D8051FD";
-    public const string SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR = "2820E9DE-4140-46bb-A36A-34C2EA765B88";
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
@@ -89,23 +87,21 @@ namespace UiComponents.Media.Settings.Configuration
     public static Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
 
     public static Guid SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
-    public static Guid SHARE_ADD_EDIT_PATH_STATE_ID = new Guid(SHARE_ADD_EDIT_PATH_STATE_ID_STR);
-    public static Guid SHARE_ADD_CHOOSE_PATH_STATE_ID = new Guid(SHARE_ADD_CHOOSE_PATH_STATE_ID_STR);
-    public static Guid SHARE_ADD_EDIT_NAME_STATE_ID = new Guid(SHARE_ADD_EDIT_NAME_STATE_ID_STR);
-    public static Guid SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID_STR);
-    public static Guid SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID = new Guid(SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR);
-
-    public static Guid SHARE_EDIT_STATE_ID = new Guid(SHARE_EDIT_STATE_ID_STR);
+    public static Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
+    public static Guid SHARE_EDIT_EDIT_PATH_STATE_ID = new Guid(SHARE_EDIT_EDIT_PATH_STATE_ID_STR);
+    public static Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
     public static Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
     public static Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
     public static Guid SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR);
+
+    public static Guid SHARE_EDIT_STATE_ID = new Guid(SHARE_EDIT_STATE_ID_STR);
 
     #endregion
 
     #region Protected fields
 
     protected ItemsList _sharesList;
-    protected ShareConfigMode _configMode;
+    protected ShareEditMode _editMode;
     protected ItemsList _allMediaProvidersList;
     protected Property _isSharesSelectedProperty;
     protected Property _isMediaProviderSelectedProperty;
@@ -164,7 +160,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public string ConfigShareTitle
     {
-      get { return _configMode == ShareConfigMode.AddShare ? ADD_SHARE_TITLE : EDIT_SHARE_TITLE; }
+      get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE : EDIT_SHARE_TITLE; }
     }
 
     /// <summary>
@@ -392,10 +388,10 @@ namespace UiComponents.Media.Settings.Configuration
       // if supported
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       if (mediaProvider is IFileSystemMediaProvider)
-        workflowManager.NavigatePush(SHARE_ADD_CHOOSE_PATH_STATE_ID);
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
       else // If needed, add other path navigation screens here
         // Fallback: Simple TextBox path editor screen
-        workflowManager.NavigatePush(SHARE_ADD_EDIT_PATH_STATE_ID);
+        workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID);
     }
 
     public void RefreshOrClearSubPathItems(TreeItem pathItem, bool clearSubItems)
@@ -412,18 +408,22 @@ namespace UiComponents.Media.Settings.Configuration
     public void FinishShareConfiguration()
     {
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      if (_configMode == ShareConfigMode.AddShare)
+      if (_editMode == ShareEditMode.AddShare)
       {
         mediaManager.RegisterShare(SystemName.GetLocalSystemName(), MediaProvider.Metadata.MediaProviderId,
             MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds);
       }
-      else if (_configMode == ShareConfigMode.EditShare)
+      else if (_editMode == ShareEditMode.EditShare)
       {
-        mediaManager.SetShareName(CurrentShareId, ShareName);
-        mediaManager.SetShareCategoriesAndMetadataExtractors(CurrentShareId, MediaCategories, MetadataExtractorIds);
+        ShareDescriptor share = mediaManager.GetShare(CurrentShareId);
+        if (share != null)
+        {
+          mediaManager.UpdateShare(CurrentShareId, share.NativeSystem, MediaProvider.Metadata.MediaProviderId,
+              MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, false);
+        }
       }
       else
-        throw new NotImplementedException(string.Format("ShareConfigMode '{0}' is not implemented", _configMode));
+        throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _editMode));
       ClearAllConfiguredProperties();
     }
 
@@ -436,9 +436,8 @@ namespace UiComponents.Media.Settings.Configuration
           InitializePropertiesWithShare(CurrentShareId);
           break;
         }
-      _configMode = ShareConfigMode.EditShare;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(SHARE_EDIT_EDIT_NAME_STATE_ID);
+      workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
     }
 
     #endregion
@@ -738,37 +737,23 @@ namespace UiComponents.Media.Settings.Configuration
       {
         UpdateSharesList();
       }
-      else if (workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
+      else if (workflowState == SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID ||
+          workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
       {
-        _configMode = ShareConfigMode.AddShare;
+        if (workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
+          // This is a bit weird here. The state SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE has
+          // the same function like the SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE, it is only
+          // necessary to do this additional internal initialization
+          _editMode = ShareEditMode.AddShare;
         UpdateMediaProvidersList();
       }
-      else if (workflowState == SHARE_ADD_EDIT_PATH_STATE_ID)
+      else if (workflowState == SHARE_EDIT_EDIT_PATH_STATE_ID)
       {
         // Nothing to prepare
       }
-      else if (workflowState == SHARE_ADD_CHOOSE_PATH_STATE_ID)
+      else if (workflowState == SHARE_EDIT_CHOOSE_PATH_STATE_ID)
       {
         UpdateMediaProviderPathTree();
-      }
-      else if (workflowState == SHARE_ADD_EDIT_NAME_STATE_ID)
-      {}
-      else if (workflowState == SHARE_ADD_CHOOSE_CATEGORIES_STATE_ID)
-      {
-        UpdateMediaCategoriesList();
-        // We'll reset the choosen metadata extractors here, if the user goes back
-        // to the categories screen - thats for simplicity, else, we would have
-        // to track which MEs the user has choosen explicitly and which are in the
-        // list because a category was choosen
-        UpdateMetadataExtractorsFromMediaCategories();
-      }
-      else if (workflowState == SHARE_ADD_CHOOSE_METADATA_EXTRACTORS_STATE_ID)
-      {
-        UpdateMetadataExtractorsList();
-      }
-      else if (workflowState == SHARE_EDIT_STATE_ID)
-      {
-        UpdateSharesList();
       }
       else if (workflowState == SHARE_EDIT_EDIT_NAME_STATE_ID)
       {}
@@ -784,6 +769,11 @@ namespace UiComponents.Media.Settings.Configuration
       else if (workflowState == SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID)
       {
         UpdateMetadataExtractorsList();
+      }
+      else if (workflowState == SHARE_EDIT_STATE_ID)
+      {
+        _editMode = ShareEditMode.EditShare;
+        UpdateSharesList();
       }
     }
 

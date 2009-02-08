@@ -48,8 +48,8 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Adds a share to the media library's collection of registered shares.
     /// </summary>
-    /// <param name="systemName">System where the media provider for the new share is located.</param>
-    /// <param name="providerId">ID of the media provider of the specified <paramref name="systemName"/>.</param>
+    /// <param name="nativeSystem">System where the media provider for the new share is located.</param>
+    /// <param name="providerId">ID of the media provider of the specified <paramref name="nativeSystem"/>.</param>
     /// <param name="path">Lookup path for the specified provider in the specified system.</param>
     /// <param name="shareName">Name of the new share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
@@ -58,8 +58,8 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="metadataExtractorIds">Ids of metadata extractors to attach to the new share.
     /// The system will automatically import the desired metadata on all of the share's media items.</param>
     /// <returns>Descriptor of the new share.</returns>
-    /// TODO: What about access rights? Not everybody may add and remove shares on remote clients...
-    ShareDescriptor RegisterShare(SystemName systemName, Guid providerId, string path,
+    /// TODO: What about access rights? Not everybody may edit shares on remote clients...
+    ShareDescriptor RegisterShare(SystemName nativeSystem, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds);
 
     /// <summary>
@@ -68,8 +68,30 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     /// <param name="shareId">The id of the share to be removed. The share id is part of the
     /// <see cref="ShareDescriptor"/> which was returned by the <see cref="RegisterShare"/> method.</param>
-    /// TODO: What about access rights? Not everybody may add and remove shares on remote clients...
+    /// TODO: What about access rights? Not everybody may edit shares on remote clients...
     void RemoveShare(Guid shareId);
+
+    /// <summary>
+    /// Reconfigures the share with the specified <paramref name="shareId"/>.
+    /// This will automatically trigger a re-import of the share.
+    /// </summary>
+    /// <param name="shareId">Id of the share to be changed.</param>
+    /// <param name="nativeSystem">System where the media provider for the share is located.</param>
+    /// <param name="providerId">ID of the media provider of the specified <paramref name="nativeSystem"/>.</param>
+    /// <param name="path">Lookup path for the specified provider in the specified system.</param>
+    /// <param name="shareName">Name of the share.</param>
+    /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
+    /// the share. If set to <c>null</c>, the new share is a general share without attached media
+    /// categories.</param>
+    /// <param name="metadataExtractorIds">Ids of metadata extractors to be attached to the share.</param>
+    /// <param name="relocateMediaItems">If set to <c>true</c>, the paths of all media items from the
+    /// specified share will be adapted to the new base path.</param>
+    /// <returns>Changed share descriptor.</returns>
+    /// TODO: Do the MEs need to be currently registered at the system of the share?</param>
+    /// TODO: What about access rights? Not everybody may edit shares on remote clients...
+    ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
+        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds,
+        bool relocateMediaItems);
 
     /// <summary>
     /// Returns all shares which are registered in the MediaPortal server's media library.
@@ -108,24 +130,5 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="systemName">System whose metadata extractors should be returned.</param>
     /// <returns>Mapping of metadata extractor's GUIDs to metadata extractors.</returns>
     IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName);
-
-    /// <summary>
-    /// Changes the name of the share with the specified <paramref name="shareId"/>.
-    /// </summary>
-    /// <param name="shareId">Id of the share to be changed.</param>
-    /// <param name="name">Name to set.</param>
-    void SetShareName(Guid shareId, string name);
-
-    /// <summary>
-    /// Reconfigures the share with the specified <paramref name="shareId"/>. Sets its media categories
-    /// and metadata extractor ids. This will automatically trigger a re-import of the share.
-    /// </summary>
-    /// <param name="shareId">Id of the share to be changed.</param>
-    /// <param name="mediaCategories">Media categories to be set</param>
-    /// <param name="metadataExtractorIds">Ids of the metadata extractors.
-    /// TODO: Do the MEs need to be currently registered at the system of the share?</param>
-    void SetShareCategoriesAndMetadataExtractors(Guid shareId,
-        IEnumerable<string> mediaCategories,
-        IEnumerable<Guid> metadataExtractorIds);
   }
 }

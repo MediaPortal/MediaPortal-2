@@ -140,6 +140,7 @@ namespace MediaPortal.Core.MediaManagement
     public SystemName NativeSystem
     {
       get { return _nativeSystemName; }
+      set { _nativeSystemName = value; }
     }
 
     /// <summary>
@@ -149,6 +150,7 @@ namespace MediaPortal.Core.MediaManagement
     public Guid MediaProviderId
     {
       get { return _mediaProviderId; }
+      set { _mediaProviderId = value; }
     }
 
     /// <summary>
@@ -158,6 +160,7 @@ namespace MediaPortal.Core.MediaManagement
     public string Path
     {
       get { return _path; }
+      set { _path = value; }
     }
 
     /// <summary>
