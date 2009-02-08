@@ -34,7 +34,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     FocusedElement="{DynamicResource Focused_Element}"
     Context="{DynamicResource DataContext}"
-    Background="{StaticResource BackgroundBrush}" Width="720" Height="576"
+    Background="{StaticResource BackgroundBrush}"
     LastChildFill="True">
   <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">
     <Grid.Resources>
