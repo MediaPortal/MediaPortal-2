@@ -75,6 +75,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     protected void OnPropertyChanged(Property property, object oldValue)
     {
       _needUpdate = true;
+      _needUpdateRel = true;
       Fire();
     }
 
@@ -83,6 +84,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
     void OnZoomChanged(Property prop, object oldValue)
     {
       _needUpdate = true;
+      _needUpdateRel = true; // Albert: Is this line necessary?
     }
 
     protected void Fire()

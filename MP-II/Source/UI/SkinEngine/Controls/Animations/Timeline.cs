@@ -373,7 +373,7 @@ namespace MediaPortal.SkinEngine.Controls.Animations
             }
             else
             {
-              DoAnimation(context, (uint)Duration.TotalMilliseconds);
+              DoAnimation(context, (uint) Duration.TotalMilliseconds);
               if (FillBehavior == Animations.FillBehavior.Stop)
                 Stop(context);
               else
