@@ -52,13 +52,14 @@ namespace MediaPortal.Core.Services.PluginManager
 
     protected string _pluginFilePath = null;
     protected string _name = null;
+    protected Guid _pluginId;
     protected string _copyright = null;
     protected string _author = null;
     protected string _description = null;
     protected string _version = null;
     protected bool _autoActivate = false;
-    protected ICollection<string> _dependsOn = new List<string>();
-    protected ICollection<string> _conflictsWith = new List<string>();
+    protected ICollection<Guid> _dependsOn = new List<Guid>();
+    protected ICollection<Guid> _conflictsWith = new List<Guid>();
     protected string _stateTrackerClassName = null;
     protected ICollection<string> _assemblyFilePaths = new List<string>();
     protected IDictionary<string, string> _builders = null;
@@ -98,17 +99,22 @@ namespace MediaPortal.Core.Services.PluginManager
               "File is no plugin descriptor file (document element must be 'Plugin')");
 
         bool versionOk = false;
+        bool pluginIdSet = false;
         foreach (XmlAttribute attr in descriptorElement.Attributes)
         {
           switch (attr.Name)
           {
-            case "Version":
+            case "DescriptorVersion":
               StringUtils.CheckVersionEG(attr.Value, MIN_PLUGIN_DESCRIPTOR_VERSION_HIGH, MIN_PLUGIN_DESCRIPTOR_VERSION_LOW);
               //string specVersion = attr.Value; <- if needed
               versionOk = true;
               break;
             case "Name":
               _name = attr.Value;
+              break;
+            case "PluginId":
+              _pluginId = new Guid(attr.Value);
+              pluginIdSet = true;
               break;
             case "Author":
               _author = attr.Value;
@@ -130,7 +136,10 @@ namespace MediaPortal.Core.Services.PluginManager
           }
         }
         if (!versionOk)
-          throw new ArgumentException("'Version' attribute expected");
+          throw new ArgumentException("'Version' attribute not found");
+
+        if (!pluginIdSet)
+          throw new ArgumentException("'PluginId' attribute not found");
 
         foreach (XmlNode child in descriptorElement.ChildNodes)
         {
@@ -151,10 +160,10 @@ namespace MediaPortal.Core.Services.PluginManager
               CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childElement));
               break;
             case "DependsOn":
-              CollectionUtils.AddAll(_dependsOn, ParsePluginNameEnumeration(childElement));
+              CollectionUtils.AddAll(_dependsOn, ParsePluginIdEnumeration(childElement));
               break;
             case "ConflictsWith":
-              CollectionUtils.AddAll(_conflictsWith, ParsePluginNameEnumeration(childElement));
+              CollectionUtils.AddAll(_conflictsWith, ParsePluginIdEnumeration(childElement));
               break;
             default:
               throw new ArgumentException("'Plugin' element doesn't support a child element '" + child.Name + "'");
@@ -291,12 +300,12 @@ namespace MediaPortal.Core.Services.PluginManager
     }
 
     /// <summary>
-    /// Processes an element containing a collection of <i>&lt;PluginReference Name="..."/&gt;</i> sub elements and
-    /// returns an enumeration of the names.
+    /// Processes an element containing a collection of <i>&lt;PluginReference PluginId="..."/&gt;</i> sub elements and
+    /// returns an enumeration of the referenced ids.
     /// </summary>
-    /// <param name="enumElement">Element containing the &lt;PluginReference Name="..."/&gt; sub elements.</param>
-    /// <returns>Enumeration of parsed plugin names.</returns>
-    protected static IEnumerable<string> ParsePluginNameEnumeration(XmlElement enumElement)
+    /// <param name="enumElement">Element containing the &lt;PluginReference PluginId="..."/&gt; sub elements.</param>
+    /// <returns>Enumeration of parsed plugin ids.</returns>
+    protected static IEnumerable<Guid> ParsePluginIdEnumeration(XmlElement enumElement)
     {
       if (enumElement.HasAttributes)
         throw new ArgumentException(string.Format("'{0}' element mustn't contain any attributes", enumElement.Name));
@@ -308,21 +317,21 @@ namespace MediaPortal.Core.Services.PluginManager
         switch (childElement.Name)
         {
           case "PluginReference":
-            string name = null;
+            string id = null;
             foreach (XmlAttribute attr in childElement.Attributes)
             {
               switch (attr.Name)
               {
-                case "Name":
-                  name = attr.Value;
+                case "PluginId":
+                  id = attr.Value;
                   break;
                 default:
                   throw new ArgumentException("'PluginReference' sub element doesn't support an attribute '" + attr.Name + "'");
               }
             }
-            if (name == null)
-              throw new ArgumentException("'PluginReference' sub element needs an attribute 'Name'");
-            yield return name;
+            if (id == null)
+              throw new ArgumentException("'PluginReference' sub element needs an attribute 'PluginId'");
+            yield return new Guid(id);
             break;
           default:
             throw new ArgumentException("'" + enumElement.Name + "' element doesn't support a child element '" + child.Name + "'");
@@ -337,6 +346,11 @@ namespace MediaPortal.Core.Services.PluginManager
     public string Name
     {
       get { return _name; }
+    }
+
+    public Guid PluginId
+    {
+      get { return _pluginId; }
     }
 
     public string Copyright
@@ -364,12 +378,12 @@ namespace MediaPortal.Core.Services.PluginManager
       get { return _autoActivate; }
     }
 
-    public ICollection<string> DependsOn
+    public ICollection<Guid> DependsOn
     {
       get { return _dependsOn; }
     }
 
-    public ICollection<string> ConflictsWith
+    public ICollection<Guid> ConflictsWith
     {
       get { return _conflictsWith; }
     }

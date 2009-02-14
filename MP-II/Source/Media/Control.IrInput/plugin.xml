@@ -1,14 +1,15 @@
 <Plugin
-    Version = "1.0"
-    Name = "IrInput"
-    Author = "and-81"
-    Copyright = "GPL"
-    AutoActivate = "true" 
-    Description = "Ir Input Service plugin"
-    PluginVersion = "1.0">
+    DescriptorVersion="1.0"
+    Name="IrInput"
+    PluginId="{851D53DA-A2BC-443c-9FC7-E14D7EDBA436}"
+    Author="and-81"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Ir input service plugin"
+    PluginVersion="1.0">
 
   <Runtime>
-    <Assembly FileName = "Control.IrInput.dll"/>
-    <PluginStateTracker ClassName = "Components.Control.IrInput.IrInputPlugin"/>
+    <Assembly FileName="Control.IrInput.dll"/>
+    <PluginStateTracker ClassName="Components.Control.IrInput.IrInputPlugin"/>
   </Runtime>
 </Plugin>

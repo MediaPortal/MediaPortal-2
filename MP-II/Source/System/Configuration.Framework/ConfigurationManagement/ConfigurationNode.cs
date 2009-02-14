@@ -28,7 +28,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Registry;
-using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 
 
@@ -99,13 +98,13 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       if (_childrenLoaded)
         return;
       ILogger logger = ServiceScope.Get<ILogger>();
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
       // We'll use a FixedItemStateTracker in the hope that the configuration will be disposed
       // after usage. The alternative would be to use a plugin item state tracker which is able to
       // remove a config element usage. But this would mean to also expose a listener registration
       // to the outside. I think this is not worth the labor.
-      _childPluginItemStateTracker = new FixedItemStateTracker();
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      string itemLocation = Constants.PLUGINTREE_BASELOCATION + Location;
+      _childPluginItemStateTracker = new FixedItemStateTracker(string.Format("ConfigurationManager: ConfigurationNode '{0}'", itemLocation));
       ICollection<PluginItemMetadata> items = pluginManager.GetAllPluginItemMetadata(itemLocation);
       IDictionary<string, object> childSet = new Dictionary<string, object>();
       foreach (PluginItemMetadata item in items)

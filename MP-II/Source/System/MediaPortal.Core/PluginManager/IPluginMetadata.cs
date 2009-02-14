@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Core.PluginManager
@@ -36,6 +37,11 @@ namespace MediaPortal.Core.PluginManager
     /// Returns the plugin's name.
     /// </summary>
     string Name { get; }
+
+    /// <summary>
+    /// Returns the plugin's unique id.
+    /// </summary>
+    Guid PluginId { get; }
 
     /// <summary>
     /// Returns the plugin's copyright statement.
@@ -65,12 +71,12 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Returns a collection of names of plugins, this plugin depends on.
     /// </summary>
-    ICollection<string> DependsOn { get; }
+    ICollection<Guid> DependsOn { get; }
 
     /// <summary>
     /// Returns a collection of names of plugins, this plugin stands in conflict with.
     /// </summary>
-    ICollection<string> ConflictsWith { get; }
+    ICollection<Guid> ConflictsWith { get; }
 
     /// <summary>
     /// Returns the file paths of all assemblies to be loaded for this plugin.

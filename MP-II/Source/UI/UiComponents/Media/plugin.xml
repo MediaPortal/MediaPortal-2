@@ -1,13 +1,14 @@
 <Plugin
-    Version="1.0" 
+    DescriptorVersion="1.0" 
     Name="Media"
+    PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}"
     Author="Team MediaPortal"
     Copyright="GPL"
     Description="Media Navigation Plugin"
     PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference Name="ConfigurationManager"/>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
   </DependsOn>
 
   <Runtime>

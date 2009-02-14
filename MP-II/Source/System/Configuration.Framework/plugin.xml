@@ -1,6 +1,7 @@
 <Plugin
-    Version="1.0"
+    DescriptorVersion="1.0"
     Name="ConfigurationManager"
+    PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"
     Author="Team MediaPortal"
     Copyright="GPL"
     Description="MediaPortal-II configuration engine"

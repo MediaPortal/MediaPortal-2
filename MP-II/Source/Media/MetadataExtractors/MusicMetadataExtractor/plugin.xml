@@ -1,22 +1,23 @@
 <Plugin
-    Version = "1.0"
-    Name = "MusicMetadataExtractor"
-    Author = "Team Mediaportal"
-    Copyright = "GPL"
-    Description = "Metadata extractor for many kinds of music file formats"
-    PluginVersion = "1.0">
+    DescriptorVersion="1.0"
+    Name="MusicMetadataExtractor"
+    PluginId="{8B248D2D-C6DF-4263-BBF3-B424C6C81B31}"
+    Author="Team Mediaportal"
+    Copyright="GPL"
+    Description="Metadata extractor for many kinds of music file formats"
+    PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference Name="TagLibPlugin"/>
+    <PluginReference PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}"/> <!-- TagLibPlugin -->
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName = "MusicMetadataExtractor.dll"/>
+    <Assembly FileName="MusicMetadataExtractor.dll"/>
   </Runtime>
 
-  <Register Location = "/Media/MetadataExtractors">
+  <Register Location="/Media/MetadataExtractors">
     <Instance
-        Id = "MusicMetadataExtractor"
-        ClassName = "MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor.MusicMetadataExtractor"/>
+        Id="MusicMetadataExtractor"
+        ClassName="MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor.MusicMetadataExtractor"/>
   </Register>
 </Plugin>

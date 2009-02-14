@@ -127,6 +127,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
       #region IPluginItemStateTracker implementation
 
+      public string UsageDescription
+      {
+        get { return "SkinResources: Usage of style resources"; }
+      }
+
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         return !_parent.StyleGUIModels.ContainsKey(new Guid(itemRegistration.Metadata.Id));

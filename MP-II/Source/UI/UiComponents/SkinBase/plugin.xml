@@ -1,13 +1,14 @@
 <Plugin
-    Version = "1.0"
-    Name = "SkinBase"
-    Author = "Team MediaPortal"
-    Copyright = "GPL"
-    Description = "Base services for the skin and default skin"
-    PluginVersion = "1.0">
+    DescriptorVersion="1.0"
+    Name="SkinBase"
+    PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Base services for the skin and default skin"
+    PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference Name="ConfigurationManager"/>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
   </DependsOn>
 
   <Runtime>

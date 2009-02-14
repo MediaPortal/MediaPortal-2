@@ -45,6 +45,9 @@ namespace MediaPortal.Core.MediaManagement
     protected const string MEDIA_PROVIDERS_PLUGIN_LOCATION = "/Media/MediaProviders";
     protected const string METADATA_EXTRACTORS_PLUGIN_LOCATION = "/Media/MetadataExtractors";
 
+    protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaManagerBase: MetadataExtractors";
+    protected const string MEDIA_PROVIDERS_USE_COMPONENT_NAME = "MediaManagerBase: MediaProviders";
+
     #endregion
 
     protected class MetadataExtractorPluginItemChangeListener : IItemRegistrationChangeListener
@@ -62,7 +65,7 @@ namespace MediaPortal.Core.MediaManagement
         foreach (PluginItemMetadata item in items)
         {
           IMetadataExtractor metadataExtractor = pluginManager.RequestPluginItem<IMetadataExtractor>(
-              item.RegistrationLocation, item.Id, new FixedItemStateTracker());
+              item.RegistrationLocation, item.Id, new FixedItemStateTracker(METADATA_EXTRACTORS_USE_COMPONENT_NAME));
           _parent.RegisterMetadataExtractor(metadataExtractor);
         }
       }
@@ -88,7 +91,7 @@ namespace MediaPortal.Core.MediaManagement
         foreach (PluginItemMetadata item in items)
         {
           IMediaProvider mediaProvider = pluginManager.RequestPluginItem<IMediaProvider>(
-              item.RegistrationLocation, item.Id, new FixedItemStateTracker());
+              item.RegistrationLocation, item.Id, new FixedItemStateTracker(MEDIA_PROVIDERS_USE_COMPONENT_NAME));
           _parent.RegisterProvider(mediaProvider);
         }
       }
@@ -237,7 +240,7 @@ namespace MediaPortal.Core.MediaManagement
         return;
       _providers = new Dictionary<Guid, IMediaProvider>();
       foreach (IMediaProvider provider in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMediaProvider>(
-          MEDIA_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker())) // TODO: Make providers removable
+          MEDIA_PROVIDERS_PLUGIN_LOCATION, new FixedItemStateTracker(MEDIA_PROVIDERS_USE_COMPONENT_NAME))) // TODO: Make providers removable
         RegisterProvider(provider);
     }
 
@@ -251,7 +254,7 @@ namespace MediaPortal.Core.MediaManagement
       _metadataExtractors = new Dictionary<Guid, IMetadataExtractor>();
 
       foreach (IMetadataExtractor metadataExtractor in ServiceScope.Get<IPluginManager>().RequestAllPluginItems<IMetadataExtractor>(
-          METADATA_EXTRACTORS_PLUGIN_LOCATION, new FixedItemStateTracker())) // TODO: Make metadata extractors removable
+          METADATA_EXTRACTORS_PLUGIN_LOCATION, new FixedItemStateTracker(METADATA_EXTRACTORS_USE_COMPONENT_NAME))) // TODO: Make metadata extractors removable
         RegisterMetadataExtractor(metadataExtractor);
     }
 

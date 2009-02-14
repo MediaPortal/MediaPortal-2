@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core.PluginManager.Exceptions;
 
@@ -47,7 +48,6 @@ namespace MediaPortal.Core.PluginManager
   /// Plugin items will be lazily built. At the time an item is requested, it will be built if it was not
   /// built yet.
   /// </remarks>
-  /// TODO: Use C# event registration instead of message queue for plugin manager state change events
   public interface IPluginManager
   {
     /// <summary>
@@ -59,7 +59,7 @@ namespace MediaPortal.Core.PluginManager
     /// Returns a dictionary containing the names of all plugins known by the plugin manager,
     /// mapped to their plugin runtime descriptors.
     /// </summary>
-    IDictionary<string, PluginRuntime> AvailablePlugins { get; }
+    IDictionary<Guid, PluginRuntime> AvailablePlugins { get; }
 
     /// <summary>
     /// Returns the information whether the plugin manager is in maintenance mode. This mode is for
@@ -91,29 +91,33 @@ namespace MediaPortal.Core.PluginManager
     void Shutdown();
 
     /// <summary>
-    /// Tries to enable the specified <paramref name="plugin"/>. The plugin will be enabled if it doesn't
-    /// stand in conflict with already loaded plugins and if all plugins the specified plugin is dependent on
-    /// can be enabled. The plugin will be activated automatically if its
+    /// Adds a plugin to the <see cref="AvailablePlugins"/> collection.
+    /// </summary>
+    /// <param name="pluginMetadata">The plugin's metadata instance.</param>
+    PluginRuntime AddPlugin(IPluginMetadata pluginMetadata);
+
+    /// <summary>
+    /// Tries to enable the plugin with the specified <paramref name="pluginId"/>. The plugin will be
+    /// enabled if it doesn't stand in conflict with already loaded plugins and if all plugins the
+    /// specified plugin is dependent on can be enabled. The plugin will be activated automatically if its
     /// <see cref="IPluginMetadata.AutoActivate"/> property or the <paramref name="activate"/>
     /// parameter are set.
     /// </summary>
-    /// <param name="plugin">The metadata of the plugin to be enabled. The plugin may not be
-    /// available at the plugin manager yet. In this case, it will be added to the
-    /// <see cref="AvailablePlugins"/> collection.</param>
+    /// <param name="pluginId">The id of the plugin to be enabled.</param>
     /// <param name="activate">If set to <c>true</c>, the plugin will be activated at once.</param>
     /// <returns><c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
     /// is already enabled or activated, the return value will be <c>true</c>.</returns>
-    bool TryStartPlugin(IPluginMetadata plugin, bool activate);
+    bool TryStartPlugin(Guid pluginId, bool activate);
 
     /// <summary>
     /// Tries to disable the specified plugin. The plugin will be deactivated and disabled if
     /// its plugin state tracker and every item user agree with the deactivation,
     /// and every plugin which depends on this plugin can be stopped too.
     /// </summary>
-    /// <param name="plugin">The metadata of the plugin to be stopped.</param>
+    /// <param name="pluginId">The id of the plugin to be stopped.</param>
     /// <returns><c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
     /// is already disabled, the return value will be <c>true</c>.</returns>
-    bool TryStopPlugin(IPluginMetadata plugin);
+    bool TryStopPlugin(Guid pluginId);
 
     /// <summary>
     /// Adds a new plugin item builder to the plugin manager which is provided by a system component. This
@@ -125,21 +129,21 @@ namespace MediaPortal.Core.PluginManager
     void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance);
 
     /// <summary>
-    /// Returns the metadata of all plugins conflicting with the specified <paramref name="plugin"/>.
+    /// Returns the ids of all plugins conflicting with the specified <paramref name="plugin"/>.
     /// </summary>
     /// <param name="plugin">The metadata of the plugin to check.</param>
-    /// <returns>Collection of plugin metadata structures of the conflicting plugins.</returns>
+    /// <returns>Collection of ids of the conflicting plugins.</returns>
     /// <exception cref="PluginMissingDependencyException">If the specified plugin depends on
     /// a missing plugin.</exception>
-    ICollection<IPluginMetadata> FindConflicts(IPluginMetadata plugin);
+    ICollection<Guid> FindConflicts(IPluginMetadata plugin);
 
     /// <summary>
-    /// Returns the names of all plugins, from which the specified <paramref name="plugin"/> is dependent
+    /// Returns the ids of all plugins, from which the specified <paramref name="plugin"/> is dependent
     /// and which are not known by the plugin manager yet.
     /// </summary>
     /// <param name="plugin">The plugin whose dependencies should be checked.</param>
-    /// <returns>Collection of plugin names.</returns>
-    ICollection<string> FindMissingDependencies(IPluginMetadata plugin);
+    /// <returns>Collection of plugin ids.</returns>
+    ICollection<Guid> FindMissingDependencies(IPluginMetadata plugin);
 
     /// <summary>
     /// Returns the metadata of a registered item at the specified <paramref name="location"/> with

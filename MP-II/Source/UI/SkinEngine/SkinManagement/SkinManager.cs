@@ -52,6 +52,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
         _skinManager = skinManager;
       }
 
+      public string UsageDescription
+      {
+        get { return "SkinManager: Usage of skin resources"; }
+      }
+
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         return true;

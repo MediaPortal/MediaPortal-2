@@ -1,22 +1,23 @@
 <Plugin
-    Version = "1.0"
-    Name = "MovieMetadataExtractor"
+    DescriptorVersion="1.0"
+    Name="MovieMetadataExtractor"
+    PluginId="{21FC7331-8E52-4ced-AD3B-8B27B050D6C5}"
     Author = "Frodo, Albert"
-    Copyright = "GPL"
-    Description = "Movie metadata extractor"
-    PluginVersion = "1.0">
+    Copyright="GPL"
+    Description="Movie metadata extractor"
+    PluginVersion="1.0">
 
   <DependsOn>
-    <PluginReference Name="MediaInfoPlugin"/>
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}"/> <!-- MediaInfoPlugin -->
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName = "MovieMetadataExtractor.dll"/>
+    <Assembly FileName="MovieMetadataExtractor.dll"/>
   </Runtime>
 
-  <Register Location = "/Media/MetadataExtractors">
+  <Register Location="/Media/MetadataExtractors">
     <Instance
-        Id = "MovieMetadataExtractor"
-        ClassName = "MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor.MovieMetadataExtractor"/>
+        Id="MovieMetadataExtractor"
+        ClassName="MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor.MovieMetadataExtractor"/>
   </Register>
 </Plugin>

@@ -43,7 +43,7 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Will build an item from the specified item data.
     /// The plugin is in state <see cref="PluginState.Enabled"/> or <see cref="PluginState.Active"/>
-    /// when this method is called, depending on the return value of <see cref="NeedPluginActive"/>.
+    /// when this method is called, depending on the return value of <see cref="NeedsPluginActive"/>.
     /// </summary>
     object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
 

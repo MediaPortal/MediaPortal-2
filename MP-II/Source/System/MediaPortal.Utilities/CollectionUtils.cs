@@ -30,6 +30,35 @@ namespace MediaPortal.Utilities
   public static class CollectionUtils
   {
     /// <summary>
+    /// Transformer which takes an object of type <typeparamref name="S"/> and transforms it to type
+    /// <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="S">Source object to transform.</typeparam>
+    /// <typeparam name="T">Target object of the transformation.</typeparam>
+    public interface ITransformer<S, T>
+    {
+      /// <summary>
+      /// Transforms <paramref name="source"/> into a result object.
+      /// </summary>
+      /// <param name="source">Object to transform.</param>
+      /// <returns>Target object of the transformation.</returns>
+      T Transform(S source);
+    }
+
+    /// <summary>
+    /// Transforms all objects of the <paramref name="source"/> enumeration with the specified
+    /// <paramref name="transformer"/>.
+    /// </summary>
+    /// <param name="sourceEnumeration">Source enumeration to be transformed.</param>
+    /// <param name="transformer">Transformer to transform each object.</param>
+    /// <returns>Enumeration containing the transformed objects.</returns>
+    public static IEnumerable<T> Transform<S, T>(IEnumerable<S> sourceEnumeration, ITransformer<S, T> transformer)
+    {
+      foreach (S source in sourceEnumeration)
+        yield return transformer.Transform(source);
+    }
+
+    /// <summary>
     /// Adds all elements in the <paramref name="source"/> enumeration to the <paramref name="target"/> collection.
     /// </summary>
     /// <typeparam name="S">Type of the source elements. Needs to be equal to <see cref="T"/> or to be a

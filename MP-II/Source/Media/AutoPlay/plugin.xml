@@ -1,21 +1,18 @@
 <Plugin
-    Version = "1.0" 
-    Name = "AutoPlay Service"
-    Author = "Team MediaPortal"
-    Copyright = "GPL"
-    Description = "Service that detects media changes and starts playback."
-    PluginVersion = "1.0">
-
-  <DependsOn>
-    <PluginReference Name = "MediaManager"/>
-  </DependsOn>
+    DescriptorVersion="1.0"
+    Name="AutoPlay Service"
+    PluginId="{79D9E378-D4B2-46e3-8DD2-F95DD5E93418}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Service that detects media changes and starts playback"
+    PluginVersion="1.0">
 
   <Runtime>
-    <Assembly FileName = "Services.AutoPlay.dll"/>
-    <PluginStateTracker ClassName = "Components.Services.AutoPlay.AutoPlay"/>
+    <Assembly FileName="Services.AutoPlay.dll"/>
+    <PluginStateTracker ClassName="Components.Services.AutoPlay.AutoPlay"/>
   </Runtime>
 
-  <Register Location = "/Services">
-    <Instance Id = "IAutoPlay" ClassName = "Components.Services.AutoPlay.AutoPlay"/>
+  <Register Location="/Services">
+    <Instance Id="IAutoPlay" ClassName="Components.Services.AutoPlay.AutoPlay"/>
   </Register>
 </Plugin>

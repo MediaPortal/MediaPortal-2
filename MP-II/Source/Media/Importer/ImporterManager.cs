@@ -64,6 +64,11 @@ namespace Components.Services.ImporterManager
         _manager = manager;
       }
 
+      public string UsageDescription
+      {
+        get { return "ImporterManager: Importers"; }
+      }
+
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         _manager.LockImporters();

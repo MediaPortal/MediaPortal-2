@@ -1,15 +1,16 @@
 <Plugin
-    Version = "1.0"
-    Name = "Login"
-    Author = "Team MediaPortal"
-    Copyright = "GPL"
-    Description = "Login Plugin">
+    DescriptorVersion="1.0"
+    Name="Login"
+    PluginId="{C9673F22-7B6F-40a9-ABEB-6EA63CC94E95}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Login Plugin">
 
   <Runtime>
-    <Assembly FileName = "Login.dll"/>
+    <Assembly FileName="Login.dll"/>
   </Runtime>
 
-  <Register Location = "/Models">
-    <Model Id="{82582433-FD64-41bd-9059-7F662DBDA713}" Name="LoginModel" ClassName = "UiComponents.Login.LoginModel"/>
+  <Register Location="/Models">
+    <Model Id="{82582433-FD64-41bd-9059-7F662DBDA713}" Name="LoginModel" ClassName="UiComponents.Login.LoginModel"/>
   </Register>
 </Plugin>

@@ -56,6 +56,11 @@ namespace MediaPortal.Services.Workflow
 
       #region IPluginItemStateTracker implementation
 
+      public string UsageDescription
+      {
+        get { return "WorkflowManager: Model usage"; }
+      }
+
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         return !_parent.IsModelContainedInNavigationStack(new Guid(itemRegistration.Metadata.Id));

@@ -51,7 +51,7 @@ namespace Components.Services.PlayerManager
       if (!_pluginServicesLoaded)
       {
         ICollection<PlayerBuilder> builders = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PlayerBuilder>(
-            "/Media/Players", new FixedItemStateTracker());
+            "/Media/Players", new FixedItemStateTracker("PlayerFactory"));
         foreach (PlayerBuilder playerBuilder in builders)
         {
           Register(playerBuilder);

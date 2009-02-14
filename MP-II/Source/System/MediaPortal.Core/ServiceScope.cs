@@ -294,7 +294,8 @@ namespace MediaPortal.Core
       }
       if (oldInstance == null)
       {
-        object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name, new FixedItemStateTracker());
+        object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name,
+            new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
         if (newService != null)
         {
           Add<T>((T)newService);

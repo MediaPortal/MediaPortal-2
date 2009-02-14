@@ -1,24 +1,21 @@
 <Plugin
-    Version = "1.0"
-    Name = "PictureImporter"
-    Author = "Frodo"
-    Copyright = "GPL"
-    Description = "Picture Importer"
-    PluginVersion = "1.0">
-
-  <DependsOn>
-    <PluginReference Name="ImporterManager"/>
-  </DependsOn>
+    DescriptorVersion="1.0"
+    Name="PictureImporter"
+    PluginId="{059F49E5-E7FB-43bd-B859-49BAAD497FFA}"
+    Author="Frodo"
+    Copyright="GPL"
+    Description="Picture Importer"
+    PluginVersion="1.0">
 
   <Runtime>
-    <Assembly FileName = "PictureImporter.dll"/>
-    <PluginStateTracker ClassName = "Media.Importers.PictureImporter.Importer"/>
+    <Assembly FileName="PictureImporter.dll"/>
+    <PluginStateTracker ClassName="Media.Importers.PictureImporter.Importer"/>
   </Runtime>
 
-  <Register Location = "/Media/Importers">
+  <Register Location="/Media/Importers">
     <Importer
-        Id = "PictureImporter"
-        ClassName = "Media.Importers.PictureImporter.PictureImporter"
-        Extensions = ".jpg,.jpeg,.png,.gif,.tga"/>
+        Id="PictureImporter"
+        ClassName="Media.Importers.PictureImporter.PictureImporter"
+        Extensions=".jpg,.jpeg,.png,.gif,.tga"/>
   </Register>
 </Plugin>

@@ -52,6 +52,11 @@ namespace MediaPortal.Services.Localization
 
       #region IPluginItemStateTracker implementation
 
+      public string UsageDescription
+      {
+        get { return "StringManager: Language plugins"; }
+      }
+
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
         // We don't care about strings in use, because we don't have an overview which strings are
@@ -101,7 +106,7 @@ namespace MediaPortal.Services.Localization
         ICollection<string> languageDirectories = new List<string>();
         // Add language directories
         ICollection<PluginResource> languageResources = ServiceScope.Get<IPluginManager>().RequestAllPluginItems<PluginResource>(
-            "/Resources/Language", new FixedItemStateTracker());
+            "/Resources/Language", _languagePluginStateTracker);
 
         ILogger logger = ServiceScope.Get<ILogger>();
         foreach (PluginResource resource in languageResources)

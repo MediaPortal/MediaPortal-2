@@ -1,10 +1,11 @@
 <Plugin
-    Version = "1.0"
-    Name = "Weather"
-    Author = "Team MediaPortal"
-    Copyright = "GPL"
-    Description = "Weather Plugin"
-    PluginVersion = "1.0">
+    DescriptorVersion="1.0"
+    Name="Weather"
+    PluginId="{AD9C0439-F9DA-443c-BAC3-163891FB09F1}"
+    Author="Team MediaPortal"
+    Copyright="GPL"
+    Description="Weather Plugin"
+    PluginVersion="1.0">
 
   <Runtime>
     <Assembly FileName="Weather.dll"/>

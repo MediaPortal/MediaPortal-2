@@ -102,6 +102,7 @@
     <Compile Include="Services\PluginManager\PluginBuilderRegistration.cs" />
     <Compile Include="PluginManager\PluginItemRegistration.cs" />
     <Compile Include="PluginManager\IPluginItemStateTracker.cs" />
+    <Compile Include="Services\PluginManager\PluginItemStateTrackerToNameTransformer.cs" />
     <Compile Include="Services\PluginManager\PluginManagerSettings.cs" />
     <Compile Include="PluginManager\PluginRuntime.cs" />
     <Compile Include="PluginManager\IPluginItemBuilder.cs" />

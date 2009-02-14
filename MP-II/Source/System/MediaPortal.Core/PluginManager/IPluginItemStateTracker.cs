@@ -32,6 +32,11 @@ namespace MediaPortal.Core.PluginManager
   public interface IPluginItemStateTracker
   {
     /// <summary>
+    /// Gets a short description of the system component/the usage why this state tracker gets installed.
+    /// </summary>
+    string UsageDescription { get; }
+
+    /// <summary>
     /// Schedules the stopping of the plugin providing the specified <paramref name="itemRegistration"/>
     /// this state tracker is watching.
     /// This method returns the information if the item can be removed from the system. Before this

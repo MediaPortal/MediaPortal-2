@@ -22,36 +22,20 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using MediaPortal.Core.Settings;
+using MediaPortal.Core.PluginManager;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.Services.PluginManager
 {
-  public class PluginManagerSettings
+  public class PluginItemStateTrackerToNameTransformer : CollectionUtils.ITransformer<IPluginItemStateTracker, string>
   {
-    #region Protected properties
+    #region ITransformer<IPluginItemStateTracker,string> implementation
 
-    protected List<Guid> _userDisabledPlugins = new List<Guid>();
+    public string Transform(IPluginItemStateTracker source)
+    {
+      return source.UsageDescription;
+    }
 
     #endregion
-
-    public void AddUserDisabledPlugin(Guid pluginId)
-    {
-      if (!_userDisabledPlugins.Contains(pluginId))
-        _userDisabledPlugins.Add(pluginId);
-    }
-
-    public void RemoveUserDisabledPlugin(Guid pluginId)
-    {
-      _userDisabledPlugins.Remove(pluginId);
-    }
-
-    [Setting(SettingScope.User)]
-    public ICollection<Guid> UserDisabledPlugins
-    {
-      get { return _userDisabledPlugins; }
-      set { _userDisabledPlugins = new List<Guid>(value); }
-    }
   }
 }
