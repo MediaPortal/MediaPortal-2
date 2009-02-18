@@ -39,8 +39,8 @@ namespace MediaPortal.Services.Workflow
   /// </summary>
   public class WorkflowResourcesLoader
   {
-    public const int WORKFLOW_RESOURCE_SPEC_VERSION_HIGH = 1;
-    public const int MIN_WORKFLOW_RESOURCE_SPEC_VERSION_LOW = 0;
+    public const int WORKFLOW_RESOURCE_SPEC_VERSION_MAJOR = 1;
+    public const int MIN_WORKFLOW_RESOURCE_SPEC_VERSION_MINOR = 0;
 
     public const string WORKFLOW_DIRECTORY = "workflow";
 
@@ -97,7 +97,7 @@ namespace MediaPortal.Services.Workflow
           switch (attr.Name)
           {
             case "DescriptorVersion":
-              StringUtils.CheckVersionEG(attr.Value, WORKFLOW_RESOURCE_SPEC_VERSION_HIGH, MIN_WORKFLOW_RESOURCE_SPEC_VERSION_LOW);
+              Versions.CheckVersionCompatible(attr.Value, WORKFLOW_RESOURCE_SPEC_VERSION_MAJOR, MIN_WORKFLOW_RESOURCE_SPEC_VERSION_MINOR);
               //string specVersion = attr.Value; <- if needed
               versionOk = true;
               break;

@@ -41,9 +41,8 @@ namespace MediaPortal.Core.Services.PluginManager
   {
     public const string PLUGIN_META_FILE = "plugin.xml";
 
-    // FIXME Albert: Change meaning: version-high must match exactly
-    public const int MIN_PLUGIN_DESCRIPTOR_VERSION_HIGH = 1;
-    public const int MIN_PLUGIN_DESCRIPTOR_VERSION_LOW = 0;
+    public const int PLUGIN_DESCRIPTOR_VERSION_MAJOR = 1;
+    public const int MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR = 0;
 
     protected static IDictionary<string, string> EMPTY_BUILDERS_DICTIONARY =
         new Dictionary<string, string>(0);
@@ -105,7 +104,7 @@ namespace MediaPortal.Core.Services.PluginManager
           switch (attr.Name)
           {
             case "DescriptorVersion":
-              StringUtils.CheckVersionEG(attr.Value, MIN_PLUGIN_DESCRIPTOR_VERSION_HIGH, MIN_PLUGIN_DESCRIPTOR_VERSION_LOW);
+              Versions.CheckVersionCompatible(attr.Value, PLUGIN_DESCRIPTOR_VERSION_MAJOR, MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR);
               //string specVersion = attr.Value; <- if needed
               versionOk = true;
               break;

@@ -48,8 +48,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public const string SKIN_META_FILE = "skin.xml";
     public const string THEMES_DIRECTORY = "themes";
 
-    public const int MIN_SKIN_DESCRIPTOR_VERSION_HIGH = 1;
-    public const int MIN_SKIN_DESCRIPTOR_VERSION_LOW = 0;
+    public const int SKIN_DESCRIPTOR_VERSION_MAJOR = 1;
+    public const int MIN_SKIN_DESCRIPTOR_VERSION_MINOR = 0;
 
     #region Protected fields
 
@@ -210,7 +210,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
           switch (attr.Name)
           {
             case "Version":
-              StringUtils.CheckVersionEG(attr.Value, MIN_SKIN_DESCRIPTOR_VERSION_HIGH, MIN_SKIN_DESCRIPTOR_VERSION_LOW);
+              Versions.CheckVersionCompatible(attr.Value, SKIN_DESCRIPTOR_VERSION_MAJOR, MIN_SKIN_DESCRIPTOR_VERSION_MINOR);
               _specVersion = attr.Value;
               versionOk = true;
               break;

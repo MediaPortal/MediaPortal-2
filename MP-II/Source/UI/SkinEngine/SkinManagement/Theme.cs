@@ -44,8 +44,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
   {
     public const string THEME_META_FILE = "theme.xml";
 
-    public const int MIN_THEME_DESCRIPTOR_VERSION_HIGH = 1;
-    public const int MIN_THEME_DESCRIPTOR_VERSION_LOW = 0;
+    public const int THEME_DESCRIPTOR_VERSION_MAJOR = 1;
+    public const int MIN_THEME_DESCRIPTOR_VERSION_MINOR = 0;
 
     protected Skin _parentSkin;
 
@@ -115,7 +115,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
         XmlDocument doc = new XmlDocument();
         doc.Load(metaFilePath);
         XmlElement themeElement = doc.DocumentElement;
-        if (themeElement.Name != "Theme")
+        if (themeElement == null || themeElement.Name != "Theme")
           throw new ArgumentException("File is no theme descriptor (needs to contain a 'Theme' element)");
 
         bool versionOk = false;
@@ -124,7 +124,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
           switch (attr.Name)
           {
             case "Version":
-              StringUtils.CheckVersionEG(attr.Value, MIN_THEME_DESCRIPTOR_VERSION_HIGH, MIN_THEME_DESCRIPTOR_VERSION_LOW);
+              Versions.CheckVersionCompatible(attr.Value, THEME_DESCRIPTOR_VERSION_MAJOR, MIN_THEME_DESCRIPTOR_VERSION_MINOR);
               _specVersion = attr.Value;
               versionOk = true;
               break;

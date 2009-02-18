@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="StringUtils.cs" />
     <Compile Include="SystemAPI\WindowsAPI.cs" />
+    <Compile Include="Versions.cs" />
     <Compile Include="Win32\EnvironmentUtils.cs" />
     <Compile Include="Win32\Win32API.cs" />
     <Compile Include="Win32\Window.cs" />
