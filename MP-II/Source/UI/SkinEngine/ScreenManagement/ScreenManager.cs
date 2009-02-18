@@ -147,7 +147,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _theme = theme;
     }
 
-    private void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback, bool isChild)
+    private void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
@@ -166,33 +166,25 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       newDialog.AttachInput();
       newDialog.Show();
       newDialog.ScreenState = Screen.State.Running;
-      newDialog.IsChildDialog = isChild;
       _dialogStack.Push(newDialog);
     }
 
-    private bool InternalCloseDialog()
+    private void InternalCloseDialog()
     {
       // Do we have a dialog?
-      if (_dialogStack.Count > 0)
-      {
-        Screen oldDialog = _dialogStack.Pop();
+      if (_dialogStack.Count == 0)
+        return;
+      Screen oldDialog = _dialogStack.Pop();
 
-        oldDialog.ScreenState = Screen.State.Closing;
-        oldDialog.DetachInput();
-        oldDialog.Hide();
+      oldDialog.ScreenState = Screen.State.Closing;
+      oldDialog.DetachInput();
+      oldDialog.Hide();
 
-        // Is this the last dialog?
-        if (_dialogStack.Count == 0)
-        {
-          _currentScreen.AttachInput();
-        }
-        else
-        {
-          _dialogStack.Peek().AttachInput();
-        }
-        return oldDialog.IsChildDialog;
-      }
-      return false;
+      // Is this the last dialog?
+      if (_dialogStack.Count == 0)
+        _currentScreen.AttachInput();
+      else
+        _dialogStack.Peek().AttachInput();
     }
 
     protected void InternalCloseScreen()
@@ -210,16 +202,12 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected void InternalCloseCurrentScreenAndDialogs()
     {
-      // Close all dialogs
-      for (int i = _dialogStack.Count; i > 0; i--)
-      {
+      while (_dialogStack.Count > 0)
         InternalCloseDialog();
-      }
-      // Close the screen
       InternalCloseScreen();
     }
 
-    protected bool InternalShowScreen(Screen screen)
+    protected void InternalShowScreen(Screen screen)
     {
       lock (_syncRoot)
       {
@@ -228,7 +216,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         _currentScreen.AttachInput();
         _currentScreen.Show();
       }
-      return true;
     }
 
     /// <summary>
@@ -434,10 +421,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
       lock (_syncRoot)
       {
-        // Close the children and the main dialog
-        do
-        {
-        } while (InternalCloseDialog());
+        InternalCloseDialog();
       }
     }
 
@@ -451,16 +435,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
       lock (_syncRoot)
       {
-        InternalShowDialog(dialogName, dialogCloseCallback, false);
-      }
-    }
-
-    public void ShowChildDialog(string dialogName)
-    {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing child dialog '{0}'...", dialogName);
-      lock (_syncRoot)
-      {
-        InternalShowDialog(dialogName, null, true);
+        InternalShowDialog(dialogName, dialogCloseCallback);
       }
     }
 
@@ -500,7 +475,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         InternalCloseCurrentScreenAndDialogs();
 
-        return InternalShowScreen(newScreen);
+        InternalShowScreen(newScreen);
+        return true;
       }
     }
   }

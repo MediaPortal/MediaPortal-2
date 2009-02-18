@@ -55,9 +55,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected string _name;
     protected State _state = State.Running;
 
-    // TRUE if the sceen is a dialog and is a child of another dialog.
-    private bool _isChildDialog;
-
     /// <summary>
     /// Holds the information if our input handlers are currently attached at
     /// the <see cref="IInputManager"/>.
@@ -117,12 +114,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public FrameworkElement RootElement
     {
       get { return _visual as FrameworkElement; }
-    }
-
-    public bool IsChildDialog
-    {
-      get { return _isChildDialog; }
-      set { _isChildDialog = value; }
     }
 
     /// <summary>
