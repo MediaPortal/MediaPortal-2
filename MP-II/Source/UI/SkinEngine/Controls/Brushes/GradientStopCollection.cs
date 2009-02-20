@@ -31,51 +31,11 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 {
   public class GradientStopCollection : IEnumerable<GradientStop>
   {
-    public class GradientStopEnumerator : IEnumerator<GradientStop>
-    {
-      int index = -1;
-      IList<GradientStop> _elements;
-      public GradientStopEnumerator(IList<GradientStop> elements)
-      {
-        _elements = elements;
-      }
+    #region Protected fields
 
-      public GradientStop Current
-      {
-        get
-        {
-          return _elements[index];
-        }
-      }
-
-      public void Dispose()
-      {
-      }
-
-      object IEnumerator.Current
-      {
-        get
-        {
-          return _elements[index];
-        }
-      }
-
-      public bool MoveNext()
-      {
-        index++;
-        return (index < _elements.Count);
-      }
-
-      public void Reset()
-      {
-        index = -1;
-      }
-    }
-
-    #region Private fields
-
-    GradientBrush _parent;
-    IList<GradientStop> _elements;
+    protected GradientBrush _parent;
+    protected IList<GradientStop> _elements;
+    protected IList<GradientStop> _orderedGradientStopList = null; // Caches gradient stops in a list ordered by offset
 
     #endregion
 
@@ -104,36 +64,45 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     void OnStopChanged(IObservable observable)
     {
+      _orderedGradientStopList = null;
       if (_parent != null)
-      _parent.OnGradientsChanged();
+        _parent.OnGradientsChanged();
+    }
+
+    protected static int CompareByOffset(GradientStop x, GradientStop y)
+    {
+      return x.Offset.CompareTo(y.Offset);
     }
 
     public void Add(GradientStop element)
     {
+      _orderedGradientStopList = null;
       element.ObjectChanged += OnStopChanged;
       _elements.Add(element);
       if (_parent != null)
-      _parent.OnGradientsChanged();
+        _parent.OnGradientsChanged();
     }
 
     public void Remove(GradientStop element)
     {
       if (_elements.Contains(element))
       {
+        _orderedGradientStopList = null;
         _elements.Remove(element);
         element.ObjectChanged -= OnStopChanged;
       }
       if (_parent != null)
-      _parent.OnGradientsChanged();
+        _parent.OnGradientsChanged();
     }
 
     public void Clear()
     {
+      _orderedGradientStopList = null;
       foreach (GradientStop stop in _elements)
         stop.ObjectChanged -= OnStopChanged;
       _elements.Clear();
       if (_parent != null)
-      _parent.OnGradientsChanged();
+        _parent.OnGradientsChanged();
     }
 
     public int Count
@@ -148,12 +117,27 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       {
         if (value != _elements[index])
         {
+          _orderedGradientStopList = null;
           _elements[index].ObjectChanged -= OnStopChanged;
           _elements[index] = value;
           _elements[index].ObjectChanged += OnStopChanged;
           if (_parent != null)
-          _parent.OnGradientsChanged();
+            _parent.OnGradientsChanged();
         }
+      }
+    }
+
+    public IList<GradientStop> OrderedGradientStopList
+    {
+      get
+      {
+        if (_orderedGradientStopList == null)
+        {
+          List<GradientStop> result = new List<GradientStop>(this);
+          result.Sort(CompareByOffset);
+          _orderedGradientStopList = result;
+        }
+        return _orderedGradientStopList;
       }
     }
 
@@ -161,7 +145,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public IEnumerator<GradientStop> GetEnumerator()
     {
-      return new GradientStopEnumerator(_elements);
+      return _elements.GetEnumerator();
     }
 
     #endregion
@@ -170,7 +154,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return new GradientStopEnumerator(_elements);
+      return _elements.GetEnumerator();
     }
 
     #endregion

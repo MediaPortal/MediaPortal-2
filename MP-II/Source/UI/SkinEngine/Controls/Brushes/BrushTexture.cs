@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -66,11 +67,13 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       if (stops.Count != _stops.Count)
         return false;
-      for (int i = 0; i < _stops.Count; i++)
+      IList<GradientStop> thisStops = _stops.OrderedGradientStopList;
+      IList<GradientStop> thatStops = stops.OrderedGradientStopList;
+      for (int i = 0; i < thisStops.Count; i++)
       {
-        if (_stops[i].Offset != stops[i].Offset)
+        if (thisStops[i].Offset != thatStops[i].Offset)
           return false;
-        if (!_stops[i].Color.Equals(stops[i].Color))
+        if (!thisStops[i].Color.Equals(thatStops[i].Color))
           return false;
       }
       return true;
@@ -102,14 +105,15 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       float width = 256.0f;
       byte[] data = new byte[4 * 512];
       int offY = 256 * 4;
+      IList<GradientStop> orderedStops = _stops.OrderedGradientStopList;
       for (int i = 0; i < _stops.Count - 1; ++i)
       {
-        GradientStop stopbegin = _stops[i];
-        GradientStop stopend = _stops[i + 1];
-        Color4 colorStart = ColorConverter.FromColor(stopbegin.Color);
-        Color4 colorEnd = ColorConverter.FromColor(stopend.Color);
-        int offsetStart = (int)(stopbegin.Offset * width);
-        int offsetEnd = (int)(stopend.Offset * width);
+        GradientStop stopBegin = orderedStops[i];
+        GradientStop stopEnd = orderedStops[i + 1];
+        Color4 colorStart = ColorConverter.FromColor(stopBegin.Color);
+        Color4 colorEnd = ColorConverter.FromColor(stopEnd.Color);
+        int offsetStart = (int)(stopBegin.Offset * width);
+        int offsetEnd = (int)(stopEnd.Offset * width);
 
         float distance = offsetEnd - offsetStart;
         for (int x = offsetStart; x < offsetEnd; ++x)

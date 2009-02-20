@@ -116,7 +116,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     /// </summary>
     public void OnGradientsChanged()
     {
-      OnPropertyChanged(GradientStopsProperty, null);
+      OnPropertyChanged(_gradientStopsProperty, null);
     }
 
     #region Public properties
