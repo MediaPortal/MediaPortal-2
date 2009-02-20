@@ -57,7 +57,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
   public class SkinResources: IResourceAccessor
   {
     public const string STYLES_DIRECTORY = "styles";
-    public const string SCREENFILES_DIRECTORY = "screens";
+    public const string SCREENS_DIRECTORY = "screens";
+    public const string BACKGROUNDS_DIRECTORY = "backgrounds";
     public const string FONTS_DIRECTORY = "fonts";
     public const string SHADERS_DIRECTORY = "shaders";
     public const string MEDIA_DIRECTORY = "media";
@@ -167,6 +168,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// the style loading has finished.
     /// </summary>
     protected ResourceDictionary _localStyleResources = null;
+
+    /// <summary>
+    /// Dictionary of backgrounds. Will contain all backgrounds when the style resources are loaded.
+    /// </summary>
+    protected IDictionary<string, object> _backgrounds = null;
 
     /// <summary>
     /// Dictionary where we store the load state of all style resource files,
@@ -296,7 +302,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <returns>Absolute file path of the requested skin file.</returns>
     public string GetSkinFilePath(string screenName)
     {
-      string key = SCREENFILES_DIRECTORY + Path.DirectorySeparatorChar + screenName + ".xaml";
+      string key = SCREENS_DIRECTORY + Path.DirectorySeparatorChar + screenName + ".xaml";
       return GetResourceFilePath(key);
     }
 
@@ -317,6 +323,14 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
       ServiceScope.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
       return XamlLoader.Load(skinFilePath, loader);
+    }
+
+    public object GetBackground(string backgroundName)
+    {
+      object result;
+      if (_backgrounds.TryGetValue(backgroundName, out result))
+        return result;
+      return null;
     }
 
     public void ClearRootDirectories()
@@ -347,6 +361,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       _localResourceFilePaths = null;
       _localStyleResources = null;
+      _backgrounds = null;
       ReleaseAllGUIModels();
     }
 
@@ -361,6 +376,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       SkinContext.SkinResources = this;
       InitializeStyleResourceLoading();
       LoadAllStyleResources();
+      LoadBackgrounds();
     }
 
     protected object GetOrLoadGUIModel(Guid modelId)
@@ -501,6 +517,19 @@ namespace MediaPortal.SkinEngine.SkinManagement
       _pendingStyleResources = null;
       if (_inheritedSkinResources != null)
         _inheritedSkinResources.LoadAllStyleResources();
+    }
+
+    protected void LoadBackgrounds()
+    {
+      _backgrounds = new Dictionary<string, object>();
+      foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
+          "^" + BACKGROUNDS_DIRECTORY + "\\\\.*\\.xaml$", true))
+      {
+        object backgroundElement = XamlLoader.Load(resource.Value,
+              new StyleResourceModelLoader(this));
+        if (backgroundElement != null)
+          _backgrounds[resource.Key] = backgroundElement;
+      }
     }
 
     protected virtual void LoadDirectory(string rootDirectoryPath)

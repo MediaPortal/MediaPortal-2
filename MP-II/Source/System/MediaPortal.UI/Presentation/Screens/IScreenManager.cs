@@ -37,9 +37,11 @@ namespace MediaPortal.Presentation.Screens
   public interface IScreenManager
   {
     /// <summary>
-    /// Closes the top most dialog.
+    /// Shows the specified screen as background layer.
     /// </summary>
-    void CloseDialog();
+    /// <param name="backgroundName">Name of a screen to show as background. This will typically be a media
+    /// player or a background image.</param>
+    void SetBackgroundLayer(string backgroundName);
 
     /// <summary>
     /// Shows the dialog screen with the specified name.
@@ -57,13 +59,9 @@ namespace MediaPortal.Presentation.Screens
     void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
 
     /// <summary>
-    /// Prepares the specified screen by loading & initializing it.
-    /// The screen won't be shown (yet).
+    /// Closes the topmost dialog.
     /// </summary>
-    /// <param name="screenName">The name of the screen to be prepared.</param>
-    /// <returns><c>true</c>, if the specified screen is available and could be loaded,
-    /// <c>false</c> if the screen isn't available or if there was a error while loading it.</returns>
-    bool PrepareScreen(string screenName);
+    void CloseDialog();
 
     /// <summary>
     /// Shows the specified screen.
@@ -73,7 +71,10 @@ namespace MediaPortal.Presentation.Screens
     /// <param name="screenName">Name of the screen to be shown.</param>
     bool ShowScreen(string screenName);
 
-    void Reset();
+    /// <summary>
+    /// Reloads background, screen and all dialogs.
+    /// </summary>
+    void Reload();
 
     /// <summary>
     /// Switches the GUI to the specified skin, using the default theme of the skin.
