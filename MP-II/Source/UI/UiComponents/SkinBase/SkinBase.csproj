@@ -1,8 +1,8 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -410,7 +410,6 @@
     <Content Include="Skin\default\screens\dialogWeatherSearch.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSetup.xaml" />
-    <Content Include="Skin\default\screens\dialogYesNo.xaml" />
     <Content Include="Skin\default\screens\dialogZoomModes.xaml" />
     <Content Include="Skin\default\screens\fullscreenvideo.xaml" />
     <Content Include="Skin\default\screens\generic_dialog.xaml" />
@@ -430,17 +429,13 @@
     <Content Include="Skin\default\screens\pictures.xaml" />
     <Content Include="Skin\default\screens\pictureviewer.xaml" />
     <Content Include="Skin\default\screens\playlist.xaml" />
-    <Content Include="Skin\default\screens\settingsAppearance.xaml" />
     <Content Include="Skin\default\screens\settingsAudioSetup.xaml" />
     <Content Include="Skin\default\screens\settingsAudioSetup2.xaml" />
-    <Content Include="Skin\default\screens\settingsGeneral.xaml" />
-    <Content Include="Skin\default\screens\settingsLanguage.xaml" />
     <Content Include="Skin\default\screens\settingsMonitorSetup.xaml" />
     <Content Include="Skin\default\screens\settingsMonitorSetup2.xaml" />
     <Content Include="Skin\default\screens\settingsMusic.xaml" />
     <Content Include="Skin\default\screens\settingsPlayback.xaml" />
     <Content Include="Skin\default\screens\settingsRefreshrate.xaml" />
-    <Content Include="Skin\default\screens\settingsScreen.xaml" />
     <Content Include="Skin\default\screens\weather.xaml" />
     <Content Include="Skin\default\themes\default\theme.xml" />
     <Content Include="Skin\default\themes\default\media\preview.png" />
