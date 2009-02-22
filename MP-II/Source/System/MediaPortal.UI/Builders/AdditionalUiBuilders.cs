@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,24 +22,19 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core;
+using MediaPortal.Core.PluginManager;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.Builders
 {
-  /// <summary>
-  /// interface to a player factor
-  /// </summary>
-  public interface IPlayerFactory
+  public class AdditionalUiBuilders
   {
-    /// <summary>
-    /// creates a new player which can play the media
-    /// </summary>
-    /// <param name="uri">IMediaItem to play</param>
-    /// <returns>
-    /// IPlayer or null if no player supports the file
-    /// </returns>
-    IPlayer GetPlayer(MediaItem uri);
+    public const string BACKGROUND_BUILDER_NAME = "Background";
 
-    void Register(IPlayerBuilder builder);
+    public static void Register()
+    {
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      pluginManager.RegisterSystemPluginItemBuilder(BACKGROUND_BUILDER_NAME, new BackgroundBuilder());
+    }
   }
 }

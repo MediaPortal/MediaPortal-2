@@ -22,14 +22,51 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MediaProviders;
 
 namespace MediaPortal.Presentation.Players
 {
+  /// <summary>
+  /// Builder interface managing multiple players which potentially are able to play a given
+  /// media resource.
+  /// </summary>
+  /// <remarks>
+  /// When a media file should be played, the system has to find an appropriate player which is able
+  /// to play the given resource.
+  /// Instances of this interface are able to decide if one of their managed players is able to play
+  /// the given resource and can build a player for the resource.
+  /// Typically, this interface will be implemented by one single class in each plugin which provides
+  /// one or more players to the system.
+  /// To get an appropriate player for a given media resource from outside, don't use instances of
+  /// this interface directly.
+  /// Use the <see cref="IPlayerFactory"/> service instead.
+  /// </remarks>
   public interface IPlayerBuilder
   {
-    bool CanPlay(MediaItem mediaItem, Uri uri);
-    IPlayer GetPlayer(MediaItem mediaItem, Uri uri);
+    /// <summary>
+    /// Returns the information if this player builder contains a player which is able to play the
+    /// specified media resource.
+    /// </summary>
+    /// <param name="provider">Provider where the media resource is located.</param>
+    /// <param name="path">Path of the media resource in the specified <paramref name="provider"/>.</param>
+    /// <param name="mimeType">Mime type of the media item, if known. If this parameter is given, the
+    /// decision if the media file can be played might be faster. If this parameter is set to <c>null</c>,
+    /// this method will potentially need to look into the given resource.</param>
+    /// <returns><c>true</c>, if the specified media resource can be played by one of the managed players,
+    /// else <c>false</c>.</returns>
+    bool CanPlay(IMediaProvider provider, string path, string mimeType);
+
+    /// <summary>
+    /// Returns an appropriate player to play the specified media resource.
+    /// </summary>
+    /// <param name="provider">Provider where the media resource is located.</param>
+    /// <param name="path">Path of the media resource in the specified <paramref name="provider"/>.</param>
+    /// <param name="mimeType">Mime type of the media item, if known. If this parameter is given, the
+    /// method might be able to return faster. If this parameter is set to <c>null</c>,
+    /// this method will potentially need to look into the given resource before it is able to choose
+    /// an appropriate player for it.</param>
+    /// <returns>Player instance which is able to play the specified resource, or <c>null</c>, if there
+    /// is no player available in this player builder which can play it.</returns>
+    IPlayer GetPlayer(IMediaProvider provider, string path, string mimeType);
   }
 }

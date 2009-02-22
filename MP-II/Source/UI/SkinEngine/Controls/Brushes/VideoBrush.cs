@@ -176,13 +176,14 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       // FIXME Albert78: Temporary don't execute this method because it generates too much debug error
       // messages
       return false;
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
-      if (players == null)
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
+      if (playerManager == null)
       {
         ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
         return false;
       }
-      if (players.Count <= Stream) return false;
+      IPlayer player = playerManager[Stream];
+      if (player == null) return false;
 
       if (Transform != null)
       {
@@ -191,7 +192,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         SkinContext.AddTransform(mTrans);
       }
 
-      IPlayer player = players[Stream];
       UpdateVertexBuffer(player, vertexBuffer);
       player.BeginRender(_effect);
       return true;
@@ -199,15 +199,14 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override void EndRender()
     {
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>(false);
-      if (players == null)
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
+      if (playerManager == null)
       {
         ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
         return;
       }
-      if (players.Count <= Stream) return;
-
-      IPlayer player = players[Stream];
+      IPlayer player = playerManager[Stream];
+      if (player == null) return;
       player.EndRender(_effect);
       if (Transform != null)
       {

@@ -233,7 +233,7 @@ namespace MediaPortal.Services.Localization
 
     /// <summary>
     /// Called when the plugin manager notifies the system about its events.
-    /// Adds Plugin language resource folders to the directory list when all plugins are initialized.
+    /// Adds plugin language resource folders to the directory list when all plugins are initialized.
     /// </summary>
     /// <param name="message">Message containing the notification data.</param>
     private void OnPluginManagerMessageReceived(QueueMessage message)

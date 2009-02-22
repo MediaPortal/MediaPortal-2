@@ -369,7 +369,7 @@ namespace MediaPortal.SkinEngine.GUI
         //Trace.WriteLine("DirectX MainForm: Stop render thread");
         StopRenderThread();
 
-        ServiceScope.Get<IPlayerCollection>().ReleaseResources();
+        ServiceScope.Get<IPlayerManager>().ReleaseGUIResources();
 
         ContentManager.Free();
 
@@ -382,7 +382,7 @@ namespace MediaPortal.SkinEngine.GUI
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread_Async();
         }
-        ServiceScope.Get<IPlayerCollection>().ReallocResources();
+        ServiceScope.Get<IPlayerManager>().ReallocGUIResources();
       }
     }
 
@@ -433,7 +433,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
-      ServiceScope.Get<IPlayerCollection>().ReleaseResources();
+      ServiceScope.Get<IPlayerManager>().ReleaseGUIResources();
 
       ContentManager.Free();
 
@@ -466,7 +466,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, displaySetting);
 
-      ServiceScope.Get<IPlayerCollection>().ReallocResources();
+      ServiceScope.Get<IPlayerManager>().ReallocGUIResources();
 
       StartRenderThread_Async();
     }

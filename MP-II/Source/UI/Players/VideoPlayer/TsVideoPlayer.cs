@@ -670,17 +670,17 @@ namespace MediaPortal.SkinEngine.Players
     }
 
     #endregion
-    public override void ReleaseResources()
+    public override void ReleaseGUIResources()
     {
       if (_renderer != null)
         _renderer.ReleaseResources();
-      base.ReleaseResources();
+      base.ReleaseGUIResources();
     }
-    public override void ReallocResources()
+    public override void ReallocGUIResources()
     {
       if (_renderer != null)
         _renderer.ReallocResources();
-      base.ReallocResources();
+      base.ReallocGUIResources();
     }
   }
 }

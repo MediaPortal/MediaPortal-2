@@ -35,6 +35,7 @@ using MediaPortal.SkinEngine.Commands;
 
 namespace MediaPortal.SkinEngine.Players
 {
+  TODO: Can be deleted - replace by PlayerManager
   public class MediaPlayers : IPlayerCollection
   {
 
@@ -87,7 +88,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       for (int i = 0; i < Count; ++i)
       {
-        this[i].ReleaseResources();
+        this[i].ReleaseGUIResources();
       }
     }
     /// <summary>
@@ -97,7 +98,7 @@ namespace MediaPortal.SkinEngine.Players
     {
       for (int i = 0; i < Count; ++i)
       {
-        this[i].ReallocResources();
+        this[i].ReallocGUIResources();
       }
     }
 

@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </summary>
     public const string DEFAULT_SKIN = "default";
 
-    #region Variables
+    #region Protected fields
 
     protected IDictionary<string, Skin> _skins = new Dictionary<string, Skin>();
     protected SkinResourcesPluginItemStateTracker _skinResourcesPluginItemStateTracker;

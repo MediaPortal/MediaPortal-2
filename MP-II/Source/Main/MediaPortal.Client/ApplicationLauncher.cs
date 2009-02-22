@@ -23,12 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
+using MediaPortal.Builders;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Players;
+using MediaPortal.Services.Players;
 using MediaPortal.UserManagement;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
@@ -44,9 +44,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.DeviceManager;
 using MediaPortal.Services.Localization;
-using MediaPortal.Services.Burning;
 
 [assembly: CLSCompliant(true)]
 
@@ -54,88 +52,6 @@ namespace MediaPortal
 {
   internal static class ApplicationLauncher
   {
-    class DummyPlayerManager : IPlayerCollection
-    {
-      Property _activePlayersProperty = new Property(typeof(object), new List<object>());
-      Property _pausedProperty = new Property(typeof(bool), false);
-      Property _isMutedProperty = new Property(typeof(bool), false);
-
-      #region Implementation of IDisposable
-
-      public void Dispose()
-      {
-      }
-
-      #endregion
-
-      #region Implementation of IPlayerCollection
-
-      public void ReleaseResources()
-      {
-      }
-
-      public void ReallocResources()
-      {
-      }
-
-      public void OnMessage(object m)
-      {
-      }
-
-      public int Count
-      {
-        get { return 0; }
-      }
-
-      public void Add(IPlayer player)
-      {
-      }
-
-      public void Remove(IPlayer player)
-      {
-      }
-
-      public bool CollectionContainsPlayer(IPlayer player)
-      {
-        return false;
-      }
-
-      public IPlayer this[int index]
-      {
-        get { return null; }
-        set { }
-      }
-
-      public Property ActivePlayersProperty
-      {
-        get { return _activePlayersProperty; }
-      }
-
-      public Property PausedProperty
-      {
-        get { return _pausedProperty; }
-      }
-
-      public Property IsMutedProperty
-      {
-        get { return _isMutedProperty; }
-      }
-
-      public bool IsMuted
-      {
-        get { return false; }
-        set { }
-      }
-
-      public bool Paused
-      {
-        get { return false; }
-        set { }
-      }
-
-      #endregion
-    }
-
     /// <summary>
     /// The main entry point for the application.
     /// </summary>
@@ -195,10 +111,9 @@ namespace MediaPortal
         WorkflowManager workflowManager = new WorkflowManager();
         ServiceScope.Add<IWorkflowManager>(workflowManager);
 
-        // FIXME: Replace by correct player manager, when it is reworked
-        logger.Debug("ApplicationLauncher: Create dummy PlayerManager service");
-        DummyPlayerManager playerManager = new DummyPlayerManager();
-        ServiceScope.Add<IPlayerCollection>(playerManager);
+        logger.Debug("ApplicationLauncher: Create IPlayerManager service");
+        PlayerManager playerManager = new PlayerManager();
+        ServiceScope.Add<IPlayerManager>(playerManager);
 
         logger.Debug("ApplicationLauncher: Create UserService service");
         UserService userservice = new UserService();
@@ -210,16 +125,14 @@ namespace MediaPortal
         logger.Debug("ApplicationLauncher: Create ThumbnailGenerator");
         ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
 
-        logger.Debug("ApplicationLauncher: Create BurnManager");
-        ServiceScope.Add<IBurnManager>(new BurnManager());
-        EventHelper.Init(); // only for quick test simulating a plugin
-
 #if !DEBUG
         // Not in Debug mode (ie Release) then catch all Exceptions
         // In Debug mode these will be left unhandled.
       try
       {
 #endif
+        AdditionalUiBuilders.Register();
+
         // Start the core
         logger.Debug("ApplicationLauncher: Starting core");
 

@@ -257,7 +257,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 
         return true;
       }
-      catch (Exception ex)
+      catch
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here

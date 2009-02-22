@@ -45,9 +45,9 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
       return plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
     }
 
-    public bool NeedsPluginActive
+    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      get { return true; }
+      return true;
     }
   }
 }

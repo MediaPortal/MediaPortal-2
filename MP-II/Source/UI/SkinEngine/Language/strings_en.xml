@@ -12,8 +12,10 @@
     <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme.Help" Text="Change the current skin's presentation"/>
   </Section>
   <Section Name="ScreenManager">
-    <String Name="ErrorLoadingScreen" Text="Error loading screen"/>
-    <String Name="ScreenMissing" Text="Cannot find the file resource for screen '{0}'."/>
-    <String Name="ScreenBroken" Text="The screen resource for screen '{0}' seems to be broken."/>
+    <String Name="ErrorLoadingSkinResource" Text="Error loading skin resource"/>
+    <String Name="ScreenMissing" Text="Cannot find the skin resource for screen '{0}'."/>
+    <String Name="ScreenBroken" Text="The skin resource for screen '{0}' seems to be broken."/>
+    <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'."/>
+    <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken."/>
   </Section>
 </Language>

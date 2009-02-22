@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Players;
 
 namespace Media.Players.BassPlayer
@@ -255,11 +253,11 @@ namespace Media.Players.BassPlayer
       }
     }
 
-    public void ReallocResources()
+    public void ReallocGUIResources()
     {
     }
 
-    public void ReleaseResources()
+    public void ReleaseGUIResources()
     {
     }
 

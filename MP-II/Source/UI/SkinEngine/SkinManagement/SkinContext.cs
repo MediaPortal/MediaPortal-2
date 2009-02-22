@@ -462,12 +462,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
           return false;
         if (!ServiceScope.Get<IScreenControl>().IsFullScreen) 
           return false;
-        IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-        if (players.Count > 0)
-        {
-          if (players[0].IsVideo) return false;
-        }
-        return true;
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        // Only watch the primary player here
+        return playerManager[playerManager.PrimaryPlayer] is IVideoPlayer;
       }
       set
       {

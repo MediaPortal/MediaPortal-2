@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{52E587D0-A274-44DA-8846-8EEAF5414923}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -46,6 +46,9 @@
     <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\AdditionalUiBuilders.cs" />
+    <Compile Include="Builders\BackgroundBuilder.cs" />
+    <Compile Include="Builders\StaticBackgroundManager.cs" />
     <Compile Include="Configuration\ConfigSetting.cs" />
     <Compile Include="Configuration\ConfigBase.cs" />
     <Compile Include="Configuration\ConfigGroup.cs" />
@@ -106,13 +109,14 @@
     <Compile Include="Presentation\Localization\StringId.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
-    <Compile Include="Presentation\Players\IPlayerCollection.cs" />
-    <Compile Include="Presentation\Players\IPlayerFactory.cs" />
+    <Compile Include="Presentation\Players\IPlayerManager.cs" />
     <Compile Include="Presentation\Players\IPlayList.cs" />
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
+    <Compile Include="Presentation\Players\IVideoPlayer.cs" />
     <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
+    <Compile Include="Presentation\Screens\IBackgroundManager.cs" />
     <Compile Include="Presentation\Screens\IDialogManager.cs" />
     <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
     <Compile Include="Presentation\Screens\IScreenControl.cs" />
@@ -142,6 +146,7 @@
     <Compile Include="Services\Localization\LocalizationStrings.cs" />
     <Compile Include="Services\Localization\StringManager.cs" />
     <Compile Include="Services\Logging\CrashLogger.cs" />
+    <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
@@ -171,6 +176,9 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\Players\Builders\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

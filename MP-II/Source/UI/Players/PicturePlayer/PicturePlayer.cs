@@ -107,7 +107,7 @@ namespace Media.Players.PicturePlayer
     /// <summary>
     /// Releases any gui resources.
     /// </summary>
-    public void ReleaseResources()
+    public void ReleaseGUIResources()
     {
 
     }
@@ -115,7 +115,7 @@ namespace Media.Players.PicturePlayer
     /// <summary>
     /// Reallocs any gui resources.
     /// </summary>
-    public void ReallocResources()
+    public void ReallocGUIResources()
     {
 
     }

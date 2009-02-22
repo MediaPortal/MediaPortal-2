@@ -22,8 +22,6 @@
 
 #endregion
 
-using System;
-
 namespace MediaPortal.Presentation.Screens
 {
   public delegate void DialogCloseCallbackDlgt(string dialogName);

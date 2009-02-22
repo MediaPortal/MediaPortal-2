@@ -23,6 +23,10 @@
     <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="UiComponents.SkinBase.TimeModel"/>
   </Register>
 
+  <Register Location="/Skins/default">
+    <Background Id="Background" StaticScreen="default-background"/>
+  </Register>
+
   <Register Location="/Resources/Language">
     <Resource Id="DefaultLanguage" Directory="Language" Type="Language"/>
   </Register>

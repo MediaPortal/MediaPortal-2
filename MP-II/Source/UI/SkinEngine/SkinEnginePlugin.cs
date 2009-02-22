@@ -70,6 +70,8 @@ namespace MediaPortal.SkinEngine
 
       logger.Debug("SkinEnginePlugin: Create DirectX main window");
       _mainForm = new MainForm(_screenManager);
+      // Install background manager before the mainform gets visible
+      _screenManager.InstallBackgroundManager();
       _mainForm.Visible = true;
       _mainForm.Start();
 
@@ -79,6 +81,7 @@ namespace MediaPortal.SkinEngine
 
     public void Dispose()
     {
+      _screenManager.UninstallBackgroundManager();
       _mainForm.Dispose();
       _screenManager.Dispose();
     }

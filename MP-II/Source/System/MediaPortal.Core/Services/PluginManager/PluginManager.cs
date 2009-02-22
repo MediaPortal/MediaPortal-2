@@ -407,7 +407,7 @@ namespace MediaPortal.Core.Services.PluginManager
     internal object BuildItem(PluginItemMetadata metadata, PluginRuntime plugin)
     {
       IPluginItemBuilder builder = GetOrCreateBuilder(metadata.BuilderName);
-      if (builder.NeedsPluginActive && !TryActivate(plugin))
+      if (builder.NeedsPluginActive(metadata, plugin) && !TryActivate(plugin))
         throw new PluginInvalidStateException(string.Format(
             "Plugin '{0}' (id '{1}') cannot be activated, although it has registered items. Something is wrong.",
             metadata.PluginRuntime.Metadata.Name, metadata.PluginRuntime.Metadata.PluginId));

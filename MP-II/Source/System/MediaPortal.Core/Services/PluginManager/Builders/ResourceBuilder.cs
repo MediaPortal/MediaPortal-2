@@ -49,9 +49,9 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
           plugin.Metadata.GetAbsolutePath(itemData.Attributes["Directory"]));
     }
 
-    public bool NeedsPluginActive
+    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      get { return false; }
+      return false;
     }
   }
 }

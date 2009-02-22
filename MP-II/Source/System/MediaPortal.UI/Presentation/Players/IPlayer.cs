@@ -37,33 +37,36 @@ namespace MediaPortal.Presentation.Players
   };
 
   /// <summary>
-  /// generic class for a player
-  /// TODO Albert78, 2008-11-04: Rework
+  /// Interface for an audio or video player which is already prepared to play a media resource.
   /// </summary>
   public interface IPlayer
   {
     /// <summary>
-    /// gets the Name of the Player
+    /// Gets the Name of the Player
     /// </summary>
     string Name { get; }
 
-    Size VideoSize { get; }
-    Size VideoAspectRatio { get;  }
-
     /// <summary>
-    /// Releases any gui resources.
+    /// Returns a unique id for this player.
     /// </summary>
-    void ReleaseResources();
+    Guid PlayerId { get; }
 
     /// <summary>
-    /// Reallocs any gui resources.
+    /// Releases any GUI resources.
     /// </summary>
-    void ReallocResources();
+    void ReleaseGUIResources();
 
     /// <summary>
-    /// gets the playback state
+    /// Reallocs any GUI resources.
+    /// </summary>
+    void ReallocGUIResources();
+
+    /// <summary>
+    /// Gets the playback state of this player.
     /// </summary>
     PlaybackState State { get; }
+
+    // TODO: go on with rework of interface from here
 
     /// <summary>
     /// gets/sets the width/height for the video window
@@ -163,6 +166,9 @@ namespace MediaPortal.Presentation.Players
     /// </summary>
     /// <value>The current audio stream.</value>
     string CurrentAudioStream { get; }
+
+    Size VideoSize { get; }
+    Size VideoAspectRatio { get;  }
 
     /// <summary>
     /// Gets the DVD titles.

@@ -99,9 +99,9 @@ namespace Components.Services.PlayerManager
       return builder;
     }
 
-    public bool NeedsPluginActive
+    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      get { return true; }
+      return true;
     }
 
     #endregion

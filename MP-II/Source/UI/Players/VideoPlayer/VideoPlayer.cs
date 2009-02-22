@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -335,8 +335,6 @@ namespace MediaPortal.SkinEngine.Players
     /// <param name="filename">The filename.</param>
     public void Play(IMediaItem mediaItem)
     {
-
-
       _mediaItem = mediaItem;
       _state = PlaybackState.Playing;
       _vertices = new PositionColored2Textured[4];
@@ -376,36 +374,24 @@ namespace MediaPortal.SkinEngine.Players
         }
       }
 
-
-
       // Create the Allocator / Presenter object
       _allocator = new Allocator(this, _useEvr);
 
-
       AddEvrOrVmr9();
-
-
 
       ServiceScope.Get<ILogger>().Debug("VideoPlayer add preferred codecs");
       AddPreferredCodecs();
 
-
-
       ServiceScope.Get<ILogger>().Debug("VideoPlayer add file source");
       AddFileSource();
-
-
 
       ServiceScope.Get<ILogger>().Debug("VideoPlayer run graph");
       // Run the graph
       IMediaControl mediaControl = _graphBuilder as IMediaControl;
 
-
       ///This needs to be done here before we check if the evr pins are connected
       ///since this method gives players the chance to render the last bits of the graph
       OnBeforeGraphRunning();
-
-
 
       //check if EVR is connected!
       if (_useEvr)
@@ -448,11 +434,6 @@ namespace MediaPortal.SkinEngine.Players
           return;
         }
       }
-
-
-
-
-
 
       hr = mediaControl.Run();
       if (hr != 0 && hr != 1)
@@ -597,7 +578,6 @@ namespace MediaPortal.SkinEngine.Players
                                              settings.H264Codec);
         }
 
-
         if (_videoh264Codec == null)
         {
           _videoh264Codec =
@@ -736,10 +716,7 @@ namespace MediaPortal.SkinEngine.Players
         ServiceScope.Get<ILogger>().Debug("VideoPlayer:Stop playing");
         int hr = 0;
 
-
         ServiceScope.Get<IPlayerCollection>().Remove(this);
-
-
 
         if (_graphBuilder != null)
         {
@@ -774,7 +751,6 @@ namespace MediaPortal.SkinEngine.Players
             }
           }
           _vmr9 = null;
-
 
           if (_allocatorKey >= 0)
           {
@@ -1598,7 +1574,6 @@ namespace MediaPortal.SkinEngine.Players
       }
     }
 
-
     /// <summary>
     /// Gets the media-item.
     /// </summary>
@@ -1614,7 +1589,7 @@ namespace MediaPortal.SkinEngine.Players
     /// <summary>
     /// Releases any gui resources.
     /// </summary>
-    public virtual void ReleaseResources()
+    public virtual void ReleaseGUIResources()
     {
       //stops the renderer threads all of it's own.
       //this could be split into two parts, but we would need
@@ -1673,7 +1648,6 @@ namespace MediaPortal.SkinEngine.Players
           _allocator = null;
         }
 
-
         if (_vmr9 != null)
         {
           if (_graphBuilder != null) //&& !_useEvr)
@@ -1706,7 +1680,7 @@ namespace MediaPortal.SkinEngine.Players
     /// <summary>
     /// Reallocs any gui resources.
     /// </summary>
-    public virtual void ReallocResources()
+    public virtual void ReallocGUIResources()
     {
       if (_graphBuilder != null)
       {

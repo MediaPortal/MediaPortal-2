@@ -489,7 +489,7 @@ namespace MediaPortal.SkinEngine
         _backBuffer.Dispose();
 
         _backBuffer = null;
-        ServiceScope.Get<IPlayerCollection>().Dispose();
+        ServiceScope.Get<IPlayerManager>().Dispose();
         ContentManager.Free();
       }
 

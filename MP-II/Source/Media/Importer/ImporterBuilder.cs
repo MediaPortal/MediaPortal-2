@@ -44,9 +44,9 @@ namespace Components.Services.ImporterManager
       return new LazyImporterWrapper(name, extensions, className, plugin);
     }
 
-    public bool NeedsPluginActive
+    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      get { return true; }
+      return true;
     }
 
     #endregion

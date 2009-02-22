@@ -158,8 +158,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <remarks>
     /// Holds all known resource files from our resource directories, stored in
     /// a dictionary: The key is the unified resource file name
-    /// (relative path name starting at the beginning of the skinfile directory),
-    /// the value is the absolute file path of the resource file.
+    /// (relative path name starting at the beginning of the skinfile directory in lower case invariant),
+    /// the value is the absolute file path of the resource file in native case.
     /// </remarks>
     protected IDictionary<string, string> _localResourceFilePaths = null;
 
@@ -171,6 +171,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     /// <summary>
     /// Dictionary of backgrounds. Will contain all backgrounds when the style resources are loaded.
+    /// The keys are the background names in lower case invariant, the values are the loaded elements.
     /// </summary>
     protected IDictionary<string, object> _backgrounds = null;
 
@@ -267,7 +268,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       if (resourceName == null)
         return null;
       CheckResourcesInitialized();
-      string key = resourceName.ToLower();
+      string key = resourceName.ToLowerInvariant();
       if (_localResourceFilePaths.ContainsKey(key))
         return _localResourceFilePaths[key];
       if (searchInheritedResources && _inheritedSkinResources != null)
@@ -330,6 +331,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
       object result;
       if (_backgrounds.TryGetValue(backgroundName, out result))
         return result;
+      if (_inheritedSkinResources != null)
+        return _inheritedSkinResources.GetBackground(backgroundName);
       return null;
     }
 
@@ -427,7 +430,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// </remarks>
     internal void CheckStyleResourceFileWasLoaded(string styleResourceName)
     {
-      string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLower() + ".xaml";
+      string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLowerInvariant() + ".xaml";
       if (_localStyleResources == null)
         // Method was called before the styles initialization
         throw new InvalidStateException("SkinResources '{0}' were not prepared", this);
@@ -527,8 +530,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
       {
         object backgroundElement = XamlLoader.Load(resource.Value,
               new StyleResourceModelLoader(this));
+        string backgroundName = resource.Key.Substring(BACKGROUNDS_DIRECTORY.Length + 1).ToLowerInvariant();
+        if (backgroundName.EndsWith(".xaml"))
+          backgroundName = backgroundName.Substring(0, backgroundName.Length - ".xaml".Length);
         if (backgroundElement != null)
-          _backgrounds[resource.Key] = backgroundElement;
+          _backgrounds[backgroundName] = backgroundElement;
       }
     }
 
@@ -540,7 +546,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       int directoryNameLength = rootDirectoryPath.Length;
       foreach (string resourceFilePath in FileUtils.GetAllFilesRecursively(rootDirectoryPath))
       {
-        string resourceName = resourceFilePath.Substring(directoryNameLength).ToLower();
+        string resourceName = resourceFilePath.Substring(directoryNameLength).ToLowerInvariant();
         if (resourceName.StartsWith(Path.DirectorySeparatorChar.ToString()))
           resourceName = resourceName.Substring(1);
         if (_localResourceFilePaths.ContainsKey(resourceName))

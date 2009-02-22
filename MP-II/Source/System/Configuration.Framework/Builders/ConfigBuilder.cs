@@ -62,7 +62,6 @@ namespace MediaPortal.Configuration.Builders
       }
       if (text == null)
         throw new ArgumentException("'ConfigSection' item needs an attribute 'Text'");
-      ICollection<ConfigBaseMetadata> result = new List<ConfigBaseMetadata>();
       return new ConfigSectionMetadata(location, text,
           plugin.Metadata.GetAbsolutePath(iconSmallPath),
           plugin.Metadata.GetAbsolutePath(iconLargePath));
@@ -231,9 +230,9 @@ namespace MediaPortal.Configuration.Builders
           typeof(ConfigBuilder).Name, itemData.BuilderName));
     }
 
-    public bool NeedsPluginActive
+    public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      get { return true; }
+      return itemData.BuilderName != "ConfigSection" && itemData.BuilderName != "ConfigGroup";
     }
 
     #endregion

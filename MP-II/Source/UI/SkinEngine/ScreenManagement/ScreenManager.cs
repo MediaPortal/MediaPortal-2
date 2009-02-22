@@ -54,9 +54,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public const string HOME_SCREEN = "home";
 
     public const string ERROR_DIALOG_HEADER = "[Dialogs.ErrorHeaderText]";
-    public const string ERROR_LOADING_SCREEN_TEXT = "[ScreenManager.ErrorLoadingScreen]";
+    public const string ERROR_LOADING_SKIN_RESOURCE_TEXT = "[ScreenManager.ErrorLoadingSkinResource]";
     public const string SCREEN_MISSING_TEXT = "[ScreenManager.ScreenMissing]";
     public const string SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
+    public const string BACKGROUND_SCREEN_MISSING_TEXT = "[ScreenManager.BackgroundScreenMissing]";
+    public const string BACKGROUND_SCREEN_BROKEN_TEXT = "[ScreenManager.BackgroundScreenBroken]";
 
     protected readonly object _syncRoot = new object();
     protected Screen _backgroundLayer = null;
@@ -121,36 +123,39 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// or <c>null</c> for the default theme of the skin.</param>
     protected void PrepareSkinAndTheme(string skinName, string themeName)
     {
-      // Release old resources
-      _skinManager.ReleaseSkinResources();
+      lock (_syncRoot)
+      {
+        // Release old resources
+        _skinManager.ReleaseSkinResources();
 
-      // Prepare new skin data
-      Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
-      if (skin == null)
-        skin = _skinManager.DefaultSkin;
-      if (skin == null)
-        throw new Exception(string.Format("Skin '{0}' not found", skinName));
-      Theme theme = themeName == null ? null :
-          (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
-      if (theme == null)
-        theme = skin.DefaultTheme;
+        // Prepare new skin data
+        Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
+        if (skin == null)
+          skin = _skinManager.DefaultSkin;
+        if (skin == null)
+          throw new Exception(string.Format("Skin '{0}' not found", skinName));
+        Theme theme = themeName == null ? null :
+            (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
+        if (theme == null)
+          theme = skin.DefaultTheme;
 
-      if (!skin.IsValid)
-        throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
-      if (theme != null)
-        if (!theme.IsValid)
-          throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
+        if (!skin.IsValid)
+          throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
+        if (theme != null)
+          if (!theme.IsValid)
+            throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
 
-      SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
-      Fonts.FontManager.Load(skinResources);
+        SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
+        Fonts.FontManager.Load(skinResources);
 
-      _skinManager.InstallSkinResources(skinResources);
+        _skinManager.InstallSkinResources(skinResources);
 
-      _skin = skin;
-      _theme = theme;
+        _skin = skin;
+        _theme = theme;
+      }
     }
 
-    private void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    protected void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
@@ -159,20 +164,26 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         return;
       }
 
-      if (_dialogStack.Count == 0)
-        _currentScreen.DetachInput();
-      else
-        _dialogStack.Peek().DetachInput();
+      lock (_syncRoot)
+      {
+        if (_dialogStack.Count == 0)
+        {
+          if (_currentScreen != null)
+            _currentScreen.DetachInput();
+        }
+        else
+          _dialogStack.Peek().DetachInput();
 
-      if (dialogCloseCallback != null)
-        newDialog.Closed += (sender, e) => dialogCloseCallback(dialogName);
-      newDialog.AttachInput();
-      newDialog.Show();
-      newDialog.ScreenState = Screen.State.Running;
-      _dialogStack.Push(newDialog);
+        if (dialogCloseCallback != null)
+          newDialog.Closed += (sender, e) => dialogCloseCallback(dialogName);
+        newDialog.AttachInput();
+        newDialog.Show();
+        newDialog.ScreenState = Screen.State.Running;
+        _dialogStack.Push(newDialog);
+      }
     }
 
-    private void InternalCloseDialog()
+    protected void InternalCloseDialog()
     {
       lock(_syncRoot)
       {
@@ -187,7 +198,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         // Is this the last dialog?
         if (_dialogStack.Count == 0)
-          _currentScreen.AttachInput();
+        {
+          if (_currentScreen != null)
+            _currentScreen.AttachInput();
+        }
         else
           _dialogStack.Peek().AttachInput();
       }
@@ -195,10 +209,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected void InternalCloseScreen()
     {
-      if (_currentScreen == null)
-        return;
       lock (_syncRoot)
       {
+        if (_currentScreen == null)
+          return;
         _currentScreen.ScreenState = Screen.State.Closing;
         _currentScreen.DetachInput();
         _currentScreen.Hide();
@@ -208,11 +222,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected void InternalCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
     {
-      if (closeBackgroundLayer)
-        InternalSetBackgroundLayer(null);
-      while (_dialogStack.Count > 0)
-        InternalCloseDialog();
-      InternalCloseScreen();
+      lock (_syncRoot)
+      {
+        if (closeBackgroundLayer)
+          InternalSetBackgroundLayer(null);
+        while (_dialogStack.Count > 0)
+          InternalCloseDialog();
+        InternalCloseScreen();
+      }
     }
 
     protected void InternalShowScreen(Screen screen)
@@ -244,6 +261,18 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
+    public void InstallBackgroundManager()
+    {
+      lock (_syncRoot)
+        _skin.InstallBackgroundManager();
+    }
+
+    public void UninstallBackgroundManager()
+    {
+      lock (_syncRoot)
+        _skin.UninstallBackgroundManager();
+    }
+
     /// <summary>
     /// Renders the current window and dialog.
     /// </summary>
@@ -254,9 +283,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         if (_backgroundLayer != null)
           _backgroundLayer.Render();
-        if (_currentScreen == null)
-          return;
-        _currentScreen.Render();
+        if (_currentScreen != null)
+          _currentScreen.Render();
         foreach (Screen dialog in _dialogStack)
           dialog.Render();
       }
@@ -278,14 +306,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
-        string background = _backgroundLayer == null ? null : _backgroundLayer.Name;
+        UninstallBackgroundManager();
+        InternalSetBackgroundLayer(null);
+
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
 
         InternalCloseCurrentScreenAndDialogs(true);
 
         // FIXME Albert78: Find a better way to make the PlayerCollection and
         // ContentManager observe the current skin
-        ServiceScope.Get<IPlayerCollection>().Dispose();
+        ServiceScope.Get<IPlayerManager>().Dispose();
         ContentManager.Clear();
 
         try
@@ -298,24 +328,26 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           // Continue with old skin
           // TODO: Show error dialog
         }
+        InstallBackgroundManager();
 
-        if (_skin.GetSkinFilePath(currentScreenName) != null)
-          _currentScreen = GetScreen(currentScreenName);
-        if (_currentScreen == null)
-          _currentScreen = GetScreen(HOME_SCREEN);
-        if (_currentScreen == null)
-        { // The new skin is broken, so reset to default skin
-          if (_skin == _skinManager.DefaultSkin)
-              // We're already loading the default skin, it seems to be broken
-            throw new Exception("The default skin seems to be broken, we don't have a fallback anymore");
-          // Try it again with the default skin
-          SwitchSkinAndTheme(SkinManager.DEFAULT_SKIN, null);
-          return;
+        if (currentScreenName != null)
+        {
+          if (_skin.GetSkinFilePath(currentScreenName) != null)
+            _currentScreen = GetScreen(currentScreenName);
+          if (_currentScreen == null)
+            _currentScreen = GetScreen(HOME_SCREEN);
+          if (_currentScreen == null)
+          { // The new skin is broken, so reset to default skin
+            if (_skin == _skinManager.DefaultSkin)
+                // We're already loading the default skin, it seems to be broken
+              throw new Exception("The default skin seems to be broken, we don't have a fallback anymore");
+            // Try it again with the default skin
+            SwitchSkinAndTheme(SkinManager.DEFAULT_SKIN, null);
+            return;
+          }
+          
+          InternalShowScreen(_currentScreen);
         }
-        _backgroundLayer = GetScreen(background);
-        
-        InternalSetBackgroundLayer(_backgroundLayer);
-        InternalShowScreen(_currentScreen);
       }
       SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
@@ -344,13 +376,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Gets the window displaying the screen with the specified name. If the window is
-    /// already loaded, the cached window will be returned. Else, a new window instance
-    /// will be created for the specified <paramref name="screenName"/> and loaded from
-    /// a skin file. The window will not be shown yet.
+    /// Gets the screen with the specified name.
     /// </summary>
-    /// <param name="screenName">Name of the screen to return the window instance for.</param>
-    /// <returns>screen or <c>null</c>, if an error occured while loading the window.</returns>
+    /// <param name="screenName">Name of the screen to return.</param>
+    /// <returns>screen or <c>null</c>, if an error occured while loading the screen.</returns>
     public Screen GetScreen(string screenName)
     {
       Screen result = new Screen(screenName);
@@ -360,7 +389,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT).Evaluate(screenName),
               DialogType.OkDialog, false);
           return null;
@@ -373,8 +402,48 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
         try
         {
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SCREEN_TEXT,
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
+              DialogType.OkDialog, false);
+        }
+        catch (Exception)
+        {
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Error showing generic dialog for error message");
+          return null;
+        }
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// Gets the background screen with the specified name.
+    /// </summary>
+    /// <param name="screenName">Name of the background screen to return.</param>
+    /// <returns>screen or <c>null</c>, if an error occured while loading the screen.</returns>
+    public Screen GetBackground(string screenName)
+    {
+      Screen result = new Screen(screenName);
+      try
+      {
+        UIElement root = LoadBackgroundElement(screenName);
+        if (root == null)
+        {
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load background screen '{0}'", screenName);
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
+              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT).Evaluate(screenName),
+              DialogType.OkDialog, false);
+          return null;
+        }
+        result.Visual = root;
+        return result;
+      }
+      catch (Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for background screen '{0}'", ex, screenName);
+        try
+        {
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
+              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT).Evaluate(screenName),
               DialogType.OkDialog, false);
         }
         catch (Exception)
@@ -388,20 +457,26 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void Reset()
     {
-      foreach (Screen dialog in _dialogStack)
-        dialog.Reset();
-      if (_backgroundLayer != null)
-        _backgroundLayer.Reset();
-      if (_currentScreen != null)
-        _currentScreen.Reset();
+      lock (_syncRoot)
+      {
+        foreach (Screen dialog in _dialogStack)
+          dialog.Reset();
+        if (_backgroundLayer != null)
+          _backgroundLayer.Reset();
+        if (_currentScreen != null)
+          _currentScreen.Reset();
+      }
     }
 
     public void Exit()
     {
-      foreach (Screen dialog in _dialogStack)
-        dialog.Deallocate();
-      if (_currentScreen != null)
-        _currentScreen.Deallocate();
+      lock (_syncRoot)
+      {
+        foreach (Screen dialog in _dialogStack)
+          dialog.Deallocate();
+        if (_currentScreen != null)
+          _currentScreen.Deallocate();
+      }
       Fonts.FontManager.Unload();
     }
 
@@ -417,27 +492,44 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public string SkinName
     {
-      get { return _skin.Name; }
+      get
+      {
+        lock (_syncRoot)
+          return _skin.Name;
+      }
     }
 
     public string ThemeName
     {
-      get { return _theme == null ? null : _theme.Name; }
+      get
+      {
+        lock (_syncRoot)
+          return _theme == null ? null : _theme.Name;
+      }
     }
 
     public string CurrentScreenName
     {
-      get { return IsDialogVisible ? _dialogStack.Peek().Name : _currentScreen.Name; }
+      get
+      {
+        lock (_syncRoot)
+          return _dialogStack.Count > 0 ? _dialogStack.Peek().Name :
+              (_currentScreen == null ? null : _currentScreen.Name);
+      }
     }
 
     public bool IsDialogVisible
     {
-      get { return _dialogStack.Count > 0; }
+      get
+      {
+        lock (_syncRoot)
+          return _dialogStack.Count > 0;
+      }
     }
 
     public void SetBackgroundLayer(string backgroundName)
     {
-      Screen background = GetScreen(backgroundName);
+      Screen background = GetBackground(backgroundName);
       if (background == null)
         // Error message was shown in GetScreen()
         return;
@@ -471,6 +563,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       Screen currentScreen;
       lock (_syncRoot)
       {
+        if (_currentScreen == null)
+          return;
         string name = _currentScreen.Name;
         currentScreen = GetScreen(name);
       }
@@ -480,10 +574,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       InternalShowScreen(currentScreen);
     }
 
-    public bool ShowScreen(string windowName)
+    public bool ShowScreen(string screenName)
     {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", windowName);
-      Screen newScreen = GetScreen(windowName);
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing screen '{0}'...", screenName);
+      Screen newScreen = GetScreen(screenName);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;

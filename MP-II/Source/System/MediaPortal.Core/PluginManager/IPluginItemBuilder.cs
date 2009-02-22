@@ -45,16 +45,20 @@ namespace MediaPortal.Core.PluginManager
     /// The plugin is in state <see cref="PluginState.Enabled"/> or <see cref="PluginState.Active"/>
     /// when this method is called, depending on the return value of <see cref="NeedsPluginActive"/>.
     /// </summary>
+    /// <param name="itemData">The plugin item's metadata to use.</param>
+    /// <param name="plugin">The plugin runtime instance.</param>
     object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
 
     /// <summary>
-    /// Returns a flag indicating if this builder needs the item's plugin in an active state to build
+    /// Returns the information if this builder needs the item's plugin in an active state to build
     /// the item.
     /// </summary>
     /// <remarks>
     /// For example, if the builder will access the item's plugin's assemblies, it is necessary that
     /// the plugin is active before the <see cref="BuildItem"/> method can be called.
     /// </remarks>
-    bool NeedsPluginActive { get; }
+    /// <param name="itemData">The plugin item's metadata to use.</param>
+    /// <param name="plugin">The plugin runtime instance.</param>
+    bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin);
 	}
 }
