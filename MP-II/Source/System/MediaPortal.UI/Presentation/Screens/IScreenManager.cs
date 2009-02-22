@@ -102,6 +102,11 @@ namespace MediaPortal.Presentation.Screens
     string CurrentScreenName { get; }
 
     /// <summary>
+    /// Gets the name of the currently shown background screen.
+    /// </summary>
+    string CurrentBackgroundScreenName { get; }
+
+    /// <summary>
     /// Returns <c>true</c> if a dialog is currently visible, else <c>false</c>.
     /// </summary>
     bool IsDialogVisible { get; }

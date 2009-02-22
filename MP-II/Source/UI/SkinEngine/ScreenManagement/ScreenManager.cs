@@ -518,7 +518,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    public bool IsDialogVisible
+    public string CurrentBackgroundScreenName
+    {
+      get
+      {
+        lock (_syncRoot)
+          return _backgroundLayer == null ? null : _backgroundLayer.Name;
+      }
+    }
+
+      public bool IsDialogVisible
     {
       get
       {
