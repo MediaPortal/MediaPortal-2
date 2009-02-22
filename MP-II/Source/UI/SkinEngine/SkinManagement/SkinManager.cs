@@ -222,15 +222,23 @@ namespace MediaPortal.SkinEngine.SkinManagement
           }
         else
           ServiceScope.Get<ILogger>().Warn("SkinManager: Skin resource directory '{0}' doesn't exist", rootDirectoryPath);
-      // Setup the resource chain: Inherit the default theme resources for all
-      // skins other than the default skin
+      // Setup the resource chain: Inherit the theme resources of the based-on-skin for all
+      // skins, and use the default skin as last fallback
       Skin defaultSkin = DefaultSkin;
-      SkinResources inheritResources = defaultSkin == null ? null : defaultSkin.DefaultTheme;
-      if (inheritResources == null)
-        inheritResources = defaultSkin;
+      SkinResources defaultInheritResources = defaultSkin == null ? null : defaultSkin.DefaultTheme;
+      if (defaultInheritResources == null)
+        defaultInheritResources = defaultSkin;
       foreach (KeyValuePair<string, Skin> kvp in _skins)
-        if (kvp.Key != DEFAULT_SKIN)
-          kvp.Value.InheritedSkinResources = inheritResources;
+      {
+        Skin current = kvp.Value;
+        Skin basedOnSkin;
+        SkinResources inheritResources;
+        if (current.BasedOnSkin != null && _skins.TryGetValue(current.BasedOnSkin, out basedOnSkin))
+          inheritResources = basedOnSkin.DefaultTheme ?? (SkinResources) basedOnSkin;
+        else
+          inheritResources = kvp.Key == DEFAULT_SKIN ? null : defaultInheritResources;
+        current.InheritedSkinResources = inheritResources;
+      }
     }
 
     /// <summary>

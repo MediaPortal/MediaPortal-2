@@ -137,11 +137,17 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected string _skinVersion = null;
     protected string _skinEngineVersion = null;
     protected string _defaultThemeName = null;
+    protected string _basedOnSkin = null;
 
     #endregion
 
     public Skin(string name): base(name)
     {
+    }
+
+    public string BasedOnSkin
+    {
+      get { return _basedOnSkin; }
     }
 
     public string ShortDescription
@@ -361,6 +367,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
               break;
             case "DefaultTheme":
               _defaultThemeName = child.InnerText;
+              break;
+            case "BasedOnSkin":
+              _basedOnSkin = child.InnerText;
               break;
             default:
               throw new ArgumentException("Child element '" + child.Name + "' is unknown");
