@@ -33,7 +33,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.SkinEngine.Commands;
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   TODO: Can be deleted - replace by PlayerManager
   public class MediaPlayers : IPlayerCollection

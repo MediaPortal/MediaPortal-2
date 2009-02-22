@@ -23,11 +23,10 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Core;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Geometry;
 
-namespace MediaPortal.SkinEngine.Players.Geometry
+namespace Ui.Players.VideoPlayer.Geometry
 {
   public class GeometryLetterBox : IGeometry
   {

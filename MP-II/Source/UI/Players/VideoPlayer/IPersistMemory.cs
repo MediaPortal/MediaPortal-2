@@ -22,11 +22,10 @@
 
 #endregion
 
-
 using System;
 using System.Runtime.InteropServices;
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   [ComVisible(true), ComImport,
    Guid("BD1AE5E0-A6AE-11CE-BD37-504200C10000"),

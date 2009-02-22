@@ -27,7 +27,7 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Geometry;
 
-namespace MediaPortal.SkinEngine.Players.Geometry
+namespace Ui.Players.VideoPlayer.Geometry
 {
   /// <summary>
   /// Class which can do transformations for video windows
@@ -191,9 +191,9 @@ namespace MediaPortal.SkinEngine.Players.Geometry
     }
 
     /// <summary>
-    /// Method todo the transformation.
+    /// Method to do the transformation.
     /// It will calculate 2 rectangles. A source and destination rectangle based on the
-    /// current transformation , image width/height and screen width/height
+    /// current transformation, image width/height and screen width/height
     /// the returned source rectangle specifies which part of the image/video should be copied
     /// the returned destination rectangle specifies where the copied part should be presented on screen
     /// </summary>
@@ -215,7 +215,7 @@ namespace MediaPortal.SkinEngine.Players.Geometry
     // used from planescene
     public void GetWindow(int arVideoWidth, int arVideoHeight, out Rectangle rSource, out Rectangle rDest, CropSettings cropSettings)
     {
-      float fSourceFrameRatio = (float)arVideoWidth / (float)arVideoHeight;
+      float fSourceFrameRatio = arVideoWidth / (float) arVideoHeight;
       GetWindow(fSourceFrameRatio, out rSource, out rDest, cropSettings);
     }
 
@@ -243,7 +243,7 @@ namespace MediaPortal.SkinEngine.Players.Geometry
     /// </summary>
     private float CalculateFrameAspectRatio()
     {
-      return (float)ImageWidth / (float)ImageHeight;
+      return ImageWidth / (float) ImageHeight;
     }
   }
 }

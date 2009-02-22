@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   public class VideoSettings
   {

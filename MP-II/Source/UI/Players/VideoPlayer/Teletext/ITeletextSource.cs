@@ -22,11 +22,10 @@
 
 #endregion
 
-
 using System;
 using System.Runtime.InteropServices;
 
-namespace MediaPortal.SkinEngine.Players.Teletext
+namespace Ui.Players.VideoPlayer.Teletext
 {
 
   enum TeletextEvent

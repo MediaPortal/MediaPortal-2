@@ -22,13 +22,12 @@
 
 #endregion
 
-
 using System;
-using MediaPortal.SkinEngine.Players.Teletext;
+using Ui.Players.VideoPlayer.Teletext;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace MediaPortal.SkinEngine.Players.Subtitles
+namespace Ui.Players.VideoPlayer.Subtitles
 {
   class TeletextSubtitleDecoder : IDVBTeletextDecoder
   {

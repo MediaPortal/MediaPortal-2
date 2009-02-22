@@ -32,7 +32,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   public class Seeking
   {

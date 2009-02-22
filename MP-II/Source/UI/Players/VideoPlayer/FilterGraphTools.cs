@@ -42,7 +42,7 @@ using STATSTG = System.Runtime.InteropServices.ComTypes.STATSTG;
 
 #endif
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   /// <summary>
   /// A collection of methods to do common DirectShow tasks.

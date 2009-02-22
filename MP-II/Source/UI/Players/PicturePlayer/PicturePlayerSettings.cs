@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core.Settings;
 
 namespace Media.Players.PicturePlayer
@@ -32,7 +31,6 @@ namespace Media.Players.PicturePlayer
     #region variables
     private string _supportedExtensions=".jpg,.png,.bmp,.gif";
     #endregion
-
 
     /// <summary>
     /// Softstop

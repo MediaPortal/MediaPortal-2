@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -38,7 +39,7 @@ using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Players.Subtitles
+namespace Ui.Players.VideoPlayer.Subtitles
 {
   /// <summary>
   /// Structure used in communication with subtitle filter
@@ -433,6 +434,7 @@ namespace MediaPortal.SkinEngine.Players.Subtitles
           ServiceScope.Get<ILogger>().Debug("Content: ");
           if (content.Trim().Length > 0) // debug log subtitles
           {
+            // FIXME: StringTokenizer was deleted - not needed here
             StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
             while (st.HasMore)
             {

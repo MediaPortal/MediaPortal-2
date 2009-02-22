@@ -44,7 +44,7 @@ using SlimDX;
 using MenuItem = MediaPortal.Presentation.MenuManager.MenuItem;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   public class DvdPlayer : VideoPlayer
   {

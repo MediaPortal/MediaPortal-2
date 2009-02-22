@@ -22,10 +22,9 @@
 
 #endregion
 
-
 using System;
 
-namespace MediaPortal.SkinEngine.Players.Teletext
+namespace Ui.Players.VideoPlayer.Teletext
 {
   public interface IDVBTeletextDecoder
   {

@@ -38,14 +38,16 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screens;
+using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.Players.Vmr9;
+using Ui.Players.VideoPlayer.Vmr9;
 using MediaPortal.SkinEngine.SkinManagement;
+using Ui.Players.VideoPlayer.Vmr9;
 
-namespace MediaPortal.SkinEngine.Players
+namespace Ui.Players.VideoPlayer
 {
   public class VideoPlayer : IPlayer
   {
@@ -883,7 +885,7 @@ namespace MediaPortal.SkinEngine.Players
       if (shaderName != "")
       {
         Effect = null;
-        SkinEngine.Effects.EffectAsset effect = ContentManager.GetEffect(shaderName);
+        EffectAsset effect = ContentManager.GetEffect(shaderName);
         if (effect != null)
         {
           Effect = effect;
