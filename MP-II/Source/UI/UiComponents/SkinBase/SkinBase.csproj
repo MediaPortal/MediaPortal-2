@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MenuModel.cs" />
+    <Compile Include="PlayerBackgroundManager.cs" />
+    <Compile Include="PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\DateFormat.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\General\Autostart.cs" />
     <Compile Include="Settings\General\Balloontips.cs" />
+    <Compile Include="SkinBasePlugin.cs" />
     <Compile Include="SkinMessaging.cs" />
     <Compile Include="TimeModel.cs" />
   </ItemGroup>

@@ -22,13 +22,41 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Players
+using MediaPortal.Core.PluginManager;
+
+namespace UiComponents.SkinBase
 {
-  /// <summary>
-  /// Interface for a video player. Holds all methods which are common to all video players.
-  /// </summary>
-  public interface IVideoPlayer
+  public class SkinBasePlugin : IPluginStateTracker
   {
-    // TODO
+    #region IPluginStateTracker implementation
+
+    public void Activated()
+    {
+      // Nothing to do here
+    }
+
+    public bool RequestEnd()
+    {
+      // Nothing to do here
+      return true;
+    }
+
+    public void Stop()
+    {
+      // Uninstall all registrations
+      PlayerBackgroundManager.DoUninstall();
+    }
+
+    public void Continue()
+    {
+      // Nothing to do here
+    }
+
+    public void Shutdown()
+    {
+      // Nothing to do here
+    }
+
+    #endregion
   }
 }

@@ -107,6 +107,8 @@
     <Compile Include="Presentation\Localization\NoLocalization.cs" />
     <Compile Include="Presentation\Localization\RegionSettings.cs" />
     <Compile Include="Presentation\Localization\StringId.cs" />
+    <Compile Include="Presentation\Players\IAudioPlayer.cs" />
+    <Compile Include="Presentation\Players\IPicturePlayer.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
     <Compile Include="Presentation\Players\IPlayerManager.cs" />
@@ -115,6 +117,7 @@
     <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
     <Compile Include="Presentation\Players\IVideoPlayer.cs" />
+    <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\IBackgroundManager.cs" />
     <Compile Include="Presentation\Screens\IDialogManager.cs" />

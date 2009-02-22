@@ -24,9 +24,23 @@
 
 namespace MediaPortal.Presentation.Screens
 {
+  /// <summary>
+  /// Management class for the background layer of the screen manager.
+  /// </summary>
   public interface IBackgroundManager
   {
+    /// <summary>
+    /// Installs the background manager. This method will set-up event listeners to be able to exchange
+    /// the screen manager's background, if necessary.
+    /// This method also should set the initial background. Future changes should be triggered asynchronously.
+    /// </summary>
     void Install();
+
+    /// <summary>
+    /// Uninstalls the background manager. This method will remove all event listeners which have been
+    /// installed by method <see cref="Install"/>. After this method was called, no more asynchronous
+    /// background changes should take place for this background manager.
+    /// </summary>
     void Uninstall();
   }
 }

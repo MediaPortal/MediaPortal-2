@@ -22,13 +22,10 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Players
+namespace UiComponents.SkinBase
 {
-  /// <summary>
-  /// Interface for a video player. Holds all methods which are common to all video players.
-  /// </summary>
-  public interface IVideoPlayer
+  public class PlayerModel
   {
-    // TODO
+    
   }
 }

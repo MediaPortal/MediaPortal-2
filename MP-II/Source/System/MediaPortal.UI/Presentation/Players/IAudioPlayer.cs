@@ -25,9 +25,9 @@
 namespace MediaPortal.Presentation.Players
 {
   /// <summary>
-  /// Interface for a video player. Holds all methods which are common to all video players.
+  /// Interface for a audio player. Holds all methods which are common to all audio players.
   /// </summary>
-  public interface IVideoPlayer
+  public class IAudioPlayer
   {
     // TODO
   }
