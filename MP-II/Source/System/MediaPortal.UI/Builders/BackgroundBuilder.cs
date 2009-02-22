@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Screens;
 
@@ -30,33 +31,76 @@ namespace MediaPortal.Builders
 {
   public class BackgroundBuilder : IPluginItemBuilder
   {
+    protected enum BackgroundType
+    {
+      None,
+      Static,
+      Manager,
+      Remove
+    }
+
+    protected static string GetBackgroundAndType(IDictionary<string, string> attributes, out BackgroundType type)
+    {
+      type = BackgroundType.None;
+      string result = null;
+      foreach (KeyValuePair<string, string> attribute in attributes)
+      {
+        if (type != BackgroundType.None)
+          throw new ArgumentException("Background builder: Only one of the attributes 'StaticScreen', 'RemoveBackground' and 'BackgroundManagerClassName' must be set");
+        if (attribute.Key == "StaticScreen")
+        {
+          type = BackgroundType.Static;
+          result = attribute.Value;
+        }
+        else if (attribute.Key == "BackgroundManagerClassName")
+        {
+          type = BackgroundType.Manager;
+          result = attribute.Value;
+        }
+        else if (attribute.Key == "RemoveBackground")
+        {
+          bool bVal;
+          if (!bool.TryParse(attribute.Value, out bVal) || !bVal)
+            throw new ArgumentException("Background builder: Attribute 'RemoveBackground' needs to be set to 'true'");
+          type = BackgroundType.Remove;
+        }
+      }
+      if (type == BackgroundType.None)
+        throw new ArgumentException("Background builder needs one of the attributes 'StaticScreen', 'RemoveBackground' or 'BackgroundManagerClassName'");
+      return result;
+    }
+
     #region IPluginItemBuilder implementation
 
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      string value;
-      if (itemData.Attributes.TryGetValue("StaticScreen", out value))
-        return new StaticBackgroundManager(value);
-      if (itemData.Attributes.TryGetValue("BackgroundManagerClassName", out value))
-        // The cast is necessary here to ensure the returned instance is an IBackgroundManager
-        return (IBackgroundManager) plugin.InstanciatePluginObject(value);
-      if (itemData.Attributes.TryGetValue("RemoveBackground", out value))
+      BackgroundType type;
+      string value = GetBackgroundAndType(itemData.Attributes, out type);
+      switch (type)
       {
-        bool bVal;
-        if (!bool.TryParse(value, out bVal) || !bVal)
-          throw new ArgumentException("Background builder: Attribute 'RemoveBackground' needs to be set to 'true'");
-        return new StaticBackgroundManager();
+        case BackgroundType.Static:
+          return new StaticBackgroundManager(value);
+        case BackgroundType.Manager:
+          // The cast is necessary here to ensure the returned instance is an IBackgroundManager
+          return (IBackgroundManager) plugin.InstanciatePluginObject(value);
+        case BackgroundType.Remove:
+          return new StaticBackgroundManager();
+        default:
+          throw new NotImplementedException(string.Format(
+              "Background builder: Background type '{0}' is not implemented", type));
       }
-      throw new ArgumentException("Background builder needs one of the attributes 'StaticScreen', 'RemoveBackground' or 'BackgroundManagerClassName'");
     }
 
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
-      if (itemData.Attributes.ContainsKey("StaticScreen") || itemData.Attributes.ContainsKey("RemoveBackground"))
+      BackgroundType type;
+      string value = GetBackgroundAndType(itemData.Attributes, out type);
+      if (type == BackgroundType.Static || type == BackgroundType.Remove)
         return false;
-      if (itemData.Attributes.ContainsKey("BackgroundManagerClassName"))
+      if (type == BackgroundType.Manager)
         return true;
-      throw new ArgumentException("Background builder needs one of the attributes 'StaticScreen', 'RemoveBackground' or 'BackgroundManagerClassName'");
+      throw new NotImplementedException(string.Format(
+          "Background builder: Background type '{0}' is not implemented", type));
     }
 
     #endregion
