@@ -404,6 +404,9 @@ namespace Components.Services.AutoPlay
         IScreenControl sc = ServiceScope.Get<IScreenControl>();
         _windowHandle = sc.MainWindowHandle;
         StartListening();
+
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
+        queue.OnMessageReceive -= OnPluginManagerMessageReceived;
       }
     }
 

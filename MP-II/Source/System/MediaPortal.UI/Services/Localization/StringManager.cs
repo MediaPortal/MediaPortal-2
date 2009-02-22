@@ -240,7 +240,12 @@ namespace MediaPortal.Services.Localization
     {
       if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) ==
           PluginManagerMessaging.NotificationType.PluginsInitialized)
+      {
         InitializeLanguageResources();
+
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
+        queue.OnMessageReceive -= OnPluginManagerMessageReceived;
+      }
     }
 
     #endregion

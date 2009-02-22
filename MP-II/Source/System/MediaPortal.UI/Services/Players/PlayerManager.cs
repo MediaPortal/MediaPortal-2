@@ -232,7 +232,12 @@ namespace MediaPortal.Services.Players
     {
       if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) ==
           PluginManagerMessaging.NotificationType.PluginsInitialized)
+      {
         LoadPlayerBuilders();
+
+        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
+        queue.OnMessageReceive -= OnPluginManagerMessageReceived;
+      }
     }
 
     #endregion
