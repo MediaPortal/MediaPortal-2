@@ -157,16 +157,16 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       }
       ParameterInfo[] parameterInfos = mi.GetParameters();
       IList<object> paramsList = LateBoundValue.ConvertLateBoundValues(parameters);
-      object[] convertedParameters;
-      if (ParserHelper.ConsumeParameters(paramsList, parameterInfos, true, out convertedParameters))
-        try
-        {
+      try
+      {
+        object[] convertedParameters;
+        if (ParserHelper.ConsumeParameters(paramsList, parameterInfos, true, out convertedParameters))
           mi.Invoke(obj, convertedParameters);
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
-        }
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("CommandBaseMarkupExtension: Error executing command '{0}'", e, this);
+      }
     }
 
     #region Base overrides
