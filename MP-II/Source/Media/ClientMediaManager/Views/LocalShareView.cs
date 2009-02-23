@@ -44,6 +44,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
 
     protected Guid _shareId;
     protected string _overrideName;
+    protected string _displayName; // We'll cache display name, so we don't need to query the path name from the MP each time
     protected string _relativePath;
     protected HashSet<Guid> _mediaItemAspectIds = new HashSet<Guid>();
 
@@ -51,6 +52,16 @@ namespace MediaPortal.Media.ClientMediaManager.Views
 
     #region Ctor
 
+    /// <summary>
+    /// Creates a new <see cref="LocalShareView"/> instance.
+    /// </summary>
+    /// <param name="shareId">The id of the share this view is based on.</param>
+    /// <param name="overrideName">Overridden name for this view. If not set, the media provider's resource name
+    /// for the specified <paramref name="relativePath"/> will be used as <see cref="DisplayName"/>.</param>
+    /// <param name="relativePath">Path relative to the base share's path, this view is based on.</param>
+    /// <param name="parentView">Reference to the parent view.</param>
+    /// <param name="mediaItemAspectIds">Ids of the media item aspects which should be extracted for all items and
+    /// sub views of this view.</param>
     internal LocalShareView(Guid shareId, string overrideName, string relativePath,
         View parentView, IEnumerable<Guid> mediaItemAspectIds) :
         base(parentView, mediaItemAspectIds)
@@ -61,6 +72,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       CollectionUtils.AddAll(_mediaItemAspectIds, mediaItemAspectIds);
       if (!_mediaItemAspectIds.Contains(ProviderResourceAspect.ASPECT_ID))
         _mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
+      UpdateDisplayName();
     }
 
     #endregion
@@ -91,7 +103,11 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     public string OverrideName
     {
       get { return _overrideName; }
-      set { _overrideName = value; }
+      set
+      {
+        _overrideName = value;
+        UpdateDisplayName();
+      }
     }
 
     [XmlIgnore]
@@ -105,7 +121,12 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     [XmlIgnore]
     public override string DisplayName
     {
-      get { return _overrideName ?? Path.GetFileName(_relativePath); }
+      get
+      {
+        if (string.IsNullOrEmpty(_displayName))
+          UpdateDisplayName();
+        return _displayName;
+      }
     }
 
     [XmlIgnore]
@@ -172,12 +193,27 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         ICollection<string> directories = fsmp.GetChildDirectories(path);
         if (directories != null)
           foreach (string childDirectory in directories)
-            result.Add(new LocalShareView(_shareId, null, _relativePath, this, _mediaItemAspectIds));
+            result.Add(new LocalShareView(_shareId, null, fsmp.GetResourceName(childDirectory), this, _mediaItemAspectIds));
       }
       return result;
     }
 
     #endregion
+
+    protected void UpdateDisplayName()
+    {
+      _displayName = Path.GetFileName(_relativePath); // Fallback
+      ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
+      if (share == null)
+        return;
+      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      Guid providerId = share.MediaProviderId;
+      IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
+      if (provider == null)
+        return;
+      string path = Path.Combine(share.Path, _relativePath);
+      _displayName = provider.GetResourceName(path);
+    }
 
     /// <summary>
     /// Adds a media item with metadata extracted by the metadata extractors specified by the
