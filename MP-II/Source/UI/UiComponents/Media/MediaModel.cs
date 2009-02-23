@@ -47,17 +47,17 @@ namespace UiComponents.Media
 
     #region Protected fields
 
-    protected readonly ItemsList _items; // Only one items list allowed as the UI databinds to it.
-    protected Property _currentViewProperty;
-    protected Property _hasParentDirectoryProperty;
+    protected ItemsList _items;
+    protected View _currentView;
+    protected bool _hasParentDirectory;
 
     #endregion
 
     public MediaModel()
     {
       _items = new ItemsList();
-      _currentViewProperty = new Property(typeof(View), RootView);
-      _hasParentDirectoryProperty = new Property(typeof(bool), false);
+      _currentView = RootView;
+      _hasParentDirectory = false;
     }
 
     /// <summary>
@@ -75,13 +75,8 @@ namespace UiComponents.Media
     /// </summary>
     public bool HasParentDirectory
     {
-      get { return (bool) _hasParentDirectoryProperty.GetValue(); }
-      set { _hasParentDirectoryProperty.SetValue(value); }
-    }
-
-    public Property HasParentDirectoryProperty
-    {
-      get { return _hasParentDirectoryProperty; }
+      get { return _hasParentDirectory; }
+      set { _hasParentDirectory = value; }
     }
 
     /// <summary>
@@ -89,13 +84,8 @@ namespace UiComponents.Media
     /// </summary>
     public View CurrentView
     {
-      get { return (View) _currentViewProperty.GetValue(); }
-      set { _currentViewProperty.SetValue(value); }
-    }
-
-    public Property CurrentViewProperty
-    {
-      get { return _currentViewProperty; }
+      get { return _currentView; }
+      set { _currentView = value; }
     }
 
     public View RootView
@@ -135,7 +125,7 @@ namespace UiComponents.Media
     /// the workflow manager's navigation stack.
     /// </summary>
     /// <param name="view">View to navigate to.</param>
-    protected void NavigateToView(View view)
+    protected static void NavigateToView(View view)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + view.DisplayName, MEDIA_MAIN_SCREEN, true, true);
@@ -156,7 +146,10 @@ namespace UiComponents.Media
 
     protected void ReloadItems()
     {
-      _items.Clear();
+      // We need to create a new items list because the reloading of items takes place while the old
+      // screen still shows the old items
+      _items = new ItemsList();
+      // TODO: Add the items in a separate job while the UI already shows the new screen
       View currentView = CurrentView;
       HasParentDirectory = currentView.ParentView != null;
       if (currentView.IsValid)
@@ -167,7 +160,6 @@ namespace UiComponents.Media
         foreach (MediaItem item in currentView.MediaItems)
           _items.Add(new PlayableItem(item));
       }
-      _items.FireChange();
     }
 
     protected View GetViewFromContext(NavigationContext context)
@@ -208,7 +200,10 @@ namespace UiComponents.Media
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      CurrentView = GetViewFromContext(newContext);
+      View newView = GetViewFromContext(newContext);
+      if (newView == CurrentView)
+        return;
+      CurrentView = newView;
       ReloadItems();
     }
 
