@@ -90,7 +90,7 @@ namespace MediaPortal.Media.ClientMediaManager
         string folderPath;
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
         {
-          folderPath = ConvertToLocalFSMediaProviderPath(folderPath);
+          folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
@@ -105,7 +105,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyVideos, out folderPath))
         {
-          folderPath = ConvertToLocalFSMediaProviderPath(folderPath);
+          folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
@@ -120,7 +120,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyPictures, out folderPath))
         {
-          folderPath = ConvertToLocalFSMediaProviderPath(folderPath);
+          folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
@@ -145,11 +145,6 @@ namespace MediaPortal.Media.ClientMediaManager
             "/", metadata.Name, null, GetDefaultMetadataExtractorsForCategory(null));
         _shares.Add(shareId, sd);
       }
-    }
-
-    public string ConvertToLocalFSMediaProviderPath(string dosPath)
-    {
-      return "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/');
     }
 
     #region Public methods

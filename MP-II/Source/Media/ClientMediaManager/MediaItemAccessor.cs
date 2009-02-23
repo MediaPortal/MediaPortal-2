@@ -30,41 +30,26 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Media.ClientMediaManager
 {
-  internal interface ITidyUpExecutor
-  {
-    void Execute();
-  }
-
   /// <summary>
-  /// Temporary accessor instance for a media item which is located anywhere in an MP-II system.
+  /// Temporary local accessor instance for a media item which might located anywhere in an MP-II system.
+  /// Via this instance, the media item, which potentially is located in a remote system, can be accessed
+  /// via a local media provider specified by the <see cref="LocalMediaProviderId"/>.
   /// To get a media item accessor, build a <see cref="MediaItemAccessor"/> and use its
   /// <see cref="MediaItemLocator.CreateAccessor"/> method.
+  /// The temporary media item accessor must be disposed using its <see cref="MediaItemAccessorBase.Dispose"/> method
+  /// when it is not needed any more.
   /// </summary>
-  public class MediaItemAccessor : IDisposable
+  public class MediaItemAccessor : MediaItemAccessorBase
   {
-    protected MediaItemLocator _locator;
     protected Guid _localMediaProviderId;
     protected string _localMediaProviderPath;
-    internal ITidyUpExecutor _tidyUpExecutor;
 
     internal MediaItemAccessor(MediaItemLocator locator,
-        Guid localMediaProviderId, string localMediaProviderPath, ITidyUpExecutor tidyUpExecutor)
+        Guid localMediaProviderId, string localMediaProviderPath, ITidyUpExecutor tidyUpExecutor) :
+        base(locator, tidyUpExecutor)
     {
-      _locator = locator;
       _localMediaProviderId = localMediaProviderId;
       _localMediaProviderPath = localMediaProviderPath;
-      _tidyUpExecutor = tidyUpExecutor;
-    }
-
-    public void Dispose()
-    {
-      if (_tidyUpExecutor != null)
-        _tidyUpExecutor.Execute();
-    }
-
-    public MediaItemLocator Locator
-    {
-      get { return _locator; }
     }
 
     public Guid LocalMediaProviderId

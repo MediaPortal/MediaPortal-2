@@ -41,8 +41,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MediaItemAccessorBase.cs" />
+    <Compile Include="LocalFsMediaProviderBase.cs" />
     <Compile Include="LocalSharesManagement.cs" />
     <Compile Include="MediaItemAccessor.cs" />
+    <Compile Include="MediaItemLocalFsAccessor.cs" />
     <Compile Include="MediaItemLocator.cs" />
     <Compile Include="MediaManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

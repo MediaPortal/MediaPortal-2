@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
@@ -36,7 +37,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
   /// <summary>
   /// Media provider implementation for the local filesystem.
   /// </summary>
-  public class LocalFsMediaProvider : IFileSystemMediaProvider, IMediaSourceChangeNotifier
+  public class LocalFsMediaProvider : LocalFsMediaProviderBase, IFileSystemMediaProvider, IMediaSourceChangeNotifier
   {
     protected class ChangeTrackerRegistrationKey
     {
@@ -177,25 +178,6 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
             throw new ArgumentException(typeof(MediaSourceChangeType).Name+" '"+changeType+"' is not supported");
         }
       }
-      return result;
-    }
-
-    protected static string ToDosPath(string providerPath)
-    {
-      if (string.IsNullOrEmpty(providerPath) || providerPath == "/" || !providerPath.StartsWith("/"))
-        return string.Empty;
-      providerPath = providerPath.Substring(1);
-      return providerPath.Replace('/', Path.DirectorySeparatorChar);
-    }
-
-    protected static ICollection<string> ConcatPaths(string rootPath,
-        IEnumerable<string> namesWithPathPrefix, bool isDirectory)
-    {
-      if (!rootPath.EndsWith("/"))
-        rootPath = rootPath + "/";
-      ICollection<string> result = new List<string>();
-      foreach (string file in namesWithPathPrefix)
-        result.Add(rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty));
       return result;
     }
 

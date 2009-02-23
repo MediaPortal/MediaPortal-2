@@ -38,6 +38,20 @@ namespace MediaPortal.Media.ClientMediaManager
   /// </summary>
   public class MediaItemLocator
   {
+    #region Public constants
+
+    /// <summary>
+    /// GUID string for the local filesystem media provider.
+    /// </summary>
+    public const string LOCAL_FS_MEDIA_PROVIDER_ID_STR = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
+
+    /// <summary>
+    /// Local filesystem media provider GUID.
+    /// </summary>
+    public static Guid LOCAL_FS_MEDIA_PROVIDER_ID = new Guid(LOCAL_FS_MEDIA_PROVIDER_ID_STR);
+
+    #endregion
+
     #region Protected fields
 
     protected SystemName _system;
@@ -85,6 +99,23 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       if (_system.IsLocalSystem())
         return new MediaItemAccessor(this, _mediaProviderId, _path, null);
+      else
+        // TODO: Media item accessor for remote systems: return a media accessor with a provider and a path for it
+        // pointing to the remote media
+        throw new NotImplementedException("MediaItemLocator.CreateAccessor for remote media items is not implemented yet");
+    }
+
+    /// <summary>
+    /// Creates a media item accessor which is able to provide a path in the local filesystem.
+    /// This is necessary for some players to be able to play the media item content.
+    /// </summary>
+    /// <returns>Media item accessor to a local filesystem resource containing the contents of the media item
+    /// specified by this instance.</returns>
+    public MediaItemLocalFsAccessor CreateLocalFsAccessor()
+    {
+      if (_system.IsLocalSystem() && MediaProviderId == LOCAL_FS_MEDIA_PROVIDER_ID)
+        // Simple case: The media item is located in the local file system - we don't have to do anything
+        return new MediaItemLocalFsAccessor(this, LocalFsMediaProviderBase.ToDosPath(_path), null);
       else
         // TODO: Media item accessor for remote systems: create temporary SMB connection and return an accessor to the
         // media provider for that SMB connection

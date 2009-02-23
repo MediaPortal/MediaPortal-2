@@ -182,8 +182,8 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         return null;
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       Guid providerId = share.MediaProviderId;
-      IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
-      if (provider == null)
+      IMediaProvider provider;
+      if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
         return null;
       IList<View> result = new List<View>();
       string path = Path.Combine(share.Path, _relativePath);
@@ -208,8 +208,8 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         return;
       MediaManager mediaManager = ServiceScope.Get<MediaManager>();
       Guid providerId = share.MediaProviderId;
-      IMediaProvider provider = mediaManager.LocalMediaProviders[providerId];
-      if (provider == null)
+      IMediaProvider provider;
+      if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
         return;
       string path = Path.Combine(share.Path, _relativePath);
       _displayName = provider.GetResourceName(path);
