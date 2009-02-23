@@ -52,8 +52,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _borderProperty;
     Property _borderThicknessProperty;
     Property _cornerRadiusProperty;
-    Property _fontSizeProperty;
-    Property _fontFamilyProperty;
     VisualAssetContext _backgroundAsset;
     VisualAssetContext _borderAsset;
     protected bool _performLayout;
@@ -82,8 +80,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _backgroundProperty = new Property(typeof(Brush), null);
       _borderThicknessProperty = new Property(typeof(double), 1.0);
       _cornerRadiusProperty = new Property(typeof(double), 0.0);
-      _fontFamilyProperty = new Property(typeof(string), String.Empty);
-      _fontSizeProperty = new Property(typeof(int), 0);
     }
 
     void Attach()
@@ -94,8 +90,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _templateProperty.Attach(OnTemplateChanged);
       _templateControlProperty.Attach(OnTemplateControlChanged);
       _cornerRadiusProperty.Attach(OnPropertyChanged);
-      _fontFamilyProperty.Attach(OnFontChanged);
-      _fontSizeProperty.Attach(OnFontChanged);
     }
 
     void Detach()
@@ -106,8 +100,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _templateProperty.Detach(OnTemplateChanged);
       _templateControlProperty.Detach(OnTemplateControlChanged);
       _cornerRadiusProperty.Detach(OnPropertyChanged);
-      _fontFamilyProperty.Detach(OnFontChanged);
-      _fontSizeProperty.Detach(OnFontChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -161,10 +153,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _performLayout = true;
       if (Screen != null) Screen.Invalidate(this);
-    }
-
-    protected virtual void OnFontChanged(Property property, object oldValue)
-    {
     }
 
     #endregion
@@ -230,28 +218,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return (ControlTemplate) _templateProperty.GetValue(); }
       set { _templateProperty.SetValue(value); }
-    }
-
-    public Property FontFamilyProperty
-    {
-      get { return _fontFamilyProperty; }
-    }
-
-    public string FontFamily
-    {
-      get { return (string) _fontFamilyProperty.GetValue(); }
-      set { _fontFamilyProperty.SetValue(value); }
-    }
-
-    public Property FontSizeProperty
-    {
-      get { return _fontSizeProperty; }
-    }
-
-    public int FontSize
-    {
-      get { return (int) _fontSizeProperty.GetValue(); }
-      set { _fontSizeProperty.SetValue(value); }
     }
 
     #endregion

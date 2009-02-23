@@ -49,6 +49,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _textAlignProperty;
     FontBufferAsset _asset;
     FontRender _renderer;
+    private int _fontSizeCache;
 
     // If we are editing the text.
     bool _editText = false; 
@@ -236,16 +237,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
       {
-        // Get default values if not set
-        if (FontSize == 0)
-          FontSize = FontManager.DefaultFontSize;
-        if (FontFamily == string.Empty)
-          FontFamily = FontManager.DefaultFontFamily;
-
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        Font font = FontManager.GetScript(FontFamily, (int)(FontSize * SkinContext.MaxZoomHeight));
+        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int)(_fontSizeCache * SkinContext.MaxZoomHeight));
         if (font != null)
         {
           _asset = ContentManager.GetFont(font);
@@ -258,14 +253,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize;
-     
       InitializeTriggers();
+
+      _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
+      SizeF childSize;
       if (_asset != null)
-        childSize = new SizeF(_asset.Font.Width(Text, FontSize) * SkinContext.Zoom.Width,
-            _asset.Font.LineHeight(FontSize) * SkinContext.Zoom.Height);
+        childSize = new SizeF(_asset.Font.Width(Text, _fontSizeCache) * SkinContext.Zoom.Width,
+            _asset.Font.LineHeight(_fontSizeCache) * SkinContext.Zoom.Height);
       else
         childSize = new SizeF();
 
@@ -275,7 +271,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         if (PreferredTextLength.HasValue)
           // We use the "W" character as the character which needs the most space in X-direction
-          _desiredSize.Width = PreferredTextLength.Value*_asset.Font.Width("W", FontSize);
+          _desiredSize.Width = PreferredTextLength.Value*_asset.Font.Width("W", _fontSizeCache);
         else
           _desiredSize.Width = childSize.Width;
       }
@@ -343,9 +339,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
       float x = ActualPosition.X;
-      float y = ActualPosition.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
-      float w = (float)ActualWidth;
-      float h = (float)ActualHeight;
+      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
+      float w = (float) ActualWidth;
+      float h = (float) ActualHeight;
       if (_finalLayoutTransform != null)
       {
         GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
@@ -368,7 +364,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
-      _renderer.Draw(Text, rect, ActualPosition.Z, align, FontSize * 0.9f, color, false, out totalWidth);
+      _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
 
@@ -392,7 +388,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
  
-      float y = ActualPosition.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
+      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
       float x = ActualPosition.X;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
@@ -417,7 +413,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       SkinContext.AddTransform(m);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
-      _asset.Draw(Text, rect, align, FontSize * 0.9f, color, false, out totalWidth);
+      _asset.Draw(Text, rect, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
 

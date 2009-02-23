@@ -61,9 +61,8 @@ namespace MediaPortal.SkinEngine.Fonts
     /// </summary>
     public static Font GetScript(string fontFamily, int fontSize)
     {
-      FontFamily family = _families[fontFamily];
-
-      if (family == null)
+      FontFamily family;
+      if (!_families.TryGetValue(fontFamily, out family) || family == null)
         return null;
 
       return family.Addfont(fontSize, 96);

@@ -51,6 +51,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     FontBufferAsset _asset;
     FontRender _renderer;
     IResourceString _resourceString;
+    private int _fontSizeCache;
 
     #endregion
 
@@ -207,21 +208,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
       {
-        // Get default values if not set
-        if (FontSize == 0)
-          FontSize = FontManager.DefaultFontSize;
-        if (FontFamily == string.Empty)
-          FontFamily = FontManager.DefaultFontFamily;
-
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        Font font = FontManager.GetScript(FontFamily, (int)(FontSize * SkinContext.MaxZoomHeight));
+        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int) (_fontSizeCache * SkinContext.MaxZoomHeight));
         if (font != null)
           _asset = ContentManager.GetFont(font);
       }
 
-      if (_renderer == null)
+      if (_renderer == null && _asset != null && _asset.Font != null)
         _renderer = new FontRender(_asset.Font);
     }
 
@@ -247,7 +242,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           while (char.IsWhiteSpace(paragraph[nextIndex]))
             nextIndex++;
           int startIndex = nextIndex;
-          nextIndex = _asset.Font.CalculateMaxSubstring(paragraph, FontSize, startIndex, maxWidth);
+          nextIndex = _asset.Font.CalculateMaxSubstring(paragraph, _fontSizeCache, startIndex, maxWidth);
           if (findWordBoundaries && nextIndex < paragraph.Length && !char.IsWhiteSpace(paragraph[nextIndex]))
           {
             int wordBoundary = paragraph.LastIndexOf(' ', nextIndex - 1);
@@ -264,25 +259,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
-      SizeF childSize;
-      
       InitializeTriggers();
+
+      _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
+      SizeF childSize;
       // Measure the text
       if (_resourceString != null && _asset != null)
       {
-        float height = _asset.Font.LineHeight(FontSize);
+        float height = _asset.Font.LineHeight(_fontSizeCache);
         float width;
         float totalWidth = double.IsNaN(Width) ? totalSize.Width : (float) Width;
         if (float.IsNaN(totalWidth) || !Wrap)
-          width = _asset.Font.Width(_resourceString.Evaluate(), FontSize);
+          width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
         else
         { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
           string[] lines = WrapText(totalWidth, true);
           width = 0;
           foreach (string line in lines)
-            width = Math.Max(width, _asset.Font.Width(line, FontSize));
+            width = Math.Max(width, _asset.Font.Width(line, _fontSizeCache));
           height *= lines.Length;
         }
         childSize = new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
@@ -290,7 +286,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       else
         childSize = new SizeF();
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (double.IsNaN(Width))
         _desiredSize.Width = childSize.Width;
@@ -356,7 +352,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // of the value. Otherwise we will be outside of the inner rectangle.
 
       float x = ActualPosition.X;
-      float y = ActualPosition.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
+      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
@@ -391,8 +387,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         float totalWidth;
         foreach (string line in lines)
         {
-          _renderer.Draw(line, rect, ActualPosition.Z, align, FontSize * 0.9f, color, scroll, out totalWidth);
-          rect.Y += FontSize * SkinContext.Zoom.Height;
+          _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
+          rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
         }
       }
 
@@ -417,7 +413,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
 
-      float y = _finalRect.Y + 0.1f * FontSize * SkinContext.Zoom.Height;
+      float y = _finalRect.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
       float x = _finalRect.X;
       float w = _finalRect.Width;
       float h = _finalRect.Height;
@@ -454,8 +450,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         float totalWidth;
         foreach (string line in lines)
         {
-          _asset.Draw(line, rect, align, FontSize * 0.9f, color, scroll, out totalWidth);
-          rect.Y += FontSize * SkinContext.Zoom.Height;
+          _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
+          rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
         }
       }
       SkinContext.RemoveTransform();

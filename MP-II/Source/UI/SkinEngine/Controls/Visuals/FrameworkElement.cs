@@ -27,7 +27,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.InputManagement;
+using MediaPortal.SkinEngine.Fonts;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine;
@@ -107,6 +107,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _isMouseOverProperty;
     bool _updateOpacityMask;
     VisualAssetContext _opacityMaskContext;
+    Property _fontSizeProperty;
+    Property _fontFamilyProperty;
 
     #endregion
 
@@ -140,6 +142,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _hasFocusProperty = new Property(typeof(bool), false);
 
       _isMouseOverProperty = new Property(typeof(bool), false);
+
+      // Font properties
+      _fontFamilyProperty = new Property(typeof(string), String.Empty);
+      _fontSizeProperty = new Property(typeof(int), -1);
     }
 
     void Attach()
@@ -150,6 +156,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _actualWidthProperty.Attach(OnActualSizeChanged);
       _styleProperty.Attach(OnStyleChanged);
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
+      _fontFamilyProperty.Attach(OnFontChanged);
+      _fontSizeProperty.Attach(OnFontChanged);
     }
 
     void Detach()
@@ -160,6 +168,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _actualWidthProperty.Detach(OnActualSizeChanged);
       _styleProperty.Detach(OnStyleChanged);
       _hasFocusProperty.Detach(OnFocusPropertyChanged);
+      _fontFamilyProperty.Detach(OnFontChanged);
+      _fontSizeProperty.Detach(OnFontChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -175,10 +185,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
       VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
       Focusable = copyManager.GetCopy(fe.Focusable);
+      FontSize = copyManager.GetCopy(fe.FontSize);
+      FontFamily = copyManager.GetCopy(fe.FontFamily);
       Attach();
     }
 
     #endregion
+
+    protected virtual void OnFontChanged(Property property, object oldValue)
+    {
+      Invalidate();
+    }
 
     protected virtual void OnStyleChanged(Property property, object oldValue)
     {
@@ -354,7 +371,59 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       internal set { _isMouseOverProperty.SetValue(value); }
     }
 
+    public Property FontFamilyProperty
+    {
+      get { return _fontFamilyProperty; }
+    }
+
+    // FontFamily & FontSize are defined in FrameworkElement because it should also be defined on
+    // panels, and in MPF, panels inherit from FrameworkElement
+    public string FontFamily
+    {
+      get { return (string) _fontFamilyProperty.GetValue(); }
+      set { _fontFamilyProperty.SetValue(value); }
+    }
+
+    public Property FontSizeProperty
+    {
+      get { return _fontSizeProperty; }
+    }
+
+    // FontFamily & FontSize are defined in FrameworkElement because it should also be defined on
+    // panels, and in MPF, panels inherit from FrameworkElement
+    public int FontSize
+    {
+      get { return (int) _fontSizeProperty.GetValue(); }
+      set { _fontSizeProperty.SetValue(value); }
+    }
+
     #endregion
+
+    public string GetFontFamilyOrInherited()
+    {
+      string result = FontFamily;
+      Visual current = this;
+      while (string.IsNullOrEmpty(result) && (current = current.VisualParent) != null)
+      {
+        FrameworkElement currentFE = current as FrameworkElement;
+        if (currentFE != null)
+          result = currentFE.FontFamily;
+      }
+      return string.IsNullOrEmpty(result) ? FontManager.DefaultFontFamily : result;
+    }
+
+    public int GetFontSizeOrInherited()
+    {
+      int result = FontSize;
+      Visual current = this;
+      while (result == -1 && (current = current.VisualParent) != null)
+      {
+        FrameworkElement currentFE = current as FrameworkElement;
+        if (currentFE != null)
+          result = currentFE.FontSize;
+      }
+      return result == -1 ? FontManager.DefaultFontSize : result;
+    }
 
     /// <summary>
     /// Checks if this element is focusable. This is the case if the element is visible, enabled and
