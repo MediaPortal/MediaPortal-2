@@ -181,7 +181,7 @@ namespace MediaPortal.Media.ClientMediaManager
     public ShareDescriptor RegisterShare(SystemName nativeSystem, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
-      if (nativeSystem != SystemName.GetLocalSystemName())
+      if (!nativeSystem.IsLocalSystem())
         return null;
       ShareDescriptor sd = ShareDescriptor.CreateNewShare(nativeSystem, providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
@@ -228,7 +228,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
     public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
     {
-      if (systemName != SystemName.GetLocalSystemName())
+      if (!systemName.IsLocalSystem())
         return new Dictionary<Guid, ShareDescriptor>();;
       return _shares;
     }
@@ -240,7 +240,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
     public IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName)
     {
-      if (systemName != SystemName.GetLocalSystemName())
+      if (!systemName.IsLocalSystem())
         return new Dictionary<Guid, MetadataExtractorMetadata>();
       IDictionary<Guid, MetadataExtractorMetadata> result = new Dictionary<Guid, MetadataExtractorMetadata>();
       foreach (MetadataExtractorMetadata metadata in ServiceScope.Get<MediaManager>().LocalMetadataExtractors.Values)

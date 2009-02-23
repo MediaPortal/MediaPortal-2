@@ -218,7 +218,7 @@ namespace MediaPortal.Media.ClientMediaManager
       // TODO: When connected, assign result from the call of the method at the MP server's
       // ISharesManagement interface
       ShareDescriptor result = null;
-      if (nativeSystem == SystemName.GetLocalSystemName())
+      if (nativeSystem.IsLocalSystem())
         result = _localLocalSharesManagement.RegisterShare(nativeSystem, providerId, path,
             shareName, mediaCategories, metadataExtractorIds);
       return result;
@@ -257,7 +257,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
     public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
     {
-      if (systemName == SystemName.GetLocalSystemName())
+      if (systemName.IsLocalSystem())
         return _localLocalSharesManagement.GetSharesBySystem(systemName);
       else
         // TODO: When connected, call the method at the MP server's ISharesManagement interface and return
@@ -268,12 +268,12 @@ namespace MediaPortal.Media.ClientMediaManager
     public ICollection<SystemName> GetManagedClients()
     {
       // TODO: When connected, call the method at the MP server's ISharesManagement interface
-      return new List<SystemName>(new[] {SystemName.GetLocalSystemName()});
+      return _localLocalSharesManagement.GetManagedClients();
     }
 
     public IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName)
     {
-      if (systemName == SystemName.GetLocalSystemName())
+      if (systemName.IsLocalSystem())
         return _localLocalSharesManagement.GetMetadataExtractorsBySystem(SystemName.GetLocalSystemName());
       else
         // TODO: When connected, call the method at the MP server's ISharesManagement interface

@@ -208,7 +208,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       get { return _metadata; }
     }
 
-    public FileStream OpenRead(string path)
+    public Stream OpenRead(string path)
     {
       string dosPath = ToDosPath(path);
       if (string.IsNullOrEmpty(dosPath))
@@ -216,7 +216,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return File.OpenRead(dosPath);
     }
 
-    public FileStream OpenWrite(string path)
+    public Stream OpenWrite(string path)
     {
       string dosPath = ToDosPath(path);
       if (string.IsNullOrEmpty(dosPath))

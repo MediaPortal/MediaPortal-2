@@ -38,6 +38,12 @@ namespace MediaPortal.Core.General
   /// </remarks>
   public class SystemName
   {
+    #region Consts
+
+    public const string LOCALHOST_NAME = "localhost";
+
+    #endregion
+
     #region Protected fields
 
     protected string _hostName;
@@ -52,7 +58,7 @@ namespace MediaPortal.Core.General
     /// <param name="hostName">The DNS host name to use for this <see cref="SystemName"/>.</param>
     public SystemName(string hostName)
     {
-      _hostName = hostName;
+      _hostName = hostName.ToLowerInvariant();
     }
 
     #endregion
@@ -80,7 +86,7 @@ namespace MediaPortal.Core.General
     /// <returns>Loopback adapter address.</returns>
     public static SystemName Loopback()
     {
-      return new SystemName("localhost");
+      return new SystemName(LOCALHOST_NAME);
     }
 
     public static SystemName GetLocalSystemName()
@@ -88,9 +94,14 @@ namespace MediaPortal.Core.General
       return new SystemName(Dns.GetHostName());
     }
 
+    public bool IsLocalSystem()
+    {
+      return _hostName == LocalHostName || _hostName == LOCALHOST_NAME;
+    }
+
     public static bool operator==(SystemName first, SystemName second)
     {
-      return first.HostName == second.HostName;
+      return first.HostName == second.HostName || (first.IsLocalSystem() && second.IsLocalSystem());
     }
 
     public static bool operator!=(SystemName first, SystemName second)
@@ -114,6 +125,7 @@ namespace MediaPortal.Core.General
     {
       return _hostName.GetHashCode();
     }
+
     #region Additional members for the XML serialization
 
     internal SystemName() { }

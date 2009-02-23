@@ -80,13 +80,13 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
     /// </summary>
     /// <param name="path">Path of a media item provided by this media provider.</param>
     /// <returns>Filestream opened for read operations.</returns>
-    FileStream OpenRead(string path);
+    Stream OpenRead(string path);
 
     /// <summary>
     /// Opens the media item at the specified <paramref name="path"/> for write operations.
     /// </summary>
     /// <param name="path">Path of a media item provided by this media provider.</param>
     /// <returns>Filestream opened for write operations.</returns>
-    FileStream OpenWrite(string path);
+    Stream OpenWrite(string path);
   }
 }
