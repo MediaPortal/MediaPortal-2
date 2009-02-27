@@ -44,7 +44,7 @@ namespace MediaPortal.Core.PluginManager
   /// </list>
   /// </para>
   /// <para>
-  /// <b>Responsibility of <see cref="PluginManager"/>:</b>
+  /// <b>Responsibility of the <see cref="IPluginManager"/> service:</b>
   /// <list type="bullet">
   /// <item>Management of the plugin state</item>
   /// <item>Management of the item usages</item>

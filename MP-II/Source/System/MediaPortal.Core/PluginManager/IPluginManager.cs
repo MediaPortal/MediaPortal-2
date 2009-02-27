@@ -63,9 +63,9 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Returns the information whether the plugin manager is in maintenance mode. This mode is for
-    /// using the plugin manager without having the managed plugins started. You can start the plugin
-    /// manager in maintenance mode by using its <see cref="Startup"/> method with the
-    /// <c>maintenanceMode</c> parameter set to <c>true</c>.
+    /// using the plugin manager without having the managed plugins started automatically.
+    /// You can start the plugin manager in maintenance mode by using its <see cref="Startup"/>
+    /// method with the <c>maintenanceMode</c> parameter set to <c>true</c>.
     /// </summary>
     bool MaintenanceMode { get; }
 
@@ -81,7 +81,7 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     /// <param name="maintenanceMode">If set to <c>false</c> (normal case), this method will automatically
     /// activate those plugins with the <see cref="IPluginMetadata.AutoActivate"/> flag set. If set to
-    /// <c>false</c> (maintainance mode), the plugins won't be started. This can be used for management
+    /// <c>true</c> (maintainance mode), the plugins won't be started. This can be used for management
     /// application, which need the plugins be enabled but not activated.</param>
     void Startup(bool maintenanceMode);
 
@@ -91,9 +91,9 @@ namespace MediaPortal.Core.PluginManager
     void Shutdown();
 
     /// <summary>
-    /// Adds a plugin to the <see cref="AvailablePlugins"/> collection.
+    /// Adds a plugin to the <see cref="AvailablePlugins"/> collection during runtime.
     /// </summary>
-    /// <param name="pluginMetadata">The plugin's metadata instance.</param>
+    /// <param name="pluginMetadata">The new plugin's metadata instance.</param>
     PluginRuntime AddPlugin(IPluginMetadata pluginMetadata);
 
     /// <summary>
@@ -120,8 +120,8 @@ namespace MediaPortal.Core.PluginManager
     bool TryStopPlugin(Guid pluginId);
 
     /// <summary>
-    /// Adds a new plugin item builder to the plugin manager which is provided by a system component. This
-    /// method mustn't be called from plugins, it should only be called by system components.
+    /// Adds a new plugin item builder, which is provided by a system component, to the plugin manager.
+    /// This method mustn't be called from plugins, it should only be called by system components.
     /// </summary>
     /// <param name="builderName">The builder name. This is the name of the plugin item element which is handled
     /// by the builder to register.</param>
@@ -149,7 +149,7 @@ namespace MediaPortal.Core.PluginManager
     /// Returns the metadata of a registered item at the specified <paramref name="location"/> with
     /// the specified <paramref name="id"/>. This metadata contains all registration information of
     /// the specified item and can be evaluated before the item usage is requested. This method doesn't
-    /// load the item's plugin.
+    /// request the specified item yet, and thus doesn't load the item's plugin.
     /// </summary>
     /// <param name="location">Registration location of the requested item in the plugin tree.</param>
     /// <param name="id">Id which was used to register the requested item.</param>
@@ -159,8 +159,8 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Returns the metadata of all registered items at the specified <paramref name="location"/>.
     /// The metadata structures contain all registration information of the specified items and can be
-    /// evaluated before the item usages are requested. This method doesn't need to load the items'
-    /// plugin.
+    /// evaluated before the item usages are requested. This method doesn't request the items' plugins
+    /// yet and thus doesn't load the items' plugins.
     /// </summary>
     /// <param name="location">Registration location of the requested items in the plugin tree.</param>
     /// <returns>Collection of item metadata structures at the specified registration location.</returns>
@@ -175,13 +175,13 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Returns a single plugin item registered at the given <paramref name="location"/> with the
-    /// given <paramref name="id"/> and the specified type <typeparamref name="T"/> or a subtype.
+    /// given <paramref name="id"/> and the specified type <typeparamref name="T"/> (or any subtype).
     /// </summary>
     /// <typeparam name="T">Type of the requested item.</typeparam>
     /// <param name="location">Registration location of the requested item in the plugin tree.</param>
     /// <param name="id">Id which was used to register the requested item.</param>
-    /// <param name="stateTracker">Instance used to manage the item's state.</param>
-    /// <returns>The plugin item instance, or <c>null</c>, if an item with the specified
+    /// <param name="stateTracker">Instance used to track the item's state.</param>
+    /// <returns>The plugin item instance or <c>null</c>, if an item with the specified
     /// criteria was not registered.</returns>
     /// <remarks>
     /// This method will build the item if it was not built yet. If the usage of the item needs
@@ -191,14 +191,14 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Returns all plugin items registered at the given location, which have the specified type
-    /// <see cref="T"/> or a subtype.
+    /// <see cref="T"/> (or any subtype).
     /// </summary>
     /// <typeparam name="T">Class of the requested items.</typeparam>
     /// <param name="location">Registration location of the requested items in the plugin tree.</param>
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
     /// <remarks>
-    /// This method will build the items if they were not built yet. If the usage of the items needs
+    /// This method will build the items if they were not built yet. If the usage of some items needs
     /// their plugins to be activated, the plugin activations will be triggered automatically by this
     /// method.
     /// </remarks>
