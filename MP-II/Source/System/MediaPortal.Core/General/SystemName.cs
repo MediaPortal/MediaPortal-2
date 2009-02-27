@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Net;
 using System.Xml.Serialization;
 
@@ -96,12 +97,14 @@ namespace MediaPortal.Core.General
 
     public bool IsLocalSystem()
     {
-      return _hostName == LocalHostName || _hostName == LOCALHOST_NAME;
+      return string.Equals(_hostName, LocalHostName, StringComparison.InvariantCultureIgnoreCase) ||
+          string.Equals(_hostName, LOCALHOST_NAME, StringComparison.InvariantCultureIgnoreCase);
     }
 
     public static bool operator==(SystemName first, SystemName second)
     {
-      return first.HostName == second.HostName || (first.IsLocalSystem() && second.IsLocalSystem());
+      return string.Equals(first.HostName, second.HostName, StringComparison.InvariantCultureIgnoreCase) ||
+          (first.IsLocalSystem() && second.IsLocalSystem());
     }
 
     public static bool operator!=(SystemName first, SystemName second)
