@@ -211,10 +211,6 @@ namespace UiComponents.Media
     {
     }
 
-    public void UpdateContextMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
-    {
-    }
-
     #endregion
   }
 }

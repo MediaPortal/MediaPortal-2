@@ -123,7 +123,6 @@ namespace MediaPortal.Services.Workflow
     protected ModelItemStateTracker _modelItemStateTracker;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowStateAction> _menuActions =  new Dictionary<Guid, WorkflowStateAction>();
-    protected IDictionary<Guid, WorkflowStateAction> _contextMenuActions = new Dictionary<Guid, WorkflowStateAction>();
 
     #endregion
 
@@ -166,7 +165,6 @@ namespace MediaPortal.Services.Workflow
       loader.Load();
       _states = loader.States;
       _menuActions = loader.MenuActions;
-      _contextMenuActions = loader.ContextMenuActions;
       int count = 0;
       int numPop = 0;
       foreach (NavigationContext context in _navigationContextStack)
@@ -322,26 +320,17 @@ namespace MediaPortal.Services.Workflow
           workflowModel.ChangeModelContext(predecessor, newContext, true);
         }
 
-      // Compile menu actions and context menu actions
-      logger.Debug("WorkflowManager: Compiling menu actions and context menu actions for workflow state '{0}'", state.Name);
+      // Compile menu actions
+      logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
       ICollection<WorkflowStateAction> menuActions = new List<WorkflowStateAction>();
-      ICollection<WorkflowStateAction> contextMenuActions = new List<WorkflowStateAction>();
       if (state.InheritMenu && predecessor != null)
         CollectionUtils.AddAll(menuActions, predecessor.MenuActions.Values);
-      if (state.InheritContextMenu && predecessor != null)
-        CollectionUtils.AddAll(contextMenuActions, predecessor.ContextMenuActions.Values);
       CollectionUtils.AddAll(menuActions, FilterActionsBySourceState(state.StateId, _menuActions.Values));
-      CollectionUtils.AddAll(contextMenuActions, FilterActionsBySourceState(state.StateId, _contextMenuActions.Values));
       if (workflowModel != null)
-      {
         workflowModel.UpdateMenuActions(newContext, menuActions);
-        workflowModel.UpdateContextMenuActions(newContext, contextMenuActions);
-      }
 
       foreach (WorkflowStateAction menuAction in menuActions)
         newContext.MenuActions.Add(menuAction.ActionId, menuAction);
-      foreach (WorkflowStateAction contextMenuAction in contextMenuActions)
-        newContext.MenuActions.Add(contextMenuAction.ActionId, contextMenuAction);
 
       IterateCache();
     }
@@ -451,11 +440,6 @@ namespace MediaPortal.Services.Workflow
     public IDictionary<Guid, WorkflowStateAction> MenuStateActions
     {
       get { return _menuActions; }
-    }
-
-    public IDictionary<Guid, WorkflowStateAction> ContextMenuStateActions
-    {
-      get { return _contextMenuActions; }
     }
 
     public Stack<NavigationContext> NavigationContextStack

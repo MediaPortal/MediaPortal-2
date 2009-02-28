@@ -523,11 +523,6 @@ namespace UiComponents.Configuration
       }
     }
 
-    public void UpdateContextMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
-    {
-      // Currently no context menu
-    }
-
     #endregion
   }
 }

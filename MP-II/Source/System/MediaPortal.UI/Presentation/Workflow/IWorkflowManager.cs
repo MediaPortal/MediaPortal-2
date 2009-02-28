@@ -49,14 +49,6 @@ namespace MediaPortal.Presentation.Workflow
     IDictionary<Guid, WorkflowStateAction> MenuStateActions { get; }
 
     /// <summary>
-    /// Returns all currently known context menu state actions. The dictionary maps action ids to actions.
-    /// </summary>
-    /// <remarks>
-    /// This collection maybe change when plugins are added or removed.
-    /// </remarks>
-    IDictionary<Guid, WorkflowStateAction> ContextMenuStateActions { get; }
-
-    /// <summary>
     /// Returns the navigation structure consisting of a stack of currently active navigation contexts.
     /// </summary>
     Stack<NavigationContext> NavigationContextStack { get; }

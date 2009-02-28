@@ -873,11 +873,6 @@ namespace UiComponents.Media.Settings.Configuration
       // shares to their default setting, ...
     }
 
-    public void UpdateContextMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
-    {
-      // Not used yet
-    }
-
     #endregion
   }
 }

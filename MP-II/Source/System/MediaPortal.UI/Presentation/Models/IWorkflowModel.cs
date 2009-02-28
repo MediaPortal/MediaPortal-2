@@ -31,7 +31,7 @@ namespace MediaPortal.Presentation.Models
   /// <summary>
   /// A workflow model is a special GUI model which is able to attend some states of a GUI workflow.
   /// It provides methods to track the current workflow state and to enrich the state with
-  /// special state content like special menu- and context-menu-actions.
+  /// special state content like special menu-actions.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -115,9 +115,8 @@ namespace MediaPortal.Presentation.Models
     /// context will be changed from an unattended context to an attended one.
     /// </summary>
     /// <remarks>
-    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and
-    /// <see cref="UpdateContextMenuActions"/>, and the workflow state might not be the top context
-    /// onto the workflow context stack yet.
+    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and the workflow state
+    /// might not be the top context onto the workflow context stack yet.
     /// </remarks>
     /// <param name="oldContext">The old navigation context which was active before the
     /// <paramref name="newContext"/>. This context was attended by another workflow model.</param>
@@ -141,9 +140,8 @@ namespace MediaPortal.Presentation.Models
     /// from one attended context to another attended context.
     /// </summary>
     /// <remarks>
-    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and
-    /// <see cref="UpdateContextMenuActions"/>, and the workflow state might not be the top context
-    /// onto the workflow context stack yet.
+    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and the workflow state
+    /// might not be the top context onto the workflow context stack yet.
     /// </remarks>
     /// <param name="oldContext">The workflow navigation context which was active before the
     /// <paramref name="newContext"/> and which was attended by this model.</param>
@@ -157,9 +155,8 @@ namespace MediaPortal.Presentation.Models
     /// Temporary deactivates the workflow attendance of this workflow model. This means another model
     /// will temporary attend the workflow now.
     /// </summary>
-    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and
-    /// <see cref="UpdateContextMenuActions"/>, and the workflow state might not be the top context
-    /// onto the workflow context stack yet.
+    /// This method will be called before the call of <see cref="UpdateMenuActions"/>  and the workflow state
+    /// might not be the top context onto the workflow context stack yet.
     /// </remarks>
     /// <param name="oldContext">The workflow navigation context which was active before the
     /// <paramref name="newContext"/> and which was attended by this model.</param>
@@ -171,9 +168,8 @@ namespace MediaPortal.Presentation.Models
     /// Reactivates the workflow attendance of this workflow model. This means another model, which did
     /// temporary the attendance of the workflow, was exited.
     /// </summary>
-    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and
-    /// <see cref="UpdateContextMenuActions"/>, and the workflow state might not be the top context
-    /// onto the workflow context stack yet.
+    /// This method will be called before the call of <see cref="UpdateMenuActions"/> and the workflow state
+    /// might not be the top context onto the workflow context stack yet.
     /// </remarks>
     /// <param name="oldContext">The workflow navigation context which was active before the
     /// <paramref name="newContext"/> and which was attended by another workflow model.</param>
@@ -194,19 +190,5 @@ namespace MediaPortal.Presentation.Models
     /// <param name="actions">Collection where this model can add additional menu actions valid for
     /// the specified navigation <paramref name="context"/>.</param>
     void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions);
-
-    /// <summary>
-    /// Adds additional context menu actions which are created dynamically for the state of the specified
-    /// navigation <paramref name="context"/>, or updates/removes existing actions.
-    /// </summary>
-    /// <remarks>
-    /// The updated collection of actions should remain valid while the specified navigation
-    /// <paramref name="context"/> is valid.
-    /// </remarks>
-    /// <param name="context">Current navigation context, which should be enriched with additional
-    /// dynamic context menu actions.</param>
-    /// <param name="actions">Collection where this model can add additional context menu actions valid for
-    /// the specified navigation <paramref name="context"/>.</param>
-    void UpdateContextMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions);
   }
 }

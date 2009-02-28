@@ -47,8 +47,6 @@ namespace MediaPortal.Services.Workflow
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowStateAction> _menuActions =
         new Dictionary<Guid, WorkflowStateAction>();
-    protected IDictionary<Guid, WorkflowStateAction> _contextMenuActions =
-        new Dictionary<Guid, WorkflowStateAction>();
 
     public IDictionary<Guid, WorkflowState> States
     {
@@ -60,11 +58,6 @@ namespace MediaPortal.Services.Workflow
       get { return _menuActions; }
     }
 
-    public IDictionary<Guid, WorkflowStateAction> ContextMenuActions
-    {
-      get { return _contextMenuActions; }
-    }
-
     /// <summary>
     /// Loads workflow resources from files contained in the current skin context.
     /// </summary>
@@ -73,7 +66,6 @@ namespace MediaPortal.Services.Workflow
     {
       _states.Clear();
       _menuActions.Clear();
-      _contextMenuActions.Clear();
       IDictionary<string, string> workflowResources = ServiceScope.Get<ISkinResourceManager>().
           SkinResourceContext.GetResourceFilePaths("^" + WORKFLOW_DIRECTORY + "\\\\.*\\.xml$");
       foreach (string workflowResourceFilePath in workflowResources.Values)
@@ -126,16 +118,6 @@ namespace MediaPortal.Services.Workflow
                       "A menu action with id '{0}' was already registered with action name '{1}' (name of duplicate action is '{2}') -> Forgot to create a new GUID?",
                       action.ActionId, _menuActions[action.ActionId].Name, action.Name));
                 _menuActions.Add(action.ActionId, action);
-              }
-              break;
-            case "ContextMenuActions":
-              foreach (WorkflowStateAction action in LoadActions(childElement))
-              {
-                if (_contextMenuActions.ContainsKey(action.ActionId))
-                  throw new ArgumentException(string.Format(
-                      "A context menu action with id '{0}' was already registered with action name '{1}' (name of duplicate action is '{2}') -> Forgot to create a new GUID?",
-                      action.ActionId, _contextMenuActions[action.ActionId].Name, action.Name));
-                _contextMenuActions.Add(action.ActionId, action);
               }
               break;
             default:

@@ -26,12 +26,4 @@
         TargetState="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
         DisplayTitle="[SharesConfig.MenuEditShares]"/>
   </MenuActions>
-  <ContextMenuActions>
-    <!-- TODO -->
-    <PushNavigationTransition Id="44FA154D-4EA8-4ab3-AB3B-8AA89C699474"
-        Name="..."
-        SourceState="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
-        TargetState="..."
-        DisplayTitle="..."/>
-  </ContextMenuActions>
 </Workflow>
