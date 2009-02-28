@@ -22,18 +22,11 @@
 
 #endregion
 
+using MediaPortal.Core.MediaManagement;
+
 namespace MediaPortal.Media.ClientMediaManager
 {
-  /// <summary>
-  /// Temporary local filesystem accessor instance for a media item which might located anywhere in an MP-II system.
-  /// Via this instance, the media item, which potentially is located in a remote system, can be accessed
-  /// via a <see cref="LocalFileSystemPath"/>.
-  /// To get a local filesystem media item accessor, build a <see cref="MediaItemAccessor"/> and use its
-  /// <see cref="MediaItemLocator.CreateLocalFsAccessor"/> method.
-  /// The temporary local filesystem media item accessor must be disposed using its
-  /// <see cref="MediaItemAccessorBase.Dispose"/> method when it is not needed any more.
-  /// </summary>
-  public class MediaItemLocalFsAccessor : MediaItemAccessorBase
+  public class MediaItemLocalFsAccessor : MediaItemAccessorBase, IMediaItemLocalFsAccessor
   {
     protected string _localFileSystemPath;
 

@@ -25,6 +25,7 @@
 using System;
 using System.IO;
 using MediaPortal.Core;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Utilities.Exceptions;
 
@@ -39,7 +40,7 @@ namespace MediaPortal.Media.ClientMediaManager
   /// The temporary media item accessor must be disposed using its <see cref="MediaItemAccessorBase.Dispose"/> method
   /// when it is not needed any more.
   /// </summary>
-  public class MediaItemAccessor : MediaItemAccessorBase
+  public class MediaItemAccessor : MediaItemAccessorBase, IMediaItemAccessor
   {
     protected Guid _localMediaProviderId;
     protected string _localMediaProviderPath;

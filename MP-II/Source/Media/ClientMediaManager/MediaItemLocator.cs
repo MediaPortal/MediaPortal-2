@@ -24,19 +24,20 @@
 
 using System;
 using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 
 namespace MediaPortal.Media.ClientMediaManager
 {
   /// <summary>
   /// Encapsulates the data needed to locate a specific media item.
+  /// </summary>
+  /// <remarks>
   /// To locate a media item, we basically need its <see cref="SystemName"/>, the <see cref="Guid"/> of its
   /// <see cref="IMediaProvider"/> and its path into the media provider. This triple of data identifies a media item
   /// uniquely in an MP-II system.
-  /// But to access a media item, a local endpoint is needed, so for accessing it, a <see cref="MediaItemAccessor"/> can
-  /// be built from a <see cref="MediaItemLocator"/>.
-  /// </summary>
-  public class MediaItemLocator
+  /// </remarks>
+  public class MediaItemLocator : IMediaItemLocator
   {
     #region Public constants
 
@@ -82,20 +83,7 @@ namespace MediaPortal.Media.ClientMediaManager
       get { return _path; }
     }
 
-    /// <summary>
-    /// Creates a temporary media item accessor. The returned instance implements <see cref="IDisposable"/> and
-    /// must be disposed after usage.
-    /// The usage of a construct like this is strongly recommended:
-    /// <code>
-    ///   MediaItemLocator locator = ...;
-    ///   using (locator.CreateAccessor())
-    ///   {
-    ///     ...
-    ///   }
-    /// </code>
-    /// </summary>
-    /// <returns>Media item accessor to the media item specified by this instance.</returns>
-    public MediaItemAccessor CreateAccessor()
+    public IMediaItemAccessor CreateAccessor()
     {
       if (_system.IsLocalSystem())
         return new MediaItemAccessor(this, _mediaProviderId, _path, null);
@@ -105,13 +93,7 @@ namespace MediaPortal.Media.ClientMediaManager
         throw new NotImplementedException("MediaItemLocator.CreateAccessor for remote media items is not implemented yet");
     }
 
-    /// <summary>
-    /// Creates a media item accessor which is able to provide a path in the local filesystem.
-    /// This is necessary for some players to be able to play the media item content.
-    /// </summary>
-    /// <returns>Media item accessor to a local filesystem resource containing the contents of the media item
-    /// specified by this instance.</returns>
-    public MediaItemLocalFsAccessor CreateLocalFsAccessor()
+    public IMediaItemLocalFsAccessor CreateLocalFsAccessor()
     {
       if (_system.IsLocalSystem() && MediaProviderId == LOCAL_FS_MEDIA_PROVIDER_ID)
         // Simple case: The media item is located in the local file system - we don't have to do anything

@@ -67,6 +67,9 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\IImporter.cs" />
     <Compile Include="MediaManagement\IMediaDatabase.cs" />
+    <Compile Include="MediaManagement\IMediaItemAccessor.cs" />
+    <Compile Include="MediaManagement\IMediaItemLocalFsAccessor.cs" />
+    <Compile Include="MediaManagement\IMediaItemLocator.cs" />
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
     <Compile Include="MediaManagement\ISharesManagement.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />
