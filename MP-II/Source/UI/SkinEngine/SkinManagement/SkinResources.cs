@@ -524,17 +524,25 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     protected void LoadBackgrounds()
     {
+      ILogger logger = ServiceScope.Get<ILogger>();
       _backgrounds = new Dictionary<string, object>();
       foreach (KeyValuePair<string, string> resource in GetResourceFilePaths(
           "^" + BACKGROUNDS_DIRECTORY + "\\\\.*\\.xaml$", true))
       {
-        object backgroundElement = XamlLoader.Load(resource.Value,
-              new StyleResourceModelLoader(this));
-        string backgroundName = resource.Key.Substring(BACKGROUNDS_DIRECTORY.Length + 1).ToLowerInvariant();
-        if (backgroundName.EndsWith(".xaml"))
-          backgroundName = backgroundName.Substring(0, backgroundName.Length - ".xaml".Length);
-        if (backgroundElement != null)
-          _backgrounds[backgroundName] = backgroundElement;
+        try
+        {
+          object backgroundElement = XamlLoader.Load(resource.Value,
+                new StyleResourceModelLoader(this));
+          string backgroundName = resource.Key.Substring(BACKGROUNDS_DIRECTORY.Length + 1).ToLowerInvariant();
+          if (backgroundName.EndsWith(".xaml"))
+            backgroundName = backgroundName.Substring(0, backgroundName.Length - ".xaml".Length);
+          if (backgroundElement != null)
+            _backgrounds[backgroundName] = backgroundElement;
+        }
+        catch (Exception ex)
+        {
+          logger.Error("SkinResources: Error loading background resource '{0}'", ex, resource.Value);
+        }
       }
     }
 
