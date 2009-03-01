@@ -322,18 +322,18 @@ namespace MediaPortal.Core.Services.PluginManager
       // By now, we simply let the item request fail (which is not the specified behavior!)
       if (!itemRegistration.StateTrackers.Contains(stateTracker))
         itemRegistration.StateTrackers.Add(stateTracker);
-      if (itemRegistration.Item == null)
-        try
-        {
+      try
+      {
+        if (itemRegistration.Item == null)
           itemRegistration.Item = BuildItem(itemRegistration.Metadata, pluginRuntime);
-          if (itemRegistration.Item is T)
-            return (T) itemRegistration.Item;
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Error("PluginManager: Error building plugin item '{0}' at location '{1}'",
-              e, itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation);
-        }
+        if (itemRegistration.Item is T)
+          return (T) itemRegistration.Item;
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("PluginManager: Error building plugin item '{0}' at location '{1}'",
+            e, itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation);
+      }
       // Requested item isn't of type T - revoke usage again
       RevokeItemUsage(itemRegistration, stateTracker);
       return null;
