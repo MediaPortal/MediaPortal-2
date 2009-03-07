@@ -76,7 +76,7 @@ namespace MediaPortal.SkinEngine.Fonts
   /// </summary>
   public class FontFamily : IDisposable
   {
-    string _name;
+    private string _name;
     private IntPtr _library;
     private IntPtr _face;
 
@@ -108,12 +108,8 @@ namespace MediaPortal.SkinEngine.Fonts
     {
       // Do we already have this font?
       foreach (Font font in _fontList)
-      {
         if (font.Size == fontSize)
-        {
           return font;
-        }
-      }
       Font newFont = new Font(_library, _face, fontSize, resolution);
       _fontList.Add(newFont);
       return newFont;
@@ -121,14 +117,10 @@ namespace MediaPortal.SkinEngine.Fonts
 
     public void Dispose()
     {
-      if (_face != null)
-      {
+      if (_face != IntPtr.Zero)
         FT.FT_Done_Face(_face);
-      }
       foreach (Font font in _fontList)
-      {
         font.Free(true);
-      }
     }
   }
 
@@ -142,7 +134,7 @@ namespace MediaPortal.SkinEngine.Fonts
       Left,
       Center,
       Right
-    } ;
+    }
 
     private const int MAX_WIDTH = 1024;
     private const int MAX_HEIGHT = 1024;
@@ -224,7 +216,7 @@ namespace MediaPortal.SkinEngine.Fonts
       if (FT.FT_Load_Glyph(_face, glypthIndex, FT.FT_LOAD_DEFAULT) != 0)
         return false;
         
-      FT_FaceRec face = (FT_FaceRec)Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
+      FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
 
       IntPtr glyph;
       // Load the glyph data into our local array.
@@ -236,7 +228,7 @@ namespace MediaPortal.SkinEngine.Fonts
         return false;
 
       // get the structure fron the intPtr
-      FT_BitmapGlyph Glyph = (FT_BitmapGlyph)Marshal.PtrToStructure(glyph, typeof(FT_BitmapGlyph));
+      FT_BitmapGlyph Glyph = (FT_BitmapGlyph) Marshal.PtrToStructure(glyph, typeof(FT_BitmapGlyph));
 
       int cwidth, cheight;
       int pwidth, pheight;
@@ -299,19 +291,13 @@ namespace MediaPortal.SkinEngine.Fonts
       for (int y = 0; y < Glyph.bitmap.rows; y++)
       {
         for (int x = 0; x < Glyph.bitmap.width; x++)
-        {
           if (Glyph.bitmap.buffer == IntPtr.Zero || x >= Glyph.bitmap.width || y >= Glyph.bitmap.rows)
-          {
             // If we're outside the bounds of the FreeType bitmap
             // then fill with black.
             FontPixels[x + PAD] = 0;
-          }
           else
-          {
             // Otherwise copy the FreeType bits.
             FontPixels[x + PAD] = BitmapBuffer[y * Pitch + x]; 
-          }
-        }
         rect.Data.Write(FontPixels, 0, pwidth);
         rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
       }
@@ -429,8 +415,8 @@ namespace MediaPortal.SkinEngine.Fonts
       //float u2, v2;
       //u2 = v2 = 1;
       Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
-      Vector3 finalScale = new Vector3(SkinContext.FinalMatrix.Matrix.M11, SkinContext.FinalMatrix.Matrix.M22, SkinContext.FinalMatrix.Matrix.M33);
-      Vector3 finalTranslation = new Vector3(SkinContext.FinalMatrix.Matrix.M41, SkinContext.FinalMatrix.Matrix.M42, SkinContext.FinalMatrix.Matrix.M43);
+      Vector3 finalScale = new Vector3(SkinContext.FinalTransform.Matrix.M11, SkinContext.FinalTransform.Matrix.M22, SkinContext.FinalTransform.Matrix.M33);
+      Vector3 finalTranslation = new Vector3(SkinContext.FinalTransform.Matrix.M41, SkinContext.FinalTransform.Matrix.M42, SkinContext.FinalTransform.Matrix.M43);
 
       uvPos.X *= finalScale.X;
       uvPos.Y *= finalScale.Y;
@@ -513,7 +499,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="scroll"></param>
     /// <param name="textFits"></param>
     public int AddString(string text, RectangleF textBox, float zOrder, Align alignment, float size,
-                         Color4 color, bool kerning, bool scroll, out bool textFits, out float totalWidth)
+        Color4 color, bool kerning, bool scroll, out bool textFits, out float totalWidth)
     {
       StringBlock b = new StringBlock(text, textBox, zOrder, alignment, size, color, kerning);
       _strings.Add(b);
@@ -570,20 +556,14 @@ namespace MediaPortal.SkinEngine.Fonts
 
     public int PrimitiveCount
     {
-      get {return (_quads.Count * 2);}
+      get { return (_quads.Count * 2); }
     }
 
     public void Render(Device device, VertexBuffer buffer, out int count)
     {
       count = _quads.Count;
-      if (buffer == null || _texture == null)
-      {
+      if (buffer == null || _texture == null || count <= 0)
         return;
-      }
-      if (count <= 0)
-      {
-        return;
-      }
        
       // Add vertices to the buffer
       //GraphicsBuffer<SkinEngine.DirectX.PositionColored2Textured> gb =
@@ -592,9 +572,7 @@ namespace MediaPortal.SkinEngine.Fonts
       using (DataStream stream = buffer.Lock(0, 0, LockFlags.None))
       {
         foreach (FontQuad q in _quads)
-        {
           stream.WriteRange(q.Vertices);
-        }
       }
 
       buffer.Unlock();
@@ -605,6 +583,7 @@ namespace MediaPortal.SkinEngine.Fonts
       GraphicsDevice.Device.SetTexture(0, _texture);
       GraphicsDevice.Device.SetStreamSource(0, buffer, 0, PositionColored2Textured.StrideSize);
       GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
+
       _effect.EndRender();
     }
 
@@ -614,15 +593,11 @@ namespace MediaPortal.SkinEngine.Fonts
       int startIndex = (int)(text.Length * 0.5f);
       float step = 0.9f / ((float)text.Length - startIndex);
       if (scroll)
-      {
         step = 1.0f / ((float)text.Length - startIndex);
-      }
       for (int i = 0; i < quads.Count; ++i)
       {
         if (quads[i].CharacterIndex < startIndex)
-        {
           continue;
-        }
         float charIndex = quads[i].CharacterIndex - startIndex;
         float charAlphaStart = alpha - (step * charIndex);
         float charAlphaEnd = alpha - (step * (1 + charIndex));
@@ -630,9 +605,7 @@ namespace MediaPortal.SkinEngine.Fonts
         {
           float newAlpha = charAlphaStart;
           if (v == 1 || v == 4 || v == 5)
-          {
             newAlpha = charAlphaEnd;
-          }
           uint color = (uint)quads[i].Vertices[v].Color;
           float colorA = color >> 24;
           colorA /= 255.0f;
@@ -653,7 +626,6 @@ namespace MediaPortal.SkinEngine.Fonts
 
     private BitmapCharacter Character(char c)
     {
-
       if (_charSet.GetCharacter(c) == null)
         AddGlypth(c);
       return _charSet.GetCharacter(c);
@@ -686,9 +658,7 @@ namespace MediaPortal.SkinEngine.Fonts
       float z = b.ZOrder;
       bool fadeOut = false;
       if (text == null)
-      {
         return quads;
-      }
 
       for (int i = 0; i < text.Length; i++)
       {
@@ -704,9 +674,7 @@ namespace MediaPortal.SkinEngine.Fonts
 
         // Check vertical bounds
         if (y + yOffset + height > b.TextBox.Bottom)
-        { 
           break;
-        }
 
         // Newline
         if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance  > Math.Ceiling(maxWidth)))
@@ -856,22 +824,14 @@ namespace MediaPortal.SkinEngine.Fonts
             {
               // Justify the new line
               for (int k = 0; k < quads.Count; k++)
-              {
                 if (quads[k].LineNumber == lineNumber + 1)
-                {
                   quads[k].X -= offset;
-                }
-              }
               x -= offset;
 
               // Rejustify the line it was moved from
               for (int k = 0; k < quads.Count; k++)
-              {
                 if (quads[k].LineNumber == lineNumber)
-                {
                   quads[k].X += offset;
-                }
-              }
             }
           }
           else
@@ -893,20 +853,14 @@ namespace MediaPortal.SkinEngine.Fonts
         if (firstCharOfLine)
         {
           if (alignment == Align.Left)
-          {
             // Start at left
             x = b.TextBox.Left;
-          }
           if (alignment == Align.Center)
-          {
             // Start in center
             x = b.TextBox.Left + (maxWidth / 2f);
-          }
           else if (alignment == Align.Right)
-          {
             // Start at right
             x = b.TextBox.Right;
-          }
         }
 
         // Adjust for kerning
@@ -925,7 +879,8 @@ namespace MediaPortal.SkinEngine.Fonts
         }
 
         firstCharOfLine = false;
-        FontQuad q = createQuad(c, b.Color, (float)x, (float)y, (float)z, (float)xOffset, (float)yOffset, (float)width, (float)height);
+        FontQuad q = createQuad(c, b.Color, (float) x, (float) y, z, (float) xOffset, (float) yOffset,
+            (float) width, (float) height);
    
         q.LineNumber = lineNumber;
         if (text[i] == ' ' && alignment == Align.Right)
@@ -954,9 +909,7 @@ namespace MediaPortal.SkinEngine.Fonts
         lastChar = text[i];
 
         if (quads.Count == 1)
-        {
-          _firstCharWidth = (float)lineWidth;
-        }
+          _firstCharWidth = (float) lineWidth;
         // Rejustify text
         if (alignment == Align.Center)
         {
@@ -964,16 +917,10 @@ namespace MediaPortal.SkinEngine.Fonts
           // new character
           float offset = (float)xAdvance / 2f;
           if (b.Kerning)
-          {
             offset += kernAmount / 2f;
-          }
           for (int j = 0; j < quads.Count; j++)
-          {
             if (quads[j].LineNumber == lineNumber)
-            {
               quads[j].X -= offset;
-            }
-          }
           x -= offset;
         }
         else if (alignment == Align.Right)
@@ -982,17 +929,13 @@ namespace MediaPortal.SkinEngine.Fonts
           // new character
           float offset = 0f;
           if (b.Kerning)
-          {
             offset += kernAmount;
-          }
           for (int j = 0; j < quads.Count; j++)
-          {
             if (quads[j].LineNumber == lineNumber)
             {
               offset = (float)xAdvance;
               quads[j].X -= (float)xAdvance;
             }
-          }
           x -= offset;
         }
       }
@@ -1060,7 +1003,7 @@ namespace MediaPortal.SkinEngine.Fonts
     }
 
     #endregion
-  } ;
+  }
 
   internal class BitmapCharacterRow
   {
@@ -1073,7 +1016,7 @@ namespace MediaPortal.SkinEngine.Fonts
     {
       Characters = new BitmapCharacter[MAX_CHARS];
     }
-  } ;
+  }
 
   /// <summary>Represents a single bitmap character set.</summary>
   internal class BitmapCharacterSet
@@ -1108,9 +1051,11 @@ namespace MediaPortal.SkinEngine.Fonts
       Rows[row].Characters[index % BitmapCharacterRow.MAX_CHARS] = character;  
     }
 
-  } ;
+  }
 
-  /// <summary>Represents a single bitmap character.</summary>
+  /// <summary>
+  /// Represents a single bitmap character.
+  /// </summary>
   public class BitmapCharacter : ICloneable
   {
     public int X;
@@ -1123,8 +1068,10 @@ namespace MediaPortal.SkinEngine.Fonts
     public int Page;
     public List<Kerning> KerningList = new List<Kerning>();
 
-    /// <summary>Clones the BitmapCharacter</summary>
-    /// <returns>Cloned BitmapCharacter</returns>
+    /// <summary>
+    /// Clones the BitmapCharacter.
+    /// </summary>
+    /// <returns>Cloned BitmapCharacter.</returns>
     public object Clone()
     {
       BitmapCharacter result = new BitmapCharacter();
@@ -1139,14 +1086,16 @@ namespace MediaPortal.SkinEngine.Fonts
       result.Page = Page;
       return result;
     }
-  } ;
+  }
 
-  /// <summary>Represents kerning information for a character.</summary>
+  /// <summary>
+  /// Represents kerning information for a character.
+  /// </summary>
   public class Kerning
   {
     public int Second;
     public int Amount;
-  } ;
+  }
 
   internal class StringWord
   {
@@ -1179,7 +1128,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="color">Color</param>
     /// <param name="kerning">true to use kerning, false otherwise.</param>
     public StringBlock(string text, RectangleF textBox, float zOrder, Font.Align alignment,
-                       float size, Color4 color, bool kerning)
+        float size, Color4 color, bool kerning)
     {
       Text = text;
       TextBox = textBox;
@@ -1189,5 +1138,5 @@ namespace MediaPortal.SkinEngine.Fonts
       Kerning = kerning;
       ZOrder = zOrder;
     }
-  } ;
+  }
 }

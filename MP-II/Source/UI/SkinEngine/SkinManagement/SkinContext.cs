@@ -236,13 +236,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public static void AddTransform(ExtendedMatrix matrix)
     {
       if (_groupTransforms.Count > 0)
-      {
         _groupTransforms.Add(matrix.Multiply(_groupTransforms[_groupTransforms.Count - 1]));
-      }
       else
-      {
         _groupTransforms.Add(matrix);
-      }
       UpdateFinalTransform(_groupTransforms[_groupTransforms.Count - 1]);
     }
 
@@ -252,23 +248,17 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public static void RemoveTransform()
     {
       if (_groupTransforms.Count > 0)
-      {
         _groupTransforms.RemoveAt(_groupTransforms.Count - 1);
-      }
       if (_groupTransforms.Count > 0)
-      {
         UpdateFinalTransform(_groupTransforms[_groupTransforms.Count - 1]);
-      }
       else
-      {
         UpdateFinalTransform(new ExtendedMatrix());
-      }
     }
 
     /// <summary>
     /// Sets the final transform.
     /// </summary>
-    /// <param name="matrix">The matrix.</param>
+    /// <param name="matrix">The transform to set.</param>
     public static void UpdateFinalTransform(ExtendedMatrix matrix)
     {
       _finalTransform = matrix;
@@ -277,13 +267,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// <summary>
     /// Gets or sets the final matrix.
     /// </summary>
-    /// <value>The final matrix.</value>
-    public static ExtendedMatrix FinalMatrix
+    public static ExtendedMatrix FinalTransform
     {
       get { return _finalTransform; }
       set { _finalTransform = value; }
     }
-
 
     public static void AddLayoutTransform(ExtendedMatrix matrix)
     {
@@ -304,17 +292,11 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public static void RemoveLayoutTransform()
     {
       if (_layoutTransforms.Count > 0)
-      {
         _layoutTransforms.RemoveAt(_layoutTransforms.Count - 1);
-      }
       if (_layoutTransforms.Count > 0)
-      {
         UpdateFinalLayoutTransform(_layoutTransforms[_layoutTransforms.Count - 1]);
-      }
       else
-      {
         UpdateFinalLayoutTransform(new ExtendedMatrix());
-      }
     }
 
     /// <summary>

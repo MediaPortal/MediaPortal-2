@@ -165,7 +165,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       uint time = (uint)Environment.TickCount;
       SkinContext.TimePassed = time;
-      SkinContext.FinalMatrix = new ExtendedMatrix();
+      SkinContext.FinalTransform = new ExtendedMatrix();
 
       if (SkinContext.UseBatching)
       {

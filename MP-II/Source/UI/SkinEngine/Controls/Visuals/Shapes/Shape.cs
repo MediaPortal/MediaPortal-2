@@ -332,7 +332,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         _borderAsset.LastTimeUsed = SkinContext.Now;
       }
       SkinContext.RemoveOpacity();
-
     }
 
     public override void FireUIEvent(UIEvent eventType, UIElement source)

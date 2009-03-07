@@ -131,7 +131,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
       {
         return true;
       }
-      if (_previousMatrix != SkinContext.FinalMatrix.Matrix)
+      if (_previousMatrix != SkinContext.FinalTransform.Matrix)
       {
         return true;
       }
@@ -176,7 +176,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
             //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
             _characterIndex = 0;
-            _previousMatrix = SkinContext.FinalMatrix.Matrix;
+            _previousMatrix = SkinContext.FinalTransform.Matrix;
           }
 
           //need to scroll
@@ -189,11 +189,11 @@ namespace MediaPortal.SkinEngine.ContentManagement
           float y2 = textBox.Height;
 
           uint enabled = GraphicsDevice.Device.GetRenderState<uint>(RenderState.ScissorTestEnable);
-          System.Drawing.Rectangle rectOld = GraphicsDevice.Device.ScissorRect;
-          GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x1, (int)y1, (int)x2, (int)y2);
+          Rectangle rectOld = GraphicsDevice.Device.ScissorRect;
+          GraphicsDevice.Device.ScissorRect = new Rectangle((int)x1, (int)y1, (int)x2, (int)y2);
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
 
-          textBox.X -= (float)_xPosition;
+          textBox.X -= _xPosition;
 
           _font.AddString(textDraw, textBox, 0.0f, alignment, size, color, true, true, out _textFits, out totalWidth);
           _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
@@ -205,15 +205,11 @@ namespace MediaPortal.SkinEngine.ContentManagement
           {
             _characterIndex++;
             if (_characterIndex >= text.Length)
-            {
               _characterIndex = 0;
-            }
             _xPosition = 0.0f;
           }
           else
-          {
             _xPosition += 0.5f;
-          }
           _previousTotalWidth = totalWidth;
           _lastTimeUsed = SkinContext.Now;
           return;
@@ -222,9 +218,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
       else
       {
         if (_xPosition != 0.0)
-        {
           _previousText = "";
-        }
         _characterIndex = 0;
         _xPosition = 0;
       }
@@ -236,7 +230,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
         _previousSize = size;
         _previousColor = color;
         //_previousGradientUsed = SkinContext.GradientInUse;
-        _previousMatrix = SkinContext.FinalMatrix.Matrix;
+        _previousMatrix = SkinContext.FinalTransform.Matrix;
 
         _font.AddString(text, textBox, 0.0f, alignment, size, color, true, false, out _textFits, out totalWidth);
         _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);

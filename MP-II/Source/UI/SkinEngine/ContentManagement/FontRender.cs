@@ -84,7 +84,6 @@ namespace MediaPortal.SkinEngine.ContentManagement
       get { return _font; }
     }
 
-
     /// <summary>
     /// Determines whether the specified rendering attributes are changed
     /// </summary>
@@ -98,35 +97,10 @@ namespace MediaPortal.SkinEngine.ContentManagement
     /// </returns>
     private bool IsChanged(string text, RectangleF textBox, float zOrder, Font.Align alignment, float fontSize, Color4 color)
     {
-      if (text != _previousText)
-      {
-        return true;
-      }
-      if (textBox != _previousTextBox)
-      {
-        return true;
-      }
-      if (alignment != _previousAlignment)
-      {
-        return true;
-      }
-      if (fontSize != _previousSize)
-      {
-        return true;
-      }
-      /*if (SkinContext.GradientInUse != _previousGradientUsed)
-      {
-        return true;
-      }*/
-      if (color.ToArgb() != _previousColor.ToArgb())
-      {
-        return true;
-      }
-      if (_previousMatrix != SkinContext.FinalMatrix.Matrix)
-      {
-        return true;
-      }
-      return false;
+      return text != _previousText || textBox != _previousTextBox || alignment != _previousAlignment ||
+//          SkinContext.GradientInUse != _previousGradientUsed ||
+          fontSize != _previousSize || color.ToArgb() != _previousColor.ToArgb() ||
+          _previousMatrix != SkinContext.FinalTransform.Matrix;
     }
 
     /// <summary>
@@ -142,9 +116,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     {
       totalWidth = 0;
       if (_font == null || String.IsNullOrEmpty(text))
-      {
         return;
-      }
       Alloc();
       if (scroll)
       {
@@ -160,7 +132,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
             //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
             _characterIndex = 0;
-            _previousMatrix = SkinContext.FinalMatrix.Matrix;
+            _previousMatrix = SkinContext.FinalTransform.Matrix;
             _previousZorder = zOrder;
           }
 
@@ -174,11 +146,11 @@ namespace MediaPortal.SkinEngine.ContentManagement
           float y2 = textBox.Height;
 
           uint enabled = GraphicsDevice.Device.GetRenderState<uint>(RenderState.ScissorTestEnable);
-          System.Drawing.Rectangle rectOld = GraphicsDevice.Device.ScissorRect;
-          GraphicsDevice.Device.ScissorRect = new System.Drawing.Rectangle((int)x1, (int)y1, (int)x2, (int)y2);
+          Rectangle rectOld = GraphicsDevice.Device.ScissorRect;
+          GraphicsDevice.Device.ScissorRect = new Rectangle((int)x1, (int)y1, (int)x2, (int)y2);
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
 
-          textBox.X -= (float)_xPosition;
+          textBox.X -= _xPosition;
 
           _font.AddString(textDraw, textBox, zOrder, alignment, fontSize, color, true, true, out _textFits, out totalWidth);
 
@@ -193,15 +165,11 @@ namespace MediaPortal.SkinEngine.ContentManagement
           {
             _characterIndex++;
             if (_characterIndex >= text.Length)
-            {
               _characterIndex = 0;
-            }
             _xPosition = 0.0f;
           }
           else
-          {
             _xPosition += 0.5f;
-          }
           _previousTotalWidth = totalWidth;
           return;
         }
@@ -209,9 +177,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
       else
       {
         if (_xPosition != 0.0)
-        {
           _previousText = "";
-        }
         _characterIndex = 0;
         _xPosition = 0;
       }
@@ -223,7 +189,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
         _previousSize = fontSize;
         _previousColor = color;
         //_previousGradientUsed = SkinContext.GradientInUse;
-        _previousMatrix = SkinContext.FinalMatrix.Matrix;
+        _previousMatrix = SkinContext.FinalTransform.Matrix;
         _previousZorder = zOrder;
 
         _font.AddString(text, textBox, zOrder, alignment, fontSize, color, true, false, out _textFits, out totalWidth);
@@ -254,6 +220,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
         _isAdded = false;
       }
     }
+
     public void Alloc()
     {
       if (_isAdded == false)

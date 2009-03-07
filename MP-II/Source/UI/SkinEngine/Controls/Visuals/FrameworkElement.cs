@@ -746,7 +746,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             //copy the correct rectangle from the backbuffer in the opacitytexture
             if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
             {
-
               //copy the correct rectangle from the backbuffer in the opacitytexture
               GraphicsDevice.Device.StretchRectangle(backBuffer,
                   new Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
@@ -761,7 +760,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                   textureOpacitySurface,
                   new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
                   TextureFilter.None);
-
             }
 
 
@@ -779,9 +777,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             //restore the backbuffer
             GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
           }
-
-          //TextureLoader.Save(@"C:\erwin\trunk\MP-II\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
-
         }
 
         SkinContext.Transforms = originalTransforms;
@@ -802,7 +797,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (RenderTransform != null)
         {
           matrix = new ExtendedMatrix();
-          matrix.Matrix *= SkinContext.FinalMatrix.Matrix;
+          matrix.Matrix *= SkinContext.FinalTransform.Matrix;
           Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
@@ -815,9 +810,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         DoRender();
         //remove the rendertransform
         if (RenderTransform != null)
-        {
           SkinContext.RemoveTransform();
-        }
       }
     }
 
@@ -830,7 +823,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (RenderTransform != null)
       {
         ExtendedMatrix matrix = new ExtendedMatrix();
-        matrix.Matrix *= SkinContext.FinalMatrix.Matrix;
+        matrix.Matrix *= SkinContext.FinalTransform.Matrix;
         Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
         matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
         Matrix mNew;

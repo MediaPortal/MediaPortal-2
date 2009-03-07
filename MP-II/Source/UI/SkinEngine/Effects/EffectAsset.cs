@@ -63,7 +63,7 @@ namespace MediaPortal.SkinEngine.Effects
     public void Allocate()
     {
       string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(
-          string.Format(@"{0}\{1}.fx", Skin.SHADERS_DIRECTORY ,_effectName));
+          string.Format(@"{0}\{1}.fx", SkinResources.SHADERS_DIRECTORY ,_effectName));
       if (effectFilePath != null && File.Exists(effectFilePath))
       {
         string effectShader;
@@ -98,10 +98,7 @@ namespace MediaPortal.SkinEngine.Effects
 
     public Dictionary<string, object> Parameters
     {
-      get
-      {
-        return _effectParameters;
-      }
+      get { return _effectParameters; }
     }
 
     #region IAsset Members
@@ -169,9 +166,7 @@ namespace MediaPortal.SkinEngine.Effects
     public void Render(TextureAsset tex, int stream)
     {
       if (!IsAllocated)
-      {
         Allocate();
-      }
 
       if (!IsAllocated)
       {
@@ -187,7 +182,7 @@ namespace MediaPortal.SkinEngine.Effects
           return;
         }
       }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex.Texture);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
@@ -211,7 +206,7 @@ namespace MediaPortal.SkinEngine.Effects
         GraphicsDevice.Device.SetTexture(0, tex);
         return;
       }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
@@ -243,7 +238,7 @@ namespace MediaPortal.SkinEngine.Effects
         GraphicsDevice.Device.SetTexture(stream, tex);
         return;
       }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalMatrix.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
@@ -252,6 +247,7 @@ namespace MediaPortal.SkinEngine.Effects
 
       GraphicsDevice.Device.SetTexture(stream, tex);
     }
+
     public void EndRender(int stream)
     {
       if (_effect != null)
@@ -262,6 +258,7 @@ namespace MediaPortal.SkinEngine.Effects
       }
       GraphicsDevice.Device.SetTexture(stream, null);
     }
+
     public void Render(Texture tex)
     {
       StartRender(tex);
@@ -323,10 +320,7 @@ namespace MediaPortal.SkinEngine.Effects
 
     public Effect Effect
     {
-      get
-      {
-        return _effect;
-      }
+      get { return _effect; }
     }
   }
 }
