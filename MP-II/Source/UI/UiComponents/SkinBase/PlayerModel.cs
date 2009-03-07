@@ -42,21 +42,27 @@ namespace UiComponents.SkinBase
 
     protected Timer _timer;
 
-    protected Property _primaryPlayerProperty;
+    protected Property _primaryPlayerVideoStreamProperty;
     protected Property _isPausedProperty;
     protected Property _isRunningProperty;
     protected Property _isMutedProperty;
     protected Property _isPlayerActiveProperty;
     protected Property _isPlayControlsVisibleProperty;
+    protected Property _isPipProperty;
+    protected Property _pipVideoStreamProperty;
+    protected Property _isVideoInfoVisibleProperty;
 
     public PlayerModel()
     {
-      _primaryPlayerProperty = new Property(typeof(int), -1);
+      _primaryPlayerVideoStreamProperty = new Property(typeof(int), -1);
       _isPausedProperty = new Property(typeof(bool), false);
       _isRunningProperty = new Property(typeof(bool), false);
       _isPlayerActiveProperty = new Property(typeof(bool), false);
       _isMutedProperty = new Property(typeof(bool), false);
       _isPlayControlsVisibleProperty = new Property(typeof(bool), false);
+      _isPipProperty = new Property(typeof(bool), false);
+      _pipVideoStreamProperty = new Property(typeof(int), -1);
+      _isVideoInfoVisibleProperty = new Property(typeof(bool), false);
       SubscribeToMessages();
 
       // Setup timer to update the properties
@@ -91,7 +97,7 @@ namespace UiComponents.SkinBase
       switch (messageType)
       {
         case PlayerManagerMessaging.MessageType.PrimaryPlayerChanged:
-          PrimaryPlayer = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+          PrimaryPlayerVideoStream = (int) message.MessageData[PlayerManagerMessaging.PARAM];
           UpdatePlayControls();
           break;
         default:
@@ -117,6 +123,11 @@ namespace UiComponents.SkinBase
         IsPlayerActive = false;
         IsMuted = false;
         IsPlayControlsVisible = false;
+        PrimaryPlayerVideoStream = -1;
+        IsVideoInfoVisible = false;
+
+        IsPip = false;
+        PipVideoStream = -1;
       }
       else
       {
@@ -127,6 +138,13 @@ namespace UiComponents.SkinBase
         IVolumeControl volumeControl = player as IVolumeControl;
         IsMuted = volumeControl != null && volumeControl.Mute;
         IsPlayControlsVisible = screenControl.IsMouseUsed;
+        PrimaryPlayerVideoStream = playerManager.PrimaryPlayer;
+        // TODO: Trigger video info overlay by a button
+        IsVideoInfoVisible = screenControl.IsMouseUsed;
+
+        // TODO: PIP configuration
+        IsPip = false;
+        PipVideoStream = -1;
       }
     }
 
@@ -136,15 +154,37 @@ namespace UiComponents.SkinBase
       return playerManager[playerManager.PrimaryPlayer];
     }
 
-    public Property PrimaryPlayerProperty
+    public Property PrimaryPlayerVideoStreamProperty
     {
-      get { return _primaryPlayerProperty; }
+      get { return _primaryPlayerVideoStreamProperty; }
     }
 
-    public int PrimaryPlayer
+    public int PrimaryPlayerVideoStream
     {
-      get { return (int) _primaryPlayerProperty.GetValue(); }
-      set { _primaryPlayerProperty.SetValue(value); }
+      get { return (int) _primaryPlayerVideoStreamProperty.GetValue(); }
+      set { _primaryPlayerVideoStreamProperty.SetValue(value); }
+    }
+
+    public Property PipVideoStreamProperty
+    {
+      get { return _pipVideoStreamProperty; }
+    }
+
+    public int PipVideoStream
+    {
+      get { return (int) _pipVideoStreamProperty.GetValue(); }
+      set { _pipVideoStreamProperty.SetValue(value); }
+    }
+
+    public Property IsPipProperty
+    {
+      get { return _isPipProperty; }
+    }
+
+    public bool IsPip
+    {
+      get { return (bool) _isPipProperty.GetValue(); }
+      set { _isPipProperty.SetValue(value); }
     }
 
     public Property IsPausedProperty
@@ -200,6 +240,17 @@ namespace UiComponents.SkinBase
     {
       get { return (bool) _isPlayerActiveProperty.GetValue(); }
       set { _isPlayerActiveProperty.SetValue(value); }
+    }
+
+    public Property IsVideoInfoVisibleProperty
+    {
+      get { return _isVideoInfoVisibleProperty; }
+    }
+
+    public bool IsVideoInfoVisible
+    {
+      get { return (bool) _isVideoInfoVisibleProperty.GetValue(); }
+      set { _isVideoInfoVisibleProperty.SetValue(value); }
     }
 
     public void TogglePause()

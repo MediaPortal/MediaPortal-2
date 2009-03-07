@@ -62,7 +62,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
           <Grid Grid.Column="0" Grid.Row="2" Height="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <StackPanel IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPlayControlsVisible}">
+            <StackPanel HorizontalAlignment="Stretch"
+                IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPlayControlsVisible}">
               <Include Source="screens\osd.xaml"/>
             </StackPanel>
           </Grid>

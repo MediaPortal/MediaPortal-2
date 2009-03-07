@@ -13,6 +13,6 @@ Video background
     <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
   </StackPanel.Resources>
   <StackPanel.Background>
-    <VideoBrush Stream="{Binding Source={StaticResource PlayerModel},Path=PrimaryPlayer}"/>
+    <VideoBrush Stream="{Binding Source={StaticResource PlayerModel},Path=PrimaryPlayerVideoStream}"/>
   </StackPanel.Background>
 </StackPanel>

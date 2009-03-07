@@ -22,7 +22,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate>
-            <Grid Width="32" Height="32">
+            <Grid>
               <Canvas IsVisible="{Binding Path=!IsPaused}">
                 <Image x:Name="imgFocus1" Source="osd_pause_focus.png" Stretch="Uniform" Margin="-10,0,0,0" Width="32" Height="32"/>
                 <Image x:Name="imgNoFocus1" Source="osd_pause_nofocus.png" Stretch="Uniform" Margin="-10,0,0,0" Width="32" Height="32"/>
@@ -102,7 +102,7 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate>
-            <Grid Width="32" Height="32">
+            <Grid>
               <Canvas IsVisible="{Binding Path=IsMuted}">
                 <Image x:Name="imgFocus6" Source="mute_Offenabled.png" Stretch="Uniform" Margin="-10,0,0,0" Width="32" Height="32"/>
                 <Image x:Name="imgNoFocus6" Source="mute_Offdisabled.png" Stretch="Uniform" Margin="-10,0,0,0" Width="32" Height="32"/>
@@ -126,13 +126,12 @@
     </Style>
   </Grid.Resources>
 
-  <Image Grid.Row="1" Grid.Column="1" Source="osd_background.png" Height="10" Width="198" Stretch="Uniform"
-      VerticalAlignment="Center" HorizontalAlignment="Center"/>
-  <Canvas Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-    <Button Style="{StaticResource ButtonRewindStyle}" Canvas.Left="0" Canvas.Top="0" Command="{Command Path=Rewind}"/>
-    <Button Style="{StaticResource ButtonStopStyle}" Canvas.Left="34" Canvas.Top="0" Command="{Command Path=Stop}"/>
-    <Button Style="{StaticResource ButtonPauseStyle}" Canvas.Left="68" Canvas.Top="0" Command="{Command Path=TogglePause}"/>
-    <Button Style="{StaticResource ButtonForwardStyle}" Canvas.Left="102" Canvas.Top="0" Command="{Command Path=Forward}"/>
-    <Button Style="{StaticResource ButtonMuteStyle}"  Canvas.Left="136" Canvas.Top="0" Command="{Command Path=ToggleMute}"/>
+  <Canvas x:Name="PlayControls" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Image Source="osd_background.png" Height="10" Width="198" Canvas.Left="0" Canvas.Top="12" Stretch="Fill"/>
+    <Button Style="{StaticResource ButtonRewindStyle}" Canvas.Left="24" Canvas.Top="0" Command="{Command Path=Rewind}"/>
+    <Button Style="{StaticResource ButtonStopStyle}" Canvas.Left="58" Canvas.Top="0" Command="{Command Path=Stop}"/>
+    <Button Style="{StaticResource ButtonPauseStyle}" Canvas.Left="92" Canvas.Top="0" Command="{Command Path=TogglePause}"/>
+    <Button Style="{StaticResource ButtonForwardStyle}" Canvas.Left="126" Canvas.Top="0" Command="{Command Path=Forward}"/>
+    <Button Style="{StaticResource ButtonMuteStyle}"  Canvas.Left="160" Canvas.Top="0" Command="{Command Path=ToggleMute}"/>
   </Canvas>
 </Grid>

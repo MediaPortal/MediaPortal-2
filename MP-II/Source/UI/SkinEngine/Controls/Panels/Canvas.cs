@@ -125,9 +125,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         child.Arrange(new RectangleF(point, childSize));
       }
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       if (!finalRect.IsEmpty)

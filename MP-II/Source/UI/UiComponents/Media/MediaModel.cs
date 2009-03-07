@@ -31,7 +31,6 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
@@ -45,6 +44,7 @@ namespace UiComponents.Media
   public class MediaModel : IWorkflowModel
   {
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
+    public const string FULLSCREENVIDEO_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
 
     public const string MEDIA_MAIN_SCREEN = "media";
 
@@ -165,6 +165,8 @@ namespace UiComponents.Media
             FAILED_TO_PLAY_SELECTED_ITEM_TEXT_RESOURCE, DialogType.OkDialog, false);
         return;
       }
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(new Guid(FULLSCREENVIDEO_STATE_ID_STR));
       player.Resume();
     }
 
