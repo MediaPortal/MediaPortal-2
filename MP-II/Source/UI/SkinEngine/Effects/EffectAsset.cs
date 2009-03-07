@@ -92,7 +92,6 @@ namespace MediaPortal.SkinEngine.Effects
         _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
         _handleTexture = _effect.GetParameter(null, "g_texture");
         _handleTechnique = _effect.GetTechnique(0);
-
       }
     }
 
@@ -274,13 +273,13 @@ namespace MediaPortal.SkinEngine.Effects
           _effect.SetValue(enumer.Current.Key, (Color4)v);
 
         else if (type == typeof(Color4[]))
-          _effect.SetValue(enumer.Current.Key, (Color4[])v);
+          _effect.SetValue<Color4>(enumer.Current.Key, (Color4[])v);
 
         else if (type == typeof(float))
           _effect.SetValue(enumer.Current.Key, (float)v);
 
         else if (type == typeof(float[]))
-          _effect.SetValue(enumer.Current.Key, (float[])v);
+          _effect.SetValue<float>(enumer.Current.Key, (float[])v);
 
         else if (type == typeof(Matrix))
           _effect.SetValue(enumer.Current.Key, (Matrix)v);
@@ -296,7 +295,6 @@ namespace MediaPortal.SkinEngine.Effects
 
         else if (type == typeof(int))
           _effect.SetValue(enumer.Current.Key, (int)v);
-
       }
     }
 
