@@ -7,6 +7,8 @@
     <String Name="MyVideos" Text="Videos"/>
     <String Name="MyPictures" Text="Pictures"/>
     <String Name="ViewInvalid" Text="This view is invalid"/>
+    <String Name="FailedToPlaySelectedItemHeader" Text="Error"/>
+    <String Name="FailedToPlaySelectedItemText" Text="The selected item could not be played (unsupported format?)"/>
   </Section>
   <Section Name="Settings">
     <String Name="Shares" Text="Shares"/>

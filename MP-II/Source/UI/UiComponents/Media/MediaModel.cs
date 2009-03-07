@@ -31,8 +31,10 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
 
 namespace UiComponents.Media
@@ -45,6 +47,9 @@ namespace UiComponents.Media
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
 
     public const string MEDIA_MAIN_SCREEN = "media";
+
+    public const string FAILED_TO_PLAY_SELECTED_ITEM_HEADER_RESOURCE = "[Media.FailedToPlaySelectedItemHeader]";
+    public const string FAILED_TO_PLAY_SELECTED_ITEM_TEXT_RESOURCE = "[Media.FailedToPlaySelectedItemText]";
 
     protected const string VIEW_KEY = "MediaModel: VIEW";
 
@@ -145,6 +150,7 @@ namespace UiComponents.Media
     protected static void PlayItem(MediaItem item)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.ReleasePlayer(playerManager.PrimaryPlayer);
       MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
       string hostName = (string) providerAspect[ProviderResourceAspect.ATTR_SOURCE_COMPUTER];
       Guid providerId = new Guid((string) providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID]);
@@ -152,6 +158,13 @@ namespace UiComponents.Media
       MediaItemLocator mil = new MediaItemLocator(new SystemName(hostName), providerId, path);
       int playerSlot;
       IPlayer player = playerManager.PreparePlayer(mil, null, out playerSlot);
+      if (player == null)
+      {
+        IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+        dialogManager.ShowDialog(FAILED_TO_PLAY_SELECTED_ITEM_HEADER_RESOURCE,
+            FAILED_TO_PLAY_SELECTED_ITEM_TEXT_RESOURCE, DialogType.OkDialog, false);
+        return;
+      }
       player.Resume();
     }
 

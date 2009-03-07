@@ -28,9 +28,6 @@
     <String Name="5" Text="Menu"/>
     <String Name="Eject" Text="Eject"/>
   </Section>
-  <Section Name="Players">
-    <String Name="CurrentlyPlaying" Text="Currently playing"/>
-  </Section>
   <Section Name="Settings">
     <String Name="Appearance" Text="Appearance"/>
     <String Name="Appearance.Skin" Text="Skin"/>

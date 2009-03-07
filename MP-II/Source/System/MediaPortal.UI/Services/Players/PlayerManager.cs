@@ -330,6 +330,8 @@ namespace MediaPortal.Services.Players
 
     protected void RemovePlayer(int playerSlot, bool stopPlayer)
     {
+      if (playerSlot < 0 || playerSlot >= _players.Count)
+        return;
       ActivePlayerData activePlayer = _players[playerSlot];
       if (activePlayer == null)
         return;
