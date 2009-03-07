@@ -183,7 +183,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       int color = -1;
       _singleColor = true;
       foreach (GradientStop stop in GradientStops)
-      {
         if (color == -1)
           color = stop.Color.ToArgb();
         else
@@ -192,7 +191,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
             _singleColor = false;
             return;
           }
-      }
     }
 
     #region Public methods
@@ -212,9 +210,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         _position = new Vector3(element.ActualPosition.X, element.ActualPosition.Y, element.ActualPosition.Z);
 
         if (_brushTexture == null)
-        {
           _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
-        }
         Free(true);
         _refresh = true;
       }
@@ -398,9 +394,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         SkinContext.AddTransform(mTrans);
       }
       if (tex == null)
-      {
         return;
-      }
       if (_refresh)
       {
         _refresh = false;
@@ -461,13 +455,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public override void EndRender()
     {
       if (_effect != null)
-      {
         _effect.EndRender();
-      }
       if (Transform != null)
-      {
         SkinContext.RemoveTransform();
-      }
     }
 
     #endregion
@@ -484,14 +474,10 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       get
       {
         if (!IsAllocated)
-        {
           return false;
-        }
         TimeSpan ts = SkinContext.Now - _lastTimeUsed;
         if (ts.TotalSeconds >= 1)
-        {
           return true;
-        }
 
         return false;
       }

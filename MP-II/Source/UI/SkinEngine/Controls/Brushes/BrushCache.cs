@@ -29,7 +29,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
   public class BrushCache
   {
     static BrushCache _instance;
-    List<BrushTexture> _cache;
+    ICollection<BrushTexture> _cache;
 
     static BrushCache()
     {
@@ -50,13 +50,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public BrushTexture GetGradientBrush(GradientStopCollection stops, bool opacitybrush)
     {
-      for (int i = 0; i < _cache.Count; ++i)
-      {
-        if ((_cache[i].OpacityBrush == opacitybrush) && _cache[i].IsSame(stops))
-        {
-          return _cache[i];
-        }
-      }
+      foreach (BrushTexture texture in _cache)
+        if ((texture.OpacityBrush == opacitybrush) && texture.IsSame(stops))
+          return texture;
       // Here we must do a copy of the gradient stops. If we don't, the cache will change
       // when the stops are changed outside.
       BrushTexture brush = new BrushTexture(new GradientStopCollection(stops), opacitybrush, null);

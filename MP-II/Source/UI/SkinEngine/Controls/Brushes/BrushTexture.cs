@@ -89,10 +89,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       get
       {
         if (!IsAllocated)
-        {
           Allocate();
-          //Trace.WriteLine("Allocate brush");
-        }
         KeepAlive();
         return _texture;
       }
@@ -156,13 +153,11 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
           data[offY + offx + 1] = (byte)g;
           data[offY + offx + 2] = (byte)r;
           data[offY + offx + 3] = (byte)a;
-
         }
       }
       rect.Data.Write(data, 0, 4 * 512);
       _texture.UnlockRectangle(0);
       rect.Data.Dispose();
-
     }
 
     #region IAsset Members
@@ -182,14 +177,10 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       get
       {
         if (!IsAllocated)
-        {
           return false;
-        }
         TimeSpan ts = SkinContext.Now - _lastTimeUsed;
         if (ts.TotalSeconds >= 10)
-        {
           return true;
-        }
 
         return false;
       }

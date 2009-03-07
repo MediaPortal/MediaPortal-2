@@ -153,9 +153,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public override void EndRender()
     {
       if (_effect != null)
-      {
         _effect.EndRender();
-      }
     }
 
   }

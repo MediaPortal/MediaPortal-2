@@ -178,9 +178,7 @@ namespace MediaPortal.SkinEngine.Effects
       {
         tex.Allocate();
         if (!tex.IsAllocated)
-        {
           return;
-        }
       }
       _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex.Texture);
@@ -197,9 +195,7 @@ namespace MediaPortal.SkinEngine.Effects
     public void StartRender(Texture tex)
     {
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
       {
         //render without effect
@@ -229,9 +225,7 @@ namespace MediaPortal.SkinEngine.Effects
     public void StartRender(Texture tex, int stream)
     {
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
       {
         //render without effect
@@ -288,7 +282,6 @@ namespace MediaPortal.SkinEngine.Effects
         else if (type == typeof(float[]))
           _effect.SetValue(enumer.Current.Key, (float[])v);
 
-
         else if (type == typeof(Matrix))
           _effect.SetValue(enumer.Current.Key, (Matrix)v);
 
@@ -310,9 +303,7 @@ namespace MediaPortal.SkinEngine.Effects
     public EffectHandleAsset GetParameterHandle(string name)
     {
       if (_parameters.ContainsKey(name))
-      {
         return _parameters[name];
-      }
       EffectHandleAsset asset = new EffectHandleAsset(name, this);
       _parameters[name] = asset;
       return asset;

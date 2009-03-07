@@ -852,7 +852,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (OpacityMask == null) return;
       if (_opacityMaskContext == null)
       {
-        //Trace.WriteLine("FrameworkElement: Allocate _opacityMaskContext");
         _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name);
         ContentManager.Add(_opacityMaskContext);
       }
@@ -863,7 +862,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _opacityMaskContext.VertexBuffer = PositionColored2Textured.Create(6);
       }
       if (!_updateOpacityMask) return;
-      //Trace.WriteLine("FrameworkElement.UpdateOpacityMask");
       _opacityMaskContext.LastTimeUsed = SkinContext.Now;
       if (_opacityMaskContext.Texture != null)
       {

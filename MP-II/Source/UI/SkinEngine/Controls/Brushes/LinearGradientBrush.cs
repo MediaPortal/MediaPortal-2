@@ -111,7 +111,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       int color = -1;
       _singleColor = true;
       foreach (GradientStop stop in GradientStops)
-      {
         if (color == -1)
           color = stop.Color.ToArgb();
         else
@@ -120,7 +119,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
             _singleColor = false;
             return;
           }
-      }
     }
 
     public Property StartPointProperty
@@ -147,7 +145,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
     {
-      //      Trace.WriteLine("LinearGradientBrush.SetupBrush()");
       _verts = verts;
       // if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
@@ -159,13 +156,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         _width = element.ActualWidth;
         _position = new Vector3(element.ActualPosition.X, element.ActualPosition.Y, element.ActualPosition.Z); ;
         if (_brushTexture == null)
-        {
           _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
-        }
         if (_cacheTexture != null)
-        {
           Free(true);
-        }
         _refresh = true;
       }
     }
@@ -179,9 +172,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         SkinContext.AddTransform(mTrans);
       }
       if (_brushTexture == null)
-      {
         return false;
-      }
       if (_refresh)
       {
         _refresh = false;
@@ -202,9 +193,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
           _handleEndPoint = _effect.GetParameterHandle("g_EndPoint");
         }
         if (_cacheTexture != null)
-        {
           Free(true);
-        }
       }
 
       float[] g_startpoint = new float[] { StartPoint.X, StartPoint.Y };
@@ -280,7 +269,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
                 //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
                 //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
-
                 Matrix mrel;
                 RelativeTransform.GetTransformRel(out mrel);
                 mrel = Matrix.Invert(mrel);
@@ -303,8 +291,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
                 _effect = ContentManager.GetEffect("normal");
               }
 
-
-              //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
               ContentManager.Add(this);
             }
             GraphicsDevice.Device.BeginScene();
@@ -346,9 +332,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         SkinContext.AddTransform(mTrans);
       }
       if (tex == null)
-      {
         return;
-      }
       if (_refresh)
       {
         _refresh = false;
@@ -402,23 +386,16 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public override void EndRender()
     {
       if (_effect != null)
-      {
         _effect.EndRender();
-      }
       if (Transform != null)
-      {
         SkinContext.RemoveTransform();
-      }
     }
 
     #region IAsset Members
 
     public bool IsAllocated
     {
-      get
-      {
-        return (_cacheTexture != null);
-      }
+      get { return (_cacheTexture != null); }
     }
 
     public bool CanBeDeleted
@@ -426,14 +403,10 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       get
       {
         if (!IsAllocated)
-        {
           return false;
-        }
         TimeSpan ts = SkinContext.Now - _lastTimeUsed;
         if (ts.TotalSeconds >= 1)
-        {
           return true;
-        }
 
         return false;
       }
@@ -455,17 +428,13 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override Texture Texture
     {
-      get
-      {
-        return _brushTexture.Texture;
-      }
+      get { return _brushTexture.Texture; }
     }
 
     public override void Deallocate()
     {
       if (_cacheTexture != null)
       {
-        Trace.WriteLine("LinearGradientBrush:Deallocate cached texture");
         _cacheTexture.Dispose();
         _cacheTexture = null;
         ContentManager.Remove(this);
@@ -476,7 +445,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
     }
 
-    public override void SetupPrimitive(SkinEngine.Rendering.PrimitiveContext context)
+    public override void SetupPrimitive(Rendering.PrimitiveContext context)
     {
       context.Parameters = new EffectParameters();
       CheckSingleColor();
