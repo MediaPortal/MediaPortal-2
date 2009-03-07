@@ -54,9 +54,6 @@ applications, and to alter it and redistribute it freely, subject to the followi
 using System;
 using MediaPortal.SkinEngine.DirectX;
 
-//using SlimDX.Direct3D
-using SlimDX.Direct3D9;
-
 namespace MediaPortal.SkinEngine.Fonts
 {
   public class Quad : ICloneable

@@ -68,7 +68,6 @@ namespace MediaPortal.SkinEngine.Fonts
     {
       get { return _library; }
     }
-
   }
 
   /// <summary>
@@ -155,10 +154,8 @@ namespace MediaPortal.SkinEngine.Fonts
     private int _rowHeight = 0;
     private int _currentY = 0;
 
-    private readonly Dictionary<int, string> _pages;
     private float _firstCharWidth = 0;
     EffectAsset _effect;
-    
 
     /// <summary>Creates a new font set.</summary>
     /// <param name="library">The free type library ptr.</param>
@@ -167,7 +164,6 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="resolution">Resolution in dpi.</param>
     public Font(IntPtr library, IntPtr face, int size, uint resolution)
     {
-      _pages = new Dictionary<int, string>();
       _quads = new List<FontQuad>();
       _strings = new List<StringBlock>();
       _library = library;
@@ -182,7 +178,7 @@ namespace MediaPortal.SkinEngine.Fonts
       _charSet.Width = MAX_WIDTH;
       _charSet.Height = MAX_HEIGHT;
 
-      FT_FaceRec Face = (FT_FaceRec)Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
+      FT_FaceRec Face = (FT_FaceRec) Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
 
       _charSet.Base = _charSet.RenderedSize * Face.ascender / Face.height;
 
@@ -200,8 +196,8 @@ namespace MediaPortal.SkinEngine.Fonts
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
 
-      float point_size = 64.0f*(float)_charSet.RenderedSize * 72.0f / (float)_resolution;
-      FT.FT_Set_Char_Size(_face, (int)point_size, 0, _resolution, 0);
+      float point_size = 64.0f*_charSet.RenderedSize * 72.0f / _resolution;
+      FT.FT_Set_Char_Size(_face, (int) point_size, 0, _resolution, 0);
       uint glypthIndex = FT.FT_Get_Char_Index(_face, charIndex);
       
       // Font does not contain glypth
@@ -230,16 +226,13 @@ namespace MediaPortal.SkinEngine.Fonts
       // get the structure fron the intPtr
       FT_BitmapGlyph Glyph = (FT_BitmapGlyph) Marshal.PtrToStructure(glyph, typeof(FT_BitmapGlyph));
 
-      int cwidth, cheight;
-      int pwidth, pheight;
-      
       // Width/height of char
-      cwidth = Glyph.bitmap.width;
-      cheight = Glyph.bitmap.rows;
+      int cwidth = Glyph.bitmap.width;
+      int cheight = Glyph.bitmap.rows;
 
       // Width/height of char including padding
-      pwidth = cwidth + 3 * PAD;
-      pheight = cheight + 3 * PAD;
+      int pwidth = cwidth + 3 * PAD;
+      int pheight = cheight + 3 * PAD;
   
       if (_currentX + pwidth > MAX_WIDTH)
       {
@@ -265,7 +258,6 @@ namespace MediaPortal.SkinEngine.Fonts
       Character.XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
 
       _charSet.SetCharacter(charIndex, Character);
-      //Trace.WriteLine("Glyph " + (char)charIndex + " - " + _charSet.Characters[charIndex].Height + " " + _charSet.RenderedSize); 
       // Copy the glypth bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
 
@@ -503,7 +495,7 @@ namespace MediaPortal.SkinEngine.Fonts
     {
       StringBlock b = new StringBlock(text, textBox, zOrder, alignment, size, color, kerning);
       _strings.Add(b);
-      _quads.AddRange(GetProcessedQuads(ref b, scroll, out textFits));
+      _quads.AddRange(GetProcessedQuads(b, scroll, out textFits));
       if (_quads.Count > 0)
         totalWidth = _quads[_quads.Count - 1].TopRight.X - textBox.X;
       else
@@ -636,7 +628,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// <param name="scroll">true if text should scroll</param>
     /// <param name="textFits"></param>
     /// <returns>List of Quads</returns>
-    private List<FontQuad> GetProcessedQuads(ref StringBlock b, bool scroll, out bool textFits)
+    private List<FontQuad> GetProcessedQuads(StringBlock b, bool scroll, out bool textFits)
     {
       textFits = true;
 
@@ -1027,7 +1019,7 @@ namespace MediaPortal.SkinEngine.Fonts
     public int RenderedSize;
     public int Width;
     public int Height;
-    private BitmapCharacterRow[] Rows;
+    private readonly BitmapCharacterRow[] Rows;
 
     /// <summary>Creates a new BitmapCharacterSet</summary>
     public BitmapCharacterSet()
