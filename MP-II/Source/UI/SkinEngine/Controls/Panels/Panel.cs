@@ -33,7 +33,6 @@ using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
 using MediaPortal.SkinEngine;
-using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -64,6 +63,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
   }
+
+  public enum Orientation { Vertical, Horizontal };
 
   public class Panel : FrameworkElement, IAddChild<UIElement>, IUpdateEventHandler
   {

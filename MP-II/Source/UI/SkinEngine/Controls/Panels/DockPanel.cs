@@ -32,6 +32,8 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {
+  public enum Dock { Left, Right, Top, Bottom, Center };
+
   public class DockPanel : Panel
   {
     protected const string DOCK_ATTACHED_PROPERTY = "DockPanel.Dock";

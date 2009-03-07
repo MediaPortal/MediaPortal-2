@@ -24,9 +24,7 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.InputManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -491,12 +489,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public bool FocusHome()
     {
-      return MoveFocusN(Orientation == Visuals.Orientation.Horizontal ? MoveFocusDirection.Left : MoveFocusDirection.Up);
+      return MoveFocusN(Orientation == Orientation.Horizontal ? MoveFocusDirection.Left : MoveFocusDirection.Up);
     }
 
     public bool FocusEnd()
     {
-      return MoveFocusN(Orientation == Visuals.Orientation.Horizontal ? MoveFocusDirection.Right : MoveFocusDirection.Down);
+      return MoveFocusN(Orientation == Orientation.Horizontal ? MoveFocusDirection.Right : MoveFocusDirection.Down);
     }
 
     #endregion

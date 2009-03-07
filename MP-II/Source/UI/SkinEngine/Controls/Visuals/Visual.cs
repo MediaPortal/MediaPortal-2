@@ -31,8 +31,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };
-  public enum Orientation { Vertical, Horizontal };
-  public enum Dock { Left, Right, Top, Bottom, Center };
 
   public class Visual : DependencyObject
   {

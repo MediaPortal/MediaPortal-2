@@ -308,7 +308,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       PerformLayout();
 
       SkinContext.AddOpacity(Opacity);
-      if (_fillAsset != null)
+      if (_fillAsset != null && _fillAsset.VertexBuffer != null)
       {
         //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
@@ -320,7 +320,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         }
         _fillAsset.LastTimeUsed = SkinContext.Now;
       }
-      if (_borderAsset != null)
+      if (_borderAsset != null && _borderAsset.VertexBuffer != null)
       {
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))

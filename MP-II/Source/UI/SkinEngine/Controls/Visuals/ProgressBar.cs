@@ -32,7 +32,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #region Private fields
 
     Property _valueProperty;
-    FrameworkElement _partIndicator;
+    Property _partIndicatorWidthProperty;
 
     #endregion
 
@@ -48,6 +48,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Focusable = false;
       _valueProperty = new Property(typeof(float), 0.0f);
+      _partIndicatorWidthProperty = new Property(typeof(float), 0.0f);
     }
 
     void Attach()
@@ -73,14 +74,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnValueChanged(Property property, object oldValue)
     {
-      if (_partIndicator != null)
-      {
-        double w = ActualWidth;
-        w /= 100.0f;
-        w *= Value;
-        _partIndicator.Width = w;
-
-      }
+      PartIndicatorWidth = (float) (ActualWidth*Value/100.0);
     }
 
     public Property ValueProperty
@@ -90,15 +84,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public float Value
     {
-      get { return (float)_valueProperty.GetValue(); }
+      get { return (float) _valueProperty.GetValue(); }
       set { _valueProperty.SetValue(value); }
     }
 
-    public override void DoRender()
+    public Property PartIndicatorWidthProperty
     {
-      if (_partIndicator == null)
-        _partIndicator = FindElement(new NameFinder("PART_Indicator")) as FrameworkElement;
-      base.DoRender();
+      get { return _partIndicatorWidthProperty; }
+    }
+
+    public float PartIndicatorWidth
+    {
+      get { return (float) _partIndicatorWidthProperty.GetValue(); }
+      set { _partIndicatorWidthProperty.SetValue(value); }
     }
   }
 }
