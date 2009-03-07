@@ -48,7 +48,7 @@ namespace MediaPortal.Core.MediaManagement
     /// by this id is installed in the media portal instance which is specified by the <see cref="SystemName"/>.
     /// </summary>
     Guid MediaProviderId { get; }
-    
+
     /// <summary>
     /// Gets the path to the media provider to get the original media item.
     /// </summary>

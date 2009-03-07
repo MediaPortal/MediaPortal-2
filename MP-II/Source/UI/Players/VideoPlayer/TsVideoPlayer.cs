@@ -23,14 +23,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Localization;
-using MediaPortal.Presentation.MenuManager;
-using Ui.Players.VideoPlayer.Subtitles;
+using Ui.Players.Video.Subtitles;
 
 [ComVisible(true), ComImport,
 Guid("324FAA1F-4DA6-47B8-832B-3993D8FF4151"),
@@ -41,7 +39,7 @@ public interface ITSReaderCallback
   int OnMediaTypeChanged();
 };
 
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
   public class TsVideoPlayer : VideoPlayer, ITSReaderCallback
   {
@@ -94,23 +92,12 @@ namespace Ui.Players.VideoPlayer
     protected int _currentAudioStream = 0;
     private readonly StringId _audioStreams = new StringId("playback", "4");
     private readonly StringId _subtitleLanguage = new StringId("playback", "3");
-    private readonly List<IMenuItem> _menuItems = new List<IMenuItem>();
     SubtitleRenderer _renderer;
     IBaseFilter _subtitleFilter;
     #endregion
 
     public TsVideoPlayer()
     {
-      MenuItem item;
-      item = new MenuItem(_subtitleLanguage, "");
-      item.Command = "ScreenManager.ShowDialog";
-      item.CommandParameter = "dialogSubtitles";
-      _menuItems.Add(item);
-
-      item = new MenuItem(_audioStreams, "");
-      item.Command = "ScreenManager.ShowDialog";
-      item.CommandParameter = "dialogAudioStreams";
-      _menuItems.Add(item);
     }
 
     #region graph building
@@ -135,14 +122,6 @@ namespace Ui.Players.VideoPlayer
       _renderer.Clear();
       _renderer.ReleaseResources();
       _renderer = null;
-      IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("fullscreenVideocontext");
-      if (menu != null)
-      {
-        foreach (IMenuItem item in _menuItems)
-        {
-          menu.Items.Remove(item);
-        }
-      }
     }
 
     /// <summary>
@@ -161,21 +140,12 @@ namespace Ui.Players.VideoPlayer
       _renderer.SetPlayer(this);
 
       IFileSourceFilter f = (IFileSourceFilter)_fileSource;
-      f.Load(_fileName.LocalPath, null);
+      f.Load(_mediaItemAccessor.LocalFileSystemPath, null);
     }
 
     protected override void OnBeforeGraphRunning()
     {
       RenderOutputPins(_fileSource);
-
-      IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("fullscreenVideocontext");
-      if (menu != null)
-      {
-        foreach (IMenuItem item in _menuItems)
-        {
-          menu.Items.Add(item);
-        }
-      }
     }
 
     /// <summary>
@@ -215,9 +185,10 @@ namespace Ui.Players.VideoPlayer
       _bMediaTypeChanged = true;
       return 0;
     }
-    public override void OnIdle()
+
+    // FIXME: To be called
+    public void OnIdle()
     {
-      base.OnIdle();
       if (_bMediaTypeChanged)
       {
         DoGraphRebuild();
@@ -274,7 +245,7 @@ namespace Ui.Players.VideoPlayer
 
     void DoGraphRebuild()
     {
-      IMediaControl mediaCtrl = (_graphBuilder) as IMediaControl;
+      IMediaControl mediaCtrl = _graphBuilder as IMediaControl;
       ServiceScope.Get<ILogger>().Info("TSReaderPlayer:OnMediaTypeChanged()");
       bool needRebuild = GraphNeedsRebuild();
       if (mediaCtrl != null)
@@ -505,14 +476,17 @@ namespace Ui.Players.VideoPlayer
         }
       }
     }
-    bool IsTimeShifting
-    {
-      get
-      {
-        return (_fileName.LocalPath.ToLower().IndexOf(".tsbuffer") >= 0);
-      }
-    }
-    /// <summary>
+
+    // FIXME: Remove this
+    //bool IsTimeShifting
+    //{
+    //  get
+    //  {
+    //    return (_fileName.LocalPath.ToLower().IndexOf(".tsbuffer") >= 0);
+    //  }
+    //}
+    ///// <summary>
+
     /// Gets the current audio stream.
     /// </summary>
     /// <value>The current audio stream.</value>
@@ -551,12 +525,13 @@ namespace Ui.Players.VideoPlayer
           int sPDWGroup, sPLCid; string sName;
           object pppunk, ppobject;
 
-          if (IsTimeShifting)
-          {
-            // The offset +2 is necessary because the first 2 streams are always non-audio and the following are the audio streams
-            pStrm.Info(i + 2, out sType, out sFlag, out sPLCid, out sPDWGroup, out sName, out pppunk, out ppobject);
-          }
-          else
+          // FIXME: Fix the following commented-out code
+          //if (IsTimeShifting)
+          //{
+          //  // The offset +2 is necessary because the first 2 streams are always non-audio and the following are the audio streams
+          //  pStrm.Info(i + 2, out sType, out sFlag, out sPLCid, out sPDWGroup, out sName, out pppunk, out ppobject);
+          //}
+          //else
           {
             pStrm.Info(i, out sType, out sFlag, out sPLCid, out sPDWGroup, out sName, out pppunk, out ppobject);
           }
@@ -572,11 +547,7 @@ namespace Ui.Players.VideoPlayer
 
     #region subtitles
 
-    /// <summary>
-    /// returns list of available subtitle streams
-    /// </summary>
-    /// <value></value>
-    public override string[] Subtitles
+    public string[] Subtitles
     {
       get
       {
@@ -599,11 +570,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// sets the current subtitle
-    /// </summary>
-    /// <param name="subtitle">subtitle</param>
-    public override void SetSubtitle(string subtitle)
+    public void SetSubtitle(string subtitle)
     {
       string[] subs = Subtitles;
       for (int i = 0; i < subs.Length; ++i)
@@ -618,11 +585,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Gets the current subtitle.
-    /// </summary>
-    /// <value>The current subtitle.</value>
-    public override string CurrentSubtitle
+    public string CurrentSubtitle
     {
       get
       {
@@ -636,12 +599,11 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
+    #endregion
+
     public override TimeSpan CurrentTime
     {
-      get
-      {
-        return base.CurrentTime;
-      }
+      get { return base.CurrentTime; }
       set
       {
         base.CurrentTime = value;
@@ -652,16 +614,14 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
+    // Not used
     public override void Render()
     {
       base.Render();
       if (_renderer != null)
         _renderer.Render();
     }
-    public override void BeginRender(object effect)
-    {
-      base.BeginRender(effect);
-    }
+
     public override void EndRender(object effect)
     {
       base.EndRender(effect);
@@ -669,13 +629,13 @@ namespace Ui.Players.VideoPlayer
         _renderer.Render();
     }
 
-    #endregion
     public override void ReleaseGUIResources()
     {
       if (_renderer != null)
         _renderer.ReleaseResources();
       base.ReleaseGUIResources();
     }
+
     public override void ReallocGUIResources()
     {
       if (_renderer != null)

@@ -68,6 +68,8 @@ namespace UiComponents.SkinBase
 
     public void Dispose()
     {
+      _timer.Elapsed -= OnTimerElapsed;
+      _timer.Enabled = false;
       UnregisterQueue();
     }
 

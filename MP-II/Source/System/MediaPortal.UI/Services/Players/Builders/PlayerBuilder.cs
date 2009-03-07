@@ -22,31 +22,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Drawing;
+using MediaPortal.Core.Services.PluginManager.Builders;
 
-namespace MediaPortal.Presentation.Geometry
+namespace MediaPortal.Services.Players.Builders
 {
-  public interface IGeometryHelper
+  public class PlayerBuilder : InstanceBuilder
   {
-    void Add(IGeometry geometry);
-    void Remove(IGeometry geometry);
-    void Select(string geometryName);
-    List<IGeometry> Geometries { get;}
-    int ImageWidth { get;}
-    int ImageHeight { get;}
-
-    int ScreenWidth { get;}
-    int ScreenHeight { get;}
-    float PixelRatio { get;}
-    void AdjustSourceForCropping(ref Rectangle rSource, ICropSettings cropSettings);
-
-    /// <summary>
-    /// Gets the current geometry in use
-    /// </summary>
-    /// <value>The current geometry.</value>
-    IGeometry Current { get;}
+    // At the moment, we simply use an InstanceBuilder here. In the future, we could provide the option to
+    // give a set of supported file extensions in the player builder item registration, which can be evaluated before
+    // requesting the player builder -> lazy load the player builders on request
   }
 }

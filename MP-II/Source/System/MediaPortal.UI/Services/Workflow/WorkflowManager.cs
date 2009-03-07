@@ -136,18 +136,6 @@ namespace MediaPortal.Services.Workflow
 
     #endregion
 
-    #region Public methods
-
-    public void Startup()
-    {
-      ServiceScope.Get<ILogger>().Info("WorkflowManager: Startup");
-      ISkinResourceManager skinResourceManager = ServiceScope.Get<ISkinResourceManager>();
-      skinResourceManager.SkinResourcesChanged += OnSkinResourcesChanged;
-      ReloadWorkflowResources();
-    }
-
-    #endregion
-
     #region Protected methods
 
     protected void OnSkinResourcesChanged()
@@ -450,6 +438,24 @@ namespace MediaPortal.Services.Workflow
     public NavigationContext CurrentNavigationContext
     {
       get { return _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek(); }
+    }
+
+    public void Initialize()
+    {
+      ServiceScope.Get<ILogger>().Info("WorkflowManager: Startup");
+      ISkinResourceManager skinResourceManager = ServiceScope.Get<ISkinResourceManager>();
+      skinResourceManager.SkinResourcesChanged += OnSkinResourcesChanged;
+      ReloadWorkflowResources();
+    }
+
+    public void Shutdown()
+    {
+      ServiceScope.Get<ILogger>().Info("WorkflowManager: Shutdown");
+      ISkinResourceManager skinResourceManager = ServiceScope.Get<ISkinResourceManager>(false);
+      if (skinResourceManager != null)
+        skinResourceManager.SkinResourcesChanged += OnSkinResourcesChanged;
+      foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
+        FreeModel(modelId);
     }
 
     public void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables)

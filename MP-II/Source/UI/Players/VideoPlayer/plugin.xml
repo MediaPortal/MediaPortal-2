@@ -1,0 +1,17 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="DefaultVideoPlayer"
+    PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}"
+    Author="Frodo, Albert"
+    Copyright="GPL"
+    Description="This plugin contains default players for several video formats and DVD"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="VideoPlayers.dll"/>
+  </Runtime>
+
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="47924D05-C8B6-4a75-8EFE-8A9CD73AA518" ClassName="Ui.Players.Video.VideoPlayerBuilder"/>
+  </Register>
+</Plugin>

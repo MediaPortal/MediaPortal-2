@@ -23,8 +23,9 @@
 #endregion
 
 using MediaPortal.Core.Settings;
+using MediaPortal.Presentation.Geometries;
 
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
   public class VideoSettings
   {
@@ -38,7 +39,7 @@ namespace Ui.Players.VideoPlayer
     private string _audioLanguage;
 
 
-    [Setting(SettingScope.User, "")]
+    [Setting(SettingScope.User, null)]
     public CropSettings Crop
     {
       get { return _crop; }

@@ -37,7 +37,7 @@ using Matrix = SlimDX.Matrix;
 using Brush = MediaPortal.SkinEngine.Controls.Brushes.Brush;
 using SlimDX;
 using SlimDX.Direct3D9;
-using GeometryUtility;
+using MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 

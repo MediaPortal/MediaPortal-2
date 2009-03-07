@@ -41,7 +41,6 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine
 {
-
   public class GraphicsDevice : IDisposable
   {
     #region variables
@@ -65,10 +64,6 @@ namespace MediaPortal.SkinEngine
     public static Matrix TransformProjection;
     public static Matrix FinalTransform;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="GraphicsDevice"/> class.
-    /// </summary>
-    /// <param name="window">The window.</param>
     public GraphicsDevice(Form window, bool maximize)
     {
       if (_firstTimeInitialisationMemory)
@@ -155,7 +150,6 @@ namespace MediaPortal.SkinEngine
       }
     }
 
-
     /// <summary>
     /// Resets the DirectX device.
     /// </summary>
@@ -164,33 +158,26 @@ namespace MediaPortal.SkinEngine
     /// <param name="mode">Mode to set on the DirectX device.</param>
     public static bool Reset(bool exclusiveMode, string displaySetting)
     {
-
-        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
-        if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
-        {
-          if (_backBuffer != null)
-          {
-            _backBuffer.Dispose();
-          }
-          _backBuffer = null;
-          _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
-          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-          AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-          ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-                                            adapterInfo.CurrentDisplayMode.Format,
-                                            adapterInfo.CurrentDisplayMode.RefreshRate);
-          _backBuffer = _device.GetRenderTarget(0);
-          GetCapabilities();
-        }
-        else
-        {
-          ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
-        }
-        return true;
-        ServiceScope.Get<ILogger>().Error("GraphicsDevice: Failed to reset DirectX");
-        // ServiceScope.Get<ILogger>().Error(ex);
-
-      return false;
+      ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
+      if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
+      {
+        if (_backBuffer != null)
+          _backBuffer.Dispose();
+        _backBuffer = null;
+        _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
+        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
+        ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
+                                          adapterInfo.CurrentDisplayMode.Format,
+                                          adapterInfo.CurrentDisplayMode.RefreshRate);
+        _backBuffer = _device.GetRenderTarget(0);
+        GetCapabilities();
+      }
+      else
+      {
+        ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
+      }
+      return true;
     }
 
     public static bool IsWindowed
@@ -229,9 +216,6 @@ namespace MediaPortal.SkinEngine
       get { return _device; }
       set { _device = value; }
     }
-
-
-
 
     /// <summary>
     /// Gets the directx back-buffer width.
@@ -293,7 +277,6 @@ namespace MediaPortal.SkinEngine
       //Device.SetTextureStageState(1, TextureStage.AlphaArg0, TextureArgument.Texture);
       //Device.SetTextureStageState(1, TextureStage.AlphaArg1, TextureArgument.Current);
 
-
       if (_supportsAlphaBlend)
       {
         Device.SetRenderState(RenderState.AlphaTestEnable, true);
@@ -330,7 +313,6 @@ namespace MediaPortal.SkinEngine
         Device.SetSamplerState(0, SamplerState.MipFilter, TextureFilter.Point);
       }
 
-
       int gw = Width;
       int gh = Height;
       gw = Width;
@@ -358,12 +340,13 @@ namespace MediaPortal.SkinEngine
       GraphicsDevice.TransformView = mtxView;
 
       // projection onto screen space
-      Matrix mtxProjection = Matrix.PerspectiveOffCenterLH((-w - offset.X) * 0.5f, //Minimum x-value of the view volume.
-                                                           (w - offset.X) * 0.5f, //Maximum x-value of the view volume.
-                                                           (-h + offset.Y) * 0.5f, //Minimum y-value of the view volume.
-                                                           (h + offset.Y) * 0.5f, //Maximum y-value of the view volume.
-                                                           h, //Minimum z-value of the view volume.
-                                                           100 * h); //Maximum z-value of the view volume.
+      Matrix mtxProjection = Matrix.PerspectiveOffCenterLH(
+          (-w - offset.X) * 0.5f, //Minimum x-value of the view volume.
+          (w - offset.X) * 0.5f, //Maximum x-value of the view volume.
+          (-h + offset.Y) * 0.5f, //Minimum y-value of the view volume.
+          (h + offset.Y) * 0.5f, //Maximum y-value of the view volume.
+          h, //Minimum z-value of the view volume.
+          100 * h); //Maximum z-value of the view volume.
       GraphicsDevice.TransformProjection = mtxProjection;
 
       GraphicsDevice.FinalTransform = GraphicsDevice.TransformView * GraphicsDevice.TransformProjection;
@@ -418,10 +401,8 @@ namespace MediaPortal.SkinEngine
           {
             //yes. Check if the evr/vmr9 thread is still busy
             if (time - _lastRender < 500)
-            {
               //yes then we return since evr/vmr9 thread is doing the rendering for us
               return true;
-            }
 
             //evr/vmr9 thread stopped (can happen when video is paused for example)
             //so... let our own render thread do the rendering again
@@ -438,31 +419,18 @@ namespace MediaPortal.SkinEngine
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
 
           if (SkinContext.UseBatching == true)
-          {
             _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-          }
           else
-          {
             _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-          }
-
-
 
           //Begin the scene
           _device.BeginScene();
 
           GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          //render the window(s)
-          if (!SkinContext.ScreenSaverActive)
-          {
-
-            ScreenManager manager = (ScreenManager)ServiceScope.Get<IScreenManager>();
-            manager.Render();
-            if (SkinContext.UseBatching)
-            {
-              RenderPipeline.Instance.Render();
-            }
-          }
+          ScreenManager manager = (ScreenManager)ServiceScope.Get<IScreenManager>();
+          manager.Render();
+          if (SkinContext.UseBatching)
+            RenderPipeline.Instance.Render();
           //End the scene
           _device.EndScene();
           _device.Present();

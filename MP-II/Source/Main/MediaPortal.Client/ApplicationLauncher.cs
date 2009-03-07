@@ -24,27 +24,14 @@
 
 using System;
 using System.Windows.Forms;
-using MediaPortal.Builders;
-using MediaPortal.Control.InputManager;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Services.Players;
-using MediaPortal.UserManagement;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
 using MediaPortal.Presentation.Workflow;
-using MediaPortal.Services.InputManager;
-using MediaPortal.Services.Logging; // Needed for Release build configuration
-using MediaPortal.Services.ThumbnailGenerator;
-using MediaPortal.Services.UserManagement;
-using MediaPortal.Services.Workflow;
-using MediaPortal.Thumbnails;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Services.Localization;
 
 [assembly: CLSCompliant(true)]
 
@@ -76,7 +63,15 @@ namespace MediaPortal
 
       using (new ServiceScope(true)) //This is the first servicescope
       {
-        ApplicationCore.RegisterCoreServices();
+        //Check whether the user wants to log method names in the logger
+        //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
+        bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
+        LogLevel level = LogLevel.All;
+        if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
+          level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
+
+        ApplicationCore.RegisterCoreServices(level, logMethods);
+        ILogger logger = ServiceScope.Get<ILogger>();
 
         IPathManager pathManager = ServiceScope.Get<IPathManager>();
 
@@ -84,46 +79,11 @@ namespace MediaPortal
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
           pathManager.ReplacePath("DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.Data));
 
-        //Check whether the user wants to log method names in the logger
-        //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
-        bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
-        LogLevel level = LogLevel.All;
-        if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
-        {
-          level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
-        }
-
-        ILogger logger = ServiceScope.Get<ILogger>();
-        logger.Level = level;
-        logger.LogMethodNames = logMethods;
-
-        logger.Info("ApplicationLauncher: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
-
         logger.Debug("ApplicationLauncher: Create MediaManager service");
         MediaManager mediaManager = new MediaManager();
         ServiceScope.Add<MediaManager>(mediaManager);
 
-        logger.Debug("ApplicationLauncher: Create IInputMapper service");
-        InputMapper inputMapper = new InputMapper();
-        ServiceScope.Add<IInputMapper>(inputMapper);
-
-        logger.Debug("ApplicationLauncher: Create IWorkflowManager service");
-        WorkflowManager workflowManager = new WorkflowManager();
-        ServiceScope.Add<IWorkflowManager>(workflowManager);
-
-        logger.Debug("ApplicationLauncher: Create IPlayerManager service");
-        PlayerManager playerManager = new PlayerManager();
-        ServiceScope.Add<IPlayerManager>(playerManager);
-
-        logger.Debug("ApplicationLauncher: Create UserService service");
-        UserService userservice = new UserService();
-        ServiceScope.Add<IUserService>(userservice);
-
-        logger.Debug("ApplicationLauncher: Create StringManager");
-        ServiceScope.Add<ILocalization>(new StringManager());
-
-        logger.Debug("ApplicationLauncher: Create ThumbnailGenerator");
-        ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
+        UiExtension.RegisterUiServices();
 
 #if !DEBUG
         // Not in Debug mode (ie Release) then catch all Exceptions
@@ -131,7 +91,6 @@ namespace MediaPortal
       try
       {
 #endif
-        AdditionalUiBuilders.Register();
 
         // Start the core
         logger.Debug("ApplicationLauncher: Starting core");
@@ -141,6 +100,7 @@ namespace MediaPortal
         pluginManager.Startup(false);
 
         ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
+        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
 
         // We have to handle some dependencies here in the start order:
         // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
@@ -148,11 +108,21 @@ namespace MediaPortal
         // 3) After the workflow states and actions are loaded, the startup screen can be shown
         mediaManager.Initialize(); // Independent from skin engine/skin resources
         skinEngine.Initialize(); // 1)
-        workflowManager.Startup(); // 2)
+        workflowManager.Initialize(); // 2)
         skinEngine.Startup(); // 3)
 
         Application.Run();
+        // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
+        // 2) Uninitialize SkinEngine (Uninstalls background manager and stops render thread)
+        // 3) Shutdown WorkflowManager (Disposes all models)
+        // 4) Shutdown PluginManager (Shuts down all plugins)
+        // 5) Remove all services
+        UiExtension.StopAll();
+        skinEngine.Uninitialize();
+        workflowManager.Shutdown();
         pluginManager.Shutdown();
+        UiExtension.DisposeUiServices();
+        ApplicationCore.DisposeCoreServices();
 #if !DEBUG
         }
         catch (Exception ex)

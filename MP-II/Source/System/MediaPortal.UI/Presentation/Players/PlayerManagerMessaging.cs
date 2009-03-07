@@ -46,14 +46,33 @@ namespace MediaPortal.Presentation.Players
       PlayerStarted,
 
       /// <summary>
-      /// A player ended or was stopped.
+      /// A player was stopped.
       /// </summary>
       PlayerStopped,
+
+      /// <summary>
+      /// A player has ended.
+      /// </summary>
+      PlayerEnded,
 
       /// <summary>
       /// A player was paused.
       /// </summary>
       PlayerPaused,
+
+      /// <summary>
+      /// A player was resumed from pause.
+      /// </summary>
+      PlayerResumed,
+
+      #endregion
+
+      #region PlayerManager messages concerning a special player. The param will denote the player slot (int).
+
+      /// <summary>
+      /// The primary player changed to a new slot.
+      /// </summary>
+      PrimaryPlayerChanged,
 
       #endregion
     }
@@ -69,6 +88,21 @@ namespace MediaPortal.Presentation.Players
     /// <param name="type">Type of the message.</param>
     /// <param name="slot">Slot of the specific player which was changed.</param>
     public static void SendPlayerMessage(MessageType type, int slot)
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[MESSAGE_TYPE] = type;
+      msg.MessageData[PARAM] = slot;
+      queue.Send(msg);
+    }
+
+    /// <summary>
+    /// Sends a message which announces a change in the player manager. The change concerns a specific player
+    /// slot. This method handles the "player manager messages concerning a special player" message types.
+    /// </summary>
+    /// <param name="type">Type of the message.</param>
+    /// <param name="slot">Slot of the player which is involved.</param>
+    public static void SendPlayerManagerPlayerMessage(MessageType type, int slot)
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();

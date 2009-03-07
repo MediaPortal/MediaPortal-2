@@ -28,7 +28,7 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Ui.Players.VideoPlayer.Subtitles
+namespace Ui.Players.Video.Subtitles
 {
   public struct LineContent
   {

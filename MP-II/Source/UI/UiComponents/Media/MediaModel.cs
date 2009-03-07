@@ -25,11 +25,14 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
+using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
 
 namespace UiComponents.Media
@@ -141,7 +144,15 @@ namespace UiComponents.Media
     /// <param name="item">Media item to be played.</param>
     protected static void PlayItem(MediaItem item)
     {
-      // TODO: Play item
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
+      string hostName = (string) providerAspect[ProviderResourceAspect.ATTR_SOURCE_COMPUTER];
+      Guid providerId = new Guid((string) providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID]);
+      string path = (string) providerAspect[ProviderResourceAspect.ATTR_PATH];
+      MediaItemLocator mil = new MediaItemLocator(new SystemName(hostName), providerId, path);
+      int playerSlot;
+      IPlayer player = playerManager.PreparePlayer(mil, null, out playerSlot);
+      player.Resume();
     }
 
     protected void ReloadItems()

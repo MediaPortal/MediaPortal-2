@@ -31,11 +31,13 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Logging;
+using MediaPortal.General;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -47,12 +49,16 @@ namespace MediaPortal.SkinEngine.GUI
   // MainForm must be first in file otherwise can't open in designer
   public partial class MainForm : Form, IScreenControl
   {
+    // TODO: Make this configurable
+    protected static TimeSpan SCREENSAVER_TIMEOUT = new TimeSpan(0, 0, 5, 0);
+    protected static TimeSpan MOUSE_CONTROLS_TIMEOUT = new TimeSpan(0, 0, 0, 5);
+
     private Thread _renderThread;
     private GraphicsDevice _directX;
     private bool _renderThreadStopped;
     private float _fpsCounter;
     private DateTime _fpsTimer;
-    private float fixed_aspect_ratio = 0;
+    private float _fixed_aspect_ratio = 0;
     private FormWindowState _windowState;
     private Size _previousWindowClientSize;
     private Point _previousWindowPosition;
@@ -61,6 +67,10 @@ namespace MediaPortal.SkinEngine.GUI
     private bool _hasFocus = false;
     private string _displaySetting;
     private ScreenManager _screenManager;
+    protected bool _isScreenSaverEnabled = true;
+    protected bool _isScreenSaverActive = false;
+    protected bool _isMouseUsed = false;
+    protected bool _mouseHidden = false;
 
     public MainForm(ScreenManager screenManager)
     {
@@ -77,7 +87,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       _previousMousePosition = new Point(-1, -1);
       ClientSize = new Size(SkinContext.SkinWidth, SkinContext.SkinHeight);
-      fixed_aspect_ratio = SkinContext.SkinHeight/(float) SkinContext.SkinWidth;
+      _fixed_aspect_ratio = SkinContext.SkinHeight/(float) SkinContext.SkinWidth;
 
       // Remember prev size
       _previousWindowClientSize = ClientSize;
@@ -98,17 +108,49 @@ namespace MediaPortal.SkinEngine.GUI
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
       _displaySetting = GraphicsDevice.DesktopDisplayMode;
+      Application.Idle += OnApplicationIdle;
     }
 
-    public void Start()
+    public void DisposeDirectX()
     {
-      CheckTopMost();
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("DirectX MainForm: Dispose DirectX");
+      _directX.Dispose();
+      _directX = null;
+    }
 
-      // Start render thread before we show first screen, because the render thread does
-      // an invalidate, we don't want a double invalidate.
-      StartRenderThread_Async();
+    private void OnApplicationIdle(object sender, EventArgs e)
+    {
+      // Screen saver
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      if (_isScreenSaverEnabled)
+        _isScreenSaverActive = DateTime.Now - inputManager.LastMouseUsageTime > SCREENSAVER_TIMEOUT &&
+            DateTime.Now - inputManager.LastInputTime > SCREENSAVER_TIMEOUT;
+      else
+        _isScreenSaverActive = false;
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
+      // Mouse usage
+      _isMouseUsed = DateTime.Now - inputManager.LastMouseUsageTime < MOUSE_CONTROLS_TIMEOUT;
+      if (IsFullScreen)
+        // If we are in fullscreen mode, we may control the mouse cursor
+        ShowMouseCursor(_isMouseUsed);
+      else
+        // Reset it to visible state, if state was switched
+        ShowMouseCursor(true);
+
+      // Time
+      SkinContext.Now = DateTime.Now;
+    }
+
+    protected void ShowMouseCursor(bool show)
+    {
+      if (show != _mouseHidden)
+        return;
+      _mouseHidden = !show;
+      if (_mouseHidden)
+        System.Windows.Forms.Cursor.Hide();
+      else
+        System.Windows.Forms.Cursor.Show();
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -116,12 +158,6 @@ namespace MediaPortal.SkinEngine.GUI
       ILogger logger = ServiceScope.Get<ILogger>();
       logger.Debug("DirectX MainForm: Stopping");
       StopRenderThread();
-      logger.Debug("DirectX MainForm: Exit screen manager");
-      _screenManager.Dispose();
-      _screenManager.Exit();
-      logger.Debug("DirectX MainForm: Dispose DirectX");
-      _directX.Dispose();
-      _directX = null;
       logger.Debug("DirectX MainForm: Closing");
       // We have to call ExitThread() explicitly because the application was started without
       // setting the MainForm, which would have added an event handler which calls
@@ -177,13 +213,9 @@ namespace MediaPortal.SkinEngine.GUI
     private void MainForm_MouseMove(object sender, MouseEventArgs e)
     {
       if (_renderThreadStopped)
-      {
         return;
-      }
       if (e.X == _previousMousePosition.X && e.Y == _previousMousePosition.Y)
-      {
         return;
-      }
       if (_previousMousePosition.X < 0 && _previousMousePosition.Y < 0)
       {
         _previousMousePosition.X = e.X;
@@ -225,15 +257,10 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
-      SkinContext.MouseUsed = true;
       if (e.Button == MouseButtons.Left)
-      {
         ServiceScope.Get<IInputManager>().KeyPress(Key.Enter);
-      }
       if (e.Button == MouseButtons.Right)
-      {
         ServiceScope.Get<IInputManager>().KeyPress(Key.ContextMenu);
-      }
     }
 
     protected override void WndProc(ref Message m)
@@ -251,9 +278,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       // Hande 'beep'
       if (m.Msg == WM_SYSCHAR)
-      {
         return;
-      }
 
       if (m.Msg == WM_SIZING && m.HWnd == Handle)
       {
@@ -261,14 +286,17 @@ namespace MediaPortal.SkinEngine.GUI
         {
           Rect r = (Rect) Marshal.PtrToStructure(m.LParam, typeof(Rect));
 
-          // Get the current dimensions.
-          float wid = r.Right - r.Left;
-          float hgt = r.Bottom - r.Top;
-          // Get the new aspect ratio.
+          // Calc the border offset
+          Size offset = new Size(Width - ClientSize.Width, Height - ClientSize.Height);
+
+          // Calc the new dimensions.
+          float wid = r.Right - r.Left - offset.Width;
+          float hgt = r.Bottom - r.Top - offset.Height;
+          // Calc the new aspect ratio.
           float new_aspect_ratio = hgt / wid;
 
           // See if the aspect ratio is changing.
-          if (fixed_aspect_ratio != new_aspect_ratio)
+          if (_fixed_aspect_ratio != new_aspect_ratio)
           {
             Int32 dragBorder = m.WParam.ToInt32();
             // To decide which dimension we should preserve,
@@ -278,62 +306,45 @@ namespace MediaPortal.SkinEngine.GUI
             {
               // The user is dragging a corner.
               // Preserve the bigger dimension.
-              if (new_aspect_ratio > fixed_aspect_ratio)
-              {
+              if (new_aspect_ratio > _fixed_aspect_ratio)
                 // It's too tall and thin. Make it wider.
-                wid = hgt / fixed_aspect_ratio;
-              }
+                wid = hgt / _fixed_aspect_ratio;
               else
-              {
                 // It's too short and wide. Make it taller.
-                hgt = wid * fixed_aspect_ratio;
-              }
+                hgt = wid * _fixed_aspect_ratio;
             }
             else if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_RIGHT)
-            {
               // The user is dragging a side.
               // Preserve the width.
-              hgt = wid * fixed_aspect_ratio;
-            }
+              hgt = wid * _fixed_aspect_ratio;
             else if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_BOTTOM)
-            {
               // The user is dragging the top or bottom.
               // Preserve the height.
-              wid = hgt / fixed_aspect_ratio;
-            }
+              wid = hgt / _fixed_aspect_ratio;
             // Figure out whether to reset the top/bottom
             // and left/right.
             // See if the user is dragging the top edge.
             if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_TOPLEFT ||
                 dragBorder == WMSZ_TOPRIGHT)
-            {
               // Reset the top.
-              r.Top = r.Bottom - (int)(hgt);
-            }
+              r.Top = r.Bottom - (int)(hgt + offset.Height);
             else
-            {
               // Reset the bottom.
-              r.Bottom = r.Top + (int)(hgt);
-            }
+              r.Bottom = r.Top + (int)(hgt + offset.Height);
             // See if the user is dragging the left edge.
             if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_TOPLEFT ||
                 dragBorder == WMSZ_BOTTOMLEFT)
-            {
               // Reset the left.
-              r.Left = r.Right - (int)(wid);
-            }
+              r.Left = r.Right - (int)(wid + offset.Width);
             else
-            {
               // Reset the right.
-              r.Right = r.Left + (int)(wid);
-            }
+              r.Right = r.Left + (int)(wid + offset.Width);
             // Update the Message object's LParam field.
             Marshal.StructureToPtr(r, m.LParam, true);
           }
         }
       }
-      //FIXME Albert78: The hard coded OnMessage call has to be replaced by a dynamic approach
-      //ServiceScope.Get<IPlayerCollection>().OnMessage(m);
+      WindowsMessaging.BroadcastWindowsMessage(ref m);
       base.WndProc(ref m);
     }
 
@@ -369,7 +380,7 @@ namespace MediaPortal.SkinEngine.GUI
         //Trace.WriteLine("DirectX MainForm: Stop render thread");
         StopRenderThread();
 
-        ServiceScope.Get<IPlayerManager>().ReleaseGUIResources();
+        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
 
         ContentManager.Free();
 
@@ -382,8 +393,19 @@ namespace MediaPortal.SkinEngine.GUI
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread_Async();
         }
-        ServiceScope.Get<IPlayerManager>().ReallocGUIResources();
+        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
       }
+    }
+
+    public void Start()
+    {
+      CheckTopMost();
+
+      // Start render thread before we show first screen, because the render thread does
+      // an invalidate, we don't want a double invalidate.
+      StartRenderThread_Async();
+
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
     }
 
     public void SwitchMode(ScreenMode mode, FPS fps)
@@ -433,7 +455,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
-      ServiceScope.Get<IPlayerManager>().ReleaseGUIResources();
+      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
 
       ContentManager.Free();
 
@@ -466,7 +488,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, displaySetting);
 
-      ServiceScope.Get<IPlayerManager>().ReallocGUIResources();
+      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
 
       StartRenderThread_Async();
     }
@@ -474,6 +496,22 @@ namespace MediaPortal.SkinEngine.GUI
     public bool IsFullScreen
     {
       get { return (_mode == ScreenMode.FullScreenWindowed) || (_mode == ScreenMode.ExclusiveMode); }
+    }
+
+    public bool IsScreenSaverActive
+    {
+      get { return _isScreenSaverActive; }
+    }
+
+    public bool IsScreenSaverEnabled
+    {
+      get { return _isScreenSaverEnabled; }
+      set { _isScreenSaverEnabled = value; }
+    }
+
+    public bool IsMouseUsed
+    {
+      get { return _isMouseUsed; }
     }
 
     public bool RefreshRateControlEnabled
@@ -565,7 +603,7 @@ namespace MediaPortal.SkinEngine.GUI
       _renderThread.Start();
     }
 
-    protected void StopRenderThread()
+    internal void StopRenderThread()
     {
       _renderThreadStopped = true;
       if (_renderThread == null)

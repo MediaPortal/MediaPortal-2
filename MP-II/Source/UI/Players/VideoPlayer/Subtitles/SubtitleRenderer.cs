@@ -39,7 +39,7 @@ using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Ui.Players.VideoPlayer.Subtitles
+namespace Ui.Players.Video.Subtitles
 {
   /// <summary>
   /// Structure used in communication with subtitle filter
@@ -348,7 +348,7 @@ namespace Ui.Players.VideoPlayer.Subtitles
     public int OnSubtitle(ref NATIVE_SUBTITLE sub)
     {
       if (!useBitmap) return 0; // TODO: Might be good to let this cache and then check in Render method because bitmap subs arrive a while before display
-      ServiceScope.Get<ILogger>().Debug("OnSubtitle - stream position " + player.StreamPosition);
+      ServiceScope.Get<ILogger>().Debug("OnSubtitle - stream position " + player.CurrentTime);
       lock (alert)
       {
         try
@@ -431,21 +431,21 @@ namespace Ui.Players.VideoPlayer.Subtitles
             ServiceScope.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
             return;
           }
-          ServiceScope.Get<ILogger>().Debug("Content: ");
-          if (content.Trim().Length > 0) // debug log subtitles
-          {
-            // FIXME: StringTokenizer was deleted - not needed here
-            StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
-            while (st.HasMore)
-            {
-              ServiceScope.Get<ILogger>().Debug(st.NextToken());
-            }
-          }
-          else
-          {
-            //blank = true;
-            ServiceScope.Get<ILogger>().Debug("<BLANK PAGE>");
-          }
+          // FIXME: Remove this
+          //ServiceScope.Get<ILogger>().Debug("Content: ");
+          //if (content.Trim().Length > 0) // debug log subtitles
+          //{
+          //  StringTokenizer st = new StringTokenizer(content, new char[] { '\n' });
+          //  while (st.HasMore)
+          //  {
+          //    ServiceScope.Get<ILogger>().Debug(st.NextToken());
+          //  }
+          //}
+          //else
+          //{
+          //  //blank = true;
+          //  ServiceScope.Get<ILogger>().Debug("<BLANK PAGE>");
+          //}
         }
       }
       catch (Exception e)
@@ -661,7 +661,7 @@ namespace Ui.Players.VideoPlayer.Subtitles
         if (subtitles.Count > 0)
         {
           Subtitle next = subtitles.First.Value;
-          if (next.presentTime <= player.StreamPosition.TotalSeconds) timeForNext = true;
+          if (next.presentTime <= player.CurrentTime.TotalSeconds) timeForNext = true;
           else
           {
             //ServiceScope.Get<ILogger>().Debug("-NEXT subtitle is in the future");
@@ -669,10 +669,10 @@ namespace Ui.Players.VideoPlayer.Subtitles
         }
       }
 
-      posOnLastRender = player.StreamPosition.TotalSeconds;
+      posOnLastRender = player.CurrentTime.TotalSeconds;
 
       // Check for subtitle if we dont have one currently or if the current one is beyond its timeout
-      if (currentSubtitle == null || currentSubtitle.presentTime + currentSubtitle.timeOut <= player.StreamPosition.TotalSeconds || timeForNext)
+      if (currentSubtitle == null || currentSubtitle.presentTime + currentSubtitle.timeOut <= player.CurrentTime.TotalSeconds || timeForNext)
       {
         //ServiceScope.Get<ILogger>().Debug("-Current position: ");
         if (currentSubtitle != null && !timeForNext)
@@ -694,14 +694,14 @@ namespace Ui.Players.VideoPlayer.Subtitles
 
             //ServiceScope.Get<ILogger>().Debug("-next from queue: " + next.ToString());
             // if the next should be displayed now or previously
-            if (next.presentTime <= player.StreamPosition.TotalSeconds)
+            if (next.presentTime <= player.CurrentTime.TotalSeconds)
             {
               // remove from queue
               subtitles.RemoveFirst();
 
               // if it is not too late for this sub to be displayed, break
               // otherwise continue
-              if (next.presentTime + next.timeOut >= player.StreamPosition.TotalSeconds)
+              if (next.presentTime + next.timeOut >= player.CurrentTime.TotalSeconds)
               {
                 currentSubtitle = next;
                 break;
@@ -735,16 +735,17 @@ namespace Ui.Players.VideoPlayer.Subtitles
         int wx = 0, wy = 0, wwidth = 0, wheight = 0;
         float rationW = 1, rationH = 1;
 
-        Rectangle movieRect = player.MovieRectangle;
+        // FIXME: which "MovieRectangle" to use here?
+        Rectangle movieRect = new Rectangle();// player.MovieRectangle;
         rationH = movieRect.Height / ((float)SkinContext.SkinHeight);
         rationW = movieRect.Width / ((float)SkinContext.SkinWidth);
 
-        wx = (movieRect.Right) - (movieRect.Width / 2) - (int)(((float)currentSubtitle.width * rationW) / 2);
-        wy = movieRect.Top + (int)(rationH * (float)currentSubtitle.firstScanLine);
+        wx = (movieRect.Right) - (movieRect.Width / 2) - (int)((currentSubtitle.width * rationW) / 2);
+        wy = movieRect.Top + (int)(rationH * currentSubtitle.firstScanLine);
 
 
-        wwidth = (int)((float)currentSubtitle.width * rationW);
-        wheight = (int)((float)currentSubtitle.height * rationH);
+        wwidth = (int)(currentSubtitle.width * rationW);
+        wheight = (int)(currentSubtitle.height * rationH);
 
         // make sure the vertex buffer is ready and correct for the coordinates
         CreateVertexBuffer(wx, wy, wwidth, wheight);

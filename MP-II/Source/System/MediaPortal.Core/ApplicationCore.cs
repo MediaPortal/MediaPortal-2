@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Windows.Forms;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
@@ -42,24 +43,25 @@ namespace MediaPortal.Core
   /// </summary>
   public class ApplicationCore
   {
-    public static void RegisterCoreServices()
+    public static void RegisterCoreServices(LogLevel logLevel, bool logMethodNames)
     {
-      Services.PathManager.PathManager pathManager = new Services.PathManager.PathManager();
-      ServiceScope.Add<IPathManager>(pathManager);
+      ServiceScope.Add<IPathManager>(new Services.PathManager.PathManager());
 
 #if DEBUG
-      ILogger logger = new ConsoleLogger(LogLevel.Information, false);
+      ILogger logger = new ConsoleLogger(logLevel, logMethodNames);
 #else
       FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
-      ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), LogLevel.Information, false);
+      ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames);
 #endif
+      logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
+
       logger.Debug("ApplicationCore: Registering ILogger");
-      ServiceScope.Add(logger);
+      ServiceScope.Add<ILogger>(logger);
 
       logger.Debug("ApplicationCore: Registering IRegistry");
       ServiceScope.Add<IRegistry>(new Services.Registry.Registry());
 
-      logger.Debug("ApplicationLauncher: Registering IThreadPool");
+      logger.Debug("ApplicationCore: Registering IThreadPool");
       Services.Threading.ThreadPool pool = new Services.Threading.ThreadPool();
       pool.ErrorLog += ServiceScope.Get<ILogger>().Error;
       pool.WarnLog += ServiceScope.Get<ILogger>().Warn;
@@ -67,16 +69,16 @@ namespace MediaPortal.Core
       pool.DebugLog += ServiceScope.Get<ILogger>().Debug;
       ServiceScope.Add<Threading.IThreadPool>(pool);
 
-      logger.Debug("ApplicationLauncher: Registering IMessageBroker");
+      logger.Debug("ApplicationCore: Registering IMessageBroker");
       ServiceScope.Add<IMessageBroker>(new MessageBroker());
 
-      logger.Debug("ApplicationLauncher: Registering IPluginManager");
+      logger.Debug("ApplicationCore: Registering IPluginManager");
       ServiceScope.Add<IPluginManager>(new Services.PluginManager.PluginManager());
 
-      logger.Debug("ApplicationLauncher: Registering ISettingsManager");
+      logger.Debug("ApplicationCore: Registering ISettingsManager");
       ServiceScope.Add<ISettingsManager>(new SettingsManager());
 
-      logger.Debug("ApplicationLauncher: Registering ITaskScheduler");
+      logger.Debug("ApplicationCore: Registering ITaskScheduler");
       ServiceScope.Add<ITaskScheduler>(new Services.TaskScheduler.TaskScheduler());
     }
 
@@ -87,6 +89,35 @@ namespace MediaPortal.Core
       pluginManager.Startup(false);
       Application.Run();
       pluginManager.Shutdown();
+    }
+
+    public static void DisposeCoreServices()
+    {
+      ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("ApplicationCore: Removing IPathManager");
+      ServiceScope.RemoveAndDispose<IPathManager>();
+
+      logger.Debug("ApplicationCore: Removing ILogger");
+      ServiceScope.RemoveAndDispose<ILogger>();
+
+      logger.Debug("ApplicationCore: Removing IRegistry");
+      ServiceScope.RemoveAndDispose<IRegistry>();
+
+      logger.Debug("ApplicationCore: Removing IThreadPool");
+      ServiceScope.RemoveAndDispose<Threading.IThreadPool>();
+
+      logger.Debug("ApplicationCore: Removing IMessageBroker");
+      ServiceScope.RemoveAndDispose<IMessageBroker>();
+
+      logger.Debug("ApplicationCore: Removing IPluginManager");
+      ServiceScope.RemoveAndDispose<IPluginManager>();
+
+      logger.Debug("ApplicationCore: Removing ISettingsManager");
+      ServiceScope.RemoveAndDispose<ISettingsManager>();
+
+      logger.Debug("ApplicationCore: Removing ITaskScheduler");
+      ServiceScope.RemoveAndDispose<ITaskScheduler>();
     }
   }
 }

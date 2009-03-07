@@ -22,13 +22,47 @@
 
 #endregion
 
+using System.Drawing;
+
 namespace MediaPortal.Presentation.Players
 {
   /// <summary>
-  /// Interface for a video player. Holds all methods which are common to all video players.
+  /// General interface for a video player. Holds most of the methods which are common to all video players.
   /// </summary>
-  public interface IVideoPlayer
+  /// <remarks>
+  /// This interface doesn't support methods responsible to render content to the screen - video players
+  /// need to implement one or more additional interface(s) to support rendering capabilities. Those
+  /// additional interface(s) will be provided by the skin engine, the player is written for.
+  /// This means, a player always is written for a special skin engine.
+  /// </remarks>
+  public interface IVideoPlayer : IPlayer, IVolumeControl
   {
-    // TODO
+    /// <summary>
+    /// Returns the original size of the video picture.
+    /// </summary>
+    Size VideoSize { get; }
+
+    /// <summary>
+    /// Returns the aspect ratio of the video.
+    /// </summary>
+    Size VideoAspectRatio { get;  }
+
+    // TODO: Tidy up from here
+    /// <summary>
+    /// returns list of available audio streams
+    /// </summary>
+    string[] AudioStreams { get; }
+
+    /// <summary>
+    /// sets the current audio stream
+    /// </summary>
+    /// <param name="audioStream">audio stream</param>
+    void SetAudioStream(string audioStream);
+
+    /// <summary>
+    /// Gets the current audio stream.
+    /// </summary>
+    /// <value>The current audio stream.</value>
+    string CurrentAudioStream { get; }
   }
 }

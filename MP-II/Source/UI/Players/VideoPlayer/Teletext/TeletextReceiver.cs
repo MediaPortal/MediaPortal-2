@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Ui.Players.VideoPlayer.Teletext
+namespace Ui.Players.Video.Teletext
 {
   class TeletextReceiver
   {

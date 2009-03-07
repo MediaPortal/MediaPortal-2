@@ -184,15 +184,6 @@
   <!-- Dark green -->
   <ResourceWrapper x:Key="VideoPreviewBorderLightColor" Resource="#FF045935"/>
 
-  <!-- White -->
-  <ResourceWrapper x:Key="CurrentMediaItemTitleColor" Resource="White"/>
-
-  <!-- White, a bit transparent -->
-  <ResourceWrapper x:Key="CurrentMediaItemArtistColor" Resource="#A0FFFFFF"/>
-
-  <!-- White, a bit transparent -->
-  <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
-
   <!-- Black, almost transparent -->
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#20000000"/>
 

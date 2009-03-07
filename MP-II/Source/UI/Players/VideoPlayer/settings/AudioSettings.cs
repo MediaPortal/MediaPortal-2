@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core.Settings;
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
   public enum SpeakerConnectionType
   {

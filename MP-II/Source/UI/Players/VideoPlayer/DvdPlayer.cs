@@ -34,19 +34,19 @@ using System.Windows.Forms;
 using DirectShowLib;
 using DirectShowLib.Dvd;
 using MediaPortal.Core;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Control.InputManager;
+using MediaPortal.General;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.MenuManager;
 using MediaPortal.Presentation.Players;
 using SlimDX;
-using MenuItem = MediaPortal.Presentation.MenuManager.MenuItem;
 using MediaPortal.SkinEngine.SkinManagement;
 
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
-  public class DvdPlayer : VideoPlayer
+  public class DvdPlayer : VideoPlayer, ISubtitlePlayer, IDVDPlayer
   {
     #region constants
 
@@ -113,7 +113,6 @@ namespace Ui.Players.VideoPlayer
     protected DvdPreferredDisplayMode _videoPref = DvdPreferredDisplayMode.DisplayContentDefault;
     protected AspectRatioMode arMode = AspectRatioMode.Stretched;
     protected DvdVideoAttributes _videoAttr;
-    private readonly List<IMenuItem> _menuItems = new List<IMenuItem>();
     private readonly StringId _subtitleLanguage = new StringId("playback", "3");
     private readonly StringId _audioStreams = new StringId("playback", "4");
     private readonly StringId _titles = new StringId("playback", "28");
@@ -123,31 +122,8 @@ namespace Ui.Players.VideoPlayer
 
     public DvdPlayer()
     {
-      MenuItem item;
-      item = new MenuItem(_subtitleLanguage, "");
-      item.Command = "ScreenManager.ShowDialog";
-      item.CommandParameter = "dialogSubtitles";
-      _menuItems.Add(item);
-
-      item = new MenuItem(_audioStreams, "");
-      item.Command = "ScreenManager.ShowDialog";
-      item.CommandParameter = "dialogAudioStreams";
-      _menuItems.Add(item);
-
-      item = new MenuItem(_titles, "");
-      item.Command = "ScreenManager.ShowDialog";
-      item.CommandParameter = "dialogDvdTitles";
-      _menuItems.Add(item);
-
-      item = new MenuItem(_chapters, "");
-      item.Command = "ScreenManager.ShowDialog";
-      item.CommandParameter = "dialogDvdChapters";
-      _menuItems.Add(item);
     }
 
-    /// <summary>
-    /// returns a new IFilterGraph2 interface
-    /// </summary>
     protected override void GetGraphBuilder()
     {
       _currTime = new DvdHMSFTimeCode();
@@ -157,10 +133,8 @@ namespace Ui.Players.VideoPlayer
       _streamCount = 2;
     }
 
-    /// <summary>
-    /// Called when [idle].
-    /// </summary>
-    public override void OnIdle()
+    // FIXME: To be called
+    public void OnIdle()
     {
       HandleMouseMessages();
     }
@@ -251,15 +225,12 @@ namespace Ui.Players.VideoPlayer
         if (_dvdCtrl != null)
         {
           _dvdInfo = _dvdbasefilter as IDvdInfo2;
-          if (_fileName != null)
+          string path = Path.GetDirectoryName(_mediaItemAccessor.LocalFileSystemPath);
+          if (path[path.Length - 1] != Path.VolumeSeparatorChar)
           {
-            string path = Path.GetDirectoryName(_fileName.LocalPath);
-            if (path[path.Length - 1] != Path.VolumeSeparatorChar)
+            if (path.Length != 0)
             {
-              if (path.Length != 0)
-              {
-                hr = _dvdCtrl.SetDVDDirectory(path);
-              }
+              hr = _dvdCtrl.SetDVDDirectory(path);
             }
           }
           _dvdCtrl.SetOption(DvdOptionFlag.HMSFTimeCodeEvents, true); // use new HMSF timecode format
@@ -299,9 +270,8 @@ namespace Ui.Players.VideoPlayer
     }
 
 
-    /// <summary>
-    /// called when graph is started
-    /// </summary>
+    // FIXME: Take care: The call order was changed in VideoPlayer: This method now gets called before the
+    // IMediaControl.Run() method was called. Have to check, if this still works.
     protected override void OnGraphRunning()
     {
       base.OnGraphRunning();
@@ -330,53 +300,6 @@ namespace Ui.Players.VideoPlayer
 
 
       _dvdCtrl.SetSubpictureState(true, DvdCmdFlags.None, out _cmdOption);
-      IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("fullscreenVideocontext");
-      if (menu != null)
-      {
-        foreach (IMenuItem item in _menuItems)
-        {
-          menu.Items.Add(item);
-        }
-      }
-    }
-
-    /// <summary>
-    /// Reads resume point from file and sets current position
-    /// </summary>
-    /// 
-    protected override void SetResumePoint()
-    {
-      using (FileStream s = new FileStream(_resumeFile, FileMode.Open, FileAccess.Read))
-      {
-        int len = (int)s.Length;
-        byte[] data = new byte[len];
-        s.Read(data, 0, len);
-        SetResumeState(data);
-      }
-    }
-
-    /// <summary>
-    /// Writes resume data
-    /// </summary>
-    protected override void WriteResumeData()
-    {
-      byte[] resumeData;
-
-      if (!GetResumeState(out resumeData))
-        return;
-      if (false == Directory.Exists("state"))
-      {
-        Directory.CreateDirectory("state");
-      }
-      if (File.Exists(_resumeFile))
-      {
-        File.Delete(_resumeFile);
-      }
-      using (FileStream s = new FileStream(_resumeFile, FileMode.Create, FileAccess.Write))
-      {
-        s.Write(resumeData, 0, resumeData.Length);
-        s.Flush();
-      }
     }
 
     /// <summary>
@@ -384,14 +307,6 @@ namespace Ui.Players.VideoPlayer
     /// </summary>
     protected override void FreeCodecs()
     {
-      IMenu menu = ServiceScope.Get<IMenuCollection>().GetMenu("fullscreenVideocontext");
-      if (menu != null)
-      {
-        foreach (IMenuItem item in _menuItems)
-        {
-          menu.Items.Remove(item);
-        }
-      }
       int hr;
       if (_cmdOption != null)
       {
@@ -458,9 +373,6 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Called just before starting the graph
-    /// </summary>
     protected override void OnBeforeGraphRunning()
     {
       base.OnBeforeGraphRunning();
@@ -530,41 +442,27 @@ namespace Ui.Players.VideoPlayer
       Marshal.ReleaseComObject(enumer);
     }
 
-    /// <summary>
-    /// called when windows message is received
-    /// </summary>
-    /// <param name="obj">message</param>
-    public override void OnMessage(object obj)
+    protected override void OnWindowsMessage(QueueMessage message)
     {
-      base.OnMessage(obj);
-      Message m = (Message)obj;
+      base.OnWindowsMessage(message);
+      Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
 
       try
       {
         if (m.Msg == WM_DVD_EVENT)
         {
           if (_mediaEvt != null)
-          {
             OnDvdEvent();
-          }
           return;
         }
 
         if (m.Msg == WM_MOUSEMOVE)
-        {
           if (_menuMode != MenuMode.No)
-          {
             _mouseMsg.Add(m);
-          }
-        }
 
         if (m.Msg == WM_LBUTTONUP)
-        {
           if (_menuMode != MenuMode.No)
-          {
             _mouseMsg.Add(m);
-          }
-        }
       }
       catch (Exception ex)
       {
@@ -577,7 +475,6 @@ namespace Ui.Players.VideoPlayer
     /// </summary>
     private void OnDvdEvent()
     {
-      //			Log.Info("OnDvdEvent()");
       IntPtr p1, p2;
       try
       {
@@ -588,9 +485,7 @@ namespace Ui.Players.VideoPlayer
           EventCode code;
           hr = eventEx.GetEvent(out code, out p1, out p2, 0);
           if (hr < 0)
-          {
             break;
-          }
 
           //Trace.WriteLine(String.Format("DVDPlayer DVD EVT :" + code.ToString()));
 
@@ -735,35 +630,22 @@ namespace Ui.Players.VideoPlayer
                     // Menu button(s) found, enable menu
                     _menuOn = true;
                     if ((ValidUOPFlag.ShowMenuRoot & _UOPs) != 0)
-                    {
                       hr = _dvdCtrl.ShowMenu(DvdMenuId.Root, DvdCmdFlags.Block | DvdCmdFlags.Flush, out _cmdOption);
-                    }
                     if ((ValidUOPFlag.ShowMenuTitle & _UOPs) != 0)
-                    {
                       hr = _dvdCtrl.ShowMenu(DvdMenuId.Title, DvdCmdFlags.Block | DvdCmdFlags.Flush, out _cmdOption);
-                    }
                     else if ((ValidUOPFlag.ShowMenuChapter & _UOPs) != 0)
-                    {
                       hr = _dvdCtrl.ShowMenu(DvdMenuId.Chapter, DvdCmdFlags.Block | DvdCmdFlags.Flush, out _cmdOption);
-                    }
-                    //80040276
                   }
                   else
-                  {
                     _menuOn = false;
-                  }
                   Trace.WriteLine(String.Format("EVT:DVDPlayer:domain=title (menu:{0}) hr:{1:X}", _menuOn, hr));
                 }
 
                 Trace.WriteLine(String.Format("EVT:DvdButtonChange: buttons:#{0}", p1.ToInt32()));
                 if (p1.ToInt32() <= 0)
-                {
                   _menuMode = MenuMode.No;
-                }
                 else
-                {
                   _menuMode = MenuMode.Buttons;
-                }
                 break;
               }
 
@@ -771,9 +653,7 @@ namespace Ui.Players.VideoPlayer
               {
                 Trace.WriteLine(String.Format("EVT:DvdNoFpPgc:{0}", p1.ToInt32()));
                 if (_dvdCtrl != null)
-                {
                   hr = _dvdCtrl.PlayTitle(1, DvdCmdFlags.None, out _cmdOption);
-                }
                 break;
               }
 
@@ -836,10 +716,8 @@ namespace Ui.Players.VideoPlayer
       try
       {
         Trace.WriteLine(String.Format("DVD OnCmdComplete.........."));
-        if ((_pendingCmd == false) || (_dvdInfo == null))
-        {
+        if (!_pendingCmd || _dvdInfo == null)
           return;
-        }
 
         IDvdCmd cmd;
         int hr = _dvdInfo.GetCmdFromEvent(p1, out cmd);
@@ -879,16 +757,14 @@ namespace Ui.Players.VideoPlayer
         foreach (Message m in _mouseMsg)
         {
           if (_menuMode == MenuMode.No)
-          {
             break;
-          }
           long lParam = m.LParam.ToInt32();
           float x = (int)(lParam & 0xffff);
           float y = (int)(lParam >> 16);
 
           //scale to skin coordinates
-          x *= (SkinContext.SkinWidth / SkinContext.Form.ClientSize.Width);
-          y *= (SkinContext.SkinHeight / SkinContext.Form.ClientSize.Height);
+          x *= SkinContext.SkinWidth / SkinContext.Form.ClientSize.Width;
+          y *= SkinContext.SkinHeight / SkinContext.Form.ClientSize.Height;
 
 
           Vector3 upperLeft = _vertices[0].Position;
@@ -955,25 +831,15 @@ namespace Ui.Players.VideoPlayer
     public void Navigate(Key key)
     {
       if (key == Key.DvdUp)
-      {
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
-      }
       if (key == Key.DvdDown)
-      {
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Lower);
-      }
       if (key == Key.DvdLeft)
-      {
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Left);
-      }
       if (key == Key.DvdRight)
-      {
         _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Right);
-      }
       if (key == Key.DvdSelect)
-      {
         _dvdCtrl.ActivateButton();
-      }
     }
 
     /// <summary>
@@ -1013,19 +879,11 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// returns the duration of the movie
-    /// </summary>
-    /// <value></value>
     public override TimeSpan Duration
     {
       get { return new TimeSpan(0, 0, 0, 0, (int)(_duration * 1000.0f)); }
     }
 
-    /// <summary>
-    /// returns list of available audio streams
-    /// </summary>
-    /// <value></value>
     public override string[] AudioStreams
     {
       get
@@ -1070,11 +928,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// returns list of available subtitle streams
-    /// </summary>
-    /// <value></value>
-    public override string[] Subtitles
+    public string[] Subtitles
     {
       get
       {
@@ -1134,11 +988,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// sets the current subtitle
-    /// </summary>
-    /// <param name="subtitle">subtitle</param>
-    public override void SetSubtitle(string subtitle)
+    public void SetSubtitle(string subtitle)
     {
       VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
       string[] subtitles = Subtitles;
@@ -1175,11 +1025,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Gets the current subtitle.
-    /// </summary>
-    /// <value>The current subtitle.</value>
-    public override string CurrentSubtitle
+    public string CurrentSubtitle
     {
       get
       {
@@ -1305,9 +1151,7 @@ namespace Ui.Players.VideoPlayer
 
         int hr = _dvdInfo.GetState(out dvdState);
         if (hr < 0)
-        {
           return;
-        }
         IPersistMemory dvdStatePersistMemory = (IPersistMemory)dvdState;
         IntPtr stateData = Marshal.AllocHGlobal(resumeData.Length);
         Marshal.Copy(resumeData, 0, stateData, resumeData.Length);
@@ -1323,9 +1167,7 @@ namespace Ui.Players.VideoPlayer
 
         hr = _dvdCtrl.SetState(dvdState, DvdCmdFlags.Block, out _cmdOption);
         if (hr == 0)
-        {
           return;
-        }
 
         Marshal.ReleaseComObject(dvdState);
       }
@@ -1333,9 +1175,6 @@ namespace Ui.Players.VideoPlayer
       return;
     }
 
-    /// <summary>
-    /// stops playback
-    /// </summary>
     public override void Stop()
     {
       ServiceScope.Get<ILogger>().Debug("DvdPlayer:Stop");
@@ -1343,11 +1182,7 @@ namespace Ui.Players.VideoPlayer
       base.Stop();
     }
 
-    /// <summary>
-    /// Gets the DVD titles.
-    /// </summary>
-    /// <value>The DVD titles.</value>
-    public override string[] DvdTitles
+    public string[] DvdTitles
     {
       get
       {
@@ -1364,11 +1199,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Sets the DVD title.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    public override void SetDvdTitle(string title)
+    public void SetDvdTitle(string title)
     {
       string[] titles = DvdTitles;
       for (int i = 0; i < titles.Length; ++i)
@@ -1381,11 +1212,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Gets the current DVD title.
-    /// </summary>
-    /// <value>The current DVD title.</value>
-    public override string CurrentDvdTitle
+    public string CurrentDvdTitle
     {
       get
       {
@@ -1396,11 +1223,7 @@ namespace Ui.Players.VideoPlayer
     }
 
 
-    /// <summary>
-    /// Gets the DVD chapters for current title
-    /// </summary>
-    /// <value>The DVD chapters.</value>
-    public override string[] DvdChapters
+    public string[] DvdChapters
     {
       get
       {
@@ -1418,11 +1241,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Sets the DVD chapter.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    public override void SetDvdChapter(string title)
+    public void SetDvdChapter(string title)
     {
       string[] chapters = DvdChapters;
       for (int i = 0; i < chapters.Length; ++i)
@@ -1435,11 +1254,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Gets the current DVD chapter.
-    /// </summary>
-    /// <value>The current DVD chapter.</value>
-    public override string CurrentDvdChapter
+    public string CurrentDvdChapter
     {
       get
       {
@@ -1449,23 +1264,16 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether we are in the in DVD menu.
-    /// </summary>
-    /// <value><c>true</c> if [in DVD menu]; otherwise, <c>false</c>.</value>
-    public override bool InDvdMenu
+    public bool InDvdMenu
     {
-      get
-      {
-        return (_menuMode != MenuMode.No);
-      }
+      get { return (_menuMode != MenuMode.No); }
     }
 
     /// <summary>
     /// Gets the name of the resume file
     /// </summary>
     /// 
-    protected override string GetResumeFilename(Uri fileName)
+    protected string GetResumeFilename(Uri fileName)
     {
       IBaseFilter dvdbasefilter;
       IDvdInfo2 dvdInfo;

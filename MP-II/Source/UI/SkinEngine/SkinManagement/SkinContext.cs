@@ -27,10 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Players;
-
 
 namespace MediaPortal.SkinEngine.SkinManagement
 {                         
@@ -50,7 +46,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
     private static SkinResources _skinResources = new SkinResources("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
     private static int _skinWidth = 0;
     private static int _skinHeight = 0;
-    private static int _idleTime = 30;
     // FIXME Albert78: Those should be Stack, not List
     private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
@@ -61,25 +56,22 @@ namespace MediaPortal.SkinEngine.SkinManagement
     private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
     private static ExtendedMatrix _tempTransform = null;
     private static Form _form;
-    private static DateTime _mouseTimer;
     private static bool _isRendering = false;
-    public static DateTime _now;
-    private static Property _mouseUsedProperty = new Property(typeof(bool), false);
-    private static Property _timeProperty = new Property(typeof(DateTime), DateTime.Now);
-    private static bool _mouseHidden = false;
-    private static DateTime _lastAction = DateTime.Now;
-    private static Property _zoomProperty = new Property(typeof(System.Drawing.SizeF), new System.Drawing.SizeF(1, 1));
+    private static Property _zoomProperty = new Property(typeof(SizeF), new SizeF(1, 1));
     private static float _Zorder = 1.0f;
+    private static DateTime _now;
 
-    public static bool HandlingInput;
     public static uint TimePassed;
 
     #endregion
 
     public static event SkinResourcesChangedHandler SkinResourcesChanged;
 
-    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "ShowCursor")]
-    internal extern static Int32 ShowCursor(bool bShow);
+    public static DateTime Now
+    {
+      get { return _now; }
+      set { _now = value; }
+    }
 
     // Zorder ranges from from 0.0f (as close as you can get) to 1.0f (as far away as you can get). 
     // start far away and move closer.
@@ -136,11 +128,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public static Form Form
     {
       get { return _form; }
-      set
-      {
-        _form = value;
-        Application.Idle += Application_Idle;
-      }
+      set { _form = value; }
     }
 
     /// <summary>
@@ -358,63 +346,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
       set { _tempTransform = value; }
     }
 
-
-    /// <summary>
-    /// Gets or sets a value indicating whether mouse was used used the last 5 seconds
-    /// </summary>
-    /// <value><c>true</c> if [mouse used]; otherwise, <c>false</c>.</value>
-    public static bool MouseUsed
-    {
-      get { return (bool)_mouseUsedProperty.GetValue(); }
-      set
-      {
-        if (value != MouseUsed)
-        {
-          _mouseUsedProperty.SetValue(value);
-          if (value)
-          {
-            _mouseTimer = DateTime.Now;
-            if (_mouseHidden)
-            {
-              ShowCursor(true);
-              _mouseHidden = false;
-            }
-          }
-        }
-        else if (value)
-        {
-          _mouseTimer = DateTime.Now;
-          _lastAction = DateTime.Now;
-        }
-      }
-    }
-
-    private static void Application_Idle(object sender, EventArgs e)
-    {
-      if (MouseUsed)
-      {
-        TimeSpan ts = DateTime.Now - _mouseTimer;
-        if (ts.TotalSeconds >= 2)
-        {
-          MouseUsed = false;
-          if (!_mouseHidden)
-          {
-            if (ServiceScope.Get<IScreenControl>().IsFullScreen)
-            {
-              ShowCursor(false);
-              _mouseHidden = true;
-            }
-          }
-        }
-      }
-    }
-
-    public static Property MouseUsedProperty
-    {
-      get { return _mouseUsedProperty; }
-      set { _mouseUsedProperty = value; }
-    }
-
     /// <summary>
     /// Gets or sets a value indicating whether application is rendering or not.
     /// </summary>
@@ -426,51 +357,5 @@ namespace MediaPortal.SkinEngine.SkinManagement
       get { return _isRendering; }
       set { _isRendering = value; }
     }
-
-    public static DateTime Now
-    {
-      get { return _now; }
-      set
-      {
-        _now = value;
-        _timeProperty.SetValue(_now);
-      }
-    }
-
-    public static Property TimeProperty
-    {
-      get { return _timeProperty; }
-      set { _timeProperty = value; }
-    }
-
-    /// <summary>
-    /// Gets or set the idle time when screen saver kicks in.
-    /// </summary>
-    /// <value>The idle time.</value>
-    public static int ScreenSaverIdleTime
-    {
-      get { return _idleTime; }
-      set { _idleTime = value; }
-    }
-
-    public static bool ScreenSaverActive
-    {
-      get
-      {
-        TimeSpan ts = DateTime.Now - _lastAction;
-        if (ts.TotalSeconds < _idleTime) 
-          return false;
-        if (!ServiceScope.Get<IScreenControl>().IsFullScreen) 
-          return false;
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        // Only watch the primary player here
-        return playerManager[playerManager.PrimaryPlayer] is IVideoPlayer;
-      }
-      set
-      {
-        _lastAction = DateTime.Now;
-      }
-    }
-
   }
 }

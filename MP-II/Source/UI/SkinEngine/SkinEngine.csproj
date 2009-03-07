@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7E943389-3589-40C9-B481-2E223554CC49}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -36,10 +36,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DirectShowLib-2005, Version=2.0.0.0, Culture=neutral, PublicKeyToken=67e7b740cdfc2d3f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\DirectShowLib-2005.dll</HintPath>
-    </Reference>
     <Reference Include="SlimDX, Version=1.0.2936.23774, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\SlimDX.dll</HintPath>
@@ -113,11 +109,22 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
+    <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
+    <Compile Include="Geometry\GeometryLetterBox.cs" />
+    <Compile Include="Geometry\GeometryManager.cs" />
+    <Compile Include="Geometry\GeometryNormal.cs" />
+    <Compile Include="Geometry\GeometryOrignal.cs" />
+    <Compile Include="Geometry\GeometryPanAndScan.cs" />
+    <Compile Include="Geometry\GeometryStretch.cs" />
+    <Compile Include="Geometry\GeometryZoom.cs" />
+    <Compile Include="Geometry\GeometryZoom149.cs" />
     <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\ITypeConverter.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
     <Compile Include="MpfElements\Converters\ReferenceNotNull_BoolConverter.cs" />
+    <Compile Include="Players\ISlimDXVideoPlayer.cs" />
+    <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
@@ -337,7 +344,6 @@ mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin
 xcopy /Y /S "$(ProjectDir)Skin\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)SlimDx.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 </PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>

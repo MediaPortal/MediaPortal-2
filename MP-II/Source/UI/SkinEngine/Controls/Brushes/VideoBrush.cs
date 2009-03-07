@@ -22,16 +22,17 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Geometries;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.Players;
 using SlimDX.Direct3D9;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
@@ -47,7 +48,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     EffectAsset _effect;
     Size _videoSize;
     Size _videoAspectRatio;
-    string _previousGeometry;
+    IGeometry _previousGeometry;
     PositionColored2Textured[] _verts;
 
     #endregion
@@ -83,7 +84,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     /// <summary>
     /// Gets or sets the video stream number
     /// </summary>
-    /// <value>The video stream number.</value>
     public int Stream
     {
       get { return (int)_streamProperty.GetValue(); }
@@ -102,87 +102,70 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _videoAspectRatio = new Size(0, 0);
     }
 
-    void UpdateVertexBuffer(IPlayer player, VertexBuffer vertexBuffer)
+    void UpdateVertexBuffer(IVideoPlayer player, VertexBuffer vertexBuffer)
     {
       Size size = player.VideoSize;
       Size aspectRatio = player.VideoAspectRatio;
       if (size == _videoSize && aspectRatio == _videoAspectRatio)
       {
-        // FIXME Albert78, 2008-11-27: Geometry helper class has to be reworked, see class
-        // Geometry in the video player plugin, which was originally accessable through
-        // the SkinContext.Geometry static property.
-        //if (SkinContext.Geometry.Current.Name == _previousGeometry)
-        //  return;
+        if (ServiceScope.Get<IGeometryManager>().CurrentVideoGeometry == _previousGeometry)
+          return;
       }
 
       _videoSize = size;
       _videoAspectRatio = aspectRatio;
-      // FIXME Albert78, 2008-11-27: See comment above about SkinContext.Geometry
-      //_previousGeometry = SkinContext.Geometry.Current.Name;
-      //Rectangle sourceRect;
-      //Rectangle destinationRect;
-      //SkinContext.Geometry.ImageWidth = (int)_videoSize.Width;
-      //SkinContext.Geometry.ImageHeight = (int)_videoSize.Height;
-      //SkinContext.Geometry.ScreenWidth = (int)_bounds.Width;
-      //SkinContext.Geometry.ScreenHeight = (int)_bounds.Height;
-      //SkinContext.Geometry.GetWindow(aspectRatio.Width, aspectRatio.Height,
-      //                               out sourceRect,
-      //                               out destinationRect,
-      //                               SkinContext.CropSettings);
-      //player.MovieRectangle = destinationRect;
-      //string shaderName = SkinContext.Geometry.Current.Shader;
-      //if (shaderName != "")
-      //{
-      //  _effect = ContentManager.GetEffect(shaderName);
-      //}
-      //else
-      //{
-      //  _effect = ContentManager.GetEffect("normal");
-      //}
+      IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
+      IGeometry geometry = geometryManager.CurrentVideoGeometry;
+      _previousGeometry = geometry;
+      Rectangle sourceRect;
+      Rectangle destinationRect;
+      GeometryData gd = new GeometryData(
+          new Size(_videoSize.Width, _videoSize.Height), new Size((int) _bounds.Width, (int) _bounds.Height), 1.0f);
+      geometryManager.Transform(gd, out sourceRect, out destinationRect);
+      string shaderName = geometry.Shader;
+      _effect = !string.IsNullOrEmpty(shaderName) ? ContentManager.GetEffect(shaderName) :
+          ContentManager.GetEffect("normal");
 
-      //float minU = ((float)(sourceRect.X)) / ((float)_videoSize.Width);
-      //float minV = ((float)(sourceRect.Y)) / ((float)_videoSize.Height);
-      //float maxU = ((float)(sourceRect.Width)) / ((float)_videoSize.Width);
-      //float maxV = ((float)(sourceRect.Height)) / ((float)_videoSize.Height);
+      float minU = ((float)(sourceRect.X)) / ((float)_videoSize.Width);
+      float minV = ((float)(sourceRect.Y)) / ((float)_videoSize.Height);
+      float maxU = ((float)(sourceRect.Width)) / ((float)_videoSize.Width);
+      float maxV = ((float)(sourceRect.Height)) / ((float)_videoSize.Height);
 
-      //float minX = ((float)(destinationRect.X)) / ((float)_bounds.Width);
-      //float minY = ((float)(destinationRect.Y)) / ((float)_bounds.Height);
+      float minX = ((float)(destinationRect.X)) / ((float)_bounds.Width);
+      float minY = ((float)(destinationRect.Y)) / ((float)_bounds.Height);
 
-      //float maxX = ((float)(destinationRect.Width)) / ((float)_bounds.Width);
-      //float maxY = ((float)(destinationRect.Height)) / ((float)_bounds.Height);
+      float maxX = ((float)(destinationRect.Width)) / ((float)_bounds.Width);
+      float maxY = ((float)(destinationRect.Height)) / ((float)_bounds.Height);
 
-      //float diffU = maxU - minU;
-      //float diffV = maxV - minV;
-      //PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
-      //for (int i = 0; i < _verts.Length; ++i)
-      //{
-      //  float x = ((_verts[i].X - _minPosition.X) / (_bounds.Width)) * maxX + minX;
-      //  float y = ((_verts[i].Y - _minPosition.Y) / (_bounds.Height)) * maxY + minY;
-      //  verts[i].X = (x * _bounds.Width) + _minPosition.X;
-      //  verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
+      float diffU = maxU - minU;
+      float diffV = maxV - minV;
+      PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
+      for (int i = 0; i < _verts.Length; ++i)
+      {
+        float x = ((_verts[i].X - _minPosition.X) / (_bounds.Width)) * maxX + minX;
+        float y = ((_verts[i].Y - _minPosition.Y) / (_bounds.Height)) * maxY + minY;
+        verts[i].X = (x * _bounds.Width) + _minPosition.X;
+        verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
 
-      //  float u = _verts[i].Tu1 * diffU + minU;
-      //  float v = _verts[i].Tv1 * diffV + minV;
-      //  verts[i].Tu1 = u;
-      //  verts[i].Tv1 = v;
-      //  verts[i].Color = _verts[i].Color;
-      //  verts[i].Z = SkinContext.GetZorder();
-      //}
-      //PositionColored2Textured.Set(vertexBuffer, ref verts);
+        float u = _verts[i].Tu1 * diffU + minU;
+        float v = _verts[i].Tv1 * diffV + minV;
+        verts[i].Tu1 = u;
+        verts[i].Tv1 = v;
+        verts[i].Color = _verts[i].Color;
+        verts[i].Z = SkinContext.GetZorder();
+      }
+      PositionColored2Textured.Set(vertexBuffer, ref verts);
     }
 
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-      // FIXME Albert78: Temporary don't execute this method because it generates too much debug error
-      // messages
-      return false;
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
       if (playerManager == null)
       {
         ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
         return false;
       }
-      IPlayer player = playerManager[Stream];
+      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
       if (player == null) return false;
 
       if (Transform != null)
@@ -205,7 +188,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
         return;
       }
-      IPlayer player = playerManager[Stream];
+      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
       if (player == null) return;
       player.EndRender(_effect);
       if (Transform != null)

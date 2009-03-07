@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
   [ComVisible(true), ComImport,
    Guid("BD1AE5E0-A6AE-11CE-BD37-504200C10000"),

@@ -27,9 +27,11 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation;
+using MediaPortal.Presentation.Geometries;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.Presentation.Workflow;
+using MediaPortal.SkinEngine.Geometry;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.SkinEngine.InputManagement;
@@ -52,13 +54,19 @@ namespace MediaPortal.SkinEngine
 
     public void Initialize()
     {
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IInputManager service");
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
+      IGeometryManager geometryManager = new GeometryManager();
+      ServiceScope.Add<IGeometryManager>(geometryManager);
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IInputManager service");
       InputManager inputManager = new InputManager();
       ServiceScope.Add<IInputManager>(inputManager);
 
-      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Create IScreenManager service");
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
       _screenManager = new ScreenManager();
       ServiceScope.Add<IScreenManager>(_screenManager);
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering ISkinResourceManager service");
       ServiceScope.Add<ISkinResourceManager>(_screenManager.SkinResourceManager);
     }
 
@@ -79,11 +87,34 @@ namespace MediaPortal.SkinEngine
       ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
     }
 
+    void ISkinEngine.Uninitialize()
+    {
+      ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("SkinEnginePlugin: Uninstalling background manager");
+      _screenManager.UninstallBackgroundManager();
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
+      ServiceScope.Remove<ISkinResourceManager>();
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IScreenManager service");
+      ServiceScope.Remove<IScreenManager>();
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IInputManager service");
+      ServiceScope.Remove<IInputManager>();
+
+      ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
+      ServiceScope.Remove<IGeometryManager>();
+
+      _mainForm.StopRenderThread();
+    }
+
     public void Dispose()
     {
-      _screenManager.UninstallBackgroundManager();
-      _mainForm.Dispose();
       _screenManager.Dispose();
+      _mainForm.DisposeDirectX();
+      _mainForm.Dispose();
+      _screenManager = null;
+      _mainForm = null;
     }
 
     #endregion

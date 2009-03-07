@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Players;
@@ -247,9 +247,7 @@ namespace MediaPortal.Services.Players
     protected PlayerBuilderRegistration GetPlayerBuilderRegistration(string playerBuilderId)
     {
       PlayerBuilderRegistration result;
-      if (!_playerBuilders.TryGetValue(playerBuilderId, out result))
-        return null;
-      return result;
+      return _playerBuilders.TryGetValue(playerBuilderId, out result) ? result : null;
     }
 
     protected void LoadPlayerBuilders()
@@ -265,7 +263,7 @@ namespace MediaPortal.Services.Players
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       PlayerBuilderRegistration registration = new PlayerBuilderRegistration(
           pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
-                playerBuilderId, _playerBuilderPluginItemStateTracker));
+              playerBuilderId, _playerBuilderPluginItemStateTracker));
       _playerBuilders.Add(playerBuilderId, registration);
     }
 
@@ -290,26 +288,122 @@ namespace MediaPortal.Services.Players
       pluginManager.RevokePluginItem(PLAYERBUILDERS_REGISTRATION_PATH, playerBuilderId, _playerBuilderPluginItemStateTracker);
     }
 
+    protected void RegisterPlayerEvents(IPlayer player, int playerSlot)
+    {
+      IPlayerEvents pe = (IPlayerEvents) player;
+      pe.InitializePlayerEvents(playerSlot, OnPlayerStarted, OnPlayerStopped, OnPlayerEnded,
+          OnPlayerPaused, OnPlayerResumed);
+    }
+
+    protected void ResetPlayerEvents(IPlayer player)
+    {
+      IPlayerEvents pe = (IPlayerEvents) player;
+      pe.ResetPlayerEvents();
+    }
+
+    protected void OnPlayerStarted(IPlayer player, int playerSlot)
+    {
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, playerSlot);
+    }
+
+    protected void OnPlayerStopped(IPlayer player, int playerSlot)
+    {
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, playerSlot);
+      RemovePlayer(playerSlot, false);
+    }
+
+    protected void OnPlayerEnded(IPlayer player, int playerSlot)
+    {
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerEnded, playerSlot);
+      RemovePlayer(playerSlot, false);
+    }
+
+    protected void OnPlayerPaused(IPlayer player, int playerSlot)
+    {
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerPaused, playerSlot);
+    }
+
+    protected void OnPlayerResumed(IPlayer player, int playerSlot)
+    {
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerResumed, playerSlot);
+    }
+
+    protected void RemovePlayer(int playerSlot, bool stopPlayer)
+    {
+      ActivePlayerData activePlayer = _players[playerSlot];
+      if (activePlayer == null)
+        return;
+      IPlayer player = activePlayer.PlayerInstance;
+      ResetPlayerEvents(player);
+      if (stopPlayer)
+        player.Stop();
+      activePlayer.BuilderRegistration.ActivePlayerSlots.Remove(playerSlot);
+      if (player is IDisposable)
+        ((IDisposable) player).Dispose();
+      if (playerSlot == _primaryPlayer)
+        SetPrimaryPlayer(-1);
+      _players[playerSlot] = null;
+    }
+
     #endregion
 
     #region IPlayerManager implementation
 
-    public IPlayer PreparePlayer(IMediaProvider provider, string path, string mimeType, out int playerSlot)
+    public int NumActivePlayers
+    {
+      get
+      {
+        int result = 0;
+        foreach (ActivePlayerData apd in _players)
+          if (apd != null)
+            result++;
+        return result;
+      }
+    }
+
+    public IPlayer this[int slot]
+    {
+      get { return slot < _players.Count && slot >= 0 && _players[slot] != null ? _players[slot].PlayerInstance : null; }
+    }
+
+    public int PrimaryPlayer
+    {
+      get { return _primaryPlayer; }
+    }
+
+    public void SetPrimaryPlayer(int slot)
+    {
+      _primaryPlayer = slot;
+      PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PrimaryPlayerChanged, slot);
+    }
+
+    public IPlayer PreparePlayer(IMediaItemLocator locator, string mimeType, out int playerSlot)
     {
       foreach (PlayerBuilderRegistration builderRegistration in _playerBuilders.Values)
       {
-        IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(provider, path, mimeType);
+        // Build player
+        IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(locator, mimeType);
         if (player == null)
           continue;
-        ActivePlayerData result = new ActivePlayerData(builderRegistration, player);
+        // Register player in a free slot
+        ActivePlayerData apd = new ActivePlayerData(builderRegistration, player);
         playerSlot = 0;
-        while (_players.Count > playerSlot)
+        while (playerSlot < _players.Count)
+        {
           if (_players[playerSlot] == null)
+            // Found a free slot
             break;
-        if (_players.Count > playerSlot)
-          _players.Add(result);
+          playerSlot++;
+        }
+        if (playerSlot < _players.Count)
+          _players[playerSlot] = apd;
         else
-          _players[playerSlot] = result;
+          _players.Add(apd);
+        // Initialize player events
+        RegisterPlayerEvents(player, playerSlot);
+        // Set primary player
+        if (_primaryPlayer == -1)
+          SetPrimaryPlayer(playerSlot);
         return player;
       }
       playerSlot = -1;
@@ -318,15 +412,7 @@ namespace MediaPortal.Services.Players
 
     public void ReleasePlayer(int playerSlot)
     {
-      ActivePlayerData activePlayer = _players[playerSlot];
-      if (activePlayer == null)
-        return;
-      IPlayer player = activePlayer.PlayerInstance;
-      player.Stop();
-      activePlayer.BuilderRegistration.ActivePlayerSlots.Remove(playerSlot);
-      if (player is IDisposable)
-        ((IDisposable) player).Dispose();
-      _players[playerSlot] = null;
+      RemovePlayer(playerSlot, true);
     }
 
     public void ReleaseAllPlayers()
@@ -335,40 +421,11 @@ namespace MediaPortal.Services.Players
         ReleasePlayer(i);
     }
 
-    public void ReleaseGUIResources()
+    public void ForEach(PlayerWorkerDelegate execute)
     {
-      foreach (IPlayer player in _players)
+      foreach (ActivePlayerData player in _players)
         if (player != null)
-          player.ReleaseGUIResources();
-    }
-
-    public void ReallocGUIResources()
-    {
-      foreach (IPlayer player in _players)
-        if (player != null)
-          player.ReallocGUIResources();
-    }
-
-    public int PrimaryPlayer
-    {
-      get { return _primaryPlayer; }
-    }
-
-    public int NumActivePlayers
-    {
-      get
-      {
-        int result = 0;
-        foreach (IPlayer player in _players)
-          if (player != null)
-            result++;
-        return result;
-      }
-    }
-
-    public IPlayer this[int slot]
-    {
-      get { return slot < _players.Count ? _players[slot].PlayerInstance : null; }
+          execute(player.PlayerInstance);
     }
 
     #endregion

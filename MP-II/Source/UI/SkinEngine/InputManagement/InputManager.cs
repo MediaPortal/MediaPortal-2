@@ -35,6 +35,8 @@ namespace MediaPortal.SkinEngine.InputManagement
 
     private ICollection<Key> _registeredKeys;
     private bool _needRawKeyboardData;
+    protected DateTime _lastMouseUsageTime = DateTime.MinValue;
+    protected DateTime _lastInputTime = DateTime.MinValue;
 
     #endregion
 
@@ -75,45 +77,40 @@ namespace MediaPortal.SkinEngine.InputManagement
       get { return _registeredKeys; }
     }
 
+    public DateTime LastMouseUsageTime
+    {
+      get { return _lastMouseUsageTime; }
+      internal set { _lastMouseUsageTime = value; }
+    }
+
+    public DateTime LastInputTime
+    {
+      get { return _lastInputTime; }
+      internal set { _lastInputTime = value; }
+    }
+
     public void MouseMove(float x, float y)
     {
-      SkinContext.HandlingInput = true;
-      SkinContext.MouseUsed = true;
+      DateTime now = DateTime.Now;
+      _lastInputTime = now;
+      _lastMouseUsageTime = now;
       if (MouseMoved != null)
-      {
         MouseMoved(x, y);
-      }
-      SkinContext.HandlingInput = false;
-      SkinContext.ScreenSaverActive = false;
     }
 
     public void KeyPress(Key key)
     {
-      SkinContext.HandlingInput = true;
+      _lastInputTime = DateTime.Now;
       if (KeyPressed != null)
-      {
         KeyPressed(ref key);
-      }
-
-      SkinContext.HandlingInput = false;
-      SkinContext.ScreenSaverActive = false;
     }
 
     public void KeyPress(string keyName)
     {
-      SkinContext.HandlingInput = true;
-      SkinContext.ScreenSaverActive = false;
+      _lastInputTime = DateTime.Now;
       foreach (Key key in Keys)
-      {
         if (String.Compare(keyName, key.Name, true) == 0)
-        {
-          Key k = key;
-          if (KeyPressed != null)
-          {
-            KeyPressed(ref k);
-          }
-        }
-      }
+          KeyPress(key);
     }
 
     public bool NeedRawKeyData

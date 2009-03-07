@@ -8,8 +8,8 @@
     <ProjectGuid>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Ui.Players.VideoPlayer</RootNamespace>
-    <AssemblyName>VideoPlayer</AssemblyName>
+    <RootNamespace>Ui.Players.Video</RootNamespace>
+    <AssemblyName>VideoPlayers</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -22,6 +22,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -48,24 +49,15 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CropSettings.cs" />
     <Compile Include="DvdPlayer.cs" />
     <Compile Include="FilterGraphTools.cs" />
-    <Compile Include="Geometry\Geometry.cs" />
-    <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
-    <Compile Include="Geometry\GeometryLetterBox.cs" />
-    <Compile Include="Geometry\GeometryNormal.cs" />
-    <Compile Include="Geometry\GeometryOrignal.cs" />
-    <Compile Include="Geometry\GeometryPanAndScan.cs" />
-    <Compile Include="Geometry\GeometryStretch.cs" />
-    <Compile Include="Geometry\GeometryZoom.cs" />
-    <Compile Include="Geometry\GeometryZoom149.cs" />
+    <Compile Include="IInitializablePlayer.cs" />
     <Compile Include="IPersistMemory.cs" />
     <Compile Include="OsdProperties.cs" />
-    <Compile Include="Players.cs" />
     <Compile Include="Seeking.cs" />
     <Compile Include="settings\AudioSettings.cs" />
     <Compile Include="settings\Settings.cs" />
@@ -84,10 +76,15 @@
     <Compile Include="Teletext\TSHeader.cs" />
     <Compile Include="TsVideoPlayer.cs" />
     <Compile Include="VideoPlayer.cs" />
+    <Compile Include="VideoPlayerBuilder.cs" />
     <Compile Include="Vmr9\Allocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Media\ClientMediaManager\ClientMediaManager.csproj">
+      <Project>{624C9A4F-AAD6-4A34-B48B-15EC9226AA1D}</Project>
+      <Name>ClientMediaManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
@@ -101,6 +98,9 @@
       <Name>SkinEngine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -110,9 +110,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
-xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Players.$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)DirectShowLib-2005.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

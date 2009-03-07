@@ -22,16 +22,13 @@
 
 #endregion
 
-using MediaPortal.Presentation.Geometry;
+using System.Drawing;
 
-namespace Ui.Players.VideoPlayer
+namespace MediaPortal.Presentation.Geometries
 {
-  /// <summary>
-  /// Class which holds crop settings for the PlaneScene
-  /// </summary>
-  public class CropSettings : ICropSettings
+  public class CropSettings
   {
-    #region vars
+    #region Protected fields
 
     private int _top;
     private int _bottom;
@@ -42,18 +39,8 @@ namespace Ui.Players.VideoPlayer
 
     #region Ctor
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CropSettings"/> class.
-    /// </summary>
     public CropSettings() : this(0, 0, 0, 0) { }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CropSettings"/> class.
-    /// </summary>
-    /// <param name="top">The top.</param>
-    /// <param name="bottom">The bottom.</param>
-    /// <param name="left">The left.</param>
-    /// <param name="right">The right.</param>
     public CropSettings(int top, int bottom, int left, int right)
     {
       _top = top;
@@ -64,10 +51,10 @@ namespace Ui.Players.VideoPlayer
 
     #endregion
 
-    #region properties
+    #region Public properties
 
     /// <summary>
-    /// Number of scanlines to remove at the top of the picture
+    /// Number of scanlines to remove at the top of the picture.
     /// </summary>
     public int Top
     {
@@ -76,7 +63,7 @@ namespace Ui.Players.VideoPlayer
     }
 
     /// <summary>
-    /// Number of scanlines to remove at the bottom of the picture
+    /// Number of scanlines to remove at the bottom of the picture.
     /// </summary>
     public int Bottom
     {
@@ -85,7 +72,7 @@ namespace Ui.Players.VideoPlayer
     }
 
     /// <summary>
-    /// Number of columns to remove from the left side of the picture
+    /// Number of columns to remove from the left side of the picture.
     /// </summary>
     public int Left
     {
@@ -94,7 +81,7 @@ namespace Ui.Players.VideoPlayer
     }
 
     /// <summary>
-    /// Number of columns to remove from the right side of the picture
+    /// Number of columns to remove from the right side of the picture.
     /// </summary>
     public int Right
     {
@@ -105,49 +92,47 @@ namespace Ui.Players.VideoPlayer
     #endregion
 
     /// <summary>
-    /// Ensures that the crop settings makes sense, ie,
-    /// dont crop more than the the available image area.
+    /// Ensures that the crop settings makes sense, ie, dont crop more than the the available image area.
     /// Also ensures that the crop values are positive.
     /// </summary>
-    public ICropSettings EnsureSanity(int ImageWidth, int ImageHeight)
+    public CropSettings EnsureSanity(int ImageWidth, int ImageHeight)
     {
       CropSettings S = new CropSettings(_top, _bottom, _left, _right);
 
       if (S._right < 0)
-      {
-        //Log.Warn("Negative right cropping value, setting to 0!");
         S._right = 0;
-      }
 
       if (S._left < 0)
-      {
-        //Log.Warn("Negative left cropping value, setting to 0!");
         S._left = 0;
-      }
 
       if (S._top < 0)
-      {
-        //Log.Warn("Negative top cropping value, setting to 0!");
         S._top = 0;
-      }
 
       if (S._bottom < 0)
-      {
-        //Log.Warn("Negative bottom cropping value, setting to 0!");
         S._bottom = 0;
-      }
 
       if (S._right + S._left >= ImageWidth)
-      {
-        //Log.Warn("Right + Left cropping larger than screenwidth! Setting to 0");
         S._right = S._left = 0;
-      }
+
       if (S._top + S._bottom >= ImageHeight)
-      {
-        //Log.Warn("Top + Bottom cropping larger than screenwidth! Setting to 0");
         S._top = S._bottom = 0;
-      }
+
       return S;
+    }
+
+    /// <summary>
+    /// Applies this cropping data to the specified <paramref name="rectangle"/>.
+    /// </summary>
+    /// <param name="rectangle">Rectangle to crop.</param>
+    public void AdjustSource(ref Rectangle rectangle)
+    {
+      rectangle.Y += _top;
+      rectangle.Height -= _top;
+      rectangle.Height -= _bottom;
+
+      rectangle.X += _left;
+      rectangle.Width -= _left;
+      rectangle.Width -= _right;
     }
   }
 }

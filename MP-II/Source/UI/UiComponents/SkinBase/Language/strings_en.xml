@@ -28,6 +28,9 @@
     <String Name="5" Text="Menu"/>
     <String Name="Eject" Text="Eject"/>
   </Section>
+  <Section Name="Players">
+    <String Name="CurrentlyPlaying" Text="Currently playing"/>
+  </Section>
   <Section Name="Settings">
     <String Name="Appearance" Text="Appearance"/>
     <String Name="Appearance.Skin" Text="Skin"/>
@@ -94,13 +97,6 @@
     <String Name="4" Text="Audio Language"/>
     <String Name="5" Text="start"/>
     <String Name="6" Text="end"/>
-    <String Name="7" Text="Letterbox 4:3"/>
-    <String Name="8" Text="Normal"/>
-    <String Name="9" Text="Original"/>
-    <String Name="10" Text="Pan&amp;Scan"/>
-    <String Name="11" Text="Stretch"/>
-    <String Name="12" Text="Zoom"/>
-    <String Name="13" Text="Zoom 14:9"/>
     <String Name="14" Text="Subtitles"/>
     <String Name="15" Text="Top Left"/>
     <String Name="16" Text="Bottom Right"/>
@@ -126,7 +122,6 @@
     <String Name="36" Text="Restart"/>
     <String Name="37" Text="Delete"/>
     <String Name="38" Text="Ended"/>
-    <String Name="intelligentzoom" Text="Intelligent Zoom"/>
   </Section>
   <Section Name="movies">
     <String Name="0" Text="Name"/>

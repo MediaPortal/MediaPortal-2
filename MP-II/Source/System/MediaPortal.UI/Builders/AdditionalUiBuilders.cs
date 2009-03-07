@@ -24,17 +24,21 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Services.Players.Builders;
 
 namespace MediaPortal.Builders
 {
   public class AdditionalUiBuilders
   {
     public const string BACKGROUND_BUILDER_NAME = "Background";
+    public const string PLAYERBUILDER_BUILDER_NAME = "PlayerBuilder";
 
     public static void Register()
     {
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       pluginManager.RegisterSystemPluginItemBuilder(BACKGROUND_BUILDER_NAME, new BackgroundBuilder());
+
+      pluginManager.RegisterSystemPluginItemBuilder(PLAYERBUILDER_BUILDER_NAME, new PlayerBuilder());
     }
   }
 }

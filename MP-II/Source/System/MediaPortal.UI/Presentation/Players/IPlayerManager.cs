@@ -23,10 +23,12 @@
 #endregion
 
 using System;
-using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
+  public delegate void PlayerWorkerDelegate(IPlayer player);
+
   /// <summary>
   /// Manages all active player instances in the application.
   /// </summary>
@@ -39,51 +41,6 @@ namespace MediaPortal.Presentation.Players
   /// </remarks>
   public interface IPlayerManager : IDisposable
   {
-    /// <summary>
-    /// Tries to prepare a player for the media resource with the specified access information.
-    /// The player will be allocated in an empty player slot, whose slot number will be returned
-    /// if the preparation was successful.
-    /// </summary>
-    /// <param name="provider">Media provider which delivers the content to be played.</param>
-    /// <param name="path">Path of the content to be played.</param>
-    /// <param name="mimeType">MimeType of the content to be played, if available. Else, this
-    /// parameter should be set to <c>null</c>.</param>
-    /// <param name="playerSlot">Returns the slot number of the new player, if the preparation was
-    /// successful.</param>
-    /// <returns>Instance of the new player, or <c>null</c>, if the preparation was not successful,
-    /// i.e. the content cannot be played with the currently available players and/or resources.</returns>
-    IPlayer PreparePlayer(IMediaProvider provider, string path, string mimeType, out int playerSlot);
-
-    /// <summary>
-    /// Stops the player in the specified <paramref name="playerSlot"/>, releases it and removes
-    /// it from the collection of active players.
-    /// </summary>
-    void ReleasePlayer(int playerSlot);
-
-    /// <summary>
-    /// Stops and releases all active players.
-    /// </summary>
-    void ReleaseAllPlayers();
-
-    /// <summary>
-    /// Releases any GUI dependent resources in all players.
-    /// </summary>
-    /// <summary>
-    /// This method can be called to temporary prevent all visual output from all players.
-    /// Call <see cref="ReallocGUIResources"/> to resume visual output.
-    /// </summary>
-    void ReleaseGUIResources();
-
-    /// <summary>
-    /// (Re)allocs any GUI dependent resources in all active players.
-    /// </summary>
-    void ReallocGUIResources();
-
-    /// <summary>
-    /// Returns the slot number of the currently primary player.
-    /// </summary>
-    int PrimaryPlayer { get; }
-
     /// <summary>
     /// Returns the number of active players.
     /// </summary>
@@ -98,5 +55,49 @@ namespace MediaPortal.Presentation.Players
     /// specified slot.
     /// </summary>
     IPlayer this[int slot] { get; }
+
+    /// <summary>
+    /// Returns the slot number of the currently primary player.
+    /// </summary>
+    int PrimaryPlayer { get; }
+
+    /// <summary>
+    /// Makes the player in the specified <paramref name="slot"/> the primary player.
+    /// </summary>
+    /// <param name="slot">Slot number of an active player.</param>
+    void SetPrimaryPlayer(int slot);
+
+    /// <summary>
+    /// Tries to prepare a player for the media resource with the specified access information.
+    /// The player will be allocated in an empty player slot, whose slot number will be returned
+    /// if the preparation was successful.
+    /// The <see cref="PrimaryPlayer"/> property will be set to the new player, if there is no other active
+    /// player.
+    /// </summary>
+    /// <param name="locator">Media locator to the media resource to be played.</param>
+    /// <param name="mimeType">MimeType of the content to be played, if available. Else, this
+    /// parameter should be set to <c>null</c>.</param>
+    /// <param name="playerSlot">Returns the slot number of the new player, if the preparation was
+    /// successful.</param>
+    /// <returns>Instance of the new player, or <c>null</c>, if the preparation was not successful,
+    /// i.e. the content cannot be played with the currently available players and/or resources.</returns>
+    IPlayer PreparePlayer(IMediaItemLocator locator, string mimeType, out int playerSlot);
+
+    /// <summary>
+    /// Stops the player in the specified <paramref name="playerSlot"/>, releases it and removes
+    /// it from the collection of active players.
+    /// </summary>
+    void ReleasePlayer(int playerSlot);
+
+    /// <summary>
+    /// Executes the given method on each active player.
+    /// </summary>
+    /// <param name="execute">Method to execute.</param>
+    void ForEach(PlayerWorkerDelegate execute);
+
+    /// <summary>
+    /// Stops and releases all active players.
+    /// </summary>
+    void ReleaseAllPlayers();
   }
 }

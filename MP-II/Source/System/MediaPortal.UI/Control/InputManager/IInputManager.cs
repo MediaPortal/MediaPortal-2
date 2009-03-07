@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,13 +22,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Control.InputManager
 {
-  /// <summary>
-  /// interface to the input manager
-  /// </summary>
   public delegate void MouseMoveHandler(float x, float y);
 
   public delegate void KeyPressedHandler(ref Key key);
@@ -41,8 +39,17 @@ namespace MediaPortal.Control.InputManager
     /// <summary>
     /// Gets or sets a value indicating whether skinengine needs raw key data (for a textbox for example)
     /// </summary>
-    /// <value><c>true</c> if [need raw key data]; otherwise, <c>false</c>.</value>
     bool NeedRawKeyData { get; set; }
+
+    /// <summary>
+    /// Gets the last time when the mouse was used.
+    /// </summary>
+    DateTime LastMouseUsageTime { get; }
+
+    /// <summary>
+    /// Gets the last time when an input (keyboard or IR) was made.
+    /// </summary>
+    DateTime LastInputTime { get; }
 
     /// <summary>
     /// Called when the mouse moved.
@@ -66,7 +73,6 @@ namespace MediaPortal.Control.InputManager
     /// <summary>
     /// Returns all registered keys.
     /// </summary>
-    /// <value>The keys.</value>
     ICollection<Key> Keys { get; }
   }
 }

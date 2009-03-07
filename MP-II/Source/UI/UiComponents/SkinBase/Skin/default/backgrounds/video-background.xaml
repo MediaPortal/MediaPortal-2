@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Video background
+-->
+
+<StackPanel
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <StackPanel.Resources>
+    <!-- Player model -->
+    <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
+  </StackPanel.Resources>
+  <StackPanel.Background>
+    <VideoBrush Stream="{Binding Source={StaticResource PlayerModel},Path=PrimaryPlayer}"/>
+  </StackPanel.Background>
+</StackPanel>

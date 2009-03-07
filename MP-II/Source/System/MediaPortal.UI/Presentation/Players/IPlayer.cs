@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
-using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -37,8 +35,25 @@ namespace MediaPortal.Presentation.Players
   };
 
   /// <summary>
-  /// Interface for an audio or video player which is already prepared to play a media resource.
+  /// Generic interface for all kinds of players.
+  /// Instances, which are passed via this interface, are already prepared to play a media resource.
+  /// To get a player for another resource, the player manager has to be called.
+  /// Typically, players support sub interfaces of this interface. Players typically will implement
+  /// additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>, <see cref="ISeekable"/>, etc.
   /// </summary>
+  /// <remarks>
+  /// Different kinds of players have very different kinds of methods and properties.
+  /// The player interfaces hierarchy reflects this fact.
+  /// Methods and properties, which are common to all players, are introduced by this interface.
+  /// Note that each player needs also to implement the <see cref="CurrentTime"/> and <see cref="Duration"/>
+  /// properties, even picture players (and other players without a "native" play time). Those players should
+  /// implement these properties as if their media content would have a play duration (i.e. they should return a
+  /// small amount of time to present their content, maybe 3 seconds). The reason is, when used in a playlist,
+  /// this media contents will also be shown for their desired <see cref="Duration"/>, for example pictures will
+  /// be shown as slideshow.
+  /// <i>FIXME: Hint: This interface and its sub interfaces are still being subject to change during the
+  /// rework of the players subsystem.</i>
+  /// </remarks>
   public interface IPlayer
   {
     /// <summary>
@@ -52,222 +67,44 @@ namespace MediaPortal.Presentation.Players
     Guid PlayerId { get; }
 
     /// <summary>
-    /// Releases any GUI resources.
-    /// </summary>
-    void ReleaseGUIResources();
-
-    /// <summary>
-    /// Reallocs any GUI resources.
-    /// </summary>
-    void ReallocGUIResources();
-
-    /// <summary>
     /// Gets the playback state of this player.
     /// </summary>
     PlaybackState State { get; }
 
-    // TODO: go on with rework of interface from here
-
     /// <summary>
-    /// gets/sets the width/height for the video window
-    /// </summary>
-    Size Size { get; set; }
-
-    /// <summary>
-    /// gets/sets the position on screen where the video should be drawn
-    /// </summary>
-    Point Position { get; set; }
-    /// <summary>
-    /// Gets the onscreen rectangle where movie gets rendered
-    /// </summary>
-    /// <value>The movie rectangle.</value>
-    Rectangle MovieRectangle { get;set;}
-
-    /// <summary>
-    /// gets/sets the alphamask
-    /// </summary>
-    Rectangle AlphaMask { get; set; }
-
-    /// <summary>
-    /// Plays the file
-    /// </summary>
-    /// <param name="fileName"></param>
-    void Play(MediaItem item);
-
-    /// <summary>
-    /// stops playback
-    /// </summary>
-    void Stop();
-
-    /// <summary>
-    /// Render the video
-    /// </summary>
-    void Render();
-    void BeginRender(object effect);
-    void EndRender(object effect);
-
-    /// <summary>
-    /// gets/sets wheter video is paused
-    /// </summary>
-    bool Paused { get; set; }
-
-    /// <summary>
-    /// called when windows message is received
-    /// </summary>
-    /// <param name="m">message</param>
-    void OnMessage(object m);
-
-    /// <summary>
-    /// called when application is idle
-    /// </summary>
-    void OnIdle();
-
-    /// <summary>
-    /// returns the current play time
+    /// Returns the current play time.
     /// </summary>
     TimeSpan CurrentTime { get; set; }
-    TimeSpan StreamPosition { get;  }
 
     /// <summary>
-    /// returns the duration of the movie
+    /// Returns the playing duration of the media item.
     /// </summary>
     TimeSpan Duration { get; }
 
     /// <summary>
-    /// returns list of available audio streams
+    /// Will be called from outside to update the <see cref="CurrentTime"/> property to the current
+    /// media position.
     /// </summary>
-    string[] AudioStreams { get; }
+    void UpdateTime();
 
     /// <summary>
-    /// returns list of available subtitle streams
+    /// Stops playback.
     /// </summary>
-    string[] Subtitles { get; }
+    void Stop();
 
     /// <summary>
-    /// sets the current subtitle
+    /// Pauses playback.
     /// </summary>
-    /// <param name="subtitle">subtitle</param>
-    void SetSubtitle(string subtitle);
+    void Pause();
 
     /// <summary>
-    /// Gets the current subtitle.
+    /// Resumes playback.
     /// </summary>
-    /// <value>The current subtitle.</value>
-    string CurrentSubtitle { get; }
+    void Resume();
 
     /// <summary>
-    /// sets the current audio stream
-    /// </summary>
-    /// <param name="audioStream">audio stream</param>
-    void SetAudioStream(string audioStream);
-
-    /// <summary>
-    /// Gets the current audio stream.
-    /// </summary>
-    /// <value>The current audio stream.</value>
-    string CurrentAudioStream { get; }
-
-    Size VideoSize { get; }
-    Size VideoAspectRatio { get;  }
-
-    /// <summary>
-    /// Gets the DVD titles.
-    /// </summary>
-    /// <value>The DVD titles.</value>
-    string[] DvdTitles { get; }
-
-    /// <summary>
-    /// Sets the DVD title.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    void SetDvdTitle(string title);
-
-    /// <summary>
-    /// Gets the current DVD title.
-    /// </summary>
-    /// <value>The current DVD title.</value>
-    string CurrentDvdTitle { get; }
-
-
-    /// <summary>
-    /// Gets the DVD chapters for current title
-    /// </summary>
-    /// <value>The DVD chapters.</value>
-    string[] DvdChapters { get; }
-
-    /// <summary>
-    /// Sets the DVD chapter.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    void SetDvdChapter(string title);
-
-    /// <summary>
-    /// Gets the current DVD chapter.
-    /// </summary>
-    /// <value>The current DVD chapter.</value>
-    string CurrentDvdChapter { get; }
-
-    /// <summary>
-    /// Gets a value indicating whether we are in the in DVD menu.
-    /// </summary>
-    /// <value><c>true</c> if [in DVD menu]; otherwise, <c>false</c>.</value>
-    bool InDvdMenu { get; }
-
-    /// <summary>
-    /// Gets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    Uri FileName { get; }
-
-    /// <summary>
-    /// Gets the media-item.
-    /// </summary>
-    /// <value>The media-item.</value>
-    MediaItem MediaItem { get;}
-
-    /// <summary>
-    /// Restarts playback from the start.
+    /// Restarts playback from the beginning.
     /// </summary>
     void Restart();
-
-    /// <summary>
-    ///Resumes playback from previous session
-    /// </summary>
-    void ResumeSession();
-
-    /// <summary>
-    /// True if resume data exists (from previous session)
-    /// </summary>
-    bool CanResumeSession(Uri fileName);
-
-    /// <summary>
-    /// Gets or sets the volume (0-100)
-    /// </summary>
-    /// <value>The volume.</value>
-    int Volume { get;set;}
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="IPlayer"/> is mute.
-    /// </summary>
-    /// <value><c>true</c> if muted; otherwise, <c>false</c>.</value>
-    bool Mute { get;set;}
-
-    /// <summary>
-    /// Gets a value indicating whether this player is a video player.
-    /// </summary>
-    /// <value><c>true</c> if this player is a video player; otherwise, <c>false</c>.</value>
-    bool IsVideo { get;}
-
-    /// <summary>
-    /// Gets a value indicating whether this player is a audio player.
-    /// </summary>
-    /// <value><c>true</c> if this player is a audio player; otherwise, <c>false</c>.</value>
-    bool IsAudio { get;}
-
-    /// <summary>
-    /// Gets a value indicating whether this player is a picture player.
-    /// </summary>
-    /// <value><c>true</c> if this player is a picture player; otherwise, <c>false</c>.</value>
-    bool IsImage { get;}
   }
 }

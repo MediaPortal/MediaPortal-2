@@ -406,58 +406,6 @@
     </Setter>
   </Style>
 
-  <!-- ***************************** Video button ******************************** -->
-
-  <!-- Style for a video button. Shows video when present, otherwise a black rectangle -->
-  <Style x:Key="VideoWindowButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Background" Value="Black"/>
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <ControlTemplate.Resources>
-            <Storyboard x:Key="FocusedStoryboard" FillBehavior="Stop">
-              <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="Stroke.Color">
-                <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource VideoPreviewBorderDarkColor}"/>
-                <SplineColorKeyFrame KeyTime="00:00:00.1000000" Value="{ThemeResource VideoPreviewBorderLightColor}"/>
-              </ColorAnimationUsingKeyFrames>
-              <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Border" Storyboard.TargetProperty="StrokeThickness">
-                <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-                <SplineDoubleKeyFrame KeyTime="00:00:00.1000000" Value="5"/>
-              </DoubleAnimationUsingKeyFrames>
-            </Storyboard>
-          </ControlTemplate.Resources>
-          <Canvas Width="160" Height="104" DataContext="{Binding Source={Service Players}}">
-            <Rectangle x:Name="Border" Width="160" Height="104" Stroke="{ThemeResource VideoPreviewBorderDarkColor}" StrokeThickness="0">
-              <Rectangle.Fill>
-                <VideoBrush>
-                </VideoBrush>
-              </Rectangle.Fill>
-            </Rectangle>
-            <Image Canvas.Left="48" Canvas.Top="20" Source="logo_pause.png" Width="64" Height="64" IsVisible="{Binding Paused}"/>
-            <Label Canvas.Left="170" Canvas.Top="10" x:Name="TitleLabel" FontSize="28" Width="400" Height="32" Content="{Binding OSD.Title}" Color="{ThemeResource CurrentMediaItemTitleColor}" IsVisible="False"/>
-            <Label Canvas.Left="170" Canvas.Top="42" x:Name="ArtistLabel" FontSize="20" Width="400" Height="32" Content="{Binding OSD.MediaItem[artist]}" Color="{ThemeResource CurrentMediaItemArtistColor}" IsVisible="False"/>
-            <Label Canvas.Left="170" Canvas.Top="72" x:Name="CurrentTimeLabel" FontSize="20" Width="104" Height="32" Content="{Binding OSD.CurrentTime}" Color="{ThemeResource CurrentMediaItemTimeColor}" IsVisible="False"/>
-          </Canvas>
-          <ControlTemplate.Triggers>
-            <Trigger Property="HasFocus" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.Setters>
-                <Setter TargetName="label1" Property="Visibility" Value="Visible"/>
-                <Setter TargetName="label2" Property="Visibility" Value="Visible"/>
-                <Setter TargetName="label3" Property="Visibility" Value="Visible"/>
-              </Trigger.Setters>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>
-          </ControlTemplate.Triggers>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <!-- ***************************** Dialog close button ******************************** -->
 
   <!-- Style for a close button (used on dialog windows) -->

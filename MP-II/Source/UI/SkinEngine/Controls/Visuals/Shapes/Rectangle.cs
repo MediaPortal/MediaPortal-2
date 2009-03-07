@@ -212,7 +212,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               }
               using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
               {
-                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, GeometryUtility.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
+                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
                 if (_borderAsset.VertexBuffer != null)
                 {
 

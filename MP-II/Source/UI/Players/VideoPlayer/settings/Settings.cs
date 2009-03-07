@@ -30,7 +30,7 @@ using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
 
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
   public class Settings
   {

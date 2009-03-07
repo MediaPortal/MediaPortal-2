@@ -23,9 +23,10 @@
 #endregion
 
 using System;
-using Ui.Players.VideoPlayer.Teletext;
+using Ui.Players.Video.Teletext;
+using Ui.Players.Video.Teletext;
 
-namespace Ui.Players.VideoPlayer.Subtitles
+namespace Ui.Players.Video.Subtitles
 {
   public class TeletextPageHeader
   {

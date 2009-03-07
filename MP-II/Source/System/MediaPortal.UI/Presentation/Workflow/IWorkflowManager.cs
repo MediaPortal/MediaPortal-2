@@ -62,6 +62,22 @@ namespace MediaPortal.Presentation.Workflow
     NavigationContext CurrentNavigationContext { get; }
 
     /// <summary>
+    /// Initializes the workflow manager.
+    /// </summary>
+    /// <remarks>
+    /// This method has to be called after the skin resources are loaded.
+    /// </remarks>
+    void Initialize();
+
+    /// <summary>
+    /// Shuts the workflow manager down.
+    /// </summary>
+    /// <remarks>
+    /// This will dispose all managed instances like models.
+    /// </remarks>
+    void Shutdown();
+
+    /// <summary>
     /// Navigates to the specified non-transient state. This will push a new navigation context entry
     /// containing the specified state on top of the navigation context stack. This realizes a
     /// forward navigation.

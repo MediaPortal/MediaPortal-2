@@ -24,30 +24,35 @@
 
 using System.Drawing;
 
-namespace MediaPortal.Presentation.Geometry
+namespace MediaPortal.Presentation.Geometries
 {
+  /// <summary>
+  /// Describes a video "zoom" mode. Contains methods to transform a given source rectangle to a destination rectangle
+  /// by applying this geometry.
+  /// </summary>
   public interface IGeometry
   {
     /// <summary>
-    /// Gets the name.
+    /// Gets the display name of this geometry.
     /// </summary>
-    /// <value>The name.</value>
     string Name { get; }
 
     /// <summary>
-    /// Gets the name of the shader to use
+    /// Gets the name of the shader to use.
     /// </summary>
-    /// <value>The shader.</value>
     string Shader { get;}
 
     /// <summary>
-    /// Gets the window.
+    /// Does the actual transformation of the given video area data based on the geometry <paramref name="data"/>
+    /// and the specified <paramref name="cropSettings"/> and stores the results in the specified
+    /// source rectangle <paramref name="rSource"/> and the specified destination rectangle <paramref name="rDest"/>.
     /// </summary>
-    /// <param name="gemometry">The geometry helper.</param>
-    /// <param name="fSourceFrameRatio">The source aspect ratio.</param>
-    /// <param name="rSource">The source rectangle.</param>
-    /// <param name="rDest">The destination rectangle.</param>
-    /// <param name="cropSettings">The crop settings.</param>
-    void GetWindow(IGeometryHelper gemometry, float fSourceFrameRatio, out Rectangle rSource, out Rectangle rDest, ICropSettings cropSettings);
+    /// <param name="data">The geometry data on which the transformation should be based.</param>
+    /// <param name="cropSettings">The cropping to be used.</param>
+    /// <param name="rSource">Returns the source rectangle. This is the rectangle which should be copied from the
+    /// source image.</param>
+    /// <param name="rDest">Returns the destination rectangle. This is the rectangle to which the copied part should
+    /// be presented in the target area.</param>
+    void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest);
   }
 }

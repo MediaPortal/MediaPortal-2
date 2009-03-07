@@ -195,9 +195,6 @@ namespace MediaPortal.Core
     public void Dispose()
     {
       Dispose(true);
-      //Tell the CLR not to call the finalizer, preventing the Dispose(bool)
-      //method to be called a second time when this instance is destroyed.
-      GC.SuppressFinalize(this);
     }
 
     #endregion
@@ -212,22 +209,34 @@ namespace MediaPortal.Core
     /// </summary>
     /// <typeparam name="T">The <see cref="Type"/> of service to add.</typeparam>
     /// <param name="service">The service implementation to add.</param>
-    public static void Add<T>(T service)
+    public static void Add<T>(T service) where T : class
     {
       Current.AddService<T>(service);
     }
 
-    public static void Replace<T>(T service)
+    public static void Replace<T>(T service) where T : class
     {
       Current.ReplaceService<T>(service);
     }
 
-    public static void Remove<T>()
+    public static void Remove<T>() where T : class
     {
       Current.RemoveService<T>();
     }
 
-    public static bool IsRegistered<T>()
+    public static void RemoveAndDispose<T>() where T : class
+    {
+      T service = Get<T>(false);
+      if (service != null)
+      {
+        ServiceScope.Remove<T>();
+        IDisposable disposableService = service as IDisposable;
+        if (disposableService != null)
+          disposableService.Dispose();
+      }
+    }
+
+    public static bool IsRegistered<T>() where T : class
     {
       return Current.IsServiceRegistered<T>();
     }
@@ -260,17 +269,17 @@ namespace MediaPortal.Core
       return Current.GetService<T>(throwIfNotFound);
     }
 
-    private void AddService<T>(T service)
+    private void AddService<T>(T service) where T : class
     {
       services[typeof(T)] = service;
     }
 
-    private void RemoveService<T>()
+    private void RemoveService<T>() where T : class
     {
       services.Remove(typeof(T));
     }
 
-    private bool IsServiceRegistered<T>()
+    private bool IsServiceRegistered<T>() where T : class
     {
       Type type = typeof(T);
       if (services.ContainsKey(type))
@@ -294,12 +303,15 @@ namespace MediaPortal.Core
       }
       if (oldInstance == null)
       {
-        object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name,
-            new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
-        if (newService != null)
+        if (!(type == typeof(IPluginManager)))
         {
-          Add<T>((T)newService);
-          return (T)newService;
+          object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name,
+              new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
+          if (newService != null)
+          {
+            Add<T>((T)newService);
+            return (T)newService;
+          }
         }
 
         if (throwIfNotFound)
@@ -333,7 +345,7 @@ namespace MediaPortal.Core
 
     #endregion
 
-    private void ReplaceService<T>(T service)
+    private void ReplaceService<T>(T service) where T : class
     {
       RemoveService<T>();
       AddService<T>(service);

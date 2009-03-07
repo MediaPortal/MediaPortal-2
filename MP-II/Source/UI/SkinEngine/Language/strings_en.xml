@@ -18,4 +18,14 @@
     <String Name="BackgroundScreenMissing" Text="Cannot find the skin resource for background screen '{0}'."/>
     <String Name="BackgroundScreenBroken" Text="The skin resource for background screen '{0}' seems to be broken."/>
   </Section>
+  <Section Name="Geometries">
+    <String Name="IntelligentZoom" Text="Intelligent Zoom"/>
+    <String Name="LetterBox" Text="Letterbox 4:3"/>
+    <String Name="Normal" Text="Normal"/>
+    <String Name="Original" Text="Original"/>
+    <String Name="PanAndScan" Text="Pan&amp;Scan"/>
+    <String Name="Stretch" Text="Stretch"/>
+    <String Name="Zoom" Text="Zoom"/>
+    <String Name="Zoom149" Text="Zoom 14:9"/>
+  </Section>
 </Language>

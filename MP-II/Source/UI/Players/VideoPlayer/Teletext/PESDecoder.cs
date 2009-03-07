@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Ui.Players.VideoPlayer.Teletext
+namespace Ui.Players.Video.Teletext
 {
   delegate void PESCallback(int streamid, byte[] header, int headerlen,
                                      byte[] data, int datalen, bool isStart, UInt64 presentTime);

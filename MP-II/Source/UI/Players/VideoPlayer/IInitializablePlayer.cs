@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,19 +22,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Presentation.Geometry
+namespace Ui.Players.Video
 {
-  public interface ICropSettings
+  /// <summary>
+  /// Internal interface for the initialization of the players from the player builder.
+  /// </summary>
+  internal interface IInitializablePlayer
   {
-    int Top { get;set;}
-    int Bottom { get;set;}
-    int Left { get;set;}
-    int Right { get;set;}
-
-    ICropSettings EnsureSanity(int ImageWidth, int ImageHeight);
+    void SetMediaItemLocator(IMediaItemLocator locator);
   }
 }

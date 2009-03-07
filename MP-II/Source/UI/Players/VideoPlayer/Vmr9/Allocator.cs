@@ -40,9 +40,8 @@ using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
 
-namespace Ui.Players.VideoPlayer.Vmr9
+namespace Ui.Players.Video.Vmr9
 {
-
   #region IVMR9PresentCallback interface
 
   [ComVisible(true), ComImport,
@@ -72,7 +71,7 @@ namespace Ui.Players.VideoPlayer.Vmr9
     private Surface _surface;
     private object _lock;
     private bool _usingEvr = false;
-    private IPlayerCollection _players;
+    private IPlayerManager _playerManager;
     private IPlayer _player;
     private bool _guiBeingReinitialized = false;
     EffectAsset _normalEffect;
@@ -87,7 +86,7 @@ namespace Ui.Players.VideoPlayer.Vmr9
     /// <param name="usingEvr">if set to <c>true</c> [using evr].</param>
     public Allocator(IPlayer player, bool usingEvr)
     {
-      _players = ServiceScope.Get<IPlayerCollection>();
+      _playerManager = ServiceScope.Get<IPlayerManager>();
       _player = player;
       _usingEvr = usingEvr;
       _lock = new Object();
@@ -135,6 +134,7 @@ namespace Ui.Players.VideoPlayer.Vmr9
         _guiBeingReinitialized = true;
       }
     }
+
     public void ReallocResources()
     {
       lock (_lock)
@@ -142,9 +142,7 @@ namespace Ui.Players.VideoPlayer.Vmr9
         _guiBeingReinitialized = false;
       }
     }
-    /// <summary>
-    /// Disposes this instance.
-    /// </summary>
+
     public void Dispose()
     {
       if (_surface != null)
@@ -161,12 +159,10 @@ namespace Ui.Players.VideoPlayer.Vmr9
         ContentManager.TextureReferences--;
       }
     }
+
     public Texture Texture
     {
-      get
-      {
-        return _texture;
-      }
+      get { return _texture; }
     }
 
     /// <summary>
@@ -267,16 +263,11 @@ namespace Ui.Players.VideoPlayer.Vmr9
         {
           using (Surface surf = Surface.FromPointer(ptr))
           {
-            GraphicsDevice.Device.StretchRectangle(surf,
-                                                   new Rectangle(Point.Empty, _videoSize),
-                                                   _surface,
-                                                   new Rectangle(Point.Empty, _videoSize),
-                                                   TextureFilter.None
-              );
+            GraphicsDevice.Device.StretchRectangle(surf, new Rectangle(Point.Empty, _videoSize),
+                _surface, new Rectangle(Point.Empty, _videoSize), TextureFilter.None);
           }
         }
       }
-
 
       //if we're are using VMR9 instead of vista's new EVR
       //then we need to perform all rendering from the vmr9 thread 
@@ -285,17 +276,18 @@ namespace Ui.Players.VideoPlayer.Vmr9
       //we need the mixing mode for yuv mixing (lower cpu) and de-interlacing
       //and so.. only way to get flickerfree drawing can be achieved by rendering the whole direct3d scene from here
       //since only here we know that vmr9 wont change the rendertarget
-      //      if (false == _usingEvr)
-
-      bool isPIP = false;
-      if (_players.Count > 0 && _players[0] != _player)
+      if (!_usingEvr)
       {
-        isPIP = true;
-      }
-      if (isPIP == false)
-      {
-        //render the entire direct3d scene (grrr)
-        GraphicsDevice.Render(false);
+        bool isPIP = false;
+        if (_playerManager[_playerManager.PrimaryPlayer] != _player)
+        {
+          isPIP = true;
+        }
+        if (!isPIP)
+        {
+          //render the entire direct3d scene (grrr)
+          GraphicsDevice.Render(false);
+        }
       }
       return 0;
     }

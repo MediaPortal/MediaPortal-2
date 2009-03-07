@@ -72,6 +72,7 @@
     <Compile Include="Configuration\ConfigurationClasses\PreferenceList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\SingleSelectionList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\YesNo.cs" />
+    <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />
@@ -94,12 +95,13 @@
     <Compile Include="DeviceManager\ProjectType.cs" />
     <Compile Include="Presentation\DataObjects\ItemsList.cs" />
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
+    <Compile Include="Presentation\Geometries\CropSettings.cs" />
+    <Compile Include="Presentation\Geometries\GeometryData.cs" />
     <Compile Include="Presentation\ISkinEngine.cs" />
     <Compile Include="Presentation\Localization\LocalizationHelper.cs" />
     <Compile Include="Presentation\DataObjects\TreeItem.cs" />
-    <Compile Include="Presentation\Geometries\ICropSettings.cs" />
     <Compile Include="Presentation\Geometries\IGeometry.cs" />
-    <Compile Include="Presentation\Geometries\IGeometryHelper.cs" />
+    <Compile Include="Presentation\Geometries\IGeometryManager.cs" />
     <Compile Include="Control\InputManager\IInputManager.cs" />
     <Compile Include="Control\InputManager\Key.cs" />
     <Compile Include="Control\InputManager\IInputMapper.cs" />
@@ -108,15 +110,19 @@
     <Compile Include="Presentation\Localization\RegionSettings.cs" />
     <Compile Include="Presentation\Localization\StringId.cs" />
     <Compile Include="Presentation\Players\IAudioPlayer.cs" />
+    <Compile Include="Presentation\Players\IDVDPlayer.cs" />
     <Compile Include="Presentation\Players\IPicturePlayer.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
+    <Compile Include="Presentation\Players\IPlayerEvents.cs" />
     <Compile Include="Presentation\Players\IPlayerManager.cs" />
     <Compile Include="Presentation\Players\IPlayList.cs" />
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
-    <Compile Include="Presentation\Players\IPlaylistIO.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
+    <Compile Include="Presentation\Players\ISeekable.cs" />
+    <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
     <Compile Include="Presentation\Players\IVideoPlayer.cs" />
+    <Compile Include="Presentation\Players\IVolumeControl.cs" />
     <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\IBackgroundManager.cs" />
@@ -149,6 +155,7 @@
     <Compile Include="Services\Localization\LocalizationStrings.cs" />
     <Compile Include="Services\Localization\StringManager.cs" />
     <Compile Include="Services\Logging\CrashLogger.cs" />
+    <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
@@ -164,6 +171,7 @@
     <Compile Include="Services\Workflow\WorkflowManager.cs" />
     <Compile Include="Services\Workflow\WorkflowResourcesLoader.cs" />
     <Compile Include="Thumbnails\IAsyncThumbnailGenerator.cs" />
+    <Compile Include="UiExtension.cs" />
     <Compile Include="UserManagement\IPermission.cs" />
     <Compile Include="UserManagement\IPermissionObject.cs" />
     <Compile Include="UserManagement\IRole.cs" />
@@ -179,9 +187,6 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Players\Builders\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

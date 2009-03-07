@@ -73,24 +73,15 @@ namespace Media.Players.BassPlayer
       get { return _Settings; }
     }
 
+    public void Play(MediaPortal.Media.MediaManagement.IMediaItem item)
+    {
+      Log.Debug("Play()");
+      _Controller.Play(item);
+    }
+
     #endregion
 
     #region IPlayer Members
-
-    public bool IsVideo
-    {
-      get { return false; }
-    }
-
-    public bool IsImage
-    {
-      get { return false; }
-    }
-
-    public bool IsAudio
-    {
-      get { return true; }
-    }
 
     public bool Paused
     {
@@ -120,12 +111,6 @@ namespace Media.Players.BassPlayer
       get { return _Monitor.Duration; }
     }
 
-    public void Play(MediaPortal.Media.MediaManagement.IMediaItem item)
-    {
-      Log.Debug("Play()");
-      _Controller.Play(item);
-    }
-
     public void Stop()
     {
       Log.Debug("Stop()");
@@ -148,24 +133,9 @@ namespace Media.Players.BassPlayer
       set { }
     }
 
-    public System.Drawing.Rectangle AlphaMask
-    {
-      get { return new System.Drawing.Rectangle(); }
-      set { }
-    }
-
     public string[] AudioStreams
     {
       get { return new string[0]; }
-    }
-
-    public void BeginRender(object effect)
-    {
-    }
-
-    public bool CanResumeSession(Uri fileName)
-    {
-      return false;
     }
 
     public string CurrentAudioStream
@@ -173,103 +143,12 @@ namespace Media.Players.BassPlayer
       get { return null; }
     }
 
-    public string CurrentDvdChapter
-    {
-      get { return null; }
-    }
-
-    public string CurrentDvdTitle
-    {
-      get { return null; }
-    }
-
-    public string CurrentSubtitle
-    {
-      get { return null; }
-    }
-
-    public string[] DvdChapters
-    {
-      get { return new string[0]; }
-    }
-
-    public string[] DvdTitles
-    {
-      get { return new string[0]; }
-    }
-
-    public void EndRender(object effect)
-    {
-    }
-
-    public Uri FileName
-    {
-      get { return null; }
-    }
-
-    public bool InDvdMenu
-    {
-      get { return false; }
-    }
-
-    public MediaPortal.Media.MediaManagement.IMediaItem MediaItem
-    {
-      get { return null; }
-    }
-
-    public System.Drawing.Rectangle MovieRectangle
-    {
-      get
-      {
-        return new System.Drawing.Rectangle();
-      }
-      set
-      {
-      }
-    }
-
     public string Name
     {
       get { return null; }
     }
 
-    public void OnIdle()
-    {
-    }
-
-    public void OnMessage(object m)
-    {
-    }
-
-
-    public System.Drawing.Point Position
-    {
-      get
-      {
-        return new System.Drawing.Point();
-      }
-      set
-      {
-      }
-    }
-
-    public void ReallocGUIResources()
-    {
-    }
-
-    public void ReleaseGUIResources()
-    {
-    }
-
-    public void Render()
-    {
-    }
-
     public void Restart()
-    {
-    }
-
-    public void ResumeSession()
     {
     }
 
@@ -277,48 +156,6 @@ namespace Media.Players.BassPlayer
     {
     }
 
-    public void SetDvdChapter(string title)
-    {
-    }
-
-    public void SetDvdTitle(string title)
-    {
-    }
-
-    public void SetSubtitle(string subtitle)
-    {
-    }
-
-    public System.Drawing.Size Size
-    {
-      get
-      {
-        return new System.Drawing.Size();
-      }
-      set
-      {
-      }
-    }
-
-    public string[] Subtitles
-    {
-      get { return new string[0]; }
-    }
-
-    public TimeSpan StreamPosition
-    {
-      get { return TimeSpan.Zero; }
-    }
-
-    public System.Drawing.Size VideoAspectRatio
-    {
-      get { return new System.Drawing.Size(); }
-    }
-
-    public System.Drawing.Size VideoSize
-    {
-      get { return new System.Drawing.Size(); }
-    }
     #endregion
 
     #region IDisposable Members

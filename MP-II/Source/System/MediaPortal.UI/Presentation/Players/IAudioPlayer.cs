@@ -27,8 +27,7 @@ namespace MediaPortal.Presentation.Players
   /// <summary>
   /// Interface for a audio player. Holds all methods which are common to all audio players.
   /// </summary>
-  public class IAudioPlayer
+  public interface IAudioPlayer : IPlayer, IVolumeControl
   {
-    // TODO
   }
 }

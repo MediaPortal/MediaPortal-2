@@ -24,34 +24,33 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.IO;
 using System.Windows.Forms;
 using DirectShowLib;
 using MediaPortal.Core;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
+using MediaPortal.General;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Core.Messaging;
-using MediaPortal.Media.MediaManagement;
-using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.SkinEngine.Players;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
-using Ui.Players.VideoPlayer.Vmr9;
+using Ui.Players.Video.Vmr9;
 using MediaPortal.SkinEngine.SkinManagement;
-using Ui.Players.VideoPlayer.Vmr9;
 
-namespace Ui.Players.VideoPlayer
+namespace Ui.Players.Video
 {
-  public class VideoPlayer : IPlayer
+  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer
   {
-    #region interfaces
+    #region Classes & interfaces
 
     [ComImport, Guid("fa10746c-9b63-4b6c-bc49-fc300ea5f256")]
     public class EnhancedVideoRenderer { }
@@ -67,26 +66,24 @@ namespace Ui.Players.VideoPlayer
 
     #endregion
 
-    #region imports
+    #region DLL imports
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe int Vmr9Init(IVMR9PresentCallback callback, uint dwD3DDevice, IBaseFilter vmr9Filter,
-                                              uint monitor);
+    private static extern unsafe int Vmr9Init(IVMR9PresentCallback callback, uint dwD3DDevice,
+        IBaseFilter vmr9Filter, uint monitor);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern unsafe void Vmr9DeInit(int handle);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe int EvrInit(IVMR9PresentCallback callback, uint dwD3DDevice, IBaseFilter vmr9Filter,
-                                             uint monitor);
-
+    private static extern unsafe int EvrInit(IVMR9PresentCallback callback, uint dwD3DDevice,
+        IBaseFilter vmr9Filter, uint monitor);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern unsafe void Vmr9FreeResources(int handle);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern unsafe void Vmr9ReAllocResources(int handle);
-
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern unsafe void EvrDeinit(int handle);
@@ -102,9 +99,11 @@ namespace Ui.Players.VideoPlayer
 
     #endregion
 
-    #region constants
+    #region Consts
 
     protected const int WM_GRAPHNOTIFY = 0x4000 + 123;
+
+    public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
 
     #endregion
 
@@ -127,19 +126,14 @@ namespace Ui.Players.VideoPlayer
     protected VertexBuffer _vertexBuffer = null;
     protected PositionColored2Textured[] _vertices;
     protected Size _displaySize = new Size(100, 100);
-    protected Point _position = new Point();
-    protected Rectangle _alphaMask = new Rectangle(255, 255, 255, 255);
 
     protected IntPtr _instancePtr;
-    protected Uri _fileName;
     protected int _allocatorKey = -1;
 
     protected Size _previousTextureSize;
     protected Size _previousVideoSize;
     protected Size _previousAspectRatio;
     protected Size _previousDisplaySize;
-    protected Point _previousPosition;
-    protected Rectangle _previousAlphaMask;
     protected EffectAsset _effect;
     protected bool _useEvr = true;
     protected uint _streamCount = 1;
@@ -147,209 +141,97 @@ namespace Ui.Players.VideoPlayer
     protected IBaseFilter _videoh264Codec;
     protected IBaseFilter _videoCodec;
     protected IBaseFilter _audioCodec;
-    private Rectangle _sourceRect;
     protected Rectangle _destinationRect;
-    protected Rectangle _movieRect = new Rectangle(0, 0, 100, 100);
     private TimeSpan _duration;
     private TimeSpan _currentTime;
-    private TimeSpan _currentStreamPosition;
     private static EvrResult _evrResult = EvrResult.NotTried;
-    private IPlayerCollection _players;
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected bool _initialized = false;
-    protected IMediaItem _mediaItem;
     List<IPin> _vmr9ConnectionPins = new List<IPin>();
     protected string _resumeFile;
+    protected IMediaItemLocator _mediaItemLocator;
+    protected IMediaItemLocalFsAccessor _mediaItemAccessor;
+    protected int _playerSlot = -1;
+    protected PlayerEventDlgt _started;
+    protected PlayerEventDlgt _stopped;
+    protected PlayerEventDlgt _ended;
+    protected PlayerEventDlgt _paused;
+    protected PlayerEventDlgt _resumed;
+
 
     #endregion
 
-    /// <summary>
-    /// Gets the player name.
-    /// </summary>
-    /// <value>The media-item.</value>
-    public string Name
+    #region Ctor & dtor
+
+    public VideoPlayer()
     {
-      get
+      SubscribeWindowsMessages();
+    }
+
+    public void Dispose()
+    {
+      if (_mediaItemAccessor != null)
+        _mediaItemAccessor.Dispose();
+      _mediaItemAccessor = null;
+      UnsubscribeWindowsMessages();
+    }
+
+    #endregion
+
+    protected void SubscribeWindowsMessages()
+    {
+      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).OnMessageReceive += OnWindowsMessage;
+    }
+
+    protected void UnsubscribeWindowsMessages()
+    {
+      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).OnMessageReceive -= OnWindowsMessage;
+    }
+
+    protected virtual void OnWindowsMessage(QueueMessage message)
+    {
+      Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
+      if (m.LParam.Equals(_instancePtr))
       {
-        return "VideoPlayer";
-      }
+        if (m.Msg == WM_GRAPHNOTIFY)
+        {
+          IMediaEventEx eventEx = (IMediaEventEx)_graphBuilder;
 
-    }
+          EventCode evCode;
+          IntPtr param1, param2;
 
-    /// <summary>
-    /// Gets a value indicating whether this player is a video player.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this player is a video player; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsVideo
-    {
-      get
-      {
-        return true;
-      }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether this player is a audio player.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this player is a audio player; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsAudio
-    {
-      get
-      {
-        return false;
-      }
-    }
-    /// <summary>
-    /// Gets a value indicating whether this player is a picture player.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this player is a picture player; otherwise, <c>false</c>.
-    /// </value>
-    public bool IsImage
-    {
-      get
-      {
-        return false;
-      }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the effect.
-    /// </summary>
-    /// <value>The effect.</value>
-    public EffectAsset Effect
-    {
-      get { return _effect; }
-      set { _effect = value; }
-    }
-
-    /// <summary>
-    /// gets/sets the width/height for the video window
-    /// </summary>
-    /// <value></value>
-    public Size Size
-    {
-      get { return _displaySize; }
-      set { _displaySize = value; }
-    }
-
-    /// <summary>
-    /// gets/sets the position on screen where the video should be drawn
-    /// </summary>
-    /// <value></value>
-    public Point Position
-    {
-      get { return _position; }
-      set { _position = value; }
-    }
-
-    /// <summary>
-    /// gets/sets the alphamask
-    /// </summary>
-    /// <value></value>
-    public Rectangle AlphaMask
-    {
-      get { return _alphaMask; }
-      set { _alphaMask = value; }
-    }
-    public Rectangle MovieRectangle
-    {
-      get
-      {
-        return _movieRect;
-      }
-      set
-      {
-        _movieRect = value;
+          while (eventEx.GetEvent(out evCode, out param1, out param2, 0) == 0)
+          {
+            eventEx.FreeEventParams(evCode, param1, param2);
+            if (evCode == EventCode.Complete)
+            {
+              _state = PlaybackState.Ended;
+              ServiceScope.Get<ILogger>().Debug("VideoPlayer:Playback ended");
+              // TODO: RemoveResumeData();
+              FireEnded();
+              return;
+            }
+          }
+        }
       }
     }
 
-    public Size VideoSize
+    #region IInitializablePlayer implementation
+
+    public void SetMediaItemLocator(IMediaItemLocator locator)
     {
-      get
-      {
-        if (_allocator == null || !_initialized) return new Size(0, 0);
-        return _allocator.VideoSize;
-      }
-    }
-    public Size VideoAspectRatio
-    {
-      get
-      {
-        if (_allocator == null || !_initialized) return new Size(0, 0);
-        return _allocator.AspectRatio;
-      }
-    }
-
-    void SetRefreshRate(IMediaItem mediaItem)
-    {
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-      float fps;
-      if (players.Count != 0)
-        return;
-      if (!mediaItem.MetaData.ContainsKey("FPS"))
-        return;
-      if (!float.TryParse((mediaItem.MetaData["FPS"] as string), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out fps))
-        return;
-      if (fps > 1000.0f)
-        fps /= 1000.0f;
-
-      IScreenControl sc = ServiceScope.Get<IScreenControl>();
-
-      if (sc.RefreshRateControlEnabled && sc.IsFullScreen)
-      {
-        if (fps == 24.0f)
-          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_24);
-        else if (fps == 25.0f)
-          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_25);
-        else if (fps == 30.0f)
-          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_30);
-        else
-          sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.Default);
-      }
-    }
-
-
-    void ResetRefreshRate()
-    {
-      IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-
-      if (players[0] != this)
-        return;
-
-      IScreenControl sc = ServiceScope.Get<IScreenControl>();
-
-      if (!(sc.RefreshRateControlEnabled && sc.IsFullScreen))
-        return;
-      sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
-    }
-
-    /// <summary>
-    /// Plays the specified filename.
-    /// </summary>
-    /// <param name="filename">The filename.</param>
-    public void Play(IMediaItem mediaItem)
-    {
-      _mediaItem = mediaItem;
-      _state = PlaybackState.Playing;
+      _mediaItemLocator = locator;
+      _mediaItemAccessor = _mediaItemLocator.CreateLocalFsAccessor();
+      _state = PlaybackState.Paused;
       _vertices = new PositionColored2Textured[4];
-      _fileName = mediaItem.ContentUri;
-      if (_fileName != null)
-      {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer.Play:{0}", _fileName.ToString());
-      }
+      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playing '{0}'", _mediaItemAccessor.LocalFileSystemPath);
 
-      _players = ServiceScope.Get<IPlayerCollection>();
       int hr = 0;
 
-      SetRefreshRate(mediaItem);
+      // FIXME: When to call this?
+      //SetRefreshRate(mediaItem);
 
       AllocateResources();
 
@@ -359,22 +241,15 @@ namespace Ui.Players.VideoPlayer
       // Add it in ROT for debug purpose
       _rot = new DsROTEntry(_graphBuilder);
 
-
       // Add a notification handler (see WndProc)
       _instancePtr = Marshal.AllocCoTaskMem(4);
-      hr = (_graphBuilder as IMediaEventEx).SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
-
+      IMediaEventEx mee = _graphBuilder as IMediaEventEx;
+      hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
 
       //only use EVR if we're running Vista
       OperatingSystem osInfo = Environment.OSVersion;
-      if (osInfo.Version.Major <= 5)
-      {
+      if (osInfo.Version.Major <= 5 || _evrResult == EvrResult.Failed)
         _useEvr = false;
-        if (_evrResult == EvrResult.Failed)
-        {
-          _useEvr = false;
-        }
-      }
 
       // Create the Allocator / Presenter object
       _allocator = new Allocator(this, _useEvr);
@@ -385,11 +260,10 @@ namespace Ui.Players.VideoPlayer
       AddPreferredCodecs();
 
       ServiceScope.Get<ILogger>().Debug("VideoPlayer add file source");
+      // Here an exception might be raised - TODO: Handle that exception, tidy up already allocated resources
       AddFileSource();
 
       ServiceScope.Get<ILogger>().Debug("VideoPlayer run graph");
-      // Run the graph
-      IMediaControl mediaControl = _graphBuilder as IMediaControl;
 
       ///This needs to be done here before we check if the evr pins are connected
       ///since this method gives players the chance to render the last bits of the graph
@@ -432,35 +306,164 @@ namespace Ui.Players.VideoPlayer
           Shutdown();
           _useEvr = false;
           _evrResult = EvrResult.Failed;
-          Play(_mediaItem);
+          SetMediaItemLocator(locator);
           return;
         }
       }
 
-      hr = mediaControl.Run();
-      if (hr != 0 && hr != 1)
-      {
-        ServiceScope.Get<ILogger>().Error("VideoPlayer.Play Failed to start playing:{0:X}", hr);
-        Shutdown();
-        return;
-      }
       OnGraphRunning();
-      ServiceScope.Get<IPlayerCollection>().Paused = false;
       _initialized = true;
-
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData["player"] = this;
-      msg.MessageData["action"] = "started";
-      queue.Send(msg);
     }
+
+    #endregion
+
+    #region IPlayerEvents implementation
+
+    public void InitializePlayerEvents(int playerSlot, PlayerEventDlgt started, PlayerEventDlgt stopped,
+        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed)
+    {
+      _playerSlot = playerSlot;
+      _started = started;
+      _stopped = stopped;
+      _ended = ended;
+      _paused = paused;
+      _resumed = resumed;
+    }
+
+    public void ResetPlayerEvents()
+    {
+      _playerSlot = -1;
+      _started = null;
+      _stopped = null;
+      _ended = null;
+      _paused = null;
+      _resumed = null;
+    }
+
+    #endregion
+
+    protected void FireStarted()
+    {
+      if (_started != null)
+        _started(this, _playerSlot);
+    }
+
+    protected void FireStopped()
+    {
+      if (_stopped != null)
+        _stopped(this, _playerSlot);
+    }
+
+    protected void FireEnded()
+    {
+      if (_ended != null)
+        _ended(this, _playerSlot);
+    }
+
+    protected void FirePaused()
+    {
+      if (_paused != null)
+        _paused(this, _playerSlot);
+    }
+
+    protected void FireResumed()
+    {
+      if (_resumed != null)
+        _resumed(this, _playerSlot);
+    }
+
+    public virtual Guid PlayerId
+    {
+      get { return new Guid(PLAYER_ID_STR); }
+    }
+
+    public virtual string Name
+    {
+      get { return "VideoPlayer"; }
+
+    }
+
+    public EffectAsset Effect
+    {
+      get { return _effect; }
+      set { _effect = value; }
+    }
+
+    public Size DisplaySize
+    {
+      get { return _displaySize; }
+      set { _displaySize = value; }
+    }
+
+    public Size VideoSize
+    {
+      get
+      {
+        if (_allocator == null || !_initialized) return new Size(0, 0);
+        return _allocator.VideoSize;
+      }
+    }
+
+    public Size VideoAspectRatio
+    {
+      get
+      {
+        if (_allocator == null || !_initialized) return new Size(0, 0);
+        return _allocator.AspectRatio;
+      }
+    }
+
+    // FIXME Albert78: When should we change the refresh rate? In which interface should we put this method?
+    //void SetRefreshRate(IMediaItem mediaItem)
+    //{
+    //  IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
+    //  float fps;
+    //  if (players.Count != 0)
+    //    return;
+    //  if (!mediaItem.MetaData.ContainsKey("FPS"))
+    //    return;
+    //  if (!float.TryParse((mediaItem.MetaData["FPS"] as string), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out fps))
+    //    return;
+    //  if (fps > 1000.0f)
+    //    fps /= 1000.0f;
+
+    //  IScreenControl sc = ServiceScope.Get<IScreenControl>();
+
+    //  if (sc.RefreshRateControlEnabled && sc.IsFullScreen)
+    //  {
+    //    if (fps == 24.0f)
+    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_24);
+    //    else if (fps == 25.0f)
+    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_25);
+    //    else if (fps == 30.0f)
+    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_30);
+    //    else
+    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.Default);
+    //  }
+    //}
+
+
+    // FIXME Albert78: When should we change the refresh rate? In which interface should we put this method?
+    //void ResetRefreshRate()
+    //{
+    //  IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
+
+    //  if (players[0] != this)
+    //    return;
+
+    //  IScreenControl sc = ServiceScope.Get<IScreenControl>();
+
+    //  if (!(sc.RefreshRateControlEnabled && sc.IsFullScreen))
+    //    return;
+    //  sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+    //}
 
     void AddEvrOrVmr9()
     {
       int hr;
       if (_useEvr)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer initialize evr");
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer initialize EVR");
 
         _vmr9 = (IBaseFilter)new EnhancedVideoRenderer();
 
@@ -472,7 +475,7 @@ namespace Ui.Players.VideoPlayer
         AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
         hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
         IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
-        _allocatorKey = EvrInit(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint)hMonitor.ToInt32());
+        _allocatorKey = EvrInit(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint) hMonitor.ToInt32());
         if (_allocatorKey >= 0)
         {
           hr = _graphBuilder.AddFilter(_vmr9, "Enhanced Video Renderer");
@@ -490,7 +493,7 @@ namespace Ui.Players.VideoPlayer
         }
       }
 
-      if (_useEvr == false)
+      if (!_useEvr)
       {
         ServiceScope.Get<ILogger>().Debug("VideoPlayer initialize vmr9");
         _vmr9 = (IBaseFilter)new VideoMixingRenderer9();
@@ -559,7 +562,7 @@ namespace Ui.Players.VideoPlayer
     /// </summary>
     protected virtual void GetGraphBuilder()
     {
-      _graphBuilder = (IFilterGraph2)new FilterGraph();
+      _graphBuilder = (IFilterGraph2) new FilterGraph();
     }
 
     /// <summary>
@@ -568,7 +571,7 @@ namespace Ui.Players.VideoPlayer
     protected virtual void AddPreferredCodecs()
     {
       VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
-      string ext = _fileName.AbsoluteUri.ToLower();
+      string ext = Path.GetExtension(_mediaItemAccessor.LocalFileSystemPath);
       if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
       {
         //_videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "CoreAVC Video Decoder");
@@ -668,7 +671,7 @@ namespace Ui.Players.VideoPlayer
     protected virtual void AddFileSource()
     {
       // Render the file
-      int hr = _graphBuilder.RenderFile(_fileName.ToString(), null);
+      int hr = _graphBuilder.RenderFile(_mediaItemAccessor.LocalFileSystemPath, null);
       DsError.ThrowExceptionForHR(hr);
     }
 
@@ -707,33 +710,31 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Shutdowns playback.
-    /// </summary>
     protected void Shutdown()
     {
       _initialized = false; ;
-      lock (_fileName)
+      lock (_mediaItemAccessor)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer:Stop playing");
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop playing");
         int hr = 0;
-
-        ServiceScope.Get<IPlayerCollection>().Remove(this);
 
         if (_graphBuilder != null)
         {
+          IMediaEventEx mee = _graphBuilder as IMediaEventEx;
+          IMediaControl mc = _graphBuilder as IMediaControl;
+
           // Stop DirectShow notifications
-          hr = (_graphBuilder as IMediaEventEx).SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
+          hr = mee.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
 
           // Stop the graph
 
           FilterState state;
-          (_graphBuilder as IMediaControl).GetState(10, out state);
+          mc.GetState(10, out state);
           if (state != FilterState.Stopped)
           {
-            hr = (_graphBuilder as IMediaControl).StopWhenReady();
-            hr = (_graphBuilder as IMediaControl).Stop();
-            (_graphBuilder as IMediaControl).GetState(10, out state);
+            hr = mc.StopWhenReady();
+            hr = mc.Stop();
+            mc.GetState(10, out state);
             ServiceScope.Get<ILogger>().Info("state:{0}", state);
           }
 
@@ -811,7 +812,6 @@ namespace Ui.Players.VideoPlayer
     protected void AllocateResources()
     {
       //      Trace.WriteLine("videoplayer:alloc vertex");
-      _alphaMask = new Rectangle(255, 255, 255, 255);
       if (_vertexBuffer != null)
       {
         FreeResources();
@@ -826,7 +826,7 @@ namespace Ui.Players.VideoPlayer
     /// </summary>
     protected void FreeResources()
     {
-      ServiceScope.Get<ILogger>().Info("VideoPlayer:FreeResources");
+      ServiceScope.Get<ILogger>().Info("VideoPlayer: FreeResources");
       // Free Managed Direct3D resources
       if (_vertexBuffer != null)
       {
@@ -841,6 +841,7 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
+#if NOTUSED
     /// <summary>
     /// Gets a value indicating whether render attributes (like position/size) have been changed
     /// </summary>
@@ -850,7 +851,7 @@ namespace Ui.Players.VideoPlayer
       if (usePIP)
       {
         _sourceRect = new Rectangle(0, 0, _allocator.TextureSize.Width, _allocator.TextureSize.Height);
-        _destinationRect = new Rectangle(0, 0, Size.Width, Size.Height);
+        _destinationRect = new Rectangle(0, 0, DisplaySize.Width, DisplaySize.Height);
         return true;
       }
       Rectangle sourceRect;
@@ -858,9 +859,7 @@ namespace Ui.Players.VideoPlayer
       if (_allocator.TextureSize == _previousTextureSize &&
           _allocator.VideoSize == _previousVideoSize &&
           _allocator.AspectRatio == _previousAspectRatio &&
-          Position == _previousPosition &&
-          Size == _previousDisplaySize &&
-          AlphaMask == _previousAlphaMask)
+          DisplaySize == _previousDisplaySize)
       {
         SkinContext.Geometry.ImageWidth = (int)_allocator.VideoSize.Width;
         SkinContext.Geometry.ImageHeight = (int)_allocator.VideoSize.Height;
@@ -882,7 +881,7 @@ namespace Ui.Players.VideoPlayer
       SkinContext.Geometry.GetWindow(_allocator.AspectRatio.Width, _allocator.AspectRatio.Height, out sourceRect,
                                      out destinationRect, SkinContext.CropSettings);
       string shaderName = SkinContext.Geometry.Current.Shader;
-      if (shaderName != "")
+      if (!string.IsNullOrEmpty(shaderName))
       {
         Effect = null;
         EffectAsset effect = ContentManager.GetEffect(shaderName);
@@ -897,12 +896,9 @@ namespace Ui.Players.VideoPlayer
       _previousTextureSize = _allocator.TextureSize;
       _previousVideoSize = _allocator.VideoSize;
       _previousAspectRatio = _allocator.AspectRatio;
-      _previousDisplaySize = Size;
-      _previousPosition = Position;
-      _previousAlphaMask = AlphaMask;
+      _previousDisplaySize = DisplaySize;
       return true;
     }
-#if NOTUSED
     /// <summary>
     /// Updates the vertex buffers with the new rendering attributes like size/position.
     /// </summary>
@@ -1074,9 +1070,6 @@ namespace Ui.Players.VideoPlayer
       PositionColored2Textured.Set(_vertexBuffer, ref _vertices);
     }
 #endif
-    /// <summary>
-    /// Renders the texture.
-    /// </summary>
     protected void RenderTexture()
     {
       // Attach the vertex buffer to the Direct3D Device
@@ -1087,26 +1080,23 @@ namespace Ui.Players.VideoPlayer
 
     }
 
-
     public virtual void BeginRender(object effect)
     {
-      if (_initialized == false) return ;
-      if (_allocator == null) return ;
+      if (!_initialized) return;
+      if (_allocator == null) return;
       EffectAsset e = (EffectAsset)effect;
       e.StartRender(_allocator.Texture);
     }
 
     public virtual void EndRender(object effect)
     {
-      if (_initialized == false) return ;
-      if (_allocator == null) return ;
+      if (!_initialized) return;
+      if (_allocator == null) return;
       EffectAsset e = (EffectAsset)effect;
       e.EndRender();
     }
 
-    /// <summary>
-    /// Render the video
-    /// </summary>
+    // Not used
     public virtual void Render()
     {
       /*
@@ -1128,117 +1118,72 @@ namespace Ui.Players.VideoPlayer
       }*/
     }
 
-    /// <summary>
-    /// called when windows message is received
-    /// </summary>
-    /// <param name="m">message</param>
-    public virtual void OnMessage(object obj)
-    {
-      Message m = (Message)obj;
-      if (m.LParam.Equals(_instancePtr))
-      {
-        if (m.Msg == WM_GRAPHNOTIFY)
-        {
-          IMediaEventEx eventEx = (IMediaEventEx)_graphBuilder;
-
-          EventCode evCode;
-          IntPtr param1, param2;
-
-          while (eventEx.GetEvent(out evCode, out param1, out param2, 0) == 0)
-          {
-            eventEx.FreeEventParams(evCode, param1, param2);
-            if (evCode == EventCode.Complete)
-            {
-              _state = PlaybackState.Ended;
-              ServiceScope.Get<ILogger>().Debug("VideoPlayer:Playback ended");
-              RemoveResumeData();
-              IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
-              QueueMessage msg = new QueueMessage();
-              msg.MessageData["player"] = this;
-              msg.MessageData["action"] = "ended";
-              queue.Send(msg);
-              return;
-            }
-          }
-        }
-      }
-    }
-
-    /// <summary>
-    /// Remove resume data
-    /// </summary>
-    private void RemoveResumeData()
-    {
-      if (false == Directory.Exists("state"))
-      {
-        Directory.CreateDirectory("state");
-      }
-      if (File.Exists(_resumeFile))
-      {
-        File.Delete(_resumeFile);
-      }
-    }
-    /// <summary>
-    /// stops playback
-    /// </summary>
     public virtual void Stop()
     {
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer:Stop");
-      ResetRefreshRate();
-      WriteResumeData();
+      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop");
+      // FIXME
+//      ResetRefreshRate();
+      // TODO: WriteResumeData();
       Shutdown();
+      FireStopped();
     }
 
-    /// <summary>
-    /// gets/sets wheter video is paused
-    /// </summary>
-    /// <value></value>
-    public bool Paused
+    public void Pause()
     {
-      get { return (_state == PlaybackState.Paused); }
-      set
+      if (_state != PlaybackState.Paused)
       {
-        if (value)
-        {
-          if (_state != PlaybackState.Paused)
-          {
-            ServiceScope.Get<ILogger>().Debug("VideoPlayer pause");
-            (_graphBuilder as IMediaControl).Pause();
-          }
-          _state = PlaybackState.Paused;
-        }
-        else
-        {
-          if (_state == PlaybackState.Paused)
-          {
-            ServiceScope.Get<ILogger>().Debug("VideoPlayer continue");
-            (_graphBuilder as IMediaControl).Run();
-          }
-          _state = PlaybackState.Playing;
-        }
-
-
-        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
-        QueueMessage msg = new QueueMessage();
-        msg.MessageData["player"] = this;
-        if (_state == PlaybackState.Paused)
-          msg.MessageData["action"] = "paused";
-        else
-          msg.MessageData["action"] = "playing";
-        queue.Send(msg);
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Pause");
+        IMediaControl mc = _graphBuilder as IMediaControl;
+        if (mc != null)
+          mc.Pause();
+        _state = PlaybackState.Paused;
+        FirePaused();
       }
     }
 
-    /// <summary>
-    /// called when application is idle
-    /// </summary>
-    public virtual void OnIdle()
+    public void Resume()
     {
-      if (_initialized == false) return;
-      if (_graphBuilder == null) return;
-      lock (_fileName)
+      if (_state == PlaybackState.Paused)
       {
-        IMediaSeeking mediaSeeking = (_graphBuilder) as IMediaSeeking;
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Resume");
+        IMediaControl mc = _graphBuilder as IMediaControl;
+        if (mc != null)
+        {
+          int hr = mc.Run();
+          if (hr != 0 && hr != 1)
+          {
+            ServiceScope.Get<ILogger>().Error("VideoPlayer: Resume Failed to start: {0:X}", hr);
+            Shutdown();
+            FireStopped();
+            return;
+          }
+        }
+        _state = PlaybackState.Playing;
+        FireResumed();
+      }
+    }
+
+    public void Restart()
+    {
+      CurrentTime = new TimeSpan(0, 0, 0);
+      IMediaControl mc = _graphBuilder as IMediaControl;
+      mc.Run();
+      _state = PlaybackState.Playing;
+      FireStarted();
+    }
+
+    public virtual void UpdateTime()
+    {
+      if (!_initialized)
+      {
+        _currentTime = new TimeSpan();
+        _duration = new TimeSpan();
+        return;
+      }
+      if (_graphBuilder == null) return;
+      lock (_mediaItemAccessor)
+      {
+        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
         if (mediaSeeking != null)
         {
           long lStreamPos;
@@ -1246,7 +1191,6 @@ namespace Ui.Players.VideoPlayer
           mediaSeeking.GetCurrentPosition(out lStreamPos); // stream position
           fCurrentPos = lStreamPos;
           fCurrentPos /= 10000000d;
-          _currentStreamPosition = new TimeSpan(0, 0, 0, 0, (int)(fCurrentPos * 1000.0f));
 
           long lContentStart, lContentEnd;
           double fContentStart, fContentEnd;
@@ -1263,272 +1207,65 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    public TimeSpan StreamPosition
-    {
-      get
-      {
-        return _currentStreamPosition;
-      }
-    }
-    /// <summary>
-    /// returns the current play time
-    /// </summary>
-    /// <value></value>
     public virtual TimeSpan CurrentTime
     {
       get { return _currentTime; }
       set
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: seek {0} / {1}", value.TotalSeconds, _duration.TotalSeconds);
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Seek {0} / {1}", value.TotalSeconds, _duration.TotalSeconds);
 
 
         lock (_graphBuilder)
         {
-          IMediaSeeking mediaSeeking = (_graphBuilder) as IMediaSeeking;
+          IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
           double dTimeInSecs = value.TotalSeconds;
           dTimeInSecs *= 10000000d;
 
           long lContentStart, lContentEnd;
-          double fContentStart, fContentEnd;
+          double dContentStart, dContentEnd;
           mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
-          fContentStart = lContentStart;
-          fContentEnd = lContentEnd;
+          dContentStart = lContentStart;
+          dContentEnd = lContentEnd;
 
-          dTimeInSecs += fContentStart;
+          dTimeInSecs += dContentStart;
+          if (dTimeInSecs > dContentEnd)
+            dTimeInSecs = dContentEnd;
 
-          DsLong seekPos = new DsLong((long)dTimeInSecs);
+          DsLong seekPos = new DsLong((long) dTimeInSecs);
           DsLong stopPos = new DsLong(0);
 
-          int hr =
-            mediaSeeking.SetPositions(seekPos, AMSeekingSeekingFlags.AbsolutePositioning, stopPos,
-                                      AMSeekingSeekingFlags.NoPositioning);
+          int hr = mediaSeeking.SetPositions(seekPos, AMSeekingSeekingFlags.AbsolutePositioning, stopPos,
+              AMSeekingSeekingFlags.NoPositioning);
         }
       }
     }
 
-    /// <summary>
-    /// returns the duration of the movie
-    /// </summary>
-    /// <value></value>
     public virtual TimeSpan Duration
     {
       get { return _duration; }
     }
 
-
-    /// <summary>
-    /// returns list of available audio streams
-    /// </summary>
-    /// <value></value>
     public virtual string[] AudioStreams
     {
       get { return new string[0]; }
     }
 
-    /// <summary>
-    /// returns list of available subtitle streams
-    /// </summary>
-    /// <value></value>
-    public virtual string[] Subtitles
-    {
-      get { return new string[0]; }
-    }
-
-    /// <summary>
-    /// sets the current subtitle
-    /// </summary>
-    /// <param name="subtitle">subtitle</param>
-    public virtual void SetSubtitle(string subtitle) { }
-
-    public virtual string CurrentSubtitle
-    {
-      get { return ""; }
-    }
-
-    /// <summary>
-    /// sets the current audio stream
-    /// </summary>
-    /// <param name="audioStream">audio stream</param>
     public virtual void SetAudioStream(string audioStream) { }
 
-    /// <summary>
-    /// Gets the current audio stream.
-    /// </summary>
-    /// <value>The current audio stream.</value>
     public virtual string CurrentAudioStream
     {
       get { return ""; }
     }
 
-    /// <summary>
-    /// Gets the DVD titles.
-    /// </summary>
-    /// <value>The DVD titles.</value>
-    public virtual string[] DvdTitles
-    {
-      get { return new string[0]; }
-    }
-
-    /// <summary>
-    /// Sets the DVD title.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    public virtual void SetDvdTitle(string title) { }
-
-    /// <summary>
-    /// Gets the current DVD title.
-    /// </summary>
-    /// <value>The current DVD title.</value>
-    public virtual string CurrentDvdTitle
-    {
-      get { return ""; }
-    }
-
-    /// <summary>
-    /// Gets the DVD chapters for current title
-    /// </summary>
-    /// <value>The DVD chapters.</value>
-    public virtual string[] DvdChapters
-    {
-      get { return new string[0]; }
-    }
-
-    /// <summary>
-    /// Sets the DVD chapter.
-    /// </summary>
-    /// <param name="title">The title.</param>
-    public virtual void SetDvdChapter(string title) { }
-
-    /// <summary>
-    /// Gets the current DVD chapter.
-    /// </summary>
-    /// <value>The current DVD chapter.</value>
-    public virtual string CurrentDvdChapter
-    {
-      get { return ""; }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether we are in the in DVD menu.
-    /// </summary>
-    /// <value><c>true</c> if [in DVD menu]; otherwise, <c>false</c>.</value>
-    public virtual bool InDvdMenu
-    {
-      get { return false; }
-    }
-
-    /// <summary>
-    /// Gets the name of the file.
-    /// </summary>
-    /// <value>The name of the file.</value>
-    public Uri FileName
-    {
-      get { return _fileName; }
-    }
-
-    /// <summary>
-    /// Gets the state.
-    /// </summary>
-    /// <value>The state.</value>
     public PlaybackState State
     {
       get { return _state; }
       set { _state = value; }
     }
 
-    /// <summary>
-    /// Restarts playback from the start.
-    /// </summary>
-    public void Restart()
-    {
-      CurrentTime = new TimeSpan(0, 0, 0);
-      IMediaControl mediaControl = _graphBuilder as IMediaControl;
-      mediaControl.Run();
-      _state = PlaybackState.Playing;
-    }
-
-    /// <summary>
-    /// True if resume data exists (from previous session)
-    /// </summary>
-    public bool CanResumeSession(Uri fileName)
-    {
-      _resumeFile = String.Format(@"state\{0}", GetResumeFilename(fileName));
-      if (File.Exists(_resumeFile))
-      {
-        return true;
-      }
-      return false;
-    }
-
-    /// <summary>
-    ///Resumes playback from previous session
-    /// </summary>
-    public void ResumeSession()
-    {
-      if (!File.Exists(_resumeFile))
-        return;
-      SetResumePoint();
-      IMediaControl mediaControl = _graphBuilder as IMediaControl;
-      mediaControl.Run();
-      _state = PlaybackState.Playing;
-    }
-
-    /// <summary>
-    /// Gets the name of the resume file
-    /// </summary>
-    /// 
-    protected virtual string GetResumeFilename(Uri fileName)
-    {
-      int hash = fileName.GetHashCode();
-      return String.Format(@"F_{0:X}.dat", hash);
-    }
-
-    /// <summary>
-    /// Reads resume point from file and sets current position
-    /// </summary>
-    /// 
-    protected virtual void SetResumePoint()
-    {
-      using (StreamReader s = new StreamReader(_resumeFile))
-      {
-        string data = s.ReadLine();
-        int seconds = Int32.Parse(data);
-        CurrentTime = new TimeSpan(0, 0, seconds);
-      }
-    }
-
-    /// <summary>
-    /// Writes resume data
-    /// </summary>
-    protected virtual void WriteResumeData()
-    {
-      if (String.IsNullOrEmpty(_resumeFile)) return;
-      if (false == Directory.Exists("state"))
-      {
-        Directory.CreateDirectory("state");
-      }
-      if (File.Exists(_resumeFile))
-      {
-        File.Delete(_resumeFile);
-      }
-      using (StreamWriter s = new StreamWriter(_resumeFile, false))
-      {
-        int seconds = (int)CurrentTime.TotalSeconds;
-        s.Write(seconds);
-        s.Flush();
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the volume (0-100)
-    /// </summary>
-    /// <value>The volume.</value>
     public int Volume
     {
-      get
-      {
-        return _volume;
-      }
+      get { return _volume; }
       set
       {
         if (_volume != value)
@@ -1538,24 +1275,17 @@ namespace Ui.Players.VideoPlayer
           if (audio != null)
           {
             // Divide by 100 to get equivalent decibel value. For example, �10,000 is �100 dB. 
-            float fPercent = (float)_volume / 100.0f;
-            int iVolume = (int)(5000.0f * fPercent);
-            audio.put_Volume((iVolume - 5000));
+            float fPercent = _volume / 100.0f;
+            int iVolume = (int) (5000 * fPercent);
+            audio.put_Volume(iVolume - 5000);
           }
         }
       }
     }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether this <see cref="IPlayer"/> is mute.
-    /// </summary>
-    /// <value><c>true</c> if muted; otherwise, <c>false</c>.</value>
     public bool Mute
     {
-      get
-      {
-        return (_isMuted);
-      }
+      get { return (_isMuted); }
       set
       {
         if (_isMuted != value)
@@ -1576,21 +1306,6 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Gets the media-item.
-    /// </summary>
-    /// <value>The media-item.</value>
-    public IMediaItem MediaItem
-    {
-      get
-      {
-        return _mediaItem;
-      }
-    }
-
-    /// <summary>
-    /// Releases any gui resources.
-    /// </summary>
     public virtual void ReleaseGUIResources()
     {
       //stops the renderer threads all of it's own.
@@ -1637,11 +1352,12 @@ namespace Ui.Players.VideoPlayer
         }
 
         FilterState state;
-        (_graphBuilder as IMediaControl).GetState(10, out state);
+        IMediaControl mc = _graphBuilder as IMediaControl;
+        mc.GetState(10, out state);
         if (state == FilterState.Running)
         {
-          hr = (_graphBuilder as IMediaControl).StopWhenReady();
-          hr = (_graphBuilder as IMediaControl).Stop();
+          hr = mc.StopWhenReady();
+          hr = mc.Stop();
         }
 
         if (_allocator != null)
@@ -1679,9 +1395,6 @@ namespace Ui.Players.VideoPlayer
       }
     }
 
-    /// <summary>
-    /// Reallocs any gui resources.
-    /// </summary>
     public virtual void ReallocGUIResources()
     {
       if (_graphBuilder != null)
@@ -1723,7 +1436,8 @@ namespace Ui.Players.VideoPlayer
         AllocateResources();
         _allocator.ReallocResources();
 
-        (_graphBuilder as IMediaControl).Run();
+        IMediaControl mc = _graphBuilder as IMediaControl;
+        mc.Run();
         _initialized = true;
       }
     }

@@ -46,6 +46,10 @@ namespace MediaPortal.Presentation.Screens
 
   public interface IScreenControl
   {
+    bool IsScreenSaverActive { get; }
+    bool IsScreenSaverEnabled { get; set; }
+    bool IsMouseUsed { get; }
+
     /// <summary>
     /// Switches between diffrent sceen modes.
     /// </summary>

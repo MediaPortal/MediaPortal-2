@@ -24,7 +24,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Ui.Players.VideoPlayer.Subtitles
+namespace Ui.Players.Video.Subtitles
 {
   public enum SubtitleType
   {

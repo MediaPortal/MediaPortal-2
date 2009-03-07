@@ -22,15 +22,30 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement;
-
-
 namespace MediaPortal.Presentation.Players
 {
-  public interface IPlaylistIO
+  /// <summary>
+  /// Interface for each player class which is able to produce subtitles to its current content.
+  /// This interface works additive to other implemented player interfaces.
+  /// </summary>
+  public interface ISubtitlePlayer
   {
-    List<MediaItem> Load(string fileName);
-    void Save(IPlaylist playlist, string fileName);
+    // TODO: Tidy up from here
+    /// <summary>
+    /// returns list of available subtitle streams
+    /// </summary>
+    string[] Subtitles { get; }
+
+    /// <summary>
+    /// sets the current subtitle
+    /// </summary>
+    /// <param name="subtitle">subtitle</param>
+    void SetSubtitle(string subtitle);
+
+    /// <summary>
+    /// Gets the current subtitle.
+    /// </summary>
+    /// <value>The current subtitle.</value>
+    string CurrentSubtitle { get; }
   }
 }

@@ -28,6 +28,7 @@ namespace MediaPortal.Presentation
   {
     void Startup();
     void Initialize();
+    void Uninitialize();
     void Dispose();
   }
 }

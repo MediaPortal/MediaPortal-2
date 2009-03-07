@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -38,6 +38,8 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -59,6 +61,7 @@
     <Compile Include="PlayerBackgroundManager.cs" />
     <Compile Include="PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScreenSaverModel.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\DateFormat.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
@@ -445,11 +448,13 @@
     <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml" />
     <Content Include="Skin\default\themes\default\styles\OtherControls.xaml" />
     <Content Include="Skin\default\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\default\themes\default\styles\Consts.xaml" />
     <Content Include="Skin\default\themes\default\styles\Buttons.xaml" />
-    <Content Include="Skin\default\themes\default\styles\styles_osd.xaml" />
     <Content Include="Skin\default\themes\black\theme.xml" />
     <Content Include="Skin\default\themes\black\media\preview.png" />
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
+    <Content Include="Skin\default\backgrounds\default-background.xaml" />
+    <Content Include="Skin\default\backgrounds\video-background.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Skin\default\shaders\blur.fx" />
