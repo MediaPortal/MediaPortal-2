@@ -442,9 +442,9 @@ namespace Ui.Players.Video
       Marshal.ReleaseComObject(enumer);
     }
 
-    protected override void OnWindowsMessage(QueueMessage message)
+    protected override void OnWindowsMessageReceived(QueueMessage message)
     {
-      base.OnWindowsMessage(message);
+      base.OnWindowsMessageReceived(message);
       Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
 
       try

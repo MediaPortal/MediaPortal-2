@@ -182,15 +182,15 @@ namespace Ui.Players.Video
 
     protected void SubscribeWindowsMessages()
     {
-      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).OnMessageReceive += OnWindowsMessage;
+      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived += OnWindowsMessageReceived;
     }
 
     protected void UnsubscribeWindowsMessages()
     {
-      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).OnMessageReceive -= OnWindowsMessage;
+      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived -= OnWindowsMessageReceived;
     }
 
-    protected virtual void OnWindowsMessage(QueueMessage message)
+    protected virtual void OnWindowsMessageReceived(QueueMessage message)
     {
       Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
       if (m.LParam.Equals(_instancePtr))

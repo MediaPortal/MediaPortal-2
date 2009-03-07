@@ -41,7 +41,7 @@ namespace UiComponents.PlayList
     {
       _playList = new ItemsList();
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("playlist");
-      queue.OnMessageReceive += new MessageReceivedHandler(onPlayListMessage);
+      queue.MessageReceived += new MessageReceivedHandler(onPlayListMessage);
     }
 
     void onPlayListMessage(QueueMessage message)

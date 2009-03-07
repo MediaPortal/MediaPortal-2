@@ -35,18 +35,6 @@ namespace UiComponents.SkinBase
     public static string VIDEO_BACKGROUND_SCREEN = "video-background";
     public static string PICTURE_BACKGROUND_SCREEN = "picture-background";
 
-    #region IBackgroundManager implementation
-
-    public void Install()
-    {
-      DoInstall();
-    }
-
-    public void Uninstall()
-    {
-      DoUninstall();
-    }
-
     internal static void DoInstall()
     {
       // Set initial background
@@ -54,16 +42,16 @@ namespace UiComponents.SkinBase
 
       // Install manager
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerManagerMessaging.QUEUE);
-      queue.OnMessageReceive += OnPlayerManagerMessage;
+      queue.MessageReceived += OnPlayerManagerMessageReceived;
     }
 
     internal static void DoUninstall()
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerManagerMessaging.QUEUE);
-      queue.OnMessageReceive -= OnPlayerManagerMessage;
+      queue.MessageReceived -= OnPlayerManagerMessageReceived;
     }
 
-    protected static void OnPlayerManagerMessage(QueueMessage message)
+    protected static void OnPlayerManagerMessageReceived(QueueMessage message)
     {
       UpdateBackground();
     }
@@ -87,6 +75,18 @@ namespace UiComponents.SkinBase
       else if (primaryPlayer is IPicturePlayer)
         return PICTURE_BACKGROUND_SCREEN;
       return DEFAULT_BACKGROUND_SCREEN;
+    }
+
+    #region IBackgroundManager implementation
+
+    public void Install()
+    {
+      DoInstall();
+    }
+
+    public void Uninstall()
+    {
+      DoUninstall();
     }
 
     #endregion

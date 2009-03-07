@@ -76,13 +76,13 @@ namespace UiComponents.SkinBase
     protected void RegisterQueue()
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(SkinMessaging.Queue);
-      queue.OnMessageReceive += OnSkinMessageReceive;
+      queue.MessageReceived += OnSkinMessageReceived;
     }
 
     protected void UnregisterQueue()
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(SkinMessaging.Queue);
-      queue.OnMessageReceive -= OnSkinMessageReceive;
+      queue.MessageReceived -= OnSkinMessageReceived;
     }
 
     protected void ReadSettings()
@@ -93,7 +93,7 @@ namespace UiComponents.SkinBase
       _timeFormat = settings.TimeFormat;
     }
 
-    protected void OnSkinMessageReceive(QueueMessage message)
+    protected void OnSkinMessageReceived(QueueMessage message)
     {
       if (((SkinMessaging.NotificationType) message.MessageData[SkinMessaging.Notification]) ==
           SkinMessaging.NotificationType.DateTimeFormatChanged)

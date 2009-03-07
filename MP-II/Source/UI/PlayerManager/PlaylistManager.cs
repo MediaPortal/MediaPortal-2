@@ -42,7 +42,7 @@ namespace Components.Services.PlayerManager
     public PlaylistManager()
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players");
-      queue.OnMessageReceive += new MessageReceivedHandler(queue_OnMessageReceive);
+      queue.MessageReceived += new MessageReceivedHandler(queue_OnMessageReceive);
       IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
     }
 

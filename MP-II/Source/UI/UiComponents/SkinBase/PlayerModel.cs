@@ -81,16 +81,16 @@ namespace UiComponents.SkinBase
     protected void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).OnMessageReceive += OnPlayerManagerMessageReceive;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
     }
 
     protected void UnsubscribeFromMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).OnMessageReceive -= OnPlayerManagerMessageReceive;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
     }
 
-    protected void OnPlayerManagerMessageReceive(QueueMessage message)
+    protected void OnPlayerManagerMessageReceived(QueueMessage message)
     {
       PlayerManagerMessaging.MessageType messageType =
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];

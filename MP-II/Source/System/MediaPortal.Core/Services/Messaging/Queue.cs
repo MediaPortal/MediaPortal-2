@@ -42,7 +42,7 @@ namespace MediaPortal.Core.Services.Messaging
 
     #region IMessageQueue implementation
 
-    public event MessageReceivedHandler OnMessageReceive;
+    public event MessageReceivedHandler MessageReceived;
 
     public IList<IMessageFilter> Filters
     {
@@ -57,15 +57,15 @@ namespace MediaPortal.Core.Services.Messaging
         message = filter.Process(message);
         if (message == null) return;
       }
-      if (OnMessageReceive != null)
+      if (MessageReceived != null)
       {
-        OnMessageReceive(message);
+        MessageReceived(message);
       }
     }
 
     public bool HasSubscribers
     {
-      get { return (OnMessageReceive != null); }
+      get { return (MessageReceived != null); }
     }
 
     #endregion

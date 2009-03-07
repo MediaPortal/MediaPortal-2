@@ -30,26 +30,22 @@ namespace MediaPortal.Core.Messaging
 
   public interface IMessageQueue
   {
-    event MessageReceivedHandler OnMessageReceive;
+    event MessageReceivedHandler MessageReceived;
 
     /// <summary>
-    /// Gets a value indicating whether this queue has subscribers.
+    /// Gets the information if this queue has subscribers.
     /// </summary>
-    /// <value>
-    /// <c>true</c> if this queue has subscribers; otherwise, <c>false</c>.
-    /// </value>
     bool HasSubscribers { get;}
 
     /// <summary>
     /// Gets the message filters.
     /// </summary>
-    /// <value>The message filters.</value>
     IList<IMessageFilter> Filters { get;}
 
     /// <summary>
-    /// Sends the specified message.
+    /// Sends the specified <paramref name="message"/>.
     /// </summary>
-    /// <param name="message">The message.</param>
+    /// <param name="message">The message to send.</param>
     void Send(QueueMessage message);
   }
 }

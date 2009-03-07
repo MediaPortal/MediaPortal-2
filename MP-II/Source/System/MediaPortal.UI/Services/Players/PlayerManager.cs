@@ -207,7 +207,7 @@ namespace MediaPortal.Services.Players
       _playerBuilderPluginItemStateTracker = new PlayerBuilderPluginItemStateTracker(this);
       _playerBuilderRegistrationChangeListener = new PlayerBuilderRegistrationChangeListener(this);
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-      queue.OnMessageReceive += OnPluginManagerMessageReceived;
+      queue.MessageReceived += OnPluginManagerMessageReceived;
     }
 
     #endregion
@@ -236,7 +236,7 @@ namespace MediaPortal.Services.Players
         LoadPlayerBuilders();
 
         IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-        queue.OnMessageReceive -= OnPluginManagerMessageReceived;
+        queue.MessageReceived -= OnPluginManagerMessageReceived;
       }
     }
 

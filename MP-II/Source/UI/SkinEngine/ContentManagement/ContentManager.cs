@@ -52,10 +52,10 @@ namespace MediaPortal.SkinEngine.ContentManagement
     {
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
-      queue.OnMessageReceive += queue_OnMessageReceive;
+      queue.MessageReceived += queue_OnMessageReceived;
     }
 
-    static void queue_OnMessageReceive(QueueMessage message)
+    static void queue_OnMessageReceived(QueueMessage message)
     {
       if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
       {

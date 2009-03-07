@@ -65,11 +65,11 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
       // FIXME: Don't observe the contentmanager queue here
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
       IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
-      queue.OnMessageReceive += queue_OnMessageReceive;
+      queue.MessageReceived += queue_OnMessageReceived;
       Load();
     }
 
-    void queue_OnMessageReceive(QueueMessage message)
+    void queue_OnMessageReceived(QueueMessage message)
     {
       if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
       {
