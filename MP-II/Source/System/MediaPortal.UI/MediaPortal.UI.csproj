@@ -119,6 +119,7 @@
     <Compile Include="Presentation\Players\IPlayList.cs" />
     <Compile Include="Presentation\Players\IPlayListFactory.cs" />
     <Compile Include="Presentation\Players\IPlayListManager.cs" />
+    <Compile Include="Presentation\Players\IReusablePlayer.cs" />
     <Compile Include="Presentation\Players\ISeekable.cs" />
     <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
     <Compile Include="Presentation\Players\IVideoPlayer.cs" />

@@ -28,7 +28,6 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
-using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation.Players;
 
 namespace Ui.Players.Video
@@ -52,7 +51,7 @@ namespace Ui.Players.Video
 
     protected static Type GetPlayerTypeForMediaItem(IMediaItemLocator locator, string mimeType)
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       IMediaProvider mediaProvider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(locator.MediaProviderId, out mediaProvider))
         return null;

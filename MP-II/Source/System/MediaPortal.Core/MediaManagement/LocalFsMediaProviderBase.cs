@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
   /// Base methods of the local filesystem media provider which are needed in the media manager.

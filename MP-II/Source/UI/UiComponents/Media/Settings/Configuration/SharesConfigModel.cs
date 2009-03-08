@@ -357,12 +357,12 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void RemoveSelectedSharesAndFinish()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
       foreach (ListItem shareItem in _sharesList)
         if (shareItem.Selected)
         {
           Guid shareId = new Guid(shareItem[ID_KEY]);
-          mediaManager.RemoveShare(shareId);
+          sharesManagement.RemoveShare(shareId);
         }
       ClearAllConfiguredProperties();
       NavigateBackToOverview();
@@ -370,7 +370,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void SelectMediaProviderAndContinue()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       IMediaProvider mediaProvider = null;
       foreach (ListItem mediaProviderItem in _allMediaProvidersList)
       {
@@ -411,17 +411,17 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void FinishShareConfiguration()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
       if (_editMode == ShareEditMode.AddShare)
       {
-        mediaManager.RegisterShare(SystemName.GetLocalSystemName(), MediaProvider.Metadata.MediaProviderId,
+        sharesManagement.RegisterShare(SystemName.GetLocalSystemName(), MediaProvider.Metadata.MediaProviderId,
             MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds);
         ClearAllConfiguredProperties();
         NavigateBackToOverview();
       }
       else if (_editMode == ShareEditMode.EditShare)
       {
-        ShareDescriptor share = mediaManager.GetShare(CurrentShareId);
+        ShareDescriptor share = sharesManagement.GetShare(CurrentShareId);
         if (share != null)
         {
           if (share.MediaProviderId != MediaProvider.Metadata.MediaProviderId ||
@@ -582,7 +582,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMetadataExtractorsFromMediaCategories()
     {
       _metadataExtractorIds.Clear();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
@@ -598,8 +598,9 @@ namespace UiComponents.Media.Settings.Configuration
       // Perhaps we should show the server's shares too? In this case, we also have to re-validate
       // the way of building the list of media providers and metadata extractors
       _sharesList.Clear();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      foreach (ShareDescriptor share in mediaManager.GetSharesBySystem(SystemName.GetLocalSystemName()).Values)
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      foreach (ShareDescriptor share in sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values)
       {
         ListItem shareItem = new ListItem(NAME_KEY, share.Name);
         shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
@@ -620,7 +621,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMediaProvidersList()
     {
       _allMediaProvidersList.Clear();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       bool selected = false;
       foreach (IMediaProvider mediaProvider in mediaManager.LocalMediaProviders.Values)
       {
@@ -668,7 +669,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected static ICollection<string> GetAllAvailableCategories()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       ICollection<string> result = new HashSet<string>();
       foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
       {
@@ -696,7 +697,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMetadataExtractorsList()
     {
       _allMetadataExtractorsList.Clear();
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
@@ -723,8 +724,9 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected bool InitializePropertiesWithShare(Guid shareId)
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      ShareDescriptor shareDescriptor = mediaManager.GetShare(shareId);
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId);
       if (shareDescriptor == null)
         return false;
       IMediaProvider mediaProvider;
@@ -769,9 +771,9 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected void UpdateShareAndFinish(bool relocateItems)
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
-      ShareDescriptor share = mediaManager.GetShare(CurrentShareId);
-      mediaManager.UpdateShare(CurrentShareId, share.NativeSystem, MediaProvider.Metadata.MediaProviderId,
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ShareDescriptor share = sharesManagement.GetShare(CurrentShareId);
+      sharesManagement.UpdateShare(CurrentShareId, share.NativeSystem, MediaProvider.Metadata.MediaProviderId,
           MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, relocateItems);
       ClearAllConfiguredProperties();
       NavigateBackToOverview();

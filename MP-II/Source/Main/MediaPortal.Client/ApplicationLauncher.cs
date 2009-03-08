@@ -24,6 +24,7 @@
 
 using System;
 using System.Windows.Forms;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
@@ -81,7 +82,12 @@ namespace MediaPortal
 
         logger.Debug("ApplicationLauncher: Create MediaManager service");
         MediaManager mediaManager = new MediaManager();
+        // Register the media manager for multiple interfaces in the client - in the server, those interfaces
+        // will be provided by different classes.
         ServiceScope.Add<MediaManager>(mediaManager);
+        ServiceScope.Add<IMediaManager>(mediaManager);
+        ServiceScope.Add<ISharesManagement>(mediaManager);
+        ServiceScope.Add<IImporter>(mediaManager);
 
         UiExtension.RegisterUiServices();
 

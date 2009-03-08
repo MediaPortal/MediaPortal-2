@@ -29,7 +29,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
   /// Temporary local accessor instance for a media item which might located anywhere in an MP-II system.
@@ -70,7 +70,7 @@ namespace MediaPortal.Media.ClientMediaManager
     /// <returns>Stream with the media item contents which was opened for read operations.</returns>
     public Stream OpenRead()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       IMediaProvider mediaProvider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(_localMediaProviderId, out mediaProvider))
         throw new IllegalCallException("The media provider with Id '{0}' is not accessible in the current system", _localMediaProviderId);
@@ -84,7 +84,7 @@ namespace MediaPortal.Media.ClientMediaManager
     /// <returns>Stream with the media item contents which was opened for write operations.</returns>
     public Stream OpenWrite()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       IMediaProvider mediaProvider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(_localMediaProviderId, out mediaProvider))
         throw new IllegalCallException("The media provider with Id '{0}' is not accessible in the current system", _localMediaProviderId);

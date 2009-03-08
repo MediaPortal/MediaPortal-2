@@ -29,7 +29,6 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Settings;
 using MediaPortal.Media.ClientMediaManager.Views;
 
@@ -158,44 +157,6 @@ namespace MediaPortal.Media.ClientMediaManager
     public View RootView
     {
       get { return _rootView; }
-    }
-
-    #endregion
-
-    #region Metadata extraction
-
-    /// <summary>
-    /// Synchronous metadata extraction method for an extraction of the specified metadata
-    /// from the specified media provider location. Only the specified location will be processed,
-    /// i.e. if the location denotes a media item, that item will be processed, else if the location
-    /// denotes a folder, metadata for the folder itself will be extracted, no sub items will be processed.
-    /// </summary>
-    /// <param name="providerId">Id of the media provider to use as source for this metadata extraction.</param>
-    /// <param name="path">Path in the provider to extract metadata from.</param>
-    /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors to apply to the
-    /// specified media file.</param>
-    /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
-    /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.</returns>
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
-      IEnumerable<Guid> metadataExtractorIds)
-    {
-      if (!LocalMediaProviders.ContainsKey(providerId))
-        return null;
-      IMediaProvider provider = LocalMediaProviders[providerId];
-      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
-      bool success = false;
-      foreach (Guid extractorId in metadataExtractorIds)
-      {
-        if (!LocalMetadataExtractors.ContainsKey(extractorId))
-          continue;
-        IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
-        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes)
-          if (!result.ContainsKey(miaMetadata.AspectId))
-            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
-        if (extractor.TryExtractMetadata(provider, path, result))
-          success = true;
-      }
-      return success ? result : null;
     }
 
     #endregion

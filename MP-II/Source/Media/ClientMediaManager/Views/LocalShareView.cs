@@ -137,7 +137,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
         ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
         if (share == null)
           return false;
-        MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+        IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
         Guid providerId = share.MediaProviderId;
         return mediaManager.LocalMediaProviders.ContainsKey(providerId);
       }
@@ -153,7 +153,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
       if (share == null)
         return null;
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
@@ -180,7 +180,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
       if (share == null)
         return null;
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
@@ -206,7 +206,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
       if (share == null)
         return;
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
@@ -226,7 +226,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     /// <param name="path">Path of the media item to analyse.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <param name="result">Collection to add the resulting <see cref="MediaItem"/> to.</param>
-    protected static void AddMetadata(MediaManager mediaManager, Guid providerId, string path,
+    protected static void AddMetadata(IMediaManager mediaManager, Guid providerId, string path,
         IEnumerable<Guid> metadataExtractorIds, ICollection<MediaItem> result)
     {
       IDictionary<Guid, MediaItemAspect> aspects = mediaManager.ExtractMetadata(providerId, path, metadataExtractorIds);

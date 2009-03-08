@@ -37,7 +37,7 @@ namespace MediaPortal.Core.MediaManagement
   /// This is the base class for client and server media managers.
   /// It contains the functionality to load media providers and metadata extractors.
   /// </summary>
-  public class MediaManagerBase
+  public class MediaManagerBase : IMediaManager
   {
     #region Constants
 
@@ -121,30 +121,18 @@ namespace MediaPortal.Core.MediaManagement
 
     #endregion
 
-    #region Public methods
+    #region IMediaManager implementation
 
-    /// <summary>
-    /// Initializes media providers, metadata extractors and internal structures.
-    /// </summary>
     public virtual void Initialize()
     {
       RegisterPluginItemListeners();
     }
 
-    /// <summary>
-    /// Cleans up the runtime data of the media manager.
-    /// </summary>
     public virtual void Dispose()
     {
       UnregisterPluginItemListeners();
     }
 
-    /// <summary>
-    /// Collection of all registered local media providers, organized as a dictionary of
-    /// (GUID; provider) mappings.
-    /// This media provider collection is the proposed entry point to get access to physical media
-    /// files.
-    /// </summary>
     public IDictionary<Guid, IMediaProvider> LocalMediaProviders
     {
       get
@@ -154,10 +142,6 @@ namespace MediaPortal.Core.MediaManagement
       }
     }
 
-    /// <summary>
-    /// Collection of all registered local metadata extractors, organized as a dictionary of
-    /// (GUID; metadata extractor) mappings.
-    /// </summary>
     public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
     {
       get
@@ -165,6 +149,28 @@ namespace MediaPortal.Core.MediaManagement
         CheckMetadataExtractorPluginsLoaded();
         return _metadataExtractors;
       }
+    }
+
+    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
+      IEnumerable<Guid> metadataExtractorIds)
+    {
+      if (!LocalMediaProviders.ContainsKey(providerId))
+        return null;
+      IMediaProvider provider = LocalMediaProviders[providerId];
+      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
+      bool success = false;
+      foreach (Guid extractorId in metadataExtractorIds)
+      {
+        if (!LocalMetadataExtractors.ContainsKey(extractorId))
+          continue;
+        IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
+        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes)
+          if (!result.ContainsKey(miaMetadata.AspectId))
+            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
+        if (extractor.TryExtractMetadata(provider, path, result))
+          success = true;
+      }
+      return success ? result : null;
     }
 
     #endregion

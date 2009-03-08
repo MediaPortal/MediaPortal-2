@@ -70,11 +70,17 @@
     <Compile Include="MediaManagement\IMediaItemAccessor.cs" />
     <Compile Include="MediaManagement\IMediaItemLocalFsAccessor.cs" />
     <Compile Include="MediaManagement\IMediaItemLocator.cs" />
+    <Compile Include="MediaManagement\IMediaManager.cs" />
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
     <Compile Include="MediaManagement\ISharesManagement.cs" />
+    <Compile Include="MediaManagement\LocalFsMediaProviderBase.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />
+    <Compile Include="MediaManagement\MediaItemAccessor.cs" />
+    <Compile Include="MediaManagement\MediaItemAccessorBase.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
     <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />
+    <Compile Include="MediaManagement\MediaItemLocalFsAccessor.cs" />
+    <Compile Include="MediaManagement\MediaItemLocator.cs" />
     <Compile Include="MediaManagement\MediaManagerBase.cs" />
     <Compile Include="MediaManagement\MediaProviders\IFileSystemMediaProvider.cs" />
     <Compile Include="MediaManagement\MediaProviders\IMediaProvider.cs" />

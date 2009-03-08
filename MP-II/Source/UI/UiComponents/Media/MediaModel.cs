@@ -25,16 +25,13 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
+using UiComponents.SkinBase;
 
 namespace UiComponents.Media
 {
@@ -44,16 +41,10 @@ namespace UiComponents.Media
   public class MediaModel : IWorkflowModel
   {
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
-    public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
 
     public const string MEDIA_MAIN_SCREEN = "media";
 
-    public const string FAILED_TO_PLAY_SELECTED_ITEM_HEADER_RESOURCE = "[Media.FailedToPlaySelectedItemHeader]";
-    public const string FAILED_TO_PLAY_SELECTED_ITEM_TEXT_RESOURCE = "[Media.FailedToPlaySelectedItemText]";
-
     protected const string VIEW_KEY = "MediaModel: VIEW";
-
-    protected static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
 
     #region Protected fields
 
@@ -151,25 +142,9 @@ namespace UiComponents.Media
     /// <param name="item">Media item to be played.</param>
     protected static void PlayItem(MediaItem item)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.ReleasePlayer(playerManager.PrimaryPlayer);
-      MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
-      string hostName = (string) providerAspect[ProviderResourceAspect.ATTR_SOURCE_COMPUTER];
-      Guid providerId = new Guid((string) providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID]);
-      string path = (string) providerAspect[ProviderResourceAspect.ATTR_PATH];
-      MediaItemLocator mil = new MediaItemLocator(new SystemName(hostName), providerId, path);
-      int playerSlot;
-      IPlayer player = playerManager.PreparePlayer(mil, null, out playerSlot);
-      if (player == null)
-      {
-        IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-        dialogManager.ShowDialog(FAILED_TO_PLAY_SELECTED_ITEM_HEADER_RESOURCE,
-            FAILED_TO_PLAY_SELECTED_ITEM_TEXT_RESOURCE, DialogType.OkDialog, false);
-        return;
-      }
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(CURRENTLY_PLAYING_STATE_ID);
-      player.Resume();
+      // We delegate this to a global helper method, as it is not so easy to play an item...
+      // (see the code in the delegate)
+      PlayerHelper.PlayMediaItem(item);
     }
 
     protected void ReloadItems()

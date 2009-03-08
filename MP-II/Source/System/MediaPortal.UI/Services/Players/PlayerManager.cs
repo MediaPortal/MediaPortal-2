@@ -297,8 +297,9 @@ namespace MediaPortal.Services.Players
 
     protected void ResetPlayerEvents(IPlayer player)
     {
-      IPlayerEvents pe = (IPlayerEvents) player;
-      pe.ResetPlayerEvents();
+      IPlayerEvents pe = player as IPlayerEvents;
+      if (pe != null)
+        pe.ResetPlayerEvents();
     }
 
     protected void OnPlayerStarted(IPlayer player, int playerSlot)

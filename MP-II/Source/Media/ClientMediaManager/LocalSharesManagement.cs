@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
@@ -70,7 +69,7 @@ namespace MediaPortal.Media.ClientMediaManager
     /// specified <paramref name="mediaCategory"/> by default.</returns>
     protected static IEnumerable<Guid> GetDefaultMetadataExtractorsForCategory(string mediaCategory)
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       foreach (IMetadataExtractor metadataExtractor in mediaManager.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
@@ -81,7 +80,7 @@ namespace MediaPortal.Media.ClientMediaManager
 
     protected void InitializeDefaultShares()
     {
-      MediaManager mediaManager = ServiceScope.Get<MediaManager>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
       if (mediaManager.LocalMediaProviders.ContainsKey(localFsMediaProviderId))
       {
@@ -238,7 +237,7 @@ namespace MediaPortal.Media.ClientMediaManager
       if (!systemName.IsLocalSystem())
         return new Dictionary<Guid, MetadataExtractorMetadata>();
       IDictionary<Guid, MetadataExtractorMetadata> result = new Dictionary<Guid, MetadataExtractorMetadata>();
-      foreach (MetadataExtractorMetadata metadata in ServiceScope.Get<MediaManager>().LocalMetadataExtractors.Values)
+      foreach (MetadataExtractorMetadata metadata in ServiceScope.Get<IMediaManager>().LocalMetadataExtractors.Values)
         result.Add(metadata.MetadataExtractorId, metadata);
       return result;
     }

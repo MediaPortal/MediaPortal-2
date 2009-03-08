@@ -22,41 +22,24 @@
 
 #endregion
 
-using System;
+using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Core.MediaManagement
 {
-  internal interface ITidyUpExecutor
+  public class MediaItemLocalFsAccessor : MediaItemAccessorBase, IMediaItemLocalFsAccessor
   {
-    void Execute();
-  }
+    protected string _localFileSystemPath;
 
-  public class MediaItemAccessorBase : IDisposable
-  {
-    protected MediaItemLocator _locator;
-    internal ITidyUpExecutor _tidyUpExecutor;
-
-    internal MediaItemAccessorBase(MediaItemLocator locator, ITidyUpExecutor tidyUpExecutor)
+    internal MediaItemLocalFsAccessor(MediaItemLocator locator,
+        string localFileSystemPath, ITidyUpExecutor tidyUpExecutor) :
+        base(locator, tidyUpExecutor)
     {
-      _locator = locator;
-      _tidyUpExecutor = tidyUpExecutor;
+      _localFileSystemPath = localFileSystemPath;
     }
 
-    ~MediaItemAccessorBase()
+    public string LocalFileSystemPath
     {
-      Dispose();
-    }
-
-    public void Dispose()
-    {
-      if (_tidyUpExecutor != null)
-        _tidyUpExecutor.Execute();
-      _tidyUpExecutor = null;
-    }
-
-    public MediaItemLocator Locator
-    {
-      get { return _locator; }
+      get { return _localFileSystemPath; }
     }
   }
 }

@@ -1,8 +1,8 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -66,6 +66,11 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SkinBase\SkinBase.csproj">
+      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
+      <Name>SkinBase</Name>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
@@ -78,7 +83,7 @@
     <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml" />
-    <Content Include="Skin\default\screens\shares_config_edit_share.xaml"/>
+    <Content Include="Skin\default\screens\shares_config_edit_share.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
   </ItemGroup>

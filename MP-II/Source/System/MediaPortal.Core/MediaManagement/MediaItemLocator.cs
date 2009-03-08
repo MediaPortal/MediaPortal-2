@@ -27,7 +27,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
   /// Encapsulates the data needed to locate a specific media item.
