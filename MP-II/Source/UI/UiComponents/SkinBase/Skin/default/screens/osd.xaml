@@ -1,23 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
  <!-- DataContext = Player Model -->
- <Grid
+<Canvas x:Name="PlayControls"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}}"
-    HorizontalAlignment="Stretch"
-    VerticalAlignment="Stretch">
-  <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="*"/>
-    <ColumnDefinition Width="Auto"/>
-    <ColumnDefinition Width="*"/>
-  </Grid.ColumnDefinitions>
-  <Grid.RowDefinitions>
-    <RowDefinition Height="*"/>
-    <RowDefinition Height="Auto"/>
-    <RowDefinition Height="30"/>
-  </Grid.RowDefinitions>
-  <Grid.Resources>
+    >
+  <Canvas.Resources>
     <Style x:Key="ButtonPauseStyle" TargetType="{x:Type Button}">
       <Setter Property="Template">
         <Setter.Value>
@@ -124,14 +113,12 @@
         </Setter.Value>
       </Setter>
     </Style>
-  </Grid.Resources>
+  </Canvas.Resources>
 
-  <Canvas x:Name="PlayControls" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center">
-    <Image Source="osd_background.png" Height="10" Width="198" Canvas.Left="0" Canvas.Top="12" Stretch="Fill"/>
-    <Button Style="{StaticResource ButtonRewindStyle}" Canvas.Left="24" Canvas.Top="0" Command="{Command Path=Rewind}"/>
-    <Button Style="{StaticResource ButtonStopStyle}" Canvas.Left="58" Canvas.Top="0" Command="{Command Path=Stop}"/>
-    <Button Style="{StaticResource ButtonPauseStyle}" Canvas.Left="92" Canvas.Top="0" Command="{Command Path=TogglePause}"/>
-    <Button Style="{StaticResource ButtonForwardStyle}" Canvas.Left="126" Canvas.Top="0" Command="{Command Path=Forward}"/>
-    <Button Style="{StaticResource ButtonMuteStyle}"  Canvas.Left="160" Canvas.Top="0" Command="{Command Path=ToggleMute}"/>
-  </Canvas>
-</Grid>
+  <Image Source="osd_background.png" Height="10" Width="198" Canvas.Left="0" Canvas.Top="12" Stretch="Fill"/>
+  <Button Style="{StaticResource ButtonRewindStyle}" Canvas.Left="24" Canvas.Top="0" Command="{Command Path=Rewind}"/>
+  <Button Style="{StaticResource ButtonStopStyle}" Canvas.Left="58" Canvas.Top="0" Command="{Command Path=Stop}"/>
+  <Button Style="{StaticResource ButtonPauseStyle}" Canvas.Left="92" Canvas.Top="0" Command="{Command Path=TogglePause}"/>
+  <Button Style="{StaticResource ButtonForwardStyle}" Canvas.Left="126" Canvas.Top="0" Command="{Command Path=Forward}"/>
+  <Button Style="{StaticResource ButtonMuteStyle}"  Canvas.Left="160" Canvas.Top="0" Command="{Command Path=ToggleMute}"/>
+</Canvas>
