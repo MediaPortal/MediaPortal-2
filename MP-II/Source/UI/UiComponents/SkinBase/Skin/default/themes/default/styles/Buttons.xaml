@@ -114,7 +114,7 @@
   <!-- Storyboard for buttons which are pressed and which are almost square, e.g. radio buttons.
        This animation scales the button in x- and y-direction with the same factor. -->
   <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="HoldEnd">
-    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <StaticResource ResourceKey="PressedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
     </DoubleAnimationUsingKeyFrames>
@@ -126,7 +126,7 @@
   <!-- Storyboard for wide buttons which are pressed, e.g. text buttons.
        This animation scales the button in x- and y-direction with different factors. -->
   <Storyboard x:Key="PressedButtonWideStoryboard" FillBehavior="HoldEnd">
-    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <StaticResource ResourceKey="PressedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.02"/>
     </DoubleAnimationUsingKeyFrames>
