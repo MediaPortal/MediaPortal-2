@@ -119,7 +119,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public const string NO_BUTTON_TEXT = "[System.No]";
     public const string CANCEL_BUTTON_TEXT = "[System.Cancel]";
 
-    public const string GENERIC_DIALOG_SCREEN = "generic_dialog";
+    public const string GENERIC_DIALOG_SCREEN = "GenericDialog";
 
     #endregion
 
