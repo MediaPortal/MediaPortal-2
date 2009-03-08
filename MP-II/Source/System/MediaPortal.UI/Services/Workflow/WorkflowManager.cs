@@ -476,8 +476,9 @@ namespace MediaPortal.Services.Workflow
       if (!_states.TryGetValue(stateId, out state))
         throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
-      if (!DoPushNavigationContext(state, additionalContextVariables) || !UpdateScreen())
-        NavigatePop(1);
+      if (DoPushNavigationContext(state, additionalContextVariables))
+        if (!UpdateScreen())
+          NavigatePop(1);
     }
 
     public void NavigatePush(Guid stateId)
@@ -487,8 +488,9 @@ namespace MediaPortal.Services.Workflow
 
     public void NavigatePushTransient(WorkflowState state, IDictionary<string, object> additionalContextVariables)
     {
-      if (!DoPushNavigationContext(state, additionalContextVariables) || !UpdateScreen())
-        NavigatePop(1);
+      if (DoPushNavigationContext(state, additionalContextVariables))
+        if (!UpdateScreen())
+          NavigatePop(1);
     }
 
     public void NavigatePushTransient(WorkflowState state)
