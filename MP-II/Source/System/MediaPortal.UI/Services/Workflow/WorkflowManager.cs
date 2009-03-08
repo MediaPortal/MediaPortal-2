@@ -230,7 +230,7 @@ namespace MediaPortal.Services.Workflow
       return current == null ? null : current.WorkflowState;
     }
 
-    protected void DoPushNavigationContext(WorkflowState state, IDictionary<string, object> additionalContextVariables)
+    protected bool DoPushNavigationContext(WorkflowState state, IDictionary<string, object> additionalContextVariables)
     {
       ILogger logger = ServiceScope.Get<ILogger>();
       NavigationContext predecessor = CurrentNavigationContext;
@@ -243,7 +243,7 @@ namespace MediaPortal.Services.Workflow
       {
         logger.Error("WorkflowManager: No non-transient state found on workflow context stack to be used as reference state. Workflow state to be pushed is '{0}' (id: '{1}')",
             state.Name, state.StateId);
-        return;
+        return false;
       }
 
       // Initialize workflow model
@@ -267,6 +267,10 @@ namespace MediaPortal.Services.Workflow
       NavigationContext newContext = new NavigationContext(state, predecessor, workflowModel);
       if (additionalContextVariables != null)
         CollectionUtils.AddAll(newContext.ContextVariables, additionalContextVariables);
+
+      // Check if state change is accepted
+      if (workflowModel != null && !workflowModel.CanEnterState(predecessor, newContext))
+        return false;
 
       // Push new context
       _navigationContextStack.Push(newContext);
@@ -321,6 +325,7 @@ namespace MediaPortal.Services.Workflow
         newContext.MenuActions.Add(menuAction.ActionId, menuAction);
 
       IterateCache();
+      return true;
     }
 
     protected bool DoPopNavigationContext(int count)
@@ -402,11 +407,18 @@ namespace MediaPortal.Services.Workflow
       }
     }
 
+    /// <summary>
+    /// Tries to show the screen for the current navigation context, if it is defined.
+    /// </summary>
+    /// <returns><c>true</c>, if the screen was successfully shown or if the current navigation context
+    /// doesn't define a screen, else <c>false</c>.</returns>
     protected bool UpdateScreen()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
       NavigationContext context = CurrentNavigationContext;
       string screen = context.WorkflowState.MainScreen;
+      if (screen == null)
+        return true;
       logger.Info("WorkflowManager: Trying to show screen '{0}'...", screen);
       bool result = ServiceScope.Get<IScreenManager>().ShowScreen(screen);
       if (result)
@@ -464,8 +476,7 @@ namespace MediaPortal.Services.Workflow
       if (!_states.TryGetValue(stateId, out state))
         throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
-      DoPushNavigationContext(state, additionalContextVariables);
-      if (!UpdateScreen())
+      if (!DoPushNavigationContext(state, additionalContextVariables) || !UpdateScreen())
         NavigatePop(1);
     }
 
@@ -476,8 +487,7 @@ namespace MediaPortal.Services.Workflow
 
     public void NavigatePushTransient(WorkflowState state, IDictionary<string, object> additionalContextVariables)
     {
-      DoPushNavigationContext(state, additionalContextVariables);
-      if (!UpdateScreen())
+      if (!DoPushNavigationContext(state, additionalContextVariables) || !UpdateScreen())
         NavigatePop(1);
     }
 

@@ -111,8 +111,21 @@ namespace MediaPortal.Presentation.Models
     Guid ModelId { get; }
 
     /// <summary>
+    /// Requests this model if the specified state change is accepted.
+    /// </summary>
+    /// <remarks>
+    /// This method will be called in both cases when this model is already active and
+    /// when the model is not active yet. It might be necessary to implement this method if state changes to
+    /// the specified <paramref name="newContext"/> state are only valid under special conditions.
+    /// </remarks>
+    /// <param name="oldContext">The old navigation context which is still active.</param>
+    /// <param name="newContext">The workflow navigation context which should be entered. This context
+    /// will be attended by this model.</param>
+    bool CanEnterState(NavigationContext oldContext, NavigationContext newContext);
+
+    /// <summary>
     /// Informs this model about the entrance of its workflow attendance. This means the current workflow
-    /// context will be changed from an unattended context to an attended one.
+    /// context will be changed from a context which isn't attended by this model to an attended one.
     /// </summary>
     /// <remarks>
     /// This method will be called before the call of <see cref="UpdateMenuActions"/> and the workflow state

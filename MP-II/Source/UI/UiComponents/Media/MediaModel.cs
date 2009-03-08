@@ -44,7 +44,7 @@ namespace UiComponents.Media
   public class MediaModel : IWorkflowModel
   {
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
-    public const string FULLSCREENVIDEO_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
+    public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
 
     public const string MEDIA_MAIN_SCREEN = "media";
 
@@ -52,6 +52,8 @@ namespace UiComponents.Media
     public const string FAILED_TO_PLAY_SELECTED_ITEM_TEXT_RESOURCE = "[Media.FailedToPlaySelectedItemText]";
 
     protected const string VIEW_KEY = "MediaModel: VIEW";
+
+    protected static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
 
     #region Protected fields
 
@@ -166,7 +168,7 @@ namespace UiComponents.Media
         return;
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(new Guid(FULLSCREENVIDEO_STATE_ID_STR));
+      workflowManager.NavigatePush(CURRENTLY_PLAYING_STATE_ID);
       player.Resume();
     }
 
@@ -201,6 +203,11 @@ namespace UiComponents.Media
     public Guid ModelId
     {
       get { return new Guid(MEDIA_MODEL_ID_STR); }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

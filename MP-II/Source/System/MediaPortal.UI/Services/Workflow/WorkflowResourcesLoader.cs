@@ -216,8 +216,8 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateElement.Name, name));
       if (string.IsNullOrEmpty(name))
         throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateElement.Name, id));
-      if (string.IsNullOrEmpty(mainScreen))
-        throw new ArgumentException(string.Format("{0} '{1}': 'MainScreen' attribute missing", stateElement.Name, name));
+      if (string.IsNullOrEmpty(mainScreen) && string.IsNullOrEmpty(workflowModelId))
+        throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'MainScreen' atrribute must be specified", stateElement.Name, name));
       return new WorkflowState(new Guid(id), name, mainScreen, inheritMenu, inheritContextMenu, false,
           string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), new List<Guid>());
     }

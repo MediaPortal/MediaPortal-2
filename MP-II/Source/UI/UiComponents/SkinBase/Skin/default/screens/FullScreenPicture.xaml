@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DockPanel
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DataContext="{Binding Source={Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}}"
+    > <!-- DataContext model = PlayerModel -->
+  <!-- TODO -->
+  <Label Content="FullScreenPicture: Not implemented yet - will display a picture"/>
+</DockPanel>

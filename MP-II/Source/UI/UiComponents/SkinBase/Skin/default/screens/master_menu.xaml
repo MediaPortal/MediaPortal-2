@@ -61,10 +61,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
-          <Grid Grid.Column="0" Grid.Row="2" Height="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <StackPanel HorizontalAlignment="Stretch"
+          <Grid Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel x:Name="PlayControls" HorizontalAlignment="Stretch"
                 IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPlayControlsVisible}">
               <Include Source="screens\osd.xaml"/>
+              <Button x:Name="CurrentlyPlaying" Style="{StaticResource ButtonStyle}" Margin="0,10,0,0"
+                  HorizontalAlignment="Center" Content="[Players.OpenCurrentlyPlaying]"
+                  Command="{Command Source={StaticResource PlayerModel},Path=ShowCurrentlyPlaying}"/>
             </StackPanel>
           </Grid>
         </Grid>

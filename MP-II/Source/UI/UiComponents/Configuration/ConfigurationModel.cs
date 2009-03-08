@@ -451,6 +451,11 @@ namespace UiComponents.Configuration
       get { return new Guid(CONFIGURATION_MODEL_ID_STR); }
     }
 
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       // We're temporary stepping out of our model context... We just hold our state

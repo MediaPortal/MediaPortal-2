@@ -23,12 +23,15 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Timers;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
+using MediaPortal.Presentation.Workflow;
 using Timer=System.Timers.Timer;
 
 namespace UiComponents.SkinBase
@@ -36,9 +39,18 @@ namespace UiComponents.SkinBase
   /// <summary>
   /// This model provides skin data for the current primary player/playing state.
   /// </summary>
-  public class PlayerModel : IDisposable
+  public class PlayerModel : IDisposable, IWorkflowModel
   {
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
+
+    public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
+
+    public const string FULLSCREENVIDEO_SCREEN_NAME = "FullScreenVideo";
+    public const string FULLSCREENAUDIO_SCREEN_NAME = "FullScreenAudio";
+    public const string FULLSCREENPICTURE_SCREEN_NAME = "FullScreenPicture";
+
+    public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
+    public static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
 
     protected Timer _timer;
 
@@ -51,6 +63,7 @@ namespace UiComponents.SkinBase
     protected Property _isPipProperty;
     protected Property _pipVideoStreamProperty;
     protected Property _isVideoInfoVisibleProperty;
+    protected bool _inCurrentlyPlaying = false;
 
     public PlayerModel()
     {
@@ -98,12 +111,31 @@ namespace UiComponents.SkinBase
       {
         case PlayerManagerMessaging.MessageType.PrimaryPlayerChanged:
           PrimaryPlayerVideoStream = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-          UpdatePlayControls();
           break;
-        default:
-          UpdatePlayControls();
+        case PlayerManagerMessaging.MessageType.PlayerStopped:
+          if (_inCurrentlyPlaying)
+          {
+            IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+            // Maybe we should do more handling in this case - show dialogs "do you want to delete"
+            // etc.? At the moment we'll simply return to the last workflow state.
+            workflowManager.NavigatePop(1);
+          }
+          break;
+        case PlayerManagerMessaging.MessageType.PlayerEnded:
+          if (_inCurrentlyPlaying)
+          {
+            // TODO: Leave currently playing state if no playlist is running
+          }
+          break;
+        case PlayerManagerMessaging.MessageType.PlayerStarted:
+        case PlayerManagerMessaging.MessageType.PlayerResumed:
+          if (_inCurrentlyPlaying)
+            // Automatically switch "currently playing" screen if another player is started. This will
+            // ensure that the screen is correctly updated when the playlist progresses.
+            UpdateScreenForPrimaryPlayer();
           break;
       }
+      UpdatePlayControls();
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -148,10 +180,35 @@ namespace UiComponents.SkinBase
       }
     }
 
-    protected static IPlayer GetActivePlayer()
+    protected static IPlayer GetPrimaryPlayer()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       return playerManager[playerManager.PrimaryPlayer];
+    }
+
+    protected static bool CanHandlePlayer(IPlayer player)
+    {
+      return player is IVideoPlayer || player is IAudioPlayer || player is IPicturePlayer;
+    }
+
+    protected static void UpdateScreenForPrimaryPlayer()
+    {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      IPlayer player = GetPrimaryPlayer();
+      string targetScreen;
+      if (!CanHandlePlayer(player))
+        return;
+      if (player is IVideoPlayer)
+        targetScreen = FULLSCREENVIDEO_SCREEN_NAME;
+      else if (player is IAudioPlayer)
+        targetScreen = FULLSCREENAUDIO_SCREEN_NAME;
+      else if (player is IPicturePlayer)
+        targetScreen = FULLSCREENPICTURE_SCREEN_NAME;
+      else
+          // Error case: The current player isn't recognized - its none of our supported players
+        targetScreen = FULLSCREENVIDEO_SCREEN_NAME;
+      if (screenManager.CurrentScreenName != targetScreen)
+        screenManager.ShowScreen(targetScreen);
     }
 
     public Property PrimaryPlayerVideoStreamProperty
@@ -255,8 +312,7 @@ namespace UiComponents.SkinBase
 
     public void TogglePause()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayer player = playerManager[playerManager.PrimaryPlayer];
+      IPlayer player = GetPrimaryPlayer();
       if (player != null)
         switch (player.State) {
           case PlaybackState.Playing:
@@ -273,8 +329,7 @@ namespace UiComponents.SkinBase
 
     public void Stop()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayer player = playerManager[playerManager.PrimaryPlayer];
+      IPlayer player = GetPrimaryPlayer();
       if (player != null)
         player.Stop();
     }
@@ -295,10 +350,64 @@ namespace UiComponents.SkinBase
 
     public void ToggleMute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IVolumeControl player = playerManager[playerManager.PrimaryPlayer] as IVolumeControl;
+      IVolumeControl player = GetPrimaryPlayer() as IVolumeControl;
       if (player != null)
         player.Mute = !player.Mute;
     }
+
+    public void ShowCurrentlyPlaying()
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(new Guid(CURRENTLY_PLAYING_STATE_ID_STR));
+    }
+
+    #region IWorkflowModel implementation
+
+    public Guid ModelId
+    {
+      get { return PLAYER_MODEL_ID; }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return CanHandlePlayer(GetPrimaryPlayer());
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+      {
+        _inCurrentlyPlaying = true;
+        UpdateScreenForPrimaryPlayer();
+      }
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      if (oldContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+        _inCurrentlyPlaying = false;
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      // Not implemented
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Not implemented
+    }
+
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Not implemented
+    }
+
+    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
+    {
+      // Not implemented yet
+    }
+
+    #endregion
   }
 }

@@ -417,8 +417,10 @@
     <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSetup.xaml" />
     <Content Include="Skin\default\screens\dialogZoomModes.xaml" />
-    <Content Include="Skin\default\screens\fullscreenvideo.xaml" />
-    <Content Include="Skin\default\screens\generic_dialog.xaml" />
+    <Content Include="Skin\default\screens\FullScreenAudio.xaml" />
+    <Content Include="Skin\default\screens\FullScreenPicture.xaml" />
+    <Content Include="Skin\default\screens\FullScreenVideo.xaml" />
+    <Content Include="Skin\default\screens\GenericDialog.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />
     <Content Include="Skin\default\screens\imdbresultchoice.xaml" />
     <Content Include="Skin\default\screens\master.xaml" />

@@ -841,6 +841,11 @@ namespace UiComponents.Media.Settings.Configuration
       get { return new Guid(SHARESCONFIG_MODEL_ID_STR); }
     }
 
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       PrepareState(newContext.WorkflowState.StateId);
