@@ -1080,20 +1080,18 @@ namespace Ui.Players.Video
 
     }
 
-    public virtual void BeginRender(object effect)
+    public virtual void BeginRender(EffectAsset effect)
     {
       if (!_initialized) return;
       if (_allocator == null) return;
-      EffectAsset e = (EffectAsset)effect;
-      e.StartRender(_allocator.Texture);
+      effect.StartRender(_allocator.Texture);
     }
 
-    public virtual void EndRender(object effect)
+    public virtual void EndRender(EffectAsset effect)
     {
       if (!_initialized) return;
       if (_allocator == null) return;
-      EffectAsset e = (EffectAsset)effect;
-      e.EndRender();
+      effect.EndRender();
     }
 
     // Not used

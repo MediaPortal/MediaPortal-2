@@ -28,6 +28,7 @@ using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Localization;
+using MediaPortal.SkinEngine.Effects;
 using Ui.Players.Video.Subtitles;
 
 [ComVisible(true), ComImport,
@@ -622,7 +623,7 @@ namespace Ui.Players.Video
         _renderer.Render();
     }
 
-    public override void EndRender(object effect)
+    public override void EndRender(EffectAsset effect)
     {
       base.EndRender(effect);
       if (_renderer != null)

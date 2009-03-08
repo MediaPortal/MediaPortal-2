@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Presentation.Players;
+using MediaPortal.SkinEngine.Effects;
 
 namespace MediaPortal.SkinEngine.Players
 {
@@ -52,8 +53,8 @@ namespace MediaPortal.SkinEngine.Players
     /// Render the video
     /// </summary>
     void Render();
-    void BeginRender(object effect);
-    void EndRender(object effect);
+    void BeginRender(EffectAsset effect);
+    void EndRender(EffectAsset effect);
 
   }
 }
