@@ -7,8 +7,12 @@
 
   <!-- ***************************** Storyboards ******************************** -->
 
-  <!-- Storyboard which shows an animation when a Button has focus -->
-  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="Stop">
+  <ResourceWrapper x:Key="SquareButtonZoomCoefficient" Resource="1.1"/>
+  <ResourceWrapper x:Key="WideButtonZoomCoefficientX" Resource="1.02"/>
+  <ResourceWrapper x:Key="WideButtonZoomCoefficientY" Resource="1.1"/>
+
+  <!-- Base storyboard which shows an animation when a button has focus -->
+  <Storyboard x:Key="FocusedButtonStoryboard_Base" FillBehavior="Stop">
     <PointAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientOrigin">
       <SplinePointKeyFrame KeyTime="00:00:00" Value="0.5,1.709"/>
       <SplinePointKeyFrame KeyTime="00:00:02" Value="0.5,0.899"/>
@@ -34,19 +38,47 @@
       <SplineDoubleKeyFrame KeyTime="00:00:02" Value="1.179"/>
       <SplineDoubleKeyFrame KeyTime="00:00:04" Value="1.335"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+    <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[1].X">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.009"/>
       <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.019"/>
       <SplineDoubleKeyFrame KeyTime="00:00:04" Value="0.027"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+    <DoubleAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.RelativeTransform.Children[1].Y">
       <SplineDoubleKeyFrame KeyTime="00:00:02" Value="0.119"/>
       <SplineDoubleKeyFrame KeyTime="00:00:04" Value="-0.006"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
-  <!-- Storyboard which shows an animation when a Button is pressed -->
-  <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="HoldEnd">
+  <!-- Storyboard for buttons which are focused and which are almost square, e.g. radio buttons.
+       This animation scales the button in x- and y-direction with the same factor. -->
+  <Storyboard x:Key="FocusedButtonStoryboard" FillBehavior="Stop">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource SquareButtonZoomCoefficient}"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource SquareButtonZoomCoefficient}"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <!-- Storyboard for wide buttons which are focused, e.g. text buttons.
+       This animation scales the button in x- and y-direction with different factors. -->
+  <Storyboard x:Key="FocusedButtonWideStoryboard" FillBehavior="Stop">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource WideButtonZoomCoefficientX}"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource WideButtonZoomCoefficientY}"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <!-- Base storyboard which shows an animation when a button is pressed -->
+  <Storyboard x:Key="PressedButtonStoryboard_Base" FillBehavior="HoldEnd">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PressedButtonGradientDark2Color}"/>
       <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedButtonGradientDark1Color}"/>
@@ -79,8 +111,32 @@
     </PointAnimationUsingKeyFrames>
   </Storyboard>
 
+  <!-- Storyboard for buttons which are pressed and which are almost square, e.g. radio buttons.
+       This animation scales the button in x- and y-direction with the same factor. -->
+  <Storyboard x:Key="PressedButtonStoryboard" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <!-- Storyboard for wide buttons which are pressed, e.g. text buttons.
+       This animation scales the button in x- and y-direction with different factors. -->
+  <Storyboard x:Key="PressedButtonWideStoryboard" FillBehavior="HoldEnd">
+    <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.02"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.1"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
   <!-- Storyboard whichs turns the background to be transparent for disabled buttons -->
-  <Storyboard x:Key="DisabledStoryboard" RepeatBehavior="Forever" Duration="00:00:01">
+  <Storyboard x:Key="DisabledButtonStoryboard" RepeatBehavior="Forever" Duration="00:00:01">
     <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledButtonColor}"/>
     </ColorAnimationUsingKeyFrames>
@@ -109,6 +165,14 @@
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonStrokeGradientDarkColor}"/>
       <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonStrokeGradientDarkColor}"/>
     </ColorAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.2"/>
+    </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.2"/>
+    </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
   <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="HoldEnd">
@@ -120,13 +184,11 @@
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedArrowButtonStrokeGradientDarkColor}"/>
       <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedArrowButtonStrokeGradientDarkColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.2"/>
     </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.2000000" Value="0.8"/>
+    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.2"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -154,8 +216,6 @@
                 <RadialGradientBrush.RelativeTransform>
                   <TransformGroup>
                     <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
                     <TranslateTransform X="0.027" Y="-0.006"/>
                   </TransformGroup>
                 </RadialGradientBrush.RelativeTransform>
@@ -179,8 +239,6 @@
                 <RadialGradientBrush.RelativeTransform>
                   <TransformGroup>
                     <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.335" ScaleY="1.582"/>
-                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
                     <TranslateTransform X="0.027" Y="-0.006"/>
                   </TransformGroup>
                 </RadialGradientBrush.RelativeTransform>
@@ -200,20 +258,25 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid Margin="0,2,0,2">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonWideStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -221,7 +284,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonWideStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -230,7 +293,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -261,7 +324,14 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Control x:Name="OuterCircle" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Control x:Name="GrowControl" Grid.Column="0" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+              <Control.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </TransformGroup>
+              </Control.RenderTransform>
+            </Control>
             <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
             <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
@@ -288,7 +358,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -313,7 +383,14 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Control Grid.Column="1" Grid.Row="0" x:Name="OuterCircle" Style="{ThemeResource RadioButtonControlStyle}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <Control x:Name="GrowControl" Grid.Column="1" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
+                VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+              <Control.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </TransformGroup>
+              </Control.RenderTransform>
+            </Control>
             <Ellipse Grid.Column="1" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -339,7 +416,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -365,10 +442,16 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Control x:Name="CheckBoxControl" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"
-                HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Visibility="Hidden" Stretch="None" Stroke="{ThemeResource CheckBoxCheckColor}" StrokeThickness="2"
-                HorizontalAlignment="Left" VerticalAlignment="Center" Width="26" Height="26" Data="M18,6 L11,17 L8,13"/>
+            <Grid x:Name="GrowControl" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+              <Grid.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </TransformGroup>
+              </Grid.RenderTransform>
+              <Control Grid.Column="0" Grid.Row="0" Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
+              <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
+                  Stroke="{ThemeResource CheckBoxCheckColor}" StrokeThickness="2" Data="M18,6 L11,17 L8,13"/>
+            </Grid>
             <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,10,0"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -394,7 +477,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -505,36 +588,22 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Control}">
-          <Rectangle x:Name="Body">
-            <Rectangle.Fill>
-              <RadialGradientBrush MappingMode="RelativeToBoundingBox" SpreadMethod="Pad" GradientOrigin="0.5,0.636">
-                <RadialGradientBrush.RelativeTransform>
-                  <TransformGroup>
-                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.668" ScaleY="1.641"/>
-                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                    <TranslateTransform X="0.036" Y="0.023"/>
-                  </TransformGroup>
-                </RadialGradientBrush.RelativeTransform>
-                <GradientStop Color="{ThemeResource ArrowButtonFillGradientLightColor}" Offset="0"/>
-                <GradientStop Color="{ThemeResource ArrowButtonFillGradientDarkColor}" Offset="1"/>
-              </RadialGradientBrush>
-            </Rectangle.Fill>
-            <Rectangle.Stroke>
-              <RadialGradientBrush>
-                <RadialGradientBrush.RelativeTransform>
-                  <TransformGroup>
-                    <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.213" ScaleY="1.162"/>
-                    <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                    <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                    <TranslateTransform X="0.003" Y="0.002"/>
-                  </TransformGroup>
-                </RadialGradientBrush.RelativeTransform>
-                <GradientStop Color="{ThemeResource ArrowButtonStrokeGradientLightColor}" Offset="0"/>
-                <GradientStop Color="{ThemeResource ArrowButtonStrokeGradientDarkColor}" Offset="1"/>
-              </RadialGradientBrush>
-            </Rectangle.Stroke>
-          </Rectangle>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
+                Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"/>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -544,25 +613,19 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid Width="40" Height="40">
-            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
-                Margin="9.169,7,9.691,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
-                RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                  <SkewTransform AngleX="0" AngleY="0"/>
-                  <RotateTransform Angle="0"/>
-                  <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-              </Path.RenderTransform>
-            </Path>
-          </Grid>
+          <Control x:Name="GrowControl" Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
+               RenderTransformOrigin="0.5,0.5">
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <RotateTransform Angle="0"/>
+              </TransformGroup>
+            </Control.RenderTransform>
+          </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -570,7 +633,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -579,7 +642,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -595,25 +658,19 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid Width="40" Height="40">
-            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
-                Margin="9.889,7,8.971,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
-                RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                  <SkewTransform AngleX="0" AngleY="0"/>
-                  <RotateTransform Angle="180"/>
-                  <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-              </Path.RenderTransform>
-            </Path>
-          </Grid>
+          <Control x:Name="GrowControl" Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
+               RenderTransformOrigin="0.5,0.5">
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <RotateTransform Angle="180"/>
+              </TransformGroup>
+            </Control.RenderTransform>
+          </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -621,7 +678,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -630,7 +687,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -646,25 +703,19 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid Width="40" Height="40">
-            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
-                Margin="9.529,7,9.331,7" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
-                RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                  <SkewTransform AngleX="0" AngleY="0"/>
-                  <RotateTransform Angle="90"/>
-                  <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-              </Path.RenderTransform>
-            </Path>
-          </Grid>
+          <Control x:Name="GrowControl" Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
+               RenderTransformOrigin="0.5,0.5">
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <RotateTransform Angle="90"/>
+              </TransformGroup>
+            </Control.RenderTransform>
+          </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -672,7 +723,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -681,7 +732,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -697,25 +748,19 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid Width="40" Height="40">
-            <Control Style="{ThemeResource ArrowButtonControlStyle}"/>
-            <Path x:Name="Arrow" Fill="{ThemeResource ArrowButtonArrowColor}" Stretch="Fill"
-                Margin="9.529,7.9,9.331,6.1" Data="M136.75,137.5 L136.765,158.5 120.40356,147.97876 z"
-                RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                  <SkewTransform AngleX="0" AngleY="0"/>
-                  <RotateTransform Angle="-90"/>
-                  <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-              </Path.RenderTransform>
-            </Path>
-          </Grid>
+          <Control x:Name="GrowControl" Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
+               RenderTransformOrigin="0.5,0.5">
+            <Control.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <RotateTransform Angle="-90"/>
+              </TransformGroup>
+            </Control.RenderTransform>
+          </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -723,7 +768,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedArrowButtonStoryBoard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -732,7 +777,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledArrowButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -750,11 +795,16 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
-          <Grid x:Name="GrdA" Margin="0,2,0,2">
-            <Control Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="PathHorz" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}" HorizontalAlignment="Left"
+          <Grid x:Name="GrowControl" Margin="0,2,0,2" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}"/>
+            <Path x:Name="PathHorz" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}"
                 Height="26" Width="26" Data="M6,13 L20,13" StrokeThickness="2"/>
-            <Path x:Name="PathVert" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}" HorizontalAlignment="Left"
+            <Path x:Name="PathVert" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}"
                 Height="26" Width="26" Data="M13,6 L13,20" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -780,7 +830,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -792,7 +842,8 @@
     </Setter>
   </Style>
 
-  <!-- ***************************** Zoom buttons ******************************** -->
+<!-- To be removed
+  <!- ***************************** Zoom buttons ******************************** ->
 
   <Storyboard x:Key="FocusedZoomButtonStoryBoard" FillBehavior="Stop">
     <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
@@ -803,7 +854,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
             <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
             <Image x:Name="Unfocused" Source="zoom_in_disabled.png" Width="32" Height="32"/>
           </Grid>
@@ -826,7 +882,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
             <Image x:Name="Focused" Source="zoom_in_enabled.png" Width="32" Height="32" Opacity="0"/>
             <Image x:Name="Unfocused" Source="zoom_out_disabled.png" Width="32" Height="32"/>
           </Grid>
@@ -845,7 +906,7 @@
     </Setter>
   </Style>
 
-  <!-- ***************************** Rotate buttons ******************************** -->
+  <!- ***************************** Rotate buttons ******************************** ->
 
   <Storyboard x:Key="FocusedRotateButtonStoryBoard" FillBehavior="Stop">
     <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.3000000" Storyboard.TargetName="Focused" Storyboard.TargetProperty="Opacity"/>
@@ -856,7 +917,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
             <Image x:Name="Focused" Source="rotate_left_enabled.png" Width="32" Height="32" Opacity="0"/>
             <Image x:Name="Unfocused" Source="rotate_left_disabled.png" Width="32" Height="32"/>
           </Grid>
@@ -879,7 +945,12 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Grid>
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
             <Image x:Name="Focused" Source="rotate_right_enabled.png" Width="32" Height="32" Opacity="0"/>
             <Image x:Name="Unfocused" Source="rotate_right_disabled.png" Width="32" Height="32"/>
           </Grid>
@@ -897,7 +968,7 @@
       </Setter.Value>
     </Setter>
   </Style>
-
+-->
   <!-- ***************************** Busy cursor ******************************** -->
 
   <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
