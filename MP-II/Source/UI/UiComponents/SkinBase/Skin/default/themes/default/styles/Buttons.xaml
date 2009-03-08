@@ -148,62 +148,6 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Storyboard x:Key="FocusedArrowButtonStoryBoard" FillBehavior="HoldEnd">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonFillGradientLightColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonFillGradientLightColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonFillGradientDarkColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonFillGradientDarkColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonStrokeGradientLightColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonStrokeGradientLightColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource ArrowButtonStrokeGradientDarkColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource FocusedArrowButtonStrokeGradientDarkColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.2"/>
-    </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="1.2"/>
-    </DoubleAnimationUsingKeyFrames>
-  </Storyboard>
-
-  <Storyboard x:Key="PressedArrowButtonStoryBoard" FillBehavior="HoldEnd">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedArrowButtonFillGradientDarkColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedArrowButtonFillGradientDarkColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Stroke.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource FocusedArrowButtonStrokeGradientDarkColor}"/>
-      <SplineColorKeyFrame KeyTime="00:00:00.2000000" Value="{ThemeResource PressedArrowButtonStrokeGradientDarkColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.2"/>
-    </DoubleAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="Control" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.2"/>
-    </DoubleAnimationUsingKeyFrames>
-  </Storyboard>
-
-  <Storyboard x:Key="DisabledArrowButtonStoryBoard" RepeatBehavior="Forever" Duration="00:00:01">
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledArrowButtonFillGradientLightColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Body" Storyboard.TargetProperty="Fill.GradientStops[1].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledArrowButtonFillGradientDarkColor}"/>
-    </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="Arrow" Storyboard.TargetProperty="Fill.Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DisabledArrowButtonArrowColor}"/>
-    </ColorAnimationUsingKeyFrames>
-  </Storyboard>
-
   <!-- ************************* Control styles for buttons ************************* -->
 
   <Style x:Key="ButtonControlStyle" TargetType="{x:Type Control}">
