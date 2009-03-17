@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Paths>
- <Path name="DATA" value="&lt;COMMON_APPLICATION_DATA&gt;\MP-II-Client" />
+ <Path name="DATA" value="&lt;COMMON_APPLICATION_DATA&gt;\Team MediaPortal\MP-II-Client" />
  <Path name="CONFIG" value="&lt;DATA&gt;\Config" />
  <Path name="LOG" value="&lt;DATA&gt;\Log" />
  <Path name="DATABASE" value="&lt;DATA&gt;\Database" />
