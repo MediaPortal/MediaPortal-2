@@ -209,5 +209,20 @@ namespace MediaPortal.Utilities
           return false;
       return true;
     }
+
+    /// <summary>
+    /// Exchanges the items at index <paramref name="index1"/> and <paramref name="index2"/> in the specified
+    /// <paramref name="list"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of items in the list.</typeparam>
+    /// <param name="list">List whose items should be swapped.</param>
+    /// <param name="index1">First index to exchange.</param>
+    /// <param name="index2">Second index to exchange.</param>
+    public static void Swap<T>(IList<T> list, int index1, int index2)
+    {
+      T tmp = list[index1];
+      list[index1] = list[index2];
+      list[index2] = tmp;
+    }
   }
 }

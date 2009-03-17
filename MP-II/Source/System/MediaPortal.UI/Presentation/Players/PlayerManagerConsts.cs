@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,18 +22,11 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace MediaPortal.Presentation.Players
 {
-  public interface IPlaylistFactory
+  public class PlayerManagerConsts
   {
-    /// <summary>
-    /// Creates a new playlist.
-    /// </summary>
-    /// <returns>new playlist</returns>
-    IPlaylist LoadPlayList(string fileName);
+    public const int PRIMARY_SLOT = 0;
+    public const int SECONDARY_SLOT = 1;
   }
 }

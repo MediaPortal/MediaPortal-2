@@ -12,9 +12,6 @@
     <!-- DataContext -->
     <Model x:Key="DataContext" RegistrationLocation="Media" Id="Model"/>
 
-    <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
-
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
       <Binding Source="{StaticResource DataContext}" Path="SortOptions" Mode="OneTime"/>

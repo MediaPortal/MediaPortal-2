@@ -107,7 +107,7 @@ namespace Ui.Players.Video
 
     #endregion
 
-    #region variables
+    #region Variables
 
     private enum EvrResult
     {
@@ -141,7 +141,7 @@ namespace Ui.Players.Video
     protected IBaseFilter _videoh264Codec;
     protected IBaseFilter _videoCodec;
     protected IBaseFilter _audioCodec;
-    protected Rectangle _destinationRect;
+
     private TimeSpan _duration;
     private TimeSpan _currentTime;
     private static EvrResult _evrResult = EvrResult.NotTried;
@@ -153,13 +153,12 @@ namespace Ui.Players.Video
     protected string _resumeFile;
     protected IMediaItemLocator _mediaItemLocator;
     protected IMediaItemLocalFsAccessor _mediaItemAccessor;
-    protected int _playerSlot = -1;
-    protected PlayerEventDlgt _started;
-    protected PlayerEventDlgt _stopped;
-    protected PlayerEventDlgt _ended;
-    protected PlayerEventDlgt _paused;
-    protected PlayerEventDlgt _resumed;
-
+    protected PlayerEventDlgt _started = null;
+    protected PlayerEventDlgt _stopped = null;
+    protected PlayerEventDlgt _ended = null;
+    protected PlayerEventDlgt _paused = null;
+    protected PlayerEventDlgt _resumed = null;
+    protected PlayerEventDlgt _playbackError = null;
 
     #endregion
 
@@ -319,20 +318,19 @@ namespace Ui.Players.Video
 
     #region IPlayerEvents implementation
 
-    public void InitializePlayerEvents(int playerSlot, PlayerEventDlgt started, PlayerEventDlgt stopped,
-        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed)
+    public void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stopped,
+        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed, PlayerEventDlgt playbackError)
     {
-      _playerSlot = playerSlot;
       _started = started;
       _stopped = stopped;
       _ended = ended;
       _paused = paused;
       _resumed = resumed;
+      _playbackError = playbackError;
     }
 
     public void ResetPlayerEvents()
     {
-      _playerSlot = -1;
       _started = null;
       _stopped = null;
       _ended = null;
@@ -345,31 +343,31 @@ namespace Ui.Players.Video
     protected void FireStarted()
     {
       if (_started != null)
-        _started(this, _playerSlot);
+        _started(this);
     }
 
     protected void FireStopped()
     {
       if (_stopped != null)
-        _stopped(this, _playerSlot);
+        _stopped(this);
     }
 
     protected void FireEnded()
     {
       if (_ended != null)
-        _ended(this, _playerSlot);
+        _ended(this);
     }
 
     protected void FirePaused()
     {
       if (_paused != null)
-        _paused(this, _playerSlot);
+        _paused(this);
     }
 
     protected void FireResumed()
     {
       if (_resumed != null)
-        _resumed(this, _playerSlot);
+        _resumed(this);
     }
 
     public virtual Guid PlayerId

@@ -54,27 +54,23 @@ namespace UiComponents.SkinBase
 
     protected Timer _timer;
 
-    protected Property _primaryPlayerVideoStreamProperty;
     protected Property _isPausedProperty;
     protected Property _isRunningProperty;
     protected Property _isMutedProperty;
     protected Property _isPlayerActiveProperty;
     protected Property _isPlayControlsVisibleProperty;
     protected Property _isPipProperty;
-    protected Property _pipVideoStreamProperty;
     protected Property _isVideoInfoVisibleProperty;
     protected bool _inCurrentlyPlaying = false;
 
     public PlayerModel()
     {
-      _primaryPlayerVideoStreamProperty = new Property(typeof(int), -1);
       _isPausedProperty = new Property(typeof(bool), false);
       _isRunningProperty = new Property(typeof(bool), false);
       _isPlayerActiveProperty = new Property(typeof(bool), false);
       _isMutedProperty = new Property(typeof(bool), false);
       _isPlayControlsVisibleProperty = new Property(typeof(bool), false);
       _isPipProperty = new Property(typeof(bool), false);
-      _pipVideoStreamProperty = new Property(typeof(int), -1);
       _isVideoInfoVisibleProperty = new Property(typeof(bool), false);
       SubscribeToMessages();
 
@@ -109,9 +105,6 @@ namespace UiComponents.SkinBase
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       switch (messageType)
       {
-        case PlayerManagerMessaging.MessageType.PrimaryPlayerChanged:
-          PrimaryPlayerVideoStream = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-          break;
         case PlayerManagerMessaging.MessageType.PlayerStopped:
           if (_inCurrentlyPlaying)
           {
@@ -147,7 +140,7 @@ namespace UiComponents.SkinBase
     {
       IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayer player = playerManager[playerManager.PrimaryPlayer];
+      IPlayer player = playerManager[0];
       if (player == null)
       {
         IsPaused = false;
@@ -155,11 +148,9 @@ namespace UiComponents.SkinBase
         IsPlayerActive = false;
         IsMuted = false;
         IsPlayControlsVisible = false;
-        PrimaryPlayerVideoStream = -1;
         IsVideoInfoVisible = false;
 
         IsPip = false;
-        PipVideoStream = -1;
       }
       else
       {
@@ -170,20 +161,18 @@ namespace UiComponents.SkinBase
         IVolumeControl volumeControl = player as IVolumeControl;
         IsMuted = volumeControl != null && volumeControl.Mute;
         IsPlayControlsVisible = screenControl.IsMouseUsed;
-        PrimaryPlayerVideoStream = playerManager.PrimaryPlayer;
         // TODO: Trigger video info overlay by a button
         IsVideoInfoVisible = screenControl.IsMouseUsed;
 
         // TODO: PIP configuration
         IsPip = false;
-        PipVideoStream = -1;
       }
     }
 
     protected static IPlayer GetPrimaryPlayer()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      return playerManager[playerManager.PrimaryPlayer];
+      return playerManager[0];
     }
 
     protected static bool CanHandlePlayer(IPlayer player)
@@ -209,28 +198,6 @@ namespace UiComponents.SkinBase
         targetScreen = FULLSCREENVIDEO_SCREEN_NAME;
       if (screenManager.CurrentScreenName != targetScreen)
         screenManager.ShowScreen(targetScreen);
-    }
-
-    public Property PrimaryPlayerVideoStreamProperty
-    {
-      get { return _primaryPlayerVideoStreamProperty; }
-    }
-
-    public int PrimaryPlayerVideoStream
-    {
-      get { return (int) _primaryPlayerVideoStreamProperty.GetValue(); }
-      set { _primaryPlayerVideoStreamProperty.SetValue(value); }
-    }
-
-    public Property PipVideoStreamProperty
-    {
-      get { return _pipVideoStreamProperty; }
-    }
-
-    public int PipVideoStream
-    {
-      get { return (int) _pipVideoStreamProperty.GetValue(); }
-      set { _pipVideoStreamProperty.SetValue(value); }
     }
 
     public Property IsPipProperty

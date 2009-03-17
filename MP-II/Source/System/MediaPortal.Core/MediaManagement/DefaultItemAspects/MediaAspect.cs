@@ -44,6 +44,12 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateAttributeSpecification("Title", typeof(string), Cardinality.Inline);
 
     /// <summary>
+    /// Contains the mime type of the media item.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_MIME_TYPE =
+        MediaItemAspectMetadata.CreateAttributeSpecification("MimeType", typeof(string), Cardinality.Inline);
+
+    /// <summary>
     /// Contains a rectified form of the provider resource path. This might be the DVD folder name, while
     /// the underlaying provider resource path of the media item points to the 'video_ts.ifo' file.
     /// </summary>
@@ -78,6 +84,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         // TODO: Localize name
         ASPECT_ID, "MediaItem", new[] {
             ATTR_TITLE,
+            ATTR_MIME_TYPE,
             ATTR_RECTIFIED_PATH,
             ATTR_RECORDINGTIME,
             ATTR_RATING,

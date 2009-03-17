@@ -59,7 +59,6 @@
   <ItemGroup>
     <Compile Include="MenuModel.cs" />
     <Compile Include="PlayerBackgroundManager.cs" />
-    <Compile Include="PlayerHelper.cs" />
     <Compile Include="PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenSaverModel.cs" />

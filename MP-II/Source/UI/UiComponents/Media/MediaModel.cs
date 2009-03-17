@@ -25,13 +25,16 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Commands;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
+using MediaPortal.Presentation.Players;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
-using UiComponents.SkinBase;
 
 namespace UiComponents.Media
 {
@@ -46,29 +49,45 @@ namespace UiComponents.Media
 
     protected const string VIEW_KEY = "MediaModel: VIEW";
 
+    // Keys for the ListItem's Labels in the ItemsLists
+    public const string NAME_KEY = "Name";
+    public const string MEDIA_ITEM_KEY = "MediaItem";
+
+    public const string PLAY_ITEM_RESOURCE = "[Media.PlayItem]";
+    public const string ENQUEUE_ITEM_RESOURCE = "[Media.EnqueueItem]";
+    public const string PLAY_ITEM_PRIMARY_RESOURCE = "[Media.PlayItemPrimary]";
+    public const string ENQUEUE_ITEM_PRIMARY_RESOURCE = "[Media.EnqueueItemPrimary]";
+    public const string PLAY_ITEM_SECONDARY_RESOURCE = "[Media.PlayItemSecondary]";
+    public const string ENQUEUE_ITEM_SECONDARY_RESOURCE = "[Media.EnqueueItemSecondary]";
+
+    public const string PLAY_MENU_DIALOG_SCREEN = "play_menu_dialog";
+
     #region Protected fields
 
-    protected ItemsList _items;
+    // Media screen
+    protected ItemsList _mediaItems = null;
     protected View _currentView;
     protected bool _hasParentDirectory;
+
+    // Play menu
+    protected ItemsList _playMenuItems = null;
 
     #endregion
 
     public MediaModel()
     {
-      _items = new ItemsList();
       _currentView = RootView;
       _hasParentDirectory = false;
     }
 
     /// <summary>
     /// Provides a list with the sub views and media items of the current view.
-    /// Note: This <see cref="Items"/> list doesn't contain an item to navigate to the parent view.
+    /// Note: This <see cref="MediaItems"/> list doesn't contain an item to navigate to the parent view.
     /// It is job of the skin to provide a means to navigate to the parent view.
     /// </summary>
-    public ItemsList Items
+    public ItemsList MediaItems
     {
-      get { return _items; }
+      get { return _mediaItems; }
     }
 
     /// <summary>
@@ -95,11 +114,19 @@ namespace UiComponents.Media
     }
 
     /// <summary>
+    /// Provides a list of items to be shown in the play menu.
+    /// </summary>
+    public ItemsList PlayMenuItems
+    {
+      get { return _playMenuItems; }
+    }
+
+    /// <summary>
     /// Provides a callable method for the skin to select an item.
     /// Depending on the item type, we will navigate to the choosen view or play the choosen item.
     /// </summary>
     /// <param name="item">The choosen item. This item should be one of the items in the
-    /// <see cref="Items"/> list.</param>
+    /// <see cref="MediaItems"/> list.</param>
     public void Select(ListItem item)
     {
       if (item == null)
@@ -113,7 +140,7 @@ namespace UiComponents.Media
       PlayableItem playableItem = item as PlayableItem;
       if (playableItem != null)
       {
-        PlayItem(playableItem.MediaItem);
+        CheckPlayMenu(playableItem.MediaItem);
         return;
       }
     }
@@ -131,27 +158,99 @@ namespace UiComponents.Media
       WorkflowState newState = WorkflowState.CreateTransientState(
           "View: " + view.DisplayName, MEDIA_MAIN_SCREEN, true, true);
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      IDictionary<string, object> variables = new Dictionary<string, object>();
-      variables.Add(VIEW_KEY, view);
+      IDictionary<string, object> variables = new Dictionary<string, object>
+        {
+            {VIEW_KEY, view}
+        };
       workflowManager.NavigatePushTransient(newState, variables);
     }
 
     /// <summary>
-    /// Does the actual work of playing a media item.
+    /// Checks if we need to show a menu for playing the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The item to play.</param>
+    protected void CheckPlayMenu(MediaItem item)
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      int numOpen = playerManager.NumOpenSlots;
+      if (numOpen == 0)
+        PlayItem(item);
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      if (numOpen == 1)
+      {
+        _playMenuItems = new ItemsList();
+        ListItem playItem = new ListItem(NAME_KEY, PLAY_ITEM_RESOURCE);
+        playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
+        _playMenuItems.Add(playItem);
+        ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_ITEM_RESOURCE);
+        enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerManagerConsts.PRIMARY_SLOT));
+        _playMenuItems.Add(enqueueItem);
+        ListItem playItemSecondary = new ListItem(NAME_KEY, PLAY_ITEM_SECONDARY_RESOURCE);
+        playItemSecondary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerManagerConsts.SECONDARY_SLOT));
+        _playMenuItems.Add(playItemSecondary);
+        screenManager.ShowDialog(PLAY_MENU_DIALOG_SCREEN);
+        return;
+      }
+      // numOpen == 2
+      _playMenuItems = new ItemsList();
+      ListItem playItemPrimary = new ListItem(NAME_KEY, PLAY_ITEM_PRIMARY_RESOURCE);
+      playItemPrimary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerManagerConsts.PRIMARY_SLOT));
+      _playMenuItems.Add(playItemPrimary);
+      ListItem enqueueItemPrimary = new ListItem(NAME_KEY, ENQUEUE_ITEM_PRIMARY_RESOURCE);
+      enqueueItemPrimary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerManagerConsts.PRIMARY_SLOT));
+      _playMenuItems.Add(enqueueItemPrimary);
+      ListItem playItemSecondary_ = new ListItem(NAME_KEY, PLAY_ITEM_SECONDARY_RESOURCE);
+      playItemSecondary_.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerManagerConsts.SECONDARY_SLOT));
+      _playMenuItems.Add(playItemSecondary_);
+      ListItem enqueueItemSecondary = new ListItem(NAME_KEY, ENQUEUE_ITEM_SECONDARY_RESOURCE);
+      enqueueItemSecondary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerManagerConsts.SECONDARY_SLOT));
+      _playMenuItems.Add(enqueueItemSecondary);
+      screenManager.ShowDialog(PLAY_MENU_DIALOG_SCREEN);
+    }
+
+    /// <summary>
+    /// Discards any currently playing items and plays the specified media <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to be played.</param>
     protected static void PlayItem(MediaItem item)
     {
-      // We delegate this to a global helper method, as it is not so easy to play an item...
-      // (see the code in the delegate)
-      PlayerHelper.PlayMediaItem(item);
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+      PlayOrEnqueueItem(item, true, PlayerManagerConsts.PRIMARY_SLOT);
+    }
+
+    /// <summary>
+    /// Depending on parameter <paramref name="play"/>, plays or enqueues the specified media item
+    /// <paramref name="item"/> in the specified <paramref name="playerSlot"/>.
+    /// </summary>
+    /// <param name="item">Media item to be played.</param>
+    /// <param name="play">If <c>true</c>, plays the specified <paramref name="item"/>, else enqueues it.</param>
+    /// <param name="playerSlot">Slot index to enqueue the item.</param>
+    protected static void PlayOrEnqueueItem(MediaItem item, bool play, int playerSlot)
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerSlotController psc;
+      int slotIndex;
+      if (playerManager.NumOpenSlots > playerSlot)
+        psc = playerManager.GetSlot(playerSlot);
+      else if (!playerManager.OpenSlot(out slotIndex, out psc))
+      {
+        ILogger logger = ServiceScope.Get<ILogger>();
+        logger.Error("MediaModel: Unable to open a player slot");
+        return;
+      }
+      if (play)
+        psc.Reset();
+      psc.PlayList.Add(item);
+      if (play)
+        psc.Play();
     }
 
     protected void ReloadItems()
     {
       // We need to create a new items list because the reloading of items takes place while the old
       // screen still shows the old items
-      _items = new ItemsList();
+      _mediaItems = new ItemsList();
       // TODO: Add the items in a separate job while the UI already shows the new screen
       View currentView = CurrentView;
       HasParentDirectory = currentView.ParentView != null;
@@ -159,9 +258,9 @@ namespace UiComponents.Media
       {
         // Add items for sub views
         foreach (View subView in currentView.SubViews)
-          _items.Add(new NavigationItem(subView, null));
+          _mediaItems.Add(new NavigationItem(subView, null));
         foreach (MediaItem item in currentView.MediaItems)
-          _items.Add(new PlayableItem(item));
+          _mediaItems.Add(new PlayableItem(item));
       }
     }
 

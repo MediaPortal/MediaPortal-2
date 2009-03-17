@@ -70,9 +70,18 @@ namespace MediaPortal.Presentation.Players
       #region PlayerManager messages concerning a special player. The param will denote the player slot (int).
 
       /// <summary>
+      /// The slot playing audio changed to a new slot index.
+      /// </summary>
+      AudioSlotChanged,
+
+      #endregion
+
+      #region General messages which don't concern a special player. The param doesn't have a special meaning for these messages.
+
+      /// <summary>
       /// The primary player changed to a new slot.
       /// </summary>
-      PrimaryPlayerChanged,
+      PlayerSlotsChanged,
 
       #endregion
     }
@@ -108,6 +117,20 @@ namespace MediaPortal.Presentation.Players
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
+      queue.Send(msg);
+    }
+
+    /// <summary>
+    /// Sends a message which announces a change in the player manager. The change doesn't concern a specific player
+    /// slot. This method handles the "general messages which don't concern a special player" message types.
+    /// </summary>
+    /// <param name="type">Type of the message.</param>
+    /// <param name="slot">Slot of the player which is involved.</param>
+    public static void SendPlayerManagerPlayerMessage(MessageType type)
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[MESSAGE_TYPE] = type;
       queue.Send(msg);
     }
   }

@@ -24,7 +24,7 @@
 
 namespace MediaPortal.Presentation.Players
 {
-  public delegate void PlayerEventDlgt(IPlayer player, int playerSlot);
+  public delegate void PlayerEventDlgt(IPlayer player);
 
   /// <summary>
   /// Interface for communicating the current player state to the player manager.
@@ -32,20 +32,20 @@ namespace MediaPortal.Presentation.Players
   public interface IPlayerEvents
   {
     /// <summary>
-    /// Initializes the player with its communication handle (the <paramref name="playerSlot"/>). The given
-    /// player slot must be used for the event communication of the state events.
+    /// Initializes the player event delegate methods.
     /// </summary>
-    /// <param name="playerSlot">The player slot to be used in the future state events.</param>
     /// <param name="started">Event delegate to be called when the player was started.</param>
     /// <param name="stopped">Event delegate to be called when the player was stopped.</param>
     /// <param name="ended">Event delegate to be called when the player content has ended.</param>
     /// <param name="paused">Event delegate to be called when the player was paused.</param>
     /// <param name="resumed">Event delegate to be called when the player was resumed.</param>
-    void InitializePlayerEvents(int playerSlot, PlayerEventDlgt started, PlayerEventDlgt stopped,
-        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed);
+    /// <param name="playbackError">Event delegate to be called when the player was an unrecoverable
+    /// error during playback.</param>
+    void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stopped,
+        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed, PlayerEventDlgt playbackError);
 
     /// <summary>
-    /// Removes all player events and resets the player slot.
+    /// Removes all player event delegates.
     /// </summary>
     void ResetPlayerEvents();
   }

@@ -9,9 +9,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[settings.audiocodec]"/>
 
-    <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
-
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
       <Binding Source="{Service Players}" Path="Settings.AudioCodecs" Mode="OneTime"/>

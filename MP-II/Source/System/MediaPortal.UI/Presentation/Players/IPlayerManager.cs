@@ -23,81 +23,88 @@
 #endregion
 
 using System;
-using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
-  public delegate void PlayerWorkerDelegate(IPlayer player);
+  public delegate void PlayerSlotWorkerDelegate(IPlayerSlotController slotController);
 
   /// <summary>
-  /// Manages all active player instances in the application.
+  /// Slot 0: Primary Video
+  /// Slot 1: Secondary Video
+  /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>
   /// </summary>
   /// <remarks>
-  /// There are N slots available for players. A slot holding an active player will produce
-  /// a stream. One of the active players is the primary player. The slot number of the
-  /// primary player will change over time, if multiple players are active.
-  /// A player playing a media item will remain in its slot during the time when it playes
-  /// the media item.
+  /// At the moment, this service is not specified to be thread-safe.
   /// </remarks>
   public interface IPlayerManager : IDisposable
   {
     /// <summary>
-    /// Returns the number of active players.
+    /// Returns the number of open player slots (0, 1 or 2).
+    /// </summary>
+    int NumOpenSlots { get; }
+
+    /// <summary>
+    /// Returns <c>true</c>, if the number of open slots (see <see cref="NumOpenSlots"/>) is less than 2. Else,
+    /// returns <c>false</c>.
+    /// </summary>
+    bool CanOpenSlot { get; }
+
+    /// <summary>
+    /// Gets or sets the index of the slot which provides the audio signal. If there is no active slot
+    /// at the moment, then <see cref="AudioSlotIndex"/> will be <c>-1</c>.
+    /// </summary>
+    int AudioSlotIndex { get; set; }
+
+    /// <summary>
+    /// Opens a player slot.
+    /// This method succeeds if <see cref="CanOpenSlot"/> returned <c>true</c>.
     /// </summary>
     /// <remarks>
-    /// A player is active from its preparation (see <see cref="PreparePlayer"/>) until its release
-    /// (see <see cref="ReleasePlayer"/>).
+    /// This method should be used to start the first or second player slot.
     /// </remarks>
-    int NumActivePlayers { get; }
+    /// <param name="slotIndex">Returns the index of the new slot, if the preparation was successful.</param>
+    /// <param name="controller">Returns the slot controller or the new slot.</param>
+    /// <returns><c>true</c>, if the new slot could be opened, else <c>false</c>.</returns>
+    bool OpenSlot(out int slotIndex, out IPlayerSlotController controller);
 
     /// <summary>
-    /// Gets the player at the specified player slot, or <c>null</c>, if there is no player in the
-    /// specified slot.
+    /// Releases the player of the specified <paramref name="slotIndex"/> and closes the slot.
     /// </summary>
-    IPlayer this[int slot] { get; }
+    /// <remarks>
+    /// If the specified <paramref name="slotIndex"/> provides the audio signal, the audio flag will go to
+    /// the remaining slot, if present. If the specified <paramref name="slotIndex"/> is the first/primary player
+    /// slot, then after closing it the secondary slot will become the primary slot.
+    /// </remarks>
+    /// <param name="slotIndex">Index of the slot to close.</param>
+    void CloseSlot(int slotIndex);
 
     /// <summary>
-    /// Returns the slot number of the currently primary player.
+    /// Stops and releases all active players and closes their slots.
     /// </summary>
-    int PrimaryPlayer { get; }
+    void CloseAllSlots();
 
     /// <summary>
-    /// Makes the player in the specified <paramref name="slot"/> the primary player.
+    /// Gets the player slot instance for the slot of the specified <paramref name="slotIndex"/> index.
     /// </summary>
-    /// <param name="slot">Slot number of an active player.</param>
-    void SetPrimaryPlayer(int slot);
+    /// <param name="slotIndex">Index of the slot to return the controller instance for.</param>
+    /// <returns>The controller instance for the specified slot.</returns>
+    IPlayerSlotController GetSlot(int slotIndex);
 
     /// <summary>
-    /// Tries to prepare a player for the media resource with the specified access information.
-    /// The player will be allocated in an empty player slot, whose slot number will be returned
-    /// if the preparation was successful.
-    /// The <see cref="PrimaryPlayer"/> property will be set to the new player, if there is no other active
-    /// player.
+    /// Gets the player at the specified player slot, or <c>null</c>, if there is no player in the slot.
     /// </summary>
-    /// <param name="locator">Media locator to the media resource to be played.</param>
-    /// <param name="mimeType">MimeType of the content to be played, if available. Else, this
-    /// parameter should be set to <c>null</c>.</param>
-    /// <param name="playerSlot">Returns the slot number of the new player, if the preparation was
-    /// successful.</param>
-    /// <returns>Instance of the new player, or <c>null</c>, if the preparation was not successful,
-    /// i.e. the content cannot be played with the currently available players and/or resources.</returns>
-    IPlayer PreparePlayer(IMediaItemLocator locator, string mimeType, out int playerSlot);
+    IPlayer this[int slotIndex] { get; }
 
     /// <summary>
-    /// Stops the player in the specified <paramref name="playerSlot"/>, releases it and removes
-    /// it from the collection of active players.
+    /// Switches the primary and secondary player slots. The slot controller, which was located in slot 0,
+    /// will be moved to slot 1 and vice-versa. This method only succeeds if there are exactly two open slots.
     /// </summary>
-    void ReleasePlayer(int playerSlot);
+    void SwitchPlayers();
 
     /// <summary>
-    /// Executes the given method on each active player.
+    /// Executes the given method on each active slot.
     /// </summary>
     /// <param name="execute">Method to execute.</param>
-    void ForEach(PlayerWorkerDelegate execute);
-
-    /// <summary>
-    /// Stops and releases all active players.
-    /// </summary>
-    void ReleaseAllPlayers();
+    void ForEach(PlayerSlotWorkerDelegate execute);
   }
 }

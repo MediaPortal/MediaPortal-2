@@ -12,9 +12,6 @@
     <!-- DataContext -->
     <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherModel"/>
 
-    <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
-
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
       <Binding Source="{StaticResource DataContext}" Path="LocationsCollection" Mode="OneTime"/>

@@ -12,9 +12,6 @@
     <!-- DataContext -->
     <Model x:Key="DataContext" RegistrationLocation="Shares" Id="Model"/>
 
-    <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
-
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
       <Binding Source="{StaticResource DataContext}" Path="NoSharesMenu" Mode="OneTime"/>

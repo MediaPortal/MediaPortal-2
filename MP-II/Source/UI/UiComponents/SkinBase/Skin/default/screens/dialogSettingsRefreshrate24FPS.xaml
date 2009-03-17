@@ -12,9 +12,6 @@
     <!-- DataContext -->
     <Model x:Key="DataContext" RegistrationLocation="Settings" Id="RefreshrateSettings"/>
 
-    <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
-
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
       <Binding Source="{StaticResource DataContext}" Path="RefreshRate24" Mode="OneTime"/>

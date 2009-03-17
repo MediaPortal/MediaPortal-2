@@ -172,6 +172,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             long? l;
             string s;
             float? f;
+            // TODO: MediaAspect.ATTR_MIME_TYPE
             s = mediaInfo.GetVidCodec(0);
             if (s != null)
               movieAspect.SetAttribute(MovieAspect.ATTR_VIDEOENCODING, s);

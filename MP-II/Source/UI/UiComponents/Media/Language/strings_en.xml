@@ -7,8 +7,14 @@
     <String Name="MyVideos" Text="Videos"/>
     <String Name="MyPictures" Text="Pictures"/>
     <String Name="ViewInvalid" Text="This view is invalid"/>
-    <String Name="FailedToPlaySelectedItemHeader" Text="Error"/>
-    <String Name="FailedToPlaySelectedItemText" Text="The selected item could not be played (unsupported format?)"/>
+
+    <String Name="PlayItem" Text="Play item"/>
+    <String Name="EnqueueItem" Text="Enqueue item"/>
+    <String Name="PlayItemPrimary" Text="Play item in primary player"/>
+    <String Name="EnqueueItemPrimary" Text="Enqueue item to primary playlist"/>
+    <String Name="PlayItemSecondary" Text="Play item in secondary player"/>
+    <String Name="EnqueueItemSecondary" Text="Enqueue item to secondary playlist"/>
+    <String Name="ChoosePlayerToPlayItem" Text="Choose player"/>
   </Section>
   <Section Name="Settings">
     <String Name="Shares" Text="Shares"/>

@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.PluginManager;
 
@@ -117,60 +119,6 @@ namespace MediaPortal.Core.MediaManagement
     {
       _mediaProvidersPluginItemChangeListener = new MediaProviderPluginItemChangeListener(this);
       _metadataExtractorsPluginItemChangeListener = new MetadataExtractorPluginItemChangeListener(this);
-    }
-
-    #endregion
-
-    #region IMediaManager implementation
-
-    public virtual void Initialize()
-    {
-      RegisterPluginItemListeners();
-    }
-
-    public virtual void Dispose()
-    {
-      UnregisterPluginItemListeners();
-    }
-
-    public IDictionary<Guid, IMediaProvider> LocalMediaProviders
-    {
-      get
-      {
-        CheckProviderPluginsLoaded();
-        return _providers;
-      }
-    }
-
-    public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
-    {
-      get
-      {
-        CheckMetadataExtractorPluginsLoaded();
-        return _metadataExtractors;
-      }
-    }
-
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
-      IEnumerable<Guid> metadataExtractorIds)
-    {
-      if (!LocalMediaProviders.ContainsKey(providerId))
-        return null;
-      IMediaProvider provider = LocalMediaProviders[providerId];
-      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
-      bool success = false;
-      foreach (Guid extractorId in metadataExtractorIds)
-      {
-        if (!LocalMetadataExtractors.ContainsKey(extractorId))
-          continue;
-        IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
-        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes)
-          if (!result.ContainsKey(miaMetadata.AspectId))
-            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
-        if (extractor.TryExtractMetadata(provider, path, result))
-          success = true;
-      }
-      return success ? result : null;
     }
 
     #endregion
@@ -280,6 +228,71 @@ namespace MediaPortal.Core.MediaManagement
           _mediaProvidersPluginItemChangeListener);
       pluginManager.RemoveItemRegistrationChangeListener(METADATA_EXTRACTORS_PLUGIN_LOCATION,
           _metadataExtractorsPluginItemChangeListener);
+    }
+
+    #endregion
+
+    #region IMediaManager implementation
+
+    public IDictionary<Guid, IMediaProvider> LocalMediaProviders
+    {
+      get
+      {
+        CheckProviderPluginsLoaded();
+        return _providers;
+      }
+    }
+
+    public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
+    {
+      get
+      {
+        CheckMetadataExtractorPluginsLoaded();
+        return _metadataExtractors;
+      }
+    }
+
+    public virtual void Initialize()
+    {
+      RegisterPluginItemListeners();
+    }
+
+    public virtual void Dispose()
+    {
+      UnregisterPluginItemListeners();
+    }
+
+    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
+      IEnumerable<Guid> metadataExtractorIds)
+    {
+      if (!LocalMediaProviders.ContainsKey(providerId))
+        return null;
+      IMediaProvider provider = LocalMediaProviders[providerId];
+      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
+      bool success = false;
+      foreach (Guid extractorId in metadataExtractorIds)
+      {
+        if (!LocalMetadataExtractors.ContainsKey(extractorId))
+          continue;
+        IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
+        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes)
+          if (!result.ContainsKey(miaMetadata.AspectId))
+            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
+        if (extractor.TryExtractMetadata(provider, path, result))
+          success = true;
+      }
+      return success ? result : null;
+    }
+
+    public IMediaItemLocator GetMediaItemLocator(MediaItem item)
+    {
+      if (item == null)
+        return null;
+      MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
+      string hostName = (string) providerAspect[ProviderResourceAspect.ATTR_SOURCE_COMPUTER];
+      Guid providerId = new Guid((string) providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID]);
+      string path = (string) providerAspect[ProviderResourceAspect.ATTR_PATH];
+      return new MediaItemLocator(new SystemName(hostName), providerId, path);
     }
 
     #endregion

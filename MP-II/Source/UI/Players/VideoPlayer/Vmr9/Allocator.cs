@@ -279,7 +279,7 @@ namespace Ui.Players.Video.Vmr9
       if (!_usingEvr)
       {
         bool isPIP = false;
-        if (_playerManager[_playerManager.PrimaryPlayer] != _player)
+        if (_playerManager[PlayerManagerConsts.PRIMARY_SLOT] != _player)
         {
           isPIP = true;
         }

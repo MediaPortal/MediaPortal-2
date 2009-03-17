@@ -15,9 +15,6 @@ Usage:
       <ResourceWrapper x:Key="Dialog_Header_Text">
         [Header text to be displayed as dialog title]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="ListViewStyle">
-        [Style for the ListView component]
-      </ResoureWrapper>
       <ResourceWrapper x:Key="Menu_Items">
         [Collection of ListItem instances]
       </ResourceWrapper>
@@ -46,7 +43,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <ListView x:Name="MainMenu" Style="{DynamicResource ListViewStyle}" ItemsSource="{DynamicResource Menu_Items}"
+      <ListView x:Name="MainMenu" Style="{StaticResource MenuListViewStyle}" ItemsSource="{DynamicResource Menu_Items}"
           HorizontalAlignment="Left" VerticalAlignment="Top">
         <ListView.Resources>
           <CommandList x:Key="Menu_Command">

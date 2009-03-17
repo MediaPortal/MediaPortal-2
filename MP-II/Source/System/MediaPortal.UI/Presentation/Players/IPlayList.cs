@@ -27,13 +27,82 @@ using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
+  public enum PlayMode
+  {
+    Continuous,
+    Shuffle
+  }
+
+  public enum RepeatMode
+  {
+    None,
+    One,
+    All
+  }
+
+  /// <summary>
+  /// List of media items to be played in a player slot.
+  /// </summary>
+  /// <remarks>
+  /// The playlist is responsible to manage the list of media items to be playes as well as the
+  /// current play state of the items.
+  /// </remarks>
   public interface IPlaylist
   {
     /// <summary>
-    /// Returns a list of all queued media to play.
+    /// Gets or sets the play mode for the playlist.
     /// </summary>
-    /// <value>The queue.</value>
-    List<MediaItem> Queue { get;}
+    PlayMode PlayMode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the repeat mode for the playlist.
+    /// </summary>
+    RepeatMode RepeatMode { get; set; }
+
+    /// <summary>
+    /// Returns a list of all queued media items to play. The order of the returned list is the original playlist
+    /// order, not the order in which the items will be played.
+    /// </summary>
+    IList<MediaItem> ItemList { get; }
+
+    /// <summary>
+    /// Gets the currently active media item. This is a convenience property for calling
+    /// <see cref="RelativeItem"/> with a relative index of <c>0</c>.
+    /// </summary>
+    MediaItem Current { get; }
+
+    /// <summary>
+    /// Gets a media item in the play order relative to the current item.
+    /// </summary>
+    /// <remarks>
+    /// The current item can be retrieved with the <paramref name="relativeIndex"/> <c>0</c>, for the next item
+    /// use a <paramref name="relativeIndex"/> of <c>0</c>, for the last item use a <paramref name="relativeIndex"/>
+    /// of <c>-1</c>, etc.
+    /// </remarks>
+    /// <param name="relativeIndex">Index relative to the current item.</param>
+    /// <returns>Media item at the specified relative index or <c>null</c>, if there is no media item at the specified
+    /// index.</returns>
+    MediaItem this[int relativeIndex] { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether all items have been played
+    /// </summary>
+    /// <value><c>true</c> if all items have been played; otherwise, <c>false</c>.</value>
+    bool AllPlayed { get; }
+
+    /// <summary>
+    /// Noves the playlist to the previous media item to be played and returns it.
+    /// </summary>
+    /// <returns>Media item instance or <c>null</c>, if there are no previous items available (i.e. the playlist is
+    /// not started at all or empty or the current item is already the first one).</returns>
+    MediaItem Previous();
+
+    /// <summary>
+    /// Noves the playlist to the next media item to be played and returns it.
+    /// </summary>
+    /// <returns>Media item instance or <c>null</c>, if there are no more items to be played (i.e. the playlist is
+    /// not started at all or empty or has reached its end (<see cref="AllPlayed"/> is <c>true</c>)).</returns>
+    MediaItem Next();
 
     /// <summary>
     /// Clears the playlist.
@@ -41,57 +110,49 @@ namespace MediaPortal.Presentation.Players
     void Clear();
 
     /// <summary>
-    /// Adds the specified media item to the playlist
+    /// Adds the specified media item to the playlist.
     /// </summary>
     /// <param name="mediaItem">The media item.</param>
     void Add(MediaItem mediaItem);
 
     /// <summary>
-    /// Removes the specified media item from the playlist
+    /// Removes the specified media item from the playlist.
     /// </summary>
     /// <param name="mediaItem">The media item.</param>
     void Remove(MediaItem mediaItem);
 
     /// <summary>
-    /// Removes the media at the specified index item from the playlist
+    /// Removes the media at the specified index item from the playlist.
     /// </summary>
-    /// <param name="index">The index.</param>
+    /// <param name="index">Index of the item to remove, 0-based.</param>
     void RemoveAt(int index);
 
     /// <summary>
-    /// moves the media at the specified index 1item up in the playlist
+    /// Removes all media items between the playlist indices <paramref name="fromIndex"/> (inclusive)
+    /// up to <paramref name="toIndex"/>, exclusive.
     /// </summary>
-    /// <param name="index">The index.</param>
-    void MoveUp(int index);
+    /// <param name="fromIndex">Starting index of the range to remove (inclusive).</param>
+    /// <param name="toIndex">End index of the range to remove (exclusive).</param>
+    void RemoveRange(int fromIndex, int toIndex);
+
+      /// <summary>
+    /// Exchanges the media items at the specified indices.
+    /// </summary>
+    /// <param name="index1">First item index.</param>
+    /// <param name="index2">Second item index.</param>
+    void Swap(int index1, int index2);
 
     /// <summary>
-    /// moves the media at the specified index 1 item down in the playlist
+    /// Inserts a new media item at the specified index.
     /// </summary>
-    /// <param name="index">The index.</param>
-    void MoveDown(int index);
-
-    /// <summary>
-    /// Inserts a new  media item after the media item specified.
-    /// </summary>
-    /// <param name="item">The new media item.</param>
-    /// <param name="afterThisItem">The media item after which the new media item should be inserted.</param>
+    /// <param name="mediaItem">The new media item.</param>
+    /// <param name="index">Index where the new item should be inserted.</param>
     /// <returns></returns>
-    bool Insert(MediaItem item, MediaItem afterThisItem);
+    bool Insert(int index, MediaItem mediaItem);
     
     /// <summary>
-    /// Gets a value indicating whether all items have been played
-    /// </summary>
-    /// <value><c>true</c> if all items have been played; otherwise, <c>false</c>.</value>
-    bool AllPlayed { get;}
-
-    /// <summary>
-    /// Resets the status for all items to not-played
+    /// Resets the status for all items to not-played.
     /// </summary>
     void ResetStatus();
-
-    /// <summary>
-    /// Shuffles the playlist.
-    /// </summary>
-    void Shuffle();
   }
 }

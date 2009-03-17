@@ -41,7 +41,7 @@
         </Grid>
         <ListView Grid.Row="1"
             Style="{StaticResource ContentsMenuListViewStyle}"
-            ItemsSource="{Binding Items}" IsVisible="{Binding CurrentView.IsValid}">
+            ItemsSource="{Binding MediaItems}" IsVisible="{Binding CurrentView.IsValid}">
           <ListView.Resources>
             <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
                 Parameters="{LateBoundValue Value={Binding}}"/>

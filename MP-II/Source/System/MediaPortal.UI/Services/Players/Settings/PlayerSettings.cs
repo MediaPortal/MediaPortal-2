@@ -22,29 +22,34 @@
 
 #endregion
 
-using MediaPortal.Presentation.Players;
+using MediaPortal.Core.Settings;
 
-namespace MediaPortal.SkinEngine.Players
+namespace MediaPortal.Services.Players.Settings
 {
-  /// <summary>
-  /// Class with static helper methods for player management.
-  /// </summary>
-  public static class PlayersHelper
+  public class PlayerSettings
   {
-    public static void ReleaseGUIResources(IPlayerSlotController psc)
+    #region Protected properties
+
+    protected bool _crossFading = false;
+    protected float _crossFadeDuration = 3.0f;
+
+    #endregion
+
+    [Setting(SettingScope.User)]
+    public bool CrossFading
     {
-      ISlimDXVideoPlayer sdvp = psc.CurrentPlayer as ISlimDXVideoPlayer;
-      if (sdvp == null)
-        return;
-      sdvp.ReleaseGUIResources();
+      get { return _crossFading; }
+      set { _crossFading = value; }
     }
 
-    public static void ReallocGUIResources(IPlayerSlotController psc)
+    /// <summary>
+    /// Duration of crossfading in seconds.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public float CrossFadeDuration
     {
-      ISlimDXVideoPlayer sdvp = psc.CurrentPlayer as ISlimDXVideoPlayer;
-      if (sdvp == null)
-        return;
-      sdvp.ReallocGUIResources();
+      get { return _crossFadeDuration; }
+      set { _crossFadeDuration = value; }
     }
   }
 }

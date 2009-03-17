@@ -13,23 +13,6 @@
     <ResourceWrapper x:Key="Dialog_Header_Text"
         Resource="{Binding Source={Service DialogManager},Path=CurrentDialogData.HeaderText,Mode=OneTime}"/>
 
-    <Style x:Key="DialogButtonContainerStyle" TargetType="{x:Type ListViewItem}">
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type ListViewItem}">
-            <Button Style="{StaticResource ButtonStyle}" Margin="5,0,5,0"
-                Command="{Binding Command}">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
-
     <DataTemplate x:Key="DialogButtonItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
       <Label x:Name="ItemLabel" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
     </DataTemplate>

@@ -32,7 +32,7 @@ namespace MediaPortal.Core.Services.PluginManager
   {
     #region Protected properties
 
-    protected List<Guid> _userDisabledPlugins = new List<Guid>();
+    protected ICollection<Guid> _userDisabledPlugins = new List<Guid>();
 
     #endregion
 

@@ -9,9 +9,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[playback.3]"/>
 
-    <!-- ListView style -->
-    <ResourceWrapper x:Key="ListViewStyle" Resource="{StaticResource MenuListViewStyle}"/>
-
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
       <Binding Source="{Service Players}" Path="Settings.DefaultSubtitleLanguages" Mode="OneTime"/>

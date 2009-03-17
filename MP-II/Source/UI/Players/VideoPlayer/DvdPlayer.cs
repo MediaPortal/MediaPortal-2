@@ -295,7 +295,6 @@ namespace Ui.Players.Video
           //return false;
         }
       }
-      _state = PlaybackState.Playing;
       _pendingCmd = false;
 
 

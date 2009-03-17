@@ -34,16 +34,6 @@ namespace MediaPortal.Core.MediaManagement
   public interface IMediaManager
   {
     /// <summary>
-    /// Initializes media providers, metadata extractors and internal structures.
-    /// </summary>
-    void Initialize();
-
-    /// <summary>
-    /// Cleans up the runtime data of the media manager.
-    /// </summary>
-    void Dispose();
-
-    /// <summary>
     /// Collection of all registered local media providers, organized as a dictionary of
     /// (GUID; provider) mappings.
     /// This media provider collection is the proposed entry point to get access to physical media
@@ -56,6 +46,16 @@ namespace MediaPortal.Core.MediaManagement
     /// (GUID; metadata extractor) mappings.
     /// </summary>
     IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors { get; }
+
+    /// <summary>
+    /// Initializes media providers, metadata extractors and internal structures.
+    /// </summary>
+    void Initialize();
+
+    /// <summary>
+    /// Cleans up the runtime data of the media manager.
+    /// </summary>
+    void Dispose();
 
     /// <summary>
     /// Synchronous metadata extraction method for an extraction of the specified metadata
@@ -71,5 +71,12 @@ namespace MediaPortal.Core.MediaManagement
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
         IEnumerable<Guid> metadataExtractorIds);
+
+    /// <summary>
+    /// Returns a media item locator instance for the specified media <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">Media item to return a locator.</param>
+    /// <returns>Media item locator instance or <c>null</c>, if the item is invalid.</returns>
+    IMediaItemLocator GetMediaItemLocator(MediaItem item);
   }
 }

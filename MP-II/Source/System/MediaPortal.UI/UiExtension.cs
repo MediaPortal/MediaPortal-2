@@ -47,7 +47,7 @@ namespace MediaPortal
     public static void StopAll()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.ReleaseAllPlayers();
+      playerManager.CloseAllSlots();
     }
 
     public static void DisposeUiServices()

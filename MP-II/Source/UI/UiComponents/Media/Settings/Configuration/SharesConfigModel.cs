@@ -29,7 +29,6 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
