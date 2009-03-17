@@ -130,7 +130,7 @@
     </Setter>
   </Style>
 
-  <!-- ************************* ListView Item container styles ************************** -->
+  <!-- ************************* ListView item container styles ************************** -->
 
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
   <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
@@ -200,7 +200,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [DefaultIcon]}" Source="{Binding [ImageSrc]}"/>
+      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
     </Grid>
   </DataTemplate>
@@ -455,7 +455,7 @@
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
-  <!-- *************************** TreeView Item data templates ****************************** -->
+  <!-- *************************** TreeView item data templates ****************************** -->
 
   <!-- A data template for a TreeItem with a radio button -->
   <HierarchicalDataTemplate x:Key="DefaultSingleMarkableTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
