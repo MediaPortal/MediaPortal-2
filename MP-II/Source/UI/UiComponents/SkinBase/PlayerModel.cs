@@ -121,7 +121,6 @@ namespace UiComponents.SkinBase
           }
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
-        case PlayerManagerMessaging.MessageType.PlayerResumed:
           if (_inCurrentlyPlaying)
             // Automatically switch "currently playing" screen if another player is started. This will
             // ensure that the screen is correctly updated when the playlist progresses.
@@ -169,10 +168,10 @@ namespace UiComponents.SkinBase
       }
     }
 
-    protected static IPlayer GetPrimaryPlayer()
+    protected static IPlayerSlotController GetPrimaryPlayerSlotController()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      return playerManager[0];
+      return playerManager.GetSlot(PlayerManagerConsts.PRIMARY_SLOT);
     }
 
     protected static bool CanHandlePlayer(IPlayer player)
@@ -183,15 +182,18 @@ namespace UiComponents.SkinBase
     protected static void UpdateScreenForPrimaryPlayer()
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      IPlayer player = GetPrimaryPlayer();
-      string targetScreen;
-      if (!CanHandlePlayer(player))
+      IPlayerSlotController psc = GetPrimaryPlayerSlotController();
+      if (!psc.IsActive)
         return;
-      if (player is IVideoPlayer)
+      string targetScreen;
+      IPlayer currentPlayer = psc.CurrentPlayer;
+      if (!CanHandlePlayer(currentPlayer))
+        return;
+      if (currentPlayer is IVideoPlayer)
         targetScreen = FULLSCREENVIDEO_SCREEN_NAME;
-      else if (player is IAudioPlayer)
+      else if (currentPlayer is IAudioPlayer)
         targetScreen = FULLSCREENAUDIO_SCREEN_NAME;
-      else if (player is IPicturePlayer)
+      else if (currentPlayer is IPicturePlayer)
         targetScreen = FULLSCREENPICTURE_SCREEN_NAME;
       else
           // Error case: The current player isn't recognized - its none of our supported players
@@ -279,26 +281,28 @@ namespace UiComponents.SkinBase
 
     public void TogglePause()
     {
-      IPlayer player = GetPrimaryPlayer();
-      if (player != null)
-        switch (player.State) {
-          case PlaybackState.Playing:
-            player.Pause();
-            break;
-          case PlaybackState.Paused:
-            player.Resume();
-            break;
-          default:
-            player.Restart();
-            break;
-        }
+      IPlayerSlotController psc = GetPrimaryPlayerSlotController();
+      if (!psc.IsActive)
+        return;
+      switch (psc.PlayerSlotState) {
+        case PlayerSlotState.Playing:
+          psc.Pause();
+          break;
+        case PlayerSlotState.Paused:
+          psc.Play();
+          break;
+        default:
+          psc.Restart();
+          break;
+      }
     }
 
     public void Stop()
     {
-      IPlayer player = GetPrimaryPlayer();
-      if (player != null)
-        player.Stop();
+      IPlayerSlotController psc = GetPrimaryPlayerSlotController();
+      if (!psc.IsActive)
+        return;
+      psc.Stop();
     }
 
     public void Rewind()
@@ -317,7 +321,10 @@ namespace UiComponents.SkinBase
 
     public void ToggleMute()
     {
-      IVolumeControl player = GetPrimaryPlayer() as IVolumeControl;
+      IPlayerSlotController psc = GetPrimaryPlayerSlotController();
+      if (!psc.IsActive)
+        return;
+      IVolumeControl player = psc.CurrentPlayer as IVolumeControl;
       if (player != null)
         player.Mute = !player.Mute;
     }
@@ -337,7 +344,8 @@ namespace UiComponents.SkinBase
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      return CanHandlePlayer(GetPrimaryPlayer());
+      IPlayerSlotController psc = GetPrimaryPlayerSlotController();
+      return psc.IsActive && CanHandlePlayer(psc.CurrentPlayer);
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

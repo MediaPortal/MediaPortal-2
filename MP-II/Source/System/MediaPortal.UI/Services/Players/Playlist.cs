@@ -223,7 +223,7 @@ namespace MediaPortal.Services.Players
 
     public bool Insert(int index, MediaItem mediaItem)
     {
-      if (index < 0 || index >= _itemList.Count)
+      if (index < 0 || index > _itemList.Count)
         return false;
       _itemList.Insert(index, mediaItem);
       if (_playIndexList == null)

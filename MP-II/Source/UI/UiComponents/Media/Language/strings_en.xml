@@ -14,7 +14,7 @@
     <String Name="EnqueueItemPrimary" Text="Enqueue item to primary playlist"/>
     <String Name="PlayItemSecondary" Text="Play item in secondary player"/>
     <String Name="EnqueueItemSecondary" Text="Enqueue item to secondary playlist"/>
-    <String Name="ChoosePlayerToPlayItem" Text="Choose player"/>
+    <String Name="PlayItemDialogHeader" Text="Play item"/>
   </Section>
   <Section Name="Settings">
     <String Name="Shares" Text="Shares"/>

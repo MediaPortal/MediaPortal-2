@@ -73,7 +73,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPlayControlsVisible}">
               <Include Source="screens\osd.xaml"/>
             </StackPanel>
-            <Button x:Name="CurrentlyPlaying" Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}"
+            <Button x:Name="CurrentlyPlaying" Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonWideStyle}"
                 HorizontalAlignment="Center" VerticalAlignment="Bottom" Content="[Players.OpenCurrentlyPlaying]"
                 IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPlayerActive}"
                 Command="{Command Source={StaticResource PlayerModel},Path=ShowCurrentlyPlaying}"/>

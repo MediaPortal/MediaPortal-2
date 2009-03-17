@@ -21,15 +21,15 @@
         </ListView>
 		
         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-		  <Button  Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.add]"
+		  <Button  Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.add]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
-    	  <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.remove]"
+    	  <Button Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.remove]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
         </StackPanel>
 		<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-    	  <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.cancel]"
+    	  <Button Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.cancel]"
               Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
-		   <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.done]">
+		   <Button Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.done]">
 		     <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings"/>

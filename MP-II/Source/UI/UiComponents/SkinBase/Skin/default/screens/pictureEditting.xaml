@@ -22,10 +22,10 @@
     <Button Style="{StaticResource RotateLeftButtonStyle}" Width="32" Height="32" Canvas.Left="454" Canvas.Top="435" Command="{Command Path=Editor.RotateLeft}"/>
     <Button Style="{StaticResource RotateRightButtonStyle}" Width="32" Height="32" Canvas.Left="488" Canvas.Top="435" Command="{Command Path=Editor.RotateRight}"/>
     <StackPanel x:Name="menuPanel" Canvas.Left="30" Canvas.Top="120" Width="180" Margin="0,0,20,0">
-      <Button Style="{StaticResource ButtonStyle}" Height="32"  Command="{Command Path=Editor.SaveImage}">
+      <Button Style="{StaticResource ButtonWideStyle}" Height="32"  Command="{Command Path=Editor.SaveImage}">
         <Label Font="font13" Content="[pictures.save]"/>
       </Button>
-      <Button Style="{StaticResource ButtonStyle}" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}">
+      <Button Style="{StaticResource ButtonWideStyle}" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}">
         <Label Font="font13" Content="[pictures.cancel]"/>
       </Button>
       <CheckBox x:Name="cropButton" Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
@@ -37,7 +37,7 @@
       <CheckBox Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
         <Label Font="font13" Content="[pictures.contrast]"/>
       </CheckBox>
-      <Button Style="{StaticResource ButtonStyle}" Height="32" >
+      <Button Style="{StaticResource ButtonWideStyle}" Height="32" >
         <!-- TODO: Button.Command -->
         <Label Font="font13" Content="[pictures.print]"/>
       </Button>

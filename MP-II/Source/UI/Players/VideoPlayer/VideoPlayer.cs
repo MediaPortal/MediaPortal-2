@@ -148,9 +148,9 @@ namespace Ui.Players.Video
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
+    protected bool _isAudioEnabled = false;
     protected bool _initialized = false;
     List<IPin> _vmr9ConnectionPins = new List<IPin>();
-    protected string _resumeFile;
     protected IMediaItemLocator _mediaItemLocator;
     protected IMediaItemLocalFsAccessor _mediaItemAccessor;
     protected PlayerEventDlgt _started = null;
@@ -1078,6 +1078,21 @@ namespace Ui.Players.Video
 
     }
 
+    protected void CheckAudio()
+    {
+      int volume = 0;
+      if (!_isMuted && _isAudioEnabled)
+        volume = _volume;
+      IBasicAudio audio = _graphBuilder as IBasicAudio;
+      if (audio != null)
+      {
+        // Divide by 100 to get equivalent decibel value. For example, �10,000 is �100 dB. 
+        float fPercent = volume / 100.0f;
+        int iVolume = (int)(5000.0f * fPercent);
+        audio.put_Volume((iVolume - 5000));
+      }
+    }
+
     public virtual void BeginRender(EffectAsset effect)
     {
       if (!_initialized) return;
@@ -1259,6 +1274,18 @@ namespace Ui.Players.Video
       set { _state = value; }
     }
 
+    public bool IsAudioEnabled
+    {
+      get { return _isAudioEnabled; }
+      set
+      {
+        if (_isAudioEnabled == value)
+          return;
+        _isAudioEnabled = value;
+        CheckAudio();
+      }
+    }
+
     public int Volume
     {
       get { return _volume; }
@@ -1284,21 +1311,10 @@ namespace Ui.Players.Video
       get { return (_isMuted); }
       set
       {
-        if (_isMuted != value)
-        {
-          _isMuted = value;
-          int volume = 0;
-          if (!_isMuted)
-            volume = _volume;
-          IBasicAudio audio = _graphBuilder as IBasicAudio;
-          if (audio != null)
-          {
-            // Divide by 100 to get equivalent decibel value. For example, �10,000 is �100 dB. 
-            float fPercent = (float)volume / 100.0f;
-            int iVolume = (int)(5000.0f * fPercent);
-            audio.put_Volume((iVolume - 5000));
-          }
-        }
+        if (_isMuted == value)
+          return;
+        _isMuted = value;
+        CheckAudio();
       }
     }
 

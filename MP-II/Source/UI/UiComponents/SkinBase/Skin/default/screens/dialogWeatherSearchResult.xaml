@@ -30,7 +30,7 @@
           </ListView.Resources>
         </ListView>
         <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Orientation="Horizontal">
-          <Button Name="ButtonCancel" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.back]"
+          <Button Name="ButtonCancel" Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.back]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
         </StackPanel>
       </StackPanel>

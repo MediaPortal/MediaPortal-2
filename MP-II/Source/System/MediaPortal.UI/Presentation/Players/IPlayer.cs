@@ -82,6 +82,12 @@ namespace MediaPortal.Presentation.Players
     TimeSpan Duration { get; }
 
     /// <summary>
+    /// Overrides any special player audio setting. If this property is set to <c>false</c>, the player isn't
+    /// allowed to play audio.
+    /// </summary>
+    bool IsAudioEnabled { get; set; }
+
+    /// <summary>
     /// Will be called from outside to update the <see cref="CurrentTime"/> property to the current
     /// media position.
     /// </summary>

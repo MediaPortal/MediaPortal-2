@@ -137,7 +137,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource ButtonStyle}"
+          <Button Style="{StaticResource ButtonWideStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
@@ -168,7 +168,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource ButtonStyle}" Height="46" Width="360">
+            <Button Style="{StaticResource ButtonWideStyle}" Height="46" Width="360">
               <Button.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>

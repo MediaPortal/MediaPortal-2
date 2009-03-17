@@ -60,19 +60,24 @@ namespace MediaPortal.Presentation.Players
       /// </summary>
       PlayerPaused,
 
-      /// <summary>
-      /// A player was resumed from pause.
-      /// </summary>
-      PlayerResumed,
-
       #endregion
 
-      #region PlayerManager messages concerning a special player. The param will denote the player slot (int).
+      #region PlayerManager messages concerning a special player slot. The param will denote the player slot (int).
 
       /// <summary>
       /// The slot playing audio changed to a new slot index.
       /// </summary>
       AudioSlotChanged,
+
+      /// <summary>
+      /// The slot was activated.
+      /// </summary>
+      PlayerSlotActivated,
+
+      /// <summary>
+      /// The slot was deactivated.
+      /// </summary>
+      PlayerSlotDeactivated,
 
       #endregion
 

@@ -19,7 +19,7 @@
         <TextBox Margin="10,5,10,5" HorizontalAlignment="Left" BorderThickness="1" Width="250"
             Text="{Binding Path=SearchCity,Mode=OneWayToSource}"/>
         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-          <Button Name="ButtonDone" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.done]">
+          <Button Name="ButtonDone" Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.done]">
             <Button.Command>
               <CommandList>
                 <Command Path="SearchLocations" Parameters="{LateBoundValue Value={Binding Path=SearchCity}}"/>
@@ -28,7 +28,7 @@
               </CommandList>
             </Button.Command>
           </Button>
-          <Button Name="ButtonCancel" Margin="5" Style="{StaticResource ButtonStyle}" Content="[system.cancel]"
+          <Button Name="ButtonCancel" Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.cancel]"
               Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
         </StackPanel>
       </StackPanel>

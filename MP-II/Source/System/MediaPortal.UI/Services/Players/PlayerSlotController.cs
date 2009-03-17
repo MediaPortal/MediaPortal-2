@@ -17,7 +17,7 @@ namespace MediaPortal.Services.Players
       protected PlayerBuilderRegistration _builderRegistration = null;
       protected IPlayer _player = null;
       protected Playlist _playlist = null;
-      protected PlayerSlotState _playbackState = PlayerSlotState.Stopped;
+      protected PlayerSlotState _slotState = PlayerSlotState.Inactive;
 
       internal PlayerSlotController(PlayerManager parent, int slotIndex)
       {
@@ -28,6 +28,10 @@ namespace MediaPortal.Services.Players
 
       protected static bool GetItemData(MediaItem item, out IMediaItemLocator locator, out string mimeType)
       {
+        locator = null;
+        mimeType = null;
+        if (item == null)
+          return false;
         IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
         locator = mediaManager.GetMediaItemLocator(item);
         MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
@@ -50,6 +54,7 @@ namespace MediaPortal.Services.Players
         _playerManager.BuildPlayer(locator, mimeType, this);
         if (_player != null)
         {
+          _player.IsAudioEnabled = IsAudioSlot;
           RegisterPlayerEvents();
           return true;
         }
@@ -61,8 +66,8 @@ namespace MediaPortal.Services.Players
         if (_player != null)
         {
           ResetPlayerEvents();
-          _playbackState = PlayerSlotState.Stopped;
-          if (_player.State != Presentation.Players.PlaybackState.Stopped)
+          SetSlotState(PlayerSlotState.Stopped);
+          if (_player.State != PlaybackState.Stopped)
             _player.Stop();
           if (_player is IDisposable)
             ((IDisposable) _player).Dispose();
@@ -95,7 +100,7 @@ namespace MediaPortal.Services.Players
 
       protected void CheckActive()
       {
-        if (_playbackState == PlayerSlotState.Inactive)
+        if (_slotState == PlayerSlotState.Inactive)
           throw new InvalidStateException("PlayerSlotController: PSC is not active");
       }
 
@@ -115,12 +120,10 @@ namespace MediaPortal.Services.Players
 
       protected void OnPlayerStarted(IPlayer player)
       {
-        PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
       }
 
       protected void OnPlayerStopped(IPlayer player)
       {
-        PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, _slotIndex);
         // No automatic closing of slots - has to be done explicitly by the user as a result to the previous event
       }
 
@@ -132,18 +135,41 @@ namespace MediaPortal.Services.Players
 
       protected void OnPlayerPaused(IPlayer player)
       {
-        PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerPaused, _slotIndex);
       }
 
       protected void OnPlayerResumed(IPlayer player)
       {
-        PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerResumed, _slotIndex);
       }
 
       protected void OnPlaybackError(IPlayer player)
       {
         // TODO: Log error
         NextItem();
+      }
+
+      protected void SetSlotState(PlayerSlotState slotState)
+      {
+        if (slotState == _slotState)
+          return;
+        PlayerSlotState oldSlotState = _slotState;
+        _slotState = slotState;
+        if (oldSlotState == PlayerSlotState.Inactive && slotState != PlayerSlotState.Inactive)
+          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotActivated);
+        switch (slotState)
+        {
+          case Presentation.Players.PlayerSlotState.Inactive:
+            PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, _slotIndex);
+            break;
+          case Presentation.Players.PlayerSlotState.Paused:
+            PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerPaused, _slotIndex);
+            break;
+          case Presentation.Players.PlayerSlotState.Playing:
+            PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
+            break;
+          case Presentation.Players.PlayerSlotState.Stopped:
+            PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, _slotIndex);
+            break;
+        }
       }
 
       #region IPlayerSlot implementation
@@ -164,21 +190,28 @@ namespace MediaPortal.Services.Players
           CheckActive();
           return _isAudioSlot;
         }
-        internal set { _isAudioSlot = value; }
+        internal set
+        {
+          _isAudioSlot = value;
+          if (_player != null)
+            _player.IsAudioEnabled = IsAudioSlot;
+        }
       }
 
       public bool IsActive
       {
-        get { return _playbackState != PlayerSlotState.Inactive; }
+        get { return _slotState != PlayerSlotState.Inactive; }
         internal set
         {
+          if (value == IsActive)
+            return;
           if (value)
-            _playbackState = PlayerSlotState.Stopped;
+            SetSlotState(PlayerSlotState.Stopped);
           else
           {
             Reset();
             _isAudioSlot = false;
-            _playbackState = PlayerSlotState.Inactive;
+            SetSlotState(PlayerSlotState.Inactive);
           }
         }
       }
@@ -192,9 +225,9 @@ namespace MediaPortal.Services.Players
         }
       }
 
-      public PlayerSlotState PlaybackState
+      public PlayerSlotState PlayerSlotState
       {
-        get { return _playbackState; }
+        get { return _slotState; }
       }
 
       public IPlayer CurrentPlayer
@@ -216,7 +249,7 @@ namespace MediaPortal.Services.Players
       public void Stop()
       {
         CheckActive();
-        _playbackState = PlayerSlotState.Stopped;
+        SetSlotState(PlayerSlotState.Stopped);
         ReleasePlayer();
         _playlist.ResetStatus();
       }
@@ -226,7 +259,7 @@ namespace MediaPortal.Services.Players
         CheckActive();
         if (_player == null)
           return;
-        _playbackState = PlayerSlotState.Paused;
+        SetSlotState(PlayerSlotState.Paused);
         _player.Pause();
       }
 
@@ -238,31 +271,41 @@ namespace MediaPortal.Services.Players
           NextItem();
           return;
         }
-        if (_playbackState != PlayerSlotState.Paused)
+        if (_slotState != PlayerSlotState.Paused)
           return;
-        _playbackState = PlayerSlotState.Playing;
+        SetSlotState(PlayerSlotState.Playing);
         _player.Resume();
       }
 
       public bool Play(IMediaItemLocator locator, string mimeType)
       {
-        CheckActive();
-        PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
-        if (settings.CrossFading)
+        bool result = false;
+        try
         {
-          ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
-          if (cep != null)
-            return cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration, new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
+          CheckActive();
+          PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
+          if (settings.CrossFading)
+          {
+            ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
+            if (cep != null)
+              return result = cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration,
+                  new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
+          }
+          IReusablePlayer rp = _player as IReusablePlayer;
+          if (rp != null)
+            return result = rp.NextItem(locator, mimeType);
+          if (CreatePlayer(locator, mimeType))
+          {
+            _player.Resume();
+            return result = true;
+          }
+          return result = false;
         }
-        IReusablePlayer rp = _player as IReusablePlayer;
-        if (rp != null)
-          return rp.NextItem(locator, mimeType);
-        if (CreatePlayer(locator, mimeType))
+        finally
         {
-          _player.Resume();
-          return true;
+          if (result)
+            SetSlotState(PlayerSlotState.Playing);
         }
-        return false;
       }
 
       public void Restart()
@@ -270,7 +313,7 @@ namespace MediaPortal.Services.Players
         CheckActive();
         if (_player == null)
           return;
-        _playbackState = PlayerSlotState.Playing;
+        SetSlotState(PlayerSlotState.Playing);
         _player.Restart();
       }
 

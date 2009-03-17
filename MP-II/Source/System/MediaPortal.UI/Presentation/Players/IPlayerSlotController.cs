@@ -44,7 +44,7 @@ namespace MediaPortal.Presentation.Players
   /// change the state, like <see cref="IsActive"/>, <see cref="IsAudioSlot"/>, ..., <see cref="NextItem"/>, ...
   /// </summary>
   /// <remarks>
-  /// This player slot can adopt similar play states as the player (see <see cref="PlaybackState"/>). The states differ
+  /// This player slot can adopt similar play states as the player (see <see cref="PlayerSlotState"/>). The states differ
   /// when the player is exchanged because of a playlist advance.<br/>
   /// </remarks>
   public interface IPlayerSlotController
@@ -74,7 +74,7 @@ namespace MediaPortal.Presentation.Players
     /// <summary>
     /// Gets the playback state of this player slot.
     /// </summary>
-    PlayerSlotState PlaybackState { get; }
+    PlayerSlotState PlayerSlotState { get; }
 
     /// <summary>
     /// Gets the player playing the current item in the playlist.
