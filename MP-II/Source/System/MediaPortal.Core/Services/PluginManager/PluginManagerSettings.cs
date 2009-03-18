@@ -32,7 +32,7 @@ namespace MediaPortal.Core.Services.PluginManager
   {
     #region Protected properties
 
-    protected ICollection<Guid> _userDisabledPlugins = new List<Guid>();
+    protected List<Guid> _userDisabledPlugins = new List<Guid>();
 
     #endregion
 
@@ -53,5 +53,15 @@ namespace MediaPortal.Core.Services.PluginManager
       get { return _userDisabledPlugins; }
       set { _userDisabledPlugins = new List<Guid>(value); }
     }
+
+    #region Additional members for the XML serialization
+
+    public List<Guid> XML_UserDisabledPlugins
+    {
+      get { return _userDisabledPlugins; }
+      set { _userDisabledPlugins = value; }
+    }
+
+    #endregion
   }
 }
