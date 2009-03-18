@@ -30,7 +30,7 @@ namespace UiComponents.SkinBase
   {
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       // Nothing to do here
     }

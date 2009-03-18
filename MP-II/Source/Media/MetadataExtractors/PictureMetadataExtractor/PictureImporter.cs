@@ -54,7 +54,7 @@ namespace Media.Importers.PictureImporter
 
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       CreatePictureDatabase();
     }

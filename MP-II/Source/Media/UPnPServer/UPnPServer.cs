@@ -45,7 +45,7 @@ namespace Components.UPnPServer
 
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       SetStartupTimer(new Timer(Start, null, 1000, Timeout.Infinite));
     }

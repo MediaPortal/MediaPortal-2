@@ -193,7 +193,7 @@ namespace Components.Services.ImporterManager
 
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
       // Get all Importer plugins

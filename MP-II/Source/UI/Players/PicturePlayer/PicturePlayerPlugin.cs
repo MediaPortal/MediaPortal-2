@@ -37,7 +37,7 @@ namespace Media.Players.PicturePlayer
 
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       _settings = new PicturePlayerSettings();
     }

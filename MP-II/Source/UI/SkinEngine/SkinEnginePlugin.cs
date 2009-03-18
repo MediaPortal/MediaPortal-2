@@ -121,7 +121,7 @@ namespace MediaPortal.SkinEngine
 
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       ServiceScope.Add<ISkinEngine>(this);
     }

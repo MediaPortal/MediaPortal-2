@@ -39,7 +39,7 @@ namespace MediaPortal.Core.PluginManager
     /// or an item access which makes the plugin active.
     /// This method is called after the plugin's state was set to <see cref="PluginState.Active"/>.
     /// </remarks>
-    void Activated();
+    void Activated(PluginRuntime pluginRuntime);
 
     /// <summary>
     /// Schedules the stopping of this plugin. This method returns the information

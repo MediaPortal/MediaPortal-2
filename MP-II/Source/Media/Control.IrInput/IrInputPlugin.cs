@@ -65,7 +65,7 @@ namespace Components.Control.IrInput
 
     #region IPluginStateTracker Members
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       Thread startupThread = new Thread(Start);
       startupThread.IsBackground = true;

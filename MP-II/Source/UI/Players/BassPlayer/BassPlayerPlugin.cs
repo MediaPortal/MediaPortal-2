@@ -45,7 +45,7 @@ namespace Media.Players.BassPlayer
 
     #region IPluginStateTracker Members
 
-    void IPluginStateTracker.Activated()
+    void IPluginStateTracker.Activated(PluginRuntime pluginRuntime)
     {
       if (_BassPlayerSettings == null)
         _BassPlayerSettings = ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();

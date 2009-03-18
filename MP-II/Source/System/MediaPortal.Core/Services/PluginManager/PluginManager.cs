@@ -654,7 +654,7 @@ namespace MediaPortal.Core.Services.PluginManager
             else if (obj is IPluginStateTracker)
             {
               plugin.StateTracker = obj as IPluginStateTracker;
-              plugin.StateTracker.Activated();
+              plugin.StateTracker.Activated(plugin);
             }
             else
               logger.Error("PluginManager: Plugin state tracker class '{0}' of plugin '{1}' doesn't implement interface {3}",

@@ -414,7 +414,7 @@ namespace Components.Services.AutoPlay
 
     #region IPluginStateTracker implementation
 
-    public void Activated()
+    public void Activated(PluginRuntime pluginRuntime)
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
       queue.MessageReceived += OnPluginManagerMessageReceived;
