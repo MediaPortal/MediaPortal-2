@@ -249,6 +249,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
       if (Closed != null)
         Closed(this, null);
+      _visual.Dispose();
     }
 
     private void OnKeyPressed(ref Key key)

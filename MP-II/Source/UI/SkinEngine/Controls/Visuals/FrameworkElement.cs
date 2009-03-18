@@ -941,12 +941,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Allocate()
     {
+      base.Allocate();
       if (_opacityMaskContext != null)
         ContentManager.Add(_opacityMaskContext);
     }
 
     public override void Deallocate()
     {
+      base.Deallocate();
       if (_opacityMaskContext != null)
       {
         //Trace.WriteLine("FrameworkElement: Deallocate _opacityMaskContext");

@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.MpfElements;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
 {

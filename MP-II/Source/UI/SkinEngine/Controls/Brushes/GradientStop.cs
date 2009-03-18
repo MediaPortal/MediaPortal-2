@@ -25,6 +25,7 @@
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes

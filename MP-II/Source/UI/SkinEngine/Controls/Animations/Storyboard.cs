@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.MpfElements;
 
 namespace MediaPortal.SkinEngine.Controls.Animations
 {

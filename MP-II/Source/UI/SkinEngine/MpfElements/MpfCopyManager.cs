@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Controls;
 
 namespace MediaPortal.SkinEngine.MpfElements
 {                            

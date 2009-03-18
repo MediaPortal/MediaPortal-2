@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Animations

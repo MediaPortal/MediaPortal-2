@@ -275,19 +275,5 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_templateControl != null)
         childrenOut.Add(_templateControl);
     }
-
-    public override void Deallocate()
-    {
-      base.Deallocate();
-      if (_templateControl != null)
-        _templateControl.Deallocate();
-    }
-
-    public override void Allocate()
-    {
-      base.Allocate();
-      if (_templateControl != null)
-        _templateControl.Allocate();
-    }
   }
 }

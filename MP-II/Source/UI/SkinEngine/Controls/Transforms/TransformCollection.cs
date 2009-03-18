@@ -25,6 +25,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Transforms

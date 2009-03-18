@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Controls;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {

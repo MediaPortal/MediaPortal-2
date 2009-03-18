@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Commands
@@ -33,7 +33,7 @@ namespace MediaPortal.SkinEngine.Commands
   /// <see cref="IExecutableCommand"/> implementation to execute an
   /// <see cref="ICommandStencil"/> with a list of actual parameters.
   /// </summary>
-  public class InvokeCommand : DependencyObject, IDeepCopyable, IExecutableCommand
+  public class InvokeCommand : DependencyObject, IExecutableCommand
   {
     #region Protected fields
 

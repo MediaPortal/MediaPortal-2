@@ -326,6 +326,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      foreach (UIElement child in GetChildren())
+        child.Dispose();
+    }
+
     #endregion
 
     void OnOpacityPropertyChanged(Property property, object oldValue)
@@ -1006,10 +1013,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public virtual void Allocate()
     {
+      foreach (FrameworkElement child in GetChildren())
+        child.Allocate();
     }
 
     public virtual void Deallocate()
     {
+      foreach (FrameworkElement child in GetChildren())
+        child.Deallocate();
     }
 
     public void SetScreen(Screen screen)

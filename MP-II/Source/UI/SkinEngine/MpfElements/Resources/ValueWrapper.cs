@@ -22,7 +22,6 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;

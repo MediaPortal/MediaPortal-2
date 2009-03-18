@@ -30,9 +30,8 @@ using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls
+namespace MediaPortal.SkinEngine.MpfElements
 {
-
   /// <summary>
   /// Represents an object which can contain foreign attached properties.
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
@@ -74,6 +73,14 @@ namespace MediaPortal.SkinEngine.Controls
       if (d._bindings != null)
         foreach (BindingBase binding in d._bindings)
           copyManager.GetCopy(binding);
+    }
+
+    public virtual void Dispose()
+    {
+      DataContext = null;
+      if (_bindings != null)
+        foreach (BindingBase _binding in new List<BindingBase>(_bindings))
+          _binding.Dispose();
     }
 
     #endregion

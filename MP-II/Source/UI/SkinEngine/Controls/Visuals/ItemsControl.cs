@@ -24,7 +24,6 @@
 
 using System.Collections;
 using System.Drawing;
-using MediaPortal.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Commands;

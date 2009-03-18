@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 

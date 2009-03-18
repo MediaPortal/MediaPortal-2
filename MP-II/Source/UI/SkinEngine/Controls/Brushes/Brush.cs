@@ -28,6 +28,7 @@ using MediaPortal.SkinEngine.Controls.Transforms;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;

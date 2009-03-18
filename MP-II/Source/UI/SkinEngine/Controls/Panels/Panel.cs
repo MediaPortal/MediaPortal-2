@@ -28,6 +28,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
@@ -356,8 +357,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void Deallocate()
     {
       base.Deallocate();
-      foreach (FrameworkElement child in Children)
-        child.Deallocate();
       if (_backgroundAsset != null)
       {
         _backgroundAsset.Free(true);
@@ -377,8 +376,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void Allocate()
     {
       base.Allocate();
-      foreach (FrameworkElement child in Children)
-        child.Allocate();
       if (_backgroundAsset != null)
         ContentManager.Add(_backgroundAsset);
       if (Background != null)

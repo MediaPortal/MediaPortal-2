@@ -21,6 +21,7 @@
 */
 #endregion
 
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Styles

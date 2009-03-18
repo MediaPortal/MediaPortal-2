@@ -25,8 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Controls;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
@@ -69,7 +69,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> or by a deep copying procedure
     /// (call to <see cref="DeepCopy(IDeepCopyable,ICopyManager)"/>).
     /// </summary>
-    public BindingBase()
+    protected BindingBase()
     { }
 
     /// <summary>
@@ -78,14 +78,15 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <see cref="BindingMarkupExtension"/>s which are used as data context,
     /// for example.
     /// </summary>
-    public BindingBase(DependencyObject contextObject)
+    protected BindingBase(DependencyObject contextObject)
     {
       AttachToTargetObject(contextObject);
     }
 
-    public virtual void Dispose()
+    public override void Dispose()
     {
       DetachFromTargetObject();
+      base.Dispose();
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
