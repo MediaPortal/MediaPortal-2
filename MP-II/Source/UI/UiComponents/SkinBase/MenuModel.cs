@@ -42,11 +42,6 @@ namespace UiComponents.SkinBase
       get { return GetCurrentMenuItems(); }
     }
 
-    public ItemsList ContextMenuItems
-    {
-      get { return GetCurrentContextMenuItems(); }
-    }
-
     #region Protected methods
 
     protected static ItemsList GetCurrentMenuItems()
@@ -58,19 +53,6 @@ namespace UiComponents.SkinBase
       {
         result = WrapMenu(context.MenuActions.Values);
         context.SetContextVariable(MENU_ITEMS_KEY, result);
-      }
-      return result;
-    }
-
-    protected static ItemsList GetCurrentContextMenuItems()
-    {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      NavigationContext context = workflowManager.CurrentNavigationContext;
-      ItemsList result = (ItemsList) context.GetContextVariable(CONTEXT_MENU_ITEMS_KEY, false);
-      if (result == null)
-      {
-        result = WrapMenu(context.ContextMenuActions.Values);
-        context.SetContextVariable(CONTEXT_MENU_ITEMS_KEY, result);
       }
       return result;
     }

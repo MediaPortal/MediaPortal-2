@@ -44,7 +44,6 @@ namespace MediaPortal.Presentation.Workflow
     protected NavigationContext _predecessor;
     protected WorkflowState _workflowState;
     protected IDictionary<Guid, WorkflowStateAction> _menuActions = new Dictionary<Guid, WorkflowStateAction>();
-    protected IDictionary<Guid, WorkflowStateAction> _contextMenuActions = new Dictionary<Guid, WorkflowStateAction>();
     protected Guid? _workflowModelId = null;
     protected IDictionary<Guid, object> _models = new Dictionary<Guid, object>();
 
@@ -134,14 +133,6 @@ namespace MediaPortal.Presentation.Workflow
     public IDictionary<Guid, WorkflowStateAction> MenuActions
     {
       get { return _menuActions; }
-    }
-
-    /// <summary>
-    /// Returns a collection of all context menu actions available from this navigation context.
-    /// </summary>
-    public IDictionary<Guid, WorkflowStateAction> ContextMenuActions
-    {
-      get { return _contextMenuActions; }
     }
 
     /// <summary>
