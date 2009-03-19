@@ -23,59 +23,70 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.Core;
+using MediaPortal.Presentation.Actions;
+using MediaPortal.Presentation.Workflow;
 
 namespace MediaPortal.SkinEngine.InputManagement
 {
+  /// <summary>
+  /// Delegate for a mouse handler.
+  /// </summary>
+  /// <param name="x">X coordinate of the new mouse position.</param>
+  /// <param name="y">Y coordinate of the new mouse position.</param>
+  public delegate void MouseMoveHandler(float x, float y);
+
+  /// <summary>
+  /// Delegate for a key handler.
+  /// </summary>
+  /// <param name="key">The key which was pressed. This parmeter should be set to <see cref="Key.None"/> when the
+  /// key was consumed.</param>
+  public delegate void KeyPressedHandler(ref Key key);
+
+  /// <summary>
+  /// Input manager class which provides the public <see cref="IInputManager"/> interface and some other
+  /// skin engine internal functionality.
+  /// </summary>
   public class InputManager : IInputManager
   {
     #region Protected fields
 
-    private ICollection<Key> _registeredKeys;
-    private bool _needRawKeyboardData;
     protected DateTime _lastMouseUsageTime = DateTime.MinValue;
     protected DateTime _lastInputTime = DateTime.MinValue;
 
+    protected static InputManager _instance = null;
+
     #endregion
 
-    #region Events
+    public InputManager() { }
 
+    public static InputManager Instance
+    {
+      get
+      {
+        if (_instance == null)
+          _instance = new InputManager();
+        return _instance;
+      }
+    }
+
+    /// <summary>
+    /// Can be registered by classes of the skin engine to be informed about mouse movements.
+    /// </summary>
     public event MouseMoveHandler MouseMoved;
+
+    /// <summary>
+    /// Can be registered by classes of the skin engine to be informed about key events.
+    /// </summary>
     public event KeyPressedHandler KeyPressed;
 
-    #endregion
+    /// <summary>
+    /// Can be registered by classes of the skin engine to preview key events before shortcuts are triggered.
+    /// </summary>
+    public event KeyPressedHandler KeyPreview;
 
-    public InputManager()
-    {
-      _needRawKeyboardData = false;
-      _registeredKeys = new List<Key>();
-      _registeredKeys.Add(Key.ContextMenu);
-      _registeredKeys.Add(Key.Down);
-      _registeredKeys.Add(Key.DvdDown);
-      _registeredKeys.Add(Key.DvdLeft);
-      _registeredKeys.Add(Key.DvdMenu);
-      _registeredKeys.Add(Key.DvdRight);
-      _registeredKeys.Add(Key.DvdSelect);
-      _registeredKeys.Add(Key.DvdUp);
-      _registeredKeys.Add(Key.End);
-      _registeredKeys.Add(Key.Enter);
-      _registeredKeys.Add(Key.Home);
-      _registeredKeys.Add(Key.Left);
-      _registeredKeys.Add(Key.None);
-      _registeredKeys.Add(Key.PageDown);
-      _registeredKeys.Add(Key.PageUp);
-      _registeredKeys.Add(Key.Right);
-      _registeredKeys.Add(Key.Up);
-      _registeredKeys.Add(Key.ZoomMode);
-      _registeredKeys.Add(Key.Space);
-    }
-
-    public ICollection<Key> Keys
-    {
-      get { return _registeredKeys; }
-    }
+    #region IInputManager implementation
 
     public DateTime LastMouseUsageTime
     {
@@ -101,22 +112,22 @@ namespace MediaPortal.SkinEngine.InputManagement
     public void KeyPress(Key key)
     {
       _lastInputTime = DateTime.Now;
-      if (KeyPressed != null)
-        KeyPressed(ref key);
+        if (KeyPreview != null)
+          KeyPreview(ref key);
+      if (key == Key.None)
+        return;
+      // Try shortcuts...
+      NavigationContext navigationContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+      CommandShortcut shortcut = navigationContext.GetShortcut(key);
+      if (shortcut == null)
+      {
+        if (KeyPressed != null)
+          KeyPressed(ref key);
+      }
+      else
+        shortcut.Action();
     }
 
-    public void KeyPress(string keyName)
-    {
-      _lastInputTime = DateTime.Now;
-      foreach (Key key in Keys)
-        if (String.Compare(keyName, key.Name, true) == 0)
-          KeyPress(key);
-    }
-
-    public bool NeedRawKeyData
-    {
-      get { return _needRawKeyboardData; }
-      set { _needRawKeyboardData = value; }
-    }
+    #endregion
   }
 }

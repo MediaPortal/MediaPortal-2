@@ -73,6 +73,7 @@ namespace UiComponents.SkinBase
       _isPipProperty = new Property(typeof(bool), false);
       _isVideoInfoVisibleProperty = new Property(typeof(bool), false);
       SubscribeToMessages();
+      RegisterShortcuts();
 
       // Setup timer to update the properties
       _timer = new Timer(500);
@@ -85,6 +86,7 @@ namespace UiComponents.SkinBase
       _timer.Elapsed -= OnTimerElapsed;
       _timer.Enabled = false;
       UnsubscribeFromMessages();
+      UnregisterShortcuts();
     }
 
     protected void SubscribeToMessages()
@@ -133,6 +135,16 @@ namespace UiComponents.SkinBase
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
       UpdatePlayControls();
+    }
+
+    protected void RegisterShortcuts()
+    {
+      // TODO: Shortcuts for play, pause, etc.
+    }
+
+    protected void UnregisterShortcuts()
+    {
+      // TODO
     }
 
     protected void UpdatePlayControls()

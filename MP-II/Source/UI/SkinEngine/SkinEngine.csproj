@@ -118,6 +118,7 @@
     <Compile Include="Geometry\GeometryStretch.cs" />
     <Compile Include="Geometry\GeometryZoom.cs" />
     <Compile Include="Geometry\GeometryZoom149.cs" />
+    <Compile Include="InputManagement\InputMapper.cs" />
     <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\ITypeConverter.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />

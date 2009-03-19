@@ -24,7 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.Models;
+using MediaPortal.Control.InputManager;
 
 namespace MediaPortal.Presentation.Workflow
 {
@@ -38,6 +40,12 @@ namespace MediaPortal.Presentation.Workflow
   /// </remarks>
   public class NavigationContext
   {
+    #region Consts
+
+    protected const string SHORTCUTS_KEY = "NavigationContext: CommandShortcuts";
+
+    #endregion
+
     #region Protected fields
 
     protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
@@ -88,6 +96,84 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
+    /// Returns the workflow model id used in this navigation context.
+    /// </summary>
+    public Guid? WorkflowModelId
+    {
+      get { return _workflowModelId; }
+    }
+
+    /// <summary>
+    /// Returns the predecessor navigation context, if it exists. For the root navigation context,
+    /// <c>null</c> will be returned.
+    /// </summary>
+    public NavigationContext Predecessor
+    {
+      get { return _predecessor; }
+    }
+
+    /// <summary>
+    /// Returns a collection of all menu actions available from this navigation context.
+    /// </summary>
+    public IDictionary<Guid, WorkflowStateAction> MenuActions
+    {
+      get { return _menuActions; }
+    }
+
+    /// <summary>
+    /// Returns the dictionary of all models which are used in this navigation context.
+    /// This contains the workflow model as well as additional models for this state.
+    /// </summary>
+    public IDictionary<Guid, object> Models
+    {
+      get { return _models; }
+    }
+
+    /// <summary>
+    /// Adds a command shortcut to this workflow navigation context. The shortcut will be active for
+    /// this navigation context and all successors.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    /// <param name="action">The action which should be executed.</param>
+    public void AddShortcut(Key key, ActionDlgt action)
+    {
+      IDictionary<Key, CommandShortcut> localShortcuts = GetLocalShortcuts(true);
+      localShortcuts.Add(key, new CommandShortcut(key, action));
+    }
+
+    /// <summary>
+    /// Removes a command shortcut from this workflow navigation context. The shortcut can only be removed if
+    /// it was registered at this navigation context. Shortcuts, which were registered at predecessor contexts
+    /// cannot be removed.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    public void RemoveShortcut(Key key)
+    {
+      IDictionary<Key, CommandShortcut> localShortcuts = GetLocalShortcuts(true);
+      if (localShortcuts != null)
+        localShortcuts.Remove(key);
+    }
+
+    /// <summary>
+    /// Gets the shortcut registered for the specified key, if available. This method searches through all
+    /// local shortcuts and all inherited shortcuts.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    /// <returns>Command shortcut instance or <c>null</c>, if there is no shortcut registered for the specified
+    /// <paramref name="key"/>.</returns>
+    public CommandShortcut GetShortcut(Key key)
+    {
+      IDictionary<Key, CommandShortcut> localShortcuts = GetLocalShortcuts(false);
+      if (localShortcuts != null)
+      {
+        CommandShortcut shortcut;
+        if (localShortcuts.TryGetValue(key, out shortcut))
+          return shortcut;
+      }
+      return _predecessor == null ? null : _predecessor.GetShortcut(key);
+    }
+
+    /// <summary>
     /// Gets or sets context variables in the current navigation context.
     /// </summary>
     /// <remarks>
@@ -127,38 +213,15 @@ namespace MediaPortal.Presentation.Workflow
       _contextVariables[key] = value;
     }
 
-    /// <summary>
-    /// Returns a collection of all menu actions available from this navigation context.
-    /// </summary>
-    public IDictionary<Guid, WorkflowStateAction> MenuActions
+    protected IDictionary<Key, CommandShortcut> GetLocalShortcuts(bool createIfNotExists)
     {
-      get { return _menuActions; }
-    }
-
-    /// <summary>
-    /// Returns the workflow model id used in this navigation context.
-    /// </summary>
-    public Guid? WorkflowModelId
-    {
-      get { return _workflowModelId; }
-    }
-
-    /// <summary>
-    /// Returns the dictionary of all models which are used in this navigation context.
-    /// This contains the workflow model as well as additional models for this state.
-    /// </summary>
-    public IDictionary<Guid, object> Models
-    {
-      get { return _models; }
-    }
-
-    /// <summary>
-    /// Returns the predecessor navigation context, if it exists. For the root navigation context,
-    /// <c>null</c> will be returned.
-    /// </summary>
-    public NavigationContext Predecessor
-    {
-      get { return _predecessor; }
+      object o;
+      IDictionary<Key, CommandShortcut> shortcuts = null;
+      if (_contextVariables.TryGetValue(SHORTCUTS_KEY, out o))
+        shortcuts = (IDictionary<Key, CommandShortcut>) o;
+      else if (createIfNotExists)
+        _contextVariables.Add(SHORTCUTS_KEY, shortcuts = new Dictionary<Key, CommandShortcut>());
+      return shortcuts;
     }
 
     #endregion

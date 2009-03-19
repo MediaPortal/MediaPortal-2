@@ -22,55 +22,54 @@
 
 #endregion
 
-using System;
-using System.Windows.Forms;
-using System.Xml.Serialization;
+using System.Collections.Generic;
+using MediaPortal.Core.Settings;
 
-namespace Components.Control.IrInput
+namespace UiComponents.IrInput
 {
-  [XmlRoot]
-  public class MappedKeyCode
+  /// <summary>
+  /// Settings class for IrInputPlugin.
+  /// </summary>
+  public class IrInputSettings
   {
-
     #region Variables
 
-    Keys _key;
-    string _code;
-    
+    protected string _serverHost;
+    protected List<MappedKeyCode> _remoteMap;
+
     #endregion Variables
 
     #region Properties
 
-    [XmlAttribute]
-    public Keys Key
+    /// <summary>
+    /// Gets or sets the server host.
+    /// </summary>
+    [Setting(SettingScope.Global, "localhost")]
+    public string ServerHost
     {
-      get { return _key; }
-      set { _key = value; }
+      get { return _serverHost; }
+      set { _serverHost = value; }
     }
-    
-    [XmlAttribute]
-    public string Code
+
+    /// <summary>
+    /// Gets or sets the remote map.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public ICollection<MappedKeyCode> RemoteMap
     {
-      get { return _code; }
-      set { _code = value; }
+      get { return _remoteMap; }
     }
 
     #endregion Properties
 
-    #region Constructors
+    #region Additional members for the XML serialization
 
-    public MappedKeyCode() : this(Keys.None, String.Empty) { }
-
-    public MappedKeyCode(string key, string code) : this((Keys)new KeysConverter().ConvertFrom(key), code) { }
-
-    public MappedKeyCode(Keys key, string code)
+    public List<MappedKeyCode> XML_RemoteMap
     {
-      _key  = key;
-      _code = code;
+      get { return _remoteMap; }
+      set { _remoteMap = value; }
     }
-    
-    #endregion Constructors
 
+    #endregion
   }
-
 }

@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -57,7 +58,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at
-    /// the <see cref="IInputManager"/>.
+    /// the <see cref="InputManager"/>.
     /// </summary>
     protected bool _attachedInput = false;
 
@@ -199,7 +200,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       if (!_attachedInput)
       {
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        InputManager inputManager = InputManager.Instance;
         inputManager.KeyPressed += OnKeyPressed;
         inputManager.MouseMoved += OnMouseMove;
         _attachedInput = true;
@@ -210,7 +211,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       if (_attachedInput)
       {
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        InputManager inputManager = InputManager.Instance;
         inputManager.KeyPressed -= OnKeyPressed;
         inputManager.MouseMoved -= OnMouseMove;
         _attachedInput = false;

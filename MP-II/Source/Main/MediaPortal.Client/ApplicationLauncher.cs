@@ -112,10 +112,12 @@ namespace MediaPortal
         // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
         // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
         // 3) After the workflow states and actions are loaded, the startup screen can be shown
+        // 4) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
         mediaManager.Initialize(); // Independent from skin engine/skin resources
         skinEngine.Initialize(); // 1)
         workflowManager.Initialize(); // 2)
         skinEngine.Startup(); // 3)
+        UiExtension.RegisterDefaultCommandShortcuts();
 
         Application.Run();
         // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
@@ -144,6 +146,7 @@ namespace MediaPortal
 #endif
       }
 
+      //TODO Albert: cleanup this
       // Running in a new AppDomain didn't bring any extra protection for catching exceptions
       // reverting code.
       //// MP2 is now started in a new AppDomain.

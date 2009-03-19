@@ -73,6 +73,7 @@
     <Compile Include="Configuration\ConfigurationClasses\SingleSelectionList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\YesNo.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
+    <Compile Include="Presentation\Actions\CommandShortcut.cs" />
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />
@@ -104,7 +105,6 @@
     <Compile Include="Presentation\Geometries\IGeometryManager.cs" />
     <Compile Include="Control\InputManager\IInputManager.cs" />
     <Compile Include="Control\InputManager\Key.cs" />
-    <Compile Include="Control\InputManager\IInputMapper.cs" />
     <Compile Include="Presentation\Localization\ILocalization.cs" />
     <Compile Include="Presentation\Localization\NoLocalization.cs" />
     <Compile Include="Presentation\Localization\RegionSettings.cs" />
@@ -154,7 +154,6 @@
     <Compile Include="Services\Burning\EventHelper.cs" />
     <Compile Include="Services\Burning\MediaInfo.cs" />
     <Compile Include="Services\Burning\MediaTypeSupport.cs" />
-    <Compile Include="Services\InputManager\InputMapper.cs" />
     <Compile Include="Services\Localization\LocalizationStrings.cs" />
     <Compile Include="Services\Localization\StringManager.cs" />
     <Compile Include="Services\Logging\CrashLogger.cs" />

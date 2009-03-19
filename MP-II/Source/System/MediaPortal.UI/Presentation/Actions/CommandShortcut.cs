@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,52 +22,49 @@
 
 #endregion
 
-using System.Collections.Generic;
+using MediaPortal.Control.InputManager;
 
-using MediaPortal.Core.Settings;
-
-namespace Components.Control.IrInput
+namespace MediaPortal.Presentation.Actions
 {
+  public delegate void ActionDlgt();
 
   /// <summary>
-  /// Settings class for IrInputPlugin.
+  /// Mapping of a <see cref="Key"/> to an <see cref="ActionDlgt"/> method. Used for register keyboard shortcuts
+  /// to actions.
   /// </summary>
-  public class IrInputSettings
+  public class CommandShortcut
   {
-    #region Variables
+    #region Protected fields
 
-    string _serverHost;
+    protected Key _key;
+    protected ActionDlgt _action;
 
-    IList<MappedKeyCode> _remoteMap;
+    #endregion
 
-    #endregion Variables
+    #region Ctor
 
-    #region Properties
+    public CommandShortcut(Key key, ActionDlgt action)
+    {
+      _key = key;
+      _action = action;
+    }
+
+    #endregion
 
     /// <summary>
-    /// Gets or sets the server host.
+    /// The key, to that the <see cref="Action"/> is mapped.
     /// </summary>
-    /// <value>The server host.</value>
-    [Setting(SettingScope.Global, "localhost")]
-    public string ServerHost
+    public Key Key
     {
-      get { return _serverHost; }
-      set { _serverHost = value; }
+      get { return _key; }
     }
 
     /// <summary>
-    /// Gets or sets the remote map.
+    /// The action to be executed by this shortcut.
     /// </summary>
-    /// <value>The remote map.</value>
-    [Setting(SettingScope.User, null)]
-    public IList<MappedKeyCode> RemoteMap
+    public ActionDlgt Action
     {
-      get { return _remoteMap; }
-      set { _remoteMap = value; }
+      get { return _action; }
     }
-
-    #endregion Properties
-
   }
-
 }

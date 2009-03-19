@@ -37,6 +37,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.SkinEngine.SkinManagement;
@@ -232,8 +233,7 @@ namespace MediaPortal.SkinEngine.GUI
     private void MainForm_KeyDown(object sender, KeyEventArgs e)
     {
       // We'll handle special keys here
-      IInputMapper mapper = ServiceScope.Get<IInputMapper>();
-      Key key = mapper.MapSpecialKey(e.KeyCode, e.Alt);
+      Key key = InputMapper.MapSpecialKey(e.KeyCode, e.Alt);
       if (key != Key.None)
       {
         IInputManager manager = ServiceScope.Get<IInputManager>();
@@ -244,9 +244,8 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
     {
-      // We'll handle alpha-numeric keys here
-      IInputMapper mapper = ServiceScope.Get<IInputMapper>();
-      Key key = mapper.MapAlphaNumericKey(e.KeyChar);
+      // We'll handle printable keys here
+      Key key = InputMapper.MapPrintableKeys(e.KeyChar);
       if (key != Key.None)
       {
         IInputManager manager = ServiceScope.Get<IInputManager>();
@@ -257,10 +256,15 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
-      if (e.Button == MouseButtons.Left)
-        ServiceScope.Get<IInputManager>().KeyPress(Key.Enter);
-      if (e.Button == MouseButtons.Right)
-        ServiceScope.Get<IInputManager>().KeyPress(Key.ContextMenu);
+      switch (e.Button)
+      {
+        case MouseButtons.Left:
+          ServiceScope.Get<IInputManager>().KeyPress(Key.Enter);
+          break;
+        case MouseButtons.Right:
+          ServiceScope.Get<IInputManager>().KeyPress(Key.ContextMenu);
+          break;
+      }
     }
 
     protected override void WndProc(ref Message m)

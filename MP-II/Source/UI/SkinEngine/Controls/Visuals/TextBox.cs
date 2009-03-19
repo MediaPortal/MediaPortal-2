@@ -28,6 +28,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine.InputManagement;
 using SlimDX;
 using Font = MediaPortal.SkinEngine.Fonts.Font;
 using FontRender = MediaPortal.SkinEngine.ContentManagement.FontRender;
@@ -116,6 +117,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      InputManager.Instance.KeyPreview -= OnKeyPreview;
+    }
+
     #endregion
 
     void OnColorChanged(Property prop, object oldValue)
@@ -157,6 +164,61 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
+    void OnKeyPreview(ref Key key)
+    {
+      if (key == Key.None)
+        return;
+     
+      _editText = true;
+      if (key == Key.BackSpace)
+      {
+        if (CaretIndex > 0)
+        {
+          Text = Text.Remove(CaretIndex - 1, 1);
+          CaretIndex--;
+        }
+        key = Key.None;
+      }
+      else if (key == Key.Left)
+      {
+        if (CaretIndex > 0)
+        {
+          CaretIndex--;
+          // Only consume the key if we can move the cared - else the key can be used by
+          // the focus management, for example
+          key = Key.None;
+        }
+      }
+      else if (key == Key.Right)
+      {
+        if (CaretIndex < Text.Length)
+        {
+          CaretIndex++;
+          // Only consume the key if we can move the cared - else the key can be used by
+          // the focus management, for example
+          key = Key.None;
+        }
+      }
+      else if (key == Key.Home)
+      {
+        CaretIndex = 0;
+        key = Key.None;
+      }
+      else if (key == Key.End)
+      {
+        CaretIndex = Text.Length;
+        key = Key.None;
+      } 
+      else if (key.IsPrintableKey)
+      {
+        Text = Text.Insert(CaretIndex, key.RawCode.Value.ToString());
+        CaretIndex++;
+        key = Key.None;
+      }
+
+      _editText = false;
+    }
+
     // We need to override this one, so we can subscribe to raw data.
     public override bool HasFocus
     {
@@ -164,10 +226,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       internal set
       {
         base.HasFocus = value;
-        IInputManager manager = ServiceScope.Get<IInputManager>();
-        
-        // If we have focus, set that we need raw data
-        manager.NeedRawKeyData = value;
+        // If we have focus, we need to handle keys before keyboard shortcuts are triggered
+        if (value)
+          InputManager.Instance.KeyPreview += OnKeyPreview;
+        else
+          InputManager.Instance.KeyPreview -= OnKeyPreview;
       }
     }
 
@@ -452,66 +515,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.Update();
       if (!_hidden)
         DoBuildRenderTree();
-    }
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      base.OnKeyPressed(ref key);
-      if (!HasFocus) 
-        return;
-      if (key == Key.None)
-        return;
-     
-      _editText = true;
-      if (key == Key.BackSpace)
-      {
-        if (CaretIndex > 0)
-        {
-          Text = Text.Remove(CaretIndex - 1, 1);
-          CaretIndex = CaretIndex - 1;
-        }
-        key = Key.None;
-      }
-      else if (key == Key.Left)
-      {
-        if (CaretIndex > 0)
-        {
-          CaretIndex = CaretIndex - 1;
-          // Only consume the key if we can move the cared - else the key can be used by
-          // the focus management, for example
-          key = Key.None;
-        }
-      }
-      else if (key == Key.Right)
-      {
-        if (CaretIndex < Text.Length)
-        {
-          CaretIndex = CaretIndex + 1;
-          // Only consume the key if we can move the cared - else the key can be used by
-          // the focus management, for example
-          key = Key.None;
-        }
-      }
-      else if (key == Key.Home)
-      {
-        CaretIndex = 0;
-        key = Key.None;
-      }
-      else if (key == Key.End)
-      {
-        CaretIndex = Text.Length;
-        key = Key.None;
-      } 
-      else if (key != Key.Up && 
-               key != Key.Down &&
-               key != Key.Enter)
-      {
-        Text = Text.Insert(CaretIndex, key.Name);
-        CaretIndex = CaretIndex + 1;
-        key = Key.None;
-      }
-
-      _editText = false;
     }
   }
 }

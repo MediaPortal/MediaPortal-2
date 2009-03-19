@@ -827,19 +827,20 @@ namespace Ui.Players.Video
     /// handles DVD navigation
     /// </summary>
     /// <param name="key">The key.</param>
-    public void Navigate(Key key)
-    {
-      if (key == Key.DvdUp)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
-      if (key == Key.DvdDown)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Lower);
-      if (key == Key.DvdLeft)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Left);
-      if (key == Key.DvdRight)
-        _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Right);
-      if (key == Key.DvdSelect)
-        _dvdCtrl.ActivateButton();
-    }
+    /// FIXME: Has to be re-integrated
+    //public void Navigate(Key key)
+    //{
+    //  if (key == Key.DvdUp)
+    //    _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Upper);
+    //  if (key == Key.DvdDown)
+    //    _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Lower);
+    //  if (key == Key.DvdLeft)
+    //    _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Left);
+    //  if (key == Key.DvdRight)
+    //    _dvdCtrl.SelectRelativeButton(DvdRelativeButton.Right);
+    //  if (key == Key.DvdSelect)
+    //    _dvdCtrl.ActivateButton();
+    //}
 
     /// <summary>
     /// returns the current play time

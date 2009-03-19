@@ -23,24 +23,14 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 namespace MediaPortal.Control.InputManager
 {
-  public delegate void MouseMoveHandler(float x, float y);
-
-  public delegate void KeyPressedHandler(ref Key key);
-
+  /// <summary>
+  /// Public interface of the input manager.
+  /// </summary>
   public interface IInputManager
   {
-    event MouseMoveHandler MouseMoved;
-    event KeyPressedHandler KeyPressed;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether skinengine needs raw key data (for a textbox for example)
-    /// </summary>
-    bool NeedRawKeyData { get; set; }
-
     /// <summary>
     /// Gets the last time when the mouse was used.
     /// </summary>
@@ -52,27 +42,17 @@ namespace MediaPortal.Control.InputManager
     DateTime LastInputTime { get; }
 
     /// <summary>
-    /// Called when the mouse moved.
+    /// Called to handle a mouse move event.
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
+    /// <param name="x">The x corrdinate.</param>
+    /// <param name="y">The y coordinate.</param>
     void MouseMove(float x, float y);
 
     /// <summary>
-    /// Called when a key was pressed.
+    /// Called to handle a key event. The key event can come from a mapped keyboard input or from any other
+    /// input service.
     /// </summary>
-    /// <param name="key">The key.</param>
+    /// <param name="key">The key which was pressed or generated.</param>
     void KeyPress(Key key);
-
-    /// <summary>
-    /// Called by the skin when it wants to press a key
-    /// </summary>
-    /// <param name="keyName">string containing the key name.</param>
-    void KeyPress(string keyName);
-
-    /// <summary>
-    /// Returns all registered keys.
-    /// </summary>
-    ICollection<Key> Keys { get; }
   }
 }

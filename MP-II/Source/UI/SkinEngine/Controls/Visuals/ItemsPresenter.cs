@@ -91,11 +91,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (!CheckFocusInScope())
           return;
 
-        if (char.IsLetterOrDigit(key.RawCode))
+        if (key.IsPrintableKey)
         {
           if (_startsWithIndex == -1 || _startsWith != key.RawCode)
           {
-            _startsWith = key.RawCode;
+            _startsWith = key.RawCode.Value;
             updatedStartsWithIndex = 0;
           }
           else

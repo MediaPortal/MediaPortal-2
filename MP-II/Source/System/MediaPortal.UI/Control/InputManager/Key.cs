@@ -22,273 +22,198 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+
 namespace MediaPortal.Control.InputManager
 {
+  /// <summary>
+  /// Represents a standardized input command in MediaPortal-II. There are two kinds of keys: Printable and non-printable
+  /// (special) keys. Special keys have their own key constant defined in this class, for example <see cref="Play"/>.
+  /// Printable keys like letters, digits and special characters, aren't defined as own instances in this class,
+  /// they will be built on demand.
+  /// </summary>
+  /// <remarks>
+  /// Each input device should provide its own mapping of its possible input to a <see cref="Key"/>.
+  /// </remarks>
   public class Key
   {
-    #region variables
+    #region Special key constants
+
+    public static readonly IDictionary<string, Key> NAME2SPECIALKEY = new Dictionary<string, Key>();
+
+    public static readonly Key None = new Key("None");
+
+    // 0-9, *, # are printable
+    public static readonly Key Clear = new Key("Clear");
+    public static readonly Key Ok = new Key("Ok");
+    public static readonly Key Back = new Key("Back");
+    public static readonly Key Info = new Key("Info");
+    public static readonly Key TeleText = new Key("TeleText");
+    public static readonly Key Power = new Key("Power");
+    public static readonly Key Fullscreen = new Key("Fullscreen");
+
+    public static readonly Key ZoomMode = new Key("ZoomMode");
+    public static readonly Key Play = new Key("Play");
+    public static readonly Key Pause = new Key("Pause");
+    public static readonly Key PlayPause = new Key("PlayPause"); // Necessary for keyboard mapping of PlayPause key
+    public static readonly Key Stop = new Key("Stop");
+    public static readonly Key Rew = new Key("Rew");
+    public static readonly Key Fwd = new Key("Fwd");
+    public static readonly Key Previous = new Key("Previous");
+    public static readonly Key Next = new Key("Next");
+    public static readonly Key Record = new Key("Record");
+
+    public static readonly Key Mute = new Key("Mute");
+    public static readonly Key VolumeUp = new Key("VolumeUp");
+    public static readonly Key VolumeDown = new Key("VolumeDown");
+
+    public static readonly Key ChannelUp = new Key("ChannelUp");
+    public static readonly Key ChannelDown = new Key("ChannelDown");
+
+    public static readonly Key Start = new Key("Start");
+    public static readonly Key RecordedTV = new Key("RecordedTV");
+    public static readonly Key Guide = new Key("Guide");
+    public static readonly Key LifeTV = new Key("LiveTV");
+    public static readonly Key DVDMenu = new Key("DVDMenu");
+
+    public static readonly Key Red = new Key("Red");
+    public static readonly Key Green = new Key("Green");
+    public static readonly Key Yellow = new Key("Yellow");
+    public static readonly Key Blue = new Key("Blue");
+
+    public static readonly Key Up = new Key("Up");
+    public static readonly Key Down = new Key("Down");
+    public static readonly Key Left = new Key("Left");
+    public static readonly Key Right = new Key("Right");
+    public static readonly Key PageUp = new Key("PageUp");
+    public static readonly Key PageDown = new Key("PageDown");
+    public static readonly Key Home = new Key("Home");
+    public static readonly Key End = new Key("End");
+
+    public static readonly Key Delete = Clear;
+    public static readonly Key Insert = new Key("Insert");
+    public static readonly Key BackSpace = Back;
+    public static readonly Key Enter = new Key("Enter"); // Different button than Ok on MCE remote
+    public static readonly Key Escape = new Key("Escape");
+
+    public static readonly Key ContextMenu = Info;
+
+    #endregion
+
+    #region Protected fields
 
     /// <summary>
     /// gets the raw code
     /// </summary>
-    public char RawCode;
-
-    /// <summary>
-    /// gets a value indicating if the SHIFT key was pressed
-    /// </summary>
-    public bool Shift;
-
-    /// <summary>
-    /// gets a value indicating if the CTRL key was pressed
-    /// </summary>
-    public bool Control;
-
-
-    /// <summary>
-    /// gets the modifiers flags. These flags indicate which combination of ALT, CTRL, SHIFT is pressed
-    /// </summary>
-    public Key Modifiers;
-
-    /// <summary>
-    /// gets the keyboard code
-    /// </summary>
-    public Key KeyCode;
+    public readonly char? _rawCode = null;
 
     /// <summary>
     /// gets the key name
     /// </summary>
-    public string Name;
+    public readonly string _name;
 
     #endregion
 
     #region ctors
 
-    public Key(char rawCode, string name)
+    /// <summary>
+    /// Creates a special key which has no character code.
+    /// </summary>
+    /// <param name="name">Name of the special key.</param>
+    public Key(string name)
     {
-      RawCode = rawCode;
-      Name = name;
-      KeyCode = this;
+      ILogger logger = ServiceScope.Get<ILogger>();
+      _name = name;
+      if (NAME2SPECIALKEY.ContainsKey(name))
+        logger.Warn("Key: Special key '{0}' was instantiated multiple times", name);
+      else
+        NAME2SPECIALKEY.Add(name, this);
     }
 
+    /// <summary>
+    /// Creates a printable key (alpha-numeric or special character).
+    /// </summary>
+    /// <param name="rawCode">Char code of the key.</param>
     public Key(char rawCode)
     {
-      RawCode = rawCode;
-      Name = RawCode.ToString();
-      KeyCode = this;
-    }
-
-    public static Key None
-    {
-      get
-      {
-        Key key = new Key(' ', "None");
-        return key;
-      }
-    }
-
-    public static Key Up
-    {
-      get
-      {
-        Key key = new Key(' ', "Up");
-        return key;
-      }
-    }
-
-    public static Key Down
-    {
-      get
-      {
-        Key key = new Key(' ', "Down");
-        return key;
-      }
-    }
-
-    public static Key Left
-    {
-      get
-      {
-        Key key = new Key(' ', "Left");
-        return key;
-      }
-    }
-
-    public static Key Right
-    {
-      get
-      {
-        Key key = new Key(' ', "Right");
-        return key;
-      }
-    }
-
-    public static Key PageUp
-    {
-      get
-      {
-        Key key = new Key(' ', "PageUp");
-        return key;
-      }
-    }
-
-    public static Key PageDown
-    {
-      get
-      {
-        Key key = new Key(' ', "PageDown");
-        return key;
-      }
-    }
-
-    public static Key Enter
-    {
-      get
-      {
-        Key key = new Key(' ', "Enter");
-        return key;
-      }
-    }
-
-    public static Key Home
-    {
-      get
-      {
-        Key key = new Key(' ', "Home");
-        return key;
-      }
-    }
-
-    public static Key End
-    {
-      get
-      {
-        Key key = new Key(' ', "End");
-        return key;
-      }
-    }
-
-    public static Key ContextMenu
-    {
-      get
-      {
-        Key key = new Key(' ', "ContextMenu");
-        return key;
-      }
-    }
-
-    public static Key ZoomMode
-    {
-      get
-      {
-        Key key = new Key(' ', "ZoomMode");
-        return key;
-      }
-    }
-
-    public static Key DvdMenu
-    {
-      get
-      {
-        Key key = new Key(' ', "DvdMenu");
-        return key;
-      }
-    }
-
-    public static Key DvdUp
-    {
-      get
-      {
-        Key key = new Key(' ', "DvdUp");
-        return key;
-      }
-    }
-
-    public static Key DvdDown
-    {
-      get
-      {
-        Key key = new Key(' ', "DvdDown");
-        return key;
-      }
-    }
-
-    public static Key DvdLeft
-    {
-      get
-      {
-        Key key = new Key(' ', "DvdLeft");
-        return key;
-      }
-    }
-
-    public static Key DvdRight
-    {
-      get
-      {
-        Key key = new Key(' ', "DvdRight");
-        return key;
-      }
-    }
-
-    public static Key DvdSelect
-    {
-      get
-      {
-        Key key = new Key(' ', "DvdSelect");
-        return key;
-      }
-    }
-
-    public static Key Space
-    {
-      get
-      {
-        Key key = new Key(' ', "Space");
-        return key;
-      }
-    }
-
-    public static Key BackSpace
-    {
-      get
-      {
-        Key key = new Key(' ', "BackSpace");
-        return key;
-      }
+      _rawCode = rawCode;
+      _name = rawCode.ToString();
     }
 
     #endregion
 
-    #region overrides
+    /// <summary>
+    /// Returns the name of this key command. For printable character keys, the name will be the the
+    /// character itself. For special keys, the name tells the function of the key in one word (like "Delete").
+    /// </summary>
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    /// <summary>
+    /// For printable key commands, this property contains the character of the key. For non-printable keys,
+    /// this property doesn't have a value.
+    /// </summary>
+    public char? RawCode
+    {
+      get { return _rawCode; }
+    }
+
+    /// <summary>
+    /// Returns the information if this key is a special key, i.e. doesn't have a <see cref="RawCode"/>.
+    /// </summary>
+    public bool IsSpecialKey
+    {
+      get { return !_rawCode.HasValue; }
+    }
+
+    /// <summary>
+    /// Returns the information if this key is a printable key, i.e. contains a <see cref="RawCode"/>.
+    /// </summary>
+    public bool IsPrintableKey
+    {
+      get { return _rawCode.HasValue; }
+    }
+
+    public static Key GetSpecialKeyByName(string name)
+    {
+      Key result;
+      return NAME2SPECIALKEY.TryGetValue(name, out result) ? result : null;
+    }
+
+    #region Base overrides
 
     public override string ToString()
     {
-      return Name;
+      return string.Format("[{0}]", _name);
     }
 
     public override int GetHashCode()
     {
-      return Name.GetHashCode();
+      return _name.GetHashCode();
     }
 
     public override bool Equals(object obj)
     {
       Key key = obj as Key;
       if (key == null)
-      {
         return false;
-      }
-      return key.Name == Name;
+      return key._name == _name;
     }
 
-    public static bool operator ==(Key c, Key c2)
+    public static bool operator ==(Key c1, Key c2)
     {
-      return c.Name == c2.Name;
+      if (ReferenceEquals(c1, null) || ReferenceEquals(c2, null))
+        return false;
+      return c1._name == c2._name;
     }
 
-    public static bool operator !=(Key c, Key c2)
+    public static bool operator !=(Key c1, Key c2)
     {
-      return c.Name != c2.Name;
+      return !(c1 == c2);
     }
 
     #endregion

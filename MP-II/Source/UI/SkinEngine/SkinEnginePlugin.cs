@@ -50,6 +50,41 @@ namespace MediaPortal.SkinEngine
 
     #endregion
 
+    protected void RegisterShortcuts()
+    {
+      NavigationContext navigationContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+      navigationContext.AddShortcut(Key.Escape, () =>
+        {
+          if (_screenManager.IsDialogVisible)
+            _screenManager.CloseDialog();
+        });
+      navigationContext.AddShortcut(Key.Back, () =>
+        {
+          // Switch to previous workflow state
+          if (_screenManager.IsDialogVisible)
+            _screenManager.CloseDialog();
+          else
+            ServiceScope.Get<IWorkflowManager>().NavigatePop(1);
+        });
+      navigationContext.AddShortcut(Key.Fullscreen, () =>
+        {
+          //switch to fullscreen
+          IScreenControl sc = ServiceScope.Get<IScreenControl>();
+          if (sc.IsFullScreen)
+            sc.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
+          else
+            sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+        });
+    }
+
+    protected void UnregisterShortcuts()
+    {
+      NavigationContext navigationContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+      navigationContext.RemoveShortcut(Key.Escape);
+      navigationContext.RemoveShortcut(Key.Back);
+      navigationContext.RemoveShortcut(Key.Fullscreen);
+    }
+
     #region ISkinEngine implementation
 
     public void Initialize()
@@ -59,8 +94,7 @@ namespace MediaPortal.SkinEngine
       ServiceScope.Add<IGeometryManager>(geometryManager);
 
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IInputManager service");
-      InputManager inputManager = new InputManager();
-      ServiceScope.Add<IInputManager>(inputManager);
+      ServiceScope.Add<IInputManager>(InputManager.Instance);
 
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IScreenManager service");
       _screenManager = new ScreenManager();
@@ -85,11 +119,17 @@ namespace MediaPortal.SkinEngine
 
       logger.Debug("SkinEnginePlugin: Switching workflow manager to home state");
       ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
+
+      logger.Debug("SkinEnginePlugin: Registering default shortcuts");
+      RegisterShortcuts();
     }
 
     void ISkinEngine.Uninitialize()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+      logger.Debug("SkinEnginePlugin: Unregistering default shortcuts");
+      UnregisterShortcuts();
+
       logger.Debug("SkinEnginePlugin: Uninstalling background manager");
       _screenManager.UninstallBackgroundManager();
 
