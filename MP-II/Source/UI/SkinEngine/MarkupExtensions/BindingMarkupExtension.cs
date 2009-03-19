@@ -198,6 +198,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
+      if (_bindingDependency != null)
+      {
+        _bindingDependency.Detach();
+        _bindingDependency = null;
+      }
       ResetChangeHandlerAttachments();
       base.Dispose();
     }
