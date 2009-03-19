@@ -93,8 +93,9 @@ namespace MediaPortal.Configuration.ConfigurationClasses
     /// <returns></returns>
     public bool RemoveFromSelection(int index)
     {
-      return _selected.Remove(index);
+      bool result = _selected.Remove(index);
       NotifyChange();
+      return result;
     }
 
     /// <summary>
