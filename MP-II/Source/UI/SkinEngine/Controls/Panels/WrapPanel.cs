@@ -157,15 +157,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               {
                 _sizeCol.Add(currentWidth);
                 totalWidth += currentWidth;
-                childSize.Width -= currentWidth;
-                childSize.Height = initialHeight;
-                currentWidth = 0.0f;
+                availableSize.Width -= currentWidth;
+                availableSize.Height = initialHeight;
+                currentWidth = 0;
               }
-              childSize.Height -= childSize.Height;
+              availableSize.Height -= childSize.Height;
               currentHeight += childSize.Height;
               if (childSize.Width > currentWidth)
                 currentWidth = childSize.Width;
-
             }
             _sizeCol.Add(currentWidth);
             totalWidth += currentWidth;
