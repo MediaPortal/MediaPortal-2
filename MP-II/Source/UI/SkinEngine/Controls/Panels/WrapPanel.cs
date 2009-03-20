@@ -89,7 +89,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public Orientation Orientation
     {
-      get { return (Orientation)_orientationProperty.GetValue(); }
+      get { return (Orientation) _orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
     }
 
@@ -194,10 +194,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         SkinContext.RemoveLayoutTransform();
 
       totalSize = _desiredSize;
-      AddMargin(ref _desiredSize);
+      AddMargin(ref totalSize);
 
       //Trace.WriteLine(String.Format("WrapPanel.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
-
     }
 
     public override void Arrange(RectangleF finalRect)
