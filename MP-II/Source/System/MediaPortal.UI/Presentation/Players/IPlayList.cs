@@ -112,13 +112,19 @@ namespace MediaPortal.Presentation.Players
     /// <summary>
     /// Adds the specified media item to the playlist.
     /// </summary>
-    /// <param name="mediaItem">The media item.</param>
+    /// <param name="mediaItem">Media item to add.</param>
     void Add(MediaItem mediaItem);
+
+    /// <summary>
+    /// Adds all specified media items to the playlist.
+    /// </summary>
+    /// <param name="mediaItems">Media items to add.</param>
+    void AddAll(IEnumerable<MediaItem> mediaItems);
 
     /// <summary>
     /// Removes the specified media item from the playlist.
     /// </summary>
-    /// <param name="mediaItem">The media item.</param>
+    /// <param name="mediaItem">Media item to remove.</param>
     void Remove(MediaItem mediaItem);
 
     /// <summary>

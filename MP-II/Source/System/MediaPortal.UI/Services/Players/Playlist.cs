@@ -148,6 +148,12 @@ namespace MediaPortal.Services.Players
         Insert(_itemList.Count, mediaItem);
     }
 
+    public void AddAll(IEnumerable<MediaItem> mediaItems)
+    {
+      foreach (MediaItem mediaItem in mediaItems)
+        Add(mediaItem);
+    }
+
     public void Remove(MediaItem mediaItem)
     {
       int index = _itemList.IndexOf(mediaItem);
