@@ -28,6 +28,11 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Centers the source rectangle into the destination rectangle, if it fits. If one direction in the source
+  /// rectangle is too big, the rectangle will be scaled to fit into the destination rectangle.
+  /// Cropping won't take place in this geometry.
+  /// </summary>
   public class GeometryOrignal : IGeometry
   {
     public const string NAME = "[Geometries.Original]";
@@ -46,37 +51,25 @@ namespace MediaPortal.SkinEngine.Geometry
 
     public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
     {
-      float fOutputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
-
-      // make sure the crop settings are acceptable
-      cropSettings = cropSettings.EnsureSanity(data.OriginalSize.Width, data.OriginalSize.Height);
+      float outputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
 
       // maximize the movie width
-      float fNewWidth = Math.Min(data.OriginalSize.Width, data.TargetSize.Width);
-      float fNewHeight = fNewWidth/fOutputFrameRatio;
+      int newWidth = Math.Min(data.OriginalSize.Width, data.TargetSize.Width);
+      int newHeight = (int) (newWidth/outputFrameRatio);
 
-      if (fNewHeight > data.TargetSize.Height)
+      if (newHeight > data.TargetSize.Height)
       {
-        fNewHeight = Math.Min(data.OriginalSize.Height, data.TargetSize.Height);
-        fNewWidth = fNewHeight*fOutputFrameRatio;
-      }
-
-      // this shouldnt happen, but just make sure that everything still fits onscreen
-      if (fNewWidth > data.TargetSize.Width || fNewHeight > data.TargetSize.Height)
-      {
-        //Log.Error("Original Zoom Mode: 'this shouldnt happen' {0}x{1}", fNewWidth, fNewHeight);
-        GeometryZoom zoom = new GeometryZoom();
-        zoom.Transform(data, cropSettings, out rSource, out rDest);
-        return;
+        newHeight = Math.Min(data.OriginalSize.Height, data.TargetSize.Height);
+        newWidth = (int) (newHeight*outputFrameRatio);
       }
 
       // Centre the movie
-      float iPosY = (data.TargetSize.Height - fNewHeight)/2;
-      float iPosX = (data.TargetSize.Width - fNewWidth)/2;
+      int iPosY = (int) ((data.TargetSize.Height - newHeight)/2.0f);
+      int iPosX = (int) ((data.TargetSize.Width - newWidth)/2.0f);
 
       // The original zoom mode ignores cropping parameters:
       rSource = new Rectangle(0, 0, data.OriginalSize.Width, data.OriginalSize.Height);
-      rDest = new Rectangle((int) iPosX, (int) iPosY, (int) (fNewWidth + 0.5f), (int) (fNewHeight + 0.5f));
+      rDest = new Rectangle(iPosX, iPosY, newWidth, newHeight);
     }
 
     #endregion

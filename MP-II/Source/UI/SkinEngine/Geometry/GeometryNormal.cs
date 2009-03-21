@@ -27,6 +27,10 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Crops the source rectangle according to the crop settings, then scales it so that the biggest dimension still
+  /// fits into the target rectangle.
+  /// </summary>
   public class GeometryNormal : IGeometry
   {
     public const string NAME = "[Geometries.Normal]";
@@ -45,7 +49,7 @@ namespace MediaPortal.SkinEngine.Geometry
 
     public void Transform(GeometryData data, CropSettings cropSettings, out Rectangle rSource, out Rectangle rDest)
     {
-      float fOutputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
+      float outputFrameRatio = data.FrameAspectRatio/data.PixelRatio;
 
       // make sure the crop settings are acceptable
       cropSettings = cropSettings.EnsureSanity(data.OriginalSize.Width, data.OriginalSize.Height);
@@ -59,28 +63,21 @@ namespace MediaPortal.SkinEngine.Geometry
       int croppedImageHeight = data.OriginalSize.Height - cropH;
 
       // maximize the movie width
-      float fNewWidth = data.TargetSize.Width;
-      float fNewHeight = fNewWidth/fOutputFrameRatio;
+      int newWidth = data.TargetSize.Width;
+      int newHeight = (int) (newWidth/outputFrameRatio);
 
-      if (fNewHeight > data.TargetSize.Height)
+      if (newHeight > data.TargetSize.Height)
       {
-        fNewHeight = data.TargetSize.Height;
-        fNewWidth = fNewHeight*fOutputFrameRatio;
-      }
-
-      // this shouldnt happen, but just make sure that everything still fits onscreen
-      if (fNewWidth > data.TargetSize.Width || fNewHeight > data.TargetSize.Height)
-      {
-        fNewWidth = croppedImageWidth;
-        fNewHeight = croppedImageHeight;
+        newHeight = data.TargetSize.Height;
+        newWidth = (int) (newHeight*outputFrameRatio);
       }
 
       // Centre the movie
-      float iPosY = (data.TargetSize.Height - fNewHeight)/2;
-      float iPosX = (data.TargetSize.Width - fNewWidth)/2;
+      int iPosY = (int) ((data.TargetSize.Height - newHeight)/2.0f);
+      int iPosX = (int) ((data.TargetSize.Width - newWidth)/2.0f);
 
       rSource = new Rectangle(cropSettings.Left, cropSettings.Top, croppedImageWidth, croppedImageHeight);
-      rDest = new Rectangle((int) iPosX, (int) iPosY, (int) (fNewWidth + 0.5f), (int) (fNewHeight + 0.5f));
+      rDest = new Rectangle(iPosX, iPosY, newWidth, newHeight);
     }
 
     #endregion

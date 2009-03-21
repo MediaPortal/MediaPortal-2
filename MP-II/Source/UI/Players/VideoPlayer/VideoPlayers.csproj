@@ -78,7 +78,7 @@
     <Compile Include="TsVideoPlayer.cs" />
     <Compile Include="VideoPlayer.cs" />
     <Compile Include="VideoPlayerBuilder.cs" />
-    <Compile Include="Vmr9\Allocator.cs" />
+    <Compile Include="Allocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

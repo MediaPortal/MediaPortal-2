@@ -44,7 +44,6 @@ using MediaPortal.Utilities.Exceptions;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
-using Ui.Players.Video.Vmr9;
 using MediaPortal.SkinEngine.SkinManagement;
 
 namespace Ui.Players.Video
@@ -115,7 +114,6 @@ namespace Ui.Players.Video
     protected Size _previousVideoSize;
     protected Size _previousAspectRatio;
     protected Size _previousDisplaySize;
-    protected EffectAsset _effect;
     protected uint _streamCount = 1;
 
     protected IBaseFilter _videoh264Codec;
@@ -208,8 +206,6 @@ namespace Ui.Players.Video
 
       try
       {
-        int hr = 0;
-
         AllocateResources();
 
         // Create a DirectShow FilterGraph
@@ -221,7 +217,7 @@ namespace Ui.Players.Video
         // Add a notification handler (see WndProc)
         _instancePtr = Marshal.AllocCoTaskMem(4);
         IMediaEventEx mee = _graphBuilder as IMediaEventEx;
-        hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
+        int hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
 
         //only use EVR if we're running Vista
         OperatingSystem osInfo = Environment.OSVersion;
@@ -239,7 +235,7 @@ namespace Ui.Players.Video
         ServiceScope.Get<ILogger>().Debug("VideoPlayer: Adding file source");
         AddFileSource();
 
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer run graph");
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Run graph");
 
         ///This needs to be done here before we check if the evr pins are connected
         ///since this method gives players the chance to render the last bits of the graph
@@ -252,30 +248,22 @@ namespace Ui.Players.Video
         {
           IPin[] pins = new IPin[2];
           IntPtr ptrFetched = Marshal.AllocCoTaskMem(4);
-          if (0 == enumer.Next(1, pins, ptrFetched))
+          if (enumer.Next(1, pins, ptrFetched) == 0 && Marshal.ReadInt32(ptrFetched) == 1 && pins[0] != null)
           {
-            if (Marshal.ReadInt32(ptrFetched) == 1)
-            {
-              if (pins[0] != null)
+            IPin pinConnect;
+            if (pins[0].ConnectedTo(out pinConnect) == 0)
+              if (pinConnect != null)
               {
-                IPin pinConnect;
-                if (0 == pins[0].ConnectedTo(out pinConnect))
-                {
-                  if (pinConnect != null)
-                  {
-                    success = true;
-                    Marshal.ReleaseComObject(pinConnect);
-                  }
-                }
-                Marshal.ReleaseComObject(pins[0]);
+                success = true;
+                Marshal.ReleaseComObject(pinConnect);
               }
-            }
+            Marshal.ReleaseComObject(pins[0]);
           }
           Marshal.FreeCoTaskMem(ptrFetched);
           Marshal.ReleaseComObject(enumer);
         }
         if (!success)
-          throw new VideoPlayerException("Cannot initialize EVR");
+          throw new VideoPlayerException("Cannot build graph");
 
         OnGraphRunning();
         _initialized = true;
@@ -352,18 +340,6 @@ namespace Ui.Players.Video
     {
       get { return "VideoPlayer"; }
 
-    }
-
-    public EffectAsset Effect
-    {
-      get { return _effect; }
-      set { _effect = value; }
-    }
-
-    public Size DisplaySize
-    {
-      get { return _displaySize; }
-      set { _displaySize = value; }
     }
 
     public Size VideoSize
@@ -934,16 +910,6 @@ namespace Ui.Players.Video
       PositionColored2Textured.Set(_vertexBuffer, ref _vertices);
     }
 #endif
-    protected void RenderTexture()
-    {
-      // Attach the vertex buffer to the Direct3D Device
-      GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-
-      _allocator.Render(_effect);
-
-    }
-
     protected void CheckAudio()
     {
       int volume = 0;

@@ -32,7 +32,6 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -40,10 +39,8 @@ using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
 
-namespace Ui.Players.Video.Vmr9
+namespace Ui.Players.Video
 {
-  #region IVMR9PresentCallback interface
-
   [ComVisible(true), ComImport,
    Guid("324FAA1F-7DA6-4778-833B-3993D8FF4151"),
    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -56,8 +53,6 @@ namespace Ui.Players.Video.Vmr9
     int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwImg);
   }
 
-  #endregion
-
   [ComVisible(true)]
   [ClassInterface(ClassInterfaceType.None)]
   public class Allocator : IVMR9PresentCallback
@@ -66,12 +61,9 @@ namespace Ui.Players.Video.Vmr9
 
     private Size _videoSize;
     private Size _aspectRatio;
-    private uint _textureAddress;
     private Texture _texture;
     private Surface _surface;
     private object _lock;
-    private IPlayerManager _playerManager;
-    private IPlayer _player;
     private bool _guiBeingReinitialized = false;
     EffectAsset _normalEffect;
 
@@ -81,8 +73,6 @@ namespace Ui.Players.Video.Vmr9
 
     public Allocator(IPlayer player)
     {
-      _playerManager = ServiceScope.Get<IPlayerManager>();
-      _player = player;
       _lock = new Object();
       _normalEffect = ContentManager.GetEffect("normal");
     }
@@ -214,9 +204,7 @@ namespace Ui.Players.Video.Vmr9
       lock (_lock)
       {
         if (dwImg == 0 || cx == 0 || cy == 0 || _guiBeingReinitialized)
-        {
           return 0;
-        }
         if (cx != _videoSize.Width || cy != _videoSize.Height)
         {
           if (_surface != null)
@@ -232,12 +220,9 @@ namespace Ui.Players.Video.Vmr9
             _texture = null;
             ContentManager.TextureReferences--;
           }
-          _textureAddress = dwImg;
           _videoSize = new Size(cx, cy);
           _aspectRatio = new Size(arx, ary);
         }
-
-        _textureAddress = dwImg;
         _videoSize = new Size(cx, cy);
         _aspectRatio = new Size(arx, ary);
         if (_texture == null)
@@ -251,11 +236,9 @@ namespace Ui.Players.Video.Vmr9
           ContentManager.TextureReferences++;
         }
 
-        IntPtr ptr = new IntPtr(dwImg);
-        //Marshal.AddRef(ptr);
         unsafe
         {
-          using (Surface surf = Surface.FromPointer(ptr))
+          using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))
           {
             GraphicsDevice.Device.StretchRectangle(surf, new Rectangle(Point.Empty, _videoSize),
                 _surface, new Rectangle(Point.Empty, _videoSize), TextureFilter.None);

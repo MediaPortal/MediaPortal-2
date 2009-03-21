@@ -123,27 +123,27 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
           new Size(_videoSize.Width, _videoSize.Height), new Size((int) _bounds.Width, (int) _bounds.Height), 1.0f);
       geometryManager.Transform(gd, out sourceRect, out destinationRect);
       string shaderName = geometry.Shader;
-      _effect = !string.IsNullOrEmpty(shaderName) ? ContentManager.GetEffect(shaderName) :
-          ContentManager.GetEffect("normal");
+      _effect = string.IsNullOrEmpty(shaderName) ? ContentManager.GetEffect("normal") :
+          ContentManager.GetEffect(shaderName);
 
-      float minU = ((float)(sourceRect.X)) / ((float)_videoSize.Width);
-      float minV = ((float)(sourceRect.Y)) / ((float)_videoSize.Height);
-      float maxU = ((float)(sourceRect.Width)) / ((float)_videoSize.Width);
-      float maxV = ((float)(sourceRect.Height)) / ((float)_videoSize.Height);
+      float minU = sourceRect.X / (float) _videoSize.Width;
+      float minV = sourceRect.Y / (float) _videoSize.Height;
+      float maxU = sourceRect.Width / (float) _videoSize.Width;
+      float maxV = sourceRect.Height / (float) _videoSize.Height;
 
-      float minX = ((float)(destinationRect.X)) / ((float)_bounds.Width);
-      float minY = ((float)(destinationRect.Y)) / ((float)_bounds.Height);
+      float minX = destinationRect.X / _bounds.Width;
+      float minY = destinationRect.Y / _bounds.Height;
 
-      float maxX = ((float)(destinationRect.Width)) / ((float)_bounds.Width);
-      float maxY = ((float)(destinationRect.Height)) / ((float)_bounds.Height);
+      float maxX = destinationRect.Width / _bounds.Width;
+      float maxY = destinationRect.Height / _bounds.Height;
 
       float diffU = maxU - minU;
       float diffV = maxV - minV;
       PositionColored2Textured[] verts = new PositionColored2Textured[_verts.Length];
       for (int i = 0; i < _verts.Length; ++i)
       {
-        float x = ((_verts[i].X - _minPosition.X) / (_bounds.Width)) * maxX + minX;
-        float y = ((_verts[i].Y - _minPosition.Y) / (_bounds.Height)) * maxY + minY;
+        float x = ((_verts[i].X - _minPosition.X) / _bounds.Width) * maxX + minX;
+        float y = ((_verts[i].Y - _minPosition.Y) / _bounds.Height) * maxY + minY;
         verts[i].X = (x * _bounds.Width) + _minPosition.X;
         verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
 
