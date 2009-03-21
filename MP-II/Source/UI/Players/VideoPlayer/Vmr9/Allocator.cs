@@ -70,7 +70,6 @@ namespace Ui.Players.Video.Vmr9
     private Texture _texture;
     private Surface _surface;
     private object _lock;
-    private bool _usingEvr = false;
     private IPlayerManager _playerManager;
     private IPlayer _player;
     private bool _guiBeingReinitialized = false;
@@ -80,15 +79,10 @@ namespace Ui.Players.Video.Vmr9
 
     #region ctor/dtor
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Allocator"/> class.
-    /// </summary>
-    /// <param name="usingEvr">if set to <c>true</c> [using evr].</param>
-    public Allocator(IPlayer player, bool usingEvr)
+    public Allocator(IPlayer player)
     {
       _playerManager = ServiceScope.Get<IPlayerManager>();
       _player = player;
-      _usingEvr = usingEvr;
       _lock = new Object();
       _normalEffect = ContentManager.GetEffect("normal");
     }
@@ -266,27 +260,6 @@ namespace Ui.Players.Video.Vmr9
             GraphicsDevice.Device.StretchRectangle(surf, new Rectangle(Point.Empty, _videoSize),
                 _surface, new Rectangle(Point.Empty, _videoSize), TextureFilter.None);
           }
-        }
-      }
-
-      //if we're are using VMR9 instead of vista's new EVR
-      //then we need to perform all rendering from the vmr9 thread 
-      //this is because a vmr9 architecture bug.
-      //When vmr9 is in mixing mode it changes the directx rendertarget during decoding/rendering (thanks microsoft!!!)
-      //we need the mixing mode for yuv mixing (lower cpu) and de-interlacing
-      //and so.. only way to get flickerfree drawing can be achieved by rendering the whole direct3d scene from here
-      //since only here we know that vmr9 wont change the rendertarget
-      if (!_usingEvr)
-      {
-        bool isPIP = false;
-        if (_playerManager[PlayerManagerConsts.PRIMARY_SLOT] != _player)
-        {
-          isPIP = true;
-        }
-        if (!isPIP)
-        {
-          //render the entire direct3d scene (grrr)
-          GraphicsDevice.Render(false);
         }
       }
       return 0;

@@ -40,6 +40,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Players;
+using MediaPortal.Utilities.Exceptions;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
@@ -69,21 +70,8 @@ namespace Ui.Players.Video
     #region DLL imports
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe int Vmr9Init(IVMR9PresentCallback callback, uint dwD3DDevice,
-        IBaseFilter vmr9Filter, uint monitor);
-
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void Vmr9DeInit(int handle);
-
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern unsafe int EvrInit(IVMR9PresentCallback callback, uint dwD3DDevice,
         IBaseFilter vmr9Filter, uint monitor);
-
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void Vmr9FreeResources(int handle);
-
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void Vmr9ReAllocResources(int handle);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern unsafe void EvrDeinit(int handle);
@@ -109,17 +97,10 @@ namespace Ui.Players.Video
 
     #region Variables
 
-    private enum EvrResult
-    {
-      NotTried,
-      Failed,
-      Ok
-    }
-
     // DirectShow objects
     protected IGraphBuilder _graphBuilder;
     protected DsROTEntry _rot;
-    protected IBaseFilter _vmr9;
+    protected IBaseFilter _evr;
     protected Allocator _allocator;
 
     // Managed Direct3D Resources
@@ -135,7 +116,6 @@ namespace Ui.Players.Video
     protected Size _previousAspectRatio;
     protected Size _previousDisplaySize;
     protected EffectAsset _effect;
-    protected bool _useEvr = true;
     protected uint _streamCount = 1;
 
     protected IBaseFilter _videoh264Codec;
@@ -144,7 +124,6 @@ namespace Ui.Players.Video
 
     private TimeSpan _duration;
     private TimeSpan _currentTime;
-    private static EvrResult _evrResult = EvrResult.NotTried;
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
@@ -225,55 +204,50 @@ namespace Ui.Players.Video
       _mediaItemAccessor = _mediaItemLocator.CreateLocalFsAccessor();
       _state = PlaybackState.Paused;
       _vertices = new PositionColored2Textured[4];
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playing '{0}'", _mediaItemAccessor.LocalFileSystemPath);
+      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initializing for media file '{0}'", _mediaItemAccessor.LocalFileSystemPath);
 
-      int hr = 0;
-
-      // FIXME: When to call this?
-      //SetRefreshRate(mediaItem);
-
-      AllocateResources();
-
-      // Create a DirectShow FilterGraph
-      GetGraphBuilder();
-
-      // Add it in ROT for debug purpose
-      _rot = new DsROTEntry(_graphBuilder);
-
-      // Add a notification handler (see WndProc)
-      _instancePtr = Marshal.AllocCoTaskMem(4);
-      IMediaEventEx mee = _graphBuilder as IMediaEventEx;
-      hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
-
-      //only use EVR if we're running Vista
-      OperatingSystem osInfo = Environment.OSVersion;
-      if (osInfo.Version.Major <= 5 || _evrResult == EvrResult.Failed)
-        _useEvr = false;
-
-      // Create the Allocator / Presenter object
-      _allocator = new Allocator(this, _useEvr);
-
-      AddEvrOrVmr9();
-
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer add preferred codecs");
-      AddPreferredCodecs();
-
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer add file source");
-      // Here an exception might be raised - TODO: Handle that exception, tidy up already allocated resources
-      AddFileSource();
-
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer run graph");
-
-      ///This needs to be done here before we check if the evr pins are connected
-      ///since this method gives players the chance to render the last bits of the graph
-      OnBeforeGraphRunning();
-
-      //check if EVR is connected!
-      if (_useEvr)
+      try
       {
+        int hr = 0;
+
+        AllocateResources();
+
+        // Create a DirectShow FilterGraph
+        CreateGraphBuilder();
+
+        // Add it in ROT for debug purpose FIXME Albert -> what is ROT?
+        _rot = new DsROTEntry(_graphBuilder);
+
+        // Add a notification handler (see WndProc)
+        _instancePtr = Marshal.AllocCoTaskMem(4);
+        IMediaEventEx mee = _graphBuilder as IMediaEventEx;
+        hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
+
+        //only use EVR if we're running Vista
+        OperatingSystem osInfo = Environment.OSVersion;
+        if (osInfo.Version.Major <= 5)
+          throw new EnvironmentException("The video player can only run on Windows Vista or above");
+
+        // Create the Allocator / Presenter object
+        _allocator = new Allocator(this);
+
+        AddEvr();
+
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Adding preferred codecs");
+        AddPreferredCodecs();
+
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Adding file source");
+        AddFileSource();
+
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer run graph");
+
+        ///This needs to be done here before we check if the evr pins are connected
+        ///since this method gives players the chance to render the last bits of the graph
+        OnBeforeGraphRunning();
+
         bool success = false;
         IEnumPins enumer;
-        _vmr9.EnumPins(out enumer);
+        _evr.EnumPins(out enumer);
         if (enumer != null)
         {
           IPin[] pins = new IPin[2];
@@ -301,17 +275,16 @@ namespace Ui.Players.Video
           Marshal.ReleaseComObject(enumer);
         }
         if (!success)
-        {
-          Shutdown();
-          _useEvr = false;
-          _evrResult = EvrResult.Failed;
-          SetMediaItemLocator(locator);
-          return;
-        }
-      }
+          throw new VideoPlayerException("Cannot initialize EVR");
 
-      OnGraphRunning();
-      _initialized = true;
+        OnGraphRunning();
+        _initialized = true;
+      }
+      catch (Exception)
+      {
+        Shutdown();
+        throw;
+      }
     }
 
     #endregion
@@ -411,136 +384,38 @@ namespace Ui.Players.Video
       }
     }
 
-    // FIXME Albert78: When should we change the refresh rate? In which interface should we put this method?
-    //void SetRefreshRate(IMediaItem mediaItem)
-    //{
-    //  IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-    //  float fps;
-    //  if (players.Count != 0)
-    //    return;
-    //  if (!mediaItem.MetaData.ContainsKey("FPS"))
-    //    return;
-    //  if (!float.TryParse((mediaItem.MetaData["FPS"] as string), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out fps))
-    //    return;
-    //  if (fps > 1000.0f)
-    //    fps /= 1000.0f;
-
-    //  IScreenControl sc = ServiceScope.Get<IScreenControl>();
-
-    //  if (sc.RefreshRateControlEnabled && sc.IsFullScreen)
-    //  {
-    //    if (fps == 24.0f)
-    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_24);
-    //    else if (fps == 25.0f)
-    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_25);
-    //    else if (fps == 30.0f)
-    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.FPS_30);
-    //    else
-    //      sc.SwitchMode(ScreenMode.ExclusiveMode, FPS.Default);
-    //  }
-    //}
-
-
-    // FIXME Albert78: When should we change the refresh rate? In which interface should we put this method?
-    //void ResetRefreshRate()
-    //{
-    //  IPlayerCollection players = ServiceScope.Get<IPlayerCollection>();
-
-    //  if (players[0] != this)
-    //    return;
-
-    //  IScreenControl sc = ServiceScope.Get<IScreenControl>();
-
-    //  if (!(sc.RefreshRateControlEnabled && sc.IsFullScreen))
-    //    return;
-    //  sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
-    //}
-
-    void AddEvrOrVmr9()
+    void AddEvr()
     {
-      int hr;
-      if (_useEvr)
+      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initialize EVR");
+
+      _evr = (IBaseFilter) new EnhancedVideoRenderer();
+
+      IEVRFilterConfig config = (IEVRFilterConfig) _evr;
+      int hr = config.SetNumberOfStreams(_streamCount);
+
+      int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+      AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
+      IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
+      IntPtr upDevice = GraphicsDevice.Device.ComPointer;
+      _allocatorKey = EvrInit(_allocator, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
+      if (_allocatorKey < 0)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer initialize EVR");
-
-        _vmr9 = (IBaseFilter)new EnhancedVideoRenderer();
-
-        IEVRFilterConfig config = (IEVRFilterConfig)_vmr9;
-        hr = config.SetNumberOfStreams(_streamCount);
-
-        IntPtr hMonitor;
-        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-        AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
-        hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
-        IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
-        _allocatorKey = EvrInit(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint) hMonitor.ToInt32());
-        if (_allocatorKey >= 0)
-        {
-          hr = _graphBuilder.AddFilter(_vmr9, "Enhanced Video Renderer");
-          _evrResult = EvrResult.Ok;
-        }
-        else
-        {
-          ServiceScope.Get<ILogger>().Debug("VideoPlayer initialize evr failed, fallback to vmr9");
-          EvrDeinit(_allocatorKey);
-          Marshal.ReleaseComObject(_vmr9);
-          _allocator.Dispose();
-          _allocator = null;
-          _useEvr = false;
-          _evrResult = EvrResult.Failed;
-        }
+        EvrDeinit(_allocatorKey);
+        Marshal.ReleaseComObject(_evr);
+        _allocator.Dispose();
+        _allocator = null;
+        throw new VideoPlayerException("Initializing of EVR failed");
       }
-
-      if (!_useEvr)
-      {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer initialize vmr9");
-        _vmr9 = (IBaseFilter)new VideoMixingRenderer9();
-        IVMRFilterConfig9 filterConfig = (IVMRFilterConfig9)_vmr9;
-
-        // We want the Renderless mode!
-        hr = filterConfig.SetRenderingMode(VMR9Mode.Renderless);
-        DsError.ThrowExceptionForHR(hr);
-
-        // One stream is enough for this sample
-        hr = filterConfig.SetNumberOfStreams((int)_streamCount);
-        DsError.ThrowExceptionForHR(hr);
-
-        // Create the Allocator / Presenter object
-        _allocator = new Allocator(this, _useEvr);
-
-        IntPtr hMonitor;
-        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
-        AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
-        hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
-        IntPtr upDevice = GraphicsDevice.Device.ComPointer;//.GetObjectByValue(-759872593);
-        _allocatorKey = Vmr9Init(_allocator, (uint)upDevice.ToInt32(), _vmr9, (uint)hMonitor.ToInt32());
-
-        IVMRMixerControl9 mixerControl = (IVMRMixerControl9)_vmr9;
-
-        // Select the mixer mode : YUV or RGB
-        //hr = mixerControl.SetMixingPrefs(VMR9MixerPrefs.None);
-        hr =
-          mixerControl.SetMixingPrefs(VMR9MixerPrefs.RenderTargetYUV | VMR9MixerPrefs.NonSquareMixing |
-                                      VMR9MixerPrefs.AnisotropicFiltering);
-        //hr = mixerControl.SetMixingPrefs(VMR9MixerPrefs.RenderTargetYUV | VMR9MixerPrefs.NoDecimation | VMR9MixerPrefs.ARAdjustXorY | VMR9MixerPrefs.BiLinearFiltering);
-        //hr = mixerControl.SetMixingPrefs(VMR9MixerPrefs.RenderTargetRGB | VMR9MixerPrefs.NoDecimation | VMR9MixerPrefs.ARAdjustXorY | VMR9MixerPrefs.BiLinearFiltering);
-
-        // Add the filter to the graph
-        hr = _graphBuilder.AddFilter(_vmr9, "Video Mixing Renderer 9");
-        DsError.ThrowExceptionForHR(hr);
-      }
+      hr = _graphBuilder.AddFilter(_evr, "Enhanced Video Renderer");
     }
 
     /// <summary>
     /// Enables/disables frame skipping.
     /// </summary>
-    /// <param name="onOff">if set to <c>true</c> [on off].</param>
+    /// <param name="onOff"><c>true</c> enables frame skipping, <c>false</c> disables it.</param>
     protected void EnableFrameSkipping(bool onOff)
     {
-      if (_useEvr)
-      {
-        EvrEnableFrameSkipping(_allocatorKey, onOff);
-      }
+      EvrEnableFrameSkipping(_allocatorKey, onOff);
     }
 
     /// <summary>
@@ -551,14 +426,14 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
-    /// called when graph is started
+    /// Called when graph is started
     /// </summary>
     protected virtual void OnGraphRunning() { }
 
     /// <summary>
-    /// returns a new IFilterGraph2 interface
+    /// Creates a new IFilterGraph2 interface
     /// </summary>
-    protected virtual void GetGraphBuilder()
+    protected virtual void CreateGraphBuilder()
     {
       _graphBuilder = (IFilterGraph2) new FilterGraph();
     }
@@ -574,7 +449,7 @@ namespace Ui.Players.Video
       {
         //_videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "CoreAVC Video Decoder");
 
-        if (settings.H264Codec != null && settings.H264Codec.Length > 0)
+        if (!string.IsNullOrEmpty(settings.H264Codec))
         {
           _videoh264Codec =
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
@@ -587,7 +462,7 @@ namespace Ui.Players.Video
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
                                              "CyberLink H.264/AVC Decoder (PDVD7.X)");
         }
-        if (settings.Mpeg2Codec != null && settings.Mpeg2Codec.Length > 0)
+        if (!string.IsNullOrEmpty(settings.Mpeg2Codec))
         {
           _videoCodec =
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
@@ -618,7 +493,7 @@ namespace Ui.Players.Video
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "MPV Decoder Filter");
         }
 
-        if (settings.AudioCodec != null && settings.AudioCodec.Length > 0)
+        if (!string.IsNullOrEmpty(settings.AudioCodec))
         {
           _audioCodec =
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
@@ -638,7 +513,7 @@ namespace Ui.Players.Video
       }
       else if (ext.IndexOf(".avi") >= 0)
       {
-        if (settings.DivXCodec != null && settings.DivXCodec.Length > 0)
+        if (!string.IsNullOrEmpty(settings.DivXCodec))
         {
           _videoCodec =
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
@@ -649,7 +524,7 @@ namespace Ui.Players.Video
           _videoCodec =
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "ffdshow Video Decoder");
         }
-        if (settings.AudioCodec != null && settings.AudioCodec.Length > 0)
+        if (!string.IsNullOrEmpty(settings.AudioCodec))
         {
           _audioCodec =
             FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
@@ -736,34 +611,25 @@ namespace Ui.Players.Video
             ServiceScope.Get<ILogger>().Info("state:{0}", state);
           }
 
-          if (_vmr9 != null)
+          if (_evr != null)
           {
             if (_graphBuilder != null) //&& !_useEvr)
             {
-              _graphBuilder.RemoveFilter(_vmr9);
+              _graphBuilder.RemoveFilter(_evr);
             }
             //while (Marshal.ReleaseComObject(_vmr9) > 0) ;
             try
             {
-              Marshal.ReleaseComObject(_vmr9);
+              Marshal.ReleaseComObject(_evr);
             }
             catch (Exception)
             {
             }
           }
-          _vmr9 = null;
+          _evr = null;
 
           if (_allocatorKey >= 0)
-          {
-            if (!_useEvr)
-            {
-              Vmr9DeInit(_allocatorKey);
-            }
-            else
-            {
-              EvrDeinit(_allocatorKey);
-            }
-          }
+            EvrDeinit(_allocatorKey);
 
           _allocatorKey = -1;
 
@@ -1329,7 +1195,7 @@ namespace Ui.Players.Video
         _allocator.ReleaseResources();
         int hr;
         IEnumPins enumer;
-        _vmr9.EnumPins(out enumer);
+        _evr.EnumPins(out enumer);
         if (enumer != null)
         {
           IPin[] pins = new IPin[2];
@@ -1378,29 +1244,18 @@ namespace Ui.Players.Video
           _allocator = null;
         }
 
-        if (_vmr9 != null)
+        if (_evr != null)
         {
           if (_graphBuilder != null) //&& !_useEvr)
-          {
-            _graphBuilder.RemoveFilter(_vmr9);
-          }
+            _graphBuilder.RemoveFilter(_evr);
           //while (Marshal.ReleaseComObject(_vmr9) > 0) ;
-          Marshal.ReleaseComObject(_vmr9);
+          Marshal.ReleaseComObject(_evr);
         }
-        _vmr9 = null;
+        _evr = null;
 
 
         if (_allocatorKey >= 0)
-        {
-          if (!_useEvr)
-          {
-            Vmr9DeInit(_allocatorKey);
-          }
-          else
-          {
-            EvrDeinit(_allocatorKey);
-          }
-        }
+          EvrDeinit(_allocatorKey);
 
         _allocatorKey = -1;
         _initialized = false;
@@ -1412,10 +1267,10 @@ namespace Ui.Players.Video
       if (_graphBuilder != null)
       {
         _vertices = new PositionColored2Textured[4];
-        _allocator = new Allocator(this, _useEvr);
-        AddEvrOrVmr9();
+        _allocator = new Allocator(this);
+        AddEvr();
         IEnumPins enumer;
-        _vmr9.EnumPins(out enumer);
+        _evr.EnumPins(out enumer);
         if (enumer != null)
         {
           IPin[] pins = new IPin[2];

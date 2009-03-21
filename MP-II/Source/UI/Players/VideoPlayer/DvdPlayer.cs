@@ -36,7 +36,6 @@ using DirectShowLib.Dvd;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Control.InputManager;
 using MediaPortal.General;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Core.Logging;
@@ -124,7 +123,7 @@ namespace Ui.Players.Video
     {
     }
 
-    protected override void GetGraphBuilder()
+    protected override void CreateGraphBuilder()
     {
       _currTime = new DvdHMSFTimeCode();
       _mouseMsg = new List<Message>();
