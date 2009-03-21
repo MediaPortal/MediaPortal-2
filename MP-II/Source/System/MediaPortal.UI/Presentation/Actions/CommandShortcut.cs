@@ -26,7 +26,7 @@ using MediaPortal.Control.InputManager;
 
 namespace MediaPortal.Presentation.Actions
 {
-  public delegate void ActionDlgt();
+  public delegate bool ActionDlgt();
 
   /// <summary>
   /// Mapping of a <see cref="Key"/> to an <see cref="ActionDlgt"/> method. Used for register keyboard shortcuts

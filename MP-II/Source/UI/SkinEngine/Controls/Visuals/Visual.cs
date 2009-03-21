@@ -34,14 +34,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
   public class Visual : DependencyObject
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _visualParentProperty;
-    Property _focusedElement;
+    protected Property _visualParentProperty;
+    protected Property _focusedElement;
+    protected Property _screenProperty;
 
     #endregion
-
-    public Screen Screen;
 
     #region Ctor
 
@@ -54,6 +53,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       _visualParentProperty = new Property(typeof(Visual), null);
       _focusedElement = new Property(typeof(FrameworkElement), null);
+      _screenProperty = new Property(typeof(Screen), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -61,6 +61,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       Visual v = (Visual) source;
       VisualParent = copyManager.GetCopy(v.VisualParent);
+      FocusedElement = copyManager.GetCopy(v.FocusedElement);
       Screen = copyManager.GetCopy(v.Screen);
     }
 
@@ -118,14 +119,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get { return _focusedElement; }
     }
 
-    /// <summary>
-    /// Gets or sets the default focused element.
-    /// </summary>
-    /// <value>The focused element.</value>
     public FrameworkElement FocusedElement
     {
       get { return _focusedElement.GetValue() as FrameworkElement; }
       set { _focusedElement.SetValue(value); }
+    }
+
+    public Property ScreenProperty
+    {
+      get { return _screenProperty; }
+    }
+
+    public Screen Screen
+    {
+      get { return _screenProperty.GetValue() as Screen; }
+      set { _screenProperty.SetValue(value); }
     }
 
     /// <summary>

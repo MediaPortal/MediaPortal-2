@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Commands;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Commands;
@@ -90,6 +91,7 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
+      objectClassRegistrations.Add("ShortcutControl", typeof(SkinEngine.Controls.Visuals.ShortcutControl));
 
       // Brushes
       objectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));
@@ -312,6 +314,18 @@ namespace MediaPortal.SkinEngine.MpfElements
       else if (targetType.IsAssignableFrom(typeof(IExecutableCommand)) && value is ICommand)
       {
         result = new CommandBridge((ICommand) value);
+        return true;
+      }
+      else if (targetType == typeof(Key) && value is string)
+      {
+        string str = (string) value;
+        // Try a special key
+        result = Key.GetSpecialKeyByName(str);
+        if (result == null)
+          if (str.Length != 1)
+            throw new ArgumentException(string.Format("Cannot convert '{0}' to type Key", str));
+          else
+            result = new Key(str[0]);
         return true;
       }
       result = value;

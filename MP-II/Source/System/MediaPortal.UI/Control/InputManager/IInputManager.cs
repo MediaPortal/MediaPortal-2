@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Presentation.Actions;
 
 namespace MediaPortal.Control.InputManager
 {
@@ -54,5 +55,18 @@ namespace MediaPortal.Control.InputManager
     /// </summary>
     /// <param name="key">The key which was pressed or generated.</param>
     void KeyPress(Key key);
+
+    /// <summary>
+    /// Adds a global command shortcut.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    /// <param name="action">The action which should be executed.</param>
+    void AddShortcut(Key key, ActionDlgt action);
+
+    /// <summary>
+    /// Removes a global command shortcut.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    void RemoveShortcut(Key key);
   }
 }

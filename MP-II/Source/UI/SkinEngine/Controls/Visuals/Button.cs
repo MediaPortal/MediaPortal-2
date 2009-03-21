@@ -33,6 +33,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
+    protected Property _isDefaultProperty;
+    protected Property _isCancelProperty;
     protected Property _isPressedProperty;
 
     protected Property _commandProperty;
@@ -48,6 +50,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
+      _isDefaultProperty = new Property(typeof(bool), false);
+      _isCancelProperty = new Property(typeof(bool), false);
       _isPressedProperty = new Property(typeof(bool), false);
       _commandProperty = new Property(typeof(IExecutableCommand), null);
       Focusable = true;
@@ -57,10 +61,33 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       Button b = (Button) source;
+
       Command = copyManager.GetCopy(b.Command);
     }
 
     #endregion
+
+    public override void OnKeyPreview(ref Key key)
+    {
+      if (!HasFocus)
+        return;
+      // We handle "normal" button presses in the KeyPreview event, because "Default" and "Cancel" events need
+      // to be handled after the focused button was able to consume the event
+      if (key == Key.None) return;
+      if (key == Key.Ok)
+      {
+        Execute();
+        key = Key.None;
+      }
+    }
+
+    protected void Execute()
+    {
+      HasFocus = true;
+      IsPressed = true;
+      if (Command != null)
+        Command.Execute();
+    }
 
     #region Public properties
 
@@ -82,11 +109,31 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public bool IsPressed
     {
-      get { return (bool)_isPressedProperty.GetValue(); }
+      get { return (bool) _isPressedProperty.GetValue(); }
       set { _isPressedProperty.SetValue(value); }
     }
 
-    #region Command properties
+    public Property IsDefaultProperty
+    {
+      get { return _isDefaultProperty; }
+    }
+
+    public bool IsDefault
+    {
+      get { return (bool) _isDefaultProperty.GetValue(); }
+      set { _isDefaultProperty.SetValue(value); }
+    }
+
+    public Property IsCancelProperty
+    {
+      get { return _isCancelProperty; }
+    }
+
+    public bool IsCancel
+    {
+      get { return (bool) _isCancelProperty.GetValue(); }
+      set { _isCancelProperty.SetValue(value); }
+    }
 
     public Property CommandProperty
     {
@@ -102,18 +149,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #endregion
-    
     public override void OnKeyPressed(ref Key key)
     {
+      // We handle "Default" and "Cancel" events here, "normal" events will be handled in the KeyPreview event
       base.OnKeyPressed(ref key);
-      if (!HasFocus) return;
       if (key == Key.None) return;
-      if (key == Key.Enter)
+      if (IsDefault && key == Key.Ok || IsCancel && key == Key.Escape)
       {
-        IsPressed = true;
-        if (Command != null)
-          Command.Execute();
+        Execute();
         key = Key.None;
       }
     }

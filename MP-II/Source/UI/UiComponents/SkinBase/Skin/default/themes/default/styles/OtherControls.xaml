@@ -28,8 +28,6 @@
       <RadialGradientBrush.RelativeTransform>
         <TransformGroup>
           <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
-          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
           <TranslateTransform X="-0.036" Y="-0.146"/>
         </TransformGroup>
       </RadialGradientBrush.RelativeTransform>
@@ -38,6 +36,13 @@
     </RadialGradientBrush>
   </ResourceWrapper>
 
+  <ResourceWrapper x:Key="ShortcutPanelBackgroundBrush" Freezable="true">
+  	<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+  		<GradientStop Color="{ThemeResource ShortcutPanelBackgroundGradient1Color}" Offset="0"/>
+  		<GradientStop Color="{ThemeResource ShortcutPanelBackgroundGradient2Color}" Offset="0.3"/>
+  		<GradientStop Color="{ThemeResource ShortcutPanelBackgroundGradient3Color}" Offset="1"/>
+  	</LinearGradientBrush>
+  </ResourceWrapper>
   <!-- ***************************** Progress bar ******************************** -->
 
   <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
@@ -557,4 +562,39 @@
     <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
   </Style>
 
+  <!-- ****************************** Shortcuts listview ********************************** -->
+
+  <Style x:Key="ShortcutContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <StackPanel>
+            <ContentPresenter Margin="5"/>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <DataTemplate x:Key="ShortcutItemDataTemplate" DataType="{x:Type ShortcutControl}" DataString="{Binding ShortcutKey.Name}">
+    <ContentPresenter Content="{Binding}"/>
+  </DataTemplate>
+  <Style x:Key="ShortcutsListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ItemsPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <WrapPanel x:Name="ShortcutPanel" IsItemsHost="True" Orientation="Vertical"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{StaticResource ShortcutItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ShortcutContainerStyle}"/>
+    <Setter Property="Background" Value="{StaticResource ShortcutPanelBackgroundBrush}"/>
+  </Style>
 </ResourceDictionary>

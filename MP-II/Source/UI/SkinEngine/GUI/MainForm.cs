@@ -259,7 +259,7 @@ namespace MediaPortal.SkinEngine.GUI
       switch (e.Button)
       {
         case MouseButtons.Left:
-          ServiceScope.Get<IInputManager>().KeyPress(Key.Enter);
+          ServiceScope.Get<IInputManager>().KeyPress(Key.Ok);
           break;
         case MouseButtons.Right:
           ServiceScope.Get<IInputManager>().KeyPress(Key.ContextMenu);

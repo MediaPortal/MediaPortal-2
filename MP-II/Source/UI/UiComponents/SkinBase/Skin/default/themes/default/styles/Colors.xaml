@@ -12,6 +12,15 @@
   <!-- Dark blue -->
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF1253A3"/>
 
+  <!-- Light green -->
+  <ResourceWrapper x:Key="ShortcutPanelBackgroundGradient1Color" Resource="#A04CE64F"/>
+
+  <!-- Darker green -->
+  <ResourceWrapper x:Key="ShortcutPanelBackgroundGradient2Color" Resource="#A078FF7B"/>
+
+  <!-- A bit ligther -->
+  <ResourceWrapper x:Key="ShortcutPanelBackgroundGradient3Color" Resource="#A05BC05D"/>
+
   <!-- White -->
   <ResourceWrapper x:Key="WindowHeaderColor" Resource="White"/>
 

@@ -206,7 +206,10 @@ namespace MediaPortal.Control.InputManager
 
     public static bool operator ==(Key c1, Key c2)
     {
-      if (ReferenceEquals(c1, null) || ReferenceEquals(c2, null))
+      bool c2null = ReferenceEquals(c2, null);
+      if (ReferenceEquals(c1, null))
+        return c2null;
+      if (c2null)
         return false;
       return c1._name == c2._name;
     }

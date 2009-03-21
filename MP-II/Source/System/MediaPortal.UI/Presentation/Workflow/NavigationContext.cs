@@ -130,50 +130,6 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
-    /// Adds a command shortcut to this workflow navigation context. The shortcut will be active for
-    /// this navigation context and all successors.
-    /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
-    /// <param name="action">The action which should be executed.</param>
-    public void AddShortcut(Key key, ActionDlgt action)
-    {
-      IDictionary<Key, CommandShortcut> localShortcuts = GetLocalShortcuts(true);
-      localShortcuts.Add(key, new CommandShortcut(key, action));
-    }
-
-    /// <summary>
-    /// Removes a command shortcut from this workflow navigation context. The shortcut can only be removed if
-    /// it was registered at this navigation context. Shortcuts, which were registered at predecessor contexts
-    /// cannot be removed.
-    /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
-    public void RemoveShortcut(Key key)
-    {
-      IDictionary<Key, CommandShortcut> localShortcuts = GetLocalShortcuts(true);
-      if (localShortcuts != null)
-        localShortcuts.Remove(key);
-    }
-
-    /// <summary>
-    /// Gets the shortcut registered for the specified key, if available. This method searches through all
-    /// local shortcuts and all inherited shortcuts.
-    /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
-    /// <returns>Command shortcut instance or <c>null</c>, if there is no shortcut registered for the specified
-    /// <paramref name="key"/>.</returns>
-    public CommandShortcut GetShortcut(Key key)
-    {
-      IDictionary<Key, CommandShortcut> localShortcuts = GetLocalShortcuts(false);
-      if (localShortcuts != null)
-      {
-        CommandShortcut shortcut;
-        if (localShortcuts.TryGetValue(key, out shortcut))
-          return shortcut;
-      }
-      return _predecessor == null ? null : _predecessor.GetShortcut(key);
-    }
-
-    /// <summary>
     /// Gets or sets context variables in the current navigation context.
     /// </summary>
     /// <remarks>

@@ -27,7 +27,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
+using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Xaml;
@@ -72,7 +74,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected UIElement _visual;
     protected bool _setFocusedElement = false;
     protected Animator _animator;
-    protected List<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
+    protected IList<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
+    protected IDictionary<Key, CommandShortcut> _screenShortcuts = null;
 
     #endregion
 
@@ -144,6 +147,29 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       get { return _name; }
     }
 
+    /// <summary>
+    /// Adds a command shortcut to this screen. Screen shortcuts only concern the current screen,
+    /// they will be evaluated before the workflow shortcuts.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    /// <param name="action">The action which should be executed.</param>
+    public void AddShortcut(Key key, ActionDlgt action)
+    {
+      if (_screenShortcuts == null)
+        _screenShortcuts = new Dictionary<Key, CommandShortcut>();
+      _screenShortcuts[key] = new CommandShortcut(key, action);
+    }
+
+    /// <summary>
+    /// Removes a command shortcut from this screen.
+    /// </summary>
+    /// <param name="key">The key which triggers the shortcut.</param>
+    public void RemoveShortcut(Key key)
+    {
+      if (_screenShortcuts != null)
+        _screenShortcuts.Remove(key);
+    }
+
     public void Reset()
     {
       //Trace.WriteLine("Screen Reset: " + Name);
@@ -179,7 +205,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
       else
       {
-
         lock (_visual)
         {
           _animator.Animate();
@@ -201,6 +226,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (!_attachedInput)
       {
         InputManager inputManager = InputManager.Instance;
+        inputManager.KeyPreview += OnKeyPreview;
         inputManager.KeyPressed += OnKeyPressed;
         inputManager.MouseMoved += OnMouseMove;
         _attachedInput = true;
@@ -212,9 +238,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (_attachedInput)
       {
         InputManager inputManager = InputManager.Instance;
+        inputManager.KeyPreview -= OnKeyPreview;
         inputManager.KeyPressed -= OnKeyPressed;
         inputManager.MouseMoved -= OnMouseMove;
         _attachedInput = false;
+        RemoveCurrentFocus();
       }
     }
 
@@ -253,14 +281,27 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _visual.Dispose();
     }
 
+    private void OnKeyPreview(ref Key key)
+    {
+      if (!_attachedInput)
+        return;
+      _visual.OnKeyPreview(ref key);
+      // Try shortcuts...
+      CommandShortcut shortcut;
+      if (_screenShortcuts != null && _screenShortcuts.TryGetValue(key, out shortcut))
+      {
+        shortcut.Action();
+        key = Key.None;
+      }
+    }
+
     private void OnKeyPressed(ref Key key)
     {
       if (!_attachedInput)
         return;
       _visual.OnKeyPressed(ref key);
-      if (key == Key.None)
-        return;
-      UpdateFocus(ref key);
+      if (key != Key.None)
+        UpdateFocus(ref key);
     }
 
     private void OnMouseMove(float x, float y)
@@ -284,7 +325,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     void Update()
     {
-      List<IUpdateEventHandler> ctls;
+      IList<IUpdateEventHandler> ctls;
       lock (_invalidControls)
       {
         if (_invalidControls.Count == 0) 

@@ -52,21 +52,29 @@ namespace MediaPortal.SkinEngine
 
     protected void RegisterShortcuts()
     {
-      NavigationContext navigationContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
-      navigationContext.AddShortcut(Key.Escape, () =>
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      inputManager.AddShortcut(Key.Escape, () =>
         {
-          if (_screenManager.IsDialogVisible)
-            _screenManager.CloseDialog();
+          // Close dialog
+          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          if (screenManager.IsDialogVisible)
+          {
+            screenManager.CloseDialog();
+            return true;
+          }
+          return false;
         });
-      navigationContext.AddShortcut(Key.Back, () =>
+      inputManager.AddShortcut(Key.Back, () =>
         {
-          // Switch to previous workflow state
-          if (_screenManager.IsDialogVisible)
-            _screenManager.CloseDialog();
+          // Close dialog or switch to previous workflow state
+          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          if (screenManager.IsDialogVisible)
+            screenManager.CloseDialog();
           else
             ServiceScope.Get<IWorkflowManager>().NavigatePop(1);
+          return true;
         });
-      navigationContext.AddShortcut(Key.Fullscreen, () =>
+      inputManager.AddShortcut(Key.Fullscreen, () =>
         {
           //switch to fullscreen
           IScreenControl sc = ServiceScope.Get<IScreenControl>();
@@ -74,15 +82,16 @@ namespace MediaPortal.SkinEngine
             sc.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
           else
             sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+          return true;
         });
     }
 
     protected void UnregisterShortcuts()
     {
-      NavigationContext navigationContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
-      navigationContext.RemoveShortcut(Key.Escape);
-      navigationContext.RemoveShortcut(Key.Back);
-      navigationContext.RemoveShortcut(Key.Fullscreen);
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      inputManager.RemoveShortcut(Key.Escape);
+      inputManager.RemoveShortcut(Key.Back);
+      inputManager.RemoveShortcut(Key.Fullscreen);
     }
 
     #region ISkinEngine implementation

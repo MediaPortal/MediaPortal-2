@@ -70,6 +70,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </StackPanel>
   </Grid>
 
+<!-- Not sure if and how we should show shortcuts...
+  <ListView x:Name="ShortCuts" DockPanel.Dock="Bottom" Style="{StaticResource ShortcutsListViewStyle}"
+      Height="100" ItemsSource="{DynamicResource ShortCuts}"/>
+-->
+
+  <!-- Order matters here: The client content presenter has to be the last control (LastChildFill) -->
   <ContentPresenter x:Name="ClientPresenter" DockPanel.Dock="Center"
       Content="{DynamicResource Client_Element}"/>
 </DockPanel>

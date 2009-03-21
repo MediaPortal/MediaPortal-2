@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Actions;
@@ -54,6 +55,7 @@ namespace MediaPortal.SkinEngine.InputManagement
 
     protected DateTime _lastMouseUsageTime = DateTime.MinValue;
     protected DateTime _lastInputTime = DateTime.MinValue;
+    protected IDictionary<Key, CommandShortcut> _shortcuts = new Dictionary<Key, CommandShortcut>();
 
     protected static InputManager _instance = null;
 
@@ -117,15 +119,24 @@ namespace MediaPortal.SkinEngine.InputManagement
       if (key == Key.None)
         return;
       // Try shortcuts...
-      NavigationContext navigationContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
-      CommandShortcut shortcut = navigationContext.GetShortcut(key);
-      if (shortcut == null)
+      CommandShortcut shortcut;
+      if (_shortcuts.TryGetValue(key, out shortcut))
+        shortcut.Action();
+      else
       {
         if (KeyPressed != null)
           KeyPressed(ref key);
       }
-      else
-        shortcut.Action();
+    }
+
+    public void AddShortcut(Key key, ActionDlgt action)
+    {
+      _shortcuts[key] = new CommandShortcut(key, action);
+    }
+
+    public void RemoveShortcut(Key key)
+    {
+      _shortcuts.Remove(key);
     }
 
     #endregion

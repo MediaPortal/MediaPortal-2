@@ -23,7 +23,6 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -117,12 +116,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Attach();
     }
 
-    public override void Dispose()
-    {
-      base.Dispose();
-      InputManager.Instance.KeyPreview -= OnKeyPreview;
-    }
-
     #endregion
 
     void OnColorChanged(Property prop, object oldValue)
@@ -164,8 +157,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
-    void OnKeyPreview(ref Key key)
+    public override void OnKeyPreview(ref Key key)
     {
+      if (!HasFocus)
+        return;
       if (key == Key.None)
         return;
      
@@ -217,21 +212,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       _editText = false;
-    }
-
-    // We need to override this one, so we can subscribe to raw data.
-    public override bool HasFocus
-    {
-      get { return base.HasFocus; }
-      internal set
-      {
-        base.HasFocus = value;
-        // If we have focus, we need to handle keys before keyboard shortcuts are triggered
-        if (value)
-          InputManager.Instance.KeyPreview += OnKeyPreview;
-        else
-          InputManager.Instance.KeyPreview -= OnKeyPreview;
-      }
     }
 
     public Property PreferredTextLengthProperty

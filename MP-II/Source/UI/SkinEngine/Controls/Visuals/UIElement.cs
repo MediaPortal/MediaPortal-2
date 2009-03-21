@@ -875,10 +875,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Will be called when a key is pressed before the registered shortcuts are checked.
+    /// Derived classes may override this method to implement special priority key handling code.
+    /// </summary>
+    /// <param name="key">The key. Should be set to 'Key.None' if handled by child.</param> 
+    public virtual void OnKeyPreview(ref Key key)
+    {
+      foreach (UIElement child in GetChildren())
+      {
+        if (!child.IsVisible) continue;
+        child.OnKeyPreview(ref key);
+        if (key == Key.None) return;
+      }
+    }
+
+    /// <summary>
     /// Will be called when a key is pressed. Derived classes may override this method
     /// to implement special key handling code.
     /// </summary>
-    /// <param name="key">The key. Will be set to 'Key.None' if handled by child.</param> 
+    /// <param name="key">The key. Should be set to 'Key.None' if handled by child.</param> 
     public virtual void OnKeyPressed(ref Key key)
     {
       foreach (UIElement child in GetChildren())
