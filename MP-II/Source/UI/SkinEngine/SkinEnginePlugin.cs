@@ -50,10 +50,10 @@ namespace MediaPortal.SkinEngine
 
     #endregion
 
-    protected void RegisterShortcuts()
+    protected static void RegisterGlobalKeyBindings()
     {
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      inputManager.AddShortcut(Key.Escape, () =>
+      inputManager.AddKeyBinding(Key.Escape, () =>
         {
           // Close dialog
           IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
@@ -64,7 +64,7 @@ namespace MediaPortal.SkinEngine
           }
           return false;
         });
-      inputManager.AddShortcut(Key.Back, () =>
+      inputManager.AddKeyBinding(Key.Back, () =>
         {
           // Close dialog or switch to previous workflow state
           IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
@@ -74,7 +74,7 @@ namespace MediaPortal.SkinEngine
             ServiceScope.Get<IWorkflowManager>().NavigatePop(1);
           return true;
         });
-      inputManager.AddShortcut(Key.Fullscreen, () =>
+      inputManager.AddKeyBinding(Key.Fullscreen, () =>
         {
           //switch to fullscreen
           IScreenControl sc = ServiceScope.Get<IScreenControl>();
@@ -86,12 +86,12 @@ namespace MediaPortal.SkinEngine
         });
     }
 
-    protected void UnregisterShortcuts()
+    protected static void UnregisterGlobalKeyBindings()
     {
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      inputManager.RemoveShortcut(Key.Escape);
-      inputManager.RemoveShortcut(Key.Back);
-      inputManager.RemoveShortcut(Key.Fullscreen);
+      inputManager.RemoveKeyBinding(Key.Escape);
+      inputManager.RemoveKeyBinding(Key.Back);
+      inputManager.RemoveKeyBinding(Key.Fullscreen);
     }
 
     #region ISkinEngine implementation
@@ -129,15 +129,15 @@ namespace MediaPortal.SkinEngine
       logger.Debug("SkinEnginePlugin: Switching workflow manager to home state");
       ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
 
-      logger.Debug("SkinEnginePlugin: Registering default shortcuts");
-      RegisterShortcuts();
+      logger.Debug("SkinEnginePlugin: Registering default key bindings");
+      RegisterGlobalKeyBindings();
     }
 
     void ISkinEngine.Uninitialize()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
-      logger.Debug("SkinEnginePlugin: Unregistering default shortcuts");
-      UnregisterShortcuts();
+      logger.Debug("SkinEnginePlugin: Unregistering default key bindings");
+      UnregisterGlobalKeyBindings();
 
       logger.Debug("SkinEnginePlugin: Uninstalling background manager");
       _screenManager.UninstallBackgroundManager();

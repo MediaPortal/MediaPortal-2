@@ -73,7 +73,7 @@
     <Compile Include="Configuration\ConfigurationClasses\SingleSelectionList.cs" />
     <Compile Include="Configuration\ConfigurationClasses\YesNo.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
-    <Compile Include="Presentation\Actions\CommandShortcut.cs" />
+    <Compile Include="Presentation\Actions\KeyAction.cs" />
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
     <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />

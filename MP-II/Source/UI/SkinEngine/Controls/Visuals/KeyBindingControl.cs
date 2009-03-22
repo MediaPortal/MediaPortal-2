@@ -30,25 +30,25 @@ using MediaPortal.Utilities.DeepCopy;
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   /// <summary>
-  /// Control to provide a shortcut action which can be triggered with a <see cref="Key"/>. This control can also
-  /// provide a visible feedback for the user; it shows the shortcut.
+  /// Control to provide a key binding which can be triggered with a <see cref="MediaPortal.Control.InputManager.Key"/>. This control can also
+  /// provide a visible feedback for the user; it shows the key and a description for the shortcut.
   /// It is similar to a <see cref="KeyBinding"/>, which doesn't provide a view.
   /// </summary>
-  public class ShortcutControl : Button
+  public class KeyBindingControl : Button
   {
     #region Protected fields
 
-    protected Property _shortcutKeyProperty;
+    protected Property _keyProperty;
     protected Property _descriptionProperty;
 
     protected Screen _registeredScreen = null;
-    protected Key _registeredShortcutKey = null;
+    protected Key _registeredKey = null;
 
     #endregion
 
     #region Ctor
 
-    public ShortcutControl()
+    public KeyBindingControl()
     {
       Init();
       Attach();
@@ -56,32 +56,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _shortcutKeyProperty = new Property(typeof(Key), null);
+      _keyProperty = new Property(typeof(Key), null);
       _descriptionProperty = new Property(typeof(string), null);
     }
 
     void Attach()
     {
-      _shortcutKeyProperty.Attach(OnShortcutConcerningPropertyChanged);
-      _descriptionProperty.Attach(OnShortcutConcerningPropertyChanged);
-      IsEnabledProperty.Attach(OnShortcutConcerningPropertyChanged);
-      ScreenProperty.Attach(OnShortcutConcerningPropertyChanged);
+      _keyProperty.Attach(OnBindingConcerningPropertyChanged);
+      _descriptionProperty.Attach(OnBindingConcerningPropertyChanged);
+      IsEnabledProperty.Attach(OnBindingConcerningPropertyChanged);
+      ScreenProperty.Attach(OnBindingConcerningPropertyChanged);
     }
 
     void Detach()
     {
-      _shortcutKeyProperty.Detach(OnShortcutConcerningPropertyChanged);
-      _descriptionProperty.Detach(OnShortcutConcerningPropertyChanged);
-      IsEnabledProperty.Detach(OnShortcutConcerningPropertyChanged);
-      ScreenProperty.Detach(OnShortcutConcerningPropertyChanged);
+      _keyProperty.Detach(OnBindingConcerningPropertyChanged);
+      _descriptionProperty.Detach(OnBindingConcerningPropertyChanged);
+      IsEnabledProperty.Detach(OnBindingConcerningPropertyChanged);
+      ScreenProperty.Detach(OnBindingConcerningPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      ShortcutControl vs = (ShortcutControl) source;
-      ShortcutKey = copyManager.GetCopy(vs.ShortcutKey);
+      KeyBindingControl vs = (KeyBindingControl) source;
+      Key = copyManager.GetCopy(vs.Key);
       Description = copyManager.GetCopy(vs.Description);
       Attach();
     }
@@ -89,56 +89,56 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override void Dispose()
     {
       base.Dispose();
-      UnregisterShortcut();
+      UnregisterKeyBinding();
     }
 
     #endregion
 
-    void OnShortcutConcerningPropertyChanged(Property prop, object oldValue)
+    void OnBindingConcerningPropertyChanged(Property prop, object oldValue)
     {
-      UnregisterShortcut();
-      RegisterShortcut();
+      UnregisterKeyBinding();
+      RegisterKeyBinding();
     }
 
-    protected void RegisterShortcut()
+    protected void RegisterKeyBinding()
     {
-      if (ShortcutKey == null)
+      if (Key == null)
       {
-        Content = "[Undefined shortcut]: " + Description;
+        Content = "[Undefined key binding]: " + Description;
         return;
       }
       if (IsEnabled && Screen != null)
       {
         _registeredScreen = Screen;
-        _registeredShortcutKey = ShortcutKey;
-        _registeredScreen.AddShortcut(_registeredShortcutKey, () =>
+        _registeredKey = Key;
+        _registeredScreen.AddKeyBinding(_registeredKey, () =>
         {
           Execute();
           return true;
         });
       }
-      Content = ShortcutKey.Name + ": " + Description;
+      Content = Key.Name + ": " + Description;
     }
 
-    protected void UnregisterShortcut()
+    protected void UnregisterKeyBinding()
     {
-      if (_registeredScreen != null && _registeredShortcutKey != null)
-        _registeredScreen.RemoveShortcut(_registeredShortcutKey);
+      if (_registeredScreen != null && _registeredKey != null)
+        _registeredScreen.RemoveKeyBinding(_registeredKey);
       _registeredScreen = null;
-      _registeredShortcutKey = null;
+      _registeredKey = null;
     }
 
     #region Public properties
 
-    public Key ShortcutKey
+    public Key Key
     {
-      get { return (Key) _shortcutKeyProperty.GetValue(); }
-      set { _shortcutKeyProperty.SetValue(value); }
+      get { return (Key) _keyProperty.GetValue(); }
+      set { _keyProperty.SetValue(value); }
     }
 
-    public Property ShortcutKeyProperty
+    public Property KeyProperty
     {
-      get { return _shortcutKeyProperty; }
+      get { return _keyProperty; }
     }
 
     public string Description

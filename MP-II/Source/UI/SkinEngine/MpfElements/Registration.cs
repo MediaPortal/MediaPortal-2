@@ -82,7 +82,6 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("ContentPresenter", typeof(SkinEngine.Controls.Visuals.ContentPresenter));
       objectClassRegistrations.Add("ScrollContentPresenter", typeof(SkinEngine.Controls.Visuals.ScrollContentPresenter));
       objectClassRegistrations.Add("ProgressBar", typeof(SkinEngine.Controls.Visuals.ProgressBar));
-      objectClassRegistrations.Add("KeyBinding", typeof(SkinEngine.Controls.Visuals.KeyBinding));
       objectClassRegistrations.Add("HeaderedItemsControl", typeof(SkinEngine.Controls.Visuals.HeaderedItemsControl));
       objectClassRegistrations.Add("TreeView", typeof(SkinEngine.Controls.Visuals.TreeView));
       objectClassRegistrations.Add("TreeViewItem", typeof(SkinEngine.Controls.Visuals.TreeViewItem));
@@ -91,7 +90,8 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       objectClassRegistrations.Add("ContentControl", typeof(SkinEngine.Controls.Visuals.ContentControl));
-      objectClassRegistrations.Add("ShortcutControl", typeof(SkinEngine.Controls.Visuals.ShortcutControl));
+      objectClassRegistrations.Add("KeyBinding", typeof(SkinEngine.Controls.Visuals.KeyBinding));
+      objectClassRegistrations.Add("KeyBindingControl", typeof(SkinEngine.Controls.Visuals.KeyBindingControl));
 
       // Brushes
       objectClassRegistrations.Add("SolidColorBrush", typeof(SkinEngine.Controls.Brushes.SolidColorBrush));

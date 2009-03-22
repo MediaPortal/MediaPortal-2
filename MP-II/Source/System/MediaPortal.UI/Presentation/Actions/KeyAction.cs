@@ -29,10 +29,9 @@ namespace MediaPortal.Presentation.Actions
   public delegate bool ActionDlgt();
 
   /// <summary>
-  /// Mapping of a <see cref="Key"/> to an <see cref="ActionDlgt"/> method. Used for register keyboard shortcuts
-  /// to actions.
+  /// Mapping of a <see cref="Key"/> to an <see cref="ActionDlgt"/> method. Used to register key bindings.
   /// </summary>
-  public class CommandShortcut
+  public class KeyAction
   {
     #region Protected fields
 
@@ -43,7 +42,7 @@ namespace MediaPortal.Presentation.Actions
 
     #region Ctor
 
-    public CommandShortcut(Key key, ActionDlgt action)
+    public KeyAction(Key key, ActionDlgt action)
     {
       _key = key;
       _action = action;

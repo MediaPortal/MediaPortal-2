@@ -25,11 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.SkinEngine.Xaml;
@@ -75,7 +73,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected bool _setFocusedElement = false;
     protected Animator _animator;
     protected IList<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
-    protected IDictionary<Key, CommandShortcut> _screenShortcuts = null;
+    protected IDictionary<Key, KeyAction> _keyBindings = null;
 
     #endregion
 
@@ -148,26 +146,26 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Adds a command shortcut to this screen. Screen shortcuts only concern the current screen,
-    /// they will be evaluated before the workflow shortcuts.
+    /// Adds a key binding to a command for this screen. Screen key bindings will only concern the current screen.
+    /// They will be evaluated before the global key bindings in the InputManager.
     /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
+    /// <param name="key">The key which triggers the command.</param>
     /// <param name="action">The action which should be executed.</param>
-    public void AddShortcut(Key key, ActionDlgt action)
+    public void AddKeyBinding(Key key, ActionDlgt action)
     {
-      if (_screenShortcuts == null)
-        _screenShortcuts = new Dictionary<Key, CommandShortcut>();
-      _screenShortcuts[key] = new CommandShortcut(key, action);
+      if (_keyBindings == null)
+        _keyBindings = new Dictionary<Key, KeyAction>();
+      _keyBindings[key] = new KeyAction(key, action);
     }
 
     /// <summary>
-    /// Removes a command shortcut from this screen.
+    /// Removes a key binding from this screen.
     /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
-    public void RemoveShortcut(Key key)
+    /// <param name="key">The key which triggers the command.</param>
+    public void RemoveKeyBinding(Key key)
     {
-      if (_screenShortcuts != null)
-        _screenShortcuts.Remove(key);
+      if (_keyBindings != null)
+        _keyBindings.Remove(key);
     }
 
     public void Reset()
@@ -286,11 +284,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (!_attachedInput)
         return;
       _visual.OnKeyPreview(ref key);
-      // Try shortcuts...
-      CommandShortcut shortcut;
-      if (_screenShortcuts != null && _screenShortcuts.TryGetValue(key, out shortcut))
+      // Try key bindings...
+      KeyAction keyAction;
+      if (_keyBindings != null && _keyBindings.TryGetValue(key, out keyAction))
       {
-        shortcut.Action();
+        keyAction.Action();
         key = Key.None;
       }
     }

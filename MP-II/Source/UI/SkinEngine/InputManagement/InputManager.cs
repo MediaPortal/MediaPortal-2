@@ -25,9 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Core;
 using MediaPortal.Presentation.Actions;
-using MediaPortal.Presentation.Workflow;
 
 namespace MediaPortal.SkinEngine.InputManagement
 {
@@ -55,7 +53,7 @@ namespace MediaPortal.SkinEngine.InputManagement
 
     protected DateTime _lastMouseUsageTime = DateTime.MinValue;
     protected DateTime _lastInputTime = DateTime.MinValue;
-    protected IDictionary<Key, CommandShortcut> _shortcuts = new Dictionary<Key, CommandShortcut>();
+    protected IDictionary<Key, KeyAction> _keyBindings = new Dictionary<Key, KeyAction>();
 
     protected static InputManager _instance = null;
 
@@ -118,10 +116,10 @@ namespace MediaPortal.SkinEngine.InputManagement
           KeyPreview(ref key);
       if (key == Key.None)
         return;
-      // Try shortcuts...
-      CommandShortcut shortcut;
-      if (_shortcuts.TryGetValue(key, out shortcut))
-        shortcut.Action();
+      // Try key bindings...
+      KeyAction keyAction;
+      if (_keyBindings.TryGetValue(key, out keyAction))
+        keyAction.Action();
       else
       {
         if (KeyPressed != null)
@@ -129,14 +127,14 @@ namespace MediaPortal.SkinEngine.InputManagement
       }
     }
 
-    public void AddShortcut(Key key, ActionDlgt action)
+    public void AddKeyBinding(Key key, ActionDlgt action)
     {
-      _shortcuts[key] = new CommandShortcut(key, action);
+      _keyBindings[key] = new KeyAction(key, action);
     }
 
-    public void RemoveShortcut(Key key)
+    public void RemoveKeyBinding(Key key)
     {
-      _shortcuts.Remove(key);
+      _keyBindings.Remove(key);
     }
 
     #endregion

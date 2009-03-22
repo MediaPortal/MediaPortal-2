@@ -57,16 +57,16 @@ namespace MediaPortal.Control.InputManager
     void KeyPress(Key key);
 
     /// <summary>
-    /// Adds a global command shortcut.
+    /// Adds a global key binding.
     /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
+    /// <param name="key">The key which triggers the command.</param>
     /// <param name="action">The action which should be executed.</param>
-    void AddShortcut(Key key, ActionDlgt action);
+    void AddKeyBinding(Key key, ActionDlgt action);
 
     /// <summary>
-    /// Removes a global command shortcut.
+    /// Removes a global key binding.
     /// </summary>
-    /// <param name="key">The key which triggers the shortcut.</param>
-    void RemoveShortcut(Key key);
+    /// <param name="key">The key which triggers the command.</param>
+    void RemoveKeyBinding(Key key);
   }
 }

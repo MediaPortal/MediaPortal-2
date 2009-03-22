@@ -24,9 +24,7 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.Models;
-using MediaPortal.Control.InputManager;
 
 namespace MediaPortal.Presentation.Workflow
 {
@@ -40,12 +38,6 @@ namespace MediaPortal.Presentation.Workflow
   /// </remarks>
   public class NavigationContext
   {
-    #region Consts
-
-    protected const string SHORTCUTS_KEY = "NavigationContext: CommandShortcuts";
-
-    #endregion
-
     #region Protected fields
 
     protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
@@ -167,17 +159,6 @@ namespace MediaPortal.Presentation.Workflow
     public void SetContextVariable(string key, object value)
     {
       _contextVariables[key] = value;
-    }
-
-    protected IDictionary<Key, CommandShortcut> GetLocalShortcuts(bool createIfNotExists)
-    {
-      object o;
-      IDictionary<Key, CommandShortcut> shortcuts = null;
-      if (_contextVariables.TryGetValue(SHORTCUTS_KEY, out o))
-        shortcuts = (IDictionary<Key, CommandShortcut>) o;
-      else if (createIfNotExists)
-        _contextVariables.Add(SHORTCUTS_KEY, shortcuts = new Dictionary<Key, CommandShortcut>());
-      return shortcuts;
     }
 
     #endregion

@@ -36,11 +36,11 @@
     </RadialGradientBrush>
   </ResourceWrapper>
 
-  <ResourceWrapper x:Key="ShortcutPanelBackgroundBrush" Freezable="true">
+  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundBrush" Freezable="true">
   	<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
-  		<GradientStop Color="{ThemeResource ShortcutPanelBackgroundGradient1Color}" Offset="0"/>
-  		<GradientStop Color="{ThemeResource ShortcutPanelBackgroundGradient2Color}" Offset="0.3"/>
-  		<GradientStop Color="{ThemeResource ShortcutPanelBackgroundGradient3Color}" Offset="1"/>
+  		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient1Color}" Offset="0"/>
+  		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient2Color}" Offset="0.3"/>
+  		<GradientStop Color="{ThemeResource KeyBindingsPanelBackgroundGradient3Color}" Offset="1"/>
   	</LinearGradientBrush>
   </ResourceWrapper>
   <!-- ***************************** Progress bar ******************************** -->
@@ -562,9 +562,9 @@
     <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
   </Style>
 
-  <!-- ****************************** Shortcuts listview ********************************** -->
+  <!-- ****************************** Keybindings listview ********************************** -->
 
-  <Style x:Key="ShortcutContainerStyle" TargetType="{x:Type ListViewItem}">
+  <Style x:Key="KeyBindingContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
@@ -575,10 +575,10 @@
       </Setter.Value>
     </Setter>
   </Style>
-  <DataTemplate x:Key="ShortcutItemDataTemplate" DataType="{x:Type ShortcutControl}" DataString="{Binding ShortcutKey.Name}">
+  <DataTemplate x:Key="KeyBindingItemDataTemplate" DataType="{x:Type KeyBindingControl}" DataString="{Binding Key.Name}">
     <ContentPresenter Content="{Binding}"/>
   </DataTemplate>
-  <Style x:Key="ShortcutsListViewStyle" TargetType="{x:Type ListView}">
+  <Style x:Key="KeyBindingsListViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -589,12 +589,12 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <WrapPanel x:Name="ShortcutPanel" IsItemsHost="True" Orientation="Vertical"/>
+          <WrapPanel x:Name="KeyBindingsPanel" IsItemsHost="True" Orientation="Vertical"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemTemplate" Value="{StaticResource ShortcutItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ShortcutContainerStyle}"/>
-    <Setter Property="Background" Value="{StaticResource ShortcutPanelBackgroundBrush}"/>
+    <Setter Property="ItemTemplate" Value="{StaticResource KeyBindingItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource KeyBindingContainerStyle}"/>
+    <Setter Property="Background" Value="{StaticResource KeyBindingsPanelBackgroundBrush}"/>
   </Style>
 </ResourceDictionary>

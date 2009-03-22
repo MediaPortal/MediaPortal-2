@@ -109,7 +109,7 @@
     <Compile Include="Controls\Brushes\TileBrush.cs" />
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
-    <Compile Include="Controls\Visuals\ShortcutControl.cs" />
+    <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
     <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
     <Compile Include="Geometry\GeometryLetterBox.cs" />
     <Compile Include="Geometry\GeometryManager.cs" />

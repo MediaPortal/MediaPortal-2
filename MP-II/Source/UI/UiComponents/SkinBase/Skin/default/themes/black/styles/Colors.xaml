@@ -10,11 +10,11 @@
 
   <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF101010"/>
 
-  <ResourceWrapper x:Key="ShortcutPanelBackgroundGradient1Color" Resource="#B04CE64F"/>
+  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient1Color" Resource="#B04CE64F"/>
 
-  <ResourceWrapper x:Key="ShortcutPanelBackgroundGradient2Color" Resource="#B078FF7B"/>
+  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient2Color" Resource="#B078FF7B"/>
 
-  <ResourceWrapper x:Key="ShortcutPanelBackgroundGradient3Color" Resource="#B05BC05D"/>
+  <ResourceWrapper x:Key="KeyBindingsPanelBackgroundGradient3Color" Resource="#B05BC05D"/>
 
   <ResourceWrapper x:Key="WindowHeaderColor" Resource="White"/>
 
