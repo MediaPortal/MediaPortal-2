@@ -119,7 +119,12 @@ namespace MediaPortal
         skinEngine.Startup(); // 3)
         UiExtension.RegisterDefaultCommandShortcuts();
 
+        SystemMessaging.SendSystemMessage(SystemMessaging.MessageType.SystemStarted);
+
         Application.Run();
+
+        SystemMessaging.SendSystemMessage(SystemMessaging.MessageType.SystemShutdown);
+
         // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
         // 2) Uninitialize SkinEngine (Uninstalls background manager and stops render thread)
         // 3) Shutdown WorkflowManager (Disposes all models)

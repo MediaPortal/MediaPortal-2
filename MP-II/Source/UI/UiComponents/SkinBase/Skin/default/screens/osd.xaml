@@ -116,9 +116,10 @@
   </Canvas.Resources>
 
   <Image Source="osd_background.png" Height="10" Width="198" Canvas.Left="0" Canvas.Top="12" Stretch="Fill"/>
-  <Button Style="{StaticResource ButtonRewindStyle}" Canvas.Left="24" Canvas.Top="0" Command="{Command Path=Rewind}"/>
-  <Button Style="{StaticResource ButtonStopStyle}" Canvas.Left="58" Canvas.Top="0" Command="{Command Path=Stop}"/>
-  <Button Style="{StaticResource ButtonPauseStyle}" Canvas.Left="92" Canvas.Top="0" Command="{Command Path=TogglePause}"/>
-  <Button Style="{StaticResource ButtonForwardStyle}" Canvas.Left="126" Canvas.Top="0" Command="{Command Path=Forward}"/>
-  <Button Style="{StaticResource ButtonMuteStyle}"  Canvas.Left="160" Canvas.Top="0" Command="{Command Path=ToggleMute}"/>
+  <Button Style="{StaticResource ButtonRewindStyle}" Canvas.Left="24" Canvas.Top="0" Command="{Command SeekBackward}"/>
+  <Button Style="{StaticResource ButtonStopStyle}" Canvas.Left="58" Canvas.Top="0" Command="{Command Stop}"/>
+  <Button Style="{StaticResource ButtonPauseStyle}" Canvas.Left="92" Canvas.Top="0" Command="{Command TogglePause}"/>
+  <Button Style="{StaticResource ButtonForwardStyle}" Canvas.Left="126" Canvas.Top="0" Command="{Command SeekForward}"/>
+  <Button Style="{StaticResource ButtonMuteStyle}" Canvas.Left="160" Canvas.Top="0" IsEnabled="{Binding IsCurrentAudio}"
+      Command="{Command Path=ToggleMuteAudioPlayer}"/>
 </Canvas>

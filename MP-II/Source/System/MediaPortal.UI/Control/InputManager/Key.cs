@@ -184,6 +184,11 @@ namespace MediaPortal.Control.InputManager
       return NAME2SPECIALKEY.TryGetValue(name, out result) ? result : null;
     }
 
+    public static Key Printable(char rawCode)
+    {
+      return new Key(rawCode);
+    }
+
     #region Base overrides
 
     public override string ToString()

@@ -195,6 +195,7 @@ namespace MediaPortal.Services.Players
           _isAudioSlot = value;
           if (_player != null)
             _player.IsAudioEnabled = IsAudioSlot;
+          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, _slotIndex);
         }
       }
 

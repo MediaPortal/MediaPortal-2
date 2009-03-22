@@ -42,7 +42,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public VisualAssetContext(string name)
     {
       IScreenManager mgr = ServiceScope.Get<IScreenManager>();
-      _name = String.Format("visual#{0} {1} {2}", _assetId, mgr.CurrentScreenName, name);
+      _name = String.Format("visual#{0} {1} {2}", _assetId, mgr.ActiveScreenName, name);
       _assetId++;
       LastTimeUsed = SkinContext.Now;
     }

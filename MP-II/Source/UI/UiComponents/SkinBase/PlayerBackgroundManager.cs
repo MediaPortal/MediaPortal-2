@@ -60,7 +60,7 @@ namespace UiComponents.SkinBase
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       string targetBackgroundScreen = GetTargetBackgroundScreen();
-      if (screenManager.CurrentBackgroundScreenName != targetBackgroundScreen)
+      if (screenManager.ActiveBackgroundScreenName != targetBackgroundScreen)
         screenManager.SetBackgroundLayer(targetBackgroundScreen);
     }
 

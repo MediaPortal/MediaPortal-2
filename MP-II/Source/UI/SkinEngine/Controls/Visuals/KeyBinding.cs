@@ -25,16 +25,20 @@
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Commands;
+using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class KeyBinding : FrameworkElement
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _keyProperty;
-    IExecutableCommand _command;
+    protected Property _keyProperty;
+    protected Property _commandProperty;
+
+    protected Screen _registeredScreen = null;
+    protected Key _registeredKey = null;
 
     #endregion
 
@@ -43,55 +47,108 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public KeyBinding()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
-      _command = null;
-      _keyProperty = new Property(typeof(string), "");
-      Focusable = false;
+      _keyProperty = new Property(typeof(Key), null);
+      _commandProperty = new Property(typeof(IExecutableCommand), null);
+    }
+
+    void Attach()
+    {
+      _keyProperty.Attach(OnBindingConcerningPropertyChanged);
+      IsEnabledProperty.Attach(OnBindingConcerningPropertyChanged);
+      ScreenProperty.Attach(OnBindingConcerningPropertyChanged);
+    }
+
+    void Detach()
+    {
+      _keyProperty.Detach(OnBindingConcerningPropertyChanged);
+      IsEnabledProperty.Detach(OnBindingConcerningPropertyChanged);
+      ScreenProperty.Detach(OnBindingConcerningPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
-      KeyBinding b = (KeyBinding) source;
-      Command = copyManager.GetCopy(b.Command);
-      KeyPress = copyManager.GetCopy(b.KeyPress);
+      KeyBindingControl vs = (KeyBindingControl) source;
+      Key = copyManager.GetCopy(vs.Key);
+      Command = copyManager.GetCopy(vs.Command);
+      Attach();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      UnregisterKeyBinding();
     }
 
     #endregion
 
+    void OnBindingConcerningPropertyChanged(Property prop, object oldValue)
+    {
+      UnregisterKeyBinding();
+      RegisterKeyBinding();
+    }
+
+    protected void Execute()
+    {
+      if (Command != null)
+        Command.Execute();
+    }
+
+    protected void RegisterKeyBinding()
+    {
+      if (Key == null)
+        return;
+      if (IsEnabled && Screen != null)
+      {
+        _registeredScreen = Screen;
+        _registeredKey = Key;
+        _registeredScreen.AddKeyBinding(_registeredKey, () =>
+        {
+          Execute();
+          return true;
+        });
+      }
+    }
+
+    protected void UnregisterKeyBinding()
+    {
+      if (_registeredScreen != null && _registeredKey != null)
+        _registeredScreen.RemoveKeyBinding(_registeredKey);
+      _registeredScreen = null;
+      _registeredKey = null;
+    }
+
     #region Public properties
 
-    public string KeyPress
+    public Key Key
     {
-      get { return _keyProperty.GetValue() as string; }
+      get { return (Key) _keyProperty.GetValue(); }
       set { _keyProperty.SetValue(value); }
     }
 
-    public Property KeyPressProperty
+    public Property KeyProperty
     {
       get { return _keyProperty; }
     }
 
+    public Property CommandProperty
+    {
+      get { return _commandProperty; }
+      set { _commandProperty = value; }
+    }
+
     public IExecutableCommand Command
     {
-      get { return _command; }
-      set { _command = value; }
+      get { return (IExecutableCommand) _commandProperty.GetValue(); }
+      set { _commandProperty.SetValue(value); }
     }
 
     #endregion
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      if (key == Key.None)
-        return;
-      if (key.ToString() == KeyPress)
-      {
-        if (Command != null)
-          Command.Execute();
-      }
-    }
   }
 }

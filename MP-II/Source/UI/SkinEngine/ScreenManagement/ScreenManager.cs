@@ -508,7 +508,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    public string CurrentScreenName
+    public string ActiveScreenName
     {
       get
       {
@@ -518,7 +518,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    public string CurrentBackgroundScreenName
+    public string ActiveBackgroundScreenName
     {
       get
       {

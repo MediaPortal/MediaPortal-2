@@ -324,7 +324,6 @@ namespace MediaPortal.Services.Players
           // Don't move the audio slot to an inactive player slot
           return;
         newAudioSlot.IsAudioSlot = true;
-        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, value);
       }
     }
 
@@ -356,12 +355,12 @@ namespace MediaPortal.Services.Players
         index = PlayerManagerConsts.SECONDARY_SLOT;
       else
         return false;
-      PlayerSlotController psc = _slots[index];
+      slotIndex = index;
+      PlayerSlotController psc = _slots[slotIndex];
       psc.IsActive = true;
       if (AudioSlotIndex == -1)
         AudioSlotIndex = slotIndex;
       controller = psc;
-      slotIndex = index;
       return true;
     }
 

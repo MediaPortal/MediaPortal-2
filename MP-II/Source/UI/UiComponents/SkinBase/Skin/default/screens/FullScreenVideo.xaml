@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- FIXME: Has to be completely reworked -->
+<!-- FIXME: Has to be reworked completely -->
 <DockPanel
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -68,14 +68,8 @@
       <Include Source="screens\osd.xaml"/>
     </StackPanel>
   </Canvas>
-  <KeyBinding KeyPress="DvdMenu" Command="{Command Source={Service Players},Path=ShowDvdMenu}" />
-  <KeyBinding KeyPress="DvdUp" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Up}"/>
-  <KeyBinding KeyPress="DvdDown" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Down}"/>
-  <KeyBinding KeyPress="DvdLeft" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Left}"/>
-  <KeyBinding KeyPress="DvdRight" Command="{Command Source={Service Players},Path=DvdNavigate,Parameters=Right}"/>
-  <KeyBinding KeyPress="DvdSelect" Command="{Command Source={Service Players},Path=DvdSelect}"/>
-  <KeyBinding KeyPress="ContextMenu" Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogVideoContextMenu}"/>
-  <KeyBinding KeyPress="ZoomMode" Command="{Command Source={Service Players},Path=OSD.NextZoomMode}"/>
-  <KeyBinding KeyPress="Left" Command="{Command Source={Service Players},Path=SeekBackward}"/>
-  <KeyBinding KeyPress="Right" Command="{Command Source={Service Players},Path=SeekForward}"/>
+  <KeyBinding Key="Info" Command="{Command Source={Service DialogManager},Path=ShowDialog,Parameters=DialogVideoContextMenu}"/>
+  <KeyBinding Key="ZoomMode" Command="{Command NextZoomMode}"/>
+  <KeyBinding Key="Left" Command="{Command SeekBackward}"/>
+  <KeyBinding Key="Right" Command="{Command SeekForward}"/>
 </DockPanel>
