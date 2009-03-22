@@ -27,6 +27,12 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Cropping = Yes
+  /// Stretch = UniformToFill
+  /// Zoom = X:5/3;Y:0
+  /// Shader = None
+  /// </summary>
   public class GeometryPanAndScan : IGeometry
   {
     public const string NAME = "[Geometries.PanAndScan]";

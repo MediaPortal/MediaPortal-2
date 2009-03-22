@@ -28,8 +28,10 @@ using MediaPortal.Presentation.Geometries;
 namespace MediaPortal.SkinEngine.Geometry
 {
   /// <summary>
-  /// Crops the source rectangle according to the crop settings, then scales it so that the biggest dimension still
-  /// fits into the target rectangle.
+  /// Cropping = yes
+  /// Stretch = UniformToFill
+  /// Zoom = None
+  /// Shader = None
   /// </summary>
   public class GeometryNormal : IGeometry
   {

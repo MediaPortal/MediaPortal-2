@@ -27,6 +27,12 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Cropping = Yes
+  /// Stretch = Fill
+  /// Zoom = None
+  /// Shader = None
+  /// </summary>
   public class GeometryStretch : IGeometry
   {
     public const string NAME = "[Geometries.Stretch]";

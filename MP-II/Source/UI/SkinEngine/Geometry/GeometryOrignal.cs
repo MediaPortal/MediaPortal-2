@@ -29,9 +29,11 @@ using MediaPortal.Presentation.Geometries;
 namespace MediaPortal.SkinEngine.Geometry
 {
   /// <summary>
-  /// Centers the source rectangle into the destination rectangle, if it fits. If one direction in the source
-  /// rectangle is too big, the rectangle will be scaled to fit into the destination rectangle.
-  /// Cropping won't take place in this geometry.
+  /// Cropping = No
+  /// Stretch = None
+  /// Zoom = None
+  /// Shader = None
+  /// Characteristics: Scale down, if bigger than original (UniformToFill)
   /// </summary>
   public class GeometryOrignal : IGeometry
   {

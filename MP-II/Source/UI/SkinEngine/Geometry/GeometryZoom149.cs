@@ -27,6 +27,12 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Cropping = Yes
+  /// Stretch = UniformToFill
+  /// Zoom = X:0;Y:1.125
+  /// Shader = None
+  /// </summary>
   public class GeometryZoom149 : IGeometry
   {
     public const string NAME = "[Geometries.Zoom149]";

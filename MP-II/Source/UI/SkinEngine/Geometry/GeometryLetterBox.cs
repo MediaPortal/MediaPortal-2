@@ -27,6 +27,12 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Cropping = Yes
+  /// Stretch = UniformToFill
+  /// Zoom = X:0; Y: 2/3
+  /// Shader = None
+  /// </summary>
   public class GeometryLetterBox : IGeometry
   {
     public const string NAME = "[Geometries.LetterBox]";
@@ -60,13 +66,6 @@ namespace MediaPortal.SkinEngine.Geometry
         fNewHeight = data.TargetSize.Height;
         fNewHeight *= (1.0f - 0.33333333333f);
         fNewWidth = fNewHeight*fOutputFrameRatio;
-      }
-
-      // this shouldnt happen, but just make sure that everything still fits onscreen
-      if (fNewWidth > data.TargetSize.Width || fNewHeight > data.TargetSize.Height)
-      {
-        fNewWidth = data.OriginalSize.Width;
-        fNewHeight = data.OriginalSize.Height;
       }
 
       // Centre the movie

@@ -27,6 +27,12 @@ using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
+  /// <summary>
+  /// Cropping = yes
+  /// Stretch = Fill
+  /// Zoom = None
+  /// Shader = SmartZoom
+  /// </summary>
   class GeometryIntelligentZoom : IGeometry
   {
     public const string NAME = "[Geometries.IntelligentZoom]";
