@@ -25,7 +25,9 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Fonts;
 using SlimDX;
@@ -110,6 +112,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     Property _fontSizeProperty;
     Property _fontFamilyProperty;
 
+    Property _contextMenuCommandProperty;
+
     #endregion
 
     #region Ctor
@@ -142,6 +146,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _hasFocusProperty = new Property(typeof(bool), false);
 
       _isMouseOverProperty = new Property(typeof(bool), false);
+
+      // Context menu
+      _contextMenuCommandProperty = new Property(typeof(IExecutableCommand), null);
 
       // Font properties
       _fontFamilyProperty = new Property(typeof(string), String.Empty);
@@ -371,6 +378,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       internal set { _isMouseOverProperty.SetValue(value); }
     }
 
+    public Property ContextMenuCommandProperty
+    {
+      get { return _contextMenuCommandProperty; }
+    }
+
+    public IExecutableCommand ContextMenuCommand
+    {
+      get { return (IExecutableCommand) _contextMenuCommandProperty.GetValue(); }
+      internal set { _contextMenuCommandProperty.SetValue(value); }
+    }
+
     public Property FontFamilyProperty
     {
       get { return _fontFamilyProperty; }
@@ -423,6 +441,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           result = currentFE.FontSize;
       }
       return result == -1 ? FontManager.DefaultFontSize : result;
+    }
+
+    public override void OnKeyPreview(ref Key key)
+    {
+      base.OnKeyPreview(ref key);
+      if (!HasFocus)
+        return;
+      if (key == Key.None) return;
+      if (key == Key.ContextMenu && ContextMenuCommand != null)
+      {
+        ContextMenuCommand.Execute();
+        key = Key.None;
+      }
     }
 
     /// <summary>
