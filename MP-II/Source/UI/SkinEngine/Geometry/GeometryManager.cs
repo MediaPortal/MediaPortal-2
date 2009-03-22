@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Core;
 using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.SkinEngine.Geometry
@@ -41,7 +40,6 @@ namespace MediaPortal.SkinEngine.Geometry
 
     public GeometryManager()
     {
-      ServiceScope.Add<IGeometryManager>(this);
       _availableGeometries.Add(_currentVideoGeometry = new GeometryNormal());
       _availableGeometries.Add(new GeometryOrignal());
       _availableGeometries.Add(new GeometryStretch());
