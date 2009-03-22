@@ -172,7 +172,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource ButtonStyle}" Margin="5,0,5,0" Command="{Binding Command}">
+          <Button Style="{StaticResource ButtonStyle}" Margin="5,0,5,0" Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>

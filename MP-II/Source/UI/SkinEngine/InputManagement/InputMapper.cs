@@ -47,7 +47,7 @@ namespace MediaPortal.SkinEngine.InputManagement
         case Keys.Enter:
           if (alt)
             return Key.Fullscreen;
-          return Key.Enter;
+          return Key.Ok;
         case Keys.Back:
           return Key.BackSpace;
         case Keys.Escape:

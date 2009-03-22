@@ -141,8 +141,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     #region Protected methods
 
-    protected static ListItem CreateButtonListItem(string buttonText, Guid dialogHandle,
-        DialogResult dialogResult)
+    protected static ListItem CreateButtonListItem(string buttonText, Guid dialogHandle, DialogResult dialogResult,
+        bool isDefault)
     {
       ListItem result = new ListItem(KEY_NAME, buttonText);
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
@@ -152,6 +152,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
               new MethodDelegateCommand(screenManager.CloseDialog)
           };
       result.Command = new CommandList(commands);
+      if (isDefault)
+        result.AdditionalProperties["IsDefault"] = true;
       return result;
     }
 
@@ -181,17 +183,17 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       switch (type)
       {
         case DialogType.OkDialog:
-          buttons.Add(CreateButtonListItem(OK_BUTTON_TEXT, dialogHandle, DialogResult.Ok));
+          buttons.Add(CreateButtonListItem(OK_BUTTON_TEXT, dialogHandle, DialogResult.Ok, true));
           break;
         case DialogType.YesNoDialog:
-          buttons.Add(CreateButtonListItem(YES_BUTTON_TEXT, dialogHandle, DialogResult.Yes));
-          buttons.Add(CreateButtonListItem(NO_BUTTON_TEXT, dialogHandle, DialogResult.No));
+          buttons.Add(CreateButtonListItem(YES_BUTTON_TEXT, dialogHandle, DialogResult.Yes, false));
+          buttons.Add(CreateButtonListItem(NO_BUTTON_TEXT, dialogHandle, DialogResult.No, false));
           break;
         default:
           throw new NotImplementedException(string.Format("DialogManager: DialogType {0} is not implemented yet", type));
       }
       if (showCancelButton)
-        buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel));
+        buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel, false));
 
       CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();

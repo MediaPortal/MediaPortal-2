@@ -34,7 +34,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected Property _isDefaultProperty;
-    protected Property _isCancelProperty;
     protected Property _isPressedProperty;
 
     protected Property _commandProperty;
@@ -51,7 +50,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Init()
     {
       _isDefaultProperty = new Property(typeof(bool), false);
-      _isCancelProperty = new Property(typeof(bool), false);
       _isPressedProperty = new Property(typeof(bool), false);
       _commandProperty = new Property(typeof(IExecutableCommand), null);
       Focusable = true;
@@ -69,12 +67,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void OnKeyPreview(ref Key key)
     {
+      base.OnKeyPreview(ref key);
       if (!HasFocus)
         return;
       // We handle "normal" button presses in the KeyPreview event, because "Default" and "Cancel" events need
       // to be handled after the focused button was able to consume the event
       if (key == Key.None) return;
       if (key == Key.Ok)
+      {
+        Execute();
+        key = Key.None;
+      }
+    }
+
+    public override void OnKeyPressed(ref Key key)
+    {
+      // We handle "Default" and "Cancel" events here, "normal" events will be handled in the KeyPreview event
+      base.OnKeyPressed(ref key);
+      if (key == Key.None) return;
+      if (IsDefault && key == Key.Ok)
       {
         Execute();
         key = Key.None;
@@ -124,17 +135,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _isDefaultProperty.SetValue(value); }
     }
 
-    public Property IsCancelProperty
-    {
-      get { return _isCancelProperty; }
-    }
-
-    public bool IsCancel
-    {
-      get { return (bool) _isCancelProperty.GetValue(); }
-      set { _isCancelProperty.SetValue(value); }
-    }
-
     public Property CommandProperty
     {
       get { return _commandProperty; }
@@ -148,17 +148,5 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
-    public override void OnKeyPressed(ref Key key)
-    {
-      // We handle "Default" and "Cancel" events here, "normal" events will be handled in the KeyPreview event
-      base.OnKeyPressed(ref key);
-      if (key == Key.None) return;
-      if (IsDefault && key == Key.Ok || IsCancel && key == Key.Escape)
-      {
-        Execute();
-        key = Key.None;
-      }
-    }
   }
 }
