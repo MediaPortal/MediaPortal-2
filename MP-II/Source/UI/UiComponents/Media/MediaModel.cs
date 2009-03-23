@@ -60,7 +60,7 @@ namespace UiComponents.Media
     public const string PLAY_ITEM_SECONDARY_RESOURCE = "[Media.PlayItemSecondary]";
     public const string ENQUEUE_ITEM_SECONDARY_RESOURCE = "[Media.EnqueueItemSecondary]";
 
-    public const string PLAY_MENU_DIALOG_SCREEN = "play_menu_dialog";
+    public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
 
     #region Protected fields
 

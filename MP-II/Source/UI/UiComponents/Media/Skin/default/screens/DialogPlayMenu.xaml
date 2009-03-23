@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    Source="screens\master_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.PlayItemDialogHeader]"/>
+
+    <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+    <ResourceWrapper x:Key="Menu_Items" Resource="{Binding Source={StaticResource MediaModel},Path=PlayMenuItems}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource MediaModel}" Path="SelectPlayerSlot"/>
+  </Include.Resources>
+</Include>
