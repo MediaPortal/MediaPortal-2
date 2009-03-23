@@ -276,8 +276,9 @@ namespace MediaPortal.SkinEngine.MpfElements.Resources
 
     public bool Remove(KeyValuePair<object, object> item)
     {
-      return _resources.Remove(item);
+      bool result = _resources.Remove(item);
       FireChanged();
+      return result;
     }
 
     public int Count
