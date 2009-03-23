@@ -29,6 +29,7 @@ using MediaPortal.Core.PluginManager;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
 using MediaPortal.Presentation.Workflow;
+using MediaPortal.Services.Logging; // Needed for Release build configuration
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;

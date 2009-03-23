@@ -45,7 +45,8 @@ namespace MediaPortal.Core
   {
     public static void RegisterCoreServices(LogLevel logLevel, bool logMethodNames)
     {
-      ServiceScope.Add<IPathManager>(new Services.PathManager.PathManager());
+      IPathManager pathManager = new Services.PathManager.PathManager();
+      ServiceScope.Add<IPathManager>(pathManager);
 
 #if DEBUG
       ILogger logger = new ConsoleLogger(logLevel, logMethodNames);
