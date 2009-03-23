@@ -68,7 +68,7 @@
       <Include Source="screens\osd.xaml"/>
     </StackPanel>
   </Canvas>
-  <KeyBinding Key="Info" Command="{Command Source={Service DialogManager},Path=ShowDialog,Parameters=DialogVideoContextMenu}"/>
+  <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
   <KeyBinding Key="ZoomMode" Command="{Command NextZoomMode}"/>
   <KeyBinding Key="Left" Command="{Command SeekBackward}"/>
   <KeyBinding Key="Right" Command="{Command SeekForward}"/>

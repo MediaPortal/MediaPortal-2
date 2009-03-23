@@ -6,6 +6,9 @@
     >
   <Include.Resources>
 
+Weiter. Achtung: master_dialog_menu schließt Dialog, nachdem er das Button-Kommando gefeuert hat. Wenn wir im Button-Kommando den
+Zoom-Dialog anzeigen, wird der sofort wieder geschlossen...
+
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[movies.5]"/>
 

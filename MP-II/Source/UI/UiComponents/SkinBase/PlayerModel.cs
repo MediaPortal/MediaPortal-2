@@ -39,7 +39,7 @@ using Timer=System.Timers.Timer;
 namespace UiComponents.SkinBase
 {
   /// <summary>
-  /// This model provides skin data for the current primary player/playing state.
+  /// This model provides skin data for all players/play controls/play lists.
   /// </summary>
   public class PlayerModel : IDisposable, IWorkflowModel
   {
@@ -51,10 +51,14 @@ namespace UiComponents.SkinBase
     public const string FULLSCREENAUDIO_SCREEN_NAME = "FullScreenAudio";
     public const string FULLSCREENPICTURE_SCREEN_NAME = "FullScreenPicture";
 
+    public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
+
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
     public static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
 
     public const int VOLUME_CHANGE = 10;
+
+    protected static TimeSpan VIDEO_INFO_TIMEOUT = new TimeSpan(0, 0, 0, 5);
 
     protected Timer _timer;
 
@@ -71,6 +75,8 @@ namespace UiComponents.SkinBase
 
     protected string _currentlyPlayingScreen = null;
     protected ICollection<Key> _registeredKeyBindings;
+
+    protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
 
     public PlayerModel()
     {
@@ -100,6 +106,22 @@ namespace UiComponents.SkinBase
       UnregisterKeyBindings();
     }
 
+    protected void SubscribeToMessages()
+    {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
+    }
+
+    protected void UnsubscribeFromMessages()
+    {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
+      if (broker == null)
+        return;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
+      // SytemMessaging queue is unregistered as soon as the system is started
+    }
+
     protected void StartListening()
     {
       // Setup timer to update the properties
@@ -125,22 +147,6 @@ namespace UiComponents.SkinBase
       }
     }
 
-    protected void SubscribeToMessages()
-    {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
-    }
-
-    protected void UnsubscribeFromMessages()
-    {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
-      if (broker == null)
-        return;
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
-      // SytemMessaging queue is unregistered as soon as the system is started
-    }
-
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
     {
       PlayerManagerMessaging.MessageType messageType =
@@ -156,14 +162,17 @@ namespace UiComponents.SkinBase
             workflowManager.NavigatePop(1);
             // _currentlyPlayingScreen will be reset by ExitModelContext
           }
+          UpdateKeyBindings();
           break;
         case PlayerManagerMessaging.MessageType.PlayerEnded:
           if (_currentlyPlayingScreen != null)
           {
             // TODO: Leave currently playing state if no playlist is running?
           }
+          UpdateKeyBindings();
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
+          UpdateKeyBindings();
           if (_currentlyPlayingScreen != null)
             // Automatically switch "currently playing" screen if another player is started. This will
             // ensure that the screen is correctly updated when the playlist progresses.
@@ -188,21 +197,31 @@ namespace UiComponents.SkinBase
     protected void OnCurrentPlayerSlotChanged(Property prop, object oldValue)
     {
       CheckIsCurrentAudio();
-      UpdateKeyBindings();
     }
 
+    /// <summary>
+    /// Updates the <see cref="IsCurrentAudio"/> property. Will be called when either the <see cref="CurrentPlayerSlot"/>
+    /// changes or when the <see cref="IPlayerManager.AudioSlotIndex"/> changes.
+    /// </summary>
     protected void CheckIsCurrentAudio()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       IsCurrentAudio = CurrentPlayerSlot != -1 && CurrentPlayerSlot == playerManager.AudioSlotIndex;
     }
 
+    /// <summary>
+    /// Updates the globally registered key bindings depending on the current player. Will be called when the
+    /// currently active player changes.
+    /// </summary>
     protected void UpdateKeyBindings()
     {
       UnregisterKeyBindings();
       RegisterKeyBindings();
     }
 
+    /// <summary>
+    /// Registers key bindings for the currently active player, if there is a player active.
+    /// </summary>
     protected void RegisterKeyBindings()
     {
       IPlayerSlotController currentPSC = GetCurrentPlayerSlotController();
@@ -281,6 +300,9 @@ namespace UiComponents.SkinBase
       inputManager.AddKeyBinding(key, action);
     }
 
+    /// <summary>
+    /// Removes all key bindings which have been globally registered before.
+    /// </summary>
     protected void UnregisterKeyBindings()
     {
       IInputManager inputManager = ServiceScope.Get<IInputManager>(false);
@@ -290,6 +312,10 @@ namespace UiComponents.SkinBase
         inputManager.RemoveKeyBinding(key);
     }
 
+    /// <summary>
+    /// Updates the <see cref="CurrentPlayerSlot"/> if it doesn't make sense any more (e.g. when the player
+    /// was stopped, or when the current slot wasn't set but a player became active).
+    /// </summary>
     protected void CheckCurrentPlayerSlot()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
@@ -334,12 +360,17 @@ namespace UiComponents.SkinBase
         IVolumeControl volumeControl = player as IVolumeControl;
         IsMuted = volumeControl != null && volumeControl.Mute;
         IsPlayControlsVisible = screenControl.IsMouseUsed;
-        // TODO: Trigger video info overlay by a button
-        IsVideoInfoVisible = screenControl.IsMouseUsed;
+        CheckVideoInfoVisible();
 
         // TODO: PIP configuration
         IsPip = false;
       }
+    }
+
+    protected void CheckVideoInfoVisible()
+    {
+      IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
+      IsVideoInfoVisible = screenControl.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
     }
 
     /// <summary>
@@ -608,6 +639,17 @@ namespace UiComponents.SkinBase
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.NavigatePush(new Guid(CURRENTLY_PLAYING_STATE_ID_STR));
+    }
+
+    public void ShowVideoInfo()
+    {
+      _lastVideoInfoDemand = DateTime.Now;
+      if (IsVideoInfoVisible)
+      { // Pressing the info button twice will bring up the context menu
+        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+        screenManager.ShowDialog(VIDEOCONTEXTMENU_DIALOG_NAME);
+      }
+      CheckVideoInfoVisible();
     }
 
     #region IWorkflowModel implementation
