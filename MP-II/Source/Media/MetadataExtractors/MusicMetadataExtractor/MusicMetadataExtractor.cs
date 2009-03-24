@@ -30,9 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using TagLib;
-using TagLib.Id3v2;
 using File = TagLib.File;
-using Tag = TagLib.Id3v2.Tag;
 using MediaPortal.Core.Logging;
 
 namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
@@ -206,7 +204,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
           tag = File.Create(new MediaProviderFileAbstraction(provider, path),
               Path.GetFileName(humanReadablePath), null, ReadStyle.Fast);
         }
-        catch (CorruptFileException ex)
+        catch (CorruptFileException)
         {
           // Only log at the info level here - And simply return false. This makes the importer know that we
           // couldn't perform our task here
@@ -246,7 +244,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
         return false;
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
