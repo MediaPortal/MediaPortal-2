@@ -34,30 +34,30 @@ namespace MediaPortal.SkinEngine.Geometry
   /// </summary>
   public class GeometryManager : IGeometryManager
   {
-    private readonly ICollection<IGeometry> _availableGeometries = new List<IGeometry>();
+    private readonly IDictionary<string, IGeometry> _availableGeometries = new Dictionary<string, IGeometry>();
     private IGeometry _currentVideoGeometry;
     private CropSettings _cropSettings = new CropSettings();
 
     public GeometryManager()
     {
-      _availableGeometries.Add(_currentVideoGeometry = new GeometryNormal());
-      _availableGeometries.Add(new GeometryOrignal());
-      _availableGeometries.Add(new GeometryStretch());
-      _availableGeometries.Add(new GeometryZoom());
-      _availableGeometries.Add(new GeometryZoom149());
-      _availableGeometries.Add(new GeometryLetterBox());
-      _availableGeometries.Add(new GeometryPanAndScan());
-      _availableGeometries.Add(new GeometryIntelligentZoom());
+      Add(_currentVideoGeometry = new GeometryNormal());
+      Add(new GeometryOrignal());
+      Add(new GeometryStretch());
+      Add(new GeometryZoom());
+      Add(new GeometryZoom149());
+      Add(new GeometryLetterBox());
+      Add(new GeometryPanAndScan());
+      Add(new GeometryIntelligentZoom());
     }
 
     public void Add(IGeometry geometry)
     {
-      _availableGeometries.Add(geometry);
+      _availableGeometries.Add(geometry.Name, geometry);
     }
 
-    public void Remove(IGeometry geometry)
+    public void Remove(string geometryName)
     {
-      _availableGeometries.Remove(geometry);
+      _availableGeometries.Remove(geometryName);
     }
 
     public IGeometry CurrentVideoGeometry 
@@ -66,7 +66,7 @@ namespace MediaPortal.SkinEngine.Geometry
       set { _currentVideoGeometry = value; }
     }
 
-    public ICollection<IGeometry> AvailableGeometries
+    public IDictionary<string, IGeometry> AvailableGeometries
     {
       get { return _availableGeometries; }
     }

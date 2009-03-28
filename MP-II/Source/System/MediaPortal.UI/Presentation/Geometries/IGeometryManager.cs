@@ -52,13 +52,14 @@ namespace MediaPortal.Presentation.Geometries
     /// <summary>
     /// Removes a geometry from the set of available geometries.
     /// </summary>
-    /// <param name="geometry">The geometry instance to remove.</param>
-    void Remove(IGeometry geometry);
+    /// <param name="geometryName">The name of the geometry instance to remove.</param>
+    void Remove(string geometryName);
 
     /// <summary>
-    /// Returns the collection of available geometry instances.
+    /// Returns a dictionary of available geometry instances. The dictionary contains geometry names mapped
+    /// to geometry instances.
     /// </summary>
-    ICollection<IGeometry> AvailableGeometries { get;}
+    IDictionary<string, IGeometry> AvailableGeometries { get;}
 
     /// <summary>
     /// This method will do the transformation based on the current geometry.
