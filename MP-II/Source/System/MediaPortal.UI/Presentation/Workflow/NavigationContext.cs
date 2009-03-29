@@ -161,6 +161,15 @@ namespace MediaPortal.Presentation.Workflow
       _contextVariables[key] = value;
     }
 
+    /// <summary>
+    /// Removes the context variable specified by <paramref name="key"/>.
+    /// </summary>
+    /// <param name="key">The key of the context variable to remove.</param>
+    public void ResetContextVariable(string key)
+    {
+      _contextVariables.Remove(key);
+    }
+
     #endregion
   }
 }
