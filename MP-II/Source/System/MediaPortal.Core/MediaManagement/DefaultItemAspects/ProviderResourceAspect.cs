@@ -33,6 +33,9 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
   /// </summary>
   public static class ProviderResourceAspect
   {
+    /// <summary>
+    /// Media item aspect id of the provider resource aspect.
+    /// </summary>
     public static Guid ASPECT_ID = new Guid("0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED");
 
     /// <summary>

@@ -64,6 +64,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MusicAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\PictureAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\IImporter.cs" />
     <Compile Include="MediaManagement\IMediaDatabase.cs" />

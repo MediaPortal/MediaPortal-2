@@ -33,7 +33,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
   public static class MusicAspect
   {
     /// <summary>
-    /// Media item aspect id of the media aspect.
+    /// Media item aspect id of the music aspect.
     /// </summary>
     public static Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
 
