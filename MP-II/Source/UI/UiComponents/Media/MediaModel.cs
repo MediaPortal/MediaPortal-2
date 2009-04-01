@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
@@ -53,12 +52,17 @@ namespace UiComponents.Media
     public const string NAME_KEY = "Name";
     public const string MEDIA_ITEM_KEY = "MediaItem";
 
-    public const string PLAY_ITEM_RESOURCE = "[Media.PlayItem]";
-    public const string ENQUEUE_ITEM_RESOURCE = "[Media.EnqueueItem]";
-    public const string PLAY_ITEM_PRIMARY_RESOURCE = "[Media.PlayItemPrimary]";
-    public const string ENQUEUE_ITEM_PRIMARY_RESOURCE = "[Media.EnqueueItemPrimary]";
-    public const string PLAY_ITEM_SECONDARY_RESOURCE = "[Media.PlayItemSecondary]";
-    public const string ENQUEUE_ITEM_SECONDARY_RESOURCE = "[Media.EnqueueItemSecondary]";
+    public const string PLAY_AUDIO_ITEM_RESOURCE = "[Media.PlayAudioItem]";
+    public const string ENQUEUE_AUDIO_ITEM_RESOURCE = "[Media.EnqueueAudioItem]";
+    public const string MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE = "[Media.MuteVideoAndPlayAudioItem]";
+
+    public const string PLAY_VIDEO_ITEM_RESOURCE = "[Media.PlayVideoItem]";
+    public const string ENQUEUE_VIDEO_ITEM_RESOURCE = "[Media.EnqueueVideoItem]";
+    public const string PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE = "[Media.PlayVideoItemMutedConcurrentAudio]";
+    public const string PLAY_VIDEO_ITEM_PIP_RESOURCE = "[Media.PlayVideoItemPIP]";
+
+    public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
+    public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
 
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
 
@@ -183,43 +187,65 @@ namespace UiComponents.Media
     /// <param name="item">The item to play.</param>
     protected void CheckPlayMenu(MediaItem item)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      int numOpen = playerManager.NumOpenSlots;
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      int numOpen = pcm.NumActivePlayerContexts;
       if (numOpen == 0)
       {
         PlayItem(item);
         return;
       }
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      if (numOpen == 1)
+      _playMenuItems = new ItemsList();
+      PlayerContextType mediaType = pcm.GetTypeOfMediaItem(item);
+      IPlayerContext pcAudio = pcm.GetPlayerContextByMediaType(PlayerContextType.Audio);
+      IPlayerContext pcVideo = pcm.GetPlayerContextByMediaType(PlayerContextType.Video);
+      if (mediaType == PlayerContextType.Audio)
       {
-        _playMenuItems = new ItemsList();
-        ListItem playItem = new ListItem(NAME_KEY, PLAY_ITEM_RESOURCE);
+        ListItem playItem = new ListItem(NAME_KEY, PLAY_AUDIO_ITEM_RESOURCE);
         playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
         _playMenuItems.Add(playItem);
-        ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_ITEM_RESOURCE);
-        enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerManagerConsts.PRIMARY_SLOT));
-        _playMenuItems.Add(enqueueItem);
-        ListItem playItemSecondary = new ListItem(NAME_KEY, PLAY_ITEM_SECONDARY_RESOURCE);
-        playItemSecondary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerManagerConsts.SECONDARY_SLOT));
-        _playMenuItems.Add(playItemSecondary);
-        screenManager.ShowDialog(PLAY_MENU_DIALOG_SCREEN);
-        return;
+        if (pcAudio != null)
+        {
+          ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_AUDIO_ITEM_RESOURCE);
+          enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false));
+          _playMenuItems.Add(enqueueItem);
+        }
+        if (pcVideo != null)
+        {
+          ListItem playItemConcurrently = new ListItem(NAME_KEY, MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE);
+          playItemConcurrently.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false));
+          _playMenuItems.Add(playItemConcurrently);
+        }
       }
-      // numOpen == 2
-      _playMenuItems = new ItemsList();
-      ListItem playItemPrimary = new ListItem(NAME_KEY, PLAY_ITEM_PRIMARY_RESOURCE);
-      playItemPrimary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerManagerConsts.PRIMARY_SLOT));
-      _playMenuItems.Add(playItemPrimary);
-      ListItem enqueueItemPrimary = new ListItem(NAME_KEY, ENQUEUE_ITEM_PRIMARY_RESOURCE);
-      enqueueItemPrimary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerManagerConsts.PRIMARY_SLOT));
-      _playMenuItems.Add(enqueueItemPrimary);
-      ListItem playItemSecondary_ = new ListItem(NAME_KEY, PLAY_ITEM_SECONDARY_RESOURCE);
-      playItemSecondary_.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, PlayerManagerConsts.SECONDARY_SLOT));
-      _playMenuItems.Add(playItemSecondary_);
-      ListItem enqueueItemSecondary = new ListItem(NAME_KEY, ENQUEUE_ITEM_SECONDARY_RESOURCE);
-      enqueueItemSecondary.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, PlayerManagerConsts.SECONDARY_SLOT));
-      _playMenuItems.Add(enqueueItemSecondary);
+      else if (mediaType == PlayerContextType.Video)
+      {
+        ListItem playItem = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_RESOURCE);
+        playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
+        _playMenuItems.Add(playItem);
+        if (pcVideo != null)
+        {
+          ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_VIDEO_ITEM_RESOURCE);
+          enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false));
+          _playMenuItems.Add(enqueueItem);
+        }
+        if (pcAudio != null)
+        {
+          ListItem playItem_A = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE);
+          playItem_A.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false));
+          _playMenuItems.Add(playItem_A);
+        }
+        if (pcVideo != null)
+        {
+          ListItem playItem_V = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_PIP_RESOURCE);
+          playItem_V.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, true));
+          _playMenuItems.Add(playItem_V);
+        }
+      }
+      else
+      {
+        IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+        dialogManager.ShowDialog(SYSTEM_INFORMATION_RESOURCE, CANNOT_PLAY_ITEM_RESOURCE, DialogType.OkDialog, false);
+      }
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       screenManager.ShowDialog(PLAY_MENU_DIALOG_SCREEN);
     }
 
@@ -231,34 +257,35 @@ namespace UiComponents.Media
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-      PlayOrEnqueueItem(item, true, PlayerManagerConsts.PRIMARY_SLOT);
+      PlayOrEnqueueItem(item, true, false, false);
     }
 
     /// <summary>
     /// Depending on parameter <paramref name="play"/>, plays or enqueues the specified media item
-    /// <paramref name="item"/> in the specified <paramref name="playerSlot"/>.
+    /// <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to be played.</param>
     /// <param name="play">If <c>true</c>, plays the specified <paramref name="item"/>, else enqueues it.</param>
-    /// <param name="playerSlot">Slot index to enqueue the item.</param>
-    protected static void PlayOrEnqueueItem(MediaItem item, bool play, int playerSlot)
+    /// <param name="concurrent">If set to <c>true</c>, the <paramref name="item"/> will be played concurrently to
+    /// an already playing player. Else, all other players will be stopped first.</param>
+    /// <param name="subordinatedVideo">If set to <c>true</c>, a video item will be played in PIP mode, if
+    /// applicable.</param>
+    protected static void PlayOrEnqueueItem(MediaItem item, bool play, bool concurrent, bool subordinatedVideo)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayerSlotController psc;
-      int slotIndex;
-      if (playerManager.NumOpenSlots > playerSlot)
-        psc = playerManager.GetSlot(playerSlot);
-      else if (!playerManager.OpenSlot(out slotIndex, out psc))
-      {
-        ILogger logger = ServiceScope.Get<ILogger>();
-        logger.Error("MediaModel: Unable to open a player slot");
-        return;
-      }
-      if (play)
-        psc.Reset();
-      psc.PlayList.Add(item);
-      if (play)
-        psc.Play();
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      PlayerContextType mediaType = pcm.GetTypeOfMediaItem(item);
+      IPlayerContext pc = null;
+      if (!play)
+        // !play means enqueue, so open an already existing player context for our media type
+        pc = pcm.GetPlayerContextByMediaType(mediaType);
+      if (pc == null)
+        // Open a new player context, which will close conflicting player contexts
+        if (mediaType == PlayerContextType.Video)
+          pc = pcm.OpenVideoPlayerContext(concurrent, subordinatedVideo);
+        else
+          pc = pcm.OpenAudioPlayerContext(concurrent);
+      pc.Playlist.Add(item);
+      pc.Play();
     }
 
     protected void ReloadItems()

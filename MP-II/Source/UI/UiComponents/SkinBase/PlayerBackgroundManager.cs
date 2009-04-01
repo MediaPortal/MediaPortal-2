@@ -67,9 +67,9 @@ namespace UiComponents.SkinBase
     protected static string GetTargetBackgroundScreen()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      if (playerManager.NumOpenSlots == 0)
+      if (playerManager.NumActiveSlots == 0)
         return DEFAULT_BACKGROUND_SCREEN;
-      IPlayerSlotController pscPrimary = playerManager.GetSlot(PlayerManagerConsts.PRIMARY_SLOT);
+      IPlayerSlotController pscPrimary = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
       if (pscPrimary.IsActive && pscPrimary.PlayerSlotState != PlayerSlotState.Stopped)
       {
         if (pscPrimary.CurrentPlayer is IVideoPlayer)

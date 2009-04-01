@@ -110,11 +110,14 @@
     <Compile Include="Presentation\Localization\RegionSettings.cs" />
     <Compile Include="Presentation\Localization\StringId.cs" />
     <Compile Include="Presentation\Players\IAudioPlayer.cs" />
+    <Compile Include="Presentation\Players\AudioStreamDescriptor.cs" />
     <Compile Include="Presentation\Players\ICrossfadingEnabledPlayer.cs" />
     <Compile Include="Presentation\Players\IDVDPlayer.cs" />
     <Compile Include="Presentation\Players\IPicturePlayer.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
     <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
+    <Compile Include="Presentation\Players\IPlayerContext.cs" />
+    <Compile Include="Presentation\Players\IPlayerContextManager.cs" />
     <Compile Include="Presentation\Players\IPlayerEvents.cs" />
     <Compile Include="Presentation\Players\IPlayerManager.cs" />
     <Compile Include="Presentation\Players\IPlayerSlotController.cs" />
@@ -158,6 +161,8 @@
     <Compile Include="Services\Logging\CrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PlayerBuilderRegistration.cs" />
+    <Compile Include="Services\Players\PlayerContext.cs" />
+    <Compile Include="Services\Players\PlayerContextManager.cs" />
     <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />

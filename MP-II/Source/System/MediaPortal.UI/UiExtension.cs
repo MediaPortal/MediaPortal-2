@@ -50,6 +50,9 @@ namespace MediaPortal
       logger.Debug("UiExtension: Registering IPlayerManager service");
       ServiceScope.Add<IPlayerManager>(new PlayerManager());
 
+      logger.Debug("UiExtension: Registering IPlayerContextManager service");
+      ServiceScope.Add<IPlayerContextManager>(new PlayerContextManager());
+
       logger.Debug("UiExtension: Registering UserService service");
       ServiceScope.Add<IUserService>(new UserService());
 
@@ -74,6 +77,9 @@ namespace MediaPortal
 
       logger.Debug("UiExtension: Removing IWorkflowManager service");
       ServiceScope.RemoveAndDispose<IWorkflowManager>();
+
+      logger.Debug("UiExtension: Removing IPlayerContextManager service");
+      ServiceScope.RemoveAndDispose<IPlayerContextManager>();
 
       logger.Debug("UiExtension: Removing IPlayerManager service");
       ServiceScope.RemoveAndDispose<IPlayerManager>();

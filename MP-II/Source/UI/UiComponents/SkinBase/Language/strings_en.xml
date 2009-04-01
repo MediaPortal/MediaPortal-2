@@ -20,6 +20,11 @@
     <String Name="Add" Text="Add"/>
     <String Name="Remove" Text="Remove"/>
 
+    <String Name="Hint" Text="Hint"/>
+    <String Name="Information" Text="Information"/>
+    <String Name="Warning" Text="Warning"/>
+    <String Name="Error" Text="Error"/>
+
     <String Name="0" Text="Exit"/>
     <String Name="1" Text="Invalid string"/>
     <String Name="2" Text="hours"/>

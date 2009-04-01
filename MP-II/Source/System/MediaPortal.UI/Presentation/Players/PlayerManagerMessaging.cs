@@ -60,6 +60,11 @@ namespace MediaPortal.Presentation.Players
       /// </summary>
       PlayerPaused,
 
+      /// <summary>
+      /// A player error has occured. The player cannot play.
+      /// </summary>
+      PlayerError,
+
       #endregion
 
       #region PlayerManager messages concerning a special player slot. The param will denote the player slot (int).

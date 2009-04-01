@@ -73,7 +73,9 @@ namespace UiComponents.SkinBase
     protected Property _isCurrentAudioProperty;
     protected Property _showCurrentPlayerIndicatorProperty;
 
+    protected int _currentlyPlayingIndex = -1;
     protected string _currentlyPlayingScreen = null;
+
     protected ICollection<Key> _registeredKeyBindings;
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
@@ -154,26 +156,24 @@ namespace UiComponents.SkinBase
       switch (messageType)
       {
         case PlayerManagerMessaging.MessageType.PlayerStopped:
-          if (_currentlyPlayingScreen != null)
+          int slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+          if (_currentlyPlayingIndex == slotIndex)
           {
             IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
             // Maybe we should do more handling in this case - show dialogs "do you want to delete"
             // etc.? At the moment we'll simply return to the last workflow state.
             workflowManager.NavigatePop(1);
-            // _currentlyPlayingScreen will be reset by ExitModelContext
+            // _currentlyPlayingIndex will be reset by ExitModelContext
           }
           UpdateKeyBindings();
           break;
         case PlayerManagerMessaging.MessageType.PlayerEnded:
-          if (_currentlyPlayingScreen != null)
-          {
-            // TODO: Leave currently playing state if no playlist is running?
-          }
+          // Don't leave currently playing state here - the player just ended
           UpdateKeyBindings();
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
           UpdateKeyBindings();
-          if (_currentlyPlayingScreen != null)
+          if (_currentlyPlayingIndex != -1)
             // Automatically switch "currently playing" screen if another player is started. This will
             // ensure that the screen is correctly updated when the playlist progresses.
             UpdateCurrentlyPlayingScreen();
@@ -224,8 +224,8 @@ namespace UiComponents.SkinBase
     /// </summary>
     protected void RegisterKeyBindings()
     {
-      IPlayerSlotController currentPSC = GetCurrentPlayerSlotController();
-      if (currentPSC == null || !currentPSC.IsActive)
+      IPlayerContext currentPSC = GetCurrentPlayerContext();
+      if (currentPSC == null)
         return;
       // TODO: Is there a ZoomMode/Change Aspect Ratio key in any input device (keyboard, IR, ...)? If yes,
       // we should register it here too
@@ -319,8 +319,8 @@ namespace UiComponents.SkinBase
     protected void CheckCurrentPlayerSlot()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      bool primaryPlayerActive = playerManager.GetSlot(PlayerManagerConsts.PRIMARY_SLOT).IsActive;
-      bool secondaryPlayerActive = playerManager.GetSlot(PlayerManagerConsts.SECONDARY_SLOT).IsActive;
+      bool primaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT).IsActive;
+      bool secondaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT).IsActive;
       int currentPlayerSlot = CurrentPlayerSlot;
       if (currentPlayerSlot == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
         currentPlayerSlot = -1;
@@ -331,8 +331,10 @@ namespace UiComponents.SkinBase
           currentPlayerSlot = PlayerManagerConsts.SECONDARY_SLOT;
         else if (primaryPlayerActive)
           currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      pcm.CurrentPlayerIndex = currentPlayerSlot;
       CurrentPlayerSlot = currentPlayerSlot;
-      ShowCurrentPlayerIndicator = playerManager.NumOpenSlots > 1;
+      ShowCurrentPlayerIndicator = playerManager.NumActiveSlots > 1;
     }
 
     protected void UpdatePlayControls()
@@ -374,19 +376,17 @@ namespace UiComponents.SkinBase
     }
 
     /// <summary>
-    /// Returns the player slot controller for the current player slot. The current player governs which
-    /// "currently playing" screen is shown. If the primary player is a video player, the fullscreen video screen
-    /// will be shown, for example.
+    /// Returns the player context for the current focused player. The current player governs which
+    /// "currently playing" screen is shown.
     /// </summary>
-    /// <returns>Player slot controller for the current player. It must be checked if the returned slot controller
-    /// is active (<see cref="IPlayerSlotController.IsActive"/>) before it can be used.</returns>
-    protected IPlayerSlotController GetCurrentPlayerSlotController()
+    /// <returns>Player context for the current player or <c>null</c>, if there is no current player.</returns>
+    protected IPlayerContext GetCurrentPlayerContext()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
       int currentPlayerSlot = CurrentPlayerSlot;
       if (currentPlayerSlot == -1)
         currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
-      return playerManager.GetSlot(currentPlayerSlot);
+      return pcm.GetPlayerContext(currentPlayerSlot);
     }
 
     protected static bool CanHandlePlayer(IPlayer player)
@@ -396,11 +396,11 @@ namespace UiComponents.SkinBase
 
     protected void UpdateCurrentlyPlayingScreen()
     {
-      IPlayerSlotController psc = GetCurrentPlayerSlotController();
-      if (psc == null || !psc.IsActive)
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
         return;
       string targetScreen;
-      IPlayer currentPlayer = psc.CurrentPlayer;
+      IPlayer currentPlayer = pc.CurrentPlayer;
       if (!CanHandlePlayer(currentPlayer))
         return;
       if (currentPlayer is IVideoPlayer)
@@ -423,7 +423,7 @@ namespace UiComponents.SkinBase
     protected static void ChangeVolume(int relativeValue)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayerSlotController psc = playerManager.GetSlot(playerManager.AudioSlotIndex);
+      IPlayerSlotController psc = playerManager.GetPlayerSlotController(playerManager.AudioSlotIndex);
       if (psc == null)
         return;
       IVolumeControl player = psc.CurrentPlayer as IVolumeControl;
@@ -543,47 +543,47 @@ namespace UiComponents.SkinBase
 
     public void Play()
     {
-      IPlayerSlotController psc = GetCurrentPlayerSlotController();
-      if (psc == null || !psc.IsActive)
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
         return;
-      if (psc.PlayerSlotState == PlayerSlotState.Paused)
-        psc.Pause();
+      if (pc.PlayerState == PlaybackState.Paused)
+        pc.Pause();
       else
-        psc.Restart();
+        pc.Restart();
     }
 
     public void Pause()
     {
-      IPlayerSlotController psc = GetCurrentPlayerSlotController();
-      if (psc == null || !psc.IsActive)
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
         return;
-      psc.Pause();
+      pc.Pause();
     }
 
     public void TogglePause()
     {
-      IPlayerSlotController psc = GetCurrentPlayerSlotController();
-      if (psc == null || !psc.IsActive)
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
         return;
-      switch (psc.PlayerSlotState) {
-        case PlayerSlotState.Playing:
-          psc.Pause();
+      switch (pc.PlayerState) {
+        case PlaybackState.Playing:
+          pc.Pause();
           break;
-        case PlayerSlotState.Paused:
-          psc.Play();
+        case PlaybackState.Paused:
+          pc.Play();
           break;
         default:
-          psc.Restart();
+          pc.Restart();
           break;
       }
     }
 
     public void Stop()
     {
-      IPlayerSlotController psc = GetCurrentPlayerSlotController();
-      if (psc == null || !psc.IsActive)
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
         return;
-      psc.Stop();
+      pc.Stop();
     }
 
     public void SeekBackward()
@@ -602,16 +602,18 @@ namespace UiComponents.SkinBase
 
     public void Previous()
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The PREV command is not implemented yet", DialogType.OkDialog, false);
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
+        return;
+      pc.PreviousItem();
     }
 
     public void Next()
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The NEXT command is not implemented yet", DialogType.OkDialog, false);
+      IPlayerContext pc = GetCurrentPlayerContext();
+      if (pc == null)
+        return;
+      pc.NextItem();
     }
 
     public void VolumeUp()
@@ -626,13 +628,8 @@ namespace UiComponents.SkinBase
 
     public void ToggleMuteAudioPlayer()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayerSlotController psc = playerManager.GetSlot(playerManager.AudioSlotIndex);
-      if (psc == null)
-        return;
-      IVolumeControl player = psc.CurrentPlayer as IVolumeControl;
-      if (player != null)
-        player.Mute = !player.Mute;
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      pcm.Muted ^= true;
     }
 
     public void ShowCurrentlyPlaying()
@@ -661,8 +658,8 @@ namespace UiComponents.SkinBase
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerSlotController psc = GetCurrentPlayerSlotController();
-      return psc != null && psc.IsActive && CanHandlePlayer(psc.CurrentPlayer);
+      IPlayerContext pc = GetCurrentPlayerContext();
+      return pc != null && CanHandlePlayer(pc.CurrentPlayer);
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)

@@ -8,13 +8,17 @@
     <String Name="MyPictures" Text="Pictures"/>
     <String Name="ViewInvalid" Text="This view is invalid"/>
 
-    <String Name="PlayItem" Text="Play item"/>
-    <String Name="EnqueueItem" Text="Enqueue item"/>
-    <String Name="PlayItemPrimary" Text="Play item in primary player"/>
-    <String Name="EnqueueItemPrimary" Text="Enqueue item to primary playlist"/>
-    <String Name="PlayItemSecondary" Text="Play item in secondary player"/>
-    <String Name="EnqueueItemSecondary" Text="Enqueue item to secondary playlist"/>
+    <String Name="PlayAudioItem" Text="Play audio item"/>
+    <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>
+    <String Name="MuteVideoAndPlayAudioItem" Text="Mute video + play audio item concurrently"/>
+
+    <String Name="PlayVideoItem" Text="Play video item"/>
+    <String Name="EnqueueVideoItem" Text="Enqueue video item"/>
+    <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item muted + continue concurrent music item"/>
+    <String Name="PlayVideoItemPIP" Text="Play video item concurrently in PIP mode"/>
     <String Name="PlayItemDialogHeader" Text="Play item"/>
+
+    <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
   </Section>
   <Section Name="Settings">
     <String Name="Shares" Text="Shares"/>

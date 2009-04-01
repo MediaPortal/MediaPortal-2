@@ -35,9 +35,6 @@ namespace MediaPortal.Services.Players
   /// <summary>
   /// Management class for player builder registrations and active players.
   /// </summary>
-  /*
-   * - Each slot must be switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!)
-   */
   public class PlayerManager : IPlayerManager
   {
     #region Classes
@@ -223,8 +220,8 @@ namespace MediaPortal.Services.Players
       for (int i = 0; i < 2; i++)
       {
         PlayerSlotController psc = _slots[i];
-        if (registration.UsingSlots.Contains(psc))
-          psc.NextItem();
+        if (registration.UsingSlotControllers.Contains(psc))
+          psc.ReleasePlayer();
       }
     }
 
@@ -240,8 +237,6 @@ namespace MediaPortal.Services.Players
     {
       if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive && _slots[PlayerManagerConsts.SECONDARY_SLOT].IsActive)
         SwitchPlayers();
-      if (_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive && !_slots[PlayerManagerConsts.SECONDARY_SLOT].IsActive)
-        AudioSlotIndex = 0;
     }
 
     protected int GetIndexOfPlayer(IPlayer player)
@@ -274,15 +269,22 @@ namespace MediaPortal.Services.Players
     internal void RevokePlayer(PlayerSlotController psc)
     {
       if (psc.BuilderRegistration != null)
-        psc.BuilderRegistration.UsingSlots.Remove(psc);
+        psc.BuilderRegistration.UsingSlotControllers.Remove(psc);
       psc.ResetPlayerAndBuilderRegistration();
+    }
+
+    internal PlayerSlotController GetPlayerSlotControllerInternal(int slotIndex)
+    {
+      if (slotIndex < 0 || slotIndex > 1)
+        return null;
+      return _slots[slotIndex];
     }
 
     #endregion
 
     #region IPlayerManager implementation
 
-    public int NumOpenSlots
+    public int NumActiveSlots
     {
       get
       {
@@ -292,11 +294,6 @@ namespace MediaPortal.Services.Players
             result++;
         return result;
       }
-    }
-
-    public bool CanOpenSlot
-    {
-      get { return NumOpenSlots < 2; }
     }
 
     public int AudioSlotIndex
@@ -319,8 +316,8 @@ namespace MediaPortal.Services.Players
         PlayerSlotController currentAudioSlot = oldAudioSlotIndex == -1 ? null : _slots[oldAudioSlotIndex];
         if (currentAudioSlot != null)
           currentAudioSlot.IsAudioSlot = false;
-        PlayerSlotController newAudioSlot = _slots[value];
-        if (!newAudioSlot.IsActive)
+        PlayerSlotController newAudioSlot = GetPlayerSlotControllerInternal(value);
+        if (newAudioSlot == null || !newAudioSlot.IsActive)
           // Don't move the audio slot to an inactive player slot
           return;
         newAudioSlot.IsAudioSlot = true;
@@ -331,22 +328,20 @@ namespace MediaPortal.Services.Players
     {
       get
       {
-        IPlayerSlotController psc = GetSlot(slotIndex);
+        IPlayerSlotController psc = GetPlayerSlotController(slotIndex);
         return psc != null && psc.IsActive ? psc.CurrentPlayer : null;
       }
     }
 
-    public IPlayerSlotController GetSlot(int slotIndex)
+    public IPlayerSlotController GetPlayerSlotController(int slotIndex)
     {
-      if (slotIndex < 0 || slotIndex > 1)
-        return null;
-      return _slots[slotIndex];
+      return GetPlayerSlotControllerInternal(slotIndex);
     }
 
-    public bool OpenSlot(out int slotIndex, out IPlayerSlotController controller)
+    public bool OpenSlot(out int slotIndex, out IPlayerSlotController slotController)
     {
       slotIndex = -1;
-      controller = null;
+      slotController = null;
       int index = -1;
       // Find a free slot
       if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive)
@@ -360,23 +355,27 @@ namespace MediaPortal.Services.Players
       psc.IsActive = true;
       if (AudioSlotIndex == -1)
         AudioSlotIndex = slotIndex;
-      controller = psc;
+      slotController = psc;
       return true;
     }
 
     public void CloseSlot(int slotIndex)
     {
-      PlayerSlotController psc = GetSlot(slotIndex) as PlayerSlotController;
+      PlayerSlotController psc = GetPlayerSlotControllerInternal(slotIndex);
       if (psc == null)
         return;
+      bool isAudio = psc.IsActive && psc.IsAudioSlot;
       psc.IsActive = false;
       CleanupSlotOrder();
+      if (isAudio)
+        AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
     }
 
     public void CloseAllSlots()
     {
       foreach (PlayerSlotController psc in _slots)
         psc.IsActive = false;
+      // The audio slot property will automatically be reset because it is stored in the slot instance itself
       CleanupSlotOrder();
     }
 
@@ -388,6 +387,8 @@ namespace MediaPortal.Services.Players
       PlayerSlotController tmp = _slots[PlayerManagerConsts.PRIMARY_SLOT];
       _slots[PlayerManagerConsts.PRIMARY_SLOT] = _slots[PlayerManagerConsts.SECONDARY_SLOT];
       _slots[PlayerManagerConsts.SECONDARY_SLOT] = tmp;
+      for (int i = 0; i < 2; i++)
+        _slots[i].SlotIndex = i;
       // Audio slot index changes automatically as it is stored in the slot instance itself
       PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotsChanged);
     }

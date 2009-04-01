@@ -22,54 +22,65 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
   /// <summary>
-  /// State indicator for the playback state of a player slot controller.
+  /// State indicator for the playback state of a player slot.
+  /// This state is a complement to the current player's state.
   /// </summary>
   public enum PlayerSlotState
   {
+    /// <summary>
+    /// The player context is inactive and doesn't contain any relevant information. The current player is <c>null</c>.
+    /// </summary>
     Inactive,
+
+    /// <summary>
+    /// The player context is active. The playback state can be read from current player's <see cref="IPlayer.State"/>.
+    /// </summary>
     Playing,
-    Paused,
-    Switching,
+
+    /// <summary>
+    /// The player context is active but stopped. There is no current player.
+    /// </summary>
     Stopped
   }
 
   /// <summary>
-  /// Slot controller for a player slot of the <see cref="IPlayerManager"/>.
-  /// The slot controller maintains the state of each player slot and exposes properties and methods to get and
-  /// change the state, like <see cref="IsActive"/>, <see cref="IsAudioSlot"/>, ..., <see cref="NextItem"/>, ...
+  /// Player slot controller for a player in a player slot of the <see cref="IPlayerManager"/>.
+  /// The player slot controller maintains the state of each player slot and exposes context variables, which can contain
+  /// user defined data like a playlist, the player's aspect ratio or additional information about a currently
+  /// viewed TV channel, for example.
   /// </summary>
   /// <remarks>
-  /// This player slot can adopt similar play states as the player (see <see cref="PlayerSlotState"/>). The states differ
-  /// when the player is exchanged because of a playlist advance.<br/>
+  /// This player slot can adopt similar play states as the player (see <see cref="PlayerSlotState"/>). Mostly, the
+  /// states of player and its player slot controller correspond to each other, but the states can differ in case
+  /// when the player is exchanged (for example because of a playlist advance).<br/>
   /// </remarks>
   public interface IPlayerSlotController
   {
     /// <summary>
-    /// Gets the playlist for the underlaying slot.
+    /// Returns the index of the slot which is controlled by this slot controller.
     /// </summary>
-    IPlaylist PlayList { get; }
+    int SlotIndex { get; }
 
     /// <summary>
-    /// Returns the information if this slot plays the audio signal.
+    /// Returns the information if this player slot plays the audio signal.
     /// </summary>
+    /// <remarks>
+    /// This property is located here rather than in the player manager, because when exchanging the player, we need
+    /// to configure each new player according to this property.
+    /// </remarks>
     bool IsAudioSlot { get; }
 
     /// <summary>
     /// Returns the information if this player slot is activated.
-    /// An active slot can play media content.
+    /// Only active slots can play media content.
     /// </summary>
     bool IsActive { get; }
-
-    /// <summary>
-    /// Returns the information if this slot is able to play media content, i.e. contains a
-    /// playlist which has not ended yet.
-    /// </summary>
-    bool CanPlay { get; }
 
     /// <summary>
     /// Gets the playback state of this player slot.
@@ -77,60 +88,37 @@ namespace MediaPortal.Presentation.Players
     PlayerSlotState PlayerSlotState { get; }
 
     /// <summary>
-    /// Gets the player playing the current item in the playlist.
+    /// Gets the player playing the current item of this player slot.
+    /// The current player can chainge, for example when the playlist advances.
     /// </summary>
     IPlayer CurrentPlayer { get; }
 
     /// <summary>
-    /// Stops an active player, clears the playlist.
+    /// Returns a (key; value) mapping of all context variables in this player slot. Changing the returned dictionary will
+    /// change the context variables.
     /// </summary>
-    void Reset();
+    IDictionary<string, object> ContextVariables { get; }
 
     /// <summary>
-    /// Stops playback.
+    /// Plays a media resource. An appropriate player will be choosen to play the specified media resource.
     /// </summary>
-    void Stop();
-
-    /// <summary>
-    /// Pauses playback.
-    /// </summary>
-    void Pause();
-
-    /// <summary>
-    /// Starts or resumes playback.
-    /// </summary>
-    void Play();
-
-    /// <summary>
-    /// Plays a media file directly, without having a <see cref="MediaItem"/> instance for it.
-    /// The played media file won't be added to the playlist.
-    /// </summary>
-    /// <param name="locator">Media item locator to the media file.</param>
-    /// <param name="mimeType">Mime type of the media item, if known. If this parameter is given, the
-    /// decision if the media file can be played might be faster. If this parameter is set to <c>null</c>,
-    /// this method will potentially need more time to look into the given resource.</param>
+    /// <param name="locator">Media item locator to the media resource.</param>
+    /// <param name="mimeType">Mime type of the media resource, if known. If this parameter is given, the
+    /// decision whether the media resource can be played might be faster. If this parameter is set to <c>null</c>,
+    /// this method will potentially need more time to look into the given resource's content.</param>
     /// <returns><c>true</c>, if the specified media resource can be played, else <c>false</c>.</returns>
     bool Play(IMediaItemLocator locator, string mimeType);
 
     /// <summary>
-    /// Restarts playback of the current item.
+    /// Stops the player of this player slot. This won't deactivate this slot, but the current player
+    /// will be released, if it is active.
+    /// Calling this method will set the <see cref="PlayerSlotState"/> to <see cref="Players.PlayerSlotState.Stopped"/>.
     /// </summary>
-    void Restart();
+    void Stop();
 
     /// <summary>
-    /// Plays the previous item from the playlist.
+    /// Resets this player slot controller. This will stop this player slot controller and clear all context variables.
     /// </summary>
-    /// <returns>
-    /// <c>true</c>, if the previous item could be started, else <c>false</c>.
-    /// </returns>
-    bool PreviousItem();
-
-    /// <summary>
-    /// Plays the next item from the playlist.
-    /// </summary>
-    /// <returns>
-    /// <c>true</c>, if the next item could be started, else <c>false</c>.
-    /// </returns>
-    bool NextItem();
+    void Reset();
   }
 }
