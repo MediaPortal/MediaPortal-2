@@ -37,7 +37,6 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 {
-
   public class Path : Shape
   {
     #region Private fields
@@ -83,11 +82,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     protected override void PerformLayout()
     {
       base.PerformLayout();
-      TimeSpan ts;
-      DateTime now = DateTime.Now;
       double w = ActualWidth;
       double h = ActualHeight;
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -100,20 +96,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+      RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       //Fill brush
       PositionColored2Textured[] verts;
-      GraphicsPath path;
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
         bool isClosed;
+        GraphicsPath path;
         if (Fill != null)
         {
           using (path = GetPath(rect, _finalLayoutTransform, out isClosed, 0))
           {
             if (!_fillDisabled)
             {
+              float centerX;
+              float centerY;
               CalcCentroid(path, out centerX, out centerY);
               //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
               if (Fill != null)
@@ -139,7 +137,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 }
                 else
                 {
-                  Shape.PathToTriangleList(path, centerX, centerY, out verts);
+                  PathToTriangleList(path, centerX, centerY, out verts);
                   _verticesCountFill = (verts.Length / 3);
                   Fill.SetupBrush(this, ref verts);
                   if (_fillContext == null)
@@ -149,15 +147,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                     RenderPipeline.Instance.Add(_fillContext);
                   }
                   else
-                  {
                     _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
-                  }
                 }
               }
             }
           }
-          ts = DateTime.Now - now;
-          //Trace.WriteLine(String.Format(" fill:{0}", ts.TotalMilliseconds));
         }
         if (Stroke != null && StrokeThickness > 0)
         {
@@ -181,7 +175,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              Shape.StrokePathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
+              StrokePathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
               Stroke.SetupBrush(this, ref verts);
               if (_strokeContext == null)
@@ -191,19 +185,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_strokeContext);
               }
               else
-              {
                 _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-              }
             }
 
           }
         }
       }
-
-      ts = DateTime.Now - now;
-      //Trace.WriteLine(String.Format("total:{0}", ts.TotalMilliseconds));
     }
-
 
     public override void Measure(ref SizeF totalSize)
     {
@@ -252,11 +240,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       foreach (Match match in matches)
       {
         char cmd = match.Value[0];
-        PointF[] points = null;
-        if (match.Value.Length > 1)
+        PointF[] points;
+        string pointsStr = match.Value.Substring(1).Trim();
+        if (pointsStr.Length > 0)
         {
-          string[] txtpoints;
-          txtpoints = match.Value.Substring(1).Trim().Split(new char[] { ',', ' ' });
+          string[] txtpoints = pointsStr.Split(new char[] { ',', ' ' });
           if (txtpoints.Length == 1)
           {
             points = new PointF[1];
@@ -268,12 +256,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             points = new PointF[c];
             for (int i = 0; i < c; i++)
             {
-              points[i].X = (float)TypeConverter.Convert(txtpoints[i * 2], typeof(float));
+              points[i].X = (float) TypeConverter.Convert(txtpoints[i * 2], typeof(float));
               if (i + 1 < txtpoints.Length)
-                points[i].Y = (float)TypeConverter.Convert(txtpoints[i * 2 + 1], typeof(float));
+                points[i].Y = (float) TypeConverter.Convert(txtpoints[i * 2 + 1], typeof(float));
             }
           }
         }
+        else
+          points = new PointF[] {};
         switch (cmd)
         {
           case 'm':
@@ -287,7 +277,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           case 'M':
             {
               //absolute origin
-              lastPoint = points[0]; ;
+              lastPoint = points[0];
               startPoint = new PointF(points[0].X, points[0].Y);
             }
             break;
@@ -398,22 +388,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               //close figure
               isClosed = true;
               if (Math.Abs(lastPoint.X - startPoint.X) >= 1 || Math.Abs(lastPoint.Y - startPoint.Y) >= 1)
-              {
                 mPath.AddLine(lastPoint, startPoint);
-              }
               mPath.CloseFigure();
             }
             break;
         }
       }
-      RectangleF bounds;
-      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-      bounds = mPath.GetBounds();
+      Matrix m = new Matrix();
+      RectangleF bounds = mPath.GetBounds();
       _fillDisabled = false;
       if (bounds.Width < StrokeThickness || bounds.Height < StrokeThickness)
-      {
         _fillDisabled = true;
-      }
       if (Stretch == Stretch.Fill)
       {
         bounds = mPath.GetBounds();
@@ -463,7 +448,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       {
         //thickNess /= 2.0f;
         bounds = mPath.GetBounds();
-        m = new System.Drawing.Drawing2D.Matrix();
+        m = new Matrix();
         float thicknessW = thickNess * SkinContext.Zoom.Width;
         float thicknessH = thickNess * SkinContext.Zoom.Height;
         if (finalTransform != null)
