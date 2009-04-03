@@ -31,7 +31,6 @@ namespace MediaPortal.Core.Services.Logging
   /// <summary>
   /// A <see cref="ILogger"/> implementation that writes messages to a text file.
   /// </summary>
-  /// <remarks>If the text file exists it will be truncated.</remarks>
   public class FileLogger : DefaultLogger
   {
     /// <summary>
@@ -47,8 +46,9 @@ namespace MediaPortal.Core.Services.Logging
     /// <param name="level">The minimum level messages must have to be written to the file.</param>
     /// <param name="logMethodNames">Indicates whether to log the calling method's name.</param>
     /// <remarks>
-    /// <para><b><u>Warning!</u></b></para>
-    /// <para>Turning on logging of method names causes a severe performance degradation. Each call to the
+    /// <para>If the text file exists it will be truncated.</para>
+    /// <para><b><u>Warning!</u></b><br/>
+    /// Turning on logging of method names causes a severe performance degradation. Each call to the
     /// logger will add an extra 10 to 40 milliseconds, depending on the length of the stack trace.</para>
     /// </remarks>
     private FileLogger(string filePath, LogLevel level, bool logMethodNames) :
@@ -63,7 +63,7 @@ namespace MediaPortal.Core.Services.Logging
       {
         if (File.Exists(filePath))
           File.Delete(filePath);
-        return File.OpenWrite(filePath);
+        return File.Open(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Read);
       }
       catch (Exception e)
       {
