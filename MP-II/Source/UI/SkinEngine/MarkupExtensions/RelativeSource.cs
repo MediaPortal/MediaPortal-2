@@ -99,9 +99,9 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     public override string ToString()
     {
-      IList<string> l = new List<string>();
       if (Mode == RelativeSourceMode.FindAncestor)
       { // More information for the complex mode 'FindAncestor'
+        IList<string> l = new List<string>();
         if (AncestorType != null)
           l.Add("AncestorType=" + AncestorType.Name);
         if (AncestorLevel != 1)
@@ -109,7 +109,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         return "{RelativeSource " + StringUtils.Join(",", l)+"}";
       }
       else
-        return "RelativeSource: " + _mode.ToString();
+        return "RelativeSource: " + _mode;
     }
   }
 }
