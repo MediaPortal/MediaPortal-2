@@ -111,6 +111,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Background = copyManager.GetCopy(b.Background);
       BorderThickness = copyManager.GetCopy(b.BorderThickness);
       CornerRadius = copyManager.GetCopy(b.CornerRadius);
+      _content = copyManager.GetCopy(b._content);
+
       Attach();
     }
 
@@ -319,9 +321,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _performLayout = true;
         }
         else
-        {
           SetupBrush(_lastEvent);
-        }
         _lastEvent = UIEvent.None;
       }
     }
@@ -337,7 +337,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (BorderBrush != null && _borderAsset != null && _borderAsset.IsAllocated == false)
           _performLayout = true;
         PerformLayout();
-        SkinContext.AddOpacity(this.Opacity);
+        SkinContext.AddOpacity(Opacity);
         //ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
         //SkinContext.AddTransform(m);
@@ -410,11 +410,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected override void PerformLayout()
     {
       base.PerformLayout();
-      //Trace.WriteLine("Border.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Border.PerformLayout() " + Name);
 
       double w = ActualWidth;
       double h = ActualHeight;
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -426,15 +425,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-      rect.X += (float)ActualPosition.X;
-      rect.Y += (float)ActualPosition.Y;
+      RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+      rect.X += ActualPosition.X;
+      rect.Y += ActualPosition.Y;
       PositionColored2Textured[] verts;
-      GraphicsPath path;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
-        using (path = GetRoundedRect(rect, (float)CornerRadius))
+        GraphicsPath path;
+        using (path = GetRoundedRect(rect, (float) CornerRadius))
         {
+          float centerX, centerY;
           CalcCentroid(path, out centerX, out centerY);
           if (Background != null)
           {
@@ -442,7 +442,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             {
               if (_backgroundAsset == null)
               {
-                _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + this.Name);
+                _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
                 ContentManager.Add(_backgroundAsset);
               }
               _backgroundAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
@@ -458,7 +458,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              Shape.PathToTriangleList(path, centerX, centerY, out verts);
+              PathToTriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Background.SetupBrush(this, ref verts);
               if (_backgroundContext == null)
@@ -468,9 +468,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 RenderPipeline.Instance.Add(_backgroundContext);
               }
               else
-              {
                 _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
-              }
             }
           }
 
@@ -480,22 +478,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Border._borderAsset:" + this.Name);
+                _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
+              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float) BorderThickness, true, out verts, _finalLayoutTransform, false);
               if (_borderAsset.VertexBuffer != null)
               {
                 BorderBrush.SetupBrush(this, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
                 _verticesCountBorder = (verts.Length / 3);
-
               }
             }
             else
             {
-              Shape.PathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+              PathToTriangleStrip(path, (float) BorderThickness, true, out verts, _finalLayoutTransform);
               BorderBrush.SetupBrush(this, ref verts);
               _verticesCountBorder = (verts.Length / 3);
               if (_borderContext == null)
@@ -505,9 +502,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 RenderPipeline.Instance.Add(_borderContext);
               }
               else
-              {
                 _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-              }
             }
           }
         }
@@ -517,13 +512,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
-    private GraphicsPath GetRoundedRect(RectangleF baseRect, float CornerRadius)
+    private GraphicsPath GetRoundedRect(RectangleF baseRect, float cornerRadius)
     {
       // if corner radius is less than or equal to zero, 
-
       // return the original rectangle 
 
-      if (CornerRadius <= 0.0f && CornerRadius <= 0.0f)
+      if (cornerRadius <= 0.0f && cornerRadius <= 0.0f)
       {
         GraphicsPath mPath = new GraphicsPath();
         mPath.AddRectangle(baseRect);
@@ -544,40 +538,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
 
       // if the corner radius is greater than or equal to 
-
       // half the width, or height (whichever is shorter) 
-
       // then return a capsule instead of a lozenge 
 
-      if (CornerRadius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
+      if (cornerRadius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
         return GetCapsule(baseRect);
 
       // create the arc for the rectangle sides and declare 
-
       // a graphics path object for the drawing 
 
-      float diameter = CornerRadius * 2.0F;
+      float diameter = cornerRadius * 2.0F;
       SizeF sizeF = new SizeF(diameter, diameter);
       RectangleF arc = new RectangleF(baseRect.Location, sizeF);
-      GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+      GraphicsPath path = new GraphicsPath();
 
       // top left arc 
-
-
       path.AddArc(arc, 180, 90);
 
       // top right arc 
-
       arc.X = baseRect.Right - diameter;
       path.AddArc(arc, 270, 90);
 
       // bottom right arc 
-
       arc.Y = baseRect.Bottom - diameter;
       path.AddArc(arc, 0, 90);
 
       // bottom left arc
-
       arc.X = baseRect.Left;
       path.AddArc(arc, 90, 90);
 
@@ -603,15 +589,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     private GraphicsPath GetCapsule(RectangleF baseRect)
     {
-      float diameter;
       RectangleF arc;
-      GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+      GraphicsPath path = new GraphicsPath();
       try
       {
+        float diameter;
         if (baseRect.Width > baseRect.Height)
         {
           // return horizontal capsule 
-
           diameter = baseRect.Height;
           SizeF sizeF = new SizeF(diameter, diameter);
           arc = new RectangleF(baseRect.Location, sizeF);
@@ -622,7 +607,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         else if (baseRect.Width < baseRect.Height)
         {
           // return vertical capsule 
-
           diameter = baseRect.Width;
           SizeF sizeF = new SizeF(diameter, diameter);
           arc = new RectangleF(baseRect.Location, sizeF);
@@ -631,11 +615,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           path.AddArc(arc, 0, 180);
         }
         else
-        {
           // return circle 
-
           path.AddEllipse(baseRect);
-        }
       }
       catch (Exception)
       {
@@ -675,13 +656,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.Deallocate();
       if (BorderBrush != null)
-        this.BorderBrush.Deallocate();
+        BorderBrush.Deallocate();
       if (Background != null)
-        this.Background.Deallocate();
+        Background.Deallocate();
       if (_content != null)
-      {
         _content.Deallocate();
-      }
       if (_borderAsset != null)
       {
         _borderAsset.Free(true);
@@ -711,13 +690,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       base.Allocate();
       if (BorderBrush != null)
-        this.BorderBrush.Allocate();
+        BorderBrush.Allocate();
       if (Background != null)
-        this.Background.Allocate();
+        Background.Allocate();
       if (_content != null)
-      {
         _content.Allocate();
-      }
     }
 
     public override void DoBuildRenderTree()
@@ -726,9 +703,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       PerformLayout();
       _lastEvent = UIEvent.None;
       if (_content != null)
-      {
         _content.BuildRenderTree();
-      }
     }
 
     public override void DestroyRenderTree()
@@ -744,9 +719,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _borderContext = null;
       }
       if (_content != null)
-      {
         _content.DestroyRenderTree();
-      }
     }
   }
 }

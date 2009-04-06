@@ -80,10 +80,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <value>The context.</value>
     public object Context
     {
-      get
-      {
-        return DataContext == null ? null : DataContext.Source;
-      }
+      get { return DataContext == null ? null : DataContext.Source; }
       set
       {
         if (value == null)

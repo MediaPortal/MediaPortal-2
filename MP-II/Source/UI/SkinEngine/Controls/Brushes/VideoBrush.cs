@@ -86,7 +86,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     /// </summary>
     public int Stream
     {
-      get { return (int)_streamProperty.GetValue(); }
+      get { return (int) _streamProperty.GetValue(); }
       set { _streamProperty.SetValue(value); }
     }
 

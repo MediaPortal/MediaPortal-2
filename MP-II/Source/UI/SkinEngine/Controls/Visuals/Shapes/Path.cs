@@ -195,9 +195,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Measure(ref SizeF totalSize)
     {
-      bool isclosed;
+      bool isClosed;
 
-      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, out isclosed, 0))
+      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, out isClosed, 0))
       {
         RectangleF bounds = p.GetBounds();
 
@@ -227,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickNess)
+    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickness)
     {
       isClosed = false;
       GraphicsPath mPath = new GraphicsPath();
@@ -272,6 +272,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               PointF point = points[0];
               lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
               startPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
+              mPath.StartFigure();
             }
             break;
           case 'M':
@@ -279,6 +280,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               //absolute origin
               lastPoint = points[0];
               startPoint = new PointF(points[0].X, points[0].Y);
+              mPath.StartFigure();
             }
             break;
           case 'L':
@@ -385,10 +387,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             break;
           case 'z':
             {
-              //close figure
+              //Close figure
               isClosed = true;
-              if (Math.Abs(lastPoint.X - startPoint.X) >= 1 || Math.Abs(lastPoint.Y - startPoint.Y) >= 1)
-                mPath.AddLine(lastPoint, startPoint);
+              mPath.AddLine(lastPoint, startPoint);
               mPath.CloseFigure();
             }
             break;
@@ -444,13 +445,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(m);
 
-      if (thickNess != 0.0)
+      if (thickness != 0.0)
       {
         //thickNess /= 2.0f;
         bounds = mPath.GetBounds();
         m = new Matrix();
-        float thicknessW = thickNess * SkinContext.Zoom.Width;
-        float thicknessH = thickNess * SkinContext.Zoom.Height;
+        float thicknessW = thickness * SkinContext.Zoom.Width;
+        float thicknessH = thickness * SkinContext.Zoom.Height;
         if (finalTransform != null)
           finalTransform.TransformXY(ref thicknessW, ref thicknessH);
         if (em != null)
@@ -465,12 +466,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         float scaleH = thicknessH / bounds.Height;
         if (float.IsNaN(scaleW) || float.IsInfinity(scaleW))
         {
-          m.Translate(thickNess / 2.0f, 0, MatrixOrder.Append);
+          m.Translate(thickness / 2.0f, 0, MatrixOrder.Append);
           scaleW = 1;
         }
         if (float.IsNaN(scaleH) || float.IsInfinity(scaleH))
         {
-          m.Translate(0, thickNess / 2.0f, MatrixOrder.Append);
+          m.Translate(0, thickness / 2.0f, MatrixOrder.Append);
           scaleH = 1;
         }
         m.Scale(scaleW, scaleH, MatrixOrder.Append);

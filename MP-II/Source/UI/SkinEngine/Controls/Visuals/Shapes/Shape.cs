@@ -453,7 +453,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thickNessW, double thickNessH, PolygonDirection direction, ExtendedMatrix finalTransLayoutform)
     {
       double ang = Math.Atan2((nextpoint.Y - point.Y), (nextpoint.X - point.X));  //returns in radians
-      double pi2 = Math.PI / 2.0; //90gr
+      const double pi2 = Math.PI / 2.0;
 
       if (direction == PolygonDirection.Clockwise)
         ang += pi2;
@@ -511,11 +511,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
       }
     }
+
     static public void StrokePathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
     {
       PolygonDirection direction = PointsDirection(path);
       StrokePathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform);
     }
+
     static public void StrokePathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
     {
       verts = null;
@@ -549,12 +551,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     /// <summary>
     /// Converts the graphics path to an array of vertices using trianglestrip.
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <param name="cx">The cx.</param>
-    /// <param name="cy">The cy.</param>
-    /// <param name="thickNess">The thick ness.</param>
-    /// <returns></returns>
-    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform, bool center)
+    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed,
+        out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform, bool center)
     {
       PolygonDirection direction = PointsDirection(path);
       return ConvertPathToTriangleStrip(path, thickNess, isClosed, direction, out verts, finalTransLayoutform, center);
@@ -564,26 +562,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     /// Converts the graphics path to an array of vertices using trianglestrip.
     /// </summary>
     /// <param name="path">The path.</param>
-    /// <param name="thickNess">The thickness of the line.</param>
+    /// <param name="thickness">The thickness of the line.</param>
     /// <param name="isClosed">True if we should connect the first and last point.</param>
-    /// <param name="PolygonDirection">The polygon direction.</param>
-    /// <param name="PositionColored2Textured">The generated verts.</param>
-    /// <param name="PolygonDirection">finalLayoutTransform.</param>
+    /// <param name="direction">The polygon direction.</param>
+    /// <param name="verts">The generated verts.</param>
+    /// <param name="finalLayoutTransform">Final layout transform.</param>
     /// <param name="isCenterFill">True if center fill otherwise left hand fill.</param>
     /// <returns>vertex buffer</returns>
-    /// 
-    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickNess, bool isClosed, PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform, bool isCenterFill)
+    static public VertexBuffer ConvertPathToTriangleStrip(GraphicsPath path, float thickness, bool isClosed,
+        PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform,
+        bool isCenterFill)
     {
       verts = null;
       if (path.PointCount <= 0) 
         return null;
 
-      float thicknessW = thickNess * SkinContext.Zoom.Width;
-      float thicknessH = thickNess * SkinContext.Zoom.Height;
+      float thicknessW = thickness * SkinContext.Zoom.Width;
+      float thicknessH = thickness * SkinContext.Zoom.Height;
       PointF[] points = path.PathPoints;
       PointF[] newPoints = new PointF[points.Length];
       int pointCount;
-      int lastPoint;
       float x=0.0f, y=0.0f;
 
       if (isClosed)
@@ -598,12 +596,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       // If center fill then we must move the points half the inset.
       if (isCenterFill)
       {
-        lastPoint = points.Length - 1;
+        int lastPoint = points.Length - 1;
 
         for (int i = 0; i < points.Length - 1; i++)
         {
           PointF nextpoint = GetNextPoint(points, i, points.Length);
-          GetInset(nextpoint, points[i], out x, out y, (double)-thicknessW / 2.0, (double)-thicknessH / 2.0, direction, finalLayoutTransform);
+          GetInset(nextpoint, points[i], out x, out y, -thicknessW / 2.0, -thicknessH / 2.0, direction, finalLayoutTransform);
           newPoints[i].X = x;
           newPoints[i].Y = y;
         }
@@ -617,7 +615,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         int offset = i * 6;
 
         PointF nextpoint = GetNextPoint(points, i, points.Length);
-        GetInset(nextpoint, points[i], out x, out y, (double)thicknessW, (double)thicknessH, direction, finalLayoutTransform);
+        GetInset(nextpoint, points[i], out x, out y, thicknessW, thicknessH, direction, finalLayoutTransform);
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
         verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 2].Position = new Vector3(x, y, 1);
@@ -633,11 +631,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     /// <summary>
     /// Splits the path into triangles.
     /// </summary>
-    /// <param name="path">The path.</param>
-    /// <returns></returns>
     protected VertexBuffer Triangulate(GraphicsPath path, float cx, float cy, bool isClosed, out PositionColored2Textured[] verts, out PrimitiveType primitive)
     {
-      verts = null;
       if (path.PointCount <= 3)
       {
         primitive = PrimitiveType.TriangleList;
