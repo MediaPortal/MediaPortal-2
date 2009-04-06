@@ -36,7 +36,6 @@ namespace MediaPortal.SkinEngine.Xaml
   /// </summary>
   public class DefaultNamespaceHandler: INamespaceHandler
   {
-
     protected Assembly _assembly;
     protected string _namespaceName;
 

@@ -38,6 +38,140 @@ namespace MediaPortal.SkinEngine.Xaml
   public class ReflectionHelper
   {
     /// <summary>
+    /// Given the <paramref name="methodInfos"/>, this method tries to choose one of them which matches best
+    /// for the given parameters, and returns the method and the converted parameters.
+    /// </summary>
+    /// <param name="methodInfos">Enumeration of methods to be checked.</param>
+    /// <param name="parameters">Parameters to be used.</param>
+    /// <param name="methodBase">Method which can be used with the <paramref name="convertedParameters"/>.</param>
+    /// <param name="convertedParameters">Parameters which have been converted from the given <paramref name="parameters"/>.
+    /// </param>
+    /// <returns><c>true</c>, if a member matched, else <c>false</c>.</returns>
+    public static bool FindBestMember(IEnumerable<MethodBase> methodInfos, object[] parameters,
+        out MethodBase methodBase, out object[] convertedParameters)
+    {
+      MethodBase bestMatch = null;
+      bool ambiguousVagueMember = false;
+      foreach (MethodBase mb in methodInfos)
+      {
+        ParameterInfo[] formalParameters = mb.GetParameters();
+        if (formalParameters.Length == parameters.Length)
+        {
+          bool missmatch = false;
+          for (int i=0; i<formalParameters.Length; i++)
+          {
+            Type formalParameter = formalParameters[i].ParameterType;
+            Type actualParameter = parameters[i].GetType();
+            if (actualParameter != formalParameter)
+            {
+              missmatch = true;
+              break;
+            }
+          }
+          if (!missmatch)
+          {
+            // We found a member info with exactly the given parameters
+            methodBase = mb;
+            convertedParameters = parameters;
+            return true;
+          }
+          if (bestMatch == null)
+            bestMatch = mb;
+          else
+            ambiguousVagueMember = true;
+        }
+      }
+      if (ambiguousVagueMember)
+        throw new XamlParserException("Trying to access an ambinguously defined member");
+      if (bestMatch != null && ConsumeParameters(parameters, bestMatch.GetParameters(), true, out convertedParameters))
+      {
+        methodBase = bestMatch;
+        return true;
+      }
+      convertedParameters = null;
+      methodBase = null;
+      return false;
+    }
+
+    /// <summary>
+    /// Tries to convert the specified <paramref name="parameters"/> objects to match the
+    /// specified <paramref name="parameterInfos"/> for a method call or property index expression.
+    /// the converted parameters will be returned in the parameter <paramref name="convertedParameters"/>.
+    /// </summary>
+    /// <param name="parameters">Input parameter objects to be converted.</param>
+    /// <param name="parameterInfos">Parameter specification to convert the <paramref name="parameters"/>
+    /// to.</param>
+    /// <param name="mustMatchSignature">If set to <c>true</c>, this method raises an exception if
+    /// the parameters do not match the specified signature or if they cannot be converted. If this
+    /// parameter is set to <c>false</c> and the parameters do not match the signature, this method
+    /// only returns a value of <c>false</c>. This parameter could also be named
+    /// "throwExceptionIfNotMatch".</param>
+    /// <param name="convertedParameters">Returns the converted parameters, if this method
+    /// returns a value of <c>true</c>.</param>
+    /// <returns><c>true</c>, if the parameter conversion could be done successfully, else
+    /// <c>false</c>.</returns>
+    public static bool ConsumeParameters(IEnumerable<object> parameters,
+        ParameterInfo[] parameterInfos, bool mustMatchSignature,
+        out object[] convertedParameters)
+    {
+      Type[] indexTypes = new Type[parameterInfos.Length];
+      int ti = 0;
+      int numMandatory = 0;
+      foreach (ParameterInfo parameter in parameterInfos)
+      {
+        indexTypes[ti++] = parameter.ParameterType;
+        if (!parameter.IsOptional)
+          numMandatory++;
+      }
+      bool result = ConvertTypes(parameters, indexTypes, out convertedParameters);
+      if (result && convertedParameters.Length <= indexTypes.Length &&
+          convertedParameters.Length >= numMandatory)
+        return true;
+      else if (mustMatchSignature)
+        if (result)
+          throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})",
+              parameterInfos.Length, convertedParameters.Length);
+        else
+          throw new XamlBindingException("Could not convert parameters");
+      else
+        return false;
+    }
+
+    /// <summary>
+    /// Convertes all objects in the specified <paramref name="objects"/> array to the specified
+    /// <paramref name="types"/>. The number of types may be greater than the number of objects;
+    /// this supports type conversion for both mandatory and optional parameters.
+    /// </summary>
+    /// <param name="objects">The array of objects to be type-converted.</param>
+    /// <param name="types">Desired types the objects should be converted to.
+    /// Indices in the <paramref name="types"/> array correspond to indices
+    /// of the <paramref name="objects"/> array. The <paramref name="types"/>
+    /// array may contain more elements than the <paramref name="objects"/> array.</param>
+    /// <param name="convertedIndices">Returns the array of converted objects.
+    /// The size of this returned array is the same as the size of the
+    /// <paramref name="objects"/> array.</param>
+    /// <returns><c>true</c>, if the conversion was successful for all objects
+    /// in the input array, else <c>false</c>.</returns>
+    /// <exception cref="XamlBindingException">If the number of objects given is greater than
+    /// the number of types given.</exception>
+    public static bool ConvertTypes(IEnumerable<object> objects, Type[] types,
+        out object[] convertedIndices)
+    {
+      // Convert objects to index types
+      convertedIndices = new object[types.Length];
+      int current = 0;
+      foreach (object obj in objects)
+      {
+        if (current >= types.Length)
+          return false;
+        if (!TypeConverter.Convert(obj, types[current], out convertedIndices[current]))
+          return false;
+        current++;
+      }
+      return true;
+    }
+
+    /// <summary>
     /// Given the instance <paramref name="obj"/> and the <paramref name="memberName"/>,
     /// this method searches the best matching member on the instance. It first searches
     /// a property with name [PropertyName]Property, casts it to

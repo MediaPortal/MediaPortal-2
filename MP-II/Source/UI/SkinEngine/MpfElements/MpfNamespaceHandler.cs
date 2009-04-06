@@ -69,6 +69,24 @@ namespace MediaPortal.SkinEngine.MpfElements
       return GetAttachedPropertyGetter(propertyProvider, propertyName) != null;
     }
 
+    internal static bool FindBestConstructor(Type t, IList<object> parameters, out ConstructorInfo constructorInfo,
+        out object[] convertedParameters)
+    {
+      MethodBase methodBase;
+      object[] parameterObjects = new object[parameters.Count];
+      parameters.CopyTo(parameterObjects, 0);
+      if (ReflectionHelper.FindBestMember(t.GetConstructors(), parameterObjects, out methodBase, out convertedParameters))
+      {
+        constructorInfo = (ConstructorInfo) methodBase;
+        return true;
+      }
+      else
+      {
+        constructorInfo = null;
+        return false;
+      }
+    }
+
     #endregion
 
     #region INamespaceHandler implementation
@@ -79,9 +97,12 @@ namespace MediaPortal.SkinEngine.MpfElements
       try
       {
         Type t = GetElementType(typeName, namespaceURI);
-        object[] parameterObjects = new object[parameters.Count];
-        parameters.CopyTo(parameterObjects, 0);
-        return Activator.CreateInstance(t, parameterObjects);
+        ConstructorInfo constructorInfo;
+        object[] convertedParameters;
+        if (!FindBestConstructor(t, parameters, out constructorInfo, out convertedParameters))
+          throw new XamlParserException("Error creating element type '{0}' in namespace '{1}'",
+            typeName, namespaceURI);
+        return constructorInfo.Invoke(convertedParameters);
       }
       catch (Exception e)
       {

@@ -24,7 +24,6 @@
 
 using System.Collections.Generic;
 using System;
-using System.Reflection;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 
@@ -78,84 +77,6 @@ namespace MediaPortal.SkinEngine.Xaml
       object[] result = new object[indexStrings.Length];
       indices.CopyTo(result, 0);
       return result;
-    }
-
-    /// <summary>
-    /// Tries to convert the specified <paramref name="parameters"/> objects to match the
-    /// specified <paramref name="parameterInfos"/> for a method call or property index expression.
-    /// the converted parameters will be returned in the parameter <paramref name="convertedParameters"/>.
-    /// </summary>
-    /// <param name="parameters">Input parameter objects to be converted.</param>
-    /// <param name="parameterInfos">Parameter specification to convert the <paramref name="parameters"/>
-    /// to.</param>
-    /// <param name="mustMatchSignature">If set to <c>true</c>, this method raises an exception if
-    /// the parameters do not match the specified signature or if they cannot be converted. If this
-    /// parameter is set to <c>false</c> and the parameters do not match the signature, this method
-    /// only returns a value of <c>false</c>. This parameter could also be named
-    /// "throwExceptionIfNotMatch".</param>
-    /// <param name="convertedParameters">Returns the converted parameters, if this method
-    /// returns a value of <c>true</c>.</param>
-    /// <returns><c>true</c>, if the parameter conversion could be done successfully, else
-    /// <c>false</c>.</returns>
-    public static bool ConsumeParameters(IEnumerable<object> parameters,
-        ParameterInfo[] parameterInfos, bool mustMatchSignature,
-        out object[] convertedParameters)
-    {
-      Type[] indexTypes = new Type[parameterInfos.Length];
-      int ti = 0;
-      int numMandatory = 0;
-      foreach (ParameterInfo parameter in parameterInfos)
-      {
-        indexTypes[ti++] = parameter.ParameterType;
-        if (!parameter.IsOptional)
-          numMandatory++;
-      }
-      bool result = ConvertTypes(parameters, indexTypes, out convertedParameters);
-      if (result && convertedParameters.Length <= indexTypes.Length &&
-          convertedParameters.Length >= numMandatory)
-        return true;
-      else if (mustMatchSignature)
-        if (result)
-          throw new XamlBindingException("Wrong count of parameter for index (expected: {0}, got: {1})",
-              parameterInfos.Length, convertedParameters.Length);
-        else
-          throw new XamlBindingException("Could not convert parameters");
-      else
-        return false;
-    }
-
-    /// <summary>
-    /// Convertes all objects in the specified <paramref name="objects"/> array to the specified
-    /// <paramref name="types"/>. The number of types may be greater than the number of objects;
-    /// this supports type conversion for both mandatory and optional parameters.
-    /// </summary>
-    /// <param name="objects">The array of objects to be type-converted.</param>
-    /// <param name="types">Desired types the objects should be converted to.
-    /// Indices in the <paramref name="types"/> array correspond to indices
-    /// of the <paramref name="objects"/> array. The <paramref name="types"/>
-    /// array may contain more elements than the <paramref name="objects"/> array.</param>
-    /// <param name="convertedIndices">Returns the array of converted objects.
-    /// The size of this returned array is the same as the size of the
-    /// <paramref name="objects"/> array.</param>
-    /// <returns><c>true</c>, if the conversion was successful for all objects
-    /// in the input array, else <c>false</c>.</returns>
-    /// <exception cref="XamlBindingException">If the number of objects given is greater than
-    /// the number of types given.</exception>
-    public static bool ConvertTypes(IEnumerable<object> objects, Type[] types,
-        out object[] convertedIndices)
-    {
-      // Convert objects to index types
-      convertedIndices = new object[types.Length];
-      int current = 0;
-      foreach (object obj in objects)
-      {
-        if (current >= types.Length)
-          return false;
-        if (!TypeConverter.Convert(obj, types[current], out convertedIndices[current]))
-          return false;
-        current++;
-      }
-      return true;
     }
 
     /// <summary>

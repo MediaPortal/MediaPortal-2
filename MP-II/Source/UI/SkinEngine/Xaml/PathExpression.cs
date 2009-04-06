@@ -94,13 +94,13 @@ namespace MediaPortal.SkinEngine.Xaml
       ParameterInfo[] indexerParams = IndexerDataDescriptor.GetIndexerTypes(value.GetType());
       object[] convertedIndices;
       // Search indexer on source type
-      if (indexerParams != null && ParserHelper.ConsumeParameters(_indices,
+      if (indexerParams != null && ReflectionHelper.ConsumeParameters(_indices,
           indexerParams, false, out convertedIndices))
       { // Index on Item property
         result = new IndexerDataDescriptor(value, convertedIndices);
         return true;
       }
-      else if (ParserHelper.ConvertTypes(_indices, new Type[] { typeof(int) },
+      else if (ReflectionHelper.ConvertTypes(_indices, new Type[] { typeof(int) },
           out convertedIndices))
       { // Collection index
         if (!ReflectionHelper.GetEnumerationEntryByIndex(value, (int) convertedIndices[0], out result))
@@ -256,7 +256,7 @@ namespace MediaPortal.SkinEngine.Xaml
         object[] convertedIndices = null;
         // Check property indexer
         bool indicesOnProperty = _indices != null && _indices.Length > 0 &&
-            ParserHelper.ConsumeParameters(_indices, pi.GetIndexParameters(),
+            ReflectionHelper.ConsumeParameters(_indices, pi.GetIndexParameters(),
                 false, out convertedIndices);
         if (!indicesOnProperty)
           convertedIndices = null;

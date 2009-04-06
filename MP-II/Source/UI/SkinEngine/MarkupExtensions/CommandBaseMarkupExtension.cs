@@ -160,7 +160,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       try
       {
         object[] convertedParameters;
-        if (ParserHelper.ConsumeParameters(paramsList, parameterInfos, true, out convertedParameters))
+        if (ReflectionHelper.ConsumeParameters(paramsList, parameterInfos, true, out convertedParameters))
           mi.Invoke(obj, convertedParameters);
       }
       catch (Exception e)
