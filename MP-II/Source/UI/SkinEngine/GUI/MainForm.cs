@@ -182,7 +182,7 @@ namespace MediaPortal.SkinEngine.GUI
         GraphicsDevice.SetRenderState();
         while (!_renderThreadStopped)
         {
-          bool shouldWait = GraphicsDevice.Render(true);
+          bool shouldWait = GraphicsDevice.Render();
           if (shouldWait || !_hasFocus)
           {
             Thread.Sleep(100);

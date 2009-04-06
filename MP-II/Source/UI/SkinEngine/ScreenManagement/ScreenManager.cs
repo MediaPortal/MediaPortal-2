@@ -155,7 +155,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    protected void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    protected internal void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
@@ -183,7 +183,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    protected void InternalCloseDialog()
+    protected internal void InternalCloseDialog()
     {
       lock(_syncRoot)
       {
@@ -207,7 +207,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    protected void InternalCloseScreen()
+    protected internal void InternalCloseScreen()
     {
       lock (_syncRoot)
       {
@@ -220,7 +220,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    protected void InternalCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
+    protected internal void InternalCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
     {
       lock (_syncRoot)
       {
@@ -232,7 +232,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    protected void InternalShowScreen(Screen screen)
+    protected internal void InternalShowScreen(Screen screen)
     {
       lock (_syncRoot)
       {
@@ -243,7 +243,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    protected void InternalSetBackgroundLayer(Screen background)
+    protected internal void InternalSetBackgroundLayer(Screen background)
     {
       lock (_syncRoot)
       {

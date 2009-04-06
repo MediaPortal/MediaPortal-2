@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core;
@@ -48,8 +47,6 @@ namespace MediaPortal.SkinEngine
     private static d3dSetup _setup = new d3dSetup();
     private static Device _device;
     private static Surface _backBuffer;
-    private static uint _lastRender;
-    private static bool _videoThreadActive = false;
     private static bool _deviceLost = false;
     private static int _anisotropy;
     private static bool _supportsFiltering;
@@ -90,7 +87,7 @@ namespace MediaPortal.SkinEngine
         MPDirect3D.Load();
         _setup.SetupDirectX(window, maximize);
         _backBuffer = _device.GetRenderTarget(0);
-        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} format: {2} {3} Hz", Width,
                                           Height, adapterInfo.CurrentDisplayMode.Format,
@@ -101,14 +98,14 @@ namespace MediaPortal.SkinEngine
       {
         ServiceScope.Get<ILogger>().Critical("GraphicsDevice: failed to set-up DirectX");
         ServiceScope.Get<ILogger>().Critical(ex);
-        System.Environment.Exit(0);
+        Environment.Exit(0);
       }
     }
 
     public static bool DeviceLost
     {
       get { return _deviceLost; }
-      set { _deviceLost = false; }
+      set { _deviceLost = value; }
     }
 
     private static void GetCapabilities()
@@ -155,7 +152,7 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     /// <param name="exclusiveMode">If set to <c>true</c> then use DirectX exclusive mode
     /// else DirectX windowed mode.</param>
-    /// <param name="mode">Mode to set on the DirectX device.</param>
+    /// <param name="displaySetting">Mode to set on the DirectX device.</param>
     public static bool Reset(bool exclusiveMode, string displaySetting)
     {
       ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
@@ -165,7 +162,7 @@ namespace MediaPortal.SkinEngine
           _backBuffer.Dispose();
         _backBuffer = null;
         _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
-        int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+        int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                           adapterInfo.CurrentDisplayMode.Format,
@@ -249,7 +246,7 @@ namespace MediaPortal.SkinEngine
       Device.SetRenderState(RenderState.Lighting, false);
 
       // Z order must be enabled for batching to work
-      if (SkinContext.UseBatching == true)
+      if (SkinContext.UseBatching)
       {
         Device.SetRenderState(RenderState.ZEnable, true);
         Device.SetRenderState(RenderState.ZWriteEnable, true);
@@ -315,8 +312,6 @@ namespace MediaPortal.SkinEngine
 
       int gw = Width;
       int gh = Height;
-      gw = Width;
-      gh = Height;
       InitializeZoom();
       Point camera = new Point(gw / 2, gh / 2);
       // and calculate the offset from the screen center
@@ -327,17 +322,15 @@ namespace MediaPortal.SkinEngine
       float w = Width * 0.5f; // viewport.Width * 0.5f;
       float h = Height * 0.5f; // viewport.Height * 0.5f;
 
-      Matrix mtxWorld;
-      mtxWorld = Matrix.Identity;
+      //Matrix mtxWorld = Matrix.Identity;
       //GraphicsDevice.TransformWorld = mtxWorld;
 
       // camera view.  Multiply the Y coord by -1) { translate so that everything is relative to the camera
       // position.
-      Matrix flipY, translate, mtxView;
-      flipY = Matrix.Scaling(1.0f, -1.0f, 1.0f);
-      translate = Matrix.Translation(-(viewport.X + w + offset.X), -(viewport.Y + h + offset.Y), 2 * h);
-      mtxView = Matrix.Multiply(translate, flipY);
-      GraphicsDevice.TransformView = mtxView;
+      Matrix flipY = Matrix.Scaling(1.0f, -1.0f, 1.0f);
+      Matrix translate = Matrix.Translation(-(viewport.X + w + offset.X), -(viewport.Y + h + offset.Y), 2 * h);
+      Matrix mtxView = Matrix.Multiply(translate, flipY);
+      TransformView = mtxView;
 
       // projection onto screen space
       Matrix mtxProjection = Matrix.PerspectiveOffCenterLH(
@@ -347,9 +340,9 @@ namespace MediaPortal.SkinEngine
           (h + offset.Y) * 0.5f, //Maximum y-value of the view volume.
           h, //Minimum z-value of the view volume.
           100 * h); //Maximum z-value of the view volume.
-      GraphicsDevice.TransformProjection = mtxProjection;
+      TransformProjection = mtxProjection;
 
-      GraphicsDevice.FinalTransform = GraphicsDevice.TransformView * GraphicsDevice.TransformProjection;
+      FinalTransform = TransformView * TransformProjection;
       ////GraphicsDevice.TransformWorld = Matrix.Identity;
       //GraphicsDevice.TransformView = Matrix.LookAtLH(new Vector3(0, 0, -10.0f), new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.0f, -1.0f, 0.0f));
       //GraphicsDevice.TransformProjection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
@@ -367,58 +360,21 @@ namespace MediaPortal.SkinEngine
     /// reason for this is that we need to sync the drawing with the video
     /// the mainloop variable indicates if the method is called by our own renderthread or by the evr/vmr9 thread
     /// </summary>
-    /// <param name="calledFromOurRenderThread">
-    /// set to true when our own render thread called this method. 
-    /// False when called from a EVR/VMR9 thread</param>
     /// <returns></returns>
     /// 
-    public static bool Render(bool calledFromOurRenderThread)
+    public static bool Render()
     {
-      if (_device == null)
-      {
+      if (_device == null || _deviceLost)
         return true;
-      }
-
-      if (_deviceLost)
-      {
-        return true;
-      }
       lock (_setup)
       {
-        uint time = (uint)Environment.TickCount;
-        //if evr/vmr9 called this method 
-        if (!calledFromOurRenderThread && !_videoThreadActive)
-        {
-          Trace.WriteLine(String.Format("vmr9 renderer starts {0}", time - _lastRender));
-          _videoThreadActive = true;
-        }
-
-        //if our own reder thread called this method
-        if (calledFromOurRenderThread)
-        {
-          //is evr/vmr9 thread also rendering?
-          if (_videoThreadActive)
-          {
-            //yes. Check if the evr/vmr9 thread is still busy
-            if (time - _lastRender < 500)
-              //yes then we return since evr/vmr9 thread is doing the rendering for us
-              return true;
-
-            //evr/vmr9 thread stopped (can happen when video is paused for example)
-            //so... let our own render thread do the rendering again
-            _videoThreadActive = false;
-            Trace.WriteLine(String.Format("vmr9 renderer seems stopped, back to main loop {0}", (time - _lastRender)));
-          }
-        }
-
-        _lastRender = time;
         try
         {
           //_device.SetRenderTarget(0, _backBuffer);
 
           //Clear the backbuffer to a blue color (ARGB = 000000ff)
 
-          if (SkinContext.UseBatching == true)
+          if (SkinContext.UseBatching)
             _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
           else
             _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
@@ -426,7 +382,7 @@ namespace MediaPortal.SkinEngine
           //Begin the scene
           _device.BeginScene();
 
-          GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+          Device.VertexFormat = PositionColored2Textured.Format;
           ScreenManager manager = (ScreenManager)ServiceScope.Get<IScreenManager>();
           manager.Render();
           if (SkinContext.UseBatching)
@@ -434,12 +390,8 @@ namespace MediaPortal.SkinEngine
           //End the scene
           _device.EndScene();
           _device.Present();
-          //if (calledFromOurRenderThread)
-          //{
-          //  _device.Present();
-          //}
         }
-        catch (SlimDX.Direct3D9.Direct3D9Exception ex)
+        catch (Direct3D9Exception)
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device");
           _deviceLost = true;
@@ -470,7 +422,7 @@ namespace MediaPortal.SkinEngine
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Device reset");
           _setup.Reset();
-          int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;
+          int ordinal = Device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
                                             adapterInfo.CurrentDisplayMode.Format,
