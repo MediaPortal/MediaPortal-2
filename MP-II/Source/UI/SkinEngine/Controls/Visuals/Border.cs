@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
- 
+
     This file is part of MediaPortal II
 
     MediaPortal II is free software: you can redistribute it and/or modify
@@ -437,83 +437,92 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
       rect.X += ActualPosition.X;
       rect.Y += ActualPosition.Y;
-      PositionColored2Textured[] verts;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
-        GraphicsPath path;
-        using (path = GetBorderRect(rect))
+        using (GraphicsPath path = GetBorderRect(rect))
         {
-          float centerX, centerY;
-          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
-          if (Background != null)
+          PerformLayoutBackground(rect, path);
+          PerformLayoutBorder(rect, path);
+        }
+      }
+    }
+
+    protected virtual void PerformLayoutBackground(RectangleF rect, GraphicsPath path)
+    {
+      if (Background != null)
+      {
+        PositionColored2Textured[] verts;
+        float centerX, centerY;
+        TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
+        if (SkinContext.UseBatching)
+        {
+          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+          _verticesCountFill = verts.Length / 3;
+          Background.SetupBrush(this, ref verts);
+          if (_backgroundContext == null)
           {
-            if (SkinContext.UseBatching == false)
-            {
-              if (_backgroundAsset == null)
-              {
-                _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
-                ContentManager.Add(_backgroundAsset);
-              }
-              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-              if (_backgroundAsset.VertexBuffer != null)
-              {
-                Background.SetupBrush(this, ref verts);
-
-                PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
-                _verticesCountFill = (verts.Length / 3);
-
-              }
-            }
-            else
-            {
-              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _verticesCountFill = (verts.Length / 3);
-              Background.SetupBrush(this, ref verts);
-              if (_backgroundContext == null)
-              {
-                _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
-                Background.SetupPrimitive(_backgroundContext);
-                RenderPipeline.Instance.Add(_backgroundContext);
-              }
-              else
-                _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
-            }
+            _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
+            Background.SetupPrimitive(_backgroundContext);
+            RenderPipeline.Instance.Add(_backgroundContext);
           }
-
-          if (BorderBrush != null && BorderThickness > 0)
+          else
+            _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
+        }
+        else
+        {
+          if (_backgroundAsset == null)
           {
-            if (SkinContext.UseBatching == false)
-            {
-              if (_borderAsset == null)
-              {
-                _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
-                ContentManager.Add(_borderAsset);
-              }
-              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
-              if (verts != null)
-              {
-                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                BorderBrush.SetupBrush(this, ref verts);
+            _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
+            ContentManager.Add(_backgroundAsset);
+          }
+          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+          _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+          if (_backgroundAsset.VertexBuffer != null)
+          {
+            Background.SetupBrush(this, ref verts);
 
-                PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                _verticesCountBorder = (verts.Length / 3);
-              }
-            }
-            else
-            {
-              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
-              BorderBrush.SetupBrush(this, ref verts);
-              _verticesCountBorder = (verts.Length / 3);
-              if (_borderContext == null)
-              {
-                _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-                BorderBrush.SetupPrimitive(_borderContext);
-                RenderPipeline.Instance.Add(_borderContext);
-              }
-              else
-                _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-            }
+            PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
+            _verticesCountFill = verts.Length / 3;
+
+          }
+        }
+      }
+    }
+
+    protected virtual void PerformLayoutBorder(RectangleF rect, GraphicsPath path)
+    {
+      if (BorderBrush != null && BorderThickness > 0)
+      {
+        PositionColored2Textured[] verts;
+        if (SkinContext.UseBatching)
+        {
+          TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+          BorderBrush.SetupBrush(this, ref verts);
+          _verticesCountBorder = verts.Length / 3;
+          if (_borderContext == null)
+          {
+            _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+            BorderBrush.SetupPrimitive(_borderContext);
+            RenderPipeline.Instance.Add(_borderContext);
+          }
+          else
+            _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+        }
+        else
+        {
+          if (_borderAsset == null)
+          {
+            _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
+            ContentManager.Add(_borderAsset);
+          }
+          TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
+          if (verts != null)
+          {
+            _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+            BorderBrush.SetupBrush(this, ref verts);
+
+            PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+            _verticesCountBorder = verts.Length / 3;
           }
         }
       }
@@ -529,16 +538,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         layoutTransform = layoutTransform.Multiply(em);
       }
       return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius, layoutTransform);
-    }
-
-    #endregion
-
-    #region IAddChild Members
-
-    public void AddChild(FrameworkElement o)
-    {
-      _content = o;
-      _content.VisualParent = this;
     }
 
     #endregion
@@ -612,5 +611,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_content != null)
         _content.DestroyRenderTree();
     }
+
+    #region IAddChild Members
+
+    public void AddChild(FrameworkElement o)
+    {
+      _content = o;
+      _content.VisualParent = this;
+    }
+
+    #endregion
   }
 }

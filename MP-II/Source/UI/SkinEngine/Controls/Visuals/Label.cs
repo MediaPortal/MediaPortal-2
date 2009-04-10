@@ -375,9 +375,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         bool scroll = Scroll && !Wrap;
         string[] lines = Wrap ? WrapText(_finalRect.Width, true) : new string[] {_resourceString.Evaluate() };
 
-        float totalWidth;
         foreach (string line in lines)
         {
+          float totalWidth;
           _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
           rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
         }
@@ -438,9 +438,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         bool scroll = Scroll && !Wrap;
         string[] lines = Wrap ? WrapText(_finalRect.Width, true) : new string[] { _resourceString.Evaluate() };
 
-        float totalWidth;
         foreach (string line in lines)
         {
+          float totalWidth;
           _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
           rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
         }
