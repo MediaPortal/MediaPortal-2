@@ -246,7 +246,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public object FindStyleResource(object resourceKey)
     {
       if (!IsStylesInitialized)
-        throw new InvalidStateException("SkinResources '{0}' were not prepared", this);
+        throw new InvalidCallException("SkinResources '{0}' were not prepared", this);
       if (_localStyleResources.ContainsKey(resourceKey))
         return _localStyleResources[resourceKey];
       // This code will also allow to use resources from the default skin, if
@@ -433,7 +433,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       string resourceKey = STYLES_DIRECTORY + "\\" + styleResourceName.ToLowerInvariant() + ".xaml";
       if (_localStyleResources == null)
         // Method was called before the styles initialization
-        throw new InvalidStateException("SkinResources '{0}' were not prepared", this);
+        throw new InvalidCallException("SkinResources '{0}' were not prepared", this);
       if (_pendingStyleResources == null)
         // Method was called after the styles initialization has already finished
         return;
@@ -492,7 +492,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       if (_inheritedSkinResources != null)
         _inheritedSkinResources.InitializeStyleResourceLoading();
       if (IsStylesInitialized)
-        throw new InvalidStateException("SkinResources '{0}' are already prepared", this);
+        throw new InvalidCallException("SkinResources '{0}' are already prepared", this);
       CheckResourcesInitialized();
       _localStyleResources = new ResourceDictionary();
 

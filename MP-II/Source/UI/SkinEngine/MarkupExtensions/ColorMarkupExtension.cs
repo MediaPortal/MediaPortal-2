@@ -332,14 +332,14 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected void RGBUsage()
     {
       if (_hsvUsage)
-        throw new InvalidStateException("The Color markup extension supports either using the RGB properties OR using the HSL properties");
+        throw new InvalidCallException("The Color markup extension supports either using the RGB properties OR using the HSL properties");
       _rgbUsage = true;
     }
 
     protected void HSVUsage()
     {
       if (_rgbUsage)
-        throw new InvalidStateException("The Color markup extension supports either using the RGB properties OR using the HSL properties");
+        throw new InvalidCallException("The Color markup extension supports either using the RGB properties OR using the HSL properties");
       _hsvUsage = true;
     }
 

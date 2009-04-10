@@ -102,7 +102,7 @@ namespace MediaPortal.Services.Players
       protected void CheckActive()
       {
         if (_slotState == PlayerSlotState.Inactive)
-          throw new InvalidStateException("PlayerSlotController: PSC is not active");
+          throw new InvalidCallException("PlayerSlotController: PSC is not active");
       }
 
       protected void RegisterPlayerEvents()
