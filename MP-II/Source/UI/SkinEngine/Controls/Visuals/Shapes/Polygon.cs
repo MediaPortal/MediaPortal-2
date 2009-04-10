@@ -85,6 +85,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       base.PerformLayout();
       //Trace.WriteLine("Polygon.PerformLayout() " + this.Name);
       
@@ -121,7 +123,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 _fillAsset = new VisualAssetContext("Polygon._fillContext:" + this.Name);
                 ContentManager.Add(_fillAsset);
               }
-              _fillAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+              // FIXME Albert: Use triangle fan (triangulate instead of using simple PathToXXX methods?)
+              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
               if (_fillAsset.VertexBuffer != null)
               {
                 Fill.SetupBrush(this, ref verts);
@@ -132,7 +136,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              Shape.PathToTriangleList(path, centerX, centerY, out verts);
+              Shape.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Fill.SetupBrush(this, ref verts);
               if (_fillContext == null)
@@ -142,36 +146,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_fillContext);
               }
               else
-              {
                 _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
-              }
             }
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            if (SkinContext.UseBatching == false)
+            if (SkinContext.UseBatching)
             {
-              if (_borderAsset == null)
-              {
-                _borderAsset = new VisualAssetContext("Polygon._borderContext:" + this.Name);
-                ContentManager.Add(_borderAsset);
-              }
-              using (path = GetPolygon(rect))
-              {
-                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
-                if (_borderAsset.VertexBuffer != null)
-                {
-                  Stroke.SetupBrush(this, ref verts);
-
-                  PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                  _verticesCountBorder = (verts.Length / 3);
-                }
-              }
-            }
-            else
-            {
-              Shape.StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              Shape.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
               Stroke.SetupBrush(this, ref verts);
               if (_strokeContext == null)
@@ -181,8 +164,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_strokeContext);
               }
               else
-              {
                 _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+            }
+            else
+            {
+              if (_borderAsset == null)
+              {
+                _borderAsset = new VisualAssetContext("Polygon._borderContext:" + this.Name);
+                ContentManager.Add(_borderAsset);
+              }
+              using (path = GetPolygon(rect))
+              {
+                TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
+                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+                if (_borderAsset.VertexBuffer != null)
+                {
+                  Stroke.SetupBrush(this, ref verts);
+
+                  PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+                  _verticesCountBorder = (verts.Length / 3);
+                }
               }
             }
           }

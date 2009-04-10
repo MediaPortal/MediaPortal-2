@@ -409,6 +409,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     protected override void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       base.PerformLayout();
       //Trace.WriteLine("Border.PerformLayout() " + Name);
 
@@ -445,11 +447,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
                 ContentManager.Add(_backgroundAsset);
               }
-              _backgroundAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+              // FIXME Albert: Use triangle fan
+              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
               if (_backgroundAsset.VertexBuffer != null)
               {
                 Background.SetupBrush(this, ref verts);
-
 
                 PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
                 _verticesCountFill = (verts.Length / 3);
@@ -458,7 +461,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              PathToTriangleList(path, centerX, centerY, out verts);
+              FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Background.SetupBrush(this, ref verts);
               if (_backgroundContext == null)
@@ -481,9 +484,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float) BorderThickness, true, out verts, _finalLayoutTransform, false);
-              if (_borderAsset.VertexBuffer != null)
+              TriangulateStroke_TriangleList(path, (float) BorderThickness, true, out verts, _finalLayoutTransform, false);
+              if (verts != null)
               {
+                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
                 BorderBrush.SetupBrush(this, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
@@ -492,7 +496,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              PathToTriangleStrip(path, (float) BorderThickness, true, out verts, _finalLayoutTransform);
+              TriangulateStroke_TriangleList(path, (float) BorderThickness, true, out verts, _finalLayoutTransform);
               BorderBrush.SetupBrush(this, ref verts);
               _verticesCountBorder = (verts.Length / 3);
               if (_borderContext == null)

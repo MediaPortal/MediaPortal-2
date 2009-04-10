@@ -136,6 +136,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       base.PerformLayout();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -167,25 +169,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           //CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            if (SkinContext.UseBatching == false)
+            if (SkinContext.UseBatching)
             {
-              if (_fillAsset == null)
-              {
-                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + Name);
-                ContentManager.Add(_fillAsset);
-              }
-              _fillAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-              if (_fillAsset.VertexBuffer != null)
-              {
-                Fill.SetupBrush(this, ref verts);
-
-                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                _verticesCountFill = (verts.Length / 3);
-              }
-            }
-            else
-            {
-              PathToTriangleList(path, centerX, centerY, out verts);
+              FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Fill.SetupBrush(this, ref verts);
               if (_fillContext == null)
@@ -195,8 +181,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_fillContext);
               }
               else
-              {
                 _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
+            }
+            else
+            {
+              if (_fillAsset == null)
+              {
+                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + Name);
+                ContentManager.Add(_fillAsset);
+              }
+              // FIXME Albert: Use triangle fan
+              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+              if (_fillAsset.VertexBuffer != null)
+              {
+                Fill.SetupBrush(this, ref verts);
+
+                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
+                _verticesCountFill = (verts.Length / 3);
               }
             }
           }
@@ -212,10 +214,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               }
               using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
               {
-                _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
-                if (_borderAsset.VertexBuffer != null)
+                TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, Shapes.Triangulate.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
+                if (verts != null)
                 {
-
+                  _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
                   Stroke.SetupBrush(this, ref verts);
 
                   PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
@@ -225,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
               Stroke.SetupBrush(this, ref verts);
               if (_strokeContext == null)
@@ -235,9 +237,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_strokeContext);
               }
               else
-              {
                 _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-              }
             }
           }
         }

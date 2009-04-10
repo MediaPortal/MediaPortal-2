@@ -556,7 +556,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
                 ContentManager.Add(_backgroundAsset);
               }
-              _backgroundAsset.VertexBuffer = Shape.ConvertPathToTriangleFan(path, centerX, centerY, out verts);
+              // FIXME Albert: Use triangle fan
+              Shape.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
               if (_backgroundAsset.VertexBuffer != null)
               {
                 Background.SetupBrush(this, ref verts);
@@ -568,7 +570,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              Shape.PathToTriangleList(path, centerX, centerY, out verts);
+              Shape.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountBackground = (verts.Length / 3);
               Background.SetupBrush(this, ref verts);
               if (_backgroundContext == null)
@@ -593,9 +595,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = Shape.ConvertPathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
-              if (_borderAsset.VertexBuffer != null)
+              Shape.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
+              if (verts != null)
               {
+                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
                 BorderBrush.SetupBrush(this, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
@@ -605,7 +608,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              Shape.PathToTriangleStrip(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+              Shape.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
               BorderBrush.SetupBrush(this, ref verts);
               _verticesCountBorder = (verts.Length / 3);
               if (_borderContext == null)

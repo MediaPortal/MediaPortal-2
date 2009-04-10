@@ -47,90 +47,52 @@ namespace MediaPortal.SkinEngine.Rendering
       _vertices = vertices;
     }
 
-    #region properties
+    #region Properties
 
     public RenderContext RenderContext
     {
-      get
-      {
-        return _renderContext;
-      }
-      set
-      {
-        _renderContext = value;
-      }
+      get { return _renderContext; }
+      set { _renderContext = value; }
     }
 
     public EffectAsset Effect
     {
-      get
-      {
-        return _effect;
-      }
-      set
-      {
-        _effect = value;
-      }
+      get { return _effect; }
+      set { _effect = value; }
     }
 
     public EffectParameters Parameters
     {
-      get
-      {
-        return _parameters;
-      }
-      set
-      {
-        _parameters = value;
-      }
+      get { return _parameters; }
+      set { _parameters = value; }
     }
 
     public ITextureAsset Texture
     {
-      get
-      {
-        return _texture;
-      }
-      set
-      {
-        _texture = value;
-      }
+      get { return _texture; }
+      set { _texture = value; }
     }
 
     public PositionColored2Textured[] Vertices
     {
-      get
-      {
-        return _vertices;
-      }
-      set
-      {
-        _vertices = value;
-      }
+      get { return _vertices; }
+      set { _vertices = value; }
     }
 
     public int PrimitiveCount
     {
-      get
-      {
-        return _primitiveCount;
-      }
-      set
-      {
-        _primitiveCount = value;
-      }
+      get { return _primitiveCount; }
+      set { _primitiveCount = value; }
     }
-    #endregion
 
+    #endregion
 
     public void OnVerticesChanged(int primitiveCount, ref PositionColored2Textured[] vertices)
     {
       _primitiveCount = primitiveCount;
       _vertices = vertices;
       if (_renderContext != null)
-      {
         _renderContext.UpdateVertices = true;
-      }
     }
   }
 }

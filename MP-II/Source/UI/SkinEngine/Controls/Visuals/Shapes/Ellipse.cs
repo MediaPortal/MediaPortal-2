@@ -41,6 +41,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       base.PerformLayout();
       //Trace.WriteLine("Ellipse.PerformLayout() " + this.Name);
 
@@ -72,25 +74,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            if (SkinContext.UseBatching == false)
+            if (SkinContext.UseBatching)
             {
-              if (_fillAsset == null)
-              {
-                _fillAsset = new VisualAssetContext("Ellipse._fillContext:" + this.Name);
-                ContentManager.Add(_fillAsset);
-              }
-              _fillAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-              if (_fillAsset.VertexBuffer != null)
-              {
-                Fill.SetupBrush(this, ref verts);
-
-                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                _verticesCountFill = (verts.Length / 3);
-              }
-            }
-            else
-            {
-              Shape.PathToTriangleList(path, centerX, centerY, out verts);
+              Shape.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Fill.SetupBrush(this, ref verts);
               if (_fillContext == null)
@@ -100,8 +86,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_fillContext);
               }
               else
-              {
                 _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
+            }
+            else
+            {
+              if (_fillAsset == null)
+              {
+                _fillAsset = new VisualAssetContext("Ellipse._fillContext:" + this.Name);
+                ContentManager.Add(_fillAsset);
+              }
+              // FIXME Albert: Use triangle fan
+              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+              if (_fillAsset.VertexBuffer != null)
+              {
+                Fill.SetupBrush(this, ref verts);
+
+                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
+                _verticesCountFill = (verts.Length / 3);
               }
             }
           }
@@ -115,9 +117,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + this.Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
-              if (_borderAsset.VertexBuffer != null)
+              TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
+              if (verts != null)
               {
+                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
                 Stroke.SetupBrush(this, ref verts);
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
                 _verticesCountBorder = (verts.Length / 3);
@@ -125,7 +128,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              Shape.StrokePathToTriangleStrip(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              Shape.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
               Stroke.SetupBrush(this, ref verts);
               if (_strokeContext == null)
@@ -135,9 +138,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 RenderPipeline.Instance.Add(_strokeContext);
               }
               else
-              {
                 _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-              }
             }
           }
         }
@@ -156,7 +157,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     /// <returns></returns>
     private GraphicsPath GetEllipse(RectangleF baseRect)
     {
-
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddEllipse(baseRect);
       mPath.CloseFigure();

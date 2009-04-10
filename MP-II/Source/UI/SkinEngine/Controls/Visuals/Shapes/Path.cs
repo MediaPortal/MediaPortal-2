@@ -79,8 +79,34 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       set { _dataProperty.SetValue(value); }
     }
 
+    protected static void Flatten(PositionColored2Textured[][] subPathVerts, out PositionColored2Textured[] verts)
+    {
+      int numVertices = 0;
+      for (int i = 0; i < subPathVerts.Length; i++)
+        if (subPathVerts[i] != null)
+          numVertices += subPathVerts[i].Length;
+      if (numVertices == 0)
+      {
+        verts = null;
+        return;
+      }
+      verts = new PositionColored2Textured[numVertices];
+      long offset = 0;
+      for (int i = 0; i < subPathVerts.Length; i++)
+      {
+        PositionColored2Textured[] spv = subPathVerts[i];
+        if (spv == null)
+          continue;
+        long length = spv.Length;
+        Array.Copy(spv, 0, verts, offset, length);
+        offset += length;
+      }
+    }
+
     protected override void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       base.PerformLayout();
       double w = ActualWidth;
       double h = ActualHeight;
@@ -99,55 +125,81 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       //Fill brush
-      PositionColored2Textured[] verts;
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
-        bool isClosed;
         GraphicsPath path;
         if (Fill != null)
         {
-          using (path = GetPath(rect, _finalLayoutTransform, out isClosed, 0))
+          using (path = GetPath(rect, _finalLayoutTransform, 0))
           {
             if (!_fillDisabled)
             {
-              float centerX;
-              float centerY;
-              CalcCentroid(path, out centerX, out centerY);
-              //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1} closed:{2}", this.Name, path.PointCount, isClosed));
+              //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1}", Name, path.PointCount));
               if (Fill != null)
               {
-                if (SkinContext.UseBatching == false)
+                if (SkinContext.UseBatching)
                 {
-                  if (_fillAsset == null)
+                  GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+                  PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+                  GraphicsPath subPath = new GraphicsPath();
+                  _verticesCountFill = 0;
+                  for (int i = 0; i < subPathVerts.Length; i++)
                   {
-                    _fillAsset = new VisualAssetContext("Path._fillContext:" + this.Name);
-                    ContentManager.Add(_fillAsset);
+                    bool isClosed;
+                    gpi.NextSubpath(subPath, out isClosed);
+                    float centerX;
+                    float centerY;
+                    CalcCentroid(subPath, out centerX, out centerY);
+                    Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
+                    if (subPathVerts[i] != null)
+                      _verticesCountFill += subPathVerts[i].Length/3;;
                   }
-                  _fillAsset.VertexBuffer = Triangulate(path, centerX, centerY, isClosed, out verts, out _fillPrimitiveType);
-                  if (_fillAsset.VertexBuffer != null)
+                  PositionColored2Textured[] verts;
+                  Flatten(subPathVerts, out verts);
+                  if (verts != null)
                   {
                     Fill.SetupBrush(this, ref verts);
-
-                    PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                    if (_fillPrimitiveType == PrimitiveType.TriangleList)
-                      _verticesCountFill = (verts.Length / 3);
+                    if (_fillContext == null)
+                    {
+                      _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
+                      Fill.SetupPrimitive(_fillContext);
+                      RenderPipeline.Instance.Add(_fillContext);
+                    }
                     else
-                      _verticesCountFill = (verts.Length - 2);
+                      _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
                   }
                 }
                 else
                 {
-                  PathToTriangleList(path, centerX, centerY, out verts);
-                  _verticesCountFill = (verts.Length / 3);
-                  Fill.SetupBrush(this, ref verts);
-                  if (_fillContext == null)
+                  GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+                  PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+                  GraphicsPath subPath = new GraphicsPath();
+                  _verticesCountFill = 0;
+                  for (int i = 0; i < subPathVerts.Length; i++)
                   {
-                    _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
-                    Fill.SetupPrimitive(_fillContext);
-                    RenderPipeline.Instance.Add(_fillContext);
+                    bool isClosed;
+                    gpi.NextSubpath(subPath, out isClosed);
+                    float centerX;
+                    float centerY;
+                    CalcCentroid(subPath, out centerX, out centerY);
+                    Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
                   }
-                  else
-                    _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
+                  PositionColored2Textured[] verts;
+                  Flatten(subPathVerts, out verts);
+                  _fillPrimitiveType = PrimitiveType.TriangleList;
+                  if (_fillAsset == null)
+                  {
+                    _fillAsset = new VisualAssetContext("Path._fillContext:" + Name);
+                    ContentManager.Add(_fillAsset);
+                  }
+                  if (verts != null)
+                  {
+                    _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+                    Fill.SetupBrush(this, ref verts);
+
+                    PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
+                    _verticesCountFill = verts.Length/3; // _fillPrimitiveType == PrimitiveType.TriangleList
+                  }
                 }
               }
             }
@@ -155,39 +207,65 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         }
         if (Stroke != null && StrokeThickness > 0)
         {
-          using (path = GetPath(rect, _finalLayoutTransform, out isClosed, (float)(StrokeThickness)))
+          using (path = GetPath(rect, _finalLayoutTransform, (float) StrokeThickness))
           {
-            if (SkinContext.UseBatching == false)
+            if (SkinContext.UseBatching)
+            {
+              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              GraphicsPath subPath = new GraphicsPath();
+              _verticesCountFill = 0;
+              for (int i = 0; i < subPathVerts.Length; i++)
+              {
+                bool isClosed;
+                gpi.NextSubpath(subPath, out isClosed);
+                TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                    out subPathVerts[i], _finalLayoutTransform);
+              }
+              PositionColored2Textured[] verts;
+              Flatten(subPathVerts, out verts);
+              if (verts != null)
+              {
+                _verticesCountBorder = verts.Length/3;
+                Stroke.SetupBrush(this, ref verts);
+                if (_strokeContext == null)
+                {
+                  _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+                  Stroke.SetupPrimitive(_strokeContext);
+                  RenderPipeline.Instance.Add(_strokeContext);
+                }
+                else
+                  _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+              }
+            }
+            else
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Path._borderContext:" + this.Name);
+                _borderAsset = new VisualAssetContext("Path._borderContext:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              _borderAsset.VertexBuffer = ConvertPathToTriangleStrip(path, (float)(StrokeThickness), isClosed, out verts, _finalLayoutTransform, true);
-              if (_borderAsset.VertexBuffer != null)
+              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              GraphicsPath subPath = new GraphicsPath();
+              for (int i = 0; i < subPathVerts.Length; i++)
               {
+                bool isClosed;
+                gpi.NextSubpath(subPath, out isClosed);
+                TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                    out subPathVerts[i], _finalLayoutTransform, false);
+              }
+              PositionColored2Textured[] verts;
+              Flatten(subPathVerts, out verts);
+              if (verts != null)
+              {
+                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
                 Stroke.SetupBrush(this, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
                 _verticesCountBorder = verts.Length / 3;
               }
             }
-            else
-            {
-              StrokePathToTriangleStrip(path, (float)(StrokeThickness / 2.0), isClosed, out verts, _finalLayoutTransform);
-              _verticesCountBorder = (verts.Length / 3);
-              Stroke.SetupBrush(this, ref verts);
-              if (_strokeContext == null)
-              {
-                _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-                Stroke.SetupPrimitive(_strokeContext);
-                RenderPipeline.Instance.Add(_strokeContext);
-              }
-              else
-                _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-            }
-
           }
         }
       }
@@ -195,9 +273,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Measure(ref SizeF totalSize)
     {
-      bool isClosed;
-
-      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, out isClosed, 0))
+      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, 0))
       {
         RectangleF bounds = p.GetBounds();
 
@@ -227,13 +303,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, out bool isClosed, float thickness)
+    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, float thickness)
     {
-      isClosed = false;
-      GraphicsPath mPath = new GraphicsPath();
-      mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+      GraphicsPath mPath = new GraphicsPath(System.Drawing.Drawing2D.FillMode.Alternate);
       PointF lastPoint = new PointF();
-      PointF startPoint = new PointF();
       Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
       MatchCollection matches = regex.Matches(Data);
 
@@ -268,41 +341,35 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         {
           case 'm':
             {
-              //relative origin
+              //Relative origin
               PointF point = points[0];
               lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
-              startPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
               mPath.StartFigure();
             }
             break;
           case 'M':
             {
-              //absolute origin
+              //Absolute origin
               lastPoint = points[0];
-              startPoint = new PointF(points[0].X, points[0].Y);
               mPath.StartFigure();
             }
             break;
           case 'L':
+            //Absolute Line
+            for (int i = 0; i < points.Length; ++i)
             {
-              //absolute Line
-              for (int i = 0; i < points.Length; ++i)
-              {
-                mPath.AddLine(lastPoint, points[i]);
-                lastPoint = points[i];
-              }
+              mPath.AddLine(lastPoint, points[i]);
+              lastPoint = points[i];
             }
             break;
           case 'l':
+            //Relative Line
+            for (int i = 0; i < points.Length; ++i)
             {
-              //relative Line
-              for (int i = 0; i < points.Length; ++i)
-              {
-                points[i].X += lastPoint.X;
-                points[i].Y += lastPoint.Y;
-                mPath.AddLine(lastPoint, points[i]);
-                lastPoint = points[i];
-              }
+              points[i].X += lastPoint.X;
+              points[i].Y += lastPoint.Y;
+              mPath.AddLine(lastPoint, points[i]);
+              lastPoint = points[i];
             }
             break;
           case 'H':
@@ -338,68 +405,55 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             break;
           case 'C':
+            //Quadratic Bezier curve command C21,17,17,21,13,21
+            for (int i = 0; i < points.Length; i += 3)
             {
-              //Quadratic Bezier Curve Command C21,17,17,21,13,21
-              for (int i = 0; i < points.Length; i += 3)
-              {
-                mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
-                lastPoint = points[i + 2];
-              }
+              mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
+              lastPoint = points[i + 2];
             }
             break;
           case 'c':
+            //Quadratic Bezier curve command
+            for (int i = 0; i < points.Length; i += 3)
             {
-              //Quadratic Bezier Curve Command
-              for (int i = 0; i < points.Length; i += 3)
-              {
-                points[i].X += lastPoint.X;
-                points[i].Y += lastPoint.Y;
-                mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
-                lastPoint = points[i + 2];
-              }
+              points[i].X += lastPoint.X;
+              points[i].Y += lastPoint.Y;
+              mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
+              lastPoint = points[i + 2];
             }
             break;
           case 'F':
+            //Set fill mode command
+            if (points[0].X == 0.0f)
             {
-              //Horizontal line to relative X
-              if (points[0].X == 0.0f)
-              {
-                //the EvenOdd fill rule
-                //Rule that determines whether a point is in the fill region by drawing a ray 
-                //from that point to infinity in any direction and counting the number of path 
-                //segments within the given shape that the ray crosses. If this number is odd, 
-                //the point is inside; if even, the point is outside.
-                mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-              }
-              else if (points[0].X == 1.0f)
-              {
-                //the Nonzero fill rule.
-                //Rule that determines whether a point is in the fill region of the 
-                //path by drawing a ray from that point to infinity in any direction
-                //and then examining the places where a segment of the shape crosses
-                //the ray. Starting with a count of zero, add one each time a segment 
-                //crosses the ray from left to right and subtract one each time a path
-                //segment crosses the ray from right to left. After counting the crossings,
-                //if the result is zero then the point is outside the path. Otherwise, it is inside.
-                mPath.FillMode = System.Drawing.Drawing2D.FillMode.Winding;
-              }
+              //the EvenOdd fill rule
+              //Rule that determines whether a point is in the fill region by drawing a ray 
+              //from that point to infinity in any direction and counting the number of path 
+              //segments within the given shape that the ray crosses. If this number is odd, 
+              //the point is inside; if even, the point is outside.
+              mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            }
+            else if (points[0].X == 1.0f)
+            {
+              //the Nonzero fill rule.
+              //Rule that determines whether a point is in the fill region of the 
+              //path by drawing a ray from that point to infinity in any direction
+              //and then examining the places where a segment of the shape crosses
+              //the ray. Starting with a count of zero, add one each time a segment 
+              //crosses the ray from left to right and subtract one each time a path
+              //segment crosses the ray from right to left. After counting the crossings,
+              //if the result is zero then the point is outside the path. Otherwise, it is inside.
+              mPath.FillMode = System.Drawing.Drawing2D.FillMode.Winding;
             }
             break;
           case 'z':
-            {
-              //Close figure
-              isClosed = true;
-              mPath.AddLine(lastPoint, startPoint);
-              mPath.CloseFigure();
-            }
+            mPath.CloseFigure();
             break;
         }
       }
       Matrix m = new Matrix();
       RectangleF bounds = mPath.GetBounds();
-      _fillDisabled = false;
-      if (bounds.Width < StrokeThickness || bounds.Height < StrokeThickness)
-        _fillDisabled = true;
+      _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
       if (Stretch == Stretch.Fill)
       {
         bounds = mPath.GetBounds();
@@ -447,7 +501,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
       if (thickness != 0.0)
       {
-        //thickNess /= 2.0f;
+        //thickness /= 2.0f;
         bounds = mPath.GetBounds();
         m = new Matrix();
         float thicknessW = thickness * SkinContext.Zoom.Width;

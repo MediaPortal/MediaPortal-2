@@ -146,6 +146,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     protected override void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       base.PerformLayout();
       //Trace.WriteLine("Line.PerformLayout() " + this.Name);
 
@@ -182,19 +184,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             _borderAsset = new VisualAssetContext("Line._borderContext:" + this.Name);
             ContentManager.Add(_borderAsset);
           }
-          if (SkinContext.UseBatching == false)
+          if (SkinContext.UseBatching)
           {
-            _borderAsset.VertexBuffer = ConvertPathToTriangleFan(path, centerX, centerY, out verts);
-            if (_borderAsset.VertexBuffer != null)
-            {
-              Stroke.SetupBrush(this, ref verts);
-              PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-              _verticesCountBorder = (verts.Length / 3);
-            }
-          }
-          else
-          {
-            Shape.PathToTriangleList(path, centerX, centerY, out verts);
+            Shape.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             _verticesCountBorder = (verts.Length / 3);
             Stroke.SetupBrush(this, ref verts);
             if (_strokeContext == null)
@@ -204,8 +196,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               RenderPipeline.Instance.Add(_strokeContext);
             }
             else
-            {
               _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+          }
+          else
+          {
+            // FIXME Albert: Use triangle fan
+            FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+            if (_borderAsset.VertexBuffer != null)
+            {
+              Stroke.SetupBrush(this, ref verts);
+              PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+              _verticesCountBorder = (verts.Length / 3);
             }
           }
         }
@@ -213,6 +215,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     }
 
+    // Not needed as the drawing will be done by Shape class
     /*
     public override void DoRender()
     {

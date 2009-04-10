@@ -26,6 +26,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
 using MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate
 {
@@ -59,36 +60,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate
         return null;
     }
 
-    public CPolygonShape(GraphicsPath path, bool isClosed)
+    public CPolygonShape(GraphicsPath path)
     {
       int nVertices = path.PointCount;
       if (nVertices < 3)
-      {
-        System.Diagnostics.Trace.WriteLine("To make a polygon, " + " at least 3 points are required!");
-        return;
-      }
+        throw new InvalidDataException("To make a polygon, at least 3 points are required!");
 
-      List<PointF> points = new List<PointF>();
       PointF[] pathPoints = path.PathPoints;
-      points.Add(pathPoints[0]);
-      for (int i = 1; i < nVertices; ++i)
-      {
-        points.Add(pathPoints[i]);
-      }
+      bool closePath = pathPoints[pathPoints.Length - 1] != pathPoints[0];
+      m_aUpdatedPolygonVertices = new CPoint2D[pathPoints.Length + (closePath ? 1 : 0)];
+      for (int i = 0; i < pathPoints.Length; i++)
+        m_aUpdatedPolygonVertices[i] = new CPoint2D(pathPoints[i].X, pathPoints[i].Y);
+      if (closePath)
+        m_aUpdatedPolygonVertices[m_aUpdatedPolygonVertices.Length - 1] = new CPoint2D(pathPoints[0].X, pathPoints[0].Y);
 
-      if (points.Count >= 2)
-      {
-        if (points[points.Count - 1] == points[points.Count - 2])
-        {
-          points.RemoveAt(points.Count - 1);
-        }
-      }
-
-      m_aUpdatedPolygonVertices = new CPoint2D[points.Count];
-      for (int i = 0; i < points.Count; i++)
-        m_aUpdatedPolygonVertices[i] = new CPoint2D(points[i].X, points[i].Y);
-
-      //m_aUpdatedPolygonVertices should be in count clock wise
+      //m_aUpdatedPolygonVertices should be in counter clock wise
       if (CPolygon.PointsDirection(m_aUpdatedPolygonVertices) == PolygonDirection.Clockwise)
         CPolygon.ReversePointsDirection(m_aUpdatedPolygonVertices);
 
