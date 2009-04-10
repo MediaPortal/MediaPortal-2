@@ -521,138 +521,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     protected GraphicsPath GetBorderRect(RectangleF baseRect)
     {
-      return GetRoundedRect(baseRect, (float) CornerRadius);
-    }
-
-    /// <summary>
-    /// Get the desired Rounded Rectangle path.
-    /// </summary>
-    protected GraphicsPath GetRoundedRect(RectangleF baseRect, float cornerRadius)
-    {
-      // if corner radius is less than or equal to zero, 
-      // return the original rectangle 
-
-      if (cornerRadius <= 0.0f && cornerRadius <= 0.0f)
-      {
-        GraphicsPath mPath = new GraphicsPath();
-        mPath.AddRectangle(baseRect);
-        mPath.CloseFigure();
-        System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-        m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-        m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-        if (LayoutTransform != null)
-        {
-          ExtendedMatrix em;
-          LayoutTransform.GetTransform(out em);
-          m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-        }
-        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-        mPath.Transform(m);
-        mPath.Flatten();
-        return mPath;
-      }
-
-      // if the corner radius is greater than or equal to 
-      // half the width, or height (whichever is shorter) 
-      // then return a capsule instead of a lozenge 
-
-      if (cornerRadius >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
-        return GetCapsule(baseRect);
-
-      // create the arc for the rectangle sides and declare 
-      // a graphics path object for the drawing 
-
-      float diameter = cornerRadius * 2.0F;
-      SizeF sizeF = new SizeF(diameter, diameter);
-      RectangleF arc = new RectangleF(baseRect.Location, sizeF);
-      GraphicsPath path = new GraphicsPath();
-
-      // top left arc 
-      path.AddArc(arc, 180, 90);
-
-      // top right arc 
-      arc.X = baseRect.Right - diameter;
-      path.AddArc(arc, 270, 90);
-
-      // bottom right arc 
-      arc.Y = baseRect.Bottom - diameter;
-      path.AddArc(arc, 0, 90);
-
-      // bottom left arc
-      arc.X = baseRect.Left;
-      path.AddArc(arc, 90, 90);
-
-      path.CloseFigure();
-      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
-      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
+      ExtendedMatrix layoutTransform = _finalLayoutTransform ?? new ExtendedMatrix();
       if (LayoutTransform != null)
       {
         ExtendedMatrix em;
         LayoutTransform.GetTransform(out em);
-        mtx.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
+        layoutTransform = layoutTransform.Multiply(em);
       }
-      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      path.Transform(mtx);
-
-      path.Flatten();
-      return path;
-    }
-
-    /// <summary>
-    /// Gets the desired Capsular path.
-    /// </summary>
-    protected GraphicsPath GetCapsule(RectangleF baseRect)
-    {
-      RectangleF arc;
-      GraphicsPath path = new GraphicsPath();
-      try
-      {
-        float diameter;
-        if (baseRect.Width > baseRect.Height)
-        {
-          // return horizontal capsule 
-          diameter = baseRect.Height;
-          SizeF sizeF = new SizeF(diameter, diameter);
-          arc = new RectangleF(baseRect.Location, sizeF);
-          path.AddArc(arc, 90, 180);
-          arc.X = baseRect.Right - diameter;
-          path.AddArc(arc, 270, 180);
-        }
-        else if (baseRect.Width < baseRect.Height)
-        {
-          // return vertical capsule 
-          diameter = baseRect.Width;
-          SizeF sizeF = new SizeF(diameter, diameter);
-          arc = new RectangleF(baseRect.Location, sizeF);
-          path.AddArc(arc, 180, 180);
-          arc.Y = baseRect.Bottom - diameter;
-          path.AddArc(arc, 0, 180);
-        }
-        else
-          // return circle 
-          path.AddEllipse(baseRect);
-      }
-      catch (Exception)
-      {
-        path.AddEllipse(baseRect);
-      }
-      finally
-      {
-        path.CloseFigure();
-      }
-      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
-      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        mtx.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-      }
-      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      path.Transform(mtx);
-      return path;
+      return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius, layoutTransform);
     }
 
     #endregion

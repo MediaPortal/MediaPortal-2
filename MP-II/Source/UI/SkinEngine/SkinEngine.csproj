@@ -111,6 +111,7 @@
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
+    <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
     <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
     <Compile Include="Geometry\GeometryLetterBox.cs" />

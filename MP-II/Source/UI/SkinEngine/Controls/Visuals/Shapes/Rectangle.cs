@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
@@ -39,10 +38,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 {
   public class Rectangle : Shape
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _radiusXProperty;
-    Property _radiusYProperty;
+    protected Property _radiusXProperty;
+    protected Property _radiusYProperty;
 
     #endregion
 
@@ -163,7 +162,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         GraphicsPath path;
-        using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
+        using (path = CreateRectanglePath(rect))
         {
           float centerX = rect.Width / 2 + rect.Left;
           float centerY = rect.Height / 2 + rect.Top;
@@ -212,9 +211,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 _borderAsset = new VisualAssetContext("Rectangle._borderContext:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
+              using (path = CreateRectanglePath(rect))
               {
-                TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, MediaPortal.SkinEngine.DirectX.Triangulate.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
+                TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
                 if (verts != null)
                 {
                   _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
@@ -244,137 +243,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    /// <summary>
-    /// Get the desired Rounded Rectangle path.
-    /// </summary>
-    private GraphicsPath GetRoundedRect(RectangleF baseRect, float radiusX, float radiusY)
+    protected GraphicsPath CreateRectanglePath(RectangleF rect)
     {
-      // if corner radius is less than or equal to zero, 
-      // return the original rectangle 
-
-      if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width == 0 || baseRect.Height == 0)
+      ExtendedMatrix layoutTransform = _finalLayoutTransform ?? new ExtendedMatrix();
+      if (LayoutTransform != null)
       {
-        GraphicsPath mPath = new GraphicsPath();
-        mPath.AddRectangle(baseRect);
-        mPath.CloseFigure();
-        System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-        m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-        if (_finalLayoutTransform != null)
-          m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-        if (LayoutTransform != null)
-        {
-          ExtendedMatrix em;
-          LayoutTransform.GetTransform(out em);
-          m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-        }
-        m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-        mPath.Transform(m);
-        mPath.Flatten();
-        return mPath;
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        layoutTransform = layoutTransform.Multiply(em);
       }
-
-      // if the corner radius is greater than or equal to 
-      // half the width, or height (whichever is shorter) 
-      // then return a capsule instead of a lozenge 
-
-      if (radiusX >= (Math.Min(baseRect.Width, baseRect.Height)) / 2.0)
-        return GetCapsule(baseRect);
-
-      // create the arc for the rectangle sides and declare 
-
-      // a graphics path object for the drawing 
-
-      float diameter = radiusX * 2.0F;
-      SizeF sizeF = new SizeF(diameter, diameter);
-      RectangleF arc = new RectangleF(baseRect.Location, sizeF);
-      GraphicsPath path = new GraphicsPath();
-
-      // top left arc 
-
-
-      path.AddArc(arc, 180, 90);
-
-      // top right arc 
-
-      arc.X = baseRect.Right - diameter;
-      path.AddArc(arc, 270, 90);
-
-      // bottom right arc 
-
-      arc.Y = baseRect.Bottom - diameter;
-      path.AddArc(arc, 0, 90);
-
-      // bottom left arc
-
-      arc.X = baseRect.Left;
-      path.AddArc(arc, 90, 90);
-
-      path.CloseFigure();
-      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
-      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      if (_finalLayoutTransform != null)
-        mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      path.Transform(mtx);
-
-      path.Flatten();
-      return path;
-    }
-
-    /// <summary>
-    /// Gets the desired Capsular path.
-    /// </summary>
-    private GraphicsPath GetCapsule(RectangleF baseRect)
-    {
-      RectangleF arc;
-      GraphicsPath path = new GraphicsPath();
-      try
-      {
-        float diameter;
-        if (baseRect.Width > baseRect.Height)
-        {
-          // return horizontal capsule 
-
-          diameter = baseRect.Height;
-          SizeF sizeF = new SizeF(diameter, diameter);
-          arc = new RectangleF(baseRect.Location, sizeF);
-          path.AddArc(arc, 90, 180);
-          arc.X = baseRect.Right - diameter;
-          path.AddArc(arc, 270, 180);
-        }
-        else if (baseRect.Width < baseRect.Height)
-        {
-          // return vertical capsule 
-
-          diameter = baseRect.Width;
-          SizeF sizeF = new SizeF(diameter, diameter);
-          arc = new RectangleF(baseRect.Location, sizeF);
-          path.AddArc(arc, 180, 180);
-          arc.Y = baseRect.Bottom - diameter;
-          path.AddArc(arc, 0, 180);
-        }
-        else
-        {
-          // return circle 
-
-          path.AddEllipse(baseRect);
-        }
-      }
-      catch (Exception)
-      {
-        path.AddEllipse(baseRect);
-      }
-      finally
-      {
-        path.CloseFigure();
-      }
-      System.Drawing.Drawing2D.Matrix mtx = new System.Drawing.Drawing2D.Matrix();
-      mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      if (_finalLayoutTransform != null)
-        mtx.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-      mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      path.Transform(mtx);
-      return path;
+      return GraphicsPathHelper.CreateRoundedRectPath(rect, (float) RadiusX, (float) RadiusY, layoutTransform);
     }
   }
 }
