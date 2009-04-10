@@ -28,6 +28,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -178,7 +179,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       {
         using (path = GetLine(rect))
         {
-          CalcCentroid(path, out centerX, out centerY);
+          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (_borderAsset == null)
           {
             _borderAsset = new VisualAssetContext("Line._borderContext:" + this.Name);
@@ -186,7 +187,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           }
           if (SkinContext.UseBatching)
           {
-            Shape.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             _verticesCountBorder = (verts.Length / 3);
             Stroke.SetupBrush(this, ref verts);
             if (_strokeContext == null)
@@ -200,8 +201,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           }
           else
           {
-            // FIXME Albert: Use triangle fan
-            FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
             if (_borderAsset.VertexBuffer != null)
             {

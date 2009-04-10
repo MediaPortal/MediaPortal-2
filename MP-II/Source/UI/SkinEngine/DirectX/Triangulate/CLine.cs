@@ -32,7 +32,7 @@ Modification History:
 * *** **********************************************/
 
 using System;
-namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate
+namespace MediaPortal.SkinEngine.DirectX.Triangulate
 {
   /// <summary>
   ///To define a line in the given coordinate system

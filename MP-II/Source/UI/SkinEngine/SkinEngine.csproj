@@ -110,6 +110,7 @@
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
+    <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
     <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
     <Compile Include="Geometry\GeometryLetterBox.cs" />
     <Compile Include="Geometry\GeometryManager.cs" />
@@ -195,12 +196,12 @@
     <Compile Include="Controls\Visuals\Shapes\Polygon.cs" />
     <Compile Include="Controls\Visuals\Shapes\Rectangle.cs" />
     <Compile Include="Controls\Visuals\Shapes\Shape.cs" />
-    <Compile Include="Controls\Visuals\Shapes\Triangulate\AnalyticGeometryException.cs" />
-    <Compile Include="Controls\Visuals\Shapes\Triangulate\CLine.cs" />
-    <Compile Include="Controls\Visuals\Shapes\Triangulate\CPoint2D.cs" />
-    <Compile Include="Controls\Visuals\Shapes\Triangulate\CPolygon.cs" />
-    <Compile Include="Controls\Visuals\Shapes\Triangulate\CPolygonShape.cs" />
-    <Compile Include="Controls\Visuals\Shapes\Triangulate\Definition.cs" />
+    <Compile Include="DirectX\Triangulate\AnalyticGeometryException.cs" />
+    <Compile Include="DirectX\Triangulate\CLine.cs" />
+    <Compile Include="DirectX\Triangulate\CPoint2D.cs" />
+    <Compile Include="DirectX\Triangulate\CPolygon.cs" />
+    <Compile Include="DirectX\Triangulate\CPolygonShape.cs" />
+    <Compile Include="DirectX\Triangulate\Definition.cs" />
     <Compile Include="Controls\Visuals\StyleSelector.cs" />
     <Compile Include="Controls\Visuals\Styles\Setter.cs" />
     <Compile Include="Controls\Visuals\Styles\Style.cs" />

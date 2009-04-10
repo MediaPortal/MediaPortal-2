@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate
+namespace MediaPortal.SkinEngine.DirectX.Triangulate
 {
   /// <summary>
   /// Summary description for CPolygon.

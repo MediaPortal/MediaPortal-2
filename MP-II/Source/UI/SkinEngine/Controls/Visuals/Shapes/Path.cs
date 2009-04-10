@@ -29,6 +29,7 @@ using System.Text.RegularExpressions;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.SkinEngine.Rendering;
 using MediaPortal.SkinEngine.Xaml;
 using SlimDX.Direct3D9;
@@ -149,8 +150,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                     gpi.NextSubpath(subPath, out isClosed);
                     float centerX;
                     float centerY;
-                    CalcCentroid(subPath, out centerX, out centerY);
-                    Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
+                    TriangulateHelper.CalcCentroid(subPath, out centerX, out centerY);
+                    TriangulateHelper.Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
                     if (subPathVerts[i] != null)
                       _verticesCountFill += subPathVerts[i].Length/3;;
                   }
@@ -181,8 +182,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                     gpi.NextSubpath(subPath, out isClosed);
                     float centerX;
                     float centerY;
-                    CalcCentroid(subPath, out centerX, out centerY);
-                    Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
+                    TriangulateHelper.CalcCentroid(subPath, out centerX, out centerY);
+                    TriangulateHelper.Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
                   }
                   PositionColored2Textured[] verts;
                   Flatten(subPathVerts, out verts);
@@ -219,7 +220,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float)StrokeThickness, isClosed,
                     out subPathVerts[i], _finalLayoutTransform);
               }
               PositionColored2Textured[] verts;
@@ -252,7 +253,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float)StrokeThickness, isClosed,
                     out subPathVerts[i], _finalLayoutTransform, false);
               }
               PositionColored2Textured[] verts;

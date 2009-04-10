@@ -25,10 +25,10 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate;
+using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate
+namespace MediaPortal.SkinEngine.DirectX.Triangulate
 {
   public class CPolygonShape
   {

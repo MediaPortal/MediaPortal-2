@@ -29,12 +29,12 @@ using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Brushes;
+using MediaPortal.SkinEngine.DirectX.Triangulate;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.Rendering;
 using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
 using MediaPortal.SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
@@ -52,22 +52,24 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-
-  public class Border : Shape, IAddChild<FrameworkElement>, IUpdateEventHandler
+  public class Border : FrameworkElement, IAddChild<FrameworkElement>, IUpdateEventHandler
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _backgroundProperty;
-    Property _borderProperty;
-    Property _borderThicknessProperty;
-    Property _cornerRadiusProperty;
-    FrameworkElement _content;
-    VisualAssetContext _backgroundAsset;
-    VisualAssetContext _borderAsset;
-    PrimitiveContext _backgroundContext;
-    PrimitiveContext _borderContext;
-    UIEvent _lastEvent = UIEvent.None;
-
+    protected Property _backgroundProperty;
+    protected Property _borderProperty;
+    protected Property _borderThicknessProperty;
+    protected Property _cornerRadiusProperty;
+    protected FrameworkElement _content;
+    protected VisualAssetContext _backgroundAsset;
+    protected int _verticesCountFill;
+    protected VisualAssetContext _borderAsset;
+    protected int _verticesCountBorder;
+    protected PrimitiveContext _backgroundContext;
+    protected PrimitiveContext _borderContext;
+    protected UIEvent _lastEvent = UIEvent.None;
+    protected bool _performLayout;
+    
     #endregion
 
     #region Ctor
@@ -302,7 +304,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
-    public new void Update()
+    public void Update()
     {
       UpdateLayout();
       if (_performLayout)
@@ -328,7 +330,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
-
       if (!IsVisible) return;
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
@@ -407,11 +408,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Layouting
 
-    protected override void PerformLayout()
+    protected virtual void PerformLayout()
     {
       if (!_performLayout)
         return;
-      base.PerformLayout();
       //Trace.WriteLine("Border.PerformLayout() " + Name);
 
       double w = ActualWidth;
@@ -434,10 +434,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (Background != null || (BorderBrush != null && BorderThickness > 0))
       {
         GraphicsPath path;
-        using (path = GetRoundedRect(rect, (float) CornerRadius))
+        using (path = GetBorderRect(rect))
         {
           float centerX, centerY;
-          CalcCentroid(path, out centerX, out centerY);
+          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (Background != null)
           {
             if (SkinContext.UseBatching == false)
@@ -447,8 +447,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
                 ContentManager.Add(_backgroundAsset);
               }
-              // FIXME Albert: Use triangle fan
-              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
               if (_backgroundAsset.VertexBuffer != null)
               {
@@ -461,7 +460,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Background.SetupBrush(this, ref verts);
               if (_backgroundContext == null)
@@ -484,7 +483,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
                 _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              TriangulateStroke_TriangleList(path, (float) BorderThickness, true, out verts, _finalLayoutTransform, false);
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
               if (verts != null)
               {
                 _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
@@ -496,7 +495,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             }
             else
             {
-              TriangulateStroke_TriangleList(path, (float) BorderThickness, true, out verts, _finalLayoutTransform);
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
               BorderBrush.SetupBrush(this, ref verts);
               _verticesCountBorder = (verts.Length / 3);
               if (_borderContext == null)
@@ -513,10 +512,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
+    protected GraphicsPath GetBorderRect(RectangleF baseRect)
+    {
+      return GetRoundedRect(baseRect, (float) CornerRadius);
+    }
+
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
-    private GraphicsPath GetRoundedRect(RectangleF baseRect, float cornerRadius)
+    protected GraphicsPath GetRoundedRect(RectangleF baseRect, float cornerRadius)
     {
       // if corner radius is less than or equal to zero, 
       // return the original rectangle 
@@ -591,7 +595,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <summary>
     /// Gets the desired Capsular path.
     /// </summary>
-    private GraphicsPath GetCapsule(RectangleF baseRect)
+    protected GraphicsPath GetCapsule(RectangleF baseRect)
     {
       RectangleF arc;
       GraphicsPath path = new GraphicsPath();

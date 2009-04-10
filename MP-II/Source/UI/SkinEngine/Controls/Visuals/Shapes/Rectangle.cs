@@ -29,6 +29,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
@@ -171,7 +172,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           {
             if (SkinContext.UseBatching)
             {
-              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
               Fill.SetupBrush(this, ref verts);
               if (_fillContext == null)
@@ -190,8 +191,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + Name);
                 ContentManager.Add(_fillAsset);
               }
-              // FIXME Albert: Use triangle fan
-              FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
               if (_fillAsset.VertexBuffer != null)
               {
@@ -214,7 +214,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               }
               using (path = GetRoundedRect(rect, (float)RadiusX, (float)RadiusY))
               {
-                TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, Shapes.Triangulate.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
+                TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, MediaPortal.SkinEngine.DirectX.Triangulate.PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
                 if (verts != null)
                 {
                   _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
@@ -227,7 +227,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             }
             else
             {
-              TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
               Stroke.SetupBrush(this, ref verts);
               if (_strokeContext == null)

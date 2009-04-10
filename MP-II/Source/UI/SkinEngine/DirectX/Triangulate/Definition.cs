@@ -22,47 +22,39 @@
 
 #endregion
 
-using System;
-
-namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes.Triangulate
+namespace MediaPortal.SkinEngine.DirectX.Triangulate
 {
 	/// <summary>
-	/// Summary description for NoValidReturnException.
+	///To define the common types used in 
+	///Analytical Geometry calculations.
 	/// </summary>
-	public class NonValidReturnException: ApplicationException
+	
+	//To define some constant Values 
+	//used for local judgment 
+	public struct ConstantValue
 	{
-		public NonValidReturnException():base()
-		{
-		
-		}
-		public NonValidReturnException(string msg)
-			:base(msg)
-		{
-			string errMsg="\nThere is no valid return value available!";
-			throw new NonValidReturnException(errMsg);
-		}
-		public NonValidReturnException(string msg,
-			Exception inner): base(msg, inner)
-		{
-		
-		}
+		internal const  double SmallValue=double.Epsilon;
+		internal const double BigValue=double.MaxValue;
+	}
+	
+	public enum VertexType
+	{
+		ErrorPoint,
+		ConvexPoint,
+		ConcavePoint		
 	}
 
-	public class InvalidInputGeometryDataException: ApplicationException
+	public enum PolygonType
 	{
-		public InvalidInputGeometryDataException():base()
-		{
-		
-		}
-		public InvalidInputGeometryDataException(string msg)
-			:base(msg)
-		{
+		Unknown,
+		Convex, 
+		Concave	
+	}
 
-		}
-		public InvalidInputGeometryDataException(string msg,
-			Exception inner): base(msg, inner)
-		{
-		
-		}
+	public enum PolygonDirection
+	{
+		Unknown,
+		Clockwise,
+		Count_Clockwise
 	}
 }
