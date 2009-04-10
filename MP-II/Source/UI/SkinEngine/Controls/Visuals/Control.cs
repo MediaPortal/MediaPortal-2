@@ -153,6 +153,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _backgroundProperty.SetValue(value); }
     }
 
+    public Property BorderBrushProperty
+    {
+      get { return _borderProperty; }
+    }
+
     public Brush BorderBrush
     {
       get { return (Brush) _borderProperty.GetValue(); }

@@ -22,12 +22,9 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using Font = MediaPortal.SkinEngine.Fonts.Font;
@@ -39,25 +36,28 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
-  public class Label : Control
+  public class TextControl : Control
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _contentProperty;
-    Property _colorProperty;
-    Property _scrollProperty;
-    Property _wrapProperty;
-    Property _textAlignProperty;
-    FontBufferAsset _asset;
-    FontRender _renderer;
-    IResourceString _resourceString;
-    private int _fontSizeCache;
+    protected Property _caretIndexProperty;
+    protected Property _textProperty;
+    protected Property _colorProperty;
+    protected Property _preferredTextLengthProperty;
+    protected Property _textAlignProperty;
+    protected FontBufferAsset _asset;
+    protected FontRender _renderer;
+    protected int _fontSizeCache;
+    protected bool _performLayout;
+
+    // Are we editing the text?
+    bool _editText = false; 
 
     #endregion
 
     #region Ctor
 
-    public Label()
+    public TextControl()
     {
       Init();
       Attach();
@@ -65,30 +65,30 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new Property(typeof(string), "");
-      _colorProperty = new Property(typeof(Color), Color.White);
-      _scrollProperty = new Property(typeof(bool), false);
-      _wrapProperty = new Property(typeof(bool), false);
+      _caretIndexProperty = new Property(typeof(int), 0);
+      _textProperty = new Property(typeof(string), "");
+      _colorProperty = new Property(typeof(Color), Color.Black);
+
+      _preferredTextLengthProperty = new Property(typeof(int?), null);
       _textAlignProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
 
-      HorizontalAlignment = HorizontalAlignmentEnum.Left;
+      // Yes, we can have focus
+      Focusable = true;
     }
 
     void Attach()
     {
-      _contentProperty.Attach(OnContentChanged);
-      _scrollProperty.Attach(OnScrollChanged);
-      _wrapProperty.Attach(OnWrapChanged);
+      _textProperty.Attach(OnTextChanged);
       _colorProperty.Attach(OnColorChanged);
+      _preferredTextLengthProperty.Attach(OnPreferredTextLengthChanged);
       _textAlignProperty.Attach(OnTextAlignChanged);
     }
 
     void Detach()
     {
-      _contentProperty.Detach(OnContentChanged);
-      _scrollProperty.Detach(OnScrollChanged);
-      _wrapProperty.Detach(OnWrapChanged);
+      _textProperty.Detach(OnTextChanged);
       _colorProperty.Detach(OnColorChanged);
+      _preferredTextLengthProperty.Detach(OnPreferredTextLengthChanged);
       _textAlignProperty.Detach(OnTextAlignChanged);
     }
 
@@ -96,13 +96,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      Label l = (Label) source;
-      Content = copyManager.GetCopy(l.Content);
-      Color = copyManager.GetCopy(l.Color);
-      Scroll = copyManager.GetCopy(l.Scroll);
-      Wrap = copyManager.GetCopy(l.Wrap);
-
-      _resourceString = LocalizationHelper.CreateResourceString(Content);
+      TextControl tc = (TextControl) source;
+      Text = copyManager.GetCopy(tc.Text);
+      Color = copyManager.GetCopy(tc.Color);
+      CaretIndex = copyManager.GetCopy(tc.CaretIndex);
       Attach();
     }
 
@@ -110,31 +107,28 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnColorChanged(Property prop, object oldValue)
     {
-      if (Screen != null) 
+      if (Screen != null)
         Screen.Invalidate(this);
-    }
-
-    void OnContentChanged(Property prop, object oldValue)
-    {
-      _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
-      Invalidate();
-    }
-
-    void OnScrollChanged(Property prop, object oldValue)
-    {
-      if (Screen != null) 
-        Screen.Invalidate(this);
-    }
-
-    void OnWrapChanged(Property prop, object oldValue)
-    {
-      Invalidate();
     }
 
     void OnTextAlignChanged(Property prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
+    }
+
+    void OnTextChanged(Property prop, object oldValue)
+    {
+      // The skin is setting the text, also update the caret
+      if (!_editText)
+        CaretIndex = Text.Length;
+      if (Screen != null)
+        Screen.Invalidate(this);
+    }
+
+    void OnPreferredTextLengthChanged(Property prop, object oldValue)
+    {
+      Invalidate();
     }
 
     protected override void OnFontChanged(Property prop, object oldValue)
@@ -144,20 +138,103 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _asset.Free(true);
         ContentManager.Remove(_asset);
       }
+
       _asset = null;
       if (Screen != null) 
         Screen.Invalidate(this);
     }
 
-    public Property ContentProperty
+    public override void OnKeyPreview(ref Key key)
     {
-      get { return _contentProperty; }
+      if (!HasFocus)
+        return;
+      if (key == Key.None)
+        return;
+     
+      _editText = true;
+      if (key == Key.BackSpace)
+      {
+        if (CaretIndex > 0)
+        {
+          Text = Text.Remove(CaretIndex - 1, 1);
+          CaretIndex--;
+        }
+        key = Key.None;
+      }
+      else if (key == Key.Left)
+      {
+        if (CaretIndex > 0)
+        {
+          CaretIndex--;
+          // Only consume the key if we can move the cared - else the key can be used by
+          // the focus management, for example
+          key = Key.None;
+        }
+      }
+      else if (key == Key.Right)
+      {
+        if (CaretIndex < Text.Length)
+        {
+          CaretIndex++;
+          // Only consume the key if we can move the cared - else the key can be used by
+          // the focus management, for example
+          key = Key.None;
+        }
+      }
+      else if (key == Key.Home)
+      {
+        CaretIndex = 0;
+        key = Key.None;
+      }
+      else if (key == Key.End)
+      {
+        CaretIndex = Text.Length;
+        key = Key.None;
+      } 
+      else if (key.IsPrintableKey)
+      {
+        Text = Text.Insert(CaretIndex, key.RawCode.Value.ToString());
+        CaretIndex++;
+        key = Key.None;
+      }
+
+      _editText = false;
     }
 
-    public string Content
+    public Property PreferredTextLengthProperty
     {
-      get { return _contentProperty.GetValue() as string; }
-      set { _contentProperty.SetValue(value); }
+      get { return _preferredTextLengthProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the preferred length of the text in this <see cref="TextControl"/>.
+    /// </summary>
+    public int? PreferredTextLength
+    {
+      get { return (int?) _preferredTextLengthProperty.GetValue(); }
+      set { _preferredTextLengthProperty.SetValue(value); }
+    }
+
+    public Property CaretIndexProperty
+    {
+      get { return _caretIndexProperty; }
+    }
+
+    public int CaretIndex
+    {
+      get { return (int) _caretIndexProperty.GetValue(); }
+      set { _caretIndexProperty.SetValue(value); }
+    }
+
+    public Property TextProperty
+    {
+      get { return _textProperty; }
+    }
+
+    public string Text
+    {
+      get { return _textProperty.GetValue() as string; }
+      set { _textProperty.SetValue(value); }
     }
 
     public Property ColorProperty
@@ -171,28 +248,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _colorProperty.SetValue(value); }
     }
 
-    public Property ScrollProperty
-    {
-      get { return _scrollProperty; }
-    }
-
-    public bool Scroll
-    {
-      get { return (bool) _scrollProperty.GetValue(); }
-      set { _scrollProperty.SetValue(value); }
-    }
-
-    public Property WrapProperty
-    {
-      get { return _wrapProperty; }
-    }
-
-    public bool Wrap
-    {
-      get { return (bool) _wrapProperty.GetValue(); }
-      set { _wrapProperty.SetValue(value); }
-    }
-
     public Property TextAlignProperty
     {
       get { return _textAlignProperty; }
@@ -200,7 +255,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum TextAlign
     {
-      get { return (HorizontalAlignmentEnum) _textAlignProperty.GetValue(); }
+      get { return (HorizontalAlignmentEnum)_textAlignProperty.GetValue(); }
       set { _textAlignProperty.SetValue(value); }
     }
 
@@ -211,50 +266,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int) (_fontSizeCache * SkinContext.MaxZoomHeight));
+        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int)(_fontSizeCache * SkinContext.MaxZoomHeight));
         if (font != null)
-          _asset = ContentManager.GetFont(font);
-      }
-
-      if (_renderer == null && _asset != null && _asset.Font != null)
-        _renderer = new FontRender(_asset.Font);
-    }
-
-    /// <summary>
-    /// Wraps the text of this label to the specified <paramref name="maxWidth"/> and returns the wrapped
-    /// text parts.
-    /// </summary>
-    /// <param name="maxWidth">Maximum available width until the text should be wrapped.</param>
-    /// <param name="findWordBoundaries">If set to <c>true</c>, this method will wrap the text
-    /// at word boundaries. Else, it will wrap at the last character index which fits into the specified
-    /// <paramref name="maxWidth"/>.</param>
-    protected string[] WrapText(float maxWidth, bool findWordBoundaries)
-    {
-      string text = _resourceString.Evaluate();
-      if (string.IsNullOrEmpty(text))
-        return new string[0];
-      IList<string> result = new List<string>();
-      foreach (string para in text.Replace("\r\n", "\n").Split('\n'))
-      {
-        string paragraph = para.Trim();
-        for (int nextIndex = 0; nextIndex < paragraph.Length; )
         {
-          while (char.IsWhiteSpace(paragraph[nextIndex]))
-            nextIndex++;
-          int startIndex = nextIndex;
-          nextIndex = _asset.Font.CalculateMaxSubstring(paragraph, _fontSizeCache, startIndex, maxWidth);
-          if (findWordBoundaries && nextIndex < paragraph.Length && !char.IsWhiteSpace(paragraph[nextIndex]))
-          {
-            int wordBoundary = paragraph.LastIndexOf(' ', nextIndex - 1);
-            while (wordBoundary > startIndex && char.IsWhiteSpace(paragraph[wordBoundary - 1]))
-              wordBoundary--;
-            if (wordBoundary > startIndex && wordBoundary < nextIndex)
-              nextIndex = wordBoundary;
-          }
-          result.Add(paragraph.Substring(startIndex, nextIndex - startIndex));
+          _asset = ContentManager.GetFont(font);
         }
       }
-      return result.ToArray();
+
+      if (_renderer == null)
+        _renderer = new FontRender(_asset.Font);
     }
 
     public override void Measure(ref SizeF totalSize)
@@ -265,31 +285,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       AllocFont();
 
       SizeF childSize;
-      // Measure the text
-      if (_resourceString != null && _asset != null)
-      {
-        float height = _asset.Font.LineHeight(_fontSizeCache);
-        float width;
-        float totalWidth = double.IsNaN(Width) ? totalSize.Width : (float) Width;
-        if (float.IsNaN(totalWidth) || !Wrap)
-          width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
-        else
-        { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
-          string[] lines = WrapText(totalWidth, true);
-          width = 0;
-          foreach (string line in lines)
-            width = Math.Max(width, _asset.Font.Width(line, _fontSizeCache));
-          height *= lines.Length;
-        }
-        childSize = new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
-      }
+      if (_asset != null)
+        childSize = new SizeF(_asset.Font.Width(Text, _fontSizeCache) * SkinContext.Zoom.Width,
+            _asset.Font.LineHeight(_fontSizeCache) * SkinContext.Zoom.Height);
       else
         childSize = new SizeF();
 
       _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (double.IsNaN(Width))
-        _desiredSize.Width = childSize.Width;
+      {
+        if (PreferredTextLength.HasValue)
+          // We use the "W" character as the character which needs the most space in X-direction
+          _desiredSize.Width = PreferredTextLength.Value*_asset.Font.Width("W", _fontSizeCache);
+        else
+          _desiredSize.Width = childSize.Width;
+      }
 
       if (double.IsNaN(Height))
         _desiredSize.Height = childSize.Height;
@@ -308,44 +319,45 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("Label.Measure: {0} returns {1}x{2}", _label.ToString(), (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("TextControl.Measure: {0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Label.Arrange: {0} X {1},Y {2} W {3} H {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("TextControl.Arrange: {0} X {1} Y {2} W {3} H {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
 
       RemoveMargin(ref finalRect);
 
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       IsInvalidLayout = false;
-
+    
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
     public override void DoBuildRenderTree()
     {
-      if (!IsVisible) 
-        return;
-      if (_asset == null) 
-        return;
+      if (!IsVisible) return;
+      if (_asset == null) return;
+      AllocFont();
+      Color4 color = ColorConverter.FromColor(Color);
 
       base.DoRender();
+      float totalWidth;
 
-      // The characters fit the textbox exactly, so to get some room between the top of the characters 
-      // and the inner rectangle, move the text down (10% of font size) also reduce the font size to 90%
+      // The characters fits the textbox exactly, so to get some room between the top of the characters 
+      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
-
       float x = ActualPosition.X;
       float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
-      float w = (float)ActualWidth;
-      float h = (float)ActualHeight;
+      float w = (float) ActualWidth;
+      float h = (float) ActualHeight;
       if (_finalLayoutTransform != null)
       {
         GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
@@ -353,7 +365,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      RectangleF rect = new RectangleF(x, y, w, h);
+      Rectangle rect = new Rectangle((int)x, (int)y, (int)w, (int)h);
       Font.Align align = Font.Align.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
         align = Font.Align.Right;
@@ -365,24 +377,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
-
-      Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
-      
-      if (_resourceString != null)
-      {
-        bool scroll = Scroll && !Wrap;
-        string[] lines = Wrap ? WrapText(_finalRect.Width, true) : new string[] {_resourceString.Evaluate() };
 
-        float totalWidth;
-        foreach (string line in lines)
-        {
-          _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-          rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
-        }
-      }
-
+      _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
 
@@ -397,18 +395,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (_asset == null)
         return;
+      Color4 color = ColorConverter.FromColor(Color);
 
       base.DoRender();
+      float totalWidth;
 
       // The characters fits the textbox exactly, so to get some room between the top of the characters 
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
-
-      float y = _finalRect.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
-      float x = _finalRect.X;
-      float w = _finalRect.Width;
-      float h = _finalRect.Height;
-
+ 
+      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
+      float x = ActualPosition.X;
+      float w = (float)ActualWidth;
+      float h = (float)ActualHeight;
       if (_finalLayoutTransform != null)
       {
         GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
@@ -416,7 +415,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      RectangleF rect = new RectangleF(x, y, w, h);
+      Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
       Font.Align align = Font.Align.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
         align = Font.Align.Right;
@@ -428,29 +427,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
-
-      Color4 color = ColorConverter.FromColor(Color);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
-
-      if (_resourceString != null)
-      {
-        bool scroll = Scroll && !Wrap;
-        string[] lines = Wrap ? WrapText(_finalRect.Width, true) : new string[] { _resourceString.Evaluate() };
-
-        float totalWidth;
-        foreach (string line in lines)
-        {
-          _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-          rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
-        }
-      }
+      _asset.Draw(Text, rect, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
 
     public override void Deallocate()
     {
-      //Trace.WriteLine("lbl Deallocate:" + Content);
       base.Deallocate();
       if (_asset != null)
       {
@@ -465,14 +449,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void BecomesHidden()
     {
-     // Trace.WriteLine("lbl BecomesHidden:" + Content);
       if (_renderer != null)
         _renderer.Free();
     }
 
     public override void BecomesVisible()
     {
-      //Trace.WriteLine("lbl BecomesVisible:" + Content);
+
       if (_renderer != null)
       {
         _renderer.Alloc();
@@ -482,15 +465,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     
     public override void Update()
     {
-      //Trace.WriteLine("Label.Update");
       base.Update();
       if (!_hidden)
         DoBuildRenderTree();
-
-      // If the text is scrolling, then we must keep on building the render tree
-      // Otherwise it won't scroll.
-      if (Scroll && Screen != null)
-          Screen.Invalidate(this);
     }
   }
 }

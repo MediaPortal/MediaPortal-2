@@ -276,13 +276,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public static void AddLayoutTransform(ExtendedMatrix matrix)
     {
       if (_layoutTransforms.Count > 0)
-      {
         _layoutTransforms.Add(matrix.Multiply(_layoutTransforms[_layoutTransforms.Count - 1]));
-      }
       else
-      {
         _layoutTransforms.Add(matrix);
-      }
       UpdateFinalLayoutTransform(_layoutTransforms[_layoutTransforms.Count - 1]);
     }
 

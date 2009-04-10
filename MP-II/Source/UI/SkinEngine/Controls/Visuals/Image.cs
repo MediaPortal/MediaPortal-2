@@ -285,27 +285,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
 
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      if (LayoutTransform != null)
-      {
-        SkinContext.RemoveLayoutTransform();
-      }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       if (_image != null)
-      {
         PerformLayout(_image);
-      }
 
       if (_fallbackImage != null)
-      {
         PerformLayout(_fallbackImage);
-      }
 
       IsInvalidLayout = false;
       if (Screen != null)

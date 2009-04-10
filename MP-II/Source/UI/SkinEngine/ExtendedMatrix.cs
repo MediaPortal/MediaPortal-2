@@ -38,7 +38,7 @@ namespace MediaPortal.SkinEngine
     #endregion
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ExtendedMatrix"/> class.
+    /// Initializes a new <see cref="ExtendedMatrix"/> which represents an identity matrix.
     /// </summary>
     public ExtendedMatrix()
     {

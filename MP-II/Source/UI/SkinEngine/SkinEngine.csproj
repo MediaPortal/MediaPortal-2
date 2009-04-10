@@ -91,6 +91,7 @@
     <Compile Include="Controls\Visuals\Styles\SetterBase.cs" />
     <Compile Include="Controls\Visuals\Templates\DataTemplate.cs" />
     <Compile Include="Controls\Visuals\Templates\HierarchicalDataTemplate.cs" />
+    <Compile Include="Controls\Visuals\TextControl.cs" />
     <Compile Include="Controls\Visuals\TreeView.cs" />
     <Compile Include="Controls\Visuals\Triggers\DataTrigger.cs" />
     <Compile Include="Controls\Visuals\Triggers\StopStoryboard.cs" />
