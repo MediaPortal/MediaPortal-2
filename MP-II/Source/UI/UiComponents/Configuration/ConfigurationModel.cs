@@ -503,7 +503,7 @@ namespace UiComponents.Configuration
       IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
       ContextStateDataDictionary stateDataDictionary = GetContextStateDataDictionary(context);
       if (stateDataDictionary == null)
-        throw new InvalidCallException("ConfigurationModel: Model state data dictionary is not initialized");
+        throw new IllegalCallException("ConfigurationModel: Model state data dictionary is not initialized");
       foreach (IConfigurationNode childNode in currentNode.ChildNodes)
       {
         if (childNode.ConfigObj is ConfigSection)

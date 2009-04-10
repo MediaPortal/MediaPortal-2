@@ -97,7 +97,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     protected void CheckInitialized()
     {
       if (_tree == null)
-        throw new InvalidCallException("The configuration manager is not initialized");
+        throw new IllegalCallException("The configuration manager is not initialized");
     }
 
     #endregion

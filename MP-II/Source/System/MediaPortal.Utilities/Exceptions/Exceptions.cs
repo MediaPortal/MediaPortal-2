@@ -41,22 +41,22 @@ namespace MediaPortal.Utilities.Exceptions
   /// <summary>
   /// Thrown if a module or instance is in an invalid state for the current operation.
   /// </summary>
-  public class InvalidCallException : ApplicationException
+  public class IllegalCallException : ApplicationException
   {
-    public InvalidCallException(string msg, params object[] args):
+    public IllegalCallException(string msg, params object[] args):
         base(string.Format(msg, args)) { }
-    public InvalidCallException(string msg, Exception ex, params object[] args):
+    public IllegalCallException(string msg, Exception ex, params object[] args):
         base(string.Format(msg, args), ex) { }
   }
 
   /// <summary>
   /// Thrown if a method call is not valid with the given parameters.
   /// </summary>
-  public class IllegalDataException : ApplicationException
+  public class InvalidDataException : ApplicationException
   {
-    public IllegalDataException(string msg, params object[] args) :
+    public InvalidDataException(string msg, params object[] args) :
       base(string.Format(msg, args)) { }
-    public IllegalDataException(string msg, Exception ex, params object[] args) :
+    public InvalidDataException(string msg, Exception ex, params object[] args) :
       base(string.Format(msg, args), ex) { }
   }
 

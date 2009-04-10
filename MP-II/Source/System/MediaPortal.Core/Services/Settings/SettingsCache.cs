@@ -214,7 +214,7 @@ namespace MediaPortal.Core.Services.Settings
     {
       lock (_syncObj)
         if (_timer.Enabled)
-          throw new InvalidCallException("The enumerator on the settings cache may only be requested when the settings cache keeps its objects");
+          throw new IllegalCallException("The enumerator on the settings cache may only be requested when the settings cache keeps its objects");
         else
           return _cache.Values.GetEnumerator();
     }
