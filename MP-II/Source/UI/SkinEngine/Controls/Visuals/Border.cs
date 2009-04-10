@@ -211,7 +211,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Measure&arrange
+    #region Measure & Arrange
 
     public override void Measure(ref SizeF totalSize)
     {
@@ -230,6 +230,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       else
         childSize = new SizeF();
+
+      float borderSize = (float) Math.Max(BorderThickness * 2, CornerRadius * 2);
+
+      childSize.Width += borderSize;
+      childSize.Height += borderSize;
 
       _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
@@ -270,8 +275,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       if (_content != null)
       {
-        PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
-        SizeF size = new SizeF(layoutRect.Width, layoutRect.Height);
+        float borderInset = (float) Math.Max(BorderThickness, CornerRadius);
+        PointF location = new PointF(layoutRect.Location.X + borderInset, layoutRect.Location.Y + borderInset);
+        SizeF size = new SizeF(layoutRect.Width - borderInset * 2,
+            layoutRect.Height - borderInset * 2);
         ArrangeChild(_content, ref location, ref size);
         _content.Arrange(new RectangleF(location, size));
       }
