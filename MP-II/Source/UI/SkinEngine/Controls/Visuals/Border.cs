@@ -496,7 +496,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         PositionColored2Textured[] verts;
         if (SkinContext.UseBatching)
         {
-          TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform);
+          TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, true, out verts, _finalLayoutTransform, false);
           BorderBrush.SetupBrush(this, ref verts);
           _verticesCountBorder = verts.Length / 3;
           if (_borderContext == null)
@@ -515,7 +515,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
             ContentManager.Add(_borderAsset);
           }
-          TriangulateHelper.TriangulateStroke_TriangleList(path, (float)BorderThickness, true, out verts, _finalLayoutTransform, false);
+          TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, true, out verts, _finalLayoutTransform, false);
           if (verts != null)
           {
             _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
