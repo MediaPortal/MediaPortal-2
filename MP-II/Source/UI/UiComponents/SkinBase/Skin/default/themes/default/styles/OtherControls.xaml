@@ -135,6 +135,23 @@
     </Setter>
   </Style>
 
+  <!-- *********************************** TextBox style ********************************* -->
+
+  <Style x:Key="TextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+              BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+            <TextControl PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
+                CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                Color="{TemplateBinding Path=Color}" TextAlign="{TemplateBinding Path=TextAlign}"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ************************* ListView item container styles ************************** -->
 
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->

@@ -21,7 +21,8 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="EntryContent" Grid.Column="1" Grid.Row="1" PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"
+        <TextBox x:Name="EntryContent" Grid.Column="1" Grid.Row="1" Style="{StaticResource TextBoxStyle}"
+            PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"
             Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
             HorizontalAlignment="Center" VerticalAlignment="Center"/>
       </Grid>

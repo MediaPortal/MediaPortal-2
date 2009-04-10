@@ -30,7 +30,8 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.EditMediaProviderPathForShare]" Wrap="True"/>
-        <TextBox Grid.Row="2" Margin="0,10,0,0" Text="{Binding Path=MediaProviderPath,Mode=TwoWay}" PreferredTextLength="40"/>
+        <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{StaticResource TextBoxStyle}"
+            Text="{Binding Path=MediaProviderPath,Mode=TwoWay}" PreferredTextLength="40"/>
         <Label Grid.Row="3" Content="[SharesConfig.MediaProviderPathIsNotValid]" Color="{StaticResource ErrorTextColor}" Wrap="True"
             IsVisible="{Binding !IsMediaProviderPathValid}"/>
         <Grid Grid.Row="5" Margin="10,10,10,0">

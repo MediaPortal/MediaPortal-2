@@ -161,6 +161,12 @@
   <!-- Dark yellow -->
   <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#FF1E1E00"/>
 
+  <!-- White -->
+  <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="White"/>
+
+  <!-- Yellow -->
+  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Yellow"/>
+
   <!-- Light green -->
   <ResourceWrapper x:Key="AnalogClockHandColor" Resource="LightGreen"/>
 

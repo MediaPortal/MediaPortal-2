@@ -7,4 +7,7 @@
   <ResourceWrapper x:Key="HeaderFontFamily" Resource="RitzyNormal"/>
 
   <ResourceWrapper x:Key="DateTimeFontSize" Resource="20"/>
+
+  <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
+  <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
 </ResourceDictionary>

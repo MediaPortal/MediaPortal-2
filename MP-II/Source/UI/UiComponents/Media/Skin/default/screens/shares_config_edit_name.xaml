@@ -30,7 +30,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Wrap="True"/>
-        <TextBox Grid.Row="2" Margin="0,10,0,0" Text="{Binding Path=ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
+        <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{StaticResource TextBoxStyle}" Text="{Binding Path=ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
         <!-- Row 3 contains error message - not necessary here -->
         <Grid Grid.Row="5" Margin="10,10,10,0">
           <Grid.RowDefinitions>
