@@ -203,6 +203,9 @@
   <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Yellow"/>
 
   <!-- White -->
+  <ResourceWrapper x:Key="GroupBoxBorderColor" Resource="White"/>
+
+  <!-- White -->
   <ResourceWrapper x:Key="AnalogClockHandColor" Resource="White"/>
 
   <!-- Dark gray -->

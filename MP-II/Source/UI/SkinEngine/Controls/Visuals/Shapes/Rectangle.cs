@@ -213,7 +213,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               }
               using (path = CreateRectanglePath(rect))
               {
-                TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, PolygonDirection.Clockwise, out verts, _finalLayoutTransform, false);
+                TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, PolygonDirection.Clockwise, out verts, _finalLayoutTransform);
                 if (verts != null)
                 {
                   _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);

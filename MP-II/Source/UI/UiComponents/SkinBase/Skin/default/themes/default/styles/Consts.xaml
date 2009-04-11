@@ -10,4 +10,7 @@
 
   <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
   <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
+
+  <ResourceWrapper x:Key="GroupBoxBorderThickness" Resource="4"/>
+  <ResourceWrapper x:Key="GroupBoxCornerRadius" Resource="8"/>
 </ResourceDictionary>

@@ -80,30 +80,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       set { _dataProperty.SetValue(value); }
     }
 
-    protected static void Flatten(PositionColored2Textured[][] subPathVerts, out PositionColored2Textured[] verts)
-    {
-      int numVertices = 0;
-      for (int i = 0; i < subPathVerts.Length; i++)
-        if (subPathVerts[i] != null)
-          numVertices += subPathVerts[i].Length;
-      if (numVertices == 0)
-      {
-        verts = null;
-        return;
-      }
-      verts = new PositionColored2Textured[numVertices];
-      long offset = 0;
-      for (int i = 0; i < subPathVerts.Length; i++)
-      {
-        PositionColored2Textured[] spv = subPathVerts[i];
-        if (spv == null)
-          continue;
-        long length = spv.Length;
-        Array.Copy(spv, 0, verts, offset, length);
-        offset += length;
-      }
-    }
-
     protected override void PerformLayout()
     {
       if (!_performLayout)
@@ -143,7 +119,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   GraphicsPathIterator gpi = new GraphicsPathIterator(path);
                   PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
                   GraphicsPath subPath = new GraphicsPath();
-                  _verticesCountFill = 0;
                   for (int i = 0; i < subPathVerts.Length; i++)
                   {
                     bool isClosed;
@@ -152,13 +127,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                     float centerY;
                     TriangulateHelper.CalcCentroid(subPath, out centerX, out centerY);
                     TriangulateHelper.Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
-                    if (subPathVerts[i] != null)
-                      _verticesCountFill += subPathVerts[i].Length/3;;
                   }
                   PositionColored2Textured[] verts;
-                  Flatten(subPathVerts, out verts);
+                  GraphicsPathHelper.Flatten(subPathVerts, out verts);
                   if (verts != null)
                   {
+                    _verticesCountFill = verts.Length / 3;
                     Fill.SetupBrush(this, ref verts);
                     if (_fillContext == null)
                     {
@@ -175,7 +149,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   GraphicsPathIterator gpi = new GraphicsPathIterator(path);
                   PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
                   GraphicsPath subPath = new GraphicsPath();
-                  _verticesCountFill = 0;
                   for (int i = 0; i < subPathVerts.Length; i++)
                   {
                     bool isClosed;
@@ -186,7 +159,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                     TriangulateHelper.Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
                   }
                   PositionColored2Textured[] verts;
-                  Flatten(subPathVerts, out verts);
+                  GraphicsPathHelper.Flatten(subPathVerts, out verts);
                   _fillPrimitiveType = PrimitiveType.TriangleList;
                   if (_fillAsset == null)
                   {
@@ -195,11 +168,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   }
                   if (verts != null)
                   {
+                    _verticesCountFill = verts.Length / 3; // _fillPrimitiveType == PrimitiveType.TriangleList
                     _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
                     Fill.SetupBrush(this, ref verts);
 
                     PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                    _verticesCountFill = verts.Length/3; // _fillPrimitiveType == PrimitiveType.TriangleList
                   }
                 }
               }
@@ -215,7 +188,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               GraphicsPathIterator gpi = new GraphicsPathIterator(path);
               PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
               GraphicsPath subPath = new GraphicsPath();
-              _verticesCountFill = 0;
               for (int i = 0; i < subPathVerts.Length; i++)
               {
                 bool isClosed;
@@ -224,7 +196,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                     out subPathVerts[i], _finalLayoutTransform);
               }
               PositionColored2Textured[] verts;
-              Flatten(subPathVerts, out verts);
+              GraphicsPathHelper.Flatten(subPathVerts, out verts);
               if (verts != null)
               {
                 _verticesCountBorder = verts.Length/3;
@@ -253,11 +225,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float)StrokeThickness, isClosed,
-                    out subPathVerts[i], _finalLayoutTransform, false);
+                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                    out subPathVerts[i], _finalLayoutTransform);
               }
               PositionColored2Textured[] verts;
-              Flatten(subPathVerts, out verts);
+              GraphicsPathHelper.Flatten(subPathVerts, out verts);
               if (verts != null)
               {
                 _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);

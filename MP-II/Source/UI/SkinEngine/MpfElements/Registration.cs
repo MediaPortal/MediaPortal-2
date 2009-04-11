@@ -72,6 +72,7 @@ namespace MediaPortal.SkinEngine.MpfElements
       // Visuals
       objectClassRegistrations.Add("Control", typeof(SkinEngine.Controls.Visuals.Control));
       objectClassRegistrations.Add("Border", typeof(SkinEngine.Controls.Visuals.Border));
+      objectClassRegistrations.Add("GroupBox", typeof(SkinEngine.Controls.Visuals.GroupBox));
       objectClassRegistrations.Add("Image", typeof(SkinEngine.Controls.Visuals.Image));
       objectClassRegistrations.Add("Button", typeof(SkinEngine.Controls.Visuals.Button));
       objectClassRegistrations.Add("RadioButton", typeof(SkinEngine.Controls.Visuals.RadioButton));

@@ -117,7 +117,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + this.Name);
                 ContentManager.Add(_borderAsset);
               }
-              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform, false);
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
               if (verts != null)
               {
                 _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);

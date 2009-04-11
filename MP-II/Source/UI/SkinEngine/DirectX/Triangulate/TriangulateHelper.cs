@@ -149,53 +149,14 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
       return points[i];
     }
 
-    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool isClosed,
-        out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
-    {
-      PolygonDirection direction = PointsDirection(path);
-      TriangulateStroke_TriangleList(path, thickness, isClosed, direction, out verts, finalTransLayoutform);
-    }
-
-    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool isClosed,
-        PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
-    {
-      verts = null;
-      if (path.PointCount <= 0) return;
-      thickness /= 2.0f;
-      float thicknessW = thickness * SkinContext.Zoom.Width;
-      float thicknessH = thickness * SkinContext.Zoom.Height;
-      PointF[] points = path.PathPoints;
-      int pointCount = points.Length;
-      int verticeCount = pointCount * 2 * 3;
-
-      verts = new PositionColored2Textured[verticeCount];
-
-      for (int i = 0; i < pointCount; ++i)
-      {
-        int offset = i * 6;
-        PointF nextpoint = GetNextPoint(points, i, pointCount);
-        float x;
-        float y;
-        GetInset(nextpoint, points[i], out x, out y, thicknessW, thicknessH, direction, finalLayoutTransform);
-        verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
-        verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
-        verts[offset + 2].Position = new Vector3(x, y, 1);
-
-        verts[offset + 3].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
-        verts[offset + 4].Position = new Vector3(x, y, 1);
-
-        verts[offset + 5].Position = new Vector3(nextpoint.X + (x - points[i].X), nextpoint.Y + (y - points[i].Y), 1);
-      }
-    }
-
     /// <summary>
     /// Converts the graphics path to an array of vertices using trianglestrip.
     /// </summary>
-    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool isClosed,
-        out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform, bool isCenterFill)
+    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
+        out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
     {
       PolygonDirection direction = PointsDirection(path);
-      TriangulateStroke_TriangleList(path, thickness, isClosed, direction, out verts, finalTransLayoutform, isCenterFill);
+      TriangulateStroke_TriangleList(path, thickness, close, direction, out verts, finalTransLayoutform);
     }
 
     /// <summary>
@@ -203,15 +164,14 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     /// </summary>
     /// <param name="path">The path.</param>
     /// <param name="thickness">The thickness of the line.</param>
-    /// <param name="isClosed">True if we should connect the first and last point.</param>
+    /// <param name="close">True if we should connect the first and last point.</param>
     /// <param name="direction">The polygon direction.</param>
     /// <param name="verts">The generated verts.</param>
     /// <param name="finalLayoutTransform">Final layout transform.</param>
     /// <param name="isCenterFill">True if center fill otherwise left hand fill.</param>
     /// <returns>vertex buffer</returns>
-    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool isClosed,
-        PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform,
-        bool isCenterFill)
+    public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
+        PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
     {
       verts = null;
       if (path.PointCount <= 0)
@@ -221,11 +181,9 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
       float thicknessH = thickness * SkinContext.Zoom.Height;
       PointF[] points = path.PathPoints;
       PointF[] newPoints = new PointF[points.Length];
-      int pointCount;
-      float x = 0f;
-      float y = 0f;
 
-      if (isClosed)
+      int pointCount;
+      if (close)
         pointCount = points.Length;
       else
         pointCount = points.Length - 1;
@@ -233,28 +191,13 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
       int verticeCount = pointCount * 2 * 3;
       verts = new PositionColored2Textured[verticeCount];
 
-      // If center fill then we must move the points half the inset
-      if (isCenterFill)
-      {
-        int lastPoint = points.Length - 1;
-
-        for (int i = 0; i < points.Length - 1; i++)
-        {
-          PointF nextpoint = GetNextPoint(points, i, points.Length);
-          GetInset(nextpoint, points[i], out x, out y, -thicknessW / 2.0, -thicknessH / 2.0, direction, finalLayoutTransform);
-          newPoints[i].X = x;
-          newPoints[i].Y = y;
-        }
-        newPoints[lastPoint].X = points[lastPoint].X + (x - points[lastPoint - 1].X);
-        newPoints[lastPoint].Y = points[lastPoint].Y + (y - points[lastPoint - 1].Y);
-        points = newPoints;
-      }
-
       for (int i = 0; i < pointCount; i++)
       {
         int offset = i * 6;
 
         PointF nextpoint = GetNextPoint(points, i, points.Length);
+        float x;
+        float y;
         GetInset(nextpoint, points[i], out x, out y, thicknessW, thicknessH, direction, finalLayoutTransform);
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
         verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
@@ -357,10 +300,9 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
 
       if (nCount < 0)
         return PolygonDirection.Count_Clockwise;
-      else if (nCount > 0)
+      if (nCount > 0)
         return PolygonDirection.Clockwise;
-      else
-        return PolygonDirection.Unknown;
+      return PolygonDirection.Unknown;
     }
 
     #endregion

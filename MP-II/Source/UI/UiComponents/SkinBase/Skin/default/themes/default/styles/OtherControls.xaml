@@ -152,6 +152,14 @@
     </Setter>
   </Style>
 
+  <!-- *********************************** GroupBox style ********************************* -->
+
+  <Style x:Key="GroupBoxStyle" TargetType="{x:Type GroupBox}">
+    <Setter Property="BorderBrush" Value="{ThemeResource GroupBoxBorderColor}"/>
+    <Setter Property="BorderThickness" Value="{ThemeResource GroupBoxBorderThickness}"/>
+    <Setter Property="CornerRadius" Value="{ThemeResource GroupBoxCornerRadius}"/>
+  </Style>
+
   <!-- ************************* ListView item container styles ************************** -->
 
   <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->

@@ -867,9 +867,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       DoBuildRenderTree();
       //remove the rendertransform
       if (RenderTransform != null)
-      {
         SkinContext.RemoveTransform();
-      }
       SkinContext.RemoveOpacity();
     }
 
