@@ -278,6 +278,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
+      RemoveMargin(ref totalSize);
       InitializeTriggers();
 
       _fontSizeCache = GetFontSizeOrInherited();
@@ -350,11 +351,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DoRender();
       float totalWidth;
 
-      // The characters fits the textbox exactly, so to get some room between the top of the characters 
-      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
-      // of the value. Otherwise we will be outside of the inner rectangle.
       float x = ActualPosition.X;
-      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
+      float y = ActualPosition.Y;
       float w = (float) ActualWidth;
       float h = (float) ActualHeight;
       if (_finalLayoutTransform != null)
@@ -379,8 +377,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
-      // FIXME Albert: rework this 0.9 bullshit
-      _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
+      _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
 
@@ -400,11 +397,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DoRender();
       float totalWidth;
 
-      // The characters fits the textbox exactly, so to get some room between the top of the characters 
-      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
-      // of the value. Otherwise we will be outside of the inner rectangle.
- 
-      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
+      float y = ActualPosition.Y;
       float x = ActualPosition.X;
       float w = (float)ActualWidth;
       float h = (float)ActualHeight;
@@ -429,8 +422,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       SkinContext.AddTransform(m);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
-      // FIXME Albert: rework this 0.9 bullshit
-      _asset.Draw(Text, rect, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
+      _asset.Draw(Text, rect, align, _fontSizeCache, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
 
