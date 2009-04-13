@@ -124,7 +124,7 @@ namespace MediaPortal.SkinEngine.Fonts
   }
 
   /// <summary>
-  /// Represents a font set (of glypths).
+  /// Represents a font set (of glyphs).
   /// </summary>
   public class Font : ITextureAsset
   {
@@ -184,32 +184,32 @@ namespace MediaPortal.SkinEngine.Fonts
 
       _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.None, Format.L8, Pool.Managed);
 
-      // Add 'not defined' glypth
-      AddGlypth(0);
+      // Add 'not defined' glyph
+      AddGlyph(0);
       _effect = ContentManager.GetEffect("font");
     }
 
-    /// <summary>Adds a glypth to the font set.</summary>
+    /// <summary>Adds a glyph to the font set.</summary>
     /// <param name="charIndex">The char to add.</param>
-    private bool AddGlypth(uint charIndex)
+    private bool AddGlyph(uint charIndex)
     {
       // FreeType measures font size in terms Of 1/64ths of a point.
       // 1 point = 1/72th of an inch. Resolution is in dots (pixels) per inch.
 
       float point_size = 64.0f*_charSet.RenderedSize * 72.0f / _resolution;
       FT.FT_Set_Char_Size(_face, (int) point_size, 0, _resolution, 0);
-      uint glypthIndex = FT.FT_Get_Char_Index(_face, charIndex);
+      uint glyphIndex = FT.FT_Get_Char_Index(_face, charIndex);
       
-      // Font does not contain glypth
-      if (glypthIndex == 0 && charIndex != 0)
+      // Font does not contain glyph
+      if (glyphIndex == 0 && charIndex != 0)
       {
-        // Copy 'not defined' glypth
+        // Copy 'not defined' glyph
         _charSet.SetCharacter(charIndex,_charSet.GetCharacter(0));
         return true;
       }
 
       // Load the glyph for the current character.
-      if (FT.FT_Load_Glyph(_face, glypthIndex, FT.FT_LOAD_DEFAULT) != 0)
+      if (FT.FT_Load_Glyph(_face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
         return false;
         
       FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_face, typeof(FT_FaceRec));
@@ -258,7 +258,7 @@ namespace MediaPortal.SkinEngine.Fonts
       Character.XAdvance = (int)(Glyph.root.advance.x / 65536.0f);
 
       _charSet.SetCharacter(charIndex, Character);
-      // Copy the glypth bitmap to our local array
+      // Copy the glyph bitmap to our local array
       Byte[] BitmapBuffer = new Byte[cwidth * cheight];
 
       if (Glyph.bitmap.buffer != IntPtr.Zero)
@@ -279,7 +279,7 @@ namespace MediaPortal.SkinEngine.Fonts
       rect.Data.Write(PadPixels, 0, pwidth);
       rect.Data.Seek(MAX_WIDTH - pwidth, SeekOrigin.Current);
 
-      // Write the glypth
+      // Write the glyph
       for (int y = 0; y < Glyph.bitmap.rows; y++)
       {
         for (int x = 0; x < Glyph.bitmap.width; x++)
@@ -305,7 +305,7 @@ namespace MediaPortal.SkinEngine.Fonts
       _currentX += pwidth;
       _rowHeight = Math.Max(_rowHeight, pheight);
 
-      // Free the glypth
+      // Free the glyph
       FT.FT_Done_Glyph(glyph);
       return true;
     }
@@ -443,7 +443,6 @@ namespace MediaPortal.SkinEngine.Fonts
         c.Y / (float)_charSet.Height,
         Color.ToArgb());
 
-
       uvPos = new Vector3(topLeft.X + width, topLeft.Y + height, z);
       uvPos.X *= finalScale.X;
       uvPos.Y *= finalScale.Y;
@@ -459,7 +458,6 @@ namespace MediaPortal.SkinEngine.Fonts
         (c.X + c.Width) / (float)_charSet.Width,
         (c.Y + c.Height) / (float)_charSet.Height,
         Color.ToArgb());
-
 
       uvPos = new Vector3(x + xOffset, topLeft.Y + height, z);
       uvPos.X *= finalScale.X;
@@ -516,7 +514,6 @@ namespace MediaPortal.SkinEngine.Fonts
       _strings.Clear();
       _quads.Clear();
     }
-
 
     public void Render(Device device, int count)
     {
@@ -619,7 +616,7 @@ namespace MediaPortal.SkinEngine.Fonts
     private BitmapCharacter Character(char c)
     {
       if (_charSet.GetCharacter(c) == null)
-        AddGlypth(c);
+        AddGlyph(c);
       return _charSet.GetCharacter(c);
     }
 
@@ -664,9 +661,11 @@ namespace MediaPortal.SkinEngine.Fonts
         double width = c.Width * sizeScale;
         double height = c.Height * sizeScale;
 
+        // Albert: The following check makes texts disappear under certain circumstances, see Mantis #1676.
+        // TODO: We need to rework this complicated Font code.
         // Check vertical bounds
-        if (y + yOffset + height > b.TextBox.Bottom)
-          break;
+        //if (y + yOffset + height > b.TextBox.Bottom)
+        //  break;
 
         // Newline
         if (text[i] == '\n' || text[i] == '\r' || (lineWidth + xAdvance  > Math.Ceiling(maxWidth)))
@@ -677,9 +676,13 @@ namespace MediaPortal.SkinEngine.Fonts
             textFits = false;
             fadeOut = true;
 
-            if (scroll == false)
+            if (scroll)
             {
-              //line does not fit...
+              text = text.Substring(0, i);
+              break;
+            }
+            else
+            { // Line does not fit...
               // change last 3 chars to ...
               if (text.Length > 4)
               {
@@ -702,11 +705,6 @@ namespace MediaPortal.SkinEngine.Fonts
                 }
               }
               continue;
-            }
-            else
-            {
-              text = text.Substring(0, i);
-              break;
             }
           }
           if (alignment == Align.Left)

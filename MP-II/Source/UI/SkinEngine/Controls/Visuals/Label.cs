@@ -215,7 +215,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (font != null)
           _asset = ContentManager.GetFont(font);
       }
-
       if (_renderer == null && _asset != null && _asset.Font != null)
         _renderer = new FontRender(_asset.Font);
     }
@@ -259,6 +258,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
+      RemoveMargin(ref totalSize);
       InitializeTriggers();
 
       _fontSizeCache = GetFontSizeOrInherited();
