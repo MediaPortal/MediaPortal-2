@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.SkinEngine.Controls.Brushes;
 using SlimDX;
 using Font = MediaPortal.SkinEngine.Fonts.Font;
 using FontRender = MediaPortal.SkinEngine.ContentManagement.FontRender;
@@ -363,7 +364,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _finalLayoutTransform.InvertXY(ref x, ref y);
         _finalLayoutTransform.InvertXY(ref w, ref h);
       }
-      Rectangle rect = new Rectangle((int)x, (int)y, (int)w, (int)h);
+      Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
       Font.Align align = Font.Align.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
         align = Font.Align.Right;
@@ -378,6 +379,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
+      // FIXME Albert: rework this 0.9 bullshit
       _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
@@ -427,6 +429,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       SkinContext.AddTransform(m);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
+      // FIXME Albert: rework this 0.9 bullshit
       _asset.Draw(Text, rect, align, _fontSizeCache * 0.9f, color, false, out totalWidth);
       SkinContext.RemoveTransform();
     }
@@ -453,7 +456,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void BecomesVisible()
     {
-
       if (_renderer != null)
       {
         _renderer.Alloc();

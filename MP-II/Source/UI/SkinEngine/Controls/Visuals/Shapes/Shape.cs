@@ -299,12 +299,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (Fill == null && Stroke == null) return;
       if (Fill != null)
       {
-        if ((_fillAsset != null && !_fillAsset.IsAllocated) || _fillAsset == null)
+        if (_fillAsset == null || !_fillAsset.IsAllocated)
           _performLayout = true;
       }
       if (Stroke != null)
       {
-        if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
+        if (_borderAsset == null || !_borderAsset.IsAllocated)
           _performLayout = true;
       }
       PerformLayout();

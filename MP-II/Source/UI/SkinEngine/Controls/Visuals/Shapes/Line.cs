@@ -168,10 +168,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       RectangleF rect = new RectangleF(0, 0, rectSize.Width, rectSize.Height);
       rect.X += ActualPosition.X;
       rect.Y += ActualPosition.Y;
-      //Fill brush
-      PositionColored2Textured[] verts;
-
-      //border brush
 
       if (Stroke != null && StrokeThickness > 0)
       {
@@ -185,6 +181,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             _borderAsset = new VisualAssetContext("Line._borderContext:" + Name);
             ContentManager.Add(_borderAsset);
           }
+          PositionColored2Textured[] verts;
           if (SkinContext.UseBatching)
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
@@ -214,40 +211,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       }
 
     }
-
-    // Not needed as the drawing will be done by Shape class
-    /*
-    public override void DoRender()
-    {
-      if (!IsVisible) return;
-      if (Stroke == null) return;
-
-      if ((_borderAsset != null && !_borderAsset.IsAllocated) || _borderAsset == null)
-        _performLayout = true;
-      if (_performLayout)
-      {
-        PerformLayout();
-        _performLayout = false;
-      }
-      SkinContext.AddOpacity(this.Opacity);
-      //ExtendedMatrix m = new ExtendedMatrix();
-      //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-      //SkinContext.AddTransform(m);
-      if (_borderAsset != null)
-      {
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
-        {
-          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
-          Stroke.EndRender();
-        }
-        _borderAsset.LastTimeUsed = SkinContext.Now;
-      }
-      //SkinContext.RemoveTransform();
-      SkinContext.RemoveOpacity();
-    }
-    */
 
     public override void Measure(ref SizeF totalSize)
     {
@@ -292,13 +255,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       float x2 = (float)(X2);
       float y2 = (float)(Y2);
 
-      float w = (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+      float w = (float) Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 
       float ang = (y2 - y1) / (x2 - x1);
       ang = (float) Math.Atan(ang);
       ang *= (float) (180.0f / Math.PI);
       GraphicsPath mPath = new GraphicsPath();
-      System.Drawing.Rectangle r = new System.Drawing.Rectangle((int)x1, (int)y1, (int)w, (int)StrokeThickness);
+      System.Drawing.Rectangle r = new System.Drawing.Rectangle((int) x1, (int) y1, (int) w, (int) StrokeThickness);
       mPath.AddRectangle(r);
       mPath.CloseFigure();
 
