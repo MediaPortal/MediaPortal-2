@@ -144,9 +144,14 @@
         <ControlTemplate TargetType="{x:Type TextBox}">
           <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
               BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
-            <TextControl PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
+            <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
                 CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
                 Color="{TemplateBinding Path=Color}" TextAlign="{TemplateBinding Path=TextAlign}"/>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
           </Border>
         </ControlTemplate>
       </Setter.Value>

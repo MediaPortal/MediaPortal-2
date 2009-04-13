@@ -131,6 +131,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Brush brush = property.GetValue() as Brush;
       if (brush != null)
         brush.ObjectChanged += OnBackgroundBrushChanged;
+      OnBackgroundBrushChanged(brush);
     }
 
     void OnBorderBrushPropertyChanged(Property property, object oldValue)
@@ -141,18 +142,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Brush brush = property.GetValue() as Brush;
       if (brush != null)
         brush.ObjectChanged += OnBorderBrushChanged;
+      OnBorderBrushChanged(brush);
     }
 
     void OnBackgroundBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.FillChange;
       if (Screen != null) Screen.Invalidate(this);
+      _performLayout = true;
     }
 
     void OnBorderBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.StrokeChange;
       if (Screen != null) Screen.Invalidate(this);
+      _performLayout = true;
     }
 
     void OnLayoutPropertyChanged(Property property, object oldValue)

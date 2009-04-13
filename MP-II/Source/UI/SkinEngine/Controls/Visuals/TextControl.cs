@@ -233,7 +233,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public string Text
     {
-      get { return _textProperty.GetValue() as string; }
+      get { return (string) _textProperty.GetValue(); }
       set { _textProperty.SetValue(value); }
     }
 
@@ -255,7 +255,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public HorizontalAlignmentEnum TextAlign
     {
-      get { return (HorizontalAlignmentEnum)_textAlignProperty.GetValue(); }
+      get { return (HorizontalAlignmentEnum) _textAlignProperty.GetValue(); }
       set { _textAlignProperty.SetValue(value); }
     }
 
@@ -266,11 +266,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         // We want to select the font based on the maximum zoom height (fullscreen)
         // This means that the font will be scaled down in windowed mode, but look
         // good in full screen. 
-        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int)(_fontSizeCache * SkinContext.MaxZoomHeight));
+        Font font = FontManager.GetScript(GetFontFamilyOrInherited(), (int) (_fontSizeCache * SkinContext.MaxZoomHeight));
         if (font != null)
-        {
           _asset = ContentManager.GetFont(font);
-        }
       }
 
       if (_renderer == null)

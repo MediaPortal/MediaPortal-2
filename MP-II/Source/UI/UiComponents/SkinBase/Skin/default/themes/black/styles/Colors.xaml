@@ -164,8 +164,11 @@
   <!-- White -->
   <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="White"/>
 
+  <!-- Black -->
+  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Black"/>
+
   <!-- Yellow -->
-  <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="Yellow"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="GroupBoxBorderColor" Resource="White"/>
