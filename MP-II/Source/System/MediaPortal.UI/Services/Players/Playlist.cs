@@ -117,20 +117,46 @@ namespace MediaPortal.Services.Players
 
     public MediaItem Previous()
     {
-      if (_repeatMode != RepeatMode.One && _currentPlayIndex > -1)
+      if (_repeatMode == RepeatMode.One)
+        return Current;
+      if (_currentPlayIndex > 0)
         _currentPlayIndex--;
-      if (_currentPlayIndex == -1 && _repeatMode == Presentation.Players.RepeatMode.All)
+      else if (_repeatMode == RepeatMode.All)
         _currentPlayIndex = _itemList.Count - 1;
+      else
+        return null;
       return Current;
     }
 
     public MediaItem Next()
     {
-      if (_repeatMode != RepeatMode.One || _currentPlayIndex == -1)
+      if (_repeatMode == RepeatMode.One)
+        return Current;
+      if (_currentPlayIndex == -1)
         _currentPlayIndex++;
-      if (AllPlayed && _repeatMode == Presentation.Players.RepeatMode.All)
+      if (AllPlayed && _repeatMode == RepeatMode.All)
         _currentPlayIndex = 0;
       return Current;
+    }
+
+    public bool HasPrevious
+    {
+      get
+      {
+        if (_repeatMode == RepeatMode.One)
+          return _currentPlayIndex > -1;
+        return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All;
+      }
+    }
+
+    public bool HasNext
+    {
+      get
+      {
+        if (_repeatMode == RepeatMode.One)
+          return _currentPlayIndex > -1;
+        return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All;
+      }
     }
 
     public void Clear()

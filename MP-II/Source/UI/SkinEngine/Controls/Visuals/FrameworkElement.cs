@@ -960,7 +960,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;
-      OpacityMask.SetupBrush(this, ref verts);
+      OpacityMask.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
       PositionColored2Textured.Set(_opacityMaskContext.VertexBuffer, ref verts);
 
       _updateOpacityMask = false;

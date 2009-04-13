@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Presentation.DataObjects;
@@ -46,6 +47,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected Property _headerProperty;
+    protected Property _headerColorProperty;
     protected Label _headerLabel;
     protected RectangleF _headerLabelRect;
     
@@ -62,6 +64,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Init()
     {
       _headerProperty = new Property(typeof(string), string.Empty);
+      _headerColorProperty = new Property(typeof(Color), Color.White);
       _headerLabel = new Label();
       _headerLabel.VisualParent = this;
     }
@@ -69,11 +72,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Attach()
     {
       _headerProperty.Attach(OnHeaderChanged);
+      _headerColorProperty.Attach(OnHeaderChanged);
     }
 
     void Detach()
     {
       _headerProperty.Detach(OnHeaderChanged);
+      _headerColorProperty.Detach(OnHeaderChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -82,6 +87,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       GroupBox gb = (GroupBox) source;
       Header = copyManager.GetCopy(gb.Header);
+      HeaderColor = copyManager.GetCopy(gb.HeaderColor);
 
       Attach();
     }
@@ -91,6 +97,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void OnHeaderChanged(Property prop, object oldValue)
     {
       _headerLabel.Content = Header;
+      _headerLabel.Color = HeaderColor;
       Invalidate();
     }
 
@@ -107,6 +114,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _headerProperty.SetValue(value); }
     }
 
+    public Property HeaderColorProperty
+    {
+      get { return _headerColorProperty; }
+    }
+
+    public Color HeaderColor
+    {
+      get { return (Color) _headerColorProperty.GetValue(); }
+      set { _headerColorProperty.SetValue(value); }
+    }
+
     #endregion
 
     public override void AddChildren(System.Collections.Generic.ICollection<UIElement> childrenOut)
@@ -115,9 +133,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       childrenOut.Add(_headerLabel);
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override Thickness GetTotalBorderMargin()
     {
-      base.Measure(ref totalSize);
+      Thickness result = base.GetTotalBorderMargin();
+      float halfLabel = _headerLabel.DesiredSize.Height/2;
+      result.Top = halfLabel + Math.Max(halfLabel, result.Top);
+      return result;
+    }
+
+    protected override void MeasureBorder(SizeF totalSize)
+    {
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -130,13 +155,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _headerLabel.Measure(ref headerSize);
       if (LayoutTransform != null)
         SkinContext.RemoveLayoutTransform();
+      base.MeasureBorder(totalSize);
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeBorder(RectangleF finalRect)
     {
-      RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + _headerLabel.DesiredSize.Height / 2,
-          finalRect.Width, finalRect.Height - _headerLabel.DesiredSize.Height / 2);
-      base.Arrange(borderRect);
+      float halfLabelHeight = _headerLabel.DesiredSize.Height/2;
+      RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + halfLabelHeight,
+          finalRect.Width, finalRect.Height - halfLabelHeight);
+      base.ArrangeBorder(borderRect);
       if (LayoutTransform != null)
       {
         ExtendedMatrix m;
@@ -150,6 +177,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _headerLabelRect.Width = 0;
       if (_headerLabelRect.Height > finalRect.Height)
         _headerLabelRect.Height = finalRect.Height;
+
       _headerLabel.Arrange(_headerLabelRect);
       if (LayoutTransform != null)
         SkinContext.RemoveLayoutTransform();
@@ -164,6 +192,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out em);
         layoutTransform = layoutTransform.Multiply(em);
       }
+      baseRect.Y += _headerLabel.DesiredSize.Height/2;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(baseRect,
           (float) CornerRadius, (float) CornerRadius, true,
           HEADER_INSET_LINE, _headerLabel.DesiredSize.Width + HEADER_INSET_SPACE * 2, layoutTransform);

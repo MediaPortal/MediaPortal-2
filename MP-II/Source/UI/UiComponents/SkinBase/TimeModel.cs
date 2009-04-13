@@ -56,7 +56,7 @@ namespace UiComponents.SkinBase
 
     public TimeModel()
     {
-      RegisterQueue();
+      SubscribeToMessages();
       ReadSettings();
       Update();
 
@@ -70,19 +70,21 @@ namespace UiComponents.SkinBase
     {
       _timer.Elapsed -= OnTimerElapsed;
       _timer.Enabled = false;
-      UnregisterQueue();
+      UnsubscribeFromMessages();
     }
 
-    protected void RegisterQueue()
+    protected void SubscribeToMessages()
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(SkinMessaging.Queue);
-      queue.MessageReceived += OnSkinMessageReceived;
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(SkinMessaging.Queue).MessageReceived += OnSkinMessageReceived;
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
-    protected void UnregisterQueue()
+    protected void UnsubscribeFromMessages()
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(SkinMessaging.Queue);
-      queue.MessageReceived -= OnSkinMessageReceived;
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(SkinMessaging.Queue).MessageReceived -= OnSkinMessageReceived;
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
     }
 
     protected void ReadSettings()
@@ -100,6 +102,16 @@ namespace UiComponents.SkinBase
         // The DateFormat and TimeFormat configuration classes will send this message when they
         // changed the formats, so we have to update our format here
         ReadSettings();
+    }
+
+    protected void OnSystemMessageReceived(QueueMessage message)
+    {
+      if (((SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE]) ==
+          SystemMessaging.MessageType.SystemShutdown)
+      {
+        _timer.Enabled = false;
+        UnsubscribeFromMessages();
+      }
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)

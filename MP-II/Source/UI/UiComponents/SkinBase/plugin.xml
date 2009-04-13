@@ -13,7 +13,6 @@
 
   <Runtime>
     <Assembly FileName="SkinBase.dll"/>
-    <PluginStateTracker ClassName="UiComponents.SkinBase.SkinBasePlugin"/>
   </Runtime>
 
   <Register Location="/Models">

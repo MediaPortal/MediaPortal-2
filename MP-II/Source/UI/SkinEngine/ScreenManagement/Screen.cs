@@ -145,6 +145,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       get { return _name; }
     }
 
+    public bool HasInputFocus
+    {
+      get { return _attachedInput; }
+    }
+
     /// <summary>
     /// Adds a key binding to a command for this screen. Screen key bindings will only concern the current screen.
     /// They will be evaluated before the global key bindings in the InputManager.

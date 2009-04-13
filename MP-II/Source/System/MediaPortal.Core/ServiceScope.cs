@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Core
@@ -305,6 +306,8 @@ namespace MediaPortal.Core
       {
         if (!(type == typeof(IPluginManager)))
         {
+          Get<ILogger>().Info("ServiceScope.GetService<{0}>: Try to load service from plugin manager at /Services/{0}",
+              type.Name);
           object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name,
               new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
           if (newService != null)

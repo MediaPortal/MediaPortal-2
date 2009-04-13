@@ -28,7 +28,6 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Geometries;
 using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
@@ -92,10 +91,10 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
-      UpdateBounds(element, ref verts);
-      base.SetupBrush(element, ref verts);
+      UpdateBounds(bounds, layoutTransform, ref verts);
+      base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
       _effect = ContentManager.GetEffect("normal");
       _verts = verts;
       _videoSize = new Size(0, 0);

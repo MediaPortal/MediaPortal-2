@@ -43,8 +43,7 @@ namespace MediaPortal.Services.Players
 
     #region Protected fields
 
-    protected int _currentPlayerIndex = -1;
-    protected IPlayerContext _mutedAudioContext = null;
+    private int _currentPlayerIndex = -1; // Set this value via the CurrentPlayerIndex property to correctly raise the update event
 
     #endregion
 
@@ -72,24 +71,32 @@ namespace MediaPortal.Services.Players
     {
       PlayerManagerMessaging.MessageType messageType =
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
+      PlayerContext pc;
+      int slotIndex;
       switch (messageType)
       {
         case PlayerManagerMessaging.MessageType.PlayerEnded:
-          if (!NextItem())
-          {
-            IPlayerContext pc = CurrentPlayerContext;
-            if (pc != null && pc.CloseWhenFinished)
-              ClosePlayerContext(CurrentPlayerIndex);
-          }
+          slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+          pc = GetPlayerContextInternal(slotIndex);
+          if (pc != null && !pc.NextItem())
+            if (pc.CloseWhenFinished)
+              ClosePlayerContext(slotIndex);
+          break;
+        case PlayerManagerMessaging.MessageType.PlayerStopped:
+          slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+          pc = GetPlayerContextInternal(slotIndex);
+          if (pc != null && pc.CloseWhenFinished)
+            ClosePlayerContext(slotIndex);
           break;
       }
+      CheckCurrentPlayerSlot();
     }
 
     /// <summary>
-    /// Checks if there is a current player context containing a current player and returns the player. Else returns
+    /// Checks if the current player context contains a current player and returns the player. Else returns
     /// <c>null</c>.
     /// </summary>
-    /// <returns>Current player of the current player context, if present. Else returns <c>null</c>.</returns>
+    /// <returns>Current player of the current player context, if present. Else <c>null</c>.</returns>
     protected IPlayer GetCurrentPlayer()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
@@ -121,9 +128,29 @@ namespace MediaPortal.Services.Players
         playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
     }
 
+    protected void CheckCurrentPlayerSlot()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      bool primaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT).IsActive;
+      bool secondaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT).IsActive;
+      int currentPlayerSlot = CurrentPlayerIndex;
+      if (currentPlayerSlot == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
+        currentPlayerSlot = -1;
+      else if (currentPlayerSlot == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
+        currentPlayerSlot = -1;
+      if (currentPlayerSlot == -1)
+        if (secondaryPlayerActive)
+          currentPlayerSlot = PlayerManagerConsts.SECONDARY_SLOT;
+        else if (primaryPlayerActive)
+          currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      pcm.CurrentPlayerIndex = currentPlayerSlot;
+      CurrentPlayerIndex = currentPlayerSlot;
+    }
+
     protected static PlayerContext GetPlayerContext(IPlayerSlotController psc)
     {
-      if (!psc.IsActive)
+      if (psc == null || !psc.IsActive)
         return null;
       object result;
       if (psc.ContextVariables.TryGetValue(KEY_PLAYER_CONTEXT, out result))
@@ -146,29 +173,11 @@ namespace MediaPortal.Services.Players
 
     #endregion
 
-    #region IPlayerContextHandler implementation
+    #region IPlayerContextManager implementation
 
     public IPlayerContext CurrentPlayerContext
     {
       get { return GetPlayerContextInternal(_currentPlayerIndex); }
-    }
-
-    public bool IsVideoPlayerActive
-    {
-      get
-      {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        return playerManager[PlayerManagerConsts.PRIMARY_SLOT] is IVideoPlayer;
-      }
-    }
-
-    public bool IsPIP
-    {
-      get
-      {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        return playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IVideoPlayer;
-      }
     }
 
     public bool IsAudioPlayerActive
@@ -181,35 +190,36 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public int CurrentPlayerIndex
-    {
-      get { return _currentPlayerIndex; }
-      set { _currentPlayerIndex = value; }
-    }
-
-    public bool Muted
+    public bool IsVideoPlayerActive
     {
       get
       {
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        return playerManager.AudioSlotIndex == -1;
+        return playerManager[PlayerManagerConsts.PRIMARY_SLOT] is IVideoPlayer;
       }
-      set
+    }
+
+    public bool IsPipActive
+    {
+      get
       {
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        if (value)
-        {
-          _mutedAudioContext = GetPlayerContext(playerManager.GetPlayerSlotController(playerManager.AudioSlotIndex));
-          playerManager.AudioSlotIndex = -1;
-        }
-        else
-        {
-          if (_mutedAudioContext == null || !_mutedAudioContext.IsValid)
-            CheckAudio();
-          else
-            playerManager.AudioSlotIndex = _mutedAudioContext.PlayerSlotController.SlotIndex;
-          _mutedAudioContext = null;
-        }
+        return playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IVideoPlayer;
+      }
+    }
+
+    public int CurrentPlayerIndex
+    {
+      get { return _currentPlayerIndex; }
+      set
+      {
+        if (_currentPlayerIndex == value)
+          return;
+        PlayerContext newCurrent = GetPlayerContextInternal(value);
+        if (newCurrent == null || !newCurrent.IsValid)
+          return;
+        _currentPlayerIndex = value;
+        PlayerContextManagerMessaging.SendPlayerContextManagerMessage(PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged);
       }
     }
 
@@ -225,15 +235,21 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public IPlayerContext GetPlayerContextByMediaType(PlayerContextType mediaType)
+    public void Shutdown()
     {
+      UnsubscribeFromMessages();
+    }
+
+    public int NumPlayerContextsOfMediaType(PlayerContextType mediaType)
+    {
+      int result = 0;
       for (int i = 0; i < 2; i++)
       {
         IPlayerContext pc = GetPlayerContext(i);
         if (pc != null && pc.MediaType == mediaType)
-          return pc;
+          result++;
       }
-      return null;
+      return result;
     }
 
     public IPlayerContext OpenAudioPlayerContext(bool concurrent)

@@ -23,9 +23,11 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Effects;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -81,16 +83,16 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(FrameworkElement element, ref SkinEngine.DirectX.PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
-      UpdateBounds(element, ref verts);
-      base.SetupBrush(element, ref verts);
+      UpdateBounds(bounds, layoutTransform, ref verts);
+      base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
       _textureOpacity = new Texture(GraphicsDevice.Device, (int)_bounds.Width, (int)_bounds.Height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
     }
 
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-      if (this.Visual == null) return false;
+      if (Visual == null) return false;
       List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
       SkinContext.Transforms = new List<ExtendedMatrix>();
 
@@ -106,15 +108,14 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
           SurfaceDescription desc = backBuffer.Description;
 
           ExtendedMatrix matrix = new ExtendedMatrix();
-          Vector3 pos = new Vector3((float)this.Visual.ActualPosition.X, (float)this.Visual.ActualPosition.Y, this.Visual.ActualPosition.Z);
-          float width = (float)this.Visual.ActualWidth;
-          float height = (float)this.Visual.ActualHeight;
-          float w = (float)(_bounds.Width / this.Visual.Width);
-          float h = (float)(_bounds.Height / this.Visual.Height);
+          Vector3 pos = new Vector3(Visual.ActualPosition.X, Visual.ActualPosition.Y, Visual.ActualPosition.Z);
+          float width = (float) Visual.ActualWidth;
+          float height = (float) Visual.ActualHeight;
+          float w = (float)(_bounds.Width / Visual.Width);
+          float h = (float)(_bounds.Height / Visual.Height);
 
           //m.Matrix *= SkinContext.FinalMatrix.Matrix;
           //matrix.Matrix *= Matrix.Scaling(w, h, 1);
-
 
           if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
           {
@@ -122,24 +123,20 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
             float cy = 1.0f;//((float)desc.Height) / ((float)GraphicsDevice.Height);
 
             //copy the correct rectangle from the backbuffer in the opacitytexture
-            GraphicsDevice.Device.StretchRectangle(backBuffer,
-                                                   new System.Drawing.Rectangle((int)(_orginalPosition.X * cx), (int)(_orginalPosition.Y * cy), (int)(_bounds.Width * cx), (int)(_bounds.Height * cy)),
-                                                   textureOpacitySurface,
-                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
-                                                   TextureFilter.None);
+            GraphicsDevice.Device.StretchRectangle(backBuffer, new Rectangle(
+                (int) (_orginalPosition.X * cx), (int) (_orginalPosition.Y * cy),
+                (int) (_bounds.Width * cx), (int) (_bounds.Height * cy)), textureOpacitySurface,
+                new Rectangle(0, 0, (int) (_bounds.Width), (int) (_bounds.Height)), TextureFilter.None);
             matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-            matrix.Matrix *= Matrix.Scaling((float)(((float)GraphicsDevice.Width) / width), (float)(((float)GraphicsDevice.Height) / height), 1);
+            matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / width, GraphicsDevice.Height / height, 1);
           }
           else
           {
-            GraphicsDevice.Device.StretchRectangle(backBuffer,
-                                                   new System.Drawing.Rectangle(0, 0, desc.Width, desc.Height),
-                                                   textureOpacitySurface,
-                                                   new System.Drawing.Rectangle((int)0, (int)0, (int)(_bounds.Width), (int)(_bounds.Height)),
-                                                   TextureFilter.None);
+            GraphicsDevice.Device.StretchRectangle(backBuffer, new Rectangle(0, 0, desc.Width, desc.Height),
+                textureOpacitySurface, new Rectangle(0, 0, (int) _bounds.Width, (int) _bounds.Height), TextureFilter.None);
             
             matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-            matrix.Matrix *= Matrix.Scaling((float)(((float)GraphicsDevice.Width) / width), (float)(((float)GraphicsDevice.Height) / height), 1);
+            matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / width, GraphicsDevice.Height / height, 1);
           }
 
 
@@ -178,13 +175,11 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override void EndRender()
     {
-      if (this.Visual != null)
+      if (Visual != null)
       {
         _effect.EndRender();
         if (Transform != null)
-        {
           SkinContext.RemoveTransform();
-        }
       }
     }
   }

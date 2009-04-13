@@ -127,6 +127,7 @@
     <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
     <Compile Include="Presentation\Players\IVideoPlayer.cs" />
     <Compile Include="Presentation\Players\IVolumeControl.cs" />
+    <Compile Include="Presentation\Players\PlayerContextManagerMessaging.cs" />
     <Compile Include="Presentation\Players\PlayerManagerConsts.cs" />
     <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />

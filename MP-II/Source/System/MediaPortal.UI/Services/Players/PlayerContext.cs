@@ -99,7 +99,7 @@ namespace MediaPortal.Services.Players
     public bool CloseWhenFinished
     {
       get { return _closeWhenFinished; }
-      set { _closeWhenFinished = false; }
+      set { _closeWhenFinished = value; }
     }
 
     public IPlayer CurrentPlayer

@@ -22,9 +22,9 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -143,12 +143,12 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _tex.Allocate();
     }
 
-    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
       if (_tex == null)
       {
         Allocate();
-        base.SetupBrush(element, ref verts);
+        base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
       }
     }
 

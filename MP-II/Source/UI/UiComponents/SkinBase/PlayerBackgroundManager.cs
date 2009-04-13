@@ -22,8 +22,11 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 
@@ -35,7 +38,9 @@ namespace UiComponents.SkinBase
     public static string VIDEO_BACKGROUND_SCREEN = "video-background";
     public static string PICTURE_BACKGROUND_SCREEN = "picture-background";
 
-    internal static void DoInstall()
+    protected ICollection<Key> _registeredKeyBindings = new List<Key>();
+
+    internal void DoInstall()
     {
       // Set initial background
       UpdateBackground();
@@ -43,17 +48,152 @@ namespace UiComponents.SkinBase
       // Install manager
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerManagerMessaging.QUEUE);
       queue.MessageReceived += OnPlayerManagerMessageReceived;
+
+      queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerContextManagerMessaging.QUEUE);
+      queue.MessageReceived += OnPlayerContextManagerMessageReceived;
     }
 
-    internal static void DoUninstall()
+    internal void DoUninstall()
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerManagerMessaging.QUEUE);
       queue.MessageReceived -= OnPlayerManagerMessageReceived;
+
+      queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerContextManagerMessaging.QUEUE);
+      queue.MessageReceived -= OnPlayerContextManagerMessageReceived;
     }
 
-    protected static void OnPlayerManagerMessageReceived(QueueMessage message)
+    protected void OnPlayerManagerMessageReceived(QueueMessage message)
     {
+      UpdateKeyBindings();
       UpdateBackground();
+    }
+
+    protected void OnPlayerContextManagerMessageReceived(QueueMessage message)
+    {
+      PlayerContextManagerMessaging.MessageType messageType =
+          (PlayerContextManagerMessaging.MessageType) message.MessageData[PlayerContextManagerMessaging.MESSAGE_TYPE];
+      switch (messageType)
+      {
+        case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+          UpdateKeyBindings();
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Returns the player context for the current focused player.
+    /// </summary>
+    /// <returns>Player context for the current player or <c>null</c>, if there is no current player focus.</returns>
+    protected static IPlayerContext GetCurrentPlayerContext()
+    {
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      int currentPlayerSlot = pcm.CurrentPlayerIndex;
+      if (currentPlayerSlot == -1)
+        currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
+      return pcm.GetPlayerContext(currentPlayerSlot);
+    }
+
+    /// <summary>
+    /// Updates the globally registered key bindings depending on the current player. Will be called when the
+    /// currently active player changes.
+    /// </summary>
+    protected void UpdateKeyBindings()
+    {
+      UnregisterKeyBindings();
+      RegisterKeyBindings();
+    }
+
+    /// <summary>
+    /// Registers key bindings for the currently active player, if there is a player active.
+    /// </summary>
+    protected void RegisterKeyBindings()
+    {
+      IPlayerContext currentPSC = GetCurrentPlayerContext();
+      if (currentPSC == null)
+        return;
+      // TODO: Is there a ZoomMode/Change Aspect Ratio key in any input device (keyboard, IR, ...)? If yes,
+      // we should register it here too
+      AddKeyBinding(Key.Play, () =>
+        {
+          PlayerModel.Play();
+          return true;
+        });
+      AddKeyBinding(Key.Pause, () =>
+        {
+          PlayerModel.Pause();
+          return true;
+        });
+      AddKeyBinding(Key.PlayPause, () =>
+        {
+          PlayerModel.TogglePause();
+          return true;
+        });
+      AddKeyBinding(Key.Printable(' '), () =>
+        {
+          PlayerModel.TogglePause();
+          return true;
+        });
+      AddKeyBinding(Key.Stop, () =>
+        {
+          PlayerModel.Stop();
+          return true;
+        });
+      AddKeyBinding(Key.Rew, () =>
+        {
+          PlayerModel.SeekBackward();
+          return true;
+        });
+      AddKeyBinding(Key.Fwd, () =>
+        {
+          PlayerModel.SeekForward();
+          return true;
+        });
+      AddKeyBinding(Key.Previous, () =>
+        {
+          PlayerModel.Previous();
+          return true;
+        });
+      AddKeyBinding(Key.Next, () =>
+        {
+          PlayerModel.Next();
+          return true;
+        });
+      AddKeyBinding(Key.Mute, () =>
+        {
+          PlayerModel.ToggleMute();
+          return true;
+        });
+      AddKeyBinding(Key.VolumeUp, () =>
+        {
+          PlayerModel.VolumeUp();
+          return true;
+        });
+      AddKeyBinding(Key.VolumeDown, () =>
+        {
+          PlayerModel.VolumeDown();
+          return true;
+        });
+      // Register player specific key bindings
+      // TODO: Register key bindings from current player
+    }
+
+    protected void AddKeyBinding(Key key, ActionDlgt action)
+    {
+      _registeredKeyBindings.Add(key);
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      inputManager.AddKeyBinding(key, action);
+    }
+
+    /// <summary>
+    /// Removes all key bindings which have been globally registered before.
+    /// </summary>
+    protected void UnregisterKeyBindings()
+    {
+      IInputManager inputManager = ServiceScope.Get<IInputManager>(false);
+      if (inputManager == null)
+        return;
+      foreach (Key key in _registeredKeyBindings)
+        inputManager.RemoveKeyBinding(key);
     }
 
     protected static void UpdateBackground()

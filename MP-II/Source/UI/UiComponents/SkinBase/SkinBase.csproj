@@ -68,7 +68,6 @@
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\General\Autostart.cs" />
     <Compile Include="Settings\General\Balloontips.cs" />
-    <Compile Include="SkinBasePlugin.cs" />
     <Compile Include="SkinMessaging.cs" />
     <Compile Include="TimeModel.cs" />
   </ItemGroup>

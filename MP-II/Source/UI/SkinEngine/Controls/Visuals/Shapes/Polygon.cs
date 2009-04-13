@@ -93,7 +93,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       
       double w = ActualWidth;
       double h = ActualHeight;
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -105,40 +104,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X, (float)ActualPosition.Y, rectSize.Width, rectSize.Height);
+      RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, rectSize.Width, rectSize.Height);
 
       //Fill brush
       PositionColored2Textured[] verts;
-      GraphicsPath path;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (path = GetPolygon(rect))
+        using (GraphicsPath path = GetPolygon(rect))
         {
+          float centerX;
+          float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
-            if (SkinContext.UseBatching == false)
-            {
-              if (_fillAsset == null)
-              {
-                _fillAsset = new VisualAssetContext("Polygon._fillContext:" + this.Name);
-                ContentManager.Add(_fillAsset);
-              }
-              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-              if (_fillAsset.VertexBuffer != null)
-              {
-                Fill.SetupBrush(this, ref verts);
-
-                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                _verticesCountFill = (verts.Length / 3);
-              }
-            }
-            else
+            if (SkinContext.UseBatching)
             {
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _verticesCountFill = (verts.Length / 3);
-              Fill.SetupBrush(this, ref verts);
+              _verticesCountFill = verts.Length / 3;
+              Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               if (_fillContext == null)
               {
                 _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
@@ -148,15 +131,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               else
                 _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
             }
+            else
+            {
+              if (_fillAsset == null)
+              {
+                _fillAsset = new VisualAssetContext("Polygon._fillContext:" + Name);
+                ContentManager.Add(_fillAsset);
+              }
+              TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+              if (verts != null)
+              {
+                _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
+
+                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
+                _verticesCountFill = (verts.Length / 3);
+              }
+            }
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
             if (SkinContext.UseBatching)
             {
-              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
-              Stroke.SetupBrush(this, ref verts);
+              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               if (_strokeContext == null)
               {
                 _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
@@ -170,20 +170,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Polygon._borderContext:" + this.Name);
+                _borderAsset = new VisualAssetContext("Polygon._borderContext:" + Name);
                 ContentManager.Add(_borderAsset);
               }
-              using (path = GetPolygon(rect))
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
+              if (verts != null)
               {
-                TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
                 _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                if (_borderAsset.VertexBuffer != null)
-                {
-                  Stroke.SetupBrush(this, ref verts);
+                Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
-                  PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                  _verticesCountBorder = (verts.Length / 3);
-                }
+                PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+                _verticesCountBorder = (verts.Length / 3);
               }
             }
           }
@@ -199,13 +196,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       Point[] points = new Point[Points.Count];
       for (int i = 0; i < Points.Count; ++i)
       {
-        points[i] = (Point)Points[i];
+        points[i] = Points[i];
       }
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddPolygon(points);
       mPath.CloseFigure();
 
-      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
+      Matrix m = new Matrix();
       m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
       m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
       if (LayoutTransform != null)

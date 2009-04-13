@@ -32,6 +32,8 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Services.Players
 {
+  internal delegate void PlayerSlotWorkerInternalDelegate(PlayerSlotController slotController);
+
   /// <summary>
   /// Management class for player builder registrations and active players.
   /// </summary>
@@ -127,6 +129,8 @@ namespace MediaPortal.Services.Players
     /// </summary>
     public const string PLAYERBUILDERS_REGISTRATION_PATH = "/Players/Builders";
 
+    protected const int VOLUME_CHANGE = 10;
+
     #endregion
 
     #region Protected fields
@@ -135,6 +139,8 @@ namespace MediaPortal.Services.Players
     protected PlayerBuilderRegistrationChangeListener _playerBuilderRegistrationChangeListener;
     internal IDictionary<string, PlayerBuilderRegistration> _playerBuilders = new Dictionary<string, PlayerBuilderRegistration>();
     internal PlayerSlotController[] _slots;
+    protected int _volume = 100;
+    protected bool _isMuted = false;
 
     #endregion
 
@@ -184,7 +190,14 @@ namespace MediaPortal.Services.Players
 
     #endregion
 
-    #region Protected methods
+    #region Protected & internal methods
+
+    internal void ForEachInternal(PlayerSlotWorkerInternalDelegate execute)
+    {
+      foreach (PlayerSlotController psc in _slots)
+        if (psc.IsActive)
+          execute(psc);
+    }
 
     internal PlayerBuilderRegistration GetPlayerBuilderRegistration(string playerBuilderId)
     {
@@ -217,12 +230,11 @@ namespace MediaPortal.Services.Players
       // Unregister player builder from internal player builder collection
       _playerBuilders.Remove(playerBuilderId);
       // Release slots with players built by the to-be-removed player builder
-      for (int i = 0; i < 2; i++)
+      ForEachInternal(psc =>
       {
-        PlayerSlotController psc = _slots[i];
         if (registration.UsingSlotControllers.Contains(psc))
           psc.ReleasePlayer();
-      }
+      });
     }
 
     protected void RemovePlayerBuilder(string playerBuilderId)
@@ -296,6 +308,15 @@ namespace MediaPortal.Services.Players
       }
     }
 
+    public IPlayer this[int slotIndex]
+    {
+      get
+      {
+        IPlayerSlotController psc = GetPlayerSlotController(slotIndex);
+        return psc != null && psc.IsActive ? psc.CurrentPlayer : null;
+      }
+    }
+
     public int AudioSlotIndex
     {
       get
@@ -324,12 +345,32 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public IPlayer this[int slotIndex]
+    public bool Muted
     {
-      get
+      get { return _isMuted; }
+      set
       {
-        IPlayerSlotController psc = GetPlayerSlotController(slotIndex);
-        return psc != null && psc.IsActive ? psc.CurrentPlayer : null;
+        if (_isMuted == value)
+          return;
+        _isMuted = value;
+        ForEachInternal(psc => { psc.IsMuted = _isMuted; });
+      }
+    }
+
+    public int Volume
+    {
+      get { return _volume; }
+      set
+      {
+        if (_volume == value)
+          return;
+        if (value < 0)
+          _volume = 0;
+        else if (value > 100)
+          _volume = 100;
+        else
+          _volume = value;
+        ForEach(psc => { psc.Volume = _volume; });
       }
     }
 
@@ -342,7 +383,7 @@ namespace MediaPortal.Services.Players
     {
       slotIndex = -1;
       slotController = null;
-      int index = -1;
+      int index;
       // Find a free slot
       if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive)
         index = PlayerManagerConsts.PRIMARY_SLOT;
@@ -353,6 +394,9 @@ namespace MediaPortal.Services.Players
       slotIndex = index;
       PlayerSlotController psc = _slots[slotIndex];
       psc.IsActive = true;
+      psc.IsMuted = _isMuted;
+      psc.Volume = _volume;
+      psc.IsAudioSlot = false;
       if (AudioSlotIndex == -1)
         AudioSlotIndex = slotIndex;
       slotController = psc;
@@ -373,10 +417,13 @@ namespace MediaPortal.Services.Players
 
     public void CloseAllSlots()
     {
+      bool muted = Muted;
+      // Avoid switching the sound to the other slot for a short time, in case we close the audio slot first
+      Muted = true;
       foreach (PlayerSlotController psc in _slots)
         psc.IsActive = false;
       // The audio slot property will automatically be reset because it is stored in the slot instance itself
-      CleanupSlotOrder();
+      Muted = muted;
     }
 
     public void SwitchPlayers()
@@ -395,9 +442,17 @@ namespace MediaPortal.Services.Players
 
     public void ForEach(PlayerSlotWorkerDelegate execute)
     {
-      foreach (PlayerSlotController psc in _slots)
-        if (psc.IsActive)
-          execute(psc);
+      ForEachInternal(psc => execute(psc));
+    }
+
+    public void VolumeUp()
+    {
+      Volume += VOLUME_CHANGE;
+    }
+
+    public void VolumeDown()
+    {
+      Volume -= VOLUME_CHANGE;
     }
 
     #endregion

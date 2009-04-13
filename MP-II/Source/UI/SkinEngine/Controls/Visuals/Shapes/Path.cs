@@ -43,7 +43,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     #region Private fields
 
     Property _dataProperty;
-    PrimitiveType _fillPrimitiveType;
     bool _fillDisabled;
 
     #endregion
@@ -133,7 +132,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   if (verts != null)
                   {
                     _verticesCountFill = verts.Length / 3;
-                    Fill.SetupBrush(this, ref verts);
+                    Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
                     if (_fillContext == null)
                     {
                       _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
@@ -160,7 +159,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   }
                   PositionColored2Textured[] verts;
                   GraphicsPathHelper.Flatten(subPathVerts, out verts);
-                  _fillPrimitiveType = PrimitiveType.TriangleList;
                   if (_fillAsset == null)
                   {
                     _fillAsset = new VisualAssetContext("Path._fillContext:" + Name);
@@ -170,7 +168,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   {
                     _verticesCountFill = verts.Length / 3; // _fillPrimitiveType == PrimitiveType.TriangleList
                     _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                    Fill.SetupBrush(this, ref verts);
+                    Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                     PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
                   }
@@ -200,7 +198,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               if (verts != null)
               {
                 _verticesCountBorder = verts.Length/3;
-                Stroke.SetupBrush(this, ref verts);
+                Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
                 if (_strokeContext == null)
                 {
                   _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
@@ -233,7 +231,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               if (verts != null)
               {
                 _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                Stroke.SetupBrush(this, ref verts);
+                Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
                 _verticesCountBorder = verts.Length / 3;

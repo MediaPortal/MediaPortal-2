@@ -69,6 +69,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected PrimitiveContext _borderContext;
     protected UIEvent _lastEvent = UIEvent.None;
     protected bool _performLayout;
+    protected RectangleF _borderRect;
     
     #endregion
 
@@ -215,12 +216,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override void Measure(ref SizeF totalSize)
     {
+      base.Measure(ref totalSize);
       RemoveMargin(ref totalSize);
+
+      MeasureBorder(totalSize);
+
+      Thickness borderMargin = GetTotalBorderMargin();
 
       if (!double.IsNaN(Width))
         totalSize.Width = (float) Width;
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height;
+
+      RemoveMargin(ref totalSize, borderMargin);
 
       SizeF childSize;
       if (_content != null && _content.IsVisible)
@@ -231,10 +239,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       else
         childSize = new SizeF();
 
-      float borderSize = GetBorderInset() * 2;
-
-      childSize.Width += borderSize;
-      childSize.Height += borderSize;
+      AddMargin(ref childSize, borderMargin);
 
       _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
@@ -246,16 +251,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
-
       //Trace.WriteLine(String.Format("Border.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
+      base.Arrange(finalRect);
       RemoveMargin(ref finalRect);
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
 
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
@@ -263,30 +265,178 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      Initialize();
-      InitializeTriggers();
-      IsInvalidLayout = false;
+      ArrangeBorder(finalRect);
 
-      if (!finalRect.IsEmpty)
-      {
-        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
-          _performLayout = true;
-        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      }
+      if (_finalRect != finalRect)
+        _performLayout = true;
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
       if (_content != null)
       {
-        float borderInset = GetBorderInset();
-        PointF location = new PointF(layoutRect.Location.X + borderInset, layoutRect.Location.Y + borderInset);
-        SizeF size = new SizeF(layoutRect.Width - borderInset * 2,
-            layoutRect.Height - borderInset * 2);
+        RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+        RemoveMargin(ref layoutRect, GetTotalBorderMargin());
+        PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
+        SizeF size = new SizeF(layoutRect.Size);
         ArrangeChild(_content, ref location, ref size);
         _content.Arrange(new RectangleF(location, size));
       }
     }
 
+    /// <summary>
+    /// Gets the size needed for this element's border.
+    /// </summary>
+    protected virtual Thickness GetTotalBorderMargin()
+    {
+      float borderInsets = GetBorderInset()*2;
+      return new Thickness(borderInsets);
+    }
+
+    protected virtual void MeasureBorder(SizeF totalSize)
+    {
+      // Used in subclasses to measure border elements
+    }
+
+    protected virtual void ArrangeBorder(RectangleF finalRect)
+    {
+      _borderRect = new RectangleF(finalRect.Location, finalRect.Size);
+    }
+
     protected float GetBorderInset()
     {
-      return (float)Math.Max(BorderThickness, CornerRadius);
+      return (float) Math.Max(BorderThickness, CornerRadius);
+    }
+
+    #endregion
+
+    #region Layouting
+
+    protected virtual void PerformLayout()
+    {
+      if (!_performLayout)
+        return;
+      _performLayout = false;
+      //Trace.WriteLine("Border.PerformLayout() " + Name);
+
+      SizeF rectSize = new SizeF(_borderRect.Size);
+
+      ExtendedMatrix m = new ExtendedMatrix();
+      m.Matrix *= _finalLayoutTransform.Matrix;
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        m.Matrix *= em.Matrix;
+      }
+      m.InvertSize(ref rectSize);
+      RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+      rect.X += ActualPosition.X;
+      rect.Y += ActualPosition.Y;
+      PerformLayoutBackground(rect);
+      PerformLayoutBorder(rect);
+    }
+
+    protected void PerformLayoutBackground(RectangleF rect)
+    {
+      if (Background != null)
+        using (GraphicsPath path = CreateBorderRectPath(rect))
+        {
+          // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
+          // for example GroupBox). To create a completely filled background, we need a closed figure.
+          path.CloseFigure();
+          PositionColored2Textured[] verts;
+          float centerX, centerY;
+          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
+          if (SkinContext.UseBatching)
+          {
+            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            _verticesCountFill = verts.Length / 3;
+            Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
+            if (_backgroundContext == null)
+            {
+              _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
+              Background.SetupPrimitive(_backgroundContext);
+              RenderPipeline.Instance.Add(_backgroundContext);
+            }
+            else
+              _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
+          }
+          else
+          {
+            if (_backgroundAsset == null)
+            {
+              _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
+              ContentManager.Add(_backgroundAsset);
+            }
+            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+            if (verts != null)
+            {
+              _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+              Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
+
+              PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
+              _verticesCountFill = verts.Length / 3;
+
+            }
+          }
+        }
+    }
+
+    protected void PerformLayoutBorder(RectangleF rect)
+    {
+      if (BorderBrush != null && BorderThickness > 0)
+        using (GraphicsPath path = CreateBorderRectPath(rect))
+        {
+          GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+          PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+          GraphicsPath subPath = new GraphicsPath();
+          for (int i = 0; i < subPathVerts.Length; i++)
+          {
+            bool isClosed;
+            gpi.NextSubpath(subPath, out isClosed);
+            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, isClosed,
+                out subPathVerts[i], _finalLayoutTransform);
+          }
+          PositionColored2Textured[] verts;
+          GraphicsPathHelper.Flatten(subPathVerts, out verts);
+          if (SkinContext.UseBatching)
+          {
+            BorderBrush.SetupBrush(_borderRect, FinalLayoutTransform, ActualPosition.Z, ref verts);
+            _verticesCountBorder = verts.Length / 3;
+            if (_borderContext == null)
+            {
+              _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+              BorderBrush.SetupPrimitive(_borderContext);
+              RenderPipeline.Instance.Add(_borderContext);
+            }
+            else
+              _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+          }
+          else
+          {
+            if (_borderAsset == null)
+            {
+              _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
+              ContentManager.Add(_borderAsset);
+            }
+            _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+            BorderBrush.SetupBrush(_borderRect, FinalLayoutTransform, ActualPosition.Z, ref verts);
+
+            PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
+            _verticesCountBorder = verts.Length / 3;
+          }
+        }
+    }
+
+    protected virtual GraphicsPath CreateBorderRectPath(RectangleF baseRect)
+    {
+      ExtendedMatrix layoutTransform = _finalLayoutTransform ?? new ExtendedMatrix();
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix em;
+        LayoutTransform.GetTransform(out em);
+        layoutTransform = layoutTransform.Multiply(em);
+      }
+      return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius, layoutTransform);
     }
 
     #endregion
@@ -403,141 +553,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _lastEvent |= eventType;
         if (Screen != null) Screen.Invalidate(this);
       }
-    }
-
-    #endregion
-
-    #region Layouting
-
-    protected virtual void PerformLayout()
-    {
-      if (!_performLayout)
-        return;
-      _performLayout = false;
-      //Trace.WriteLine("Border.PerformLayout() " + Name);
-
-      double w = ActualWidth;
-      double h = ActualHeight;
-      SizeF rectSize = new SizeF((float) w, (float) h);
-
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      m.InvertSize(ref rectSize);
-      RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-      rect.X += ActualPosition.X;
-      rect.Y += ActualPosition.Y;
-      PerformLayoutBackground(rect);
-      PerformLayoutBorder(rect);
-    }
-
-    protected void PerformLayoutBackground(RectangleF rect)
-    {
-      if (Background != null)
-        using (GraphicsPath path = CreateBorderRectPath(rect))
-        {
-          // Some backgrounds might not be closed (subclasses sometimes create open background shapes,
-          // for example GroupBox). To create a completely filled background, we need a closed figure.
-          path.CloseFigure();
-          PositionColored2Textured[] verts;
-          float centerX, centerY;
-          TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
-          if (SkinContext.UseBatching)
-          {
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-            _verticesCountFill = verts.Length / 3;
-            Background.SetupBrush(this, ref verts);
-            if (_backgroundContext == null)
-            {
-              _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
-              Background.SetupPrimitive(_backgroundContext);
-              RenderPipeline.Instance.Add(_backgroundContext);
-            }
-            else
-              _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
-          }
-          else
-          {
-            if (_backgroundAsset == null)
-            {
-              _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
-              ContentManager.Add(_backgroundAsset);
-            }
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-            _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-            if (_backgroundAsset.VertexBuffer != null)
-            {
-              Background.SetupBrush(this, ref verts);
-
-              PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
-              _verticesCountFill = verts.Length / 3;
-
-            }
-          }
-        }
-    }
-
-    protected void PerformLayoutBorder(RectangleF rect)
-    {
-      if (BorderBrush != null && BorderThickness > 0)
-        using (GraphicsPath path = CreateBorderRectPath(rect))
-        {
-          GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-          PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-          GraphicsPath subPath = new GraphicsPath();
-          for (int i = 0; i < subPathVerts.Length; i++)
-          {
-            bool isClosed;
-            gpi.NextSubpath(subPath, out isClosed);
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, isClosed,
-                out subPathVerts[i], _finalLayoutTransform);
-          }
-          PositionColored2Textured[] verts;
-          GraphicsPathHelper.Flatten(subPathVerts, out verts);
-          if (SkinContext.UseBatching)
-          {
-            BorderBrush.SetupBrush(this, ref verts);
-            _verticesCountBorder = verts.Length / 3;
-            if (_borderContext == null)
-            {
-              _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-              BorderBrush.SetupPrimitive(_borderContext);
-              RenderPipeline.Instance.Add(_borderContext);
-            }
-            else
-              _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-          }
-          else
-          {
-            if (_borderAsset == null)
-            {
-              _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
-              ContentManager.Add(_borderAsset);
-            }
-            _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-            BorderBrush.SetupBrush(this, ref verts);
-
-            PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-            _verticesCountBorder = verts.Length / 3;
-          }
-        }
-    }
-
-    protected virtual GraphicsPath CreateBorderRectPath(RectangleF baseRect)
-    {
-      ExtendedMatrix layoutTransform = _finalLayoutTransform ?? new ExtendedMatrix();
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        layoutTransform = layoutTransform.Multiply(em);
-      }
-      return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius, layoutTransform);
     }
 
     #endregion

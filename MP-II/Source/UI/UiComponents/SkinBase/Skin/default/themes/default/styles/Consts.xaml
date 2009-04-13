@@ -13,4 +13,7 @@
 
   <ResourceWrapper x:Key="GroupBoxBorderThickness" Resource="4"/>
   <ResourceWrapper x:Key="GroupBoxCornerRadius" Resource="8"/>
+
+  <ResourceWrapper x:Key="PlayControlBorderThickness" Resource="1"/>
+  <ResourceWrapper x:Key="PlayControlCornerRadius" Resource="4"/>
 </ResourceDictionary>

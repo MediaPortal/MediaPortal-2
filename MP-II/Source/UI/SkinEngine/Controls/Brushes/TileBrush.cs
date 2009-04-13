@@ -22,12 +22,12 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
@@ -165,7 +165,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
       // todo here:
       ///   - stretchmode
@@ -192,32 +192,29 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
           break;
       }
 
-      float w = (float)element.ActualWidth;
-      float h = (float)element.ActualHeight;
+      float w = bounds.Width;
+      float h = bounds.Height;
       float xoff = _bounds.X;
       float yoff = _bounds.Y;
-      if (element.FinalLayoutTransform != null)
+      if (layoutTransform != null)
       {
         w = _bounds.Width;
         h = _bounds.Height;
-        element.FinalLayoutTransform.TransformXY(ref w, ref h);
-        element.FinalLayoutTransform.TransformXY(ref xoff, ref yoff);
+        layoutTransform.TransformXY(ref w, ref h);
+        layoutTransform.TransformXY(ref xoff, ref yoff);
       }
 
       for (int i = 0; i < verts.Length; ++i)
       {
-        float u, v;
-        float x1, y1;
-        y1 = (float)verts[i].Y;
-        v = (float)(y1 - (element.ActualPosition.Y + yoff));
-        v /= (float)(h * ViewPort.W);
-        v += ViewPort.Y;
-
-
-        x1 = (float)verts[i].X;
-        u = (float)(x1 - (element.ActualPosition.X + xoff));
-        u /= (float)(w * ViewPort.Z);
+        float x1 = verts[i].X;
+        float u = x1 - (bounds.X + xoff);
+        u /= w * ViewPort.Z;
         u += ViewPort.X;
+
+        float y1 = verts[i].Y;
+        float v = y1 - (bounds.Y + yoff);
+        v /= h * ViewPort.W;
+        v += ViewPort.Y;
 
         Scale(ref u, ref v);
 
@@ -227,13 +224,13 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         if (v > 1) v = 1;
         unchecked
         {
-          Color4 color = ColorConverter.FromColor(System.Drawing.Color.White);
-          color.Alpha *= (float)Opacity;
+          Color4 color = ColorConverter.FromColor(Color.White);
+          color.Alpha *= (float) Opacity;
           verts[i].Color = color.ToArgb();
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Z = element.ActualPosition.Z;
+        verts[i].Z = zOrder;
 
       }
     }

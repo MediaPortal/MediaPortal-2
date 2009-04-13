@@ -99,27 +99,25 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public Color Color
     {
-      get { return (Color)_colorProperty.GetValue(); }
+      get { return (Color) _colorProperty.GetValue(); }
       set { _colorProperty.SetValue(value); }
     }
 
-    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
       //Trace.WriteLine("SolidColorBrush.SetupBrush()");
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
-        UpdateBounds(element, ref verts);
-        base.SetupBrush(element, ref verts);
+        UpdateBounds(bounds, layoutTransform, ref verts);
+        base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
         _effect = ContentManager.GetEffect("solidbrush");
         _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
-        Color4 color = ColorConverter.FromColor(this.Color);
-        color.Alpha *= (float)Opacity;
+        Color4 color = ColorConverter.FromColor(Color);
+        color.Alpha *= (float) Opacity;
         for (int i = 0; i < verts.Length; ++i)
-        {
           verts[i].Color = color.ToArgb();
-        }
-        _height = element.ActualHeight;
-        _width = element.ActualWidth;
+        _height = bounds.Height;
+        _width = bounds.Width;
         //if (_texture == null)
         //{
         //  _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
@@ -132,8 +130,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       //if (_texture == null) return;
 
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      Color4 v = ColorConverter.FromColor(this.Color);
-      v.Alpha *= (float)SkinContext.Opacity;
+      Color4 v = ColorConverter.FromColor(Color);
+      v.Alpha *= (float) SkinContext.Opacity;
       _effectHandleColor.SetParameter(v);
       _effect.StartRender(null);
       //GraphicsDevice.Device.SetTexture(0, null);
@@ -141,10 +139,10 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       return true;
     }
 
-    public override  void SetupPrimitive(PrimitiveContext context)
+    public override void SetupPrimitive(PrimitiveContext context)
     {
-      Color4 v = ColorConverter.FromColor(this.Color);
-      v.Alpha *= (float)SkinContext.Opacity;
+      Color4 v = ColorConverter.FromColor(Color);
+      v.Alpha *= (float) SkinContext.Opacity;
       context.Effect = _effect;
       context.Parameters = new EffectParameters();
       context.Parameters.Add(_effectHandleColor, v);

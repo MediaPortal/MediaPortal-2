@@ -105,6 +105,16 @@ namespace MediaPortal.Presentation.Players
     MediaItem Next();
 
     /// <summary>
+    /// Returns the information if we have a previous item.
+    /// </summary>
+    bool HasPrevious { get; }
+
+    /// <summary>
+    /// Returns the information if we have a next item.
+    /// </summary>
+    bool HasNext { get; }
+
+    /// <summary>
     /// Clears the playlist.
     /// </summary>
     void Clear();

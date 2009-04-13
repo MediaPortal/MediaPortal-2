@@ -92,6 +92,8 @@ namespace Ui.Players.Video
 
     public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
 
+    public const string AUDIO_STREAM_NAME = "Audio1";
+
     #endregion
 
     #region Variables
@@ -125,7 +127,7 @@ namespace Ui.Players.Video
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
-    protected bool _isAudioEnabled = false;
+    protected bool _isAudioEnabled = true;
     protected bool _initialized = false;
     List<IPin> _vmr9ConnectionPins = new List<IPin>();
     protected IMediaItemLocator _mediaItemLocator;
@@ -427,89 +429,79 @@ namespace Ui.Players.Video
 
         if (!string.IsNullOrEmpty(settings.H264Codec))
         {
-          _videoh264Codec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             settings.H264Codec);
+          _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, settings.H264Codec);
         }
 
         if (_videoh264Codec == null)
         {
-          _videoh264Codec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             "CyberLink H.264/AVC Decoder (PDVD7.X)");
+          _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "CyberLink H.264/AVC Decoder (PDVD7.X)");
         }
         if (!string.IsNullOrEmpty(settings.Mpeg2Codec))
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             settings.Mpeg2Codec);
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, settings.Mpeg2Codec);
         }
 
         if (_videoCodec == null)
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             "CyberLink Video/SP Decoder");
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "CyberLink Video/SP Decoder");
         }
         if (_videoCodec == null)
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             "Microsoft MPEG-2 Video Decoder");
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "Microsoft MPEG-2 Video Decoder");
         }
         if (_videoCodec == null)
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             "NVIDIA Video Decoder");
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "NVIDIA Video Decoder");
         }
         if (_videoCodec == null)
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "MPV Decoder Filter");
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "MPV Decoder Filter");
         }
 
         if (!string.IsNullOrEmpty(settings.AudioCodec))
         {
-          _audioCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             settings.AudioCodec);
+          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, settings.AudioCodec);
         }
         if (_audioCodec == null)
         {
-          _audioCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             "Microsoft MPEG-1/DD Audio Decoder");
+          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "Microsoft MPEG-1/DD Audio Decoder");
         }
         if (_audioCodec == null)
         {
-          _audioCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "MPA Decoder Filter");
+          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "MPA Decoder Filter");
         }
       }
       else if (ext.IndexOf(".avi") >= 0)
       {
         if (!string.IsNullOrEmpty(settings.DivXCodec))
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             settings.DivXCodec);
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, settings.DivXCodec);
         }
         if (_videoCodec == null)
         {
-          _videoCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "ffdshow Video Decoder");
+          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "ffdshow Video Decoder");
         }
         if (!string.IsNullOrEmpty(settings.AudioCodec))
         {
-          _audioCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory,
-                                             settings.AudioCodec);
+          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, settings.AudioCodec);
         }
         if (_audioCodec == null)
         {
-          _audioCodec =
-            FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "ffdshow Audio Decoder");
+          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "ffdshow Audio Decoder");
         }
       }
     }
@@ -589,11 +581,9 @@ namespace Ui.Players.Video
 
           if (_evr != null)
           {
-            if (_graphBuilder != null) //&& !_useEvr)
-            {
+            if (_graphBuilder != null)
               _graphBuilder.RemoveFilter(_evr);
-            }
-            //while (Marshal.ReleaseComObject(_vmr9) > 0) ;
+            //while (Marshal.ReleaseComObject(_evr) > 0) ;
             try
             {
               Marshal.ReleaseComObject(_evr);
@@ -651,11 +641,9 @@ namespace Ui.Players.Video
     /// </summary>
     protected void AllocateResources()
     {
-      //      Trace.WriteLine("videoplayer:alloc vertex");
+      //Trace.WriteLine("videoplayer:alloc vertex");
       if (_vertexBuffer != null)
-      {
         FreeResources();
-      }
       // Alloc a Vertex buffer to draw the video (4 vertices -> a Quad)
       _vertexBuffer = PositionColored2Textured.Create(4);
       ContentManager.VertexReferences++;
@@ -676,9 +664,7 @@ namespace Ui.Players.Video
         ContentManager.VertexReferences--;
       }
       if (_vertices != null)
-      {
         _vertices = null;
-      }
     }
 
 #if NOTUSED
@@ -709,9 +695,7 @@ namespace Ui.Players.Video
         SkinContext.Geometry.GetWindow(_allocator.AspectRatio.Width, _allocator.AspectRatio.Height, out sourceRect,
                                        out destinationRect, SkinContext.CropSettings);
         if (sourceRect == _sourceRect && _destinationRect == destinationRect)
-        {
           return false;
-        }
       }
 
       SkinContext.Geometry.ImageWidth = (int)_allocator.VideoSize.Width;
@@ -726,9 +710,7 @@ namespace Ui.Players.Video
         Effect = null;
         EffectAsset effect = ContentManager.GetEffect(shaderName);
         if (effect != null)
-        {
           Effect = effect;
-        }
       }
       _sourceRect = sourceRect;
       _destinationRect = destinationRect;
@@ -739,6 +721,7 @@ namespace Ui.Players.Video
       _previousDisplaySize = DisplaySize;
       return true;
     }
+
     /// <summary>
     /// Updates the vertex buffers with the new rendering attributes like size/position.
     /// </summary>
@@ -800,44 +783,27 @@ namespace Ui.Players.Video
 
       float alphaUpperLeft = AlphaMask.X;
       if (alphaUpperLeft < 0)
-      {
         alphaUpperLeft = 0;
-      }
       if (alphaUpperLeft > 255)
-      {
         alphaUpperLeft = 255;
-      }
 
       float alphaBottomLeft = AlphaMask.Width;
       if (alphaBottomLeft < 0)
-      {
         alphaBottomLeft = 0;
-      }
       if (alphaBottomLeft > 255)
-      {
         alphaBottomLeft = 255;
-      }
 
       float alphaBottomRight = AlphaMask.Height;
       if (alphaBottomRight < 0)
-      {
         alphaBottomRight = 0;
-      }
       if (alphaBottomRight > 255)
-      {
         alphaBottomRight = 255;
-      }
 
       float alphaUpperRight = AlphaMask.Y;
       if (alphaUpperRight < 0)
-      {
         alphaUpperRight = 0;
-      }
       if (alphaUpperRight > 255)
-      {
         alphaUpperRight = 255;
-      }
-
 
       long colorUpperLeft = (long)alphaUpperLeft;
       colorUpperLeft <<= 24;
@@ -910,6 +876,7 @@ namespace Ui.Players.Video
       PositionColored2Textured.Set(_vertexBuffer, ref _vertices);
     }
 #endif
+
     protected void CheckAudio()
     {
       int volume = 0;
@@ -1015,6 +982,11 @@ namespace Ui.Players.Video
       FireStarted();
     }
 
+    public string MediaItemTitle
+    {
+      get { return null; }
+    }
+
     public virtual void UpdateTime()
     {
       if (!_initialized)
@@ -1030,16 +1002,14 @@ namespace Ui.Players.Video
         if (mediaSeeking != null)
         {
           long lStreamPos;
-          double fCurrentPos;
           mediaSeeking.GetCurrentPosition(out lStreamPos); // stream position
-          fCurrentPos = lStreamPos;
+          double fCurrentPos = lStreamPos;
           fCurrentPos /= 10000000d;
 
           long lContentStart, lContentEnd;
-          double fContentStart, fContentEnd;
           mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
-          fContentStart = lContentStart;
-          fContentEnd = lContentEnd;
+          double fContentStart = lContentStart;
+          double fContentEnd = lContentEnd;
           fContentStart /= 10000000d;
           fContentEnd /= 10000000d;
           fContentEnd -= fContentStart;
@@ -1057,7 +1027,6 @@ namespace Ui.Players.Video
       {
         ServiceScope.Get<ILogger>().Debug("VideoPlayer: Seek {0} / {1}", value.TotalSeconds, _duration.TotalSeconds);
 
-
         lock (_graphBuilder)
         {
           IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
@@ -1065,10 +1034,9 @@ namespace Ui.Players.Video
           dTimeInSecs *= 10000000d;
 
           long lContentStart, lContentEnd;
-          double dContentStart, dContentEnd;
           mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
-          dContentStart = lContentStart;
-          dContentEnd = lContentEnd;
+          double dContentStart = lContentStart;
+          double dContentEnd = lContentEnd;
 
           dTimeInSecs += dContentStart;
           if (dTimeInSecs > dContentEnd)
@@ -1090,14 +1058,14 @@ namespace Ui.Players.Video
 
     public virtual string[] AudioStreams
     {
-      get { return new string[0]; }
+      get { return new string[] { AUDIO_STREAM_NAME }; }
     }
 
     public virtual void SetAudioStream(string audioStream) { }
 
     public virtual string CurrentAudioStream
     {
-      get { return ""; }
+      get { return AUDIO_STREAM_NAME; }
     }
 
     public PlaybackState State
@@ -1123,18 +1091,10 @@ namespace Ui.Players.Video
       get { return _volume; }
       set
       {
-        if (_volume != value)
-        {
-          _volume = value;
-          IBasicAudio audio = _graphBuilder as IBasicAudio;
-          if (audio != null)
-          {
-            // Divide by 100 to get equivalent decibel value. For example, �10,000 is �100 dB. 
-            float fPercent = _volume / 100.0f;
-            int iVolume = (int) (5000 * fPercent);
-            audio.put_Volume(iVolume - 5000);
-          }
-        }
+        if (_volume == value)
+          return;
+        _volume = value;
+        CheckAudio();
       }
     }
 
@@ -1190,7 +1150,6 @@ namespace Ui.Players.Video
               }
             }
           }
-
           Marshal.FreeCoTaskMem(ptrFetched);
           Marshal.ReleaseComObject(enumer);
         }
@@ -1212,13 +1171,12 @@ namespace Ui.Players.Video
 
         if (_evr != null)
         {
-          if (_graphBuilder != null) //&& !_useEvr)
+          if (_graphBuilder != null)
             _graphBuilder.RemoveFilter(_evr);
           //while (Marshal.ReleaseComObject(_vmr9) > 0) ;
           Marshal.ReleaseComObject(_evr);
         }
         _evr = null;
-
 
         if (_allocatorKey >= 0)
           EvrDeinit(_allocatorKey);
@@ -1269,8 +1227,11 @@ namespace Ui.Players.Video
         AllocateResources();
         _allocator.ReallocResources();
 
-        IMediaControl mc = _graphBuilder as IMediaControl;
-        mc.Run();
+        if (State == PlaybackState.Playing)
+        {
+          IMediaControl mc = _graphBuilder as IMediaControl;
+          mc.Run();
+        }
         _initialized = true;
       }
     }

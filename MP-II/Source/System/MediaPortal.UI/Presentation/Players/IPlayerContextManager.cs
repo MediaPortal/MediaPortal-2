@@ -39,7 +39,7 @@ namespace MediaPortal.Presentation.Players
   /// While the <see cref="IPlayerManager"/> deals with primary and secondary player slots, the job of this service
   /// is to provide a more abstract view for the client, it provides typed player contexts and playlists.
   /// The functionality of this component is comprehensive, it deals with the collectivity of all players, while the
-  /// <see cref="IPlayerManager"/>'s functionality mostly is related to a single technical player slot.
+  /// <see cref="IPlayerManager"/>'s functionality is focused to single technical player slots.
   /// This service manages and solves player conflicts (like two audio players at the same time) automatically by
   /// simply closing an old player when a new conflicting player is opened. Non-conflicting players can be played
   /// concurrently.
@@ -57,6 +57,11 @@ namespace MediaPortal.Presentation.Players
   public interface IPlayerContextManager
   {
     /// <summary>
+    /// Returns the information if there is already an audio player active.
+    /// </summary>
+    bool IsAudioPlayerActive { get; }
+
+    /// <summary>
     /// Returns the information if there is already a video (V or AV) player active.
     /// </summary>
     bool IsVideoPlayerActive { get; }
@@ -64,26 +69,19 @@ namespace MediaPortal.Presentation.Players
     /// <summary>
     /// Returns the information if a secondary player is running in PIP mode.
     /// </summary>
-    bool IsPIP { get; }
+    bool IsPipActive { get; }
 
     /// <summary>
-    /// Returns the information if there is already an audio player active.
-    /// </summary>
-    bool IsAudioPlayerActive { get; }
-
-    /// <summary>
-    /// Gets or sets the index of the current player slot. The current player slot determines for which of the
-    /// active players the "currently playing" screen will be shown and which player will be controlled by the
-    /// play controls.
+    /// Gets or sets the index of the current player slot. The current player is the player which has the
+    /// "user focus", i.e. it receives all commands from the remote or from other play controls and it will be shown
+    /// in the "currently playing" screen.
     /// </summary>
     int CurrentPlayerIndex { get; set; }
 
     /// <summary>
-    /// Gets or sets the muted state of the system. Resetting the state will restore the former player which was
-    /// playing the audio signal before the system was muted. If that player isn't available any more, the audio player
-    /// or the video player (if present, in this lookup order) will set up to play the audio signal.
+    /// Convenience property for calling <see cref="GetPlayerContext"/> with the <see cref="CurrentPlayerIndex"/>.
     /// </summary>
-    bool Muted { get; set; }
+    IPlayerContext CurrentPlayerContext { get; }
 
     /// <summary>
     /// Returns the number of active player contexts.
@@ -91,9 +89,9 @@ namespace MediaPortal.Presentation.Players
     int NumActivePlayerContexts { get; }
 
     /// <summary>
-    /// Convenience property for calling <see cref="GetPlayerContext"/> with the <see cref="CurrentPlayerIndex"/>.
+    /// Shuts the function of this service down. This is necessary before the player manager gets closed.
     /// </summary>
-    IPlayerContext CurrentPlayerContext { get; }
+    void Shutdown();
 
     /// <summary>
     /// Returns the player context object which is assigned to the player manager's slot with the specified
@@ -106,11 +104,11 @@ namespace MediaPortal.Presentation.Players
     IPlayerContext GetPlayerContext(int slotIndex);
 
     /// <summary>
-    /// Returns the player context of the specified <paramref name="mediaType"/>, if present.
+    /// Returns the number of player contexts playing the specified <paramref name="mediaType"/>.
     /// </summary>
-    /// <param name="mediaType">Type of the player context to search.</param>
-    /// <returns>Player context instance or <c>null</c>.</returns>
-    IPlayerContext GetPlayerContextByMediaType(PlayerContextType mediaType);
+    /// <param name="mediaType">Type of the player contexts to search.</param>
+    /// <returns>Number of player contexts, will be in the range 0-2.</returns>
+    int NumPlayerContextsOfMediaType(PlayerContextType mediaType);
 
     /// <summary>
     /// Opens an audio player context. This will replace a running audio player context, if present. If a video player is

@@ -127,12 +127,12 @@ namespace MediaPortal
         SystemMessaging.SendSystemMessage(SystemMessaging.MessageType.SystemShutdown);
 
         // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
-        // 2) Uninitialize SkinEngine (Uninstalls background manager and stops render thread)
+        // 2) Shutdown SkinEngine (Closes all screens, uninstalls background manager, stops render thread)
         // 3) Shutdown WorkflowManager (Disposes all models)
         // 4) Shutdown PluginManager (Shuts down all plugins)
         // 5) Remove all services
         UiExtension.StopAll();
-        skinEngine.Uninitialize();
+        skinEngine.Shutdown();
         workflowManager.Shutdown();
         pluginManager.Shutdown();
         UiExtension.DisposeUiServices();

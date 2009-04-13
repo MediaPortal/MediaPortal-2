@@ -24,11 +24,11 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -195,19 +195,19 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #region Public methods
 
-    public override void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
       //      Trace.WriteLine("RadialGradientBrush.SetupBrush()");
       _verts = verts;
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
-        UpdateBounds(element, ref verts);
+        UpdateBounds(bounds, layoutTransform, ref verts);
         if (!IsOpacityBrush)
-          base.SetupBrush(element, ref verts);
+          base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
 
-        _height = element.ActualHeight;
-        _width = element.ActualWidth;
-        _position = new Vector3(element.ActualPosition.X, element.ActualPosition.Y, element.ActualPosition.Z);
+        _height = bounds.Height;
+        _width = bounds.Width;
+        _position = new Vector3(bounds.X, bounds.Y, zOrder);
 
         if (_brushTexture == null)
           _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
@@ -320,11 +320,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
                 {
                   //copy the correct rectangle from the backbuffer in the opacitytexture
                   GraphicsDevice.Device.StretchRectangle(backBuffer,
-                      new System.Drawing.Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
-                      cacheSurface,
-                      new System.Drawing.Rectangle(0, 0, (int) w, (int) h),
-                      TextureFilter.None);
-
+                      new Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                      cacheSurface, new Rectangle(0, 0, (int) w, (int) h), TextureFilter.None);
                 }
                 //change the rendertarget to the opacitytexture
                 GraphicsDevice.Device.SetRenderTarget(0, cacheSurface);

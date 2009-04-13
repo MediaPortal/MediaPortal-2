@@ -164,6 +164,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         GraphicsPath path;
         using (path = CreateRectanglePath(rect))
         {
+          if (path.PointCount == 0)
+            return;
           float centerX = rect.Width / 2 + rect.Left;
           float centerY = rect.Height / 2 + rect.Top;
           //CalcCentroid(path, out centerX, out centerY);
@@ -172,8 +174,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             if (SkinContext.UseBatching)
             {
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _verticesCountFill = (verts.Length / 3);
-              Fill.SetupBrush(this, ref verts);
+              _verticesCountFill = verts.Length / 3;
+              Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               if (_fillContext == null)
               {
                 _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
@@ -191,10 +193,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 ContentManager.Add(_fillAsset);
               }
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-              if (_fillAsset.VertexBuffer != null)
+              if (verts != null)
               {
-                Fill.SetupBrush(this, ref verts);
+                _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                 PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
                 _verticesCountFill = (verts.Length / 3);
@@ -217,7 +219,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                 if (verts != null)
                 {
                   _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                  Stroke.SetupBrush(this, ref verts);
+                  Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                   PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
                   _verticesCountBorder = (verts.Length / 3);
@@ -228,7 +230,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
-              Stroke.SetupBrush(this, ref verts);
+              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               if (_strokeContext == null)
               {
                 _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);

@@ -30,6 +30,7 @@ namespace MediaPortal.Presentation.Players
   /// </summary>
   public interface ISeekable
   {
-    
+    bool CanSeekBackward { get; }
+    bool CanSeekForward { get; }
   }
 }

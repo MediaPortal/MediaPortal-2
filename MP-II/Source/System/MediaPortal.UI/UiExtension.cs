@@ -67,6 +67,9 @@ namespace MediaPortal
 
     public static void StopAll()
     {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.Shutdown();
+
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       playerManager.CloseAllSlots();
     }

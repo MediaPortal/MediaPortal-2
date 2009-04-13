@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    xmlns:mp_special="clr-namespace:MediaPortal.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="Colors,Buttons"
     >
 
@@ -622,4 +623,78 @@
     <Setter Property="ItemContainerStyle" Value="{StaticResource KeyBindingContainerStyle}"/>
     <Setter Property="Background" Value="{StaticResource KeyBindingsPanelBackgroundBrush}"/>
   </Style>
+
+  <!-- ****************************** PlayerControl ********************************** -->
+
+  <Style x:Key="PlayerControlGroupBoxStyle" BasedOn="{StaticResource GroupBoxStyle}">
+    <Setter Property="BorderBrush" Value="{ThemeResource PlayControlBorderColor}"/>
+    <Setter Property="BorderThickness" Value="{ThemeResource PlayControlBorderThickness}"/>
+    <Setter Property="CornerRadius" Value="{ThemeResource PlayControlCornerRadius}"/>
+  </Style>
+
+  <Storyboard x:Key="CurrentPlayerControlStoryboard" FillBehavior="Stop">
+    <!-- TODO: nicer background cycle effect -->
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[0].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBackgroundColor1}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[1].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBackgroundColor2}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[2].Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource CurrentPlayerControlBackgroundColor3}"/>
+    </ColorAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Style x:Key="DefaultPlayerControlStyle" TargetType="{x:Type mp_special:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
+          <GroupBox x:Name="Shine" Style="{ThemeResource PlayerControlGroupBoxStyle}"
+              Header="{TemplateBinding Title}" HeaderColor="{ThemeResource PlayControlTitleColor}">
+            <GroupBox.Background>
+              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0.5"/>
+                <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="1"/>
+              </LinearGradientBrush>
+            </GroupBox.Background>
+            <StackPanel Orientation="Vertical">
+              <StackPanel Orientation="Horizontal" Margin="5">
+                <Label x:Name="MediaItemTitle" Content="{TemplateBinding MediaItemTitle}" Color="{ThemeResource PlayControlMediaItemColor}"/>
+                <!-- TODO: Speaker symbol, striked out if muted -->
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" IsVisible="{TemplateBinding ShowPlayControls}" Margin="5"
+                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSkipBack}"
+                    Command="{Command Previous}"/>
+                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSeekBackward}"
+                    Command="{Command Rewind}"/>
+                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5" IsVisible="{TemplateBinding !IsRunning}"
+                    Command="{Command Play}"/>
+                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5" IsVisible="{TemplateBinding IsRunning}"
+                    Command="{Command Pause}"/>
+                <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5"
+                    Command="{Command Stop}"/>
+                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSeekForward}"
+                    Command="{Command Forward}"/>
+                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSkipForward}"
+                    Command="{Command Next}"/>
+              </StackPanel>
+            </StackPanel>
+          </GroupBox>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsCurrentPlayer" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource CurrentPlayerControlStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

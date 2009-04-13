@@ -45,12 +45,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (!_performLayout)
         return;
       base.PerformLayout();
-      //Trace.WriteLine("Ellipse.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Ellipse.PerformLayout() " + Name);
 
       double w = ActualWidth;
       double h = ActualHeight;
       Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -62,16 +61,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF((float)ActualPosition.X - 0.5f, (float)ActualPosition.Y - 0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
+      RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
 
 
       //Fill brush
       PositionColored2Textured[] verts;
-      GraphicsPath path;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (path = GetEllipse(rect))
+        using (GraphicsPath path = GetEllipse(rect))
         {
+          float centerX;
+          float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
@@ -79,7 +79,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
               _verticesCountFill = (verts.Length / 3);
-              Fill.SetupBrush(this, ref verts);
+              Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               if (_fillContext == null)
               {
                 _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
@@ -93,14 +93,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_fillAsset == null)
               {
-                _fillAsset = new VisualAssetContext("Ellipse._fillContext:" + this.Name);
+                _fillAsset = new VisualAssetContext("Ellipse._fillContext:" + Name);
                 ContentManager.Add(_fillAsset);
               }
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-              _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-              if (_fillAsset.VertexBuffer != null)
+              if (verts != null)
               {
-                Fill.SetupBrush(this, ref verts);
+                _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                 PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
                 _verticesCountFill = (verts.Length / 3);
@@ -114,14 +114,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + this.Name);
+                _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + Name);
                 ContentManager.Add(_borderAsset);
               }
               TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
               if (verts != null)
               {
                 _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                Stroke.SetupBrush(this, ref verts);
+                Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
                 PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
                 _verticesCountBorder = (verts.Length / 3);
               }
@@ -130,7 +130,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
               _verticesCountBorder = (verts.Length / 3);
-              Stroke.SetupBrush(this, ref verts);
+              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               if (_strokeContext == null)
               {
                 _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);

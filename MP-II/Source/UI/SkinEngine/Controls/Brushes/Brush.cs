@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Transforms;
@@ -188,30 +189,28 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
-    public virtual void SetupBrush(FrameworkElement element, ref PositionColored2Textured[] verts)
+    public virtual void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
-      float w = (float)element.ActualWidth;
-      float h = (float)element.ActualHeight;
+      float w = bounds.Width;
+      float h = bounds.Height;
       float xoff = _bounds.X;
       float yoff = _bounds.Y;
-      if (element.FinalLayoutTransform != null)
+      if (layoutTransform != null)
       {
         w = _bounds.Width;
         h = _bounds.Height;
-        element.FinalLayoutTransform.TransformXY(ref w, ref h);
-        element.FinalLayoutTransform.TransformXY(ref xoff, ref yoff);
+        layoutTransform.TransformXY(ref w, ref h);
+        layoutTransform.TransformXY(ref xoff, ref yoff);
       }
       for (int i = 0; i < verts.Length; ++i)
       {
-        float u, v;
-        float x1, y1;
-        y1 = (float)verts[i].Y;
-        v = (float)(y1 - (element.ActualPosition.Y + yoff));
-        v /= (float)(h);
+        float x1 = verts[i].X;
+        float u = x1 - (bounds.X + xoff);
+        u /= w;
 
-        x1 = (float)verts[i].X;
-        u = (float)(x1 - (element.ActualPosition.X + xoff));
-        u /= (float)(w);
+        float y1 = verts[i].Y;
+        float v = y1 - (bounds.Y + yoff);
+        v /= h;
 
         if (u < 0) u = 0;
         if (u > 1) u = 1;
@@ -219,17 +218,17 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         if (v > 1) v = 1;
         unchecked
         {
-          Color4 color = ColorConverter.FromColor(System.Drawing.Color.White);
-          color.Alpha *= (float)Opacity;
+          Color4 color = ColorConverter.FromColor(Color.White);
+          color.Alpha *= (float) Opacity;
           verts[i].Color = color.ToArgb();
         }
         verts[i].Tu1 = u;
         verts[i].Tv1 = v;
-        verts[i].Z = element.ActualPosition.Z;
+        verts[i].Z = zOrder;
       }
     }
 
-    protected void UpdateBounds(FrameworkElement element, ref PositionColored2Textured[] verts)
+    protected void UpdateBounds(RectangleF bounds, ExtendedMatrix layoutTransform, ref PositionColored2Textured[] verts)
     {
       float minx = float.MaxValue;
       float miny = float.MaxValue;
@@ -243,21 +242,21 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         if (verts[i].X > maxx) maxx = verts[i].X;
         if (verts[i].Y > maxy) maxy = verts[i].Y;
       }
-      if (element.FinalLayoutTransform != null)
+      if (layoutTransform != null)
       {
         maxx -= minx;
         maxy -= miny;
-        minx -= (float)element.ActualPosition.X;
-        miny -= (float)element.ActualPosition.Y;
-        element.FinalLayoutTransform.InvertXY(ref minx, ref miny);
-        element.FinalLayoutTransform.InvertXY(ref maxx, ref maxy);
+        minx -= bounds.X;
+        miny -= bounds.Y;
+        layoutTransform.InvertXY(ref minx, ref miny);
+        layoutTransform.InvertXY(ref maxx, ref maxy);
 
-        _orginalPosition.X = (float)element.ActualPosition.X;
-        _orginalPosition.Y = (float)element.ActualPosition.Y;
+        _orginalPosition.X = bounds.X;
+        _orginalPosition.Y = bounds.Y;
         _minPosition.X = _orginalPosition.X + minx;
         _minPosition.Y = _orginalPosition.Y + miny;
       }
-      _bounds = new System.Drawing.RectangleF(minx, miny, maxx, maxy);
+      _bounds = new RectangleF(minx, miny, maxx, maxy);
     }
 
     public virtual bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount,

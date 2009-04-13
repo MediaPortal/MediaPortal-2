@@ -322,9 +322,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
       }
       if (_renderFallback != null)
-      {
         _renderFallback.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-      }
       SkinContext.RemoveOpacity();
     }
 
@@ -365,9 +363,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
       }
       if (_fallbackImage != null)
-      {
         _fallbackImage.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-      }
       SkinContext.RemoveTransform();
       SkinContext.RemoveOpacity();
     }
@@ -437,8 +433,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _v = 1;
         }
       }
-      else
-        Trace.WriteLine("Image: Texture not allocated");
+      //else
+      //  Trace.WriteLine("Image: Texture not allocated");
     }
 
     public override void Deallocate()

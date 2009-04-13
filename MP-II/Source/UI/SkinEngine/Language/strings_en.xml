@@ -28,4 +28,7 @@
     <String Name="Zoom" Text="Zoom"/>
     <String Name="Zoom149" Text="Zoom 14:9"/>
   </Section>
+  <Section Name="PlayerControl">
+    <String Name="UnknownMediaItem" Text="Unknown media item"/>
+  </Section>
 </Language>

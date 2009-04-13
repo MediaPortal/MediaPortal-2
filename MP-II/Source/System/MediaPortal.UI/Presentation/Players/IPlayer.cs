@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -86,6 +87,17 @@ namespace MediaPortal.Presentation.Players
     /// allowed to play audio.
     /// </summary>
     bool IsAudioEnabled { get; set; }
+
+    /// <summary>
+    /// Returns the title of the currently playing media item, or <c>null</c> if the player doesn't know the title.
+    /// In this case, the current item's title of the player's playlist can be used.
+    /// </summary>
+    /// <remarks>
+    /// This property is implemented here because the player might tell another name for the media item than the
+    /// name/title of the <see cref="MediaItem"/> instance used to instantiate the player. Especially when the player
+    /// is a streaming player, only the player knows the current item's title.
+    /// </remarks>
+    string MediaItemTitle { get; }
 
     /// <summary>
     /// Will be called from outside to update the <see cref="CurrentTime"/> property to the current

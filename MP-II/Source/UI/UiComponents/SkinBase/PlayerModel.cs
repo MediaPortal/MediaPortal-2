@@ -25,10 +25,8 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
-using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
@@ -56,56 +54,29 @@ namespace UiComponents.SkinBase
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
     public static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
 
-    public const int VOLUME_CHANGE = 10;
-
     protected static TimeSpan VIDEO_INFO_TIMEOUT = new TimeSpan(0, 0, 0, 5);
 
     protected Timer _timer;
 
-    protected Property _isPausedProperty;
-    protected Property _isRunningProperty;
-    protected Property _isMutedProperty;
-    protected Property _isPlayerActiveProperty;
-    protected Property _isPlayControlsVisibleProperty;
-    protected Property _isPipProperty;
     protected Property _isVideoInfoVisibleProperty;
-    protected Property _currentPlayerSlotProperty;
-    protected Property _isCurrentAudioProperty;
-    protected Property _showCurrentPlayerIndicatorProperty;
+    protected Property _isPipVisibleProperty;
 
-    protected int _currentlyPlayingIndex = -1;
     protected string _currentlyPlayingScreen = null;
-
-    protected ICollection<Key> _registeredKeyBindings;
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
 
     public PlayerModel()
     {
-      _isPausedProperty = new Property(typeof(bool), false);
-      _isRunningProperty = new Property(typeof(bool), false);
-      _isPlayerActiveProperty = new Property(typeof(bool), false);
-      _isMutedProperty = new Property(typeof(bool), false);
-      _isPlayControlsVisibleProperty = new Property(typeof(bool), false);
-      _isPipProperty = new Property(typeof(bool), false);
       _isVideoInfoVisibleProperty = new Property(typeof(bool), false);
-      _currentPlayerSlotProperty = new Property(typeof(int), -1);
-      _isCurrentAudioProperty = new Property(typeof(bool), false);
-      _showCurrentPlayerIndicatorProperty = new Property(typeof(bool), false);
-
-      _currentPlayerSlotProperty.Attach(OnCurrentPlayerSlotChanged);
-
-      _registeredKeyBindings = new List<Key>();
+      _isPipVisibleProperty = new Property(typeof(bool), false);
 
       SubscribeToMessages();
     }
 
     public void Dispose()
     {
-      _timer.Elapsed -= OnTimerElapsed;
-      _timer.Enabled = false;
+      StopListening();
       UnsubscribeFromMessages();
-      UnregisterKeyBindings();
     }
 
     protected void SubscribeToMessages()
@@ -121,7 +92,7 @@ namespace UiComponents.SkinBase
       if (broker == null)
         return;
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
-      // SytemMessaging queue is unregistered as soon as the system is started
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
     }
 
     protected void StartListening()
@@ -131,10 +102,13 @@ namespace UiComponents.SkinBase
       _timer.Elapsed += OnTimerElapsed;
       _timer.Enabled = true;
 
-      CheckCurrentPlayerSlot();
-      UpdatePlayControls();
-      CheckIsCurrentAudio();
-      UpdateKeyBindings();
+      CheckVideoInfoVisible();
+    }
+
+    protected void StopListening()
+    {
+      _timer.Enabled = false;
+      _timer.Elapsed -= OnTimerElapsed;
     }
 
     protected void OnSystemMessageReceived(QueueMessage message)
@@ -142,22 +116,25 @@ namespace UiComponents.SkinBase
       SystemMessaging.MessageType messageType =
           (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
       if (messageType == SystemMessaging.MessageType.SystemStarted)
-      {
         StartListening();
-        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
+      else if (messageType == SystemMessaging.MessageType.SystemShutdown)
+      {
+        StopListening();
+        UnsubscribeFromMessages();
       }
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
     {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       PlayerManagerMessaging.MessageType messageType =
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       switch (messageType)
       {
         case PlayerManagerMessaging.MessageType.PlayerStopped:
+        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
           int slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-          if (_currentlyPlayingIndex == slotIndex)
+          if (_currentlyPlayingScreen != null && slotIndex == playerContextManager.CurrentPlayerIndex)
           {
             IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
             // Maybe we should do more handling in this case - show dialogs "do you want to delete"
@@ -165,208 +142,26 @@ namespace UiComponents.SkinBase
             workflowManager.NavigatePop(1);
             // _currentlyPlayingIndex will be reset by ExitModelContext
           }
-          UpdateKeyBindings();
-          break;
-        case PlayerManagerMessaging.MessageType.PlayerEnded:
-          // Don't leave currently playing state here - the player just ended
-          UpdateKeyBindings();
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
-          UpdateKeyBindings();
-          if (_currentlyPlayingIndex != -1)
+          if (_currentlyPlayingScreen != null)
             // Automatically switch "currently playing" screen if another player is started. This will
             // ensure that the screen is correctly updated when the playlist progresses.
             UpdateCurrentlyPlayingScreen();
           break;
-        case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
-          CheckCurrentPlayerSlot();
-          break;
-        case PlayerManagerMessaging.MessageType.AudioSlotChanged:
-          CheckIsCurrentAudio();
-          break;
       }
-      UpdatePlayControls();
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
-      UpdatePlayControls();
+      UpdateProperties();
+      CheckVideoInfoVisible();
     }
 
-    protected void OnCurrentPlayerSlotChanged(Property prop, object oldValue)
+    protected void UpdateProperties()
     {
-      CheckIsCurrentAudio();
-    }
-
-    /// <summary>
-    /// Updates the <see cref="IsCurrentAudio"/> property. Will be called when either the <see cref="CurrentPlayerSlot"/>
-    /// changes or when the <see cref="IPlayerManager.AudioSlotIndex"/> changes.
-    /// </summary>
-    protected void CheckIsCurrentAudio()
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IsCurrentAudio = CurrentPlayerSlot != -1 && CurrentPlayerSlot == playerManager.AudioSlotIndex;
-    }
-
-    /// <summary>
-    /// Updates the globally registered key bindings depending on the current player. Will be called when the
-    /// currently active player changes.
-    /// </summary>
-    protected void UpdateKeyBindings()
-    {
-      UnregisterKeyBindings();
-      RegisterKeyBindings();
-    }
-
-    /// <summary>
-    /// Registers key bindings for the currently active player, if there is a player active.
-    /// </summary>
-    protected void RegisterKeyBindings()
-    {
-      IPlayerContext currentPSC = GetCurrentPlayerContext();
-      if (currentPSC == null)
-        return;
-      // TODO: Is there a ZoomMode/Change Aspect Ratio key in any input device (keyboard, IR, ...)? If yes,
-      // we should register it here too
-      AddKeyBinding(Key.Play, () =>
-        {
-          Play();
-          return true;
-        });
-      AddKeyBinding(Key.Pause, () =>
-        {
-          Pause();
-          return true;
-        });
-      AddKeyBinding(Key.PlayPause, () =>
-        {
-          TogglePause();
-          return true;
-        });
-      AddKeyBinding(Key.Printable(' '), () =>
-        {
-          TogglePause();
-          return true;
-        });
-      AddKeyBinding(Key.Stop, () =>
-        {
-          Stop();
-          return true;
-        });
-      AddKeyBinding(Key.Rew, () =>
-        {
-          SeekBackward();
-          return true;
-        });
-      AddKeyBinding(Key.Fwd, () =>
-        {
-          SeekForward();
-          return true;
-        });
-      AddKeyBinding(Key.Previous, () =>
-        {
-          Previous();
-          return true;
-        });
-      AddKeyBinding(Key.Next, () =>
-        {
-          Next();
-          return true;
-        });
-      AddKeyBinding(Key.Mute, () =>
-        {
-          ToggleMuteAudioPlayer();
-          return true;
-        });
-      AddKeyBinding(Key.VolumeUp, () =>
-        {
-          VolumeUp();
-          return true;
-        });
-      AddKeyBinding(Key.VolumeDown, () =>
-        {
-          VolumeDown();
-          return true;
-        });
-      // Register player specific key bindings
-      // TODO: Register key bindings from current player
-    }
-
-    protected void AddKeyBinding(Key key, ActionDlgt action)
-    {
-      _registeredKeyBindings.Add(key);
-      IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      inputManager.AddKeyBinding(key, action);
-    }
-
-    /// <summary>
-    /// Removes all key bindings which have been globally registered before.
-    /// </summary>
-    protected void UnregisterKeyBindings()
-    {
-      IInputManager inputManager = ServiceScope.Get<IInputManager>(false);
-      if (inputManager == null)
-        return;
-      foreach (Key key in _registeredKeyBindings)
-        inputManager.RemoveKeyBinding(key);
-    }
-
-    /// <summary>
-    /// Updates the <see cref="CurrentPlayerSlot"/> if it doesn't make sense any more (e.g. when the player
-    /// was stopped, or when the current slot wasn't set but a player became active).
-    /// </summary>
-    protected void CheckCurrentPlayerSlot()
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      bool primaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT).IsActive;
-      bool secondaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT).IsActive;
-      int currentPlayerSlot = CurrentPlayerSlot;
-      if (currentPlayerSlot == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
-        currentPlayerSlot = -1;
-      else if (currentPlayerSlot == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
-        currentPlayerSlot = -1;
-      if (currentPlayerSlot == -1)
-        if (secondaryPlayerActive)
-          currentPlayerSlot = PlayerManagerConsts.SECONDARY_SLOT;
-        else if (primaryPlayerActive)
-          currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      pcm.CurrentPlayerIndex = currentPlayerSlot;
-      CurrentPlayerSlot = currentPlayerSlot;
-      ShowCurrentPlayerIndicator = playerManager.NumActiveSlots > 1;
-    }
-
-    protected void UpdatePlayControls()
-    {
-      IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayer player = playerManager[0];
-      if (player == null)
-      {
-        IsPaused = false;
-        IsRunning = false;
-        IsPlayerActive = false;
-        IsMuted = false;
-        IsPlayControlsVisible = false;
-        IsVideoInfoVisible = false;
-
-        IsPip = false;
-      }
-      else
-      {
-        player.UpdateTime();
-        IsPaused = player.State == PlaybackState.Paused;
-        IsRunning = player.State == PlaybackState.Playing;
-        IsPlayerActive = true;
-        IVolumeControl volumeControl = player as IVolumeControl;
-        IsMuted = volumeControl != null && volumeControl.Mute;
-        IsPlayControlsVisible = screenControl.IsMouseUsed;
-        CheckVideoInfoVisible();
-
-        // TODO: PIP configuration
-        IsPip = false;
-      }
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IsPipVisible = playerContextManager.IsPipActive;
     }
 
     protected void CheckVideoInfoVisible()
@@ -380,10 +175,10 @@ namespace UiComponents.SkinBase
     /// "currently playing" screen is shown.
     /// </summary>
     /// <returns>Player context for the current player or <c>null</c>, if there is no current player.</returns>
-    protected IPlayerContext GetCurrentPlayerContext()
+    protected static IPlayerContext GetCurrentPlayerContext()
     {
       IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      int currentPlayerSlot = CurrentPlayerSlot;
+      int currentPlayerSlot = pcm.CurrentPlayerIndex;
       if (currentPlayerSlot == -1)
         currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
       return pcm.GetPlayerContext(currentPlayerSlot);
@@ -420,83 +215,6 @@ namespace UiComponents.SkinBase
       }
     }
 
-    protected static void ChangeVolume(int relativeValue)
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayerSlotController psc = playerManager.GetPlayerSlotController(playerManager.AudioSlotIndex);
-      if (psc == null)
-        return;
-      IVolumeControl player = psc.CurrentPlayer as IVolumeControl;
-      if (player != null)
-        player.Volume = Math.Min(player.Volume + relativeValue, 100);
-    }
-
-    public Property IsPipProperty
-    {
-      get { return _isPipProperty; }
-    }
-
-    public bool IsPip
-    {
-      get { return (bool) _isPipProperty.GetValue(); }
-      set { _isPipProperty.SetValue(value); }
-    }
-
-    public Property IsPausedProperty
-    {
-      get { return _isPausedProperty; }
-    }
-
-    public bool IsPaused
-    {
-      get { return (bool) _isPausedProperty.GetValue(); }
-      set { _isPausedProperty.SetValue(value); }
-    }
-
-    public Property IsRunningProperty
-    {
-      get { return _isRunningProperty; }
-    }
-
-    public bool IsRunning
-    {
-      get { return (bool) _isRunningProperty.GetValue(); }
-      set { _isRunningProperty.SetValue(value); }
-    }
-
-    public Property IsMutedProperty
-    {
-      get { return _isMutedProperty; }
-    }
-
-    public bool IsMuted
-    {
-      get { return (bool) _isMutedProperty.GetValue(); }
-      set { _isMutedProperty.SetValue(value); }
-    }
-
-    public Property IsPlayControlsVisibleProperty
-    {
-      get { return _isPlayControlsVisibleProperty; }
-    }
-
-    public bool IsPlayControlsVisible
-    {
-      get { return (bool) _isPlayControlsVisibleProperty.GetValue(); }
-      set { _isPlayControlsVisibleProperty.SetValue(value); }
-    }
-
-    public Property IsPlayerActiveProperty
-    {
-      get { return _isPlayerActiveProperty; }
-    }
-
-    public bool IsPlayerActive
-    {
-      get { return (bool) _isPlayerActiveProperty.GetValue(); }
-      set { _isPlayerActiveProperty.SetValue(value); }
-    }
-
     public Property IsVideoInfoVisibleProperty
     {
       get { return _isVideoInfoVisibleProperty; }
@@ -508,40 +226,18 @@ namespace UiComponents.SkinBase
       set { _isVideoInfoVisibleProperty.SetValue(value); }
     }
 
-    public Property CurrentPlayerSlotProperty
+    public Property IsPipVisibleProperty
     {
-      get { return _currentPlayerSlotProperty; }
+      get { return _isPipVisibleProperty; }
     }
 
-    public int CurrentPlayerSlot
+    public bool IsPipVisible
     {
-      get { return (int) _currentPlayerSlotProperty.GetValue(); }
-      set { _currentPlayerSlotProperty.SetValue(value); }
+      get { return (bool) _isPipVisibleProperty.GetValue(); }
+      set { _isPipVisibleProperty.SetValue(value); }
     }
 
-    public Property IsCurrentAudioProperty
-    {
-      get { return _isCurrentAudioProperty; }
-    }
-
-    public bool IsCurrentAudio
-    {
-      get { return (bool) _isCurrentAudioProperty.GetValue(); }
-      set { _isCurrentAudioProperty.SetValue(value); }
-    }
-
-    public Property ShowCurrentPlayerIndicatorProperty
-    {
-      get { return _showCurrentPlayerIndicatorProperty; }
-    }
-
-    public bool ShowCurrentPlayerIndicator
-    {
-      get { return (bool) _showCurrentPlayerIndicatorProperty.GetValue(); }
-      set { _showCurrentPlayerIndicatorProperty.SetValue(value); }
-    }
-
-    public void Play()
+    public static void Play()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
       if (pc == null)
@@ -552,7 +248,7 @@ namespace UiComponents.SkinBase
         pc.Restart();
     }
 
-    public void Pause()
+    public static void Pause()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
       if (pc == null)
@@ -560,7 +256,7 @@ namespace UiComponents.SkinBase
       pc.Pause();
     }
 
-    public void TogglePause()
+    public static void TogglePause()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
       if (pc == null)
@@ -578,7 +274,7 @@ namespace UiComponents.SkinBase
       }
     }
 
-    public void Stop()
+    public static void Stop()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
       if (pc == null)
@@ -586,21 +282,21 @@ namespace UiComponents.SkinBase
       pc.Stop();
     }
 
-    public void SeekBackward()
+    public static void SeekBackward()
     {
       // TODO
       IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
       dialogManager.ShowDialog("Not implemented", "The BKWD command is not implemented yet", DialogType.OkDialog, false);
     }
 
-    public void SeekForward()
+    public static void SeekForward()
     {
       // TODO
       IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
       dialogManager.ShowDialog("Not implemented", "The FWD command is not implemented yet", DialogType.OkDialog, false);
     }
 
-    public void Previous()
+    public static void Previous()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
       if (pc == null)
@@ -608,7 +304,7 @@ namespace UiComponents.SkinBase
       pc.PreviousItem();
     }
 
-    public void Next()
+    public static void Next()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
       if (pc == null)
@@ -616,20 +312,22 @@ namespace UiComponents.SkinBase
       pc.NextItem();
     }
 
-    public void VolumeUp()
+    public static void VolumeUp()
     {
-      ChangeVolume(VOLUME_CHANGE);
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.VolumeUp();
     }
 
-    public void VolumeDown()
+    public static void VolumeDown()
     {
-      ChangeVolume(-VOLUME_CHANGE);
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.VolumeDown();
     }
 
-    public void ToggleMuteAudioPlayer()
+    public static void ToggleMute()
     {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      pcm.Muted ^= true;
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.Muted ^= true;
     }
 
     public void ShowCurrentlyPlaying()

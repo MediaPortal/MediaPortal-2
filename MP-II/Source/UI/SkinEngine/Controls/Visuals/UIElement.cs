@@ -602,10 +602,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <param name="size">Size parameter where the margin will be added.</param>
     public void AddMargin(ref SizeF size)
     {
-      if (!float.IsNaN(size.Width))
-        size.Width += (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      if (!float.IsNaN(size.Height))
-        size.Height += (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+      AddMargin(ref size, Margin);
     }
 
     /// <summary>
@@ -618,10 +615,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <param name="size">Size parameter where the margin will be removed.</param>
     public void RemoveMargin(ref SizeF size)
     {
-      if (!float.IsNaN(size.Width))
-        size.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      if (!float.IsNaN(size.Height))
-        size.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+      RemoveMargin(ref size, Margin);
     }
 
     /// <summary>
@@ -630,11 +624,32 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// <param name="rect">Outer element's rectangle where the margin will be removed.</param>
     public void RemoveMargin(ref RectangleF rect)
     {
-      rect.X += Margin.Left * SkinContext.Zoom.Width;
-      rect.Y += Margin.Top * SkinContext.Zoom.Height;
+      RemoveMargin(ref rect, Margin);
+    }
 
-      rect.Width -= (Margin.Left + Margin.Right) * SkinContext.Zoom.Width;
-      rect.Height -= (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height;
+    public static void AddMargin(ref SizeF size, Thickness margin)
+    {
+      if (!float.IsNaN(size.Width))
+        size.Width += (margin.Left + margin.Right) * SkinContext.Zoom.Width;
+      if (!float.IsNaN(size.Height))
+        size.Height += (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    public static void RemoveMargin(ref SizeF size, Thickness margin)
+    {
+      if (!float.IsNaN(size.Width))
+        size.Width -= (margin.Left + margin.Right) * SkinContext.Zoom.Width;
+      if (!float.IsNaN(size.Height))
+        size.Height -= (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    public static void RemoveMargin(ref RectangleF rect, Thickness margin)
+    {
+      rect.X += margin.Left * SkinContext.Zoom.Width;
+      rect.Y += margin.Top * SkinContext.Zoom.Height;
+
+      rect.Width -= (margin.Left + margin.Right) * SkinContext.Zoom.Width;
+      rect.Height -= (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
     }
 
     /// <summary>

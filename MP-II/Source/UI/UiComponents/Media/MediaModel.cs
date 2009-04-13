@@ -196,20 +196,20 @@ namespace UiComponents.Media
       }
       _playMenuItems = new ItemsList();
       PlayerContextType mediaType = pcm.GetTypeOfMediaItem(item);
-      IPlayerContext pcAudio = pcm.GetPlayerContextByMediaType(PlayerContextType.Audio);
-      IPlayerContext pcVideo = pcm.GetPlayerContextByMediaType(PlayerContextType.Video);
+      int numAudio = pcm.NumPlayerContextsOfMediaType(PlayerContextType.Audio);
+      int numVideo = pcm.NumPlayerContextsOfMediaType(PlayerContextType.Video);
       if (mediaType == PlayerContextType.Audio)
       {
         ListItem playItem = new ListItem(NAME_KEY, PLAY_AUDIO_ITEM_RESOURCE);
         playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
         _playMenuItems.Add(playItem);
-        if (pcAudio != null)
+        if (numAudio > 0)
         {
           ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_AUDIO_ITEM_RESOURCE);
           enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false));
           _playMenuItems.Add(enqueueItem);
         }
-        if (pcVideo != null)
+        if (numVideo > 0)
         {
           ListItem playItemConcurrently = new ListItem(NAME_KEY, MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE);
           playItemConcurrently.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false));
@@ -221,19 +221,19 @@ namespace UiComponents.Media
         ListItem playItem = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_RESOURCE);
         playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
         _playMenuItems.Add(playItem);
-        if (pcVideo != null)
+        if (numVideo > 0)
         {
           ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_VIDEO_ITEM_RESOURCE);
           enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false));
           _playMenuItems.Add(enqueueItem);
         }
-        if (pcAudio != null)
+        if (numAudio > 0)
         {
           ListItem playItem_A = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE);
           playItem_A.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false));
           _playMenuItems.Add(playItem_A);
         }
-        if (pcVideo != null)
+        if (numVideo > 0)
         {
           ListItem playItem_V = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_PIP_RESOURCE);
           playItem_V.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, true));
@@ -260,6 +260,26 @@ namespace UiComponents.Media
       PlayOrEnqueueItem(item, true, false, false);
     }
 
+    protected static IPlayerContext GetPlayerContextByMediaType(PlayerContextType mediaType, bool concurrent)
+    {
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext result = null;
+      if (mediaType == PlayerContextType.Video && concurrent || mediaType == PlayerContextType.Audio)
+        // Concurrent video & audio - search in reverse order
+        for (int i = 1; i >= 0; i--)
+        {
+          if ((result = pcm.GetPlayerContext(i)) != null && result.MediaType == mediaType)
+            return result;
+        }
+      else // Non-concurrent video - search in normal order
+        for (int i = 0; i < 2; i++)
+        {
+          if ((result = pcm.GetPlayerContext(i)) != null && result.MediaType == PlayerContextType.Video)
+            return result;
+        }
+      return null;
+    }
+
     /// <summary>
     /// Depending on parameter <paramref name="play"/>, plays or enqueues the specified media item
     /// <paramref name="item"/>.
@@ -277,13 +297,15 @@ namespace UiComponents.Media
       IPlayerContext pc = null;
       if (!play)
         // !play means enqueue, so open an already existing player context for our media type
-        pc = pcm.GetPlayerContextByMediaType(mediaType);
+        pc = GetPlayerContextByMediaType(mediaType, concurrent);
       if (pc == null)
         // Open a new player context, which will close conflicting player contexts
         if (mediaType == PlayerContextType.Video)
           pc = pcm.OpenVideoPlayerContext(concurrent, subordinatedVideo);
         else
           pc = pcm.OpenAudioPlayerContext(concurrent);
+      if (mediaType == PlayerContextType.Video)
+        pc.CloseWhenFinished = true;
       pc.Playlist.Add(item);
       pc.Play();
     }

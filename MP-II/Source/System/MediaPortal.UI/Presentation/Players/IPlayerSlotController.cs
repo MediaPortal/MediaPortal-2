@@ -68,13 +68,25 @@ namespace MediaPortal.Presentation.Players
     int SlotIndex { get; }
 
     /// <summary>
-    /// Returns the information if this player slot plays the audio signal.
+    /// Returns the information if this player slot is the audio slot. In this case, will play the audio signal,
+    /// if it is not muted.
     /// </summary>
     /// <remarks>
     /// This property is located here rather than in the player manager, because when exchanging the player, we need
     /// to configure each new player according to this property.
     /// </remarks>
     bool IsAudioSlot { get; }
+
+    /// <summary>
+    /// Returns the information if this player slot is muted. A player slot can be both the audio slot and muted.
+    /// </summary>
+    bool IsMuted { get; }
+
+    /// <summary>
+    /// Gets or sets the volume for the current player slot. This will set the volume for the current player
+    /// (if available) and all future players of this slot until it is changed again.
+    /// </summary>
+    int Volume { get; set; }
 
     /// <summary>
     /// Returns the information if this player slot is activated.

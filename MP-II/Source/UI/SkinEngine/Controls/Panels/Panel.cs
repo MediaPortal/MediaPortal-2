@@ -301,7 +301,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           verts[4].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
           verts[5].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
         }
-        Background.SetupBrush(this, ref verts);
+        Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
         if (SkinContext.UseBatching)
         {
           if (_backgroundContext == null)

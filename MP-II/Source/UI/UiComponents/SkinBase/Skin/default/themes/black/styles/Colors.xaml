@@ -185,4 +185,21 @@
   <!-- Very light gray -->
   <ResourceWrapper x:Key="AnalogClockBorderGradientLightColor" Resource="#F8AAAAAA"/>
 
+  <!-- Yellow -->
+  <ResourceWrapper x:Key="PlayControlsFill" Resource="Yellow"/>
+
+  <!-- Black -->
+  <ResourceWrapper x:Key="PlayControlsStrokeColor" Resource="#FF000000"/>
+
+  <!-- Transparent white -->
+  <ResourceWrapper x:Key="PipStrokeColor" Resource="#66FFFFFF"/>
+
+  <ResourceWrapper x:Key="PlayControlBorderColor" Resource="#FFFFFFFF"/>
+  <ResourceWrapper x:Key="PlayControlTitleColor" Resource="#FF999999"/>
+  <ResourceWrapper x:Key="PlayControlMediaItemColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="PlayerControlBackgroundColor" Resource="#60000000"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor1" Resource="#60608020"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor2" Resource="#6099CC33"/>
+  <ResourceWrapper x:Key="CurrentPlayerControlBackgroundColor3" Resource="#60608020"/>
+
 </ResourceDictionary>

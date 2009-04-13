@@ -198,8 +198,9 @@ namespace MediaPortal.Services.Workflow
       ModelEntry entry;
       if (_modelCache.TryGetValue(modelId, out entry))
       {
-        if (entry.ModelInstance is IDisposable)
-          ((IDisposable) entry.ModelInstance).Dispose();
+        IDisposable d = entry.ModelInstance as IDisposable;
+        if (d != null)
+          d.Dispose();
       }
       ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       _modelCache.Remove(modelId);
@@ -207,7 +208,7 @@ namespace MediaPortal.Services.Workflow
 
     protected void RemoveModelFromNavigationStack(Guid modelId)
     {
-      // Pop all navigation context until requested model isn't used any more
+      // Pop all navigation contexts until requested model isn't used any more
       while (IsModelContainedInNavigationStack(modelId))
         if (!DoPopNavigationContext(1))
           break;
@@ -465,7 +466,7 @@ namespace MediaPortal.Services.Workflow
       ServiceScope.Get<ILogger>().Info("WorkflowManager: Shutdown");
       ISkinResourceManager skinResourceManager = ServiceScope.Get<ISkinResourceManager>(false);
       if (skinResourceManager != null)
-        skinResourceManager.SkinResourcesChanged += OnSkinResourcesChanged;
+        skinResourceManager.SkinResourcesChanged -= OnSkinResourcesChanged;
       foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
         FreeModel(modelId);
     }

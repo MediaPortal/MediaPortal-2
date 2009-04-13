@@ -33,9 +33,6 @@
     <String Name="5" Text="Menu"/>
     <String Name="Eject" Text="Eject"/>
   </Section>
-  <Section Name="Players">
-    <String Name="OpenCurrentlyPlaying" Text="View current item"/>
-  </Section>
   <Section Name="Settings">
     <String Name="Appearance" Text="Appearance"/>
     <String Name="Appearance.Skin" Text="Skin"/>

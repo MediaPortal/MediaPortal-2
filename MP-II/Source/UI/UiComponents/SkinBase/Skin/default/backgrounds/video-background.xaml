@@ -4,15 +4,31 @@
 Video background
 -->
 
-<StackPanel
+<Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
-  <StackPanel.Resources>
+  <Grid.Resources>
     <!-- Player model -->
     <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
-  </StackPanel.Resources>
-  <StackPanel.Background>
-    <VideoBrush Stream="{Binding Source={StaticResource PlayerModel},Path=PrimaryPlayerVideoStream}"/>
-  </StackPanel.Background>
-</StackPanel>
+  </Grid.Resources>
+  <Grid.Background>
+    <VideoBrush Stream="0"/>
+  </Grid.Background>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="50"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="50"/>
+  </Grid.RowDefinitions>
+  <Rectangle Grid.Column="1" Grid.Row="1" x:Name="PIP" Width="160" Height="104" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
+      IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPipVisible}">
+    <Rectangle.Fill>
+      <VideoBrush Stream="1"/>
+    </Rectangle.Fill>
+  </Rectangle>
+</Grid>

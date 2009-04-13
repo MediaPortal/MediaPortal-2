@@ -49,10 +49,26 @@ namespace MediaPortal.Presentation.Players
     int NumActiveSlots { get; }
 
     /// <summary>
+    /// Gets the player at the specified player slot, or <c>null</c>, if there is no player in the slot.
+    /// </summary>
+    IPlayer this[int slotIndex] { get; }
+
+    /// <summary>
     /// Gets or sets the index of the slot which provides the audio signal. If there is no active slot
     /// at the moment, or if the system is muted, then <see cref="AudioSlotIndex"/> will be <c>-1</c>.
     /// </summary>
     int AudioSlotIndex { get; set; }
+
+    /// <summary>
+    /// Gets or sets the muted state of the system. The muted state is independent from the audio slot index,
+    /// both states complete each other, i.e. a player only plays the audio signal if it is the audio slot and not muted.
+    /// </summary>
+    bool Muted { get; set; }
+
+    /// <summary>
+    /// Gets or sets the volume which will be used in all players.
+    /// </summary>
+    int Volume { get; set; }
 
     /// <summary>
     /// Opens a player slot.
@@ -87,11 +103,6 @@ namespace MediaPortal.Presentation.Players
     IPlayerSlotController GetPlayerSlotController(int slotIndex);
 
     /// <summary>
-    /// Gets the player at the specified player slot, or <c>null</c>, if there is no player in the slot.
-    /// </summary>
-    IPlayer this[int slotIndex] { get; }
-
-    /// <summary>
     /// Switches the primary and secondary player slots. The slot controller, which was located in slot <c>0</c>,
     /// will be moved to slot <c>1</c> and vice-versa. This method only succeeds if there are exactly two open slots.
     /// </summary>
@@ -102,5 +113,15 @@ namespace MediaPortal.Presentation.Players
     /// </summary>
     /// <param name="execute">Method to execute.</param>
     void ForEach(PlayerSlotWorkerDelegate execute);
+
+    /// <summary>
+    /// Increments the volume.
+    /// </summary>
+    void VolumeUp();
+
+    /// <summary>
+    /// Decrements the volume.
+    /// </summary>
+    void VolumeDown();
   }
 }

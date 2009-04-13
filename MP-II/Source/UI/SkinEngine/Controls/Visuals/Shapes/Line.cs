@@ -154,7 +154,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
       double w = ActualWidth;
       double h = ActualHeight;
-      float centerX, centerY;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
       ExtendedMatrix m = new ExtendedMatrix();
@@ -166,30 +165,31 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         m.Matrix *= em.Matrix;
       }
       m.InvertSize(ref rectSize);
-      System.Drawing.RectangleF rect = new System.Drawing.RectangleF(0, 0, rectSize.Width, rectSize.Height);
-      rect.X += (float)ActualPosition.X;
-      rect.Y += (float)ActualPosition.Y;
+      RectangleF rect = new RectangleF(0, 0, rectSize.Width, rectSize.Height);
+      rect.X += ActualPosition.X;
+      rect.Y += ActualPosition.Y;
       //Fill brush
-      GraphicsPath path;
       PositionColored2Textured[] verts;
 
       //border brush
 
       if (Stroke != null && StrokeThickness > 0)
       {
-        using (path = GetLine(rect))
+        using (GraphicsPath path = GetLine(rect))
         {
+          float centerX;
+          float centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (_borderAsset == null)
           {
-            _borderAsset = new VisualAssetContext("Line._borderContext:" + this.Name);
+            _borderAsset = new VisualAssetContext("Line._borderContext:" + Name);
             ContentManager.Add(_borderAsset);
           }
           if (SkinContext.UseBatching)
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             _verticesCountBorder = (verts.Length / 3);
-            Stroke.SetupBrush(this, ref verts);
+            Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
             if (_strokeContext == null)
             {
               _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
@@ -202,10 +202,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           else
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-            _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-            if (_borderAsset.VertexBuffer != null)
+            if (verts != null)
             {
-              Stroke.SetupBrush(this, ref verts);
+              _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
               _verticesCountBorder = (verts.Length / 3);
             }
@@ -294,15 +294,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
       float w = (float)Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 
-      float ang = (float)((y2 - y1) / (x2 - x1));
-      ang = (float)Math.Atan(ang);
-      ang *= (float)(180.0f / Math.PI);
+      float ang = (y2 - y1) / (x2 - x1);
+      ang = (float) Math.Atan(ang);
+      ang *= (float) (180.0f / Math.PI);
       GraphicsPath mPath = new GraphicsPath();
       System.Drawing.Rectangle r = new System.Drawing.Rectangle((int)x1, (int)y1, (int)w, (int)StrokeThickness);
       mPath.AddRectangle(r);
       mPath.CloseFigure();
 
-      System.Drawing.Drawing2D.Matrix matrix = new System.Drawing.Drawing2D.Matrix();
+      Matrix matrix = new Matrix();
       matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
 
 

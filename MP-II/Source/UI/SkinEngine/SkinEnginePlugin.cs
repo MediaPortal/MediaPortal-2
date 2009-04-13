@@ -133,11 +133,15 @@ namespace MediaPortal.SkinEngine
       RegisterGlobalKeyBindings();
     }
 
-    void ISkinEngine.Uninitialize()
+    void ISkinEngine.Shutdown()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+
       logger.Debug("SkinEnginePlugin: Unregistering default key bindings");
       UnregisterGlobalKeyBindings();
+
+      logger.Debug("SkinEnginePlugin: Closing all open screens");
+      _screenManager.InternalCloseCurrentScreenAndDialogs(true);
 
       logger.Debug("SkinEnginePlugin: Uninstalling background manager");
       _screenManager.UninstallBackgroundManager();
@@ -187,7 +191,7 @@ namespace MediaPortal.SkinEngine
 
     public void Continue() { }
 
-    public void Shutdown()
+    void IPluginStateTracker.Shutdown()
     {
       Dispose();
     }

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
- <!-- DataContext = Player Model -->
 <Canvas x:Name="PlayControls"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}}"
-    >
+    > <!-- DataContext = Player Model -->
   <Canvas.Resources>
     <Style x:Key="ButtonPauseStyle" TargetType="{x:Type Button}">
       <Setter Property="Template">

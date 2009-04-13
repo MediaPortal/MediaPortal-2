@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -64,7 +63,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Thickness b = source as Thickness;
+      Thickness b = (Thickness) source;
       _left = b._left;
       _top = b._top;
       _right = b._right;
