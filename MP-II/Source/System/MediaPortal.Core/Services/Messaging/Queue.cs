@@ -143,6 +143,11 @@ namespace MediaPortal.Core.Services.Messaging
       get { return _filters; }
     }
 
+    public string Name
+    {
+      get { return _queueName; }
+    }
+
     public bool HasSubscribers
     {
       get { return (MessageReceived != null); }
