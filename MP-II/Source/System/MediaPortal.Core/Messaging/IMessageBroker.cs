@@ -29,6 +29,9 @@ namespace MediaPortal.Core.Messaging
   /// <summary>
   /// Registration for all system message queues.
   /// </summary>
+  /// <remarks>
+  /// This service is thread-safe.
+  /// </remarks>
   public interface IMessageBroker
   {
     /// <summary>

@@ -28,6 +28,12 @@ namespace MediaPortal.Core.Messaging
 {
   public delegate void MessageReceivedHandler(QueueMessage message);
 
+  /// <summary>
+  /// Named message queue to send messages through the system.
+  /// </summary>
+  /// <remarks>
+  /// This service is thread-safe.
+  /// </remarks>
   public interface IMessageQueue
   {
     event MessageReceivedHandler MessageReceived;
@@ -36,6 +42,11 @@ namespace MediaPortal.Core.Messaging
     /// Gets the information if this queue has subscribers.
     /// </summary>
     bool HasSubscribers { get;}
+
+    /// <summary>
+    /// Returns the name of this message queue.
+    /// </summary>
+    string Name { get; }
 
     /// <summary>
     /// Gets the message filters.
