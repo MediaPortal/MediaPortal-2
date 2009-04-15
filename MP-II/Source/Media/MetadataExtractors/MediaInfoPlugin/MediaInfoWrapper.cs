@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using MediaPortal.Utilities;
 
 namespace MediaInfoLib
@@ -117,7 +118,43 @@ namespace MediaInfoLib
     /// <see cref="IsValid"/> will also be <c>false</c>.</returns>
     public bool Open(Stream stream)
     {
-      // TODO: Open the stream in the underlaying _mediaInfo instance
+      const int buffer_size = 64 * 1024;
+      int bytes_read = 0;
+      byte[] buffer = new byte[buffer_size];  // init the buffer to communicate with MediaInfo
+
+      _isValid = (_mediaInfo.Open_Buffer_Init(stream.Length, 0) == MEDIAINFO_FILE_OPENED);
+      if (!_isValid)
+      {
+        return false;
+      }
+
+      // Now we need to run the parsing loop, as long as MediaInfo requests information from the stream
+      do
+      {
+        bytes_read = stream.Read(buffer, 0, buffer_size);
+        GCHandle gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+        IntPtr buffer_ptr = gcHandle.AddrOfPinnedObject();
+
+        
+        if (_mediaInfo.Open_Buffer_Continue(buffer_ptr, (IntPtr)bytes_read) == 0)
+        {
+          // MediaInfo doesn't need more information from us
+          gcHandle.Free();
+          break;
+        }
+        gcHandle.Free();
+ 
+        // Now we need to test, if MediaInfo wants data from a different place of the stream
+        if (_mediaInfo.Open_Buffer_Continue_GoTo_Get() != -1)
+        {
+          Int64 pos = stream.Seek(_mediaInfo.Open_Buffer_Continue_GoTo_Get(), SeekOrigin.Begin);  // Position the stream
+          _mediaInfo.Open_Buffer_Init(stream.Length, pos);  // Inform MediaInfo that we are at the new position
+        }
+      } while (bytes_read > 0);
+ 
+      // Finalising MediaInfo procesing
+      _mediaInfo.Open_Buffer_Finalize();
+
       return _isValid;
     }
 
