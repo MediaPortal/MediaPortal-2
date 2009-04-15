@@ -108,6 +108,8 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Removing IThreadPool");
       ServiceScope.RemoveAndDispose<Threading.IThreadPool>();
 
+      logger.Debug("ApplicationCore: Shutting down IMessageBroker");
+      ServiceScope.Get<IMessageBroker>().Shutdown();
       logger.Debug("ApplicationCore: Removing IMessageBroker");
       ServiceScope.RemoveAndDispose<IMessageBroker>();
 

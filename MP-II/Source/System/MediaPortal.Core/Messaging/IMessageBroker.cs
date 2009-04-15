@@ -32,6 +32,12 @@ namespace MediaPortal.Core.Messaging
   public interface IMessageBroker
   {
     /// <summary>
+    /// Gets the names of all queues registered in this message broker.
+    /// </summary>
+    /// <returns>List of queue names.</returns>
+    ICollection<string> Queues { get;}
+
+    /// <summary>
     /// Get the message queue with the specified name.
     /// </summary>
     /// <param name="queueName">The name of the queue to return.</param>
@@ -39,9 +45,8 @@ namespace MediaPortal.Core.Messaging
     IMessageQueue GetOrCreate(string queueName);
 
     /// <summary>
-    /// Gets the names of all queues registered in this message broker.
+    /// Shuts the message broker down. No more messages can be delivered after this method was called.
     /// </summary>
-    /// <returns>List of queue names.</returns>
-    IList<string> Queues { get;}
+    void Shutdown();
   }
 }

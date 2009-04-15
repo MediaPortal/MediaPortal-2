@@ -32,6 +32,7 @@ namespace MediaPortal.Core.Services.Messaging
     #region Protected fields
 
     protected IDictionary<string, IMessageQueue> _queues;
+    protected object _syncObj = new object();
 
     #endregion
 
@@ -45,27 +46,39 @@ namespace MediaPortal.Core.Services.Messaging
 
     #region IMessageBroker implementation
 
-
-    public IMessageQueue GetOrCreate(string queueName)
-    {
-      if (!_queues.ContainsKey(queueName))
-      {
-        Queue q = new Queue();
-        _queues[queueName] = q;
-      }
-      return _queues[queueName];
-    }
-
-    public IList<string> Queues
+    public ICollection<string> Queues
     {
       get 
       {
-        List<string> queueNames = new List<string>();
-        IEnumerator<KeyValuePair<string, IMessageQueue>> enumer = _queues.GetEnumerator();
-        while (enumer.MoveNext())
-          queueNames.Add(enumer.Current.Key);
-        return queueNames;
+        lock (_syncObj)
+        {
+          ICollection<string> queueNames = new List<string>();
+          IEnumerator<KeyValuePair<string, IMessageQueue>> enumer = _queues.GetEnumerator();
+          while (enumer.MoveNext())
+            queueNames.Add(enumer.Current.Key);
+          return queueNames;
+        }
       }
+    }
+
+    public IMessageQueue GetOrCreate(string queueName)
+    {
+      lock (_syncObj)
+      {
+        if (!_queues.ContainsKey(queueName))
+        {
+          Queue q = new Queue(queueName);
+          _queues[queueName] = q;
+        }
+        return _queues[queueName];
+      }
+    }
+
+    public void Shutdown()
+    {
+      lock (_syncObj)
+        foreach (IMessageQueue queue in _queues.Values)
+          queue.Shutdown();
     }
 
     #endregion

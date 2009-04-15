@@ -23,18 +23,10 @@
 
 #endregion
 
-#region Usings
-
-using System;
-using System.Text;
 using System.Threading;
-using System.Collections.Generic;
-
-#endregion
 
 namespace MediaPortal.Core.Threading
 {
-
   #region enums
 
   public enum QueuePriority
@@ -49,6 +41,7 @@ namespace MediaPortal.Core.Threading
   public interface IThreadPool
   {
     #region Methods to add work
+
     IWork Add(DoWorkHandler work);
     IWork Add(DoWorkHandler work, QueuePriority queuePriority);
     IWork Add(DoWorkHandler work, string description);
@@ -59,24 +52,31 @@ namespace MediaPortal.Core.Threading
     IWork Add(DoWorkHandler work, string description, QueuePriority queuePriority, ThreadPriority threadPriority, WorkEventHandler workCompletedHandler);
     void Add(IWork work);
     void Add(IWork work, QueuePriority queuePriority);
+
     #endregion
 
     #region Methods to manage interval-based work
+
     void AddIntervalWork(IWorkInterval intervalWork, bool runNow);
     void RemoveIntervalWork(IWorkInterval intervalWork);
+
     #endregion
 
     #region Methods to control the threadpool
+
     void Stop();
+
     #endregion
 
     #region Threadpool status properties
+
     int ThreadCount { get; }
     int BusyThreadCount { get; }
     long WorkItemsProcessed { get; }
     int QueueLength { get; }
     int MinimumThreads { get; }
     int MaximumThreads { get; }
+
     #endregion
   }
 }

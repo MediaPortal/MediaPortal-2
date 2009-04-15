@@ -43,9 +43,22 @@ namespace MediaPortal.Core.Messaging
     IList<IMessageFilter> Filters { get;}
 
     /// <summary>
-    /// Sends the specified <paramref name="message"/>.
+    /// Sends the specified <paramref name="message"/> synchronous, i.e. the method returns after the message
+    /// was delivered to all listeners.
     /// </summary>
     /// <param name="message">The message to send.</param>
     void Send(QueueMessage message);
+
+    /// <summary>
+    /// Sends the specified <paramref name="message"/> asynchronous, i.e. the method returns immediately and the
+    /// message will be sent in an asynchronous thread.
+    /// </summary>
+    /// <param name="message">The message to send.</param>
+    void SendAsync(QueueMessage message);
+
+    /// <summary>
+    /// Shuts this message queue down. No more messages can be delivered after this method was called.
+    /// </summary>
+    void Shutdown();
   }
 }
