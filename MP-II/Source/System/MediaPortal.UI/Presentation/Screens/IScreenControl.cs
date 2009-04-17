@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -48,7 +48,6 @@ namespace MediaPortal.Presentation.Screens
   {
     bool IsScreenSaverActive { get; }
     bool IsScreenSaverEnabled { get; set; }
-    bool IsMouseUsed { get; }
 
     /// <summary>
     /// Switches between diffrent sceen modes.
@@ -76,7 +75,7 @@ namespace MediaPortal.Presentation.Screens
     /// <summary>
     /// Returns available display modes
     /// </summary>
-    IList<string> DisplayModes{ get; }
+    IList<string> DisplayModes { get; }
 
     /// <summary>
     /// Returns the window handle of the main window.

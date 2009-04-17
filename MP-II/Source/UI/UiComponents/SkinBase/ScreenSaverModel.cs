@@ -24,7 +24,9 @@
 
 using System;
 using System.Timers;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Screens;
 using Timer=System.Timers.Timer;
@@ -50,14 +52,39 @@ namespace UiComponents.SkinBase
       _isScreenSaverActiveProperty = new Property(typeof(bool), false);
       _isMouseUsedProperty = new Property(typeof(bool), false);
 
+      SubscribeToMessages();
+
       // Setup timer to update the properties
       _timer = new Timer(100);
       _timer.Elapsed += OnTimerElapsed;
       _timer.Enabled = true;
     }
 
+    protected void SubscribeToMessages()
+    {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
+    }
+
+    protected void UnsubscribeFromMessages()
+    {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
+    }
+
+    protected void OnSystemMessageReceived(QueueMessage message)
+    {
+      if (((SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE]) ==
+          SystemMessaging.MessageType.SystemShutdown)
+      {
+        _timer.Enabled = false;
+        UnsubscribeFromMessages();
+      }
+    }
+
     public void Dispose()
     {
+      UnsubscribeFromMessages();
       _timer.Elapsed -= OnTimerElapsed;
       _timer.Enabled = false;
     }
@@ -70,8 +97,9 @@ namespace UiComponents.SkinBase
     protected void Update()
     {
       IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
       IsScreenSaverActive = screenControl.IsScreenSaverActive;
-      IsMouseUsed = screenControl.IsMouseUsed;
+      IsMouseUsed = inputManager.IsMouseUsed;
     }
   
     public Property IsScreenSaverActiveProperty

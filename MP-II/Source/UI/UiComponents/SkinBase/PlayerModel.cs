@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Timers;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
@@ -37,7 +38,8 @@ using Timer=System.Timers.Timer;
 namespace UiComponents.SkinBase
 {
   /// <summary>
-  /// This model provides skin data for all players/play controls/play lists.
+  /// This model attends the currently-playing and fullscreen-content workflow states for
+  /// Video, Audio and Image media players.
   /// </summary>
   public class PlayerModel : IDisposable, IWorkflowModel
   {
@@ -167,7 +169,8 @@ namespace UiComponents.SkinBase
     protected void CheckVideoInfoVisible()
     {
       IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
-      IsVideoInfoVisible = screenControl.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      IsVideoInfoVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
     }
 
     /// <summary>

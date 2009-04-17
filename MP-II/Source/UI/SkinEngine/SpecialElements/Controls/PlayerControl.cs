@@ -23,6 +23,7 @@
 #endregion
 
 using System.Timers;
+using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
@@ -171,13 +172,12 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     protected void CheckShowPlayControls()
     {
-      IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
-      ShowPlayControls = IsCurrentPlayer && screenControl.IsMouseUsed && Screen != null && Screen.HasInputFocus;
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      ShowPlayControls = IsCurrentPlayer && inputManager.IsMouseUsed && Screen != null && Screen.HasInputFocus;
     }
 
     protected void UpdatePlayControls()
     {
-      IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayer player = playerManager[SlotIndex];
@@ -224,8 +224,11 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       }
       CheckShowPlayControls();
       if (AutoVisibility)
+      {
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
         IsVisible = playerSlotController.IsActive && (!string.IsNullOrEmpty(MediaItemTitle) ||
-            (screenControl.IsMouseUsed && player != null));
+            (inputManager.IsMouseUsed && player != null));
+      }
     }
 
     public override void Allocate()

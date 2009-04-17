@@ -52,7 +52,6 @@ namespace MediaPortal.SkinEngine.GUI
   {
     // TODO: Make this configurable
     protected static TimeSpan SCREENSAVER_TIMEOUT = new TimeSpan(0, 0, 5, 0);
-    protected static TimeSpan MOUSE_CONTROLS_TIMEOUT = new TimeSpan(0, 0, 0, 5);
 
     private Thread _renderThread;
     private GraphicsDevice _directX;
@@ -70,7 +69,6 @@ namespace MediaPortal.SkinEngine.GUI
     private ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
-    protected bool _isMouseUsed = false;
     protected bool _mouseHidden = false;
 
     public MainForm(ScreenManager screenManager)
@@ -130,11 +128,9 @@ namespace MediaPortal.SkinEngine.GUI
       else
         _isScreenSaverActive = false;
 
-      // Mouse usage
-      _isMouseUsed = DateTime.Now - inputManager.LastMouseUsageTime < MOUSE_CONTROLS_TIMEOUT;
       if (IsFullScreen)
         // If we are in fullscreen mode, we may control the mouse cursor
-        ShowMouseCursor(_isMouseUsed);
+        ShowMouseCursor(inputManager.IsMouseUsed);
       else
         // Reset it to visible state, if state was switched
         ShowMouseCursor(true);
@@ -256,15 +252,8 @@ namespace MediaPortal.SkinEngine.GUI
 
     private void MainForm_MouseClick(object sender, MouseEventArgs e)
     {
-      switch (e.Button)
-      {
-        case MouseButtons.Left:
-          ServiceScope.Get<IInputManager>().KeyPress(Key.Ok);
-          break;
-        case MouseButtons.Right:
-          ServiceScope.Get<IInputManager>().KeyPress(Key.ContextMenu);
-          break;
-      }
+      IInputManager inputManager = ServiceScope.Get<IInputManager>();
+      inputManager.MouseClick(e.Button);
     }
 
     protected override void WndProc(ref Message m)
@@ -511,11 +500,6 @@ namespace MediaPortal.SkinEngine.GUI
     {
       get { return _isScreenSaverEnabled; }
       set { _isScreenSaverEnabled = value; }
-    }
-
-    public bool IsMouseUsed
-    {
-      get { return _isMouseUsed; }
     }
 
     public bool RefreshRateControlEnabled

@@ -64,7 +64,6 @@ namespace MediaPortal.Services.Players
       if (broker == null)
         return;
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
-      // SytemMessaging queue is unregistered as soon as the system is started
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
@@ -72,24 +71,31 @@ namespace MediaPortal.Services.Players
       PlayerManagerMessaging.MessageType messageType =
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       PlayerContext pc;
-      int slotIndex;
-      switch (messageType)
+      lock (SyncObj) // Necessary to lock this instance to preserve the right lock order (this first, PCs next)
       {
-        case PlayerManagerMessaging.MessageType.PlayerEnded:
-          slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-          pc = GetPlayerContextInternal(slotIndex);
-          if (pc != null && !pc.NextItem())
+        int slotIndex;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
+            slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+            pc = GetPlayerContextInternal(slotIndex);
+            if (pc == null)
+              return;
+            if (!pc.NextItem())
+              if (pc.CloseWhenFinished)
+                ClosePlayerContext(slotIndex);
+            break;
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+            slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+            pc = GetPlayerContextInternal(slotIndex);
+            if (pc == null)
+              return;
             if (pc.CloseWhenFinished)
               ClosePlayerContext(slotIndex);
-          break;
-        case PlayerManagerMessaging.MessageType.PlayerStopped:
-          slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-          pc = GetPlayerContextInternal(slotIndex);
-          if (pc != null && pc.CloseWhenFinished)
-            ClosePlayerContext(slotIndex);
-          break;
+            break;
+        }
+        CheckCurrentPlayerSlot();
       }
-      CheckCurrentPlayerSlot();
     }
 
     /// <summary>
@@ -100,7 +106,7 @@ namespace MediaPortal.Services.Players
     protected IPlayer GetCurrentPlayer()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return null;
       return playerContext.CurrentPlayer;
     }
@@ -112,49 +118,61 @@ namespace MediaPortal.Services.Players
     protected static void CheckAudio()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      if (playerManager.AudioSlotIndex != -1)
-        return;
-      IPlayer primaryPlayer = playerManager[PlayerManagerConsts.PRIMARY_SLOT];
-      IPlayer secondaryPlayer = playerManager[PlayerManagerConsts.SECONDARY_SLOT];
-      if (primaryPlayer is IAudioPlayer)
-        playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-      else if (secondaryPlayer is IAudioPlayer)
-        playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-      else if (primaryPlayer is IVideoPlayer)
-        playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-      else if (secondaryPlayer is IVideoPlayer)
-        playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-      else
-        playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+      lock (playerManager.SyncObj)
+      {
+        if (playerManager.AudioSlotIndex != -1)
+          return;
+        IPlayer primaryPlayer = playerManager[PlayerManagerConsts.PRIMARY_SLOT];
+        IPlayer secondaryPlayer = playerManager[PlayerManagerConsts.SECONDARY_SLOT];
+        if (primaryPlayer is IAudioPlayer)
+          playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+        else if (secondaryPlayer is IAudioPlayer)
+          playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
+        else if (primaryPlayer is IVideoPlayer)
+          playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+        else if (secondaryPlayer is IVideoPlayer)
+          playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
+        else
+          playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+      }
     }
 
     protected void CheckCurrentPlayerSlot()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      bool primaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT).IsActive;
-      bool secondaryPlayerActive = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT).IsActive;
-      int currentPlayerSlot = CurrentPlayerIndex;
-      if (currentPlayerSlot == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
-        currentPlayerSlot = -1;
-      else if (currentPlayerSlot == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
-        currentPlayerSlot = -1;
-      if (currentPlayerSlot == -1)
-        if (secondaryPlayerActive)
-          currentPlayerSlot = PlayerManagerConsts.SECONDARY_SLOT;
-        else if (primaryPlayerActive)
-          currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      pcm.CurrentPlayerIndex = currentPlayerSlot;
-      CurrentPlayerIndex = currentPlayerSlot;
+      IPlayerSlotController primaryPSC = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
+      IPlayerSlotController secondaryPSC = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT);
+      lock (playerManager.SyncObj)
+      {
+        bool primaryPlayerActive = primaryPSC.IsActive;
+        bool secondaryPlayerActive = secondaryPSC.IsActive;
+        int currentPlayerSlot = CurrentPlayerIndex;
+        if (currentPlayerSlot == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
+          currentPlayerSlot = -1;
+        else if (currentPlayerSlot == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
+          currentPlayerSlot = -1;
+        if (currentPlayerSlot == -1)
+          if (secondaryPlayerActive)
+            currentPlayerSlot = PlayerManagerConsts.SECONDARY_SLOT;
+          else if (primaryPlayerActive)
+            currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
+        CurrentPlayerIndex = currentPlayerSlot;
+      }
     }
 
     protected static PlayerContext GetPlayerContext(IPlayerSlotController psc)
     {
-      if (psc == null || !psc.IsActive)
+      if (psc == null)
         return null;
-      object result;
-      if (psc.ContextVariables.TryGetValue(KEY_PLAYER_CONTEXT, out result))
-        return result as PlayerContext;
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        if (!psc.IsActive)
+          return null;
+        object result;
+        if (psc.ContextVariables.TryGetValue(KEY_PLAYER_CONTEXT, out result))
+          return result as PlayerContext;
+      }
       return null;
     }
 
@@ -175,9 +193,13 @@ namespace MediaPortal.Services.Players
 
     #region IPlayerContextManager implementation
 
-    public IPlayerContext CurrentPlayerContext
+    public object SyncObj
     {
-      get { return GetPlayerContextInternal(_currentPlayerIndex); }
+      get
+      {
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        return playerManager.SyncObj;
+      }
     }
 
     public bool IsAudioPlayerActive
@@ -185,6 +207,7 @@ namespace MediaPortal.Services.Players
       get
       {
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        // We don't need to lock here because of the ||
         return playerManager[PlayerManagerConsts.PRIMARY_SLOT] is IAudioPlayer ||
             playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IAudioPlayer;
       }
@@ -195,6 +218,7 @@ namespace MediaPortal.Services.Players
       get
       {
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        // No locking necessary
         return playerManager[PlayerManagerConsts.PRIMARY_SLOT] is IVideoPlayer;
       }
     }
@@ -204,22 +228,35 @@ namespace MediaPortal.Services.Players
       get
       {
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        // No locking necessary
         return playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IVideoPlayer;
       }
     }
 
+    public IPlayerContext CurrentPlayerContext
+    {
+      get { return GetPlayerContextInternal(_currentPlayerIndex); }
+    }
+
     public int CurrentPlayerIndex
     {
-      get { return _currentPlayerIndex; }
+      get
+      {
+        lock (SyncObj)
+          return _currentPlayerIndex;
+      }
       set
       {
-        if (_currentPlayerIndex == value)
-          return;
-        PlayerContext newCurrent = GetPlayerContextInternal(value);
-        if (newCurrent == null || !newCurrent.IsValid)
-          return;
-        _currentPlayerIndex = value;
-        PlayerContextManagerMessaging.SendPlayerContextManagerMessage(PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged);
+        lock (SyncObj)
+        {
+          if (_currentPlayerIndex == value)
+            return;
+          PlayerContext newCurrent = GetPlayerContextInternal(value);
+          if (newCurrent == null || !newCurrent.IsValid)
+            return;
+          _currentPlayerIndex = value;
+        }
+        PlayerContextManagerMessaging.SendPlayerContextManagerMessage(PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
       }
     }
 
@@ -227,11 +264,15 @@ namespace MediaPortal.Services.Players
     {
       get
       {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
         int result = 0;
         for (int i = 0; i < 2; i++)
           if (GetPlayerContext(i) != null)
             result++;
         return result;
+      }
       }
     }
 
@@ -242,102 +283,112 @@ namespace MediaPortal.Services.Players
 
     public int NumPlayerContextsOfMediaType(PlayerContextType mediaType)
     {
-      int result = 0;
-      for (int i = 0; i < 2; i++)
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
       {
-        IPlayerContext pc = GetPlayerContext(i);
-        if (pc != null && pc.MediaType == mediaType)
-          result++;
+        int result = 0;
+        for (int i = 0; i < 2; i++)
+        {
+          IPlayerContext pc = GetPlayerContext(i);
+          if (pc != null && pc.MediaType == mediaType)
+            result++;
+        }
+        return result;
       }
-      return result;
     }
 
     public IPlayerContext OpenAudioPlayerContext(bool concurrent)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      int numActive = playerManager.NumActiveSlots;
-      if (concurrent)
+      lock (playerManager.SyncObj)
       {
-        // Solve conflicts - close conflicting slots
-        if (numActive > 1)
-          playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-        if (numActive > 0 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Audio)
-          playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+        int numActive = playerManager.NumActiveSlots;
+        if (concurrent)
+        {
+          // Solve conflicts - close conflicting slots
+          if (numActive > 1)
+            playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+          if (numActive > 0 && GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Audio)
+            playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+        }
+        else
+          // Don't enable concurrent controllers: Close all except the primary slot controller
+          playerManager.CloseAllSlots();
+        // Open new slot
+        int slotIndex;
+        IPlayerSlotController slotController;
+        playerManager.OpenSlot(out slotIndex, out slotController);
+        playerManager.AudioSlotIndex = slotController.SlotIndex;
+        PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Audio);
+        result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
+        return result;
       }
-      else
-        // Don't enable concurrent controllers: Close all except the primary slot controller
-        playerManager.CloseAllSlots();
-      // Open new slot
-      int slotIndex;
-      IPlayerSlotController slotController;
-      playerManager.OpenSlot(out slotIndex, out slotController);
-      playerManager.AudioSlotIndex = slotController.SlotIndex;
-      PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Audio);
-      result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
-      return result;
     }
 
     public IPlayerContext OpenVideoPlayerContext(bool concurrent, bool subordinatedVideo)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      int numActive = playerManager.NumActiveSlots;
-      IPlayerSlotController slotController;
-      int slotIndex;
-      if (concurrent)
-        // Solve conflicts - close conflicting slots
-        if (numActive > 1)
-          if (GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).MediaType == PlayerContextType.Audio)
-            if (subordinatedVideo)
+      lock (playerManager.SyncObj)
+      {
+        int numActive = playerManager.NumActiveSlots;
+        IPlayerSlotController slotController;
+        int slotIndex;
+        if (concurrent)
+          // Solve conflicts - close conflicting slots
+          if (numActive > 1)
+            if (GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).MediaType == PlayerContextType.Audio)
+              if (subordinatedVideo)
+              {
+                playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+                playerManager.OpenSlot(out slotIndex, out slotController);
+                playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+              }
+              else
+              {
+                playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+                playerManager.OpenSlot(out slotIndex, out slotController);
+                playerManager.SwitchPlayers();
+                playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
+              }
+            else // PC(SECONDARY).Type != Audio
             {
               playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
+              if (!subordinatedVideo)
+                playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
               playerManager.OpenSlot(out slotIndex, out slotController);
               playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
             }
-            else
+          else if (numActive == 1)
+            if (GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Audio)
             {
-              playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
               playerManager.OpenSlot(out slotIndex, out slotController);
+              // Make new video slot the primary slot
               playerManager.SwitchPlayers();
               playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
             }
-          else // PC(SECONDARY).Type != Audio
+            else // PC(PRIMARY).Type != Audio
+            {
+              if (!subordinatedVideo)
+                playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
+              playerManager.OpenSlot(out slotIndex, out slotController);
+              playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+            }
+          else // numActive == 0
           {
-            playerManager.CloseSlot(PlayerManagerConsts.SECONDARY_SLOT);
-            if (!subordinatedVideo)
-              playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
             playerManager.OpenSlot(out slotIndex, out slotController);
             playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
           }
-        else if (numActive == 1)
-          if (GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Audio)
-          {
-            playerManager.OpenSlot(out slotIndex, out slotController);
-            // Make new video slot the primary slot
-            playerManager.SwitchPlayers();
-            playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
-          }
-          else // PC(PRIMARY).Type != Audio
-          {
-            if (!subordinatedVideo)
-              playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
-            playerManager.OpenSlot(out slotIndex, out slotController);
-            playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
-          }
-        else // numActive == 0
+        else // !concurrent
         {
+          // Don't enable concurrent controllers: Close all except the primary slot controller
+          playerManager.CloseAllSlots();
           playerManager.OpenSlot(out slotIndex, out slotController);
           playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
         }
-      else // !concurrent
-      {
-        // Don't enable concurrent controllers: Close all except the primary slot controller
-        playerManager.CloseAllSlots();
-        playerManager.OpenSlot(out slotIndex, out slotController);
-        playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+        PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Video);
+        result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
+        return result;
       }
-      PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Video);
-      result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
-      return result;
     }
 
     public void ClosePlayerContext(int slotIndex)
@@ -348,6 +399,7 @@ namespace MediaPortal.Services.Players
 
     public PlayerContextType GetTypeOfMediaItem(MediaItem item)
     {
+      // No locking necessary
       if (item.Aspects.ContainsKey(MovieAspect.Metadata.AspectId) ||
           item.Aspects.ContainsKey(PictureAspect.Metadata.AspectId))
         return PlayerContextType.Video;
@@ -364,34 +416,42 @@ namespace MediaPortal.Services.Players
 
     public ICollection<AudioStreamDescriptor> GetAvailableAudioStreams()
     {
-      ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
-      for (int i = 0; i < 2; i++)
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
       {
-        IPlayerContext playerContext = GetPlayerContext(i);
-        if (playerContext == null)
-          continue;
-        CollectionUtils.AddAll(result, AudioStreamDescriptor.GetAudioStreamDescriptors(playerContext));
+        ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
+        for (int i = 0; i < 2; i++)
+        {
+          IPlayerContext playerContext = GetPlayerContext(i);
+          if (playerContext == null)
+            continue;
+          CollectionUtils.AddAll(result, AudioStreamDescriptor.GetAudioStreamDescriptors(playerContext));
+        }
+        return result;
       }
-      return result;
     }
 
-    public void SetAudioStream(AudioStreamDescriptor stream)
+    public bool SetAudioStream(AudioStreamDescriptor stream)
     {
-      IPlayerContext playerContext = stream.PlayerContext;
-      if (!playerContext.IsValid)
-        return;
-      IVideoPlayer player = playerContext.CurrentPlayer as IVideoPlayer;
-      if (player == null || player.Name != stream.PlayerName)
-        return;
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      player.SetAudioStream(stream.AudioStreamName);
-      playerManager.AudioSlotIndex = playerContext.PlayerSlotController.SlotIndex;
+      IPlayerContext playerContext = stream.PlayerContext;
+      lock (playerManager.SyncObj)
+      {
+        if (!playerContext.IsValid)
+          return false;
+        IVideoPlayer player = playerContext.CurrentPlayer as IVideoPlayer;
+        if (player == null || player.Name != stream.PlayerName)
+          return false;
+        player.SetAudioStream(stream.AudioStreamName);
+        playerManager.AudioSlotIndex = playerContext.PlayerSlotController.SlotIndex;
+        return true;
+      }
     }
 
     public void Stop()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return;
       playerContext.Stop();
     }
@@ -399,7 +459,7 @@ namespace MediaPortal.Services.Players
     public void Pause()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return;
       playerContext.Pause();
     }
@@ -407,7 +467,7 @@ namespace MediaPortal.Services.Players
     public void Play()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return;
       playerContext.Play();
     }
@@ -415,7 +475,7 @@ namespace MediaPortal.Services.Players
     public void TogglePlayPause()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return;
       playerContext.TogglePlayPause();
     }
@@ -423,7 +483,7 @@ namespace MediaPortal.Services.Players
     public void Restart()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return;
       playerContext.Restart();
     }
@@ -431,7 +491,7 @@ namespace MediaPortal.Services.Players
     public bool PreviousItem()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return false;
       return playerContext.PreviousItem();
     }
@@ -439,7 +499,7 @@ namespace MediaPortal.Services.Players
     public bool NextItem()
     {
       IPlayerContext playerContext = CurrentPlayerContext;
-      if (playerContext == null || !playerContext.IsValid)
+      if (playerContext == null)
         return false;
       return playerContext.NextItem();
     }

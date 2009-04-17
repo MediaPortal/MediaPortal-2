@@ -39,6 +39,7 @@ namespace UiComponents.SkinBase
     public static string PICTURE_BACKGROUND_SCREEN = "picture-background";
 
     protected ICollection<Key> _registeredKeyBindings = new List<Key>();
+    protected object _syncObj = new object();
 
     internal void DoInstall()
     {
@@ -113,71 +114,86 @@ namespace UiComponents.SkinBase
         return;
       // TODO: Is there a ZoomMode/Change Aspect Ratio key in any input device (keyboard, IR, ...)? If yes,
       // we should register it here too
-      AddKeyBinding(Key.Play, () =>
-        {
-          PlayerModel.Play();
-          return true;
-        });
-      AddKeyBinding(Key.Pause, () =>
-        {
-          PlayerModel.Pause();
-          return true;
-        });
-      AddKeyBinding(Key.PlayPause, () =>
-        {
-          PlayerModel.TogglePause();
-          return true;
-        });
-      AddKeyBinding(Key.Printable(' '), () =>
-        {
-          PlayerModel.TogglePause();
-          return true;
-        });
-      AddKeyBinding(Key.Stop, () =>
-        {
-          PlayerModel.Stop();
-          return true;
-        });
-      AddKeyBinding(Key.Rew, () =>
-        {
-          PlayerModel.SeekBackward();
-          return true;
-        });
-      AddKeyBinding(Key.Fwd, () =>
-        {
-          PlayerModel.SeekForward();
-          return true;
-        });
-      AddKeyBinding(Key.Previous, () =>
-        {
-          PlayerModel.Previous();
-          return true;
-        });
-      AddKeyBinding(Key.Next, () =>
-        {
-          PlayerModel.Next();
-          return true;
-        });
-      AddKeyBinding(Key.Mute, () =>
-        {
-          PlayerModel.ToggleMute();
-          return true;
-        });
-      AddKeyBinding(Key.VolumeUp, () =>
-        {
-          PlayerModel.VolumeUp();
-          return true;
-        });
-      AddKeyBinding(Key.VolumeDown, () =>
-        {
-          PlayerModel.VolumeDown();
-          return true;
-        });
-      // Register player specific key bindings
-      // TODO: Register key bindings from current player
+      lock (_syncObj)
+      {
+        AddKeyBinding_NeedLock(
+            Key.Play, () =>
+              {
+                PlayerModel.Play();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Pause, () =>
+              {
+                PlayerModel.Pause();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.PlayPause, () =>
+              {
+                PlayerModel.TogglePause();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Printable(' '), () =>
+              {
+                PlayerModel.TogglePause();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Stop, () =>
+              {
+                PlayerModel.Stop();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Rew, () =>
+              {
+                PlayerModel.SeekBackward();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Fwd, () =>
+              {
+                PlayerModel.SeekForward();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Previous, () =>
+              {
+                PlayerModel.Previous();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Next, () =>
+              {
+                PlayerModel.Next();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Mute, () =>
+              {
+                PlayerModel.ToggleMute();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.VolumeUp, () =>
+              {
+                PlayerModel.VolumeUp();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.VolumeDown, () =>
+              {
+                PlayerModel.VolumeDown();
+                return true;
+              });
+        // Register player specific key bindings
+        // TODO: Register key bindings from current player
+      }
     }
 
-    protected void AddKeyBinding(Key key, ActionDlgt action)
+    protected void AddKeyBinding_NeedLock(Key key, ActionDlgt action)
     {
       _registeredKeyBindings.Add(key);
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
@@ -192,8 +208,9 @@ namespace UiComponents.SkinBase
       IInputManager inputManager = ServiceScope.Get<IInputManager>(false);
       if (inputManager == null)
         return;
-      foreach (Key key in _registeredKeyBindings)
-        inputManager.RemoveKeyBinding(key);
+      lock (_syncObj)
+        foreach (Key key in _registeredKeyBindings)
+          inputManager.RemoveKeyBinding(key);
     }
 
     protected static void UpdateBackground()

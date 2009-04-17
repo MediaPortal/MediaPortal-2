@@ -112,7 +112,7 @@ namespace MediaPortal.Presentation.Players
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
-      queue.Send(msg);
+      queue.SendAsync(msg);
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ namespace MediaPortal.Presentation.Players
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
-      queue.Send(msg);
+      queue.SendAsync(msg);
     }
 
     /// <summary>
@@ -135,13 +135,12 @@ namespace MediaPortal.Presentation.Players
     /// slot. This method handles the "general messages which don't concern a special player" message types.
     /// </summary>
     /// <param name="type">Type of the message.</param>
-    /// <param name="slot">Slot of the player which is involved.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type)
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
-      queue.Send(msg);
+      queue.SendAsync(msg);
     }
   }
 }

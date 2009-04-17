@@ -44,11 +44,21 @@ namespace MediaPortal.Presentation.Players
   /// List of media items to be played in a player slot.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// The playlist is responsible to manage the list of media items to be playes as well as the
   /// current play state of the items.
+  /// </para>
+  /// <para>
+  /// This component is multithreading safe.
+  /// </para>
   /// </remarks>
   public interface IPlaylist
   {
+    /// <summary>
+    /// Returns the synchronization object to synchronize thread access.
+    /// </summary>
+    object SyncObj { get; }
+
     /// <summary>
     /// Gets or sets the play mode for the playlist.
     /// </summary>

@@ -55,12 +55,28 @@ namespace MediaPortal.Services.Players
       _slotIndex = slotIndex;
     }
 
-    internal bool CreatePlayer(IMediaItemLocator locator, string mimeType)
+    protected object SyncObj
     {
-      ReleasePlayer();
-      _playerManager.BuildPlayer(locator, mimeType, this);
+      get { return _playerManager.SyncObj; }
+    }
+
+    /// <summary>
+    /// Creates a new player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s lock
+    /// and this instance's lock.
+    /// </remarks>
+    /// <param name="locator">Media item locator of the media item to be played.</param>
+    /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
+    /// <returns><c>true</c>, if the player could be created, else <c>false</c>.</returns>
+    internal bool CreatePlayer_NeedLock(IMediaItemLocator locator, string mimeType)
+    {
+      ReleasePlayer_NeedLock();
+      _playerManager.BuildPlayer_NeedLock(locator, mimeType, this);
       if (_player != null)
-      { // Initialize new player
+      {
+        // Initialize new player
         CheckAudio();
         RegisterPlayerEvents();
         return true;
@@ -68,7 +84,14 @@ namespace MediaPortal.Services.Players
       return false;
     }
 
-    internal void ReleasePlayer()
+    /// <summary>
+    /// Releases the current player.
+    /// </summary>
+    /// <remarks>
+    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s lock
+    /// and this instance's lock.
+    /// </remarks>
+    internal void ReleasePlayer_NeedLock()
     {
       if (_player != null)
       {
@@ -80,14 +103,31 @@ namespace MediaPortal.Services.Players
           ((IDisposable) _player).Dispose();
         _player = null;
       }
-      _playerManager.RevokePlayer(this);
+      _playerManager.RevokePlayer_NeedLock(this);
     }
 
+    /// <summary>
+    /// Returns the builder registration of the current player.
+    /// </summary>
+    /// <remarks>
+    /// Access to the returned object has to be synchronized via the <see cref="_playerManager"/>'s
+    /// <see cref="PlayerManager.SyncObj"/>.
+    /// </remarks>
     internal PlayerBuilderRegistration BuilderRegistration
     {
       get { return _builderRegistration; }
     }
 
+    /// <summary>
+    /// Assigns both the current player and the builder registration.
+    /// </summary>
+    /// <remarks>
+    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s
+    /// and this instance's lock objects.
+    /// </remarks>
+    /// <param name="player">The player to be assigned to the <see cref="CurrentPlayer"/> property.</param>
+    /// <param name="builderRegistration">The builder registration to be assigned to the <see cref="BuilderRegistration"/>
+    /// property.</param>
     internal void AssignPlayerAndBuilderRegistration(IPlayer player, PlayerBuilderRegistration builderRegistration)
     {
       _player = player;
@@ -95,6 +135,13 @@ namespace MediaPortal.Services.Players
       _builderRegistration.UsingSlotControllers.Add(this);
     }
 
+    /// <summary>
+    /// Releases both the current player and the builder registration.
+    /// </summary>
+    /// <remarks>
+    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s
+    /// and this instance's lock objects.
+    /// </remarks>
     internal void ResetPlayerAndBuilderRegistration()
     {
       _player = null;
@@ -107,12 +154,15 @@ namespace MediaPortal.Services.Players
 
     protected void CheckAudio()
     {
-      if (_player == null)
-        return;
-      IVolumeControl vc = _player as IVolumeControl;
-      if (vc != null)
-        vc.Volume = _volume;
-      _player.IsAudioEnabled = _isAudioSlot && !_isMuted;
+      lock (SyncObj)
+      {
+        if (_player == null)
+          return;
+        IVolumeControl vc = _player as IVolumeControl;
+        if (vc != null)
+          vc.Volume = _volume;
+        _player.IsAudioEnabled = _isAudioSlot && !_isMuted;
+      }
     }
 
     protected void CheckActive()
@@ -123,16 +173,22 @@ namespace MediaPortal.Services.Players
 
     protected void RegisterPlayerEvents()
     {
-      IPlayerEvents pe = (IPlayerEvents) _player;
-      pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStopped, OnPlayerEnded,
-          OnPlayerPaused, OnPlayerResumed, OnPlaybackError);
+      lock (SyncObj)
+      {
+        IPlayerEvents pe = (IPlayerEvents) _player;
+        pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStopped, OnPlayerEnded,
+            OnPlayerPaused, OnPlayerResumed, OnPlaybackError);
+      }
     }
 
     protected void ResetPlayerEvents()
     {
-      IPlayerEvents pe = _player as IPlayerEvents;
-      if (pe != null)
-        pe.ResetPlayerEvents();
+      lock (SyncObj)
+      {
+        IPlayerEvents pe = _player as IPlayerEvents;
+        if (pe != null)
+          pe.ResetPlayerEvents();
+      }
     }
 
     internal void OnPlayerStarted(IPlayer player)
@@ -167,23 +223,28 @@ namespace MediaPortal.Services.Players
 
     protected void SetSlotState(PlayerSlotState slotState)
     {
-      if (slotState == _slotState)
-        return;
-      PlayerSlotState oldSlotState = _slotState;
-      _slotState = slotState;
-      if (oldSlotState == PlayerSlotState.Inactive && slotState != PlayerSlotState.Inactive)
-        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotActivated);
-      switch (slotState)
+      lock (SyncObj)
       {
-        case Presentation.Players.PlayerSlotState.Inactive:
-          PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, _slotIndex);
-          break;
-        case Presentation.Players.PlayerSlotState.Playing:
-          PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
-          break;
-        case Presentation.Players.PlayerSlotState.Stopped:
-          PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, _slotIndex);
-          break;
+        if (slotState == _slotState)
+          return;
+        PlayerSlotState oldSlotState = _slotState;
+        _slotState = slotState;
+        if (oldSlotState == PlayerSlotState.Inactive && slotState != PlayerSlotState.Inactive)
+          PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotActivated);
+        if (oldSlotState != PlayerSlotState.Inactive || slotState != PlayerSlotState.Stopped)
+          // Suppress "PlayerStopped" message if slot was activated
+          switch (slotState)
+          {
+            case Presentation.Players.PlayerSlotState.Inactive:
+              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, _slotIndex);
+              break;
+            case Presentation.Players.PlayerSlotState.Playing:
+              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
+              break;
+            case Presentation.Players.PlayerSlotState.Stopped:
+              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, _slotIndex);
+              break;
+          }
       }
     }
 
@@ -192,21 +253,33 @@ namespace MediaPortal.Services.Players
     public int SlotIndex
     {
       get { return _slotIndex; }
-      internal set { _slotIndex = value; }
+      internal set
+      {
+        lock (SyncObj)
+          _slotIndex = value;
+      }
     }
 
     public bool IsAudioSlot
     {
       get
       {
-        CheckActive();
-        return _isAudioSlot;
+        lock (SyncObj)
+        {
+          CheckActive();
+          return _isAudioSlot;
+        }
       }
       internal set
       {
-        _isAudioSlot = value;
-        CheckAudio();
-        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, _slotIndex);
+        lock (SyncObj)
+        {
+          bool wasChanged = value != _isAudioSlot;
+          _isAudioSlot = value;
+          CheckAudio();
+          if (wasChanged)
+            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, _slotIndex);
+        }
       }
     }
 
@@ -215,8 +288,11 @@ namespace MediaPortal.Services.Players
       get { return _isMuted; }
       internal set
       {
-        _isMuted = value;
-        CheckAudio();
+        lock (SyncObj)
+        {
+          _isMuted = value;
+          CheckAudio();
+        }
       }
     }
 
@@ -225,40 +301,57 @@ namespace MediaPortal.Services.Players
       get { return _volume; }
       set
       {
-        _volume = value;
-        CheckAudio();
+        lock (SyncObj)
+        {
+          _volume = value;
+          CheckAudio();
+        }
       }
     }
 
     public bool IsActive
     {
-      get { return _slotState != PlayerSlotState.Inactive; }
+      get
+      {
+        lock (SyncObj)
+          return _slotState != PlayerSlotState.Inactive;
+      }
       internal set
       {
-        if (value == IsActive)
-          return;
-        if (value)
-          SetSlotState(PlayerSlotState.Stopped);
-        else
+        lock (SyncObj)
         {
-          Reset();
-          _isAudioSlot = false;
-          SetSlotState(PlayerSlotState.Inactive);
+          if (value == IsActive)
+            return;
+          if (value)
+            SetSlotState(PlayerSlotState.Stopped);
+          else
+          {
+            Reset();
+            _isAudioSlot = false;
+            SetSlotState(PlayerSlotState.Inactive);
+          }
         }
       }
     }
 
     public PlayerSlotState PlayerSlotState
     {
-      get { return _slotState; }
+      get
+      {
+        lock (SyncObj)
+          return _slotState;
+      }
     }
 
     public IPlayer CurrentPlayer
     {
       get
       {
-        CheckActive();
-        return _player;
+        lock (SyncObj)
+        {
+          CheckActive();
+          return _player;
+        }
       }
     }
 
@@ -266,53 +359,65 @@ namespace MediaPortal.Services.Players
     {
       get
       {
-        CheckActive();
-        return _contextVariables;
+        lock (SyncObj)
+        {
+          CheckActive();
+          return _contextVariables;
+        }
       }
     }
 
     public bool Play(IMediaItemLocator locator, string mimeType)
     {
       bool result = false;
-      try
-      {
-        CheckActive();
-        PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
-        if (settings.CrossFading)
-        {
-          ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
-          if (cep != null)
-            return result = cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration,
-                new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
-        }
-        IReusablePlayer rp = _player as IReusablePlayer;
-        if (rp != null)
-          return result = rp.NextItem(locator, mimeType);
-        if (CreatePlayer(locator, mimeType))
-        {
-          _player.Resume();
-          return result = true;
-        }
-        return result = false;
-      }
-      finally
-      {
-        if (result)
-          SetSlotState(PlayerSlotState.Playing);
-      }
+      lock (_playerManager.SyncObj)
+        lock (SyncObj)
+          try
+          {
+            CheckActive();
+            PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
+            if (settings.CrossFading)
+            {
+              ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
+              if (cep != null)
+                return result = cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration,
+                    new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
+            }
+            IReusablePlayer rp = _player as IReusablePlayer;
+            if (rp != null)
+              return result = rp.NextItem(locator, mimeType);
+            if (CreatePlayer_NeedLock(locator, mimeType))
+            {
+              _player.Resume();
+              return result = true;
+            }
+            return result = false;
+          }
+          finally
+          {
+            if (result)
+              SetSlotState(PlayerSlotState.Playing);
+          }
     }
 
     public void Stop()
     {
-      CheckActive();
-      SetSlotState(PlayerSlotState.Stopped);
-      ReleasePlayer();
+      lock (_playerManager.SyncObj)
+        lock (SyncObj)
+        {
+          CheckActive();
+          SetSlotState(PlayerSlotState.Stopped);
+          ReleasePlayer_NeedLock();
+        }
     }
 
     public void Reset()
     {
-      Stop();
-      _contextVariables.Clear();
+      lock (SyncObj)
+      {
+        Stop();
+        _contextVariables.Clear();
+      }
     }
 
    #endregion

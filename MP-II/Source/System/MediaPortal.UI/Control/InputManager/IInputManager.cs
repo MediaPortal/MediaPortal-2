@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Windows.Forms;
 using MediaPortal.Presentation.Actions;
 
 namespace MediaPortal.Control.InputManager
@@ -33,14 +34,19 @@ namespace MediaPortal.Control.InputManager
   public interface IInputManager
   {
     /// <summary>
+    /// Gets the last time when an input (keyboard or IR) was made.
+    /// </summary>
+    DateTime LastInputTime { get; }
+
+    /// <summary>
     /// Gets the last time when the mouse was used.
     /// </summary>
     DateTime LastMouseUsageTime { get; }
 
     /// <summary>
-    /// Gets the last time when an input (keyboard or IR) was made.
+    /// Returns the information if the mouse was 
     /// </summary>
-    DateTime LastInputTime { get; }
+    bool IsMouseUsed { get; }
 
     /// <summary>
     /// Called to handle a mouse move event.
@@ -48,6 +54,12 @@ namespace MediaPortal.Control.InputManager
     /// <param name="x">The x corrdinate.</param>
     /// <param name="y">The y coordinate.</param>
     void MouseMove(float x, float y);
+
+    /// <summary>
+    /// Called to handle a mouse click event.
+    /// </summary>
+    /// <param name="mouseButtons">The buttons which were pressed.</param>
+    void MouseClick(MouseButtons mouseButtons);
 
     /// <summary>
     /// Called to handle a key event. The key event can come from a mapped keyboard input or from any other

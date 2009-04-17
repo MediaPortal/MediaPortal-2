@@ -34,8 +34,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
+using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.Settings;
 using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.ScreenManagement
 {
@@ -88,7 +90,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
       // Prepare the skin and theme - the theme will be activated in method MainForm_Load
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
-      PrepareSkinAndTheme(skinName, themeName);
+      PrepareSkinAndTheme_NeedLock(skinName, themeName);
 
       // Update the settings with our current skin/theme values
       if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
@@ -121,38 +123,35 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// <param name="skinName">The name of the skin to be prepared.</param>
     /// <param name="themeName">The name of the theme for the specified skin to be prepared,
     /// or <c>null</c> for the default theme of the skin.</param>
-    protected void PrepareSkinAndTheme(string skinName, string themeName)
+    protected void PrepareSkinAndTheme_NeedLock(string skinName, string themeName)
     {
-      lock (_syncRoot)
-      {
-        // Release old resources
-        _skinManager.ReleaseSkinResources();
+      // Release old resources
+      _skinManager.ReleaseSkinResources();
 
-        // Prepare new skin data
-        Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
-        if (skin == null)
-          skin = _skinManager.DefaultSkin;
-        if (skin == null)
-          throw new Exception(string.Format("Skin '{0}' not found", skinName));
-        Theme theme = themeName == null ? null :
-            (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
-        if (theme == null)
-          theme = skin.DefaultTheme;
+      // Prepare new skin data
+      Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
+      if (skin == null)
+        skin = _skinManager.DefaultSkin;
+      if (skin == null)
+        throw new Exception(string.Format("Skin '{0}' not found", skinName));
+      Theme theme = themeName == null ? null :
+          (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
+      if (theme == null)
+        theme = skin.DefaultTheme;
 
-        if (!skin.IsValid)
-          throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
-        if (theme != null)
-          if (!theme.IsValid)
-            throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
+      if (!skin.IsValid)
+        throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
+      if (theme != null)
+        if (!theme.IsValid)
+          throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
 
-        SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
-        Fonts.FontManager.Load(skinResources);
+      SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
+      Fonts.FontManager.Load(skinResources);
 
-        _skinManager.InstallSkinResources(skinResources);
+      _skinManager.InstallSkinResources(skinResources);
 
-        _skin = skin;
-        _theme = theme;
-      }
+      _skin = skin;
+      _theme = theme;
     }
 
     protected internal void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
@@ -174,13 +173,15 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         else
           _dialogStack.Peek().DetachInput();
 
+        _dialogStack.Push(newDialog);
+
         if (dialogCloseCallback != null)
           newDialog.Closed += (sender, e) => dialogCloseCallback(dialogName);
         newDialog.AttachInput();
-        newDialog.Show();
         newDialog.ScreenState = Screen.State.Running;
-        _dialogStack.Push(newDialog);
       }
+      // Don't hold the lock while showing the screen
+      newDialog.Show();
     }
 
     protected internal void InternalCloseDialog()
@@ -209,68 +210,81 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected internal void InternalCloseScreen()
     {
+      Screen screen;
       lock (_syncRoot)
       {
         if (_currentScreen == null)
           return;
-        _currentScreen.ScreenState = Screen.State.Closing;
-        _currentScreen.DetachInput();
-        _currentScreen.Hide();
+        screen = _currentScreen;
         _currentScreen = null;
+
+        screen.ScreenState = Screen.State.Closing;
+        screen.DetachInput();
       }
+      // Don't hold the lock while hiding the screen
+      screen.Hide();
     }
 
     protected internal void InternalCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
     {
-      lock (_syncRoot)
+      if (closeBackgroundLayer)
+        InternalSetBackgroundLayer(null);
+      while (true)
       {
-        if (closeBackgroundLayer)
-          InternalSetBackgroundLayer(null);
-        while (_dialogStack.Count > 0)
-          InternalCloseDialog();
-        InternalCloseScreen();
+        lock (_syncRoot)
+          if (_dialogStack.Count == 0)
+            break;
+        InternalCloseDialog();
       }
+      InternalCloseScreen();
     }
 
     protected internal void InternalShowScreen(Screen screen)
     {
       lock (_syncRoot)
-      {
         _currentScreen = screen;
-        _currentScreen.ScreenState = Screen.State.Running;
-        _currentScreen.AttachInput();
-        _currentScreen.Show();
-      }
+      screen.ScreenState = Screen.State.Running;
+      screen.AttachInput();
+      screen.Show();
     }
 
     protected internal void InternalSetBackgroundLayer(Screen background)
     {
+      Screen oldBackground = null;
       lock (_syncRoot)
       {
         if (_backgroundLayer != null)
         {
           _backgroundLayer.ScreenState = Screen.State.Closing;
-          _backgroundLayer.Hide();
-        }
-        _backgroundLayer = background;
-        if (_backgroundLayer != null)
-        {
-          _backgroundLayer.ScreenState = Screen.State.Running;
-          _backgroundLayer.Show();
+          oldBackground = _backgroundLayer;
         }
       }
+      if (oldBackground != null)
+        oldBackground.Hide();
+      lock (_syncRoot)
+      {
+        _backgroundLayer = background;
+        if (_backgroundLayer != null)
+          _backgroundLayer.ScreenState = Screen.State.Running;
+      }
+      if (background != null)
+        background.Show();
     }
 
     public void InstallBackgroundManager()
     {
-      lock (_syncRoot)
-        _skin.InstallBackgroundManager();
+      Skin skin = _skin;
+      // No locking here
+      if (skin != null)
+        skin.InstallBackgroundManager();
     }
 
     public void UninstallBackgroundManager()
     {
-      lock (_syncRoot)
-        _skin.UninstallBackgroundManager();
+      Skin skin = _skin;
+      // No locking here
+      if (skin != null)
+        skin.UninstallBackgroundManager();
     }
 
     /// <summary>
@@ -279,15 +293,17 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public void Render()
     {
       SkinContext.Now = DateTime.Now;
+      IList<Screen> renderScreens = new List<Screen>();
       lock (_syncRoot)
       {
         if (_backgroundLayer != null)
-          _backgroundLayer.Render();
+          renderScreens.Add(_backgroundLayer);
         if (_currentScreen != null)
-          _currentScreen.Render();
-        foreach (Screen dialog in _dialogStack)
-          dialog.Render();
+          renderScreens.Add(_currentScreen);
+        CollectionUtils.AddAll(renderScreens, _dialogStack);
       }
+      foreach (Screen screen in renderScreens)
+        screen.Render();
     }
 
     /// <summary>
@@ -298,11 +314,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
     {
-      if (newSkinName == _skin.Name &&
-          newThemeName == (_theme == null ? null : _theme.Name)) return;
-
       lock (_syncRoot)
       {
+        if (newSkinName == _skin.Name &&
+            newThemeName == (_theme == null ? null : _theme.Name)) return;
         ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
@@ -313,14 +328,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         InternalCloseCurrentScreenAndDialogs(true);
 
-        // FIXME Albert78: Find a better way to make the PlayerCollection and
-        // ContentManager observe the current skin
-        ServiceScope.Get<IPlayerManager>().Dispose();
+        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+
+        // FIXME Albert78: Find a better way to make ContentManager observe the current skin
         ContentManager.Clear();
 
         try
         {
-          PrepareSkinAndTheme(newSkinName, newThemeName);
+          PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
         }
         catch (Exception ex)
         {
@@ -328,6 +343,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           // Continue with old skin
           // TODO: Show error dialog
         }
+        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+
         InstallBackgroundManager();
 
         if (currentScreenName != null)

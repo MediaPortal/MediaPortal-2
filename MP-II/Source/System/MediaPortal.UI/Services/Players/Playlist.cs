@@ -38,22 +38,31 @@ namespace MediaPortal.Services.Players
     protected IList<MediaItem> _itemList = new List<MediaItem>();
     protected IList<int> _playIndexList = null; // Index on _itemList, lazy initialized before playing
     protected int _currentPlayIndex = -1; // Index for the _playItemList
+    protected object _syncObj = new object();
 
     protected void InitializePlayIndexList()
     {
-      _playIndexList = new List<int>(_itemList.Count);
-      for (int i = 0; i < _itemList.Count; i++)
-        _playIndexList.Add(i);
-      if (_playMode == Presentation.Players.PlayMode.Shuffle)
+      lock (_syncObj)
       {
+        _playIndexList = new List<int>(_itemList.Count);
         for (int i = 0; i < _itemList.Count; i++)
+          _playIndexList.Add(i);
+        if (_playMode == Presentation.Players.PlayMode.Shuffle)
         {
-          int swapTarget = rnd.Next(_itemList.Count);
-          int tmp = _playIndexList[i];
-          _playIndexList[i] = _playIndexList[swapTarget];
-          _playIndexList[swapTarget] = tmp;
+          for (int i = 0; i < _itemList.Count; i++)
+          {
+            int swapTarget = rnd.Next(_itemList.Count);
+            int tmp = _playIndexList[i];
+            _playIndexList[i] = _playIndexList[swapTarget];
+            _playIndexList[swapTarget] = tmp;
+          }
         }
       }
+    }
+
+    public object SyncObj
+    {
+      get { return _syncObj; }
     }
 
     public PlayMode PlayMode
@@ -61,25 +70,32 @@ namespace MediaPortal.Services.Players
       get { return _playMode; }
       set
       {
-        if (_playMode == value)
-          return;
-        _playMode = value;
-        if (_playIndexList == null)
-          return;
-        int currentItemIndex = _currentPlayIndex > -1 ? _playIndexList[_currentPlayIndex] : -1;
-        InitializePlayIndexList();
-        if (_playMode == Presentation.Players.PlayMode.Shuffle && currentItemIndex > -1)
-          // Find current played item in shuffled index list
-          foreach (int i in _playIndexList)
-            if (_playIndexList[i] == currentItemIndex)
-              _currentPlayIndex = i;
+        lock (_syncObj)
+        {
+          if (_playMode == value)
+            return;
+          _playMode = value;
+          if (_playIndexList == null)
+            return;
+          int currentItemIndex = _currentPlayIndex > -1 ? _playIndexList[_currentPlayIndex] : -1;
+          InitializePlayIndexList();
+          if (_playMode == Presentation.Players.PlayMode.Shuffle && currentItemIndex > -1)
+            // Find current played item in shuffled index list
+            foreach (int i in _playIndexList)
+              if (_playIndexList[i] == currentItemIndex)
+                _currentPlayIndex = i;
+        }
       }
     }
 
     public RepeatMode RepeatMode
     {
       get { return _repeatMode; }
-      set { _repeatMode = value; }
+      set
+      {
+        lock (_syncObj)
+          _repeatMode = value;
+      }
     }
 
     public IList<MediaItem> ItemList
@@ -96,56 +112,72 @@ namespace MediaPortal.Services.Players
     {
       get
       {
-        if (_currentPlayIndex == -1)
-          return null;
-        if (_playIndexList == null)
-          InitializePlayIndexList();
-        int playIndex = _currentPlayIndex + relativeIndex;
-        if (playIndex < 0 || playIndex >= _playIndexList.Count)
-          return null;
-        int index = _playIndexList[_currentPlayIndex];
-        if (index < 0 || index >= _itemList.Count)
-          return null;
-        return _itemList[index];
+        lock (_syncObj)
+        {
+          if (_currentPlayIndex == -1)
+            return null;
+          if (_playIndexList == null)
+            InitializePlayIndexList();
+          int playIndex = _currentPlayIndex + relativeIndex;
+          if (playIndex < 0 || playIndex >= _playIndexList.Count)
+            return null;
+          int index = _playIndexList[_currentPlayIndex];
+          if (index < 0 || index >= _itemList.Count)
+            return null;
+          return _itemList[index];
+        }
       }
     }
 
     public bool AllPlayed
     {
-      get { return _currentPlayIndex >= _itemList.Count; }
+      get
+      {
+        lock (_syncObj)
+          return _currentPlayIndex >= _itemList.Count;
+      }
     }
 
     public MediaItem Previous()
     {
-      if (_repeatMode == RepeatMode.One)
+      lock (_syncObj)
+      {
+        if (_repeatMode == RepeatMode.One)
+          return Current;
+        if (_currentPlayIndex > 0)
+          _currentPlayIndex--;
+        else if (_repeatMode == RepeatMode.All)
+          _currentPlayIndex = _itemList.Count - 1;
+        else
+          return null;
         return Current;
-      if (_currentPlayIndex > 0)
-        _currentPlayIndex--;
-      else if (_repeatMode == RepeatMode.All)
-        _currentPlayIndex = _itemList.Count - 1;
-      else
-        return null;
-      return Current;
+      }
     }
 
     public MediaItem Next()
     {
-      if (_repeatMode == RepeatMode.One)
+      lock (_syncObj)
+      {
+        if (_repeatMode == RepeatMode.One)
+          return Current;
+        if (_currentPlayIndex == -1)
+          _currentPlayIndex++;
+        if (AllPlayed && _repeatMode == RepeatMode.All)
+          _currentPlayIndex = 0;
         return Current;
-      if (_currentPlayIndex == -1)
-        _currentPlayIndex++;
-      if (AllPlayed && _repeatMode == RepeatMode.All)
-        _currentPlayIndex = 0;
-      return Current;
+      }
     }
 
     public bool HasPrevious
     {
       get
       {
-        if (_repeatMode == RepeatMode.One)
-          return _currentPlayIndex > -1;
-        return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All;
+        lock (_syncObj)
+        {
+          if (_repeatMode == RepeatMode.One)
+            return _currentPlayIndex > -1;
+          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All;
+        }
       }
     }
 
@@ -153,37 +185,50 @@ namespace MediaPortal.Services.Players
     {
       get
       {
-        if (_repeatMode == RepeatMode.One)
-          return _currentPlayIndex > -1;
-        return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All;
+        lock (_syncObj)
+        {
+          if (_repeatMode == RepeatMode.One)
+            return _currentPlayIndex > -1;
+          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All;
+        }
       }
     }
 
     public void Clear()
     {
-      _itemList.Clear();
-      _playIndexList = null;
-      _currentPlayIndex = -1;
+      lock (_syncObj)
+      {
+        _itemList.Clear();
+        _playIndexList = null;
+        _currentPlayIndex = -1;
+      }
     }
 
     public void Add(MediaItem mediaItem)
     {
-      if (_playMode == PlayMode.Shuffle)
-        Insert(rnd.Next(_itemList.Count), mediaItem);
-      else
-        Insert(_itemList.Count, mediaItem);
+      lock (_syncObj)
+      {
+        if (_playMode == PlayMode.Shuffle)
+          Insert(rnd.Next(_itemList.Count), mediaItem);
+        else
+          Insert(_itemList.Count, mediaItem);
+      }
     }
 
     public void AddAll(IEnumerable<MediaItem> mediaItems)
     {
-      foreach (MediaItem mediaItem in mediaItems)
-        Add(mediaItem);
+      lock (_syncObj)
+        foreach (MediaItem mediaItem in mediaItems)
+          Add(mediaItem);
     }
 
     public void Remove(MediaItem mediaItem)
     {
-      int index = _itemList.IndexOf(mediaItem);
-      RemoveAt(index);
+      lock (_syncObj)
+      {
+        int index = _itemList.IndexOf(mediaItem);
+        RemoveAt(index);
+      }
     }
 
     public void RemoveAt(int index)
@@ -193,93 +238,105 @@ namespace MediaPortal.Services.Players
 
     public void RemoveRange(int fromIndex, int toIndex)
     {
-      if (fromIndex < 0)
-        fromIndex = 0;
-      if (toIndex > _itemList.Count)
-        toIndex = _itemList.Count;
-      if (toIndex <= fromIndex)
-        return;
-      for (int i = toIndex-1; i >= fromIndex; i--)
-        _itemList.RemoveAt(i);
-      if (_playIndexList == null)
-        return;
-      // Adapt play index list
-      int removeCount = toIndex - fromIndex;
-      for (int i = _playIndexList.Count - 1; i >= 0; i++)
+      lock (_syncObj)
       {
-        int playIndex = _playIndexList[i];
-        if (playIndex < fromIndex)
-          continue;
-        if (playIndex < toIndex)
-          _playIndexList.RemoveAt(i);
-        else
-          _playIndexList[i] -= removeCount;
+        if (fromIndex < 0)
+          fromIndex = 0;
+        if (toIndex > _itemList.Count)
+          toIndex = _itemList.Count;
+        if (toIndex <= fromIndex)
+          return;
+        for (int i = toIndex - 1; i >= fromIndex; i--)
+          _itemList.RemoveAt(i);
+        if (_playIndexList == null)
+          return;
+        // Adapt play index list
+        int removeCount = toIndex - fromIndex;
+        for (int i = _playIndexList.Count - 1; i >= 0; i++)
+        {
+          int playIndex = _playIndexList[i];
+          if (playIndex < fromIndex)
+            continue;
+          if (playIndex < toIndex)
+            _playIndexList.RemoveAt(i);
+          else
+            _playIndexList[i] -= removeCount;
+        }
+        // Adapt current play index
+        if (_currentPlayIndex >= fromIndex)
+          _currentPlayIndex -= fromIndex;
+        if (_currentPlayIndex < 0)
+          _currentPlayIndex = -1;
       }
-      // Adapt current play index
-      if (_currentPlayIndex >= fromIndex)
-        _currentPlayIndex -= fromIndex;
-      if (_currentPlayIndex < 0)
-        _currentPlayIndex = -1;
     }
 
     public void Swap(int index1, int index2)
     {
-      if (index1 < 0 || index1 >= _itemList.Count || index2 < 0 || index2 >= _itemList.Count)
-        return;
-      CollectionUtils.Swap(_itemList, index1, index2);
-      if (_playIndexList == null)
-        return;
-      // Adapt play index list
-      int[] swapIndices = new int[2];
-      int numFound = 0;
-      for (int i = 0; i < _playIndexList.Count; i++)
+      lock (_syncObj)
       {
-        int tmpIndex = _playIndexList[i];
-        if (tmpIndex == index1 || tmpIndex == index2)
-          swapIndices[numFound++] = i;
-        if (numFound == 2)
-          break;
+        if (index1 < 0 || index1 >= _itemList.Count || index2 < 0 || index2 >= _itemList.Count)
+          return;
+        CollectionUtils.Swap(_itemList, index1, index2);
+        if (_playIndexList == null)
+          return;
+        // Adapt play index list
+        int[] swapIndices = new int[2];
+        int numFound = 0;
+        for (int i = 0; i < _playIndexList.Count; i++)
+        {
+          int tmpIndex = _playIndexList[i];
+          if (tmpIndex == index1 || tmpIndex == index2)
+            swapIndices[numFound++] = i;
+          if (numFound == 2)
+            break;
+        }
+        if (numFound != 2)
+        { // Playlist and index list are out-of-sync. This should never happen...
+          InitializePlayIndexList();
+          _currentPlayIndex = -1;
+          return;
+        }
+        CollectionUtils.Swap(_playIndexList, swapIndices[0], swapIndices[1]);
+        // Adapt current play index
+        for (int i = 0; i < 2; i++)
+          if (_currentPlayIndex == swapIndices[i])
+            _currentPlayIndex = swapIndices[1 - i];
       }
-      if (numFound != 2)
-      { // Playlist and index list are out-of-sync. This should never happen...
-        InitializePlayIndexList();
-        _currentPlayIndex = -1;
-        return;
-      }
-      CollectionUtils.Swap(_playIndexList, swapIndices[0], swapIndices[1]);
-      // Adapt current play index
-      for (int i = 0; i < 2; i++)
-        if (_currentPlayIndex == swapIndices[i])
-          _currentPlayIndex = swapIndices[1 - i];
     }
 
     public bool Insert(int index, MediaItem mediaItem)
     {
-      if (index < 0 || index > _itemList.Count)
-        return false;
-      _itemList.Insert(index, mediaItem);
-      if (_playIndexList == null)
+      lock (_syncObj)
+      {
+        if (index < 0 || index > _itemList.Count)
+          return false;
+        _itemList.Insert(index, mediaItem);
+        if (_playIndexList == null)
+          return true;
+        // Adapt play index list
+        if (_playMode == PlayMode.Shuffle)
+          // Shuffle mode: insert an index entry for the new item at a random position
+          _playIndexList.Insert(rnd.Next(_itemList.Count-1), index);
+        else
+          // Continuous mode: Simply add an index entry at the end of the index list
+          _playIndexList.Add(index);
+        for (int i = 0; i < _playIndexList.Count; i++)
+          if (_playIndexList[i] >= index)
+            _playIndexList[i] += 1;
+        // Adapt current play index
+        if (index <= _currentPlayIndex)
+          _currentPlayIndex += 1;
         return true;
-      // Adapt play index list
-      if (_playMode == PlayMode.Shuffle)
-        // Shuffle mode: insert an index entry for the new item at a random position
-        _playIndexList.Insert(rnd.Next(_itemList.Count-1), index);
-      else
-        // Continuous mode: Simply add an index entry at the end of the index list
-        _playIndexList.Add(index);
-      for (int i = 0; i < _playIndexList.Count; i++)
-        if (_playIndexList[i] >= index)
-          _playIndexList[i] += 1;
-      // Adapt current play index
-      if (index <= _currentPlayIndex)
-        _currentPlayIndex += 1;
-      return true;
+      }
     }
 
     public void ResetStatus()
     {
-      _currentPlayIndex = -1;
-      _playIndexList = null;
+      lock (_syncObj)
+      {
+        _currentPlayIndex = -1;
+        _playIndexList = null;
+      }
     }
   }
 }

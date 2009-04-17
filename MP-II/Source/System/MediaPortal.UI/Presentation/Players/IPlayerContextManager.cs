@@ -53,9 +53,21 @@ namespace MediaPortal.Presentation.Players
   /// This service also provides playlist management, i.e. it manages automatic playlist advance, and provides methods
   /// to control the current player like <see cref="Stop"/>, <see cref="Pause"/> etc.
   /// </para>
+  /// <para>
+  /// <b>Thread-Safety:</b><br/>
+  /// This class can be called from multiple threads. It synchronizes thread access to its fields via the
+  /// <see cref="IPlayerManager.SyncObj"/> instance, which is also exposed by the <see cref="SyncObj"/> property for
+  /// convenience.
+  /// </para>
   /// </remarks>
   public interface IPlayerContextManager
   {
+    /// <summary>
+    /// Returns the player manager's synchronization object to synchronize thread access on this instance.
+    /// This is a convenience property for getting the player manager's synchronization object.
+    /// </summary>
+    object SyncObj { get; }
+
     /// <summary>
     /// Returns the information if there is already an audio player active.
     /// </summary>
@@ -195,7 +207,9 @@ namespace MediaPortal.Presentation.Players
     /// </summary>
     /// <param name="stream">One of the available audio streams, which were returned by <see cref="GetAvailableAudioStreams"/>.
     /// </param>
-    void SetAudioStream(AudioStreamDescriptor stream);
+    /// <returns><c>true</c>, if the specified <paramref name="stream"/> could successfully be activated, else
+    /// <c>false</c>.</returns>
+    bool SetAudioStream(AudioStreamDescriptor stream);
 
     /// <summary>
     /// Stops playback of the current player.

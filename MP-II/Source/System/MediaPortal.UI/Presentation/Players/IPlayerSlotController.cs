@@ -56,9 +56,15 @@ namespace MediaPortal.Presentation.Players
   /// viewed TV channel, for example.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// This player slot can adopt similar play states as the player (see <see cref="PlayerSlotState"/>). Mostly, the
   /// states of player and its player slot controller correspond to each other, but the states can differ in case
   /// when the player is exchanged (for example because of a playlist advance).<br/>
+  /// </para>
+  /// <para>
+  /// This component is multithreading safe. To synchronize multithread access, this instance uses the
+  /// <see cref="IPlayerManager.SyncObj"/> instance.
+  /// </para>
   /// </remarks>
   public interface IPlayerSlotController
   {

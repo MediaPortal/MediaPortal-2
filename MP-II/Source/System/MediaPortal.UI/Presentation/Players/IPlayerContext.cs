@@ -48,8 +48,32 @@ namespace MediaPortal.Presentation.Players
   /// High-level descriptor, describing a typed "place" where a player can run.
   /// The player context can contain a typed playlist (A/V/AV) which will automatically be advanced.
   /// </summary>
+  /// <remarks>
+  /// This component is multithreading safe.
+  /// </remarks>
   public interface IPlayerContext
   {
+    /// <summary>
+    /// Returns the information if this player context is still connected to a player slot. If <see cref="IsValid"/> is
+    /// <c>false</c>, the player context was closed and cannot be used any more. Especially the underlaying data
+    /// structure is not accessible any more in invalid player contexts, so the playlist and all context variables
+    /// are gone then.
+    /// </summary>
+    /// <remarks>
+    /// The return value of this property only has relevance inside a <c>lock</c> statement locking
+    /// the player manager's lock.<br/>
+    /// So to correctly perform a locking operation, it is necessary to execute this sequence:
+    /// <code>
+    /// IPlayerManager pm = ...;
+    /// lock (pm.SyncObj)
+    ///   if (IsValid)
+    ///   {
+    ///     ...
+    ///   }
+    /// </code>
+    /// </remarks>
+    bool IsValid { get; }
+
     /// <summary>
     /// Returns the type of this player context. The type determines if this context plays audio by default and
     /// which underlaying player slot will be used. A video player will preferably be located in the primary
@@ -57,14 +81,6 @@ namespace MediaPortal.Presentation.Players
     /// The type is also used to find conflicts (A-A, V-V).
     /// </summary>
     PlayerContextType MediaType { get; }
-
-    /// <summary>
-    /// Returns the information if this player context is still connected to a player slot. If <see cref="IsValid"/> is
-    /// <c>false</c>, the player context was closed and cannot be used any more. Especially the underlaying data
-    /// structure is not accessible any more in invalid player contexts, so the playlist and all context variables
-    /// are gone then.
-    /// </summary>
-    bool IsValid { get; }
 
     /// <summary>
     /// Returns the playlist of this player context.
@@ -109,11 +125,6 @@ namespace MediaPortal.Presentation.Players
     /// this method will potentially need more time to look into the given resource's content.</param>
     /// <returns><c>true</c>, if the specified item could be played, else <c>false</c>.</returns>
     bool DoPlay(IMediaItemLocator locator, string mimeType);
-
-    /// <summary>
-    /// Closes this player context. After closing it, the player context is invalid.
-    /// </summary>
-    void Close();
 
     /// <summary>
     /// Sets a user-defined context variable in this player context.

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Services.Players;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -36,13 +37,25 @@ namespace MediaPortal.Presentation.Players
   /// Each slot must be switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
   /// </summary>
   /// <remarks>
+  /// <para>
   /// The player manager provides the very technical interface to players. It deals with primary/secondary player,
   /// player slots, slot activity states. The compontent to manage players at a more user-related level is
   /// <see cref="IPlayerContextManager"/>, which is based on this component.
-  /// At the moment, this service is not specified to be thread-safe.
+  /// </para>
+  /// <para>
+  /// <b>Thread-Safety:</b><br/>
+  /// This class can be called from multiple threads. It synchronizes thread access to its fields via its
+  /// <see cref="SyncObj"/> instance. Accesses to its contained <see cref="IPlayerSlotController"/>s are
+  /// synchronized also via that <see cref="SyncObj"/>.
+  /// </para>
   /// </remarks>
   public interface IPlayerManager : IDisposable
   {
+    /// <summary>
+    /// Returns the synchronization object to lock this instance.
+    /// </summary>
+    object SyncObj { get; }
+
     /// <summary>
     /// Returns the number of active player slots (0, 1 or 2).
     /// </summary>

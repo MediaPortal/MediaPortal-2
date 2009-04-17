@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Actions;
 
@@ -49,6 +50,13 @@ namespace MediaPortal.SkinEngine.InputManagement
   /// </summary>
   public class InputManager : IInputManager
   {
+    #region Consts
+
+    // TODO: Make this configurable
+    protected static TimeSpan MOUSE_CONTROLS_TIMEOUT = new TimeSpan(0, 0, 0, 5);
+
+    #endregion
+
     #region Protected fields
 
     protected DateTime _lastMouseUsageTime = DateTime.MinValue;
@@ -100,6 +108,11 @@ namespace MediaPortal.SkinEngine.InputManagement
       internal set { _lastInputTime = value; }
     }
 
+    public bool IsMouseUsed
+    {
+      get { return DateTime.Now - _lastMouseUsageTime < MOUSE_CONTROLS_TIMEOUT; }
+    }
+
     public void MouseMove(float x, float y)
     {
       DateTime now = DateTime.Now;
@@ -107,6 +120,21 @@ namespace MediaPortal.SkinEngine.InputManagement
       _lastMouseUsageTime = now;
       if (MouseMoved != null)
         MouseMoved(x, y);
+    }
+
+    public void MouseClick(MouseButtons mouseButtons)
+    {
+      switch (mouseButtons)
+      {
+        case MouseButtons.Left:
+          KeyPress(Key.Ok);
+          _lastMouseUsageTime = DateTime.Now;
+          break;
+        case MouseButtons.Right:
+          KeyPress(Key.ContextMenu);
+          _lastMouseUsageTime = DateTime.Now;
+          break;
+      }
     }
 
     public void KeyPress(Key key)

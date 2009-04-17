@@ -129,7 +129,7 @@ namespace Ui.Players.Video
     protected bool _isMuted = false;
     protected bool _isAudioEnabled = true;
     protected bool _initialized = false;
-    List<IPin> _vmr9ConnectionPins = new List<IPin>();
+    List<IPin> _evrConnectionPins = new List<IPin>();
     protected IMediaItemLocator _mediaItemLocator;
     protected IMediaItemLocalFsAccessor _mediaItemAccessor;
     protected PlayerEventDlgt _started = null;
@@ -1141,7 +1141,7 @@ namespace Ui.Players.Video
                   {
                     if (pinConnect != null)
                     {
-                      _vmr9ConnectionPins.Add(pinConnect);
+                      _evrConnectionPins.Add(pinConnect);
                       //Marshal.ReleaseComObject(pinConnect);
                     }
                   }
@@ -1209,11 +1209,11 @@ namespace Ui.Players.Video
                 pins[0].QueryDirection(out pinDir);
                 if (pinDir == PinDirection.Input)
                 {
-                  if (_vmr9ConnectionPins.Count > 0)
+                  if (_evrConnectionPins.Count > 0)
                   {
-                    _graphBuilder.Connect(_vmr9ConnectionPins[0], pins[0]);
-                    Marshal.ReleaseComObject(_vmr9ConnectionPins[0]);
-                    _vmr9ConnectionPins.RemoveAt(0);
+                    _graphBuilder.Connect(_evrConnectionPins[0], pins[0]);
+                    Marshal.ReleaseComObject(_evrConnectionPins[0]);
+                    _evrConnectionPins.RemoveAt(0);
                   }
                   Marshal.ReleaseComObject(pins[0]);
                 }

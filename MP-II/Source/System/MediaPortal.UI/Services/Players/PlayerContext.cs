@@ -61,6 +61,15 @@ namespace MediaPortal.Services.Players
 
     #endregion
 
+    protected static object SyncObj
+    {
+      get
+      {
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        return playerManager.SyncObj;
+      }
+    }
+
     protected static bool GetItemData(MediaItem item, out IMediaItemLocator locator, out string mimeType)
     {
       locator = null;
@@ -76,19 +85,23 @@ namespace MediaPortal.Services.Players
 
     protected IPlayer GetCurrentPlayer()
     {
-      return IsValid && _slotController.IsActive ? _slotController.CurrentPlayer : null;
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return null;
+      lock (SyncObj)
+        return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
     #region IPlayerContext implementation
 
-    public PlayerContextType MediaType
-    {
-      get { return _type; }
-    }
-
     public bool IsValid
     {
       get { return _slotController != null; }
+    }
+
+    public PlayerContextType MediaType
+    {
+      get { return _type; }
     }
 
     public IPlaylist Playlist
@@ -104,7 +117,7 @@ namespace MediaPortal.Services.Players
 
     public IPlayer CurrentPlayer
     {
-      get { return IsValid && _slotController.IsActive ? _slotController.CurrentPlayer : null; }
+      get { return GetCurrentPlayer(); }
     }
 
     public PlaybackState PlayerState
@@ -132,41 +145,52 @@ namespace MediaPortal.Services.Players
 
     public bool DoPlay(IMediaItemLocator locator, string mimeType)
     {
-      if (!IsValid)
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
         return false;
-      return _slotController.Play(locator, mimeType);
-    }
-
-    public void Close()
-    {
-      Dispose();
+      lock (SyncObj)
+        return psc.Play(locator, mimeType);
     }
 
     public void SetContextVariable(string key, object value)
     {
-      if (IsValid)
-        _slotController.ContextVariables[key] = value;
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return;
+      lock (SyncObj)
+        psc.ContextVariables[key] = value;
     }
 
     public void ResetContextVariable(string key)
     {
-      if (IsValid)
-        _slotController.ContextVariables.Remove(key);
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return;
+      lock (SyncObj)
+        psc.ContextVariables.Remove(key);
     }
 
     public object GetContextVariable(string key)
     {
-      object result;
-      if (IsValid && _slotController.ContextVariables.TryGetValue(key, out result))
-        return result;
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return null;
+      lock (SyncObj)
+      {
+        object result;
+        if (IsValid && _slotController.ContextVariables.TryGetValue(key, out result))
+          return result;
+      }
       return null;
     }
 
     public void Stop()
     {
-      if (!IsValid)
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
         return;
-      _slotController.Stop();
+      lock (SyncObj)
+        psc.Stop();
     }
 
     public void Pause()
@@ -217,12 +241,22 @@ namespace MediaPortal.Services.Players
 
     public bool PreviousItem()
     {
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return false;
+      // Locking not necessary here. If a lock should be placed in future, be aware that the DoPlay method
+      // will lock the PM as well
       MediaItem item = _playlist.Previous();
       return item != null && DoPlay(item);
     }
 
     public bool NextItem()
     {
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return false;
+      // Locking not necessary here. If a lock should be placed in future, be aware that the DoPlay method
+      // will lock the PM as well
       MediaItem item = _playlist.Next();
       return item != null && DoPlay(item);
     }

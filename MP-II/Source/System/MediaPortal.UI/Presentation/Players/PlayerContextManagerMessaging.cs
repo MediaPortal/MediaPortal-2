@@ -39,7 +39,7 @@ namespace MediaPortal.Presentation.Players
     public enum MessageType
     {
       /// <summary>
-      /// The current player was changed.
+      /// The current player was changed. The PARAM will contain the player slot.
       /// </summary>
       CurrentPlayerChanged,
     }
@@ -48,12 +48,13 @@ namespace MediaPortal.Presentation.Players
     public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
 
-    public static void SendPlayerContextManagerMessage(MessageType type)
+    public static void SendPlayerContextManagerMessage(MessageType type, int playerSlot)
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
-      queue.Send(msg);
+      msg.MessageData[PARAM] = playerSlot;
+      queue.SendAsync(msg);
     }
   }
 }
