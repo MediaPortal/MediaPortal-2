@@ -168,7 +168,6 @@ namespace UiComponents.SkinBase
 
     protected void CheckVideoInfoVisible()
     {
-      IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
       IsVideoInfoVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
     }
@@ -240,6 +239,23 @@ namespace UiComponents.SkinBase
       set { _isPipVisibleProperty.SetValue(value); }
     }
 
+    public void ShowCurrentlyPlaying()
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(new Guid(CURRENTLY_PLAYING_STATE_ID_STR));
+    }
+
+    public void ShowVideoInfo()
+    {
+      _lastVideoInfoDemand = DateTime.Now;
+      if (IsVideoInfoVisible)
+      { // Pressing the info button twice will bring up the context menu
+        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+        screenManager.ShowDialog(VIDEOCONTEXTMENU_DIALOG_NAME);
+      }
+      CheckVideoInfoVisible();
+    }
+
     public static void Play()
     {
       IPlayerContext pc = GetCurrentPlayerContext();
@@ -261,20 +277,8 @@ namespace UiComponents.SkinBase
 
     public static void TogglePause()
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      switch (pc.PlayerState) {
-        case PlaybackState.Playing:
-          pc.Pause();
-          break;
-        case PlaybackState.Paused:
-          pc.Play();
-          break;
-        default:
-          pc.Restart();
-          break;
-      }
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.TogglePlayPause();
     }
 
     public static void Stop()
@@ -333,21 +337,10 @@ namespace UiComponents.SkinBase
       playerManager.Muted ^= true;
     }
 
-    public void ShowCurrentlyPlaying()
+    public static void ToggleCurrentPlayer()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(new Guid(CURRENTLY_PLAYING_STATE_ID_STR));
-    }
-
-    public void ShowVideoInfo()
-    {
-      _lastVideoInfoDemand = DateTime.Now;
-      if (IsVideoInfoVisible)
-      { // Pressing the info button twice will bring up the context menu
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-        screenManager.ShowDialog(VIDEOCONTEXTMENU_DIALOG_NAME);
-      }
-      CheckVideoInfoVisible();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.ToggleCurrentPlayer();
     }
 
     #region IWorkflowModel implementation

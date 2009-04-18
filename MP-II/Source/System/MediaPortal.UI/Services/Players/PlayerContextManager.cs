@@ -152,9 +152,7 @@ namespace MediaPortal.Services.Players
         else if (currentPlayerSlot == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
           currentPlayerSlot = -1;
         if (currentPlayerSlot == -1)
-          if (secondaryPlayerActive)
-            currentPlayerSlot = PlayerManagerConsts.SECONDARY_SLOT;
-          else if (primaryPlayerActive)
+          if (primaryPlayerActive)
             currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
         CurrentPlayerIndex = currentPlayerSlot;
       }
@@ -502,6 +500,17 @@ namespace MediaPortal.Services.Players
       if (playerContext == null)
         return false;
       return playerContext.NextItem();
+    }
+
+    public void ToggleCurrentPlayer()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        if (_currentPlayerIndex != -1)
+          CurrentPlayerIndex = 1 - _currentPlayerIndex;
+        CheckCurrentPlayerSlot();
+      }
     }
 
     #endregion

@@ -664,10 +664,19 @@
               </LinearGradientBrush>
             </GroupBox.Background>
             <StackPanel Orientation="Vertical">
-              <StackPanel Orientation="Horizontal" Margin="5">
-                <Label x:Name="MediaItemTitle" Content="{TemplateBinding MediaItemTitle}" Color="{ThemeResource PlayControlMediaItemColor}"/>
+              <Grid Margin="5" HorizontalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource PlayControlMediaItemColor}"
+                    Content="{TemplateBinding MediaItemTitle}" IsVisible="{TemplateBinding IsCurrentPlayer}"/>
+                <Button x:Name="MakeCurrentPlayer" Grid.Row="0" Grid.Column="0" Style="{ThemeResource ButtonWideStyle}"
+                    Content="{TemplateBinding MediaItemTitle}" IsVisible="{TemplateBinding !IsCurrentPlayer}" Command="{Command RelativeSource={RelativeSource TemplatedParent},Path=MakeCurrent}"/>
                 <!-- TODO: Speaker symbol, striked out if muted -->
-              </StackPanel>
+              </Grid>
               <StackPanel Orientation="Horizontal" IsVisible="{TemplateBinding ShowPlayControls}" Margin="5"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                 <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSkipBack}"

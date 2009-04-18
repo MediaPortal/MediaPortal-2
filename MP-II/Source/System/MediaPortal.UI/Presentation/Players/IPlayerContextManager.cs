@@ -251,5 +251,10 @@ namespace MediaPortal.Presentation.Players
     /// <c>true</c>, if the next item could be started, else <c>false</c>.
     /// </returns>
     bool NextItem();
+
+    /// <summary>
+    /// Changes the index of the "current" player to the other active player, if possible.
+    /// </summary>
+    void ToggleCurrentPlayer();
   }
 }

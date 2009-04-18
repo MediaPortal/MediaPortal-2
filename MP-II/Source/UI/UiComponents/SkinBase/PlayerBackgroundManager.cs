@@ -116,6 +116,7 @@ namespace UiComponents.SkinBase
       // we should register it here too
       lock (_syncObj)
       {
+        // ------------------ Play controls ---------------------
         AddKeyBinding_NeedLock(
             Key.Play, () =>
               {
@@ -170,6 +171,8 @@ namespace UiComponents.SkinBase
                 PlayerModel.Next();
                 return true;
               });
+
+        // ------------------------ Volume -----------------------
         AddKeyBinding_NeedLock(
             Key.Mute, () =>
               {
@@ -188,6 +191,21 @@ namespace UiComponents.SkinBase
                 PlayerModel.VolumeDown();
                 return true;
               });
+
+        // --------------------- Player management --------------------
+        AddKeyBinding_NeedLock(
+            Key.Blue, () =>
+              {
+                PlayerModel.ToggleCurrentPlayer();
+                return true;
+              });
+        AddKeyBinding_NeedLock(
+            Key.Printable('c'), () =>
+              {
+                PlayerModel.ToggleCurrentPlayer();
+                return true;
+              });
+
         // Register player specific key bindings
         // TODO: Register key bindings from current player
       }

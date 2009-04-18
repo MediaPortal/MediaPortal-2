@@ -491,6 +491,12 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       UpdatePlayControls();
     }
 
+    public void MakeCurrent()
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.CurrentPlayerIndex = SlotIndex;
+    }
+
     #endregion
   }
 }
