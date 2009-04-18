@@ -29,6 +29,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Utilities.DeepCopy;
@@ -44,6 +45,8 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     #region Consts
 
     public const string UNKNOWN_MEDIA_ITEM_RESOURCE = "[PlayerControl.UnknownMediaItem]";
+    public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
+    public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPip]";
 
     #endregion
 
@@ -63,7 +66,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Property _canSeekBackwardProperty;
     protected Property _isRunningProperty;
     protected Property _isPipProperty;
+
     protected Timer _timer;
+    protected IResourceString _headerNormalResource;
+    protected IResourceString _headerPipResource;
 
     #endregion
 
@@ -96,6 +102,9 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _timer = new Timer(200);
       _timer.Enabled = false;
       _timer.Elapsed += OnTimerElapsed;
+
+      _headerNormalResource = LocalizationHelper.CreateResourceString(HEADER_NORMAL_RESOURCE);
+      _headerPipResource = LocalizationHelper.CreateResourceString(HEADER_PIP_RESOURCE);
     }
 
     void Attach()
@@ -199,7 +208,8 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       }
       else
       {
-        Title = player.Name;
+        IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
+        Title = IsPip ? _headerPipResource.Evaluate(player.Name) : _headerNormalResource.Evaluate(player.Name);
         string mit = player.MediaItemTitle;
         if (mit == null)
         {
@@ -220,7 +230,6 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         CanSeekForward = seekablePlayer != null && seekablePlayer.CanSeekForward;
         IsRunning = player.State == PlaybackState.Playing;
 
-        IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
       }
       CheckShowPlayControls();
       if (AutoVisibility)

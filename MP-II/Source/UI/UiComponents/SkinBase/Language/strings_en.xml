@@ -63,7 +63,7 @@
     <String Name="Tags" Text="Tags"/>
     <String Name="Filename" Text="File Name"/>
   </Section>
-  <Section Name="days">
+  <Section Name="Days">
     <String Name="0" Text="Sunday"/>
     <String Name="1" Text="Monday"/>
     <String Name="2" Text="Tuesday"/>
@@ -72,7 +72,7 @@
     <String Name="5" Text="Friday"/>
     <String Name="6" Text="Saturday"/>
   </Section>
-  <Section Name="months">
+  <Section Name="Months">
     <String Name="1" Text="January"/>
     <String Name="2" Text="February"/>
     <String Name="3" Text="March"/>
@@ -85,11 +85,6 @@
     <String Name="10" Text="October"/>
     <String Name="11" Text="November"/>
     <String Name="12" Text="December"/>
-  </Section>
-  <Section Name="importers">
-    <String Name="addshare" Text="Add share"/>
-    <String Name="removeshare" Text="Remove share"/>
-    <String Name="refresh" Text="Refresh library"/>
   </Section>
   <Section Name="playback">
     <String Name="0" Text="Zoom modes"/>

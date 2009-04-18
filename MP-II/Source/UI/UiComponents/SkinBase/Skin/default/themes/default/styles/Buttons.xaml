@@ -1799,4 +1799,8 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+  <Style x:Key="ButtonMakeCurrentPlayerStyle" BasedOn="{ThemeResource ButtonWideStyle}">
+    <!-- TODO -->
+  </Style>
 </ResourceDictionary>
