@@ -46,7 +46,7 @@ namespace MediaPortal.Presentation.Workflow
     /// <remarks>
     /// This collection maybe change when plugins are added or removed.
     /// </remarks>
-    IDictionary<Guid, WorkflowStateAction> MenuStateActions { get; }
+    IDictionary<Guid, WorkflowAction> MenuStateActions { get; }
 
     /// <summary>
     /// Returns the navigation structure consisting of a stack of currently active navigation contexts.

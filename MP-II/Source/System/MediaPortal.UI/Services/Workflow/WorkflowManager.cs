@@ -122,7 +122,7 @@ namespace MediaPortal.Services.Workflow
     protected IDictionary<Guid, ModelEntry> _modelCache = new Dictionary<Guid, ModelEntry>();
     protected ModelItemStateTracker _modelItemStateTracker;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
-    protected IDictionary<Guid, WorkflowStateAction> _menuActions =  new Dictionary<Guid, WorkflowStateAction>();
+    protected IDictionary<Guid, WorkflowAction> _menuActions =  new Dictionary<Guid, WorkflowAction>();
 
     #endregion
 
@@ -148,11 +148,17 @@ namespace MediaPortal.Services.Workflow
     /// </summary>
     protected void ReloadWorkflowResources()
     {
+      if (_menuActions != null)
+        foreach (WorkflowAction action in _menuActions.Values)
+          if (action is IDisposable)
+            ((IDisposable) action).Dispose();
       ServiceScope.Get<ILogger>().Debug("WorkflowManager: (Re)loading workflow resources");
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
       _states = loader.States;
       _menuActions = loader.MenuActions;
+      foreach (WorkflowAction action in _menuActions.Values)
+        action.Initialize();
       int count = 0;
       int numPop = 0;
       foreach (NavigationContext context in _navigationContextStack)
@@ -215,10 +221,10 @@ namespace MediaPortal.Services.Workflow
       UpdateScreen();
     }
 
-    protected static IEnumerable<WorkflowStateAction> FilterActionsBySourceState(Guid sourceState, ICollection<WorkflowStateAction> actions)
+    protected static IEnumerable<WorkflowAction> FilterActionsBySourceState(Guid sourceState, ICollection<WorkflowAction> actions)
     {
-      foreach (WorkflowStateAction action in actions)
-        if (action.SourceStateId == sourceState)
+      foreach (WorkflowAction action in actions)
+        if (!action.SourceStateId.HasValue || action.SourceStateId.Value == sourceState)
           yield return action;
     }
 
@@ -280,8 +286,7 @@ namespace MediaPortal.Services.Workflow
       Guid? predecessorModelId = predecessor == null ? null : predecessor.WorkflowModelId;
 
       // Communicate context change to models
-      bool modelChange = predecessorModelId.HasValue != workflowModelId.HasValue ||
-          (predecessorModelId.HasValue && workflowModelId.Value != predecessorModelId.Value);
+      bool modelChange = workflowModelId != predecessorModelId;
 
       // - Handle predecessor workflow model
       IWorkflowModel predecessorWorkflowModel = predecessorModelId.HasValue ?
@@ -315,14 +320,14 @@ namespace MediaPortal.Services.Workflow
 
       // Compile menu actions
       logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
-      ICollection<WorkflowStateAction> menuActions = new List<WorkflowStateAction>();
+      ICollection<WorkflowAction> menuActions = new List<WorkflowAction>();
       if (state.InheritMenu && predecessor != null)
         CollectionUtils.AddAll(menuActions, predecessor.MenuActions.Values);
       CollectionUtils.AddAll(menuActions, FilterActionsBySourceState(state.StateId, _menuActions.Values));
       if (workflowModel != null)
         workflowModel.UpdateMenuActions(newContext, menuActions);
 
-      foreach (WorkflowStateAction menuAction in menuActions)
+      foreach (WorkflowAction menuAction in menuActions)
         newContext.MenuActions.Add(menuAction.ActionId, menuAction);
 
       IterateCache();
@@ -357,8 +362,7 @@ namespace MediaPortal.Services.Workflow
             GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
 
         // Communicate context change to models
-        bool modelChange = oldContext.WorkflowModelId.HasValue != workflowModelId.HasValue ||
-            (oldContext.WorkflowModelId.HasValue && workflowModelId.Value != oldContext.WorkflowModelId.Value);
+        bool modelChange = oldContext.WorkflowModelId != workflowModelId;
 
         // - Handle predecessor workflow model
         IWorkflowModel predecessorWorkflowModel = oldContext.WorkflowModelId.HasValue ?
@@ -438,7 +442,7 @@ namespace MediaPortal.Services.Workflow
       get { return _states; }
     }
 
-    public IDictionary<Guid, WorkflowStateAction> MenuStateActions
+    public IDictionary<Guid, WorkflowAction> MenuStateActions
     {
       get { return _menuActions; }
     }

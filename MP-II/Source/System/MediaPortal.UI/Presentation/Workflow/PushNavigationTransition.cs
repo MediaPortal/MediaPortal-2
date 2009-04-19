@@ -28,7 +28,10 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.Presentation.Workflow
 {
-  public class PushNavigationTransition : WorkflowStateAction
+  /// <summary>
+  /// When invoked, this action pushes a workflow state onto the workflow navigation stack.
+  /// </summary>
+  public class PushNavigationTransition : WorkflowAction
   {
     #region Protected fields
 
@@ -36,7 +39,7 @@ namespace MediaPortal.Presentation.Workflow
 
     #endregion
 
-    public PushNavigationTransition(Guid actionId, string name, Guid sourceStateId, Guid targetStateId,
+    public PushNavigationTransition(Guid actionId, string name, Guid? sourceStateId, Guid targetStateId,
         IResourceString displayTitle) :
         base(actionId, name, sourceStateId, displayTitle)
     {
@@ -50,6 +53,16 @@ namespace MediaPortal.Presentation.Workflow
     public Guid TargetStateId
     {
       get { return _targetStateId; }
+    }
+
+    public override bool IsVisible
+    {
+      get { return true; }
+    }
+
+    public override bool IsEnabled
+    {
+      get { return true; }
     }
 
     /// <summary>

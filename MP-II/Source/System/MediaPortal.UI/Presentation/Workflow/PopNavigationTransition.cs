@@ -28,7 +28,10 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.Presentation.Workflow
 {
-  public class PopNavigationTransition : WorkflowStateAction
+  /// <summary>
+  /// When invoked, this action pops a given count of workflow states from the workflow navigation stack.
+  /// </summary>
+  public class PopNavigationTransition : WorkflowAction
   {
     #region Protected fields
 
@@ -36,9 +39,9 @@ namespace MediaPortal.Presentation.Workflow
 
     #endregion
 
-    public PopNavigationTransition(Guid actionId, string name, Guid sourceState, int numPop,
+    public PopNavigationTransition(Guid actionId, string name, Guid? sourceStateId, int numPop,
         IResourceString displayTitle) :
-        base(actionId, name, sourceState, displayTitle)
+        base(actionId, name, sourceStateId, displayTitle)
     {
       _numPop = numPop;
     }
@@ -50,6 +53,16 @@ namespace MediaPortal.Presentation.Workflow
     public int NumPop
     {
       get { return _numPop; }
+    }
+
+    public override bool IsVisible
+    {
+      get { return true; }
+    }
+
+    public override bool IsEnabled
+    {
+      get { return true; }
     }
 
     /// <summary>

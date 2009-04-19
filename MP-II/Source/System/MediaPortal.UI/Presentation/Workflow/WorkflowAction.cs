@@ -27,28 +27,40 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.Presentation.Workflow
 {
+  public delegate void WorkflowActionStateChangeDelegate(WorkflowAction action);
+
   /// <summary>
-  /// Stores the data for an action which can be triggered when a specified state
-  /// is given.
+  /// Stores the data for an action which can be triggered when a specified state is given.
   /// Typically, a workflow state action will provide the data for a menu item at the GUI.
+  /// Sub classes will implement the abstract properties and methods of this class.
   /// </summary>
-  public abstract class WorkflowStateAction
+  public abstract class WorkflowAction
   {
     #region Protected fields
 
     protected Guid _actionId;
     protected string _name;
-    protected Guid _sourceStateId;
+    protected Guid? _sourceStateId;
     protected IResourceString _displayTitle;
 
     #endregion
 
-    protected WorkflowStateAction(Guid actionId, string name, Guid sourceStateId, IResourceString displayTitle)
+    protected WorkflowAction(Guid actionId, string name, Guid? sourceStateId, IResourceString displayTitle)
     {
       _actionId = actionId;
       _name = name;
       _sourceStateId = sourceStateId;
       _displayTitle = displayTitle;
+    }
+
+    /// <summary>
+    /// Will be called from subclasses when the <see cref="IsEnabled"/> or <see cref="IsVisible"/> states have
+    /// changed.
+    /// </summary>
+    protected void FireStateChanged()
+    {
+      if (StateChanged != null)
+        StateChanged(this);
     }
 
     /// <summary>
@@ -69,9 +81,10 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
-    /// Returns the id of the workflow state where this action is available.
+    /// Returns the id of the workflow state where this action is available. When the source state is <c>null</c>,
+    /// this action is valid in all source states.
     /// </summary>
-    public Guid SourceStateId
+    public Guid? SourceStateId
     {
       get { return _sourceStateId; }
     }
@@ -85,8 +98,31 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
+    /// Returns the information if this action should be displayed to the user.
+    /// </summary>
+    public abstract bool IsVisible { get; }
+
+    /// <summary>
+    /// Returns the information if this action is currently able to be executed.
+    /// </summary>
+    public abstract bool IsEnabled { get; }
+
+    /// <summary>
+    /// This event will be triggered when the <see cref="IsVisible"/> or <see cref="IsEnabled"/> states of this
+    /// action have changed.
+    /// </summary>
+    public event WorkflowActionStateChangeDelegate StateChanged;
+
+    /// <summary>
     /// Executes this action. This method will be overridden in subclasses.
     /// </summary>
     public abstract void Execute();
+
+    /// <summary>
+    /// Can be overridden in sub classes to do initialization work.
+    /// </summary>
+    public virtual void Initialize()
+    {
+    }
   }
 }

@@ -202,6 +202,6 @@ namespace MediaPortal.Presentation.Models
     /// dynamic menu actions.</param>
     /// <param name="actions">Collection where this model can add additional menu actions valid for
     /// the specified navigation <paramref name="context"/>.</param>
-    void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions);
+    void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions);
   }
 }

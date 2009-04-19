@@ -45,15 +45,14 @@ namespace MediaPortal.Services.Workflow
     public const string WORKFLOW_DIRECTORY = "workflow";
 
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
-    protected IDictionary<Guid, WorkflowStateAction> _menuActions =
-        new Dictionary<Guid, WorkflowStateAction>();
+    protected IDictionary<Guid, WorkflowAction> _menuActions = new Dictionary<Guid, WorkflowAction>();
 
     public IDictionary<Guid, WorkflowState> States
     {
       get { return _states; }
     }
 
-    public IDictionary<Guid, WorkflowStateAction> MenuActions
+    public IDictionary<Guid, WorkflowAction> MenuActions
     {
       get { return _menuActions; }
     }
@@ -111,7 +110,7 @@ namespace MediaPortal.Services.Workflow
               LoadStates(childElement);
               break;
             case "MenuActions":
-              foreach (WorkflowStateAction action in LoadActions(childElement))
+              foreach (WorkflowAction action in LoadActions(childElement))
               {
                 if (_menuActions.ContainsKey(action.ActionId))
                   throw new ArgumentException(string.Format(
@@ -154,7 +153,7 @@ namespace MediaPortal.Services.Workflow
       }
     }
 
-    protected static IEnumerable<WorkflowStateAction> LoadActions(XmlElement actionsElement)
+    protected static IEnumerable<WorkflowAction> LoadActions(XmlElement actionsElement)
     {
       foreach (XmlNode child in actionsElement.ChildNodes)
       {
@@ -169,7 +168,10 @@ namespace MediaPortal.Services.Workflow
           case "PopNavigationTransition":
             yield return LoadPopNavigationTransition(childElement);
             break;
-          // TODO: More actions - show screen, close dialog, call model method, ...
+          case "WorkflowContributorAction":
+            yield return LoadWorkflowContributorAction(childElement);
+            break;
+          // TODO: More actions - show screen, show dialog, call model method, ...
           default:
             throw new ArgumentException("'" + actionsElement.Name + "' element doesn't support a child element '" + child.Name + "'");
         }
@@ -222,7 +224,7 @@ namespace MediaPortal.Services.Workflow
           string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), new List<Guid>());
     }
 
-    protected static WorkflowStateAction LoadPushNavigationTransition(XmlElement actionElement)
+    protected static WorkflowAction LoadPushNavigationTransition(XmlElement actionElement)
     {
       string id = null;
       string name = null;
@@ -260,11 +262,11 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionElement.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionElement.Name, name));
-      return new PushNavigationTransition(new Guid(id), name, new Guid(sourceState), new Guid(targetState),
-          LocalizationHelper.CreateResourceString(displayTitle));
+      return new PushNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+          new Guid(targetState), LocalizationHelper.CreateResourceString(displayTitle));
     }
 
-    protected static WorkflowStateAction LoadPopNavigationTransition(XmlElement actionElement)
+    protected static WorkflowAction LoadPopNavigationTransition(XmlElement actionElement)
     {
       string id = null;
       string name = null;
@@ -303,8 +305,50 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionElement.Name, name));
       if (numPop == -1)
         throw new ArgumentException(string.Format("{0} '{1}': 'NumPop' attribute missing", actionElement.Name, name));
-      return new PopNavigationTransition(new Guid(id), name, new Guid(sourceState), numPop,
-          LocalizationHelper.CreateResourceString(displayTitle));
+      return new PopNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+          numPop, LocalizationHelper.CreateResourceString(displayTitle));
+    }
+
+    protected static WorkflowAction LoadWorkflowContributorAction(XmlElement actionElement)
+    {
+      string id = null;
+      string name = null;
+      string sourceState = null;
+      string contributorModel = null;
+      string displayTitle = null;
+      foreach (XmlAttribute attr in actionElement.Attributes)
+      {
+        switch (attr.Name)
+        {
+          case "Id":
+            id = attr.Value;
+            break;
+          case "Name":
+            name = attr.Value;
+            break;
+          case "SourceState":
+            sourceState = attr.Value;
+            break;
+          case "ContributorModelId":
+            contributorModel = attr.Value;
+            break;
+          case "DisplayTitle":
+            displayTitle = attr.Value;
+            break;
+          default:
+            throw new ArgumentException("'" + actionElement.Name + "' element doesn't support an attribute '" + attr.Name + "'");
+        }
+      }
+      if (string.IsNullOrEmpty(id))
+        throw new ArgumentException(string.Format("{0} '{1}': Id attribute is missing", actionElement.Name, name));
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", actionElement.Name, id));
+      if (string.IsNullOrEmpty(sourceState))
+        throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionElement.Name, name));
+      if (string.IsNullOrEmpty(contributorModel))
+        throw new ArgumentException(string.Format("{0} '{1}': 'ContributorModelId' attribute missing", actionElement.Name, name));
+      return new WorkflowContributorAction(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+          new Guid(contributorModel), LocalizationHelper.CreateResourceString(displayTitle));
     }
   }
 }

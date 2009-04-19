@@ -28,7 +28,11 @@ using MediaPortal.Presentation.DataObjects;
 
 namespace MediaPortal.Presentation.Workflow
 {
-  public class PushTransientStateNavigationTransition : WorkflowStateAction
+  /// <summary>
+  /// When invoked, this action pushes a new, transient workflow state onto the workflow navigation stack.
+  /// This can be used by workflow models which need to build workflow states at runtime.
+  /// </summary>
+  public class PushTransientStateNavigationTransition : WorkflowAction
   {
     #region Protected fields
 
@@ -50,6 +54,16 @@ namespace MediaPortal.Presentation.Workflow
     public WorkflowState TargetState
     {
       get { return _transientState; }
+    }
+
+    public override bool IsVisible
+    {
+      get { return true; }
+    }
+
+    public override bool IsEnabled
+    {
+      get { return true; }
     }
 
     /// <summary>
