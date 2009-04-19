@@ -33,7 +33,6 @@ namespace UiComponents.SkinBase
   public class MenuModel
   {
     protected const string MENU_ITEMS_KEY = "MenuModel: Menu-Items";
-    protected const string CONTEXT_MENU_ITEMS_KEY = "MenuModel: Context-Menu-Items";
 
     public MenuModel() { }
 
@@ -57,14 +56,15 @@ namespace UiComponents.SkinBase
       return result;
     }
 
-    public static ItemsList WrapMenu(ICollection<WorkflowStateAction> actions)
+    public static ItemsList WrapMenu(ICollection<WorkflowAction> actions)
     {
       ItemsList result = new ItemsList();
-      foreach (WorkflowStateAction action in actions)
+      foreach (WorkflowAction action in actions)
       {
         ListItem item = new ListItem("Name", action.DisplayTitle)
         {
-            Command = new MethodDelegateCommand(action.Execute)
+            Command = new MethodDelegateCommand(action.Execute),
+            Enabled = action.IsEnabled
         };
         result.Add(item);
       }

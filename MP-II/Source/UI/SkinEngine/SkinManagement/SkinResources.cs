@@ -130,7 +130,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
       public string UsageDescription
       {
-        get { return "SkinResources: Usage of style resources"; }
+        get { return "SkinResources: Usage of model in style resources"; }
       }
 
       public bool RequestEnd(PluginItemRegistration itemRegistration)

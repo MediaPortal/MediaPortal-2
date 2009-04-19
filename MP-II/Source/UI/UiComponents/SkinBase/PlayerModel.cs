@@ -383,7 +383,7 @@ namespace UiComponents.SkinBase
       // Not implemented
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
+    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
       // Not implemented yet
     }

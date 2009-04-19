@@ -378,7 +378,7 @@ namespace UiComponents.Media
       ReloadItems();
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
+    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
     }
 

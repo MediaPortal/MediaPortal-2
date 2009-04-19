@@ -486,7 +486,7 @@ namespace UiComponents.Configuration
         ServiceScope.Get<IConfigurationManager>().Dispose();
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
+    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
       string configLocation = GetConfigLocation(context);

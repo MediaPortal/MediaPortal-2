@@ -872,7 +872,7 @@ namespace UiComponents.Media.Settings.Configuration
       PrepareState(newContext.WorkflowState.StateId);
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowStateAction> actions)
+    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
       // Not used yet, currently we don't show any menu during the shares configuration process.
       // Perhaps we'll add menu actions for different convenience procedures like initializing the

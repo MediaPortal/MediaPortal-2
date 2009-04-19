@@ -340,8 +340,7 @@ namespace Ui.Players.Video
 
     public virtual string Name
     {
-      get { return "VideoPlayer"; }
-
+      get { return "Video"; }
     }
 
     public Size VideoSize
@@ -909,23 +908,6 @@ namespace Ui.Players.Video
     // Not used
     public virtual void Render()
     {
-      /*
-      if (_initialized == false) return;
-      if (_vertexBuffer == null) return;
-      lock (_fileName)
-      {
-        bool usePip = false;
-        if (_players.Count > 0 && _players[0] != this)
-        {
-          //PIP.. use stretch mode..
-          usePip = true;
-        }
-        if (Changed(usePip))
-        {
-          UpdateVertex();
-        }
-        RenderTexture();
-      }*/
     }
 
     public virtual void Stop()
