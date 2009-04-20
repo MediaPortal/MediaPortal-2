@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MediaPortal.Utilities
@@ -46,7 +47,7 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
-    /// Transforms all objects of the <paramref name="source"/> enumeration with the specified
+    /// Transforms all objects of the <paramref name="sourceEnumeration"/> enumeration with the specified
     /// <paramref name="transformer"/>.
     /// </summary>
     /// <param name="sourceEnumeration">Source enumeration to be transformed.</param>
@@ -70,6 +71,17 @@ namespace MediaPortal.Utilities
     {
       foreach (S s in source)
         target.Add(s);
+    }
+
+    /// <summary>
+    /// Adds all objects in the <paramref name="source"/> enumeration to the <paramref name="target"/> collection.
+    /// </summary>
+    /// <param name="target">Target collection where all elements from <paramref name="source"/> will be added.</param>
+    /// <param name="source">Source enumeration whose elements will be added to <paramref name="target"/>.</param>
+    public static void AddAll(ICollection<object> target, IEnumerable source)
+    {
+      foreach (object o in source)
+        target.Add(o);
     }
 
     /// <summary>
