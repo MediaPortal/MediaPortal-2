@@ -368,7 +368,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           {
             if (_backgroundAsset == null)
             {
-              _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name);
+              _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name, Screen.Name);
               ContentManager.Add(_backgroundAsset);
             }
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
@@ -419,7 +419,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           {
             if (_borderAsset == null)
             {
-              _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name);
+              _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name, Screen.Name);
               ContentManager.Add(_borderAsset);
             }
             _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);

@@ -178,7 +178,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           if (_borderAsset == null)
           {
-            _borderAsset = new VisualAssetContext("Line._borderContext:" + Name);
+            _borderAsset = new VisualAssetContext("Line._borderContext:" + Name, Screen.Name);
             ContentManager.Add(_borderAsset);
           }
           PositionColored2Textured[] verts;

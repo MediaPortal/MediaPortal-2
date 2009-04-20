@@ -317,7 +317,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           if (_backgroundAsset == null)
           {
-            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + Name);
+            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + Name, Screen.Name);
             ContentManager.Add(_backgroundAsset);
           }
           _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);

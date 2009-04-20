@@ -161,7 +161,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
                   GraphicsPathHelper.Flatten(subPathVerts, out verts);
                   if (_fillAsset == null)
                   {
-                    _fillAsset = new VisualAssetContext("Path._fillContext:" + Name);
+                    _fillAsset = new VisualAssetContext("Path._fillContext:" + Name, Screen.Name);
                     ContentManager.Add(_fillAsset);
                   }
                   if (verts != null)
@@ -213,7 +213,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Path._borderContext:" + Name);
+                _borderAsset = new VisualAssetContext("Path._borderContext:" + Name, Screen.Name);
                 ContentManager.Add(_borderAsset);
               }
               GraphicsPathIterator gpi = new GraphicsPathIterator(path);

@@ -23,11 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.SkinEngine.SkinManagement;
-using MediaPortal.Presentation.Screens;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
 {
@@ -39,10 +37,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     string _name;
     static int _assetId = 0;
 
-    public VisualAssetContext(string name)
+    public VisualAssetContext(string controlName, string screenName)
     {
-      IScreenManager mgr = ServiceScope.Get<IScreenManager>();
-      _name = String.Format("visual#{0} {1} {2}", _assetId, mgr.ActiveScreenName, name);
+      _name = String.Format("visual#{0} {1} {2}", _assetId, screenName, controlName);
       _assetId++;
       LastTimeUsed = SkinContext.Now;
     }

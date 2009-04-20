@@ -93,7 +93,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_fillAsset == null)
               {
-                _fillAsset = new VisualAssetContext("Ellipse._fillContext:" + Name);
+                _fillAsset = new VisualAssetContext("Ellipse._fillContext:" + Name, Screen.Name);
                 ContentManager.Add(_fillAsset);
               }
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
@@ -114,7 +114,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + Name);
+                _borderAsset = new VisualAssetContext("Ellipse._borderContext:" + Name, Screen.Name);
                 ContentManager.Add(_borderAsset);
               }
               TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);

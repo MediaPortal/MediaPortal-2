@@ -189,7 +189,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_fillAsset == null)
               {
-                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + Name);
+                _fillAsset = new VisualAssetContext("Rectangle._fillContext:" + Name, Screen.Name);
                 ContentManager.Add(_fillAsset);
               }
               TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
@@ -210,7 +210,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               if (_borderAsset == null)
               {
-                _borderAsset = new VisualAssetContext("Rectangle._borderContext:" + Name);
+                _borderAsset = new VisualAssetContext("Rectangle._borderContext:" + Name, Screen.Name);
                 ContentManager.Add(_borderAsset);
               }
               using (path = CreateRectanglePath(rect))

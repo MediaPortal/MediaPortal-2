@@ -95,7 +95,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #endregion
 
-    #region Measure & arrange
+    #region Measure & Arrange
 
     public override void Measure(ref SizeF totalSize)
     {
@@ -205,9 +205,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         child.Arrange(new RectangleF(position, childSize));
       }
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       if (!finalRect.IsEmpty)

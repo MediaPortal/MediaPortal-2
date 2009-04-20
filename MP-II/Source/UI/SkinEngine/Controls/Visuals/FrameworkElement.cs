@@ -881,7 +881,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (OpacityMask == null) return;
       if (_opacityMaskContext == null)
       {
-        _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name);
+        _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name, Screen.Name);
         ContentManager.Add(_opacityMaskContext);
       }
       if (_opacityMaskContext.VertexBuffer == null)
