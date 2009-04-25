@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Presentation.Players;
 
 namespace MediaPortal.SkinEngine.Players
@@ -45,6 +46,16 @@ namespace MediaPortal.SkinEngine.Players
       if (sdvp == null)
         return;
       sdvp.ReallocGUIResources();
+    }
+
+    public static void ReleaseGUIResources()
+    {
+      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+    }
+
+    public static void ReallocGUIResources()
+    {
+      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
     }
   }
 }

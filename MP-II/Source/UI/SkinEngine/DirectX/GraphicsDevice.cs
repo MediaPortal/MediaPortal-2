@@ -410,7 +410,7 @@ namespace MediaPortal.SkinEngine
         _backBuffer.Dispose();
 
         _backBuffer = null;
-        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+        PlayersHelper.ReleaseGUIResources();
         ContentManager.Free();
       }
 
@@ -429,7 +429,7 @@ namespace MediaPortal.SkinEngine
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
           _backBuffer = _device.GetRenderTarget(0);
-          ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+          PlayersHelper.ReallocGUIResources();
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
           return true;
         }

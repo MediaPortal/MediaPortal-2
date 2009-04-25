@@ -180,22 +180,18 @@ namespace MediaPortal.SkinEngine.GUI
         {
           bool shouldWait = GraphicsDevice.Render();
           if (shouldWait || !_hasFocus)
-          {
-            Thread.Sleep(100);
-          }
+            Thread.Sleep(20);
           _fpsCounter += 1.0f;
           TimeSpan ts = DateTime.Now - _fpsTimer;
           if (ts.TotalSeconds >= 1.0f)
           {
-            float secs = (float)ts.TotalSeconds;
+            float secs = (float) ts.TotalSeconds;
             _fpsCounter /= secs;
             //Trace.WriteLine("fps:" + _fpsCounter.ToString("f2") + " "+ _hasFocus.ToString());
             _fpsCounter = 0;
             _fpsTimer = DateTime.Now;
             if (GraphicsDevice.DeviceLost)
-            {
               break;
-            }
           }
         }
       }
@@ -373,7 +369,7 @@ namespace MediaPortal.SkinEngine.GUI
         //Trace.WriteLine("DirectX MainForm: Stop render thread");
         StopRenderThread();
 
-        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+        PlayersHelper.ReleaseGUIResources();
 
         ContentManager.Free();
 
@@ -386,7 +382,7 @@ namespace MediaPortal.SkinEngine.GUI
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread_Async();
         }
-        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+        PlayersHelper.ReallocGUIResources();
       }
     }
 
@@ -448,7 +444,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       StopRenderThread();
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Release resources");
-      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+      PlayersHelper.ReleaseGUIResources();
 
       ContentManager.Free();
 
@@ -481,7 +477,7 @@ namespace MediaPortal.SkinEngine.GUI
 
       GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, displaySetting);
 
-      ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+      PlayersHelper.ReallocGUIResources();
 
       StartRenderThread_Async();
     }

@@ -335,7 +335,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         InternalCloseCurrentScreenAndDialogs(true);
 
-        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
+        PlayersHelper.ReleaseGUIResources();
 
         // FIXME Albert78: Find a better way to make ContentManager observe the current skin
         ContentManager.Clear();
@@ -350,7 +350,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           // Continue with old skin
           // TODO: Show error dialog
         }
-        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
+        PlayersHelper.ReallocGUIResources();
 
         InstallBackgroundManager();
 
