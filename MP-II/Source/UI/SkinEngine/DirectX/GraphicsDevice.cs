@@ -31,6 +31,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -409,7 +410,7 @@ namespace MediaPortal.SkinEngine
         _backBuffer.Dispose();
 
         _backBuffer = null;
-        ServiceScope.Get<IPlayerManager>().Dispose();
+        ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReleaseGUIResources);
         ContentManager.Free();
       }
 
@@ -428,6 +429,7 @@ namespace MediaPortal.SkinEngine
                                             adapterInfo.CurrentDisplayMode.Format,
                                             adapterInfo.CurrentDisplayMode.RefreshRate);
           _backBuffer = _device.GetRenderTarget(0);
+          ServiceScope.Get<IPlayerManager>().ForEach(PlayersHelper.ReallocGUIResources);
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");
           return true;
         }
