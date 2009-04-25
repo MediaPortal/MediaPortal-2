@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 
@@ -29,9 +30,11 @@ namespace MediaPortal.Presentation.DataObjects
 {
   /// <summary>
   /// List of <see cref="ListItem"/> instances to be shown in the GUI.
+  /// This class is thread-safe.
   /// </summary>
-  public class ItemsList : List<ListItem>, IObservable
+  public class ItemsList : IList<ListItem>, IObservable
   {
+    protected SynchronizedCollection<ListItem> _backingList = new SynchronizedCollection<ListItem>();
     /// <summary>
     /// Event which gets fired when the collection changes.
     /// </summary>
@@ -39,8 +42,89 @@ namespace MediaPortal.Presentation.DataObjects
 
     public void FireChange()
     {
-      if (ObjectChanged != null)
-        ObjectChanged(this);
+      ObjectChangedHandler d;
+      lock (_backingList.SyncRoot)
+        d = ObjectChanged;
+      if (d != null)
+        d(this);
     }
+
+    #region Implementation of IEnumerable
+
+    public IEnumerator<ListItem> GetEnumerator()
+    {
+      return _backingList.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+      return GetEnumerator();
+    }
+
+    #endregion
+
+    #region Implementation of ICollection<ListItem>
+
+    public void Add(ListItem item)
+    {
+      _backingList.Add(item);
+    }
+
+    public void Clear()
+    {
+      _backingList.Clear();
+    }
+
+    public bool Contains(ListItem item)
+    {
+      return _backingList.Contains(item);
+    }
+
+    public void CopyTo(ListItem[] array, int arrayIndex)
+    {
+      _backingList.CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(ListItem item)
+    {
+      return _backingList.Remove(item);
+    }
+
+    public int Count
+    {
+      get { return _backingList.Count; }
+    }
+
+    public bool IsReadOnly
+    {
+      get { return false; }
+    }
+
+    #endregion
+
+    #region Implementation of IList<ListItem>
+
+    public int IndexOf(ListItem item)
+    {
+      return _backingList.IndexOf(item);
+    }
+
+    public void Insert(int index, ListItem item)
+    {
+      _backingList.Insert(index, item);
+    }
+
+    public void RemoveAt(int index)
+    {
+      _backingList.RemoveAt(index);
+    }
+
+    public ListItem this[int index]
+    {
+      get { return _backingList[index]; }
+      set { _backingList[index] = value; }
+    }
+
+    #endregion
   }
 }
