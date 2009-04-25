@@ -35,7 +35,6 @@ namespace MediaPortal.Core.Services.Messaging
     protected class AsyncMessageSender
     {
       protected Queue<QueueMessage> _asyncMessages = new Queue<QueueMessage>();
-      protected object _syncObj = new object();
       protected volatile bool _terminated = false;
       protected Queue _queue;
 
@@ -44,32 +43,27 @@ namespace MediaPortal.Core.Services.Messaging
         _queue = parent;
       }
 
-      public object SyncObj
-      {
-        get { return _syncObj; }
-      }
-
       public bool MessagesAvailable
       {
         get
         {
-          lock (_syncObj)
+          lock (_queue.SyncObj)
             return _asyncMessages.Count > 0;
         }
       }
 
       public void EnqueueAsyncMessage(QueueMessage message)
       {
-        lock (_syncObj)
+        lock (_queue.SyncObj)
         {
           _asyncMessages.Enqueue(message);
-          Monitor.PulseAll(_syncObj);
+          Monitor.PulseAll(_queue.SyncObj);
         }
       }
 
       public QueueMessage Dequeue()
       {
-        lock (_syncObj)
+        lock (_queue.SyncObj)
           if (_asyncMessages.Count > 0)
             return _asyncMessages.Dequeue();
           else
@@ -78,10 +72,10 @@ namespace MediaPortal.Core.Services.Messaging
 
       public void Terminate()
       {
-        lock (_syncObj)
+        lock (_queue.SyncObj)
         {
           _terminated = true;
-          Monitor.PulseAll(_syncObj);
+          Monitor.PulseAll(_queue.SyncObj);
         }
       }
 
@@ -93,13 +87,13 @@ namespace MediaPortal.Core.Services.Messaging
           QueueMessage message;
           if ((message = Dequeue()) != null)
             _queue.Send(message);
-          lock (_syncObj)
+          lock (_queue.SyncObj)
             if (_terminated)
               break;
             else if (!MessagesAvailable)
               // We need to check this here again in a synchronized block. If we wouldn't prevent other threads from
               // enqueuing data in this moment, we could miss the PulseAll event
-              Monitor.Wait(_syncObj);
+              Monitor.Wait(_queue.SyncObj);
         }
       }
     }
@@ -108,9 +102,10 @@ namespace MediaPortal.Core.Services.Messaging
 
     #region Protected fields
 
+    protected IList<IMessageFilter> _filters = new List<IMessageFilter>();
+    protected object _syncObj = new object();
     protected string _queueName;
-    protected IList<IMessageFilter> _filters;
-    protected AsyncMessageSender _asyncMessageSender;
+    protected AsyncMessageSender _asyncMessageSender; // Will be set to null when this instance gets shut down
     protected Thread _asyncThread = null; // Lazy initialized
 
     #endregion
@@ -118,20 +113,24 @@ namespace MediaPortal.Core.Services.Messaging
     public Queue(string name)
     {
       _queueName = name;
-      _filters = new List<IMessageFilter>();
       _asyncMessageSender = new AsyncMessageSender(this);
     }
 
     protected void CheckAsyncMessagingInitialized()
     {
-      lock (_asyncMessageSender.SyncObj)
+      lock (_syncObj)
       {
-        if (_asyncThread != null)
+        if (_asyncThread != null || _asyncMessageSender == null)
           return;
         _asyncThread = new Thread(_asyncMessageSender.DoWork);
         _asyncThread.Name = string.Format("Message queue '{0}': Async sender thread", _queueName);
         _asyncThread.Start();
       }
+    }
+
+    public object SyncObj
+    {
+      get { return _syncObj; }
     }
 
     #region IMessageQueue implementation
@@ -158,13 +157,16 @@ namespace MediaPortal.Core.Services.Messaging
       if (_asyncMessageSender != null)
         _asyncMessageSender.Terminate();
       Thread threadToJoin = null;
-      lock (_asyncMessageSender.SyncObj)
+      lock (_syncObj)
         threadToJoin = _asyncThread;
       if (threadToJoin != null)
       {
         threadToJoin.Join(); // Holding the lock while waiting for the thread would cause a deadlock
-        lock (_asyncMessageSender.SyncObj)
+        lock (_syncObj)
+        {
           _asyncThread = null;
+          _asyncMessageSender = null;
+        }
       }
     }
 
@@ -182,6 +184,9 @@ namespace MediaPortal.Core.Services.Messaging
 
     public void SendAsync(QueueMessage message)
     {
+      if (_asyncMessageSender == null)
+        // If already shut down, discard the message
+        return;
       CheckAsyncMessagingInitialized();
       _asyncMessageSender.EnqueueAsyncMessage(message);
     }
