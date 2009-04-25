@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
@@ -30,6 +31,7 @@ using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -110,14 +112,24 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Event handlers
 
-    void OnItemsSourceChanged(Property property, object oldValue)
+    protected void DetachFromItemsSource(IEnumerable itemsSource)
     {
-      IObservable oldItemsSource = oldValue as IObservable;
+      IObservable oldItemsSource = itemsSource as IObservable;
       if (oldItemsSource != null)
         oldItemsSource.ObjectChanged -= OnCollectionChanged;
-      IObservable coll = ItemsSource as IObservable;
+    }
+
+    protected void AttachToItemsSource(IEnumerable itemsSource)
+    {
+      IObservable coll = itemsSource as IObservable;
       if (coll != null)
         coll.ObjectChanged += OnCollectionChanged;
+    }
+
+    void OnItemsSourceChanged(Property property, object oldValue)
+    {
+      DetachFromItemsSource(oldValue as IEnumerable);
+      AttachToItemsSource(ItemsSource);
       InvalidateItems();
     }
 
@@ -302,7 +314,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (TemplateControl == null) return false;
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
-      IEnumerator enumer = ItemsSource.GetEnumerator();
+      IList<object> l = new List<object>();
+      CollectionUtils.AddAll(l, ItemsSource);
+      IEnumerator enumer = l.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;
 
@@ -395,6 +409,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
         UpdateCurrentItem();
  	    base.FireEvent(eventName);
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      DetachFromItemsSource(ItemsSource);
     }
   }
 }
