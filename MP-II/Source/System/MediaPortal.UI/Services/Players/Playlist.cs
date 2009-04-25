@@ -33,8 +33,8 @@ namespace MediaPortal.Services.Players
   public class Playlist : IPlaylist
   {
     protected static Random rnd = new Random();
-    protected PlayMode _playMode = Presentation.Players.PlayMode.Continuous;
-    protected RepeatMode _repeatMode = Presentation.Players.RepeatMode.None;
+    protected PlayMode _playMode = PlayMode.Continuous;
+    protected RepeatMode _repeatMode = RepeatMode.None;
     protected IList<MediaItem> _itemList = new List<MediaItem>();
     protected IList<int> _playIndexList = null; // Index on _itemList, lazy initialized before playing
     protected int _currentPlayIndex = -1; // Index for the _playItemList
@@ -144,7 +144,7 @@ namespace MediaPortal.Services.Players
       {
         if (_repeatMode == RepeatMode.One)
           return Current;
-        if (_currentPlayIndex > 0)
+        if (_currentPlayIndex > -1)
           _currentPlayIndex--;
         else if (_repeatMode == RepeatMode.All)
           _currentPlayIndex = _itemList.Count - 1;
@@ -160,7 +160,7 @@ namespace MediaPortal.Services.Players
       {
         if (_repeatMode == RepeatMode.One)
           return Current;
-        if (_currentPlayIndex == -1)
+        if (_currentPlayIndex < _itemList.Count)
           _currentPlayIndex++;
         if (AllPlayed && _repeatMode == RepeatMode.All)
           _currentPlayIndex = 0;
