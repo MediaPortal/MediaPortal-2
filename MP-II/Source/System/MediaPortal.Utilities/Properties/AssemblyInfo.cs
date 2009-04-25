@@ -30,9 +30,9 @@ using System.Runtime.InteropServices;
 [assembly : AssemblyTitle("MediaPortal.Utilities")]
 [assembly : AssemblyDescription("")]
 [assembly : AssemblyConfiguration("")]
-[assembly : AssemblyCompany("")]
+[assembly : AssemblyCompany("Team MediaPortal")]
 [assembly : AssemblyProduct("MediaPortal.Utilities")]
-[assembly : AssemblyCopyright("Copyright ©  2007")]
+[assembly : AssemblyCopyright("Copyright © Team MediaPortal 2009")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
 
