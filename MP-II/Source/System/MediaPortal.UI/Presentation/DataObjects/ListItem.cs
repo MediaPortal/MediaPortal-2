@@ -50,6 +50,7 @@ namespace MediaPortal.Presentation.DataObjects
   /// Changes do <b>not</b> automatically trigger the <see cref="OnChanged"/> event; this event
   /// has to be explicitly triggered by modifying clients.
   /// </remarks>
+  /// TODO: Make multithreading-safe
   public class ListItem
   {
     #region Protected fields
