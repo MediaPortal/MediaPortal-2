@@ -725,9 +725,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       UpdateLayout();
       ExtendedMatrix matrix;
 
+      RectangleF bounds = ActualBounds;
+
       if (OpacityMask != null)
       {
-        // control has an opacity mask
+        // Control has an opacity mask
         // What we do here is that
         // 1. we create a new opacitytexture which has the same dimensions as the control
         // 2. we copy the part of the current backbuffer where the control is rendered to the opacitytexture
@@ -737,8 +739,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         // 6. we render the opacitytexture using the opacitymask brush
         UpdateOpacityMask();
 
-        float w = (float)ActualWidth;
-        float h = (float)ActualHeight;
         float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.SkinWidth;
         float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
 
@@ -746,10 +746,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         SkinContext.Transforms = new List<ExtendedMatrix>();
         matrix = new ExtendedMatrix();
 
-        //Apply the rendertransform
+        // Apply the rendertransform
         if (RenderTransform != null)
         {
-          Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
+          Vector2 center = new Vector2(bounds.Left + bounds.Width * RenderTransformOrigin.X,
+              bounds.Top + bounds.Height * RenderTransformOrigin.Y);
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
           RenderTransform.GetTransform(out mNew);
@@ -757,31 +758,30 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
         }
 
-        //next put the control at position (0,0,0)
-        //and scale it correctly since the backbuffer now has the dimensions of the control
-        //instead of the skin width/height dimensions
-        matrix.Matrix *= Matrix.Translation(new Vector3(-ActualPosition.X, -ActualPosition.Y, 0));
-        matrix.Matrix *= Matrix.Scaling((GraphicsDevice.Width / w), (GraphicsDevice.Height / h), 1);
+        // Next put the control at position (0, 0, 0)...
+        matrix.Matrix *= Matrix.Translation(new Vector3(-bounds.X, -bounds.Y, 0));
+        // ... And scale it correctly since the backbuffer now has the dimensions of the control
+        // instead of the skin width/height dimensions
+        matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / bounds.Width, GraphicsDevice.Height / bounds.Height, 1);
 
         SkinContext.AddTransform(matrix);
 
         GraphicsDevice.Device.EndScene();
 
-        //get the current backbuffer
+        // Get the current backbuffer
         using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
         {
           SurfaceDescription desc = backBuffer.Description;
-          //get the surface of our opacity texture
+          // Get the surface of our opacity texture
           using (Surface textureOpacitySurface = _opacityMaskContext.Texture.GetSurfaceLevel(0))
           {
-            //copy the correct rectangle from the backbuffer in the opacitytexture
+            // Copy the correct rectangle from the backbuffer in the opacitytexture
             if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
             {
-              //copy the correct rectangle from the backbuffer in the opacitytexture
               GraphicsDevice.Device.StretchRectangle(backBuffer,
-                  new Rectangle((int)(ActualPosition.X * cx), (int)(ActualPosition.Y * cy), (int)(ActualWidth * cx), (int)(ActualHeight * cy)),
+                  new Rectangle((int) (bounds.X * cx), (int) (bounds.Y * cy), (int) (bounds.Width * cx), (int) (bounds.Height * cy)),
                   textureOpacitySurface,
-                  new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
+                  new Rectangle(0, 0, (int) bounds.Width, (int) bounds.Height),
                   TextureFilter.None);
             }
             else
@@ -789,15 +789,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
               GraphicsDevice.Device.StretchRectangle(backBuffer,
                   new Rectangle(0, 0, desc.Width, desc.Height),
                   textureOpacitySurface,
-                  new Rectangle(0, 0, (int) ActualWidth, (int) ActualHeight),
+                  new Rectangle(0, 0, (int) bounds.Width, (int) bounds.Height),
                   TextureFilter.None);
             }
 
-
-            //change the rendertarget to the opacitytexture
+            // Change the rendertarget to the opacitytexture
             GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
 
-            //render the control (will be rendered into the opacitytexture)
+            // Render the control (will be rendered into the opacitytexture)
             GraphicsDevice.Device.BeginScene();
             //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
             //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -811,7 +810,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         }
 
         SkinContext.Transforms = originalTransforms;
-        //now render the opacitytexture with the opacitymask brush
+        // Now render the opacitytexture with the opacitymask brush
         GraphicsDevice.Device.BeginScene();
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         OpacityMask.BeginRender(_opacityMaskContext.Texture);
@@ -822,14 +821,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _opacityMaskContext.LastTimeUsed = SkinContext.Now;
       }
       else
-      {
-        //no opacity mask
-        //apply rendertransform
+      { // No opacity mask
+        // Apply rendertransform
         if (RenderTransform != null)
         {
           matrix = new ExtendedMatrix();
           matrix.Matrix *= SkinContext.FinalTransform.Matrix;
-          Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
+          Vector2 center = new Vector2(bounds.X + bounds.Width * RenderTransformOrigin.X,
+              bounds.Y + bounds.Height * RenderTransformOrigin.Y);
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
           Matrix mNew;
           RenderTransform.GetTransform(out mNew);
@@ -837,9 +836,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
           SkinContext.AddTransform(matrix);
         }
-        //render the control
+        // Render the control
         DoRender();
-        //remove the rendertransform
+        // Remove the rendertransform
         if (RenderTransform != null)
           SkinContext.RemoveTransform();
       }
@@ -898,65 +897,69 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         _opacityMaskContext.Texture = null;
       }
 
-      float w = (float)ActualWidth;
-      float h = (float)ActualHeight;
-      _opacityMaskContext.Texture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+      RectangleF bounds = ActualBounds;
+      float zPos = ActualPosition.Z;
+
+      _opacityMaskContext.Texture = new Texture(GraphicsDevice.Device, (int) bounds.Width, (int) bounds.Height,
+          1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
 
       PositionColored2Textured[] verts = new PositionColored2Textured[6];
 
       Color4 col = ColorConverter.FromColor(Color.White);
-      col.Alpha *= (float)Opacity;
+      col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
       SurfaceDescription desc = _opacityMaskContext.Texture.GetLevelDescription(0);
 
-      float maxU = w / desc.Width;
-      float maxV = h / desc.Height;
-      //upperleft
-      verts[0].X = ActualPosition.X - 0.5f;
-      verts[0].Y = ActualPosition.Y - 0.5f;
+      float maxU = (bounds.Width - 1) / desc.Width;
+      float maxV = (bounds.Height - 1) / desc.Height;
+
+      //upper left
+      verts[0].X = bounds.X;
+      verts[0].Y = bounds.Y;
       verts[0].Color = color;
       verts[0].Tu1 = 0;
       verts[0].Tv1 = 0;
-      verts[0].Z = ActualPosition.Z;
+      verts[0].Z = zPos;
 
       //bottom left
-      verts[1].X = ActualPosition.X - 0.5f;
-      verts[1].Y = (float)(ActualPosition.Y + ActualHeight) + 0.5f;
+      verts[1].X = bounds.X;
+      verts[1].Y = bounds.Bottom;
       verts[1].Color = color;
       verts[1].Tu1 = 0;
       verts[1].Tv1 = maxV;
-      verts[1].Z = ActualPosition.Z;
+      verts[1].Z = zPos;
 
-      //bottomright
-      verts[2].X = (float)(ActualPosition.X + ActualWidth) + 0.5f;
-      verts[2].Y = (float)(ActualPosition.Y + ActualHeight) + 0.5f;
+      //bottom right
+      verts[2].X = bounds.Right;
+      verts[2].Y = bounds.Bottom;
       verts[2].Color = color;
       verts[2].Tu1 = maxU;
       verts[2].Tv1 = maxV;
-      verts[2].Z = ActualPosition.Z;
+      verts[2].Z = zPos;
 
-      //upperleft
-      verts[3].X = ActualPosition.X - 0.5f;
-      verts[3].Y = ActualPosition.Y - 0.5f;
+      //upper left
+      verts[3].X = bounds.X;
+      verts[3].Y = bounds.Y;
       verts[3].Color = color;
       verts[3].Tu1 = 0;
       verts[3].Tv1 = 0;
-      verts[3].Z = ActualPosition.Z;
+      verts[3].Z = zPos;
 
       //upper right
-      verts[4].X = (float)(ActualPosition.X + ActualWidth) + 0.5f;
-      verts[4].Y = ActualPosition.Y - 0.5f;
+      verts[4].X = bounds.Right;
+      verts[4].Y = bounds.Y;
       verts[4].Color = color;
       verts[4].Tu1 = maxU;
       verts[4].Tv1 = 0;
-      verts[4].Z = ActualPosition.Z;
+      verts[4].Z = zPos;
 
-      //bottomright
-      verts[5].X = (float)(ActualPosition.X + ActualWidth) + 0.5f;
-      verts[5].Y = (float)(ActualPosition.Y + ActualHeight) + 0.5f;
+      //bottom right
+      verts[5].X = bounds.Right;
+      verts[5].Y = bounds.Bottom;
       verts[5].Color = color;
       verts[5].Tu1 = maxU;
       verts[5].Tv1 = maxV;
+      verts[5].Z = zPos;
 
       // Fill the vertex buffer
       OpacityMask.IsOpacityBrush = true;
