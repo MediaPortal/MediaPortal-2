@@ -242,13 +242,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             nextIndex++;
           int startIndex = nextIndex;
           nextIndex = _asset.Font.CalculateMaxSubstring(paragraph, _fontSizeCache, startIndex, maxWidth);
-          if (findWordBoundaries && nextIndex < paragraph.Length && !char.IsWhiteSpace(paragraph[nextIndex]))
+          if (findWordBoundaries && nextIndex < paragraph.Length)
           {
-            int wordBoundary = paragraph.LastIndexOf(' ', nextIndex - 1);
-            while (wordBoundary > startIndex && char.IsWhiteSpace(paragraph[wordBoundary - 1]))
-              wordBoundary--;
-            if (wordBoundary > startIndex && wordBoundary < nextIndex)
-              nextIndex = wordBoundary;
+            int lastFitWordBoundary = paragraph.LastIndexOf(' ', nextIndex);
+            while (lastFitWordBoundary > startIndex && char.IsWhiteSpace(paragraph[lastFitWordBoundary - 1]))
+              lastFitWordBoundary--;
+            if (lastFitWordBoundary > startIndex)
+              nextIndex = lastFitWordBoundary;
           }
           result.Add(paragraph.Substring(startIndex, nextIndex - startIndex));
         }
@@ -270,7 +270,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         float height = _asset.Font.LineHeight(_fontSizeCache);
         float width;
-        float totalWidth = double.IsNaN(Width) ? totalSize.Width : (float) Width;
+        float totalWidth = double.IsNaN(Width) ? totalSize.Width / SkinContext.Zoom.Width : (float) Width;
         if (float.IsNaN(totalWidth) || !Wrap)
           width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
         else
@@ -373,7 +373,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_resourceString != null)
       {
         bool scroll = Scroll && !Wrap;
-        string[] lines = Wrap ? WrapText(_finalRect.Width, true) : new string[] {_resourceString.Evaluate() };
+        string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] {_resourceString.Evaluate() };
 
         foreach (string line in lines)
         {
@@ -436,7 +436,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (_resourceString != null)
       {
         bool scroll = Scroll && !Wrap;
-        string[] lines = Wrap ? WrapText(_finalRect.Width, true) : new string[] { _resourceString.Evaluate() };
+        string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
 
         foreach (string line in lines)
         {
