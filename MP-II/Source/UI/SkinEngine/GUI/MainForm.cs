@@ -648,7 +648,11 @@ namespace MediaPortal.SkinEngine.GUI
     /// </summary>
     protected void CheckTopMost()
     {
+#if DEBUG
+      TopMost = false;
+#else
       TopMost = IsFullScreen && this == ActiveForm;
+#endif
     }
 
     private void MainForm_Activated(object sender, EventArgs e)
