@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    #region Variables
+    #region Consts
 
     public const string HOME_SCREEN = "home";
 
@@ -61,6 +61,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public const string SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
     public const string BACKGROUND_SCREEN_MISSING_TEXT = "[ScreenManager.BackgroundScreenMissing]";
     public const string BACKGROUND_SCREEN_BROKEN_TEXT = "[ScreenManager.BackgroundScreenBroken]";
+
+    #endregion
+
+    #region Protected fields
 
     protected readonly object _syncRoot = new object();
     protected Screen _backgroundLayer = null;
@@ -111,6 +115,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     public void Dispose()
     {
+      InternalCloseCurrentScreenAndDialogs(true);
       _skinManager.Dispose();
     }
 
@@ -300,7 +305,9 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           renderScreens.Add(_backgroundLayer);
         if (_currentScreen != null)
           renderScreens.Add(_currentScreen);
-        CollectionUtils.AddAll(renderScreens, _dialogStack);
+        Screen[] dialogs = _dialogStack.ToArray();
+        Array.Reverse(dialogs);
+        CollectionUtils.AddAll(renderScreens, dialogs);
       }
       foreach (Screen screen in renderScreens)
         screen.Render();
@@ -347,24 +354,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
         InstallBackgroundManager();
 
-        if (currentScreenName != null)
-        {
-          if (_skin.GetSkinFilePath(currentScreenName) != null)
-            _currentScreen = GetScreen(currentScreenName);
-          if (_currentScreen == null)
-            _currentScreen = GetScreen(HOME_SCREEN);
-          if (_currentScreen == null)
-          { // The new skin is broken, so reset to default skin
-            if (_skin == _skinManager.DefaultSkin)
-                // We're already loading the default skin, it seems to be broken
-              throw new Exception("The default skin seems to be broken, we don't have a fallback anymore");
-            // Try it again with the default skin
-            SwitchSkinAndTheme(SkinManager.DEFAULT_SKIN, null);
-            return;
-          }
-          
-          InternalShowScreen(_currentScreen);
-        }
+        _currentScreen = GetScreen(currentScreenName);
+        InternalShowScreen(_currentScreen);
       }
       SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
