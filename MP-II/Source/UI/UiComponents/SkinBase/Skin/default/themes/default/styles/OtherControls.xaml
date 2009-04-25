@@ -675,20 +675,20 @@
                     Content="{Binding MediaItemTitle}"/>
                 <!-- TODO: Speaker symbol, striked out when muted -->
               </Grid>
-              <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}" Margin="5">
-                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5" IsVisible="{Binding CanSkipBack}"
+              <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}">
+                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
-                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5" IsVisible="{Binding CanSeekBackward}"
+                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSeekBackward}"
                     Command="{Command Rewind}"/>
-                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5" IsVisible="{Binding !IsRunning}"
+                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanPlay}"
                     Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5" IsVisible="{Binding IsRunning}"
+                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanPause}"
                     Command="{Command Pause}"/>
-                <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5"
+                <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanStop}"
                     Command="{Command Stop}"/>
-                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5" IsVisible="{Binding CanSeekForward}"
+                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSeekForward}"
                     Command="{Command Forward}"/>
-                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5" IsVisible="{Binding CanSkipForward}"
+                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
               </StackPanel>
             </StackPanel>

@@ -39,6 +39,7 @@ namespace MediaPortal.Services.Players
     protected IPlayerSlotController _slotController;
     protected PlayerContextManager _contextManager;
     protected IPlaylist _playlist;
+    protected string _name;
 
     protected PlayerContextType _type;
 
@@ -46,12 +47,14 @@ namespace MediaPortal.Services.Players
 
     #region Ctor
 
-    internal PlayerContext(PlayerContextManager contextManager, IPlayerSlotController slotController, PlayerContextType type)
+    internal PlayerContext(PlayerContextManager contextManager, IPlayerSlotController slotController,
+        PlayerContextType type, string name)
     {
       _contextManager = contextManager;
       _slotController = slotController;
       _playlist = new Playlist();
       _type = type;
+      _name = name;
     }
 
     public void Dispose()
@@ -135,6 +138,11 @@ namespace MediaPortal.Services.Players
     public IPlayerSlotController PlayerSlotController
     {
       get { return _slotController; }
+    }
+
+    public string Name
+    {
+      get { return _name; }
     }
 
     public bool DoPlay(MediaItem item)

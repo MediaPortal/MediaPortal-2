@@ -18,6 +18,9 @@
     <String Name="PlayVideoItemPIP" Text="Play video item concurrently in PIP mode"/>
     <String Name="PlayItemDialogHeader" Text="Play item"/>
 
+    <String Name="VideoPlayerContextName" Text="Video"/>
+    <String Name="AudioPlayerContextName" Text="Audio"/>
+
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
   </Section>
   <Section Name="Settings">

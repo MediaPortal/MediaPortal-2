@@ -61,6 +61,9 @@ namespace UiComponents.Media
     public const string PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE = "[Media.PlayVideoItemMutedConcurrentAudio]";
     public const string PLAY_VIDEO_ITEM_PIP_RESOURCE = "[Media.PlayVideoItemPIP]";
 
+    public const string VIDEO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.VideoPlayerContextName]";
+    public const string AUDIO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.AudioPlayerContextName]";
+
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
     public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
 
@@ -303,9 +306,9 @@ namespace UiComponents.Media
       if (pc == null)
         // Open a new player context, which will close conflicting player contexts
         if (mediaType == PlayerContextType.Video)
-          pc = pcm.OpenVideoPlayerContext(concurrent, subordinatedVideo);
+          pc = pcm.OpenVideoPlayerContext(VIDEO_PLAYER_CONTEXT_NAME_RESOURCE, concurrent, subordinatedVideo);
         else
-          pc = pcm.OpenAudioPlayerContext(concurrent);
+          pc = pcm.OpenAudioPlayerContext(AUDIO_PLAYER_CONTEXT_NAME_RESOURCE, concurrent);
       if (mediaType == PlayerContextType.Video)
         pc.CloseWhenFinished = true;
       pc.Playlist.Add(item);

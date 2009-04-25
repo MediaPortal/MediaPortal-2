@@ -45,6 +45,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     #region Consts
 
     public const string UNKNOWN_MEDIA_ITEM_RESOURCE = "[PlayerControl.UnknownMediaItem]";
+    public const string UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE = "[PlayerControl.UnknownPlayerContextName]";
     public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
     public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPip]";
 
@@ -60,6 +61,9 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Property _isAudioMutedProperty;
     protected Property _isCurrentPlayerProperty;
     protected Property _showMouseControlsProperty;
+    protected Property _canPlayProperty;
+    protected Property _canPauseProperty;
+    protected Property _canStopProperty;
     protected Property _canSkipForwardProperty;
     protected Property _canSkipBackProperty;
     protected Property _canSeekForwardProperty;
@@ -92,6 +96,9 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _isAudioMutedProperty = new Property(typeof(bool), false);
       _isCurrentPlayerProperty = new Property(typeof(bool), false);
       _showMouseControlsProperty = new Property(typeof(bool), false);
+      _canPlayProperty = new Property(typeof(bool), false);
+      _canPauseProperty = new Property(typeof(bool), false);
+      _canStopProperty = new Property(typeof(bool), false);
       _canSkipForwardProperty = new Property(typeof(bool), false);
       _canSkipBackProperty = new Property(typeof(bool), false);
       _canSeekForwardProperty = new Property(typeof(bool), false);
@@ -194,11 +201,17 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
       if (player == null)
       {
-        Title = null;
+        if (playerContext == null)
+          Title = UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE;
+        else
+          Title = playerContext.Name;
         MediaItemTitle = null;
         IsAudio = false;
         IsAudioMuted = false;
         IsCurrentPlayer = false;
+        CanPlay = false;
+        CanPause = false;
+        CanStop = false;
         CanSkipBack = false;
         CanSkipForward = false;
         CanSeekBackward = false;
@@ -209,7 +222,8 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       else
       {
         IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
-        Title = IsPip ? _headerPipResource.Evaluate(player.Name) : _headerNormalResource.Evaluate(player.Name);
+        string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
+        Title = IsPip ? _headerPipResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
         string mit = player.MediaItemTitle;
         if (mit == null)
         {
@@ -223,12 +237,15 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         IsAudio = playerSlotController.IsAudioSlot;
         IsAudioMuted = playerSlotController.IsMuted;
         IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
+        IsRunning = player.State == PlaybackState.Playing;
+        CanPlay = !IsRunning;
+        CanPause = IsRunning;
+        CanStop = true;
         CanSkipBack = playerContext.Playlist.HasPrevious;
         CanSkipForward = playerContext.Playlist.HasNext;
         ISeekable seekablePlayer = player as ISeekable;
         CanSeekBackward = seekablePlayer != null && seekablePlayer.CanSeekBackward;
         CanSeekForward = seekablePlayer != null && seekablePlayer.CanSeekForward;
-        IsRunning = player.State == PlaybackState.Playing;
       }
       CheckShowMouseControls();
       if (AutoVisibility)
@@ -341,6 +358,39 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _showMouseControlsProperty.GetValue(); }
       internal set { _showMouseControlsProperty.SetValue(value); }
+    }
+
+    public Property CanPlayProperty
+    {
+      get { return _canPlayProperty; }
+    }
+
+    public bool CanPlay
+    {
+      get { return (bool) _canPlayProperty.GetValue(); }
+      internal set { _canPlayProperty.SetValue(value); }
+    }
+
+    public Property CanPauseProperty
+    {
+      get { return _canPauseProperty; }
+    }
+
+    public bool CanPause
+    {
+      get { return (bool) _canPauseProperty.GetValue(); }
+      internal set { _canPauseProperty.SetValue(value); }
+    }
+
+    public Property CanStopProperty
+    {
+      get { return _canStopProperty; }
+    }
+
+    public bool CanStop
+    {
+      get { return (bool) _canStopProperty.GetValue(); }
+      internal set { _canStopProperty.SetValue(value); }
     }
 
     public Property CanSkipForwardProperty

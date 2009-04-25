@@ -110,6 +110,11 @@ namespace MediaPortal.Presentation.Players
     PlaybackState PlayerState { get; }
 
     /// <summary>
+    /// Gets the name of this player context. This value might be a localized value.
+    /// </summary>
+    string Name { get; }
+
+    /// <summary>
     /// Plays the specified media item without putting it into the playlist.
     /// </summary>
     /// <param name="item">Media item to play.</param>

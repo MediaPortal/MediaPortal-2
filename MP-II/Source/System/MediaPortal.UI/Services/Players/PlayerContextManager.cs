@@ -296,7 +296,7 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public IPlayerContext OpenAudioPlayerContext(bool concurrent)
+    public IPlayerContext OpenAudioPlayerContext(string name, bool concurrent)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
@@ -318,13 +318,13 @@ namespace MediaPortal.Services.Players
         IPlayerSlotController slotController;
         playerManager.OpenSlot(out slotIndex, out slotController);
         playerManager.AudioSlotIndex = slotController.SlotIndex;
-        PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Audio);
+        PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Audio, name);
         result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
         return result;
       }
     }
 
-    public IPlayerContext OpenVideoPlayerContext(bool concurrent, bool subordinatedVideo)
+    public IPlayerContext OpenVideoPlayerContext(string name, bool concurrent, bool subordinatedVideo)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
@@ -384,7 +384,7 @@ namespace MediaPortal.Services.Players
           playerManager.OpenSlot(out slotIndex, out slotController);
           playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
         }
-        PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Video);
+        PlayerContext result = new PlayerContext(this, slotController, PlayerContextType.Video, name);
         result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
         return result;
       }

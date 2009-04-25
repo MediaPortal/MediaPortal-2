@@ -289,24 +289,25 @@ namespace UiComponents.SkinBase
       // Build audio streams menu
       _audioStreamsMenu.Clear();
       // Cluster by player
-      IDictionary<IPlayer, ICollection<AudioStreamDescriptor>> streamsByPlayers =
-          new Dictionary<IPlayer, ICollection<AudioStreamDescriptor>>();
+      IDictionary<IPlayerContext, ICollection<AudioStreamDescriptor>> streamsByPlayerContext =
+          new Dictionary<IPlayerContext, ICollection<AudioStreamDescriptor>>();
       foreach (AudioStreamDescriptor asd in audioStreams)
       {
-        IPlayer player = asd.PlayerContext.CurrentPlayer;
+        IPlayerContext pc = asd.PlayerContext;
         ICollection<AudioStreamDescriptor> asds;
-        if (!streamsByPlayers.TryGetValue(player, out asds))
-          streamsByPlayers[player] = asds = new List<AudioStreamDescriptor>();
+        if (!streamsByPlayerContext.TryGetValue(pc, out asds))
+          streamsByPlayerContext[pc] = asds = new List<AudioStreamDescriptor>();
         asds.Add(asd);
       }
-      foreach (KeyValuePair<IPlayer, ICollection<AudioStreamDescriptor>> pasds in streamsByPlayers)
+      foreach (KeyValuePair<IPlayerContext, ICollection<AudioStreamDescriptor>> pasds in streamsByPlayerContext)
       {
-        IPlayer player = pasds.Key;
+        IPlayerContext pc = pasds.Key;
+        IPlayer player = pc.CurrentPlayer;
         foreach (AudioStreamDescriptor asd in pasds.Value)
         {
           string playedItem = player == null ? null : player.MediaItemTitle;
           if (playedItem == null)
-            playedItem = asd.PlayerName;
+            playedItem = pc.Name;
           string choiceItemName;
           if (pasds.Value.Count > 1)
             // Only display the audio stream name if the player has more than one audio stream

@@ -133,11 +133,13 @@ namespace MediaPortal.Presentation.Players
     /// playlist typically will contain multiple entries.
     /// After the playlist was filled, the player context has to be started.
     /// </remarks>
+    /// <param name="name">A name for the new player context. The name will be shown in each skin control which
+    /// represents the player context.</param>
     /// <param name="concurrent">If set to <c>true</c>, an already active video player will continue to play muted.
     /// If set to <c>false</c>, an active video player context will be deactivated.</param>
     /// <returns>Descriptor object for the new audio player context. The returned player context will be installed
     /// into the system but is not playing yet.</returns>
-    IPlayerContext OpenAudioPlayerContext(bool concurrent);
+    IPlayerContext OpenAudioPlayerContext(string name, bool concurrent);
 
     /// <summary>
     /// Opens a video player context. If there is already an active player, it depends on the parameter
@@ -169,6 +171,8 @@ namespace MediaPortal.Presentation.Players
     /// subsequently to this method (see <see cref="IPlayerManager.AudioSlotIndex"/>).
     /// </para>
     /// </remarks>
+    /// <param name="name">A name for the new player context. The name will be shown in each skin control which
+    /// represents the player context.</param>
     /// <param name="concurrent">If set to <c>true</c>, an already active player will continue to play and the new
     /// video player context will be muted if the active player provides an audio signal.
     /// If set to <c>false</c>, an active player context will be deactivated.</param>
@@ -179,7 +183,7 @@ namespace MediaPortal.Presentation.Players
     /// If set to <c>false</c>, an already active primary video player context will be replaced by the new player
     /// context.</param>
     /// <returns>Descriptor object for the new video player context.</returns>
-    IPlayerContext OpenVideoPlayerContext(bool concurrent, bool subordinatedVideo);
+    IPlayerContext OpenVideoPlayerContext(string name, bool concurrent, bool subordinatedVideo);
 
     /// <summary>
     /// Closes the player context with the specified player slot index.
