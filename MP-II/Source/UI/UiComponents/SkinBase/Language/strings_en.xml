@@ -15,8 +15,9 @@
     <String Name="FocusPlayer" Text="Focus {0}"/> <!-- for example "Focus video player" -->
     <String Name="SwitchPipPlayers" Text="Switch PiP players"/>
     <String Name="ChooseAudioStream" Text="Choose audio stream"/>
-    <String Name="MutePlayers" Text="Mute"/>
-    <String Name="UnmutePlayers" Text="Reset mute"/>
+    <String Name="Mute" Text="Mute"/>
+    <String Name="MuteOff" Text="Mute off"/>
+    <String Name="ClosePlayerContext" Text="Close {0}"/> <!-- for example "Close video player" -->
   </Section>
   <Section Name="System">
     <String Name="Yes" Text="Yes"/>

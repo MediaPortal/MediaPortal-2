@@ -70,8 +70,9 @@ namespace UiComponents.SkinBase
     protected const string FOCUS_PLAYER_RESOURCE = "[Players.FocusPlayer]";
     protected const string SWITCH_PIP_PLAYERS_RESOURCE = "[Players.SwitchPipPlayers]";
     protected const string CHOOSE_AUDIO_STREAM_RESOURCE = "[Players.ChooseAudioStream]";
-    protected const string MUTE_PLAYERS_RESOURCE = "[Players.MutePlayers]";
-    protected const string UNMUTE_PLAYERS_RESOURCE = "[Players.UnmutePlayers]";
+    protected const string MUTE_RESOURCE = "[Players.Mute]";
+    protected const string MUTE_OFF_RESOURCE = "[Players.MuteOff]";
+    protected const string CLOSE_PLAYER_CONTEXT_RESOURCE = "[Players.ClosePlayerContext]";
 
     protected Timer _timer;
 
@@ -272,18 +273,31 @@ namespace UiComponents.SkinBase
       {
         ListItem item;
         if (playerManager.Muted)
-          item = new ListItem(KEY_NAME, UNMUTE_PLAYERS_RESOURCE)
+          item = new ListItem(KEY_NAME, MUTE_OFF_RESOURCE)
             {
                 Command = new MethodDelegateCommand(UnmutePlayers)
             };
         else
-          item = new ListItem(KEY_NAME, MUTE_PLAYERS_RESOURCE)
+          item = new ListItem(KEY_NAME, MUTE_RESOURCE)
             {
                 Command = new MethodDelegateCommand(MutePlayers)
             };
         _playerConfigurationMenu.Add(item);
       }
       // TODO: Handle subtitles same as audio streams
+      for (int i = 0; i < numActiveSlots; i++)
+      {
+        string name = GetNameForPlayerContext(playerContextManager, i);
+        if (name != null)
+        {
+          int indexClosureCopy = i;
+          ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(CLOSE_PLAYER_CONTEXT_RESOURCE).Evaluate(name))
+            {
+                Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
+            };
+          _playerConfigurationMenu.Add(item);
+        }
+      }
       _playerConfigurationMenu.FireChange();
 
       // Build audio streams menu
@@ -445,6 +459,12 @@ namespace UiComponents.SkinBase
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       playerContextManager.CurrentPlayerIndex = playerIndex;
+    }
+
+    public void ClosePlayerContext(int playerIndex)
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.CloseSlot(playerIndex);
     }
 
     public void MutePlayers()
