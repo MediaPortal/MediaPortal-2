@@ -160,11 +160,17 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("CommandList", typeof(SkinEngine.Commands.CommandList));
       objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Commands.InvokeCommand));
 
+      // Converters
+
+      objectClassRegistrations.Add("ReferenceNotNull_BoolConverter", typeof(SkinEngine.MpfElements.Converters.ReferenceNotNull_BoolConverter));
+      objectClassRegistrations.Add("ExpressionMultiValueConverter", typeof(SkinEngine.MpfElements.Converters.ExpressionMultiValueConverter));
+      
       // Markup extensions
       objectClassRegistrations.Add("StaticResource", typeof(SkinEngine.MarkupExtensions.StaticResourceMarkupExtension));
       objectClassRegistrations.Add("DynamicResource", typeof(SkinEngine.MarkupExtensions.DynamicResourceMarkupExtension));
       objectClassRegistrations.Add("ThemeResource", typeof(SkinEngine.MarkupExtensions.ThemeResourceMarkupExtension));
       objectClassRegistrations.Add("Binding", typeof(SkinEngine.MarkupExtensions.BindingMarkupExtension));
+      objectClassRegistrations.Add("MultiBinding", typeof(SkinEngine.MarkupExtensions.MultiBindingMarkupExtension));
       objectClassRegistrations.Add("TemplateBinding", typeof(SkinEngine.MarkupExtensions.TemplateBindingMarkupExtension));
       objectClassRegistrations.Add("PickupBinding", typeof(SkinEngine.MarkupExtensions.PickupBindingMarkupExtension));
       objectClassRegistrations.Add("Command", typeof(SkinEngine.MarkupExtensions.CommandMarkupExtension));

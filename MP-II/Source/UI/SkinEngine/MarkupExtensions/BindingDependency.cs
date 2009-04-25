@@ -38,7 +38,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected bool _attachedToSource = false;
     protected bool _attachedToTarget = false;
     protected UIElement _attachedToLostFocus = null;
-    protected bool _negate = false;
     protected ITypeConverter _typeConverter = null;
 
     /// <summary>
@@ -61,18 +60,15 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <param name="targetParent">This parameter is only necessary if <paramref name="updateSourceTrigger"/>
     /// is set to <see cref="UpdateSourceTrigger.LostFocus"/>. It specifies the parent UI object of the
     /// specified <paramref name="targetDd"/> data descriptor.</param>
-    /// <param name="negate">If set to <c>true</c>, the bool value will be converted between source and
-    /// target updates.</param>
     /// <param name="customTypeConverter">Set a custom type converter with this parameter. If this parameter
     /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
     public BindingDependency(
         IDataDescriptor sourceDd, IDataDescriptor targetDd,
         bool autoAttachToSource, UpdateSourceTrigger updateSourceTrigger,
-        UIElement targetParent, bool negate, ITypeConverter customTypeConverter)
+        UIElement targetParent, ITypeConverter customTypeConverter)
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
-      _negate = negate;
       _typeConverter = customTypeConverter;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
       {
@@ -150,8 +146,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       object newValue;
       if (!Convert(_targetDd.Value, _sourceDd.DataType, out newValue))
         return;
-      if (_negate)
-        newValue = !(bool)newValue;
       if (_sourceDd.Value == newValue)
         return;
       _sourceDd.Value = newValue;
@@ -160,14 +154,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     public void UpdateTarget()
     {
       object value = _sourceDd.Value;
-      if (_negate && value != null)
-      {
-        // If negate, we need to convert to bool
-        if (!Convert(value, typeof(bool), out value))
-          return;
-        if (_negate)
-          value = !(bool) value;
-      }
       if (!Convert(value, _targetDd.DataType, out value))
         return;
       if (_targetDd.Value == value)

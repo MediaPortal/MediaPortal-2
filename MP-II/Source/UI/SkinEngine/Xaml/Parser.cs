@@ -399,8 +399,9 @@ namespace MediaPortal.SkinEngine.Xaml
         }
 
         // Step 7: Initialize
-        if (elementContext.Instance is IInitializable)
-          ((IInitializable) elementContext.Instance).Initialize(this);
+        IInitializable initializable = elementContext.Instance as IInitializable;
+        if (initializable != null)
+          initializable.Initialize(this);
 
         return elementContext.Instance;
       }
@@ -429,7 +430,7 @@ namespace MediaPortal.SkinEngine.Xaml
     /// element in both attribute syntax and member element syntax.
     /// This method ignores attributes from the <c>x:</c> namespace, which
     /// will be handled in method
-    /// <see cref="CheckNameOrKey(XmlNode,ref string,ref string)"/>.
+    /// <see cref="CheckNameOrKey(XmlNode,string,object)"/>.
     /// </summary>
     /// <param name="memberDeclarationNode">Node containing a member or
     /// event assignment for the current element. This node can either
@@ -579,41 +580,6 @@ namespace MediaPortal.SkinEngine.Xaml
         throw new XamlParserException("Attribute '{0}' cannot be used here", memberDeclarationNode.Name);
     }
 
-    #region Helper methods
-
-    /// <summary>
-    /// Given a root element parsed from a XAML file, this method extracts the root
-    /// element, if the given <paramref name="rootElement"/> is an include.
-    /// </summary>
-    /// <param name="rootElement">Root element parsed from a XAML file.</param>
-    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
-    protected object UnwrapIncludes(object rootElement)
-    {
-      if (rootElement is IInclude)
-        return UnwrapIncludes(((IInclude) rootElement).Content);
-      else
-        return rootElement;
-    }
-
-    /// <summary>
-    /// Returns the implicit key for the specified object. The method will try to cast
-    /// <paramref name="o"/> to <see cref="IImplicitKey"/>. If the object doesn't implement
-    /// this interface, an exception will be raised.
-    /// </summary>
-    /// <param name="o">Object whose implicit key should be evaluated.</param>
-    /// <returns>Implicit key for <paramref name="o"/>.</returns>
-    /// <exception cref="XamlBindingException">If <paramref name="o"/> doesn't implement
-    /// <see cref="IImplicitKey"/>.</exception>
-    protected static object GetImplicitKey(object o)
-    {
-      if (o is IImplicitKey)
-        return ((IImplicitKey) o).GetImplicitKey();
-      else
-        throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
-    }
-
-    #endregion
-
     /// <summary>
     /// Parses the contents of an <see cref="XmlNode"/> (not the node itself!).
     /// Parsed will be instances of <see cref="XmlAttribute"/> and <see cref="XmlElement"/>.
@@ -649,10 +615,10 @@ namespace MediaPortal.SkinEngine.Xaml
             else
             {
               object key;
-              object value = Instantiate((XmlElement)childNode, out key);
+              object value = Instantiate((XmlElement) childNode, out key);
               // Handle the case if a markup extension was instantiated as a child
               if (value is IEvaluableMarkupExtension)
-                value = ((IEvaluableMarkupExtension)value).Evaluate(this);
+                value = ((IEvaluableMarkupExtension) value).Evaluate(this);
               else if (value is IInclude)
                 value = ((IInclude) value).Content;
               if (key == null)
@@ -675,7 +641,7 @@ namespace MediaPortal.SkinEngine.Xaml
           }
           else if (childNode is XmlText || childNode is XmlCDataSection) // Ignore other XmlCharacterData nodes
           {
-            resultList.Add(((XmlCharacterData)childNode).Data);
+            resultList.Add(((XmlCharacterData) childNode).Data);
           }
         }
         if (resultList.Count > 0 && resultDict.Count > 0)
@@ -777,8 +743,10 @@ namespace MediaPortal.SkinEngine.Xaml
           // Step 5: Member values in member element syntax (doesn't apply here)
           // Step 6: Handle child elements (doesn't apply here)
           // Step 7: Initialize
-          if (elementContext.Instance is IInitializable)
-            ((IInitializable) elementContext.Instance).Initialize(this);
+          IInitializable initializable = elementContext.Instance as IInitializable;
+          if (initializable != null)
+            initializable.Initialize(this);
+
           return elementContext.Instance;
         }
         finally
@@ -808,7 +776,7 @@ namespace MediaPortal.SkinEngine.Xaml
     protected void HandleEventAssignment(object obj, EventInfo evt, string value)
     {
       if (_getEventHandler == null)
-        throw new XamlBindingException("Delegat 'GetEventHandler' ist nicht verknüpft");
+        throw new XamlBindingException("Delegate 'GetEventHandler' is not assigned");
       Delegate dlgt = _getEventHandler(this, evt.EventHandlerType.GetMethod("Invoke"), value);
       try
       {
@@ -841,7 +809,11 @@ namespace MediaPortal.SkinEngine.Xaml
       }
     }
 
-    protected object Convert(object val, Type targetType)
+    #endregion
+
+    #region Helper methods
+
+    protected static object Convert(object val, Type targetType)
     {
       try
       {
@@ -856,6 +828,37 @@ namespace MediaPortal.SkinEngine.Xaml
       {
         throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
       }
+    }
+
+    /// <summary>
+    /// Given a root element parsed from a XAML file, this method extracts the root
+    /// element, if the given <paramref name="rootElement"/> is an include.
+    /// </summary>
+    /// <param name="rootElement">Root element parsed from a XAML file.</param>
+    /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
+    protected static object UnwrapIncludes(object rootElement)
+    {
+      if (rootElement is IInclude)
+        return UnwrapIncludes(((IInclude) rootElement).Content);
+      else
+        return rootElement;
+    }
+
+    /// <summary>
+    /// Returns the implicit key for the specified object. The method will try to cast
+    /// <paramref name="o"/> to <see cref="IImplicitKey"/>. If the object doesn't implement
+    /// this interface, an exception will be raised.
+    /// </summary>
+    /// <param name="o">Object whose implicit key should be evaluated.</param>
+    /// <returns>Implicit key for <paramref name="o"/>.</returns>
+    /// <exception cref="XamlBindingException">If <paramref name="o"/> doesn't implement
+    /// <see cref="IImplicitKey"/>.</exception>
+    protected static object GetImplicitKey(object o)
+    {
+      if (o is IImplicitKey)
+        return ((IImplicitKey) o).GetImplicitKey();
+      else
+        throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
     }
 
     #endregion
@@ -892,7 +895,7 @@ namespace MediaPortal.SkinEngine.Xaml
       if (value is IBinding)
       {
         IBinding binding = (IBinding) value;
-        binding.Prepare(this, dd);
+        binding.SetTargetDataDescriptor(dd);
         binding.Activate();
         return;
       }

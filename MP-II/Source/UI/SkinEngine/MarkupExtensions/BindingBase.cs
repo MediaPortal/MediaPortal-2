@@ -66,7 +66,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <summary>
     /// Creates a new, uninitialized <see cref="BindingBase"/> object.
     /// The returned instance will have to be initialized either by a call to
-    /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> or by a deep copying procedure
+    /// <see cref="SetTargetDataDescriptor(IDataDescriptor)"/> or by a deep copying procedure
     /// (call to <see cref="DeepCopy(IDeepCopyable,ICopyManager)"/>).
     /// </summary>
     protected BindingBase()
@@ -100,6 +100,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         object newTarget = copyManager.GetCopy(bb._targetDataDescriptor.TargetObject);
         _targetDataDescriptor = bb._targetDataDescriptor.Retarget(newTarget);
       }
+      else
+        _targetDataDescriptor = null;
       AttachToTargetObject(copyManager.GetCopy(bb._contextObject));
 
       if (bb.Active)
@@ -128,7 +130,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected properties and methods
 
-    protected void AttachToTargetObject(DependencyObject obj)
+    protected internal void AttachToTargetObject(DependencyObject obj)
     {
       if (obj == null)
         return;
@@ -153,13 +155,12 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       get { return _active; }
     }
 
-    public virtual void Prepare(IParserContext context, IDataDescriptor dd)
+    public virtual void SetTargetDataDescriptor(IDataDescriptor dd)
     {
       _targetDataDescriptor = dd;
-      DependencyObject depObj = dd.TargetObject as DependencyObject;
-      if (depObj == null)
-        throw new ArgumentException(string.Format("Can only bind to instances of class DependencyObject (tried to bind to {0}", dd.TargetObject.GetType().Name));
-      AttachToTargetObject(depObj);
+      DependencyObject depObj = dd == null ? null : dd.TargetObject as DependencyObject;
+      if (depObj != null)
+        AttachToTargetObject(depObj);
     }
 
     public virtual void Activate()

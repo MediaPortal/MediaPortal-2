@@ -317,6 +317,35 @@ namespace MediaPortal.SkinEngine.Xaml
   }
 
   /// <summary>
+  /// Negates a boolean value.
+  /// </summary>
+  public class NegatePathSegment : IPathSegment
+  {
+    public bool Evaluate(IDataDescriptor source, out IDataDescriptor result)
+    {
+      DataDescriptorRepeater ddr = new DataDescriptorRepeater
+        {
+            SourceValue = source,
+            Negate = true
+        };
+      result = ddr;
+      return true;
+    }
+
+    public bool GetMethod(IDataDescriptor source, out object obj, out MethodInfo mi)
+    {
+      obj = null;
+      mi = null;
+      return false;
+    }
+
+    public override string ToString()
+    {
+      return "<Negation>";
+    }
+  }
+
+  /// <summary>
   /// Class for path expressions which are compiled in a parsing context.
   /// </summary>
   /// <remarks>
@@ -382,7 +411,13 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       PathExpression result = new PathExpression();
       path = path.Trim();
+      bool negate = false;
       int pos = 0;
+      if (path.StartsWith("!"))
+      {
+        negate = true;
+        pos++;
+      }
       while (pos < path.Length)
       {
         IPathSegment ps;
@@ -401,6 +436,8 @@ namespace MediaPortal.SkinEngine.Xaml
           throw new XamlParserException("PathExpression '{0}': '.' expected at position {1}", path, pos);
         pos++;
       }
+      if (negate)
+        result.AddPathSegment(new NegatePathSegment());
       return result;
     }
 

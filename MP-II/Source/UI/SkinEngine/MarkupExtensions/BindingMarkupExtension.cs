@@ -35,7 +35,6 @@ using MediaPortal.SkinEngine.Controls.Visuals;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
 {
-
   public enum BindingMode
   {
     OneWay,
@@ -129,11 +128,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     protected Property _sourceValueValidProperty = new Property(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
-    protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which data contexts and other properties are we attached?
+    protected ICollection<Property> _attachedPropertiesCollection = new List<Property>(); // To which data contexts and other properties are we attached?
 
     // Derived properties
     protected PathExpression _compiledPath = null;
-    protected bool _negate = false;
     protected BindingDependency _bindingDependency = null;
     protected DataDescriptorRepeater _evaluatedSourceValue = new DataDescriptorRepeater();
 
@@ -221,7 +219,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       UpdateSourceTrigger = copyManager.GetCopy(bme.UpdateSourceTrigger);
 
       _compiledPath = bme._compiledPath;
-      _negate = bme._negate;
       Attach();
     }
 
@@ -338,8 +335,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     public BindingMode Mode
     {
-      get { return (BindingMode) ModeProperty.GetValue(); }
-      set { ModeProperty.SetValue(value); }
+      get { return (BindingMode) _modeProperty.GetValue(); }
+      set { _modeProperty.SetValue(value); }
     }
 
     public Property UpdateSourceTriggerProperty
@@ -359,7 +356,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     public ITypeConverter Converter
     {
       get { return _typeConverter; }
-      set { _typeConverter = value; }
+      set
+      {
+        _typeConverter = value;
+        OnBindingPropertyChanged(null, null);
+      }
     }
 
     /// <summary>
@@ -454,9 +455,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     protected bool UsedAsDataContext
     {
-      // This code is redundant to BindingBase.KeepBinding. This is by design - the two functions are mapped
-      // coincidentally on the same expression.
-      get { return _targetDataDescriptor == null || typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
+      get { return _targetDataDescriptor != null && typeof(IBinding).IsAssignableFrom(_targetDataDescriptor.DataType); }
     }
 
     /// <summary>
@@ -512,7 +511,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     {
       if (sourcePathProperty != null)
       {
-        _attachedPropertiesList.Add(sourcePathProperty);
+        _attachedPropertiesCollection.Add(sourcePathProperty);
         sourcePathProperty.Attach(OnDataContextChanged);
       }
     }
@@ -524,9 +523,9 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// </summary>
     protected void ResetChangeHandlerAttachments()
     {
-      foreach (Property property in _attachedPropertiesList)
+      foreach (Property property in _attachedPropertiesCollection)
         property.Detach(OnDataContextChanged);
-      _attachedPropertiesList.Clear();
+      _attachedPropertiesCollection.Clear();
       if (_attachedSource != null)
       {
         _attachedSource.Detach(OnBindingSourceChange);
@@ -838,8 +837,9 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       try
       {
         if (KeepBinding) // This is the case if our target descriptor has a binding type
-        { // This instance should be used rather than the evaluated source value
-          _targetDataDescriptor.Value = this;
+        { // In this case, this instance should be used rather than the evaluated source value
+          if (_targetDataDescriptor != null)
+            _targetDataDescriptor.Value = this;
           _retryBinding = false;
           return true;
         }
@@ -857,18 +857,14 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         // MediaPortal skin engine. Maybe we will support it in future -
         // then we'll be able to initialize the mode with a default value
         // implied by our target data endpoint.
-        {
           attachToSource = true;
-        }
         else if (Mode == BindingMode.TwoWay)
         {
           attachToSource = true;
           attachToTarget = true;
         }
         else if (Mode == BindingMode.OneWayToSource)
-        {
           attachToTarget = true;
-        }
         else if (Mode == BindingMode.OneTime)
         {
           object value = sourceDd.Value;
@@ -885,14 +881,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         if (UpdateSourceTrigger == MarkupExtensions.UpdateSourceTrigger.LostFocus)
           FindParent(_contextObject, out parent, FindParentMode.HybridPreferVisualTree);
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
-            attachToTarget ? UpdateSourceTrigger : MarkupExtensions.UpdateSourceTrigger.Explicit,
-            parent as UIElement, _negate, _typeConverter);
-        if (attachToTarget && UpdateSourceTrigger == UpdateSourceTrigger.LostFocus)
-        {
-          // TODO: attach to LostFocus event of the next visual in the tree, create
-          // change handler and call bd.UpdateSource() in the handler notification method
-          throw new NotImplementedException("UpdateSourceTrigger.LostFocus is not implemented");
-        }
+            attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
+            parent as UIElement, _typeConverter);
         _retryBinding = false;
         return true;
       }
@@ -906,13 +896,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region IBinding implementation
 
-    public override void Prepare(IParserContext context, IDataDescriptor dd)
+    public override void Initialize(IParserContext context)
     {
-      base.Prepare(context, dd);
+      base.Initialize(context);
       string path = Path ?? "";
-      _negate = path.StartsWith("!");
-      if (_negate)
-        path = path.Substring(1);
       _compiledPath = string.IsNullOrEmpty(path) ? null : PathExpression.Compile(context, path);
     }
 

@@ -29,23 +29,19 @@ namespace MediaPortal.SkinEngine.Xaml.Interfaces
   /// The markup extension will be able to evaluate a source value to be assigned to its
   /// target property later.
   /// </summary>
-  public interface IBinding
+  public interface IBinding : IInitializable
   {
     /// <summary>
-    /// Prepares the binding. This is the last chance for the binding to have access
-    /// to the parser context. Bindings will initialize their fields with all needed
-    /// context variables for the later call to their <see cref="Activate"/>
-    /// method.
+    /// Sets the target data descriptor for this binding.
     /// </summary>
-    /// <param name="context">Current parser context.</param>
     /// <param name="dd">Descriptor specifying the target property for this binding.
     /// This data descriptor will support target operations.</param>
-    void Prepare(IParserContext context, IDataDescriptor dd);
+    void SetTargetDataDescriptor(IDataDescriptor dd);
 
     /// <summary>
     /// Activates the binding. This will make the binding listen to changes of its source
     /// property values and bind to its target property specified by the
-    /// <see cref="Prepare(IParserContext,IDataDescriptor)"/> method as soon as possible.
+    /// <see cref="SetTargetDataDescriptor(IDataDescriptor)"/> method as soon as possible.
     /// </summary>
     void Activate();
 

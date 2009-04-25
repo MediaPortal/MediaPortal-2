@@ -197,7 +197,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// </summary>
     public AssignmentMode AssignmentMode
     {
-      get { return (MarkupExtensions.AssignmentMode) _assignmentModeProperty.GetValue(); }
+      get { return (AssignmentMode) _assignmentModeProperty.GetValue(); }
       set { _assignmentModeProperty.SetValue(value); }
     }
 
@@ -332,7 +332,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// </summary>
     /// <remarks>
     /// This method must not be called before the
-    /// <see cref="BindingBase.Prepare(IParserContext,IDataDescriptor)"/> method was called.
+    /// <see cref="BindingBase.SetTargetDataDescriptor(IDataDescriptor)"/> method was called.
     /// </remarks>
     protected bool UpdateTarget()
     {

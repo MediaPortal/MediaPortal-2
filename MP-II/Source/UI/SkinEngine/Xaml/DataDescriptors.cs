@@ -864,6 +864,7 @@ namespace MediaPortal.SkinEngine.Xaml
 
     protected IDataDescriptor _value = null;
     protected event DataChangedHandler _valueChanged;
+    protected bool _negate = false;
 
     #endregion
 
@@ -885,6 +886,18 @@ namespace MediaPortal.SkinEngine.Xaml
       }
     }
 
+    public bool Negate
+    {
+      get { return _negate; }
+      set
+      {
+        if (value == _negate)
+          return;
+        _negate = value;
+        OnSourceValueChange(null);
+      }
+    }
+
     #endregion
 
     #region Protected methods
@@ -893,6 +906,21 @@ namespace MediaPortal.SkinEngine.Xaml
     {
       if (_valueChanged != null)
         _valueChanged(this);
+    }
+
+    protected object Convert(object source)
+    {
+      if (!_negate)
+        return source;
+      // If negate, we need to convert to bool
+      object value = false;
+      if (source != null)
+      {
+        value = source;
+        if (!TypeConverter.Convert(value, typeof(bool), out value))
+          return value != null;
+      }
+      return !(bool) value;
     }
 
     #endregion
@@ -921,11 +949,11 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public object Value
     {
-      get { return _value == null ? null : _value.Value; }
+      get { return _value == null ? null : Convert(_value.Value); }
       set
       {
         if (_value != null)
-          _value.Value = value;
+          _value.Value = Convert(value);
       }
     }
 
