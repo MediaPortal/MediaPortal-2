@@ -158,10 +158,15 @@ namespace MediaPortal.Services.Players
       {
         if (_player == null)
           return;
+        bool enableAudio = _isAudioSlot && !_isMuted;
+        if (_player.IsAudioEnabled && !enableAudio)
+          // If we are switching the audio off, first disable the audio before setting the volume -
+          // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
+          _player.IsAudioEnabled = false;
         IVolumeControl vc = _player as IVolumeControl;
         if (vc != null)
           vc.Volume = _volume;
-        _player.IsAudioEnabled = _isAudioSlot && !_isMuted;
+        _player.IsAudioEnabled = enableAudio;
       }
     }
 
@@ -367,48 +372,48 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public bool Play(IMediaItemLocator locator, string mimeType)
+    public bool Play(IMediaItemLocator locator, string mimeType, string mediaItemTitle)
     {
       bool result = false;
-      lock (_playerManager.SyncObj)
-        lock (SyncObj)
-          try
+      lock (SyncObj)
+        try
+        {
+          CheckActive();
+          PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
+          if (settings.CrossFading)
           {
-            CheckActive();
-            PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
-            if (settings.CrossFading)
-            {
-              ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
-              if (cep != null)
-                return result = cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration,
-                    new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
-            }
-            IReusablePlayer rp = _player as IReusablePlayer;
-            if (rp != null)
-              return result = rp.NextItem(locator, mimeType);
-            if (CreatePlayer_NeedLock(locator, mimeType))
-            {
-              _player.Resume();
-              return result = true;
-            }
-            return result = false;
+            ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
+            if (cep != null)
+              return result = cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration,
+                  new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
           }
-          finally
+          IReusablePlayer rp = _player as IReusablePlayer;
+          if (rp != null)
+            return result = rp.NextItem(locator, mimeType);
+          if (CreatePlayer_NeedLock(locator, mimeType))
           {
-            if (result)
-              SetSlotState(PlayerSlotState.Playing);
+            _player.Resume();
+            return result = true;
           }
+          return result = false;
+        }
+        finally
+        {
+          if (result)
+            SetSlotState(PlayerSlotState.Playing);
+          if (_player != null)
+            _player.SetMediaItemTitleHint(mediaItemTitle);
+        }
     }
 
     public void Stop()
     {
-      lock (_playerManager.SyncObj)
-        lock (SyncObj)
-        {
-          CheckActive();
-          SetSlotState(PlayerSlotState.Stopped);
-          ReleasePlayer_NeedLock();
-        }
+      lock (SyncObj)
+      {
+        CheckActive();
+        SetSlotState(PlayerSlotState.Stopped);
+        ReleasePlayer_NeedLock();
+      }
     }
 
     public void Reset()

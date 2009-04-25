@@ -89,9 +89,19 @@ namespace MediaPortal.Presentation.Players
       #region General messages which don't concern a special player. The param doesn't have a special meaning for these messages.
 
       /// <summary>
-      /// The primary player changed to a new slot.
+      /// The primary and secondary players were exchanged.
       /// </summary>
       PlayerSlotsChanged,
+
+      /// <summary>
+      /// The players were muted.
+      /// </summary>
+      PlayersMuted,
+
+      /// <summary>
+      /// The mute state was removed.
+      /// </summary>
+      PlayersUnmuted,
 
       #endregion
     }

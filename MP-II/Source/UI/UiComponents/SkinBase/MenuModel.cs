@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,53 +22,114 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Workflow;
 
 namespace UiComponents.SkinBase
 {
-  public class MenuModel
+  public class MenuModel : IDisposable
   {
-    protected const string MENU_ITEMS_KEY = "MenuModel: Menu-Items";
+    #region Consts
 
-    public MenuModel() { }
+    protected const string ITEM_ACTION_KEY = "MenuModel: Item-Action";
 
-    public ItemsList MenuItems
+    #endregion
+
+    #region Protected fields
+
+    protected ItemsList _currentMenuItems = new ItemsList();
+    protected object _syncObj = new object();
+
+    #endregion
+
+    #region Ctor
+
+    public MenuModel()
     {
-      get { return GetCurrentMenuItems(); }
+      SubscribeToMessages();
+      UpdateMenu();
     }
+
+    #endregion
 
     #region Protected methods
 
-    protected static ItemsList GetCurrentMenuItems()
+    protected void SubscribeToMessages()
     {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      NavigationContext context = workflowManager.CurrentNavigationContext;
-      ItemsList result = (ItemsList) context.GetContextVariable(MENU_ITEMS_KEY, false);
-      if (result == null)
-      {
-        result = WrapMenu(context.MenuActions.Values);
-        context.SetContextVariable(MENU_ITEMS_KEY, result);
-      }
-      return result;
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived += OnWorkflowManagerMessageReceived;
     }
 
-    public static ItemsList WrapMenu(ICollection<WorkflowAction> actions)
+    protected void UnsubscribeFromMessages()
     {
-      ItemsList result = new ItemsList();
-      foreach (WorkflowAction action in actions)
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived -= OnWorkflowManagerMessageReceived;
+    }
+
+    protected void OnWorkflowManagerMessageReceived(QueueMessage message)
+    {
+      WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
+      switch (messageType)
       {
-        ListItem item = new ListItem("Name", action.DisplayTitle)
-        {
-            Command = new MethodDelegateCommand(action.Execute),
-            Enabled = action.IsEnabled
-        };
-        result.Add(item);
+        case WorkflowManagerMessaging.MessageType.StatePushed:
+        case WorkflowManagerMessaging.MessageType.StatesPopped:
+          UpdateMenu();
+          break;
       }
-      return result;
+    }
+
+    protected void OnMenuActionStateChanged(WorkflowAction action)
+    {
+      // TODO: Can we optimize this? If multiple actions change their state simultaneously, we only need one update
+      UpdateMenu();
+    }
+
+    protected void UpdateMenu()
+    {
+      lock (_syncObj)
+      {
+        foreach (ListItem item in _currentMenuItems)
+          ((WorkflowAction) item.AdditionalProperties[ITEM_ACTION_KEY]).StateChanged -= OnMenuActionStateChanged;
+        _currentMenuItems.Clear();
+
+        NavigationContext context = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+        foreach (WorkflowAction action in context.MenuActions.Values)
+        {
+          action.StateChanged += OnMenuActionStateChanged;
+          if (!action.IsVisible)
+            continue;
+          ListItem item = new ListItem("Name", action.DisplayTitle)
+            {
+                Command = new MethodDelegateCommand(action.Execute),
+                Enabled = action.IsEnabled
+            };
+          item.AdditionalProperties[ITEM_ACTION_KEY] = action;
+          _currentMenuItems.Add(item);
+        }
+        _currentMenuItems.FireChange();
+      }
+    }
+
+    #endregion
+
+    #region Public properties
+
+    public ItemsList MenuItems
+    {
+      get { return _currentMenuItems; }
+    }
+
+    #endregion
+
+    #region IDisposable implementation
+
+    public void Dispose()
+    {
+      UnsubscribeFromMessages();
     }
 
     #endregion

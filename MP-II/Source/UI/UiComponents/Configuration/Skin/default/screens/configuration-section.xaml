@@ -2,7 +2,6 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:converters="clr-namespace:MediaPortal.SkinEngine.MpfElements.Converters"
     Source="screens\master_menu.xaml"
     >
   <Include.Resources>
@@ -16,7 +15,7 @@
     <!-- Menu header -->
     <ResourceWrapper x:Key="Menu_Header_Text" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
 
-    <converters:ReferenceNotNull_BoolConverter x:Key="RefToBoolConverter"/>
+    <ReferenceNotNull_BoolConverter x:Key="RefToBoolConverter"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">

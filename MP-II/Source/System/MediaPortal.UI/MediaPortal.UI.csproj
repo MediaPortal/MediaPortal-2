@@ -39,6 +39,9 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
@@ -142,6 +145,7 @@
     <Compile Include="Presentation\Workflow\NavigationContext.cs" />
     <Compile Include="Presentation\Workflow\PushTransientStateNavigationTransition.cs" />
     <Compile Include="Presentation\Workflow\WorkflowContributorAction.cs" />
+    <Compile Include="Presentation\Workflow\WorkflowManagerMessaging.cs" />
     <Compile Include="Presentation\Workflow\WorkflowState.cs" />
     <Compile Include="Presentation\Workflow\WorkflowAction.cs" />
     <Compile Include="Presentation\Workflow\PopNavigationTransition.cs" />

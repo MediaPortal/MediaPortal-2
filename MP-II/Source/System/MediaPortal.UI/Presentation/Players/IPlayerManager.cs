@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Services.Players;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -119,7 +118,7 @@ namespace MediaPortal.Presentation.Players
     /// Switches the primary and secondary player slots. The slot controller, which was located in slot <c>0</c>,
     /// will be moved to slot <c>1</c> and vice-versa. This method only succeeds if there are exactly two open slots.
     /// </summary>
-    void SwitchPlayers();
+    void SwitchSlots();
 
     /// <summary>
     /// Executes the given method on each active slot.

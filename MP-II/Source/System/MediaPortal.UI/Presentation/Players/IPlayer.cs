@@ -100,6 +100,12 @@ namespace MediaPortal.Presentation.Players
     string MediaItemTitle { get; }
 
     /// <summary>
+    /// Notifies this player about the current media item's title, like it is known in the system.
+    /// The player might or might not use this hint to build its <see cref="MediaItemTitle"/> property.
+    /// </summary>
+    void SetMediaItemTitleHint(string title);
+
+    /// <summary>
     /// Will be called from outside to update the <see cref="CurrentTime"/> property to the current
     /// media position.
     /// </summary>

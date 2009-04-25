@@ -27,12 +27,12 @@ namespace MediaPortal.Presentation.Players
   public interface IVolumeControl
   {
     /// <summary>
-    /// Gets or sets the volume (0-100).
+    /// Gets or sets the volume (0-100), in a linear scale.
     /// </summary>
     int Volume { get; set; }
 
     /// <summary>
-    /// Gets or sets the information whether this <see cref="IPlayer"/> is muted.
+    /// Gets or sets the mute state of this <see cref="IPlayer"/>.
     /// </summary>
     bool Mute { get; set;}
   }

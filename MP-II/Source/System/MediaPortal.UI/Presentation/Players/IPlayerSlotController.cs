@@ -124,8 +124,10 @@ namespace MediaPortal.Presentation.Players
     /// <param name="mimeType">Mime type of the media resource, if known. If this parameter is given, the
     /// decision whether the media resource can be played might be faster. If this parameter is set to <c>null</c>,
     /// this method will potentially need more time to look into the given resource's content.</param>
+    /// <param name="mediaItemTitle">The title of the media item. This value is necessary for some players,
+    /// which don't extract metadata from the media file themselves.</param>
     /// <returns><c>true</c>, if the specified media resource can be played, else <c>false</c>.</returns>
-    bool Play(IMediaItemLocator locator, string mimeType);
+    bool Play(IMediaItemLocator locator, string mimeType, string mediaItemTitle);
 
     /// <summary>
     /// Stops the player of this player slot. This won't deactivate this slot, but the current player

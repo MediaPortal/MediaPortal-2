@@ -4,7 +4,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
-    Source="screens\master_dialog_menu.xaml"
+    Source="screens\simple_dialog_menu.xaml"
     >
   <Include.Resources>
     <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
@@ -18,6 +18,6 @@
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource MediaModel}" Path="SelectPlayerSlot"/>
+        Source="{StaticResource MediaModel}" Path="ExecuteMenuItem"/>
   </Include.Resources>
 </Include>

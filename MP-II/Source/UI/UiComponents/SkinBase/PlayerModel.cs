@@ -27,8 +27,10 @@ using System.Collections.Generic;
 using System.Timers;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
+using MediaPortal.Core.Commands;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
@@ -53,15 +55,31 @@ namespace UiComponents.SkinBase
 
     public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
 
+    public const string CHOOSE_AUDIO_STREAM_DIALOG_NAME = "DialogChooseAudioStream";
+    public const string PLAYER_CONFIGURATION_DIALOG_NAME = "DialogPlayerConfiguration";
+
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
     public static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
 
     protected static TimeSpan VIDEO_INFO_TIMEOUT = new TimeSpan(0, 0, 0, 5);
 
+    protected const string KEY_NAME = "Name";
+
+    protected const string PLAYER_OF_TYPE_RESOURCE = "[Players.PlayerOfType]";
+    protected const string SLOT_NO_RESOURCE = "[Players.SlotNo]";
+    protected const string FOCUS_PLAYER_RESOURCE = "[Players.FocusPlayer]";
+    protected const string SWITCH_PIP_PLAYERS_RESOURCE = "[Players.SwitchPipPlayers]";
+    protected const string CHOOSE_AUDIO_STREAM_RESOURCE = "[Players.ChooseAudioStream]";
+    protected const string MUTE_PLAYERS_RESOURCE = "[Players.MutePlayers]";
+    protected const string UNMUTE_PLAYERS_RESOURCE = "[Players.UnmutePlayers]";
+
     protected Timer _timer;
 
     protected Property _isVideoInfoVisibleProperty;
     protected Property _isPipVisibleProperty;
+
+    protected ItemsList _playerConfigurationMenu = new ItemsList();
+    protected ItemsList _audioStreamsMenu = new ItemsList();
 
     protected string _currentlyPlayingScreen = null;
 
@@ -85,6 +103,7 @@ namespace UiComponents.SkinBase
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived += OnPlayerContextManagerMessageReceived;
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
@@ -94,6 +113,7 @@ namespace UiComponents.SkinBase
       if (broker == null)
         return;
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived -= OnPlayerContextManagerMessageReceived;
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
     }
 
@@ -133,7 +153,9 @@ namespace UiComponents.SkinBase
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       switch (messageType)
       {
-        case PlayerManagerMessaging.MessageType.PlayerStopped:
+        case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
+          CheckUpdatePlayerConfigurationData();
+          break;
         case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
           int slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
           if (_currentlyPlayingScreen != null && slotIndex == playerContextManager.CurrentPlayerIndex)
@@ -144,12 +166,32 @@ namespace UiComponents.SkinBase
             workflowManager.NavigatePop(1);
             // _currentlyPlayingIndex will be reset by ExitModelContext
           }
+          CheckUpdatePlayerConfigurationData();
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
           if (_currentlyPlayingScreen != null)
             // Automatically switch "currently playing" screen if another player is started. This will
             // ensure that the screen is correctly updated when the playlist progresses.
             UpdateCurrentlyPlayingScreen();
+          break;
+        case PlayerManagerMessaging.MessageType.PlayerStopped:
+          CheckUpdatePlayerConfigurationData();
+          break;
+        case PlayerManagerMessaging.MessageType.PlayersMuted:
+        case PlayerManagerMessaging.MessageType.PlayersUnmuted:
+          CheckUpdatePlayerConfigurationData();
+          break;
+      }
+    }
+
+    protected void OnPlayerContextManagerMessageReceived(QueueMessage message)
+    {
+      PlayerContextManagerMessaging.MessageType messageType =
+          (PlayerContextManagerMessaging.MessageType) message.MessageData[PlayerContextManagerMessaging.MESSAGE_TYPE];
+      switch (messageType)
+      {
+        case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+          CheckUpdatePlayerConfigurationData();
           break;
       }
     }
@@ -164,6 +206,129 @@ namespace UiComponents.SkinBase
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IsPipVisible = playerContextManager.IsPipActive;
+    }
+
+    protected static string GetNameForPlayerContext(IPlayerContextManager playerContextManager, int playerSlot)
+    {
+      IPlayerContext pc = playerContextManager.GetPlayerContext(playerSlot);
+      if (pc == null)
+        return null;
+      IPlayer player = pc.CurrentPlayer;
+      if (player == null)
+      {
+        IResourceString playerOfType = LocalizationHelper.CreateResourceString(PLAYER_OF_TYPE_RESOURCE); // "{0} player"
+        IResourceString slotNo = LocalizationHelper.CreateResourceString(SLOT_NO_RESOURCE); // "Slot #{0}"
+        return playerOfType.Evaluate(pc.MediaType.ToString()) + " (" + slotNo.Evaluate(playerSlot.ToString()) + ")"; // "Video player (Slot #1)"
+      }
+      else
+        return player.Name + ": " + player.MediaItemTitle;
+    }
+
+    /// <summary>
+    /// Updates the menu items for the dialogs "dialogPlayerConfiguration" and "dialogChooseAudioStream"
+    /// and closes the dialogs when their entries are not valid any more.
+    /// </summary>
+    protected void CheckUpdatePlayerConfigurationData()
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+
+      int numActiveSlots = playerManager.NumActiveSlots;
+      // Build player configuration menu
+      _playerConfigurationMenu.Clear();
+      if (numActiveSlots > 1)
+      {
+        // Set player focus
+        int newCurrentPlayer = 1 - playerContextManager.CurrentPlayerIndex;
+        string name = GetNameForPlayerContext(playerContextManager, newCurrentPlayer);
+        if (name != null)
+        {
+          ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(FOCUS_PLAYER_RESOURCE).Evaluate(name))
+            {
+                Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
+            };
+          _playerConfigurationMenu.Add(item);
+        }
+      }
+      if (numActiveSlots > 1 && playerContextManager.IsPipActive)
+      {
+        ListItem item = new ListItem(KEY_NAME, SWITCH_PIP_PLAYERS_RESOURCE)
+          {
+              Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
+          };
+        _playerConfigurationMenu.Add(item);
+      }
+      ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams();
+      if (audioStreams.Count > 1)
+      {
+        ListItem item = new ListItem(KEY_NAME, CHOOSE_AUDIO_STREAM_RESOURCE)
+          {
+              Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
+          };
+        _playerConfigurationMenu.Add(item);
+      }
+      if (numActiveSlots > 0)
+      {
+        ListItem item;
+        if (playerManager.Muted)
+          item = new ListItem(KEY_NAME, UNMUTE_PLAYERS_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(UnmutePlayers)
+            };
+        else
+          item = new ListItem(KEY_NAME, MUTE_PLAYERS_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(MutePlayers)
+            };
+        _playerConfigurationMenu.Add(item);
+      }
+      // TODO: Handle subtitles same as audio streams
+      _playerConfigurationMenu.FireChange();
+
+      // Build audio streams menu
+      _audioStreamsMenu.Clear();
+      // Cluster by player
+      IDictionary<IPlayer, ICollection<AudioStreamDescriptor>> streamsByPlayers =
+          new Dictionary<IPlayer, ICollection<AudioStreamDescriptor>>();
+      foreach (AudioStreamDescriptor asd in audioStreams)
+      {
+        IPlayer player = asd.PlayerContext.CurrentPlayer;
+        ICollection<AudioStreamDescriptor> asds;
+        if (!streamsByPlayers.TryGetValue(player, out asds))
+          streamsByPlayers[player] = asds = new List<AudioStreamDescriptor>();
+        asds.Add(asd);
+      }
+      foreach (KeyValuePair<IPlayer, ICollection<AudioStreamDescriptor>> pasds in streamsByPlayers)
+      {
+        IPlayer player = pasds.Key;
+        foreach (AudioStreamDescriptor asd in pasds.Value)
+        {
+          string playedItem = player == null ? null : player.MediaItemTitle;
+          if (playedItem == null)
+            playedItem = asd.PlayerName;
+          string choiceItemName;
+          if (pasds.Value.Count > 1)
+            // Only display the audio stream name if the player has more than one audio stream
+            choiceItemName = playedItem + ": " + asd.AudioStreamName;
+          else
+            choiceItemName = playedItem;
+          AudioStreamDescriptor asdClosureCopy = asd;
+          ListItem item = new ListItem(KEY_NAME, choiceItemName)
+            {
+                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+            };
+          _audioStreamsMenu.Add(item);
+        }
+      }
+      _audioStreamsMenu.FireChange();
+
+      if (_audioStreamsMenu.Count == 0 && screenManager.ActiveScreenName == CHOOSE_AUDIO_STREAM_DIALOG_NAME)
+        // Automatically close audio stream choice dialog
+        screenManager.CloseDialog();
+      if (_playerConfigurationMenu.Count == 0 && screenManager.ActiveScreenName == PLAYER_CONFIGURATION_DIALOG_NAME)
+        // Automatically close player configuration dialog
+        screenManager.CloseDialog();
     }
 
     protected void CheckVideoInfoVisible()
@@ -239,6 +404,25 @@ namespace UiComponents.SkinBase
       set { _isPipVisibleProperty.SetValue(value); }
     }
 
+    public ItemsList PlayerConfigurationMenu
+    {
+      get { return _playerConfigurationMenu; }
+    }
+
+    public ItemsList AudioStreamsMenu
+    {
+      get { return _audioStreamsMenu; }
+    }
+
+    public void ExecuteMenuItem(ListItem item)
+    {
+      if (item == null)
+        return;
+      ICommand command = item.Command;
+      if (command != null)
+        command.Execute();
+    }
+
     public void ShowCurrentlyPlaying()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
@@ -254,6 +438,42 @@ namespace UiComponents.SkinBase
         screenManager.ShowDialog(VIDEOCONTEXTMENU_DIALOG_NAME);
       }
       CheckVideoInfoVisible();
+    }
+
+    public void SetCurrentPlayer(int playerIndex)
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.CurrentPlayerIndex = playerIndex;
+    }
+
+    public void MutePlayers()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.Muted = true;
+    }
+
+    public void UnmutePlayers()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.Muted = false;
+    }
+
+    public void SwitchPrimarySecondaryPlayer()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.SwitchSlots();
+    }
+
+    public void OpenChooseAudioStreamDialog()
+    {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      screenManager.ShowDialog(CHOOSE_AUDIO_STREAM_DIALOG_NAME);
+    }
+
+    public void ChooseAudioStream(AudioStreamDescriptor asd)
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.SetAudioStream(asd);
     }
 
     public static void Play()

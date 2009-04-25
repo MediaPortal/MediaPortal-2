@@ -2,12 +2,9 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_dialog_menu.xaml"
+    Source="screens\simple_dialog_menu.xaml"
     >
   <Include.Resources>
-
-Weiter. Achtung: master_dialog_menu schließt Dialog, nachdem er das Button-Kommando gefeuert hat. Wenn wir im Button-Kommando den
-Zoom-Dialog anzeigen, wird der sofort wieder geschlossen...
 
     <!-- Header -->
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[movies.5]"/>

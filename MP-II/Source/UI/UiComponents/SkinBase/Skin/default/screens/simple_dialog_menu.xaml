@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This is a template for a simple menu dialog which closes the dialog automatically when
+a menu item is choosen. A "command stencil" must be provided to be executed with
+the menu item which was choosen.
+
+It uses the standard dialog template "master_dialog_menu.xaml".
+
+Usage:
+
+  <Include
+      xmlns="www.team-mediaportal.com/2008/mpf/directx"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Source="screens\simple_dialog_menu.xaml"
+      >
+    <Include.Resources>
+      <ResourceWrapper x:Key="Dialog_Header_Text">
+        [Header text to be displayed as dialog title]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Menu_Items">
+        [Collection of ListItem instances]
+      </ResourceWrapper>
+      <ResourceWrapper x:Key="Execute_Command_Stencil">
+        [Command to be executed with the selected item as parameter]
+      </ResourceWrapper>
+    </Include.Resources>
+  </Include>
+
+Parameters which have to be accessible by a DynamicResource lookup:
+ - Dialog_Header_Text (String): The text to be displayed as dialog title
+ - Menu_Items (Collection of ListItem): Items to be displayed as menu items
+ - Execute_Command_Stencil (ICommandStencil): Command stencil which will be executed with
+   the currently selected ListItem as single parameter
+-->
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_menu.xaml"
+    >
+  <Include.Resources>
+    <!-- All other parameters have to be specified in the includer -->
+
+    <!-- Menu_Command -->
+    <CommandList x:Key="Menu_Command">
+      <!-- We close the dialog before executing the Execute_Command_Stencil, because if the command
+           shows another dialog, we would close the new dialog at once if we would execute the CloseDialog
+           after the Execute_Command_Stencil -->
+      <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+      <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">
+        <InvokeCommand.CommandParameters>
+          <LateBoundValue Value="{Binding}"/>
+        </InvokeCommand.CommandParameters>
+      </InvokeCommand>
+    </CommandList>
+  </Include.Resources>
+</Include>

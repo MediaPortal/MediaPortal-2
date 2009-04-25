@@ -270,7 +270,7 @@ namespace MediaPortal.Services.Players
     {
       lock (_syncObj)
         if (!_slots[PlayerManagerConsts.PRIMARY_SLOT].IsActive && _slots[PlayerManagerConsts.SECONDARY_SLOT].IsActive)
-          SwitchPlayers();
+          SwitchSlots();
     }
 
     protected int GetIndexOfPlayer(IPlayer player)
@@ -420,6 +420,10 @@ namespace MediaPortal.Services.Players
             return;
           _isMuted = value;
           ForEachInternal(psc => { psc.IsMuted = _isMuted; });
+          if (_isMuted)
+            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersMuted);
+          else
+            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersUnmuted);
         }
       }
     }
@@ -503,7 +507,7 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public void SwitchPlayers()
+    public void SwitchSlots()
     {
       lock (_syncObj)
       {

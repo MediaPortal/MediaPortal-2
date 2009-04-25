@@ -1,0 +1,85 @@
+#region Copyright (C) 2007-2008 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2008 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal II
+
+    MediaPortal II is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal II is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal II.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Messaging;
+
+namespace MediaPortal.Presentation.Workflow
+{
+  /// <summary>
+  /// This class provides an interface for the messages sent by the workflow manager.
+  /// This class is part of the workflow manager API.
+  /// </summary>
+  public class WorkflowManagerMessaging
+  {
+    // Message Queue name
+    public const string QUEUE = "WorkflowManager";
+
+    public enum MessageType
+    {
+      /// <summary>
+      /// A new workflow state was pushed onto the workflow navigation context stack.
+      /// The param will contain the Guid of the new state.
+      /// </summary>
+      StatePushed,
+
+      /// <summary>
+      /// States were popped from the workflow navigation context stack.
+      /// The param will contain an int with the number of popped states.
+      /// </summary>
+      StatesPopped,
+    }
+
+    // Message data
+    public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
+    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+
+    /// <summary>
+    /// Sends a <see cref="MessageType.StatePushed"/> message.
+    /// </summary>
+    /// <param name="stateId">Workflow state id of the new state.</param>
+    public static void SendStatePushedMessage(Guid stateId)
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[MESSAGE_TYPE] = MessageType.StatePushed;
+      msg.MessageData[PARAM] = stateId;
+      queue.SendAsync(msg);
+    }
+
+    /// <summary>
+    /// Sends a <see cref="MessageType.StatesPopped"/> message.
+    /// </summary>
+    /// <param name="numStates">Number of states which were popped.</param>
+    public static void SendStatesPoppedMessage(int numStates)
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[MESSAGE_TYPE] = MessageType.StatesPopped;
+      msg.MessageData[PARAM] = numStates;
+      queue.SendAsync(msg);
+    }
+  }
+}

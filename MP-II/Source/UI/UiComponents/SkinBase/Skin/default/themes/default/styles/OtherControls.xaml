@@ -663,7 +663,7 @@
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="1"/>
               </LinearGradientBrush>
             </GroupBox.Background>
-            <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <Grid Margin="5" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto"/>
@@ -672,27 +672,23 @@
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource PlayControlMediaItemColor}"
-                    Content="{TemplateBinding MediaItemTitle}" IsVisible="{TemplateBinding IsCurrentPlayer}"/>
-                <Button x:Name="MakeCurrentPlayer" Grid.Row="0" Grid.Column="0" Style="{ThemeResource ButtonMakeCurrentPlayerStyle}"
-                    Content="{TemplateBinding MediaItemTitle}" IsVisible="{TemplateBinding !IsCurrentPlayer}"
-                    Command="{Command RelativeSource={RelativeSource TemplatedParent},Path=MakeCurrent}"/>
-                <!-- TODO: Speaker symbol, striked out if muted -->
+                    Content="{Binding MediaItemTitle}"/>
+                <!-- TODO: Speaker symbol, striked out when muted -->
               </Grid>
-              <StackPanel Orientation="Horizontal" IsVisible="{TemplateBinding ShowPlayControls}" Margin="5"
-                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSkipBack}"
+              <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}" Margin="5">
+                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
-                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSeekBackward}"
+                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5" IsVisible="{Binding CanSeekBackward}"
                     Command="{Command Rewind}"/>
-                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5" IsVisible="{TemplateBinding !IsRunning}"
+                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5" IsVisible="{Binding !IsRunning}"
                     Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5" IsVisible="{TemplateBinding IsRunning}"
+                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5" IsVisible="{Binding IsRunning}"
                     Command="{Command Pause}"/>
                 <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5"
                     Command="{Command Stop}"/>
-                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSeekForward}"
+                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5" IsVisible="{Binding CanSeekForward}"
                     Command="{Command Forward}"/>
-                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5" IsVisible="{TemplateBinding CanSkipForward}"
+                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
               </StackPanel>
             </StackPanel>

@@ -1148,6 +1148,62 @@
     </Setter>
   </Style>
 
+  <Style x:Key="MuteCheckBoxStyle" TargetType="{x:Type CheckBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type CheckBox}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Path x:Name="SpeakerSymbol" Fill="{ThemeResource PlayControlsFill}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
+                Data="F1 M0.0,5.0 L3.0,5 3.0,13 0.0,13 z M3.0,6.0 L12.0,2 12.0,16 3.0,12.0 3.0,6.0 z M12.0,0.5 L14.0,0.5 14.0,17.5 12.0,17.5 z"/>
+            <!-- TODO: Circle with a crossed-out line -->
+            <Path x:Name="Cross" Fill="{ThemeResource PlayControlsFill}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
+                IsVisible="{TemplateBinding IsChecked}"
+                Data="F1 M0.0,0.0"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- ********************************* PlusMinus button ******************************** -->
 
   <Style x:Key="PlusMinusButtonStyle" TargetType="{x:Type CheckBox}">

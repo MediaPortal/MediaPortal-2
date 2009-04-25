@@ -328,9 +328,10 @@ namespace MediaPortal.Services.Workflow
         workflowModel.UpdateMenuActions(newContext, menuActions);
 
       foreach (WorkflowAction menuAction in menuActions)
-        newContext.MenuActions.Add(menuAction.ActionId, menuAction);
+        newContext.MenuActions[menuAction.ActionId] = menuAction;
 
       IterateCache();
+      WorkflowManagerMessaging.SendStatePushedMessage(state.StateId);
       return true;
     }
 
@@ -391,6 +392,7 @@ namespace MediaPortal.Services.Workflow
           }
       }
       IterateCache();
+      WorkflowManagerMessaging.SendStatesPoppedMessage(count);
       return true;
     }
 

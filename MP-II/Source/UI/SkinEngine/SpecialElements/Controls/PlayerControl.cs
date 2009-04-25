@@ -59,7 +59,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Property _isAudioProperty;
     protected Property _isAudioMutedProperty;
     protected Property _isCurrentPlayerProperty;
-    protected Property _showPlayControlsProperty;
+    protected Property _showMouseControlsProperty;
     protected Property _canSkipForwardProperty;
     protected Property _canSkipBackProperty;
     protected Property _canSeekForwardProperty;
@@ -91,7 +91,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _isAudioProperty = new Property(typeof(bool), false);
       _isAudioMutedProperty = new Property(typeof(bool), false);
       _isCurrentPlayerProperty = new Property(typeof(bool), false);
-      _showPlayControlsProperty = new Property(typeof(bool), false);
+      _showMouseControlsProperty = new Property(typeof(bool), false);
       _canSkipForwardProperty = new Property(typeof(bool), false);
       _canSkipBackProperty = new Property(typeof(bool), false);
       _canSeekForwardProperty = new Property(typeof(bool), false);
@@ -146,7 +146,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
-      CheckShowPlayControls();
+      CheckShowMouseControls();
     }
 
     protected void SubscribeToMessages()
@@ -179,10 +179,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       return playerContextManager.GetPlayerContext(SlotIndex);
     }
 
-    protected void CheckShowPlayControls()
+    protected void CheckShowMouseControls()
     {
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      ShowPlayControls = IsCurrentPlayer && inputManager.IsMouseUsed && Screen != null && Screen.HasInputFocus;
+      ShowMouseControls = inputManager.IsMouseUsed && Screen != null && Screen.HasInputFocus;
     }
 
     protected void UpdatePlayControls()
@@ -229,15 +229,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         CanSeekBackward = seekablePlayer != null && seekablePlayer.CanSeekBackward;
         CanSeekForward = seekablePlayer != null && seekablePlayer.CanSeekForward;
         IsRunning = player.State == PlaybackState.Playing;
-
       }
-      CheckShowPlayControls();
+      CheckShowMouseControls();
       if (AutoVisibility)
-      {
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
-        IsVisible = playerSlotController.IsActive && (!string.IsNullOrEmpty(MediaItemTitle) ||
-            (inputManager.IsMouseUsed && player != null));
-      }
+        IsVisible = playerSlotController.IsActive;
     }
 
     public override void Allocate()
@@ -337,15 +332,15 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       internal set { _isCurrentPlayerProperty.SetValue(value); }
     }
 
-    public Property ShowPlayControlsProperty
+    public Property ShowMouseControlsProperty
     {
-      get { return _showPlayControlsProperty; }
+      get { return _showMouseControlsProperty; }
     }
 
-    public bool ShowPlayControls
+    public bool ShowMouseControls
     {
-      get { return (bool) _showPlayControlsProperty.GetValue(); }
-      internal set { _showPlayControlsProperty.SetValue(value); }
+      get { return (bool) _showMouseControlsProperty.GetValue(); }
+      internal set { _showMouseControlsProperty.SetValue(value); }
     }
 
     public Property CanSkipForwardProperty

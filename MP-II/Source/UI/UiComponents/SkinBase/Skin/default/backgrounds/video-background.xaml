@@ -9,7 +9,6 @@ Video background
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
   <Grid.Resources>
-    <!-- Player model -->
     <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
   </Grid.Resources>
   <Grid.Background>

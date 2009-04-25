@@ -70,16 +70,19 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    protected static bool GetItemData(MediaItem item, out IMediaItemLocator locator, out string mimeType)
+    protected static bool GetItemData(MediaItem item, out IMediaItemLocator locator, out string mimeType,
+        out string mediaItemTitle)
     {
       locator = null;
       mimeType = null;
+      mediaItemTitle = null;
       if (item == null)
         return false;
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       locator = mediaManager.GetMediaItemLocator(item);
       MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
       mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
+      mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
       return locator != null;
     }
 
@@ -138,18 +141,22 @@ namespace MediaPortal.Services.Players
     {
       IMediaItemLocator locator;
       string mimeType;
-      if (!GetItemData(item, out locator, out mimeType))
+      string mediaItemTitle;
+      if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
         return false;
-      return DoPlay(locator, mimeType);
+      return DoPlay(locator, mimeType, mediaItemTitle);
     }
 
-    public bool DoPlay(IMediaItemLocator locator, string mimeType)
+    public bool DoPlay(IMediaItemLocator locator, string mimeType, string mediaItemTitle)
     {
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
       lock (SyncObj)
-        return psc.Play(locator, mimeType);
+        if (!psc.IsActive)
+          return false;
+        else
+          return psc.Play(locator, mimeType, mediaItemTitle);
     }
 
     public void SetContextVariable(string key, object value)

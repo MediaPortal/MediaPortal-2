@@ -132,6 +132,7 @@ namespace Ui.Players.Video
     List<IPin> _evrConnectionPins = new List<IPin>();
     protected IMediaItemLocator _mediaItemLocator;
     protected IMediaItemLocalFsAccessor _mediaItemAccessor;
+    protected string _mediaItemTitle = null;
     protected PlayerEventDlgt _started = null;
     protected PlayerEventDlgt _stopped = null;
     protected PlayerEventDlgt _ended = null;
@@ -876,6 +877,18 @@ namespace Ui.Players.Video
     }
 #endif
 
+    /// <summary>
+    /// Helper method for calculating the hundredth decibel value, needed by the <see cref="IBasicAudio"/>
+    /// interface (in the range from -10000 to 0), which is logarithmic, from our volume (in the range from 0 to 100),
+    /// which is linear.
+    /// </summary>
+    /// <param name="volume">Volume in the range from 0 to 100, in a linear scale.</param>
+    /// <returns>Volume in the range from -10000 to 0, in a logarithmic scale.</returns>
+    private static int VolumeToHundredthDeciBel(int volume)
+    {
+      return (int) ((Math.Log10(volume * 99f/100f + 1) - 2) * 5000);
+    }
+
     protected void CheckAudio()
     {
       int volume = 0;
@@ -883,12 +896,9 @@ namespace Ui.Players.Video
         volume = _volume;
       IBasicAudio audio = _graphBuilder as IBasicAudio;
       if (audio != null)
-      {
-        // Divide by 100 to get equivalent decibel value. For example, �10,000 is �100 dB. 
-        float fPercent = volume / 100.0f;
-        int iVolume = (int)(5000.0f * fPercent);
-        audio.put_Volume((iVolume - 5000));
-      }
+        // Our volume range is from 0 to 100, IBasicAudio volume range is from -10000 to 0 (in hundredth decibel).
+        // See http://msdn.microsoft.com/en-us/library/dd389538(VS.85).aspx (IBasicAudio::put_Volume method)
+        audio.put_Volume(VolumeToHundredthDeciBel(volume));
     }
 
     public virtual void BeginRender(EffectAsset effect)
@@ -906,6 +916,7 @@ namespace Ui.Players.Video
     }
 
     // Not used
+    // FIXME Albert: Remove?
     public virtual void Render()
     {
     }
@@ -964,9 +975,15 @@ namespace Ui.Players.Video
       FireStarted();
     }
 
+    public void SetMediaItemTitleHint(string title)
+    {
+      // We don't extract the title by ourselves, we just use the title hint
+      _mediaItemTitle = title;
+    }
+
     public string MediaItemTitle
     {
-      get { return null; }
+      get { return _mediaItemTitle; }
     }
 
     public virtual void UpdateTime()

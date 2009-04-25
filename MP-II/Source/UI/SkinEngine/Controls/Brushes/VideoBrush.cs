@@ -49,6 +49,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     Size _videoAspectRatio;
     IGeometry _previousGeometry;
     PositionColored2Textured[] _verts;
+    ISlimDXVideoPlayer _renderPlayer = null;
 
     #endregion
 
@@ -81,7 +82,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     }
 
     /// <summary>
-    /// Gets or sets the video stream number
+    /// Gets or sets the video stream number.
     /// </summary>
     public int Stream
     {
@@ -99,6 +100,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _verts = verts;
       _videoSize = new Size(0, 0);
       _videoAspectRatio = new Size(0, 0);
+      if (ServiceScope.Get<IPlayerManager>(false) == null)
+        ServiceScope.Get<ILogger>().Debug("VideoBrush.SetupBrush: Player manager not found");
     }
 
     void UpdateVertexBuffer(IVideoPlayer player, VertexBuffer vertexBuffer)
@@ -161,11 +164,13 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
       if (playerManager == null)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
+        _renderPlayer = null;
         return false;
       }
-      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
-      if (player == null) return false;
+      // The Stream property could change between the calls of BeginRender and EndRender,
+      // so we memorize the rendering player for the EndRender method
+      _renderPlayer = playerManager[Stream] as ISlimDXVideoPlayer;
+      if (_renderPlayer == null) return false;
 
       if (Transform != null)
       {
@@ -174,26 +179,18 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
         SkinContext.AddTransform(mTrans);
       }
 
-      UpdateVertexBuffer(player, vertexBuffer);
-      player.BeginRender(_effect);
+      UpdateVertexBuffer(_renderPlayer, vertexBuffer);
+      _renderPlayer.BeginRender(_effect);
       return true;
     }
 
     public override void EndRender()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
-      if (playerManager == null)
-      {
-        ServiceScope.Get<ILogger>().Debug("VideoBrush.BeginRender: Player collection not found");
-        return;
-      }
-      ISlimDXVideoPlayer player = playerManager[Stream] as ISlimDXVideoPlayer;
-      if (player == null) return;
-      player.EndRender(_effect);
+      if (_renderPlayer == null) return;
+      _renderPlayer.EndRender(_effect);
+      _renderPlayer = null;
       if (Transform != null)
-      {
         SkinContext.RemoveTransform();
-      }
     }
   }
 }

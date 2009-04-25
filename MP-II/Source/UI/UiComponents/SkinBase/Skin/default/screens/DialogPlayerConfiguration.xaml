@@ -7,20 +7,19 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[movies.5]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Players.PlayerConfiguration]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" RegistrationLocation="PlayList" Id="PlayList"/>
+    <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
-      <Binding Source="{StaticResource DataContext}" Path="StoredPlayLists" Mode="OneTime"/>
+      <Binding Source="{StaticResource PlayerModel}" Path="PlayerConfigurationMenu" Mode="OneTime"/>
     </ResourceWrapper>
 
     <!-- Command -->
-    <ResourceWrapper x:Key="Execute_Command_Stencil">
-      <CommandStencil Source="{StaticResource DataContext}" Path="LoadPlayList"/>
-    </ResourceWrapper>
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource PlayerModel}" Path="ExecuteMenuItem"/>
 
   </Include.Resources>
 </Include>

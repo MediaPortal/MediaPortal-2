@@ -90,7 +90,8 @@ namespace MediaPortal.Services.Players
             pc = GetPlayerContextInternal(slotIndex);
             if (pc == null)
               return;
-            if (pc.CloseWhenFinished)
+            // The player message is sent asynchronous, so we have to check the state of the slot again before closing it
+            if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               ClosePlayerContext(slotIndex);
             break;
         }
@@ -345,7 +346,7 @@ namespace MediaPortal.Services.Players
               {
                 playerManager.CloseSlot(PlayerManagerConsts.PRIMARY_SLOT);
                 playerManager.OpenSlot(out slotIndex, out slotController);
-                playerManager.SwitchPlayers();
+                playerManager.SwitchSlots();
                 playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
               }
             else // PC(SECONDARY).Type != Audio
@@ -361,7 +362,7 @@ namespace MediaPortal.Services.Players
             {
               playerManager.OpenSlot(out slotIndex, out slotController);
               // Make new video slot the primary slot
-              playerManager.SwitchPlayers();
+              playerManager.SwitchSlots();
               playerManager.AudioSlotIndex = PlayerManagerConsts.SECONDARY_SLOT;
             }
             else // PC(PRIMARY).Type != Audio

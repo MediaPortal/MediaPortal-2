@@ -8,6 +8,16 @@
     <String Name="WarningHeaderText" Text="Warning"/>
     <String Name="ErrorHeaderText" Text="Error"/>
   </Section>
+  <Section Name="Players">
+    <String Name="PlayerConfiguration" Text="Player configuration"/>
+    <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "video player" -->
+    <String Name="SlotNo" Text="Slot #{0}"/>
+    <String Name="FocusPlayer" Text="Focus {0}"/> <!-- for example "Focus video player" -->
+    <String Name="SwitchPipPlayers" Text="Switch PiP players"/>
+    <String Name="ChooseAudioStream" Text="Choose audio stream"/>
+    <String Name="MutePlayers" Text="Mute"/>
+    <String Name="UnmutePlayers" Text="Reset mute"/>
+  </Section>
   <Section Name="System">
     <String Name="Yes" Text="Yes"/>
     <String Name="No" Text="No"/>

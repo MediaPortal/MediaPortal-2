@@ -47,20 +47,16 @@ namespace UiComponents.SkinBase
       UpdateBackground();
 
       // Install manager
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerManagerMessaging.QUEUE);
-      queue.MessageReceived += OnPlayerManagerMessageReceived;
-
-      queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerContextManagerMessaging.QUEUE);
-      queue.MessageReceived += OnPlayerContextManagerMessageReceived;
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived += OnPlayerContextManagerMessageReceived;
     }
 
     internal void DoUninstall()
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerManagerMessaging.QUEUE);
-      queue.MessageReceived -= OnPlayerManagerMessageReceived;
-
-      queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PlayerContextManagerMessaging.QUEUE);
-      queue.MessageReceived -= OnPlayerContextManagerMessageReceived;
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived -= OnPlayerContextManagerMessageReceived;
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
