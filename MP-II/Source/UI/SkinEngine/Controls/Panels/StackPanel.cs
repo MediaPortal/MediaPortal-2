@@ -324,12 +324,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           if (!element.IsVisible) 
             continue;
           RectangleF elementBounds = element.ActualBounds;
+          RectangleF bounds = ActualBounds;
           if (clipping)
           { // Don't render elements which are not visible
-            if (elementBounds.X + elementBounds.Width < ActualPosition.X) continue;
-            if (elementBounds.Y + elementBounds.Height < ActualPosition.Y) continue;
-            if (elementBounds.X > ActualPosition.X + ActualWidth) continue;
-            if (elementBounds.Y > ActualPosition.Y + ActualHeight) continue;
+            if (elementBounds.Right < bounds.Left) continue;
+            if (elementBounds.Bottom < bounds.Top) continue;
+            if (elementBounds.Left > bounds.Right) continue;
+            if (elementBounds.Top > bounds.Bottom) continue;
           }
           element.Render();
         }
