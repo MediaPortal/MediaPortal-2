@@ -41,7 +41,8 @@ namespace UiComponents.SkinBase
 
     #region Protected fields
 
-    protected ItemsList _currentMenuItems = new ItemsList();
+    protected ItemsList _currentMenuItems;
+    protected bool _invalid = true;
     protected object _syncObj = new object();
 
     #endregion
@@ -77,7 +78,16 @@ namespace UiComponents.SkinBase
       {
         case WorkflowManagerMessaging.MessageType.StatePushed:
         case WorkflowManagerMessaging.MessageType.StatesPopped:
-          UpdateMenu();
+          // We'll delay the menu update until the navigation complete message, but remember that the menu isn't valid
+          // any more - so we can update the menu if it was requested again before the navigation complete message
+          // has arrived.
+          // In fact, this will be the normal case, i.e. before the workflow manager sends the navigation complete message,
+          // the screen will be updated.
+          _invalid = true;
+          break;
+        case WorkflowManagerMessaging.MessageType.NavigationComplete:
+          if (_invalid)
+            UpdateMenu();
           break;
       }
     }
@@ -92,9 +102,14 @@ namespace UiComponents.SkinBase
     {
       lock (_syncObj)
       {
-        foreach (ListItem item in _currentMenuItems)
-          ((WorkflowAction) item.AdditionalProperties[ITEM_ACTION_KEY]).StateChanged -= OnMenuActionStateChanged;
-        _currentMenuItems.Clear();
+        _invalid = false;
+        if (_currentMenuItems != null)
+          foreach (ListItem item in _currentMenuItems)
+            ((WorkflowAction) item.AdditionalProperties[ITEM_ACTION_KEY]).StateChanged -= OnMenuActionStateChanged;
+        // We need to create a new ItemsList instance, because if we would reuse the old instance,
+        // the old screen (which is still visible) would update the menu to reflect the new menu state - which is not
+        // what we want
+        _currentMenuItems = new ItemsList();
 
         NavigationContext context = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
         foreach (WorkflowAction action in context.MenuActions.Values)
@@ -120,7 +135,12 @@ namespace UiComponents.SkinBase
 
     public ItemsList MenuItems
     {
-      get { return _currentMenuItems; }
+      get
+      {
+        if (_invalid)
+          UpdateMenu();
+        return _currentMenuItems;
+      }
     }
 
     #endregion

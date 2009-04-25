@@ -486,6 +486,7 @@ namespace MediaPortal.Services.Workflow
       if (DoPushNavigationContext(state, additionalContextVariables))
         if (!UpdateScreen())
           NavigatePop(1);
+      WorkflowManagerMessaging.SendNavigationCompleteMessage();
     }
 
     public void NavigatePush(Guid stateId)
@@ -498,6 +499,7 @@ namespace MediaPortal.Services.Workflow
       if (DoPushNavigationContext(state, additionalContextVariables))
         if (!UpdateScreen())
           NavigatePop(1);
+      WorkflowManagerMessaging.SendNavigationCompleteMessage();
     }
 
     public void NavigatePushTransient(WorkflowState state)
@@ -511,6 +513,7 @@ namespace MediaPortal.Services.Workflow
       while (!UpdateScreen())
         if (!DoPopNavigationContext(1))
           break;
+      WorkflowManagerMessaging.SendNavigationCompleteMessage();
     }
 
     public void NavigatePopToState(Guid stateId)
@@ -519,6 +522,7 @@ namespace MediaPortal.Services.Workflow
         if (!DoPopNavigationContext(1))
           break;
       UpdateScreen();
+      WorkflowManagerMessaging.SendNavigationCompleteMessage();
     }
 
     public object GetModel(Guid modelId)

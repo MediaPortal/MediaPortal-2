@@ -33,7 +33,7 @@ namespace UiComponents.SkinBase.Actions
 {
   /// <summary>
   /// Action which is visible when player slots are open. This action will show the dialog
-  /// "dialogPlayerConfiguration" when executed.
+  /// "DialogPlayerConfiguration" when executed.
   /// </summary>
   public class PlayerConfiguration : IWorkflowContributor, IDisposable
   {
@@ -98,11 +98,7 @@ namespace UiComponents.SkinBase.Actions
 
     public bool IsActionVisible
     {
-      get
-      {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        return playerManager.NumActiveSlots > 0;
-      }
+      get { return _isVisible; }
     }
 
     public bool IsActionEnabled

@@ -37,6 +37,13 @@ namespace MediaPortal.Presentation.Workflow
     // Message Queue name
     public const string QUEUE = "WorkflowManager";
 
+    /// <summary>
+    /// Messages of this type are sent by the <see cref="IWorkflowManager"/>.
+    /// </summary>
+    /// <remarks>
+    /// After calls of type <see cref="StatePushed"/> and <see cref="StatesPopped"/>,
+    /// the workflow manager will trigger a call to <see cref="NavigationComplete"/>.
+    /// </remarks>
     public enum MessageType
     {
       /// <summary>
@@ -50,6 +57,11 @@ namespace MediaPortal.Presentation.Workflow
       /// The param will contain an int with the number of popped states.
       /// </summary>
       StatesPopped,
+
+      /// <summary>
+      /// A navigation is completed.
+      /// </summary>
+      NavigationComplete,
     }
 
     // Message data
@@ -79,6 +91,14 @@ namespace MediaPortal.Presentation.Workflow
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.StatesPopped;
       msg.MessageData[PARAM] = numStates;
+      queue.SendAsync(msg);
+    }
+
+    public static void SendNavigationCompleteMessage()
+    {
+      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
+      QueueMessage msg = new QueueMessage();
+      msg.MessageData[MESSAGE_TYPE] = MessageType.NavigationComplete;
       queue.SendAsync(msg);
     }
   }
