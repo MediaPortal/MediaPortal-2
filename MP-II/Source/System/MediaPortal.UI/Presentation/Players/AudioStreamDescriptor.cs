@@ -76,7 +76,7 @@ namespace MediaPortal.Presentation.Players
     /// To let the user choose between audio streams, to make the choice unique, the <see cref="PlayerName"/> should
     /// be presented together with the <see cref="AudioStreamName"/>, like this:
     /// <code>
-    /// IAudioStreamDescriptor asd = ...;
+    /// AudioStreamDescriptor asd = ...;
     /// string choiceItemName = asd.PlayerName + ": " + asd.AudioStreamName;
     /// ...
     /// </code>
