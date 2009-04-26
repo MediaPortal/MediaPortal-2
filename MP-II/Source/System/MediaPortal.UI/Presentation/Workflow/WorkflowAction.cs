@@ -38,6 +38,8 @@ namespace MediaPortal.Presentation.Workflow
   {
     #region Protected fields
 
+    protected string _displayCategory = null;
+    protected string _sortOrder = null;
     protected Guid _actionId;
     protected string _name;
     protected Guid? _sourceStateId;
@@ -78,6 +80,30 @@ namespace MediaPortal.Presentation.Workflow
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Gets or sets the action's display category, which determines the place where the action will be displayed in the menu.
+    /// The category can be an arbitrary string; it is proposed to use a string of the structure: <c>"a-CategoryName"</c>,
+    /// where the starting letter will make the categories placed in the right order, while the category name describes
+    /// the category for the implementor.
+    /// </summary>
+    public string DisplayCategory
+    {
+      get { return _displayCategory; }
+      set { _displayCategory = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the action's sort order inside its display category, which determines the place where the action will be
+    /// displayed in the menu.
+    /// The sort order can be an arbitrary string; it is proposed to simply use a letter: <c>"a"</c>,
+    /// which simply describes the place to pose the action.
+    /// </summary>
+    public string SortOrder
+    {
+      get { return _sortOrder; }
+      set { _sortOrder = value; }
     }
 
     /// <summary>

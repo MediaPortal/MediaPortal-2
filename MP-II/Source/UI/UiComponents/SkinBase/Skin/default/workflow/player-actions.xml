@@ -4,6 +4,8 @@
   <MenuActions>
     <WorkflowContributorAction Id="36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F"
         Name="*->PlayerConfiguration"
+        DisplayCategory="z-WorkflowContributors"
+        SortOrder="a"
         SourceState="*"
         ContributorModelId="95DD6923-058A-4481-AF33-2455CEBB7A03"
         DisplayTitle="[Players.PlayerConfiguration]"/>

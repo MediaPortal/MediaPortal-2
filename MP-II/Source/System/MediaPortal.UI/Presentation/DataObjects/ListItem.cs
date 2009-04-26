@@ -60,6 +60,7 @@ namespace MediaPortal.Presentation.DataObjects
     protected IDictionary<string, object> _additionalProperties = new Dictionary<string, object>();
     protected Property _selectedProperty = new Property(typeof(bool), false);
     protected Property _enabledProperty = new Property(typeof(bool), true);
+    protected Property _isVisibleProperty = new Property(typeof(bool), true);
 
     /// <summary>
     /// Event to track changes to this item.
@@ -258,6 +259,21 @@ namespace MediaPortal.Presentation.DataObjects
     {
       get { return (bool) _enabledProperty.GetValue(); }
       set { _enabledProperty.SetValue(value); }
+    }
+
+    public Property IsVisibleProperty
+    {
+      get { return _isVisibleProperty; }
+      set { _isVisibleProperty = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the enabled state of this item.
+    /// </summary>
+    public bool IsVisible
+    {
+      get { return (bool) _isVisibleProperty.GetValue(); }
+      set { _isVisibleProperty.SetValue(value); }
     }
 
     /// <summary>

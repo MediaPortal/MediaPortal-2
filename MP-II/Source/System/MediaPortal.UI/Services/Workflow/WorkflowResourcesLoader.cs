@@ -228,6 +228,8 @@ namespace MediaPortal.Services.Workflow
     {
       string id = null;
       string name = null;
+      string displayCategory = null;
+      string sortOrder = null;
       string sourceState = null;
       string targetState = null;
       string displayTitle = null;
@@ -240,6 +242,12 @@ namespace MediaPortal.Services.Workflow
             break;
           case "Name":
             name = attr.Value;
+            break;
+          case "DisplayCategory":
+            displayCategory = attr.Value;
+            break;
+          case "SortOrder":
+            sortOrder = attr.Value;
             break;
           case "SourceState":
             sourceState = attr.Value;
@@ -262,14 +270,19 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionElement.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionElement.Name, name));
-      return new PushNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
           new Guid(targetState), LocalizationHelper.CreateResourceString(displayTitle));
+      result.DisplayCategory = displayCategory;
+      result.SortOrder = sortOrder;
+      return result;
     }
 
     protected static WorkflowAction LoadPopNavigationTransition(XmlElement actionElement)
     {
       string id = null;
       string name = null;
+      string displayCategory = null;
+      string sortOrder = null;
       string sourceState = null;
       int numPop = -1;
       string displayTitle = null;
@@ -282,6 +295,12 @@ namespace MediaPortal.Services.Workflow
             break;
           case "Name":
             name = attr.Value;
+            break;
+          case "DisplayCategory":
+            displayCategory = attr.Value;
+            break;
+          case "SortOrder":
+            sortOrder = attr.Value;
             break;
           case "SourceState":
             sourceState = attr.Value;
@@ -305,14 +324,19 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionElement.Name, name));
       if (numPop == -1)
         throw new ArgumentException(string.Format("{0} '{1}': 'NumPop' attribute missing", actionElement.Name, name));
-      return new PopNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+      PopNavigationTransition result = new PopNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
           numPop, LocalizationHelper.CreateResourceString(displayTitle));
+      result.DisplayCategory = displayCategory;
+      result.SortOrder = sortOrder;
+      return result;
     }
 
     protected static WorkflowAction LoadWorkflowContributorAction(XmlElement actionElement)
     {
       string id = null;
       string name = null;
+      string displayCategory = null;
+      string sortOrder = null;
       string sourceState = null;
       string contributorModel = null;
       string displayTitle = null;
@@ -325,6 +349,12 @@ namespace MediaPortal.Services.Workflow
             break;
           case "Name":
             name = attr.Value;
+            break;
+          case "DisplayCategory":
+            displayCategory = attr.Value;
+            break;
+          case "SortOrder":
+            sortOrder = attr.Value;
             break;
           case "SourceState":
             sourceState = attr.Value;
@@ -347,8 +377,11 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionElement.Name, name));
       if (string.IsNullOrEmpty(contributorModel))
         throw new ArgumentException(string.Format("{0} '{1}': 'ContributorModelId' attribute missing", actionElement.Name, name));
-      return new WorkflowContributorAction(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
+      WorkflowContributorAction result = new WorkflowContributorAction(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
           new Guid(contributorModel), LocalizationHelper.CreateResourceString(displayTitle));
+      result.DisplayCategory = displayCategory;
+      result.SortOrder = sortOrder;
+      return result;
     }
   }
 }

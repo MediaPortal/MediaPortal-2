@@ -73,6 +73,8 @@ namespace UiComponents.Configuration
     public const string CONFIGURATION_MAIN_STATE_ID_STR = "E7422BB8-2779-49ab-BC99-E3F56138061B";
     public const string CONFIGURATION_SECTION_SCREEN = "configuration-section";
 
+    public const string ACTIONS_WORKFLOW_CATEGORY = "a-ConfigurationSections";
+
     public const string KEY_NAME = "Name";
     public const string KEY_HELPTEXT = "Help";
     public const string KEY_ENABLED = "Enabled";
@@ -519,9 +521,15 @@ namespace UiComponents.Configuration
               string.Format("Config: '{0}'", childNode.Location), CONFIGURATION_SECTION_SCREEN,
               false, false);
           // Add action for menu
-          actions.Add(new PushTransientStateNavigationTransition(
+          IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);
+          WorkflowAction wa = new PushTransientStateNavigationTransition(
               Guid.NewGuid(), context.WorkflowState.Name + "->" + childNode.Location,
-                  context.WorkflowState.StateId, newState, LocalizationHelper.CreateResourceString(section.Metadata.Text)));
+                  context.WorkflowState.StateId, newState, res)
+            {
+                DisplayCategory = ACTIONS_WORKFLOW_CATEGORY,
+                SortOrder = res.Evaluate()
+            };
+          actions.Add(wa);
           // Initialize status in internal dictionary
           stateDataDictionary[newState.StateId] = childNode.Location;
         }
