@@ -192,7 +192,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
     public Stream OpenRead(string path)
     {
       string dosPath = ToDosPath(path);
-      if (string.IsNullOrEmpty(dosPath))
+      if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
         return null;
       return File.OpenRead(dosPath);
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
     public Stream OpenWrite(string path)
     {
       string dosPath = ToDosPath(path);
-      if (string.IsNullOrEmpty(dosPath))
+      if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
         return null;
       return File.OpenWrite(dosPath);
     }
@@ -234,7 +234,11 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       {
         ICollection<string> result = new List<string>();
         foreach (string drive in Directory.GetLogicalDrives())
+        {
+          if (!new DriveInfo(drive).IsReady)
+            continue;
           result.Add("/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/");
+        }
         return result;
       }
       string dosPath = ToDosPath(path);
@@ -261,7 +265,10 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         return null;
       path = path.Substring(1);
       if (path.EndsWith(":/"))
-        return path;
+      {
+        DriveInfo di = new DriveInfo(path);
+        return di.IsReady ? string.Format("{0} [{1}]", di.VolumeLabel, path) : path;
+      }
       if (path.EndsWith("/"))
         path = path.Substring(0, path.Length-1);
       return Path.GetFileName(path);
