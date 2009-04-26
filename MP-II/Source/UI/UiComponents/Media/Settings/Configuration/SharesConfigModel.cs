@@ -24,12 +24,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
@@ -599,7 +601,11 @@ namespace UiComponents.Media.Settings.Configuration
       _sharesList.Clear();
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
-      foreach (ShareDescriptor share in sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values)
+      bool selected = false;
+      List<ShareDescriptor> shareDescriptors =
+          new List<ShareDescriptor>(sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values);
+      shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
+      foreach (ShareDescriptor share in shareDescriptors)
       {
         ListItem shareItem = new ListItem(NAME_KEY, share.Name);
         shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
@@ -611,10 +617,15 @@ namespace UiComponents.Media.Settings.Configuration
         shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, mediaProvider == null ? null : mediaProvider.Metadata.Name);
         string categories = StringUtils.Join(", ", share.MediaCategories);
         shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
+        if (shareDescriptors.Count == 1)
+        {
+          selected = true;
+          shareItem.Selected = true;
+        }
         shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
         _sharesList.Add(shareItem);
       }
-      IsSharesSelected = false;
+      IsSharesSelected = selected;
     }
 
     protected void UpdateMediaProvidersList()
@@ -622,12 +633,15 @@ namespace UiComponents.Media.Settings.Configuration
       _allMediaProvidersList.Clear();
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       bool selected = false;
-      foreach (IMediaProvider mediaProvider in mediaManager.LocalMediaProviders.Values)
+      List<IMediaProvider> mediaProviders = new List<IMediaProvider>(mediaManager.LocalMediaProviders.Values);
+      mediaProviders.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
+      foreach (IMediaProvider mediaProvider in mediaProviders)
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         ListItem mediaProviderItem = new ListItem(NAME_KEY, metadata.Name);
         mediaProviderItem.SetLabel(ID_KEY, metadata.MediaProviderId.ToString());
-        if (MediaProvider != null && MediaProvider.Metadata.MediaProviderId == metadata.MediaProviderId)
+        if ((MediaProvider != null && MediaProvider.Metadata.MediaProviderId == metadata.MediaProviderId) ||
+            mediaProviders.Count == 1)
         {
           mediaProviderItem.Selected = true;
           selected = true;
@@ -645,8 +659,13 @@ namespace UiComponents.Media.Settings.Configuration
         // Error case - The path tree can only be shown if the media provider is a file system provider
         return;
       IFileSystemMediaProvider mediaProvider = (IFileSystemMediaProvider) mp;
-      ICollection<string> directories = mediaProvider.GetChildDirectories(path);
-      if (directories != null)
+      items.Clear();
+      ICollection<string> res = mediaProvider.GetChildDirectories(path);
+      if (res != null)
+      {
+        List<string> directories = new List<string>(res);
+        CultureInfo culture = ServiceScope.Get<ILocalization>().CurrentCulture;
+        directories.Sort((a, b) => string.Compare(a, b, true, culture));
         foreach (string childPath in directories)
         {
           TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetResourceName(childPath));
@@ -657,12 +676,12 @@ namespace UiComponents.Media.Settings.Configuration
           directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
           items.Add(directoryItem);
         }
+      }
       items.FireChange();
     }
 
     protected void UpdateMediaProviderPathTree()
     {
-      _mediaProviderPathsTree.Clear();
       RefreshMediaProviderPathList(_mediaProviderPathsTree, "/");
     }
 
@@ -697,12 +716,15 @@ namespace UiComponents.Media.Settings.Configuration
     {
       _allMetadataExtractorsList.Clear();
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
+      List<IMetadataExtractor> metadataExtractors = new List<IMetadataExtractor>(
+          mediaManager.LocalMetadataExtractors.Values);
+      metadataExtractors.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
+      foreach (IMetadataExtractor me in metadataExtractors)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
         ListItem metadataExtractorItem = new ListItem(NAME_KEY, metadata.Name);
         metadataExtractorItem.SetLabel(ID_KEY, metadata.MetadataExtractorId.ToString());
-        if (MetadataExtractorIds.Contains(metadata.MetadataExtractorId))
+        if (MetadataExtractorIds.Contains(metadata.MetadataExtractorId) || metadataExtractors.Count == 1)
           metadataExtractorItem.Selected = true;
         metadataExtractorItem.SelectedProperty.Attach(OnMetadataExtractorItemSelectionChanged);
         _allMetadataExtractorsList.Add(metadataExtractorItem);
