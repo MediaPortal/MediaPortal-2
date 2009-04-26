@@ -92,6 +92,14 @@ namespace MediaPortal.Core
       pluginManager.Shutdown();
     }
 
+    public static void StopAll()
+    {
+      ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("ApplicationCore: Shutting down IMessageBroker");
+      ServiceScope.Get<IMessageBroker>().Shutdown();
+    }
+
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
@@ -108,8 +116,6 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Removing IThreadPool");
       ServiceScope.RemoveAndDispose<Threading.IThreadPool>();
 
-      logger.Debug("ApplicationCore: Shutting down IMessageBroker");
-      ServiceScope.Get<IMessageBroker>().Shutdown();
       logger.Debug("ApplicationCore: Removing IMessageBroker");
       ServiceScope.RemoveAndDispose<IMessageBroker>();
 
