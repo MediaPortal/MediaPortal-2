@@ -287,10 +287,10 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         background.Show();
     }
 
-    public void InstallBackgroundManager()
+    public bool InstallBackgroundManager()
     {
       // No locking here
-      _skinManager.InstallBackgroundManager(_skin);
+      return _skinManager.InstallBackgroundManager(_skin);
     }
 
     public void UninstallBackgroundManager()
@@ -335,10 +335,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
             newSkinName, newThemeName);
 
+        string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
+        string currentBackgroundName = _backgroundLayer == null ? null : _backgroundLayer.Name;
+
         UninstallBackgroundManager();
         InternalSetBackgroundLayer(null);
-
-        string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
 
         InternalCloseCurrentScreenAndDialogs(true);
 
@@ -350,10 +351,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
         PlayersHelper.ReallocGUIResources();
 
-        InstallBackgroundManager();
+        if (!InstallBackgroundManager())
+        {
+          Screen background = GetBackground(currentBackgroundName);
+          InternalSetBackgroundLayer(background);
+        }
 
-        _currentScreen = GetScreen(currentScreenName);
-        InternalShowScreen(_currentScreen);
+        Screen screen = GetScreen(currentScreenName);
+        InternalShowScreen(screen);
       }
       SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;

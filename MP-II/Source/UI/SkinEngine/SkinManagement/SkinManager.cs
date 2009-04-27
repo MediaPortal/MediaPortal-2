@@ -335,7 +335,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       return null;
     }
 
-    public void InstallBackgroundManager(Skin skin)
+    public bool InstallBackgroundManager(Skin skin)
     {
       // We manage loading and disposing of the background manager outside its management class
       // BackgroundManagerData, because the plugin manager's callback might revoke the background manager;
@@ -357,11 +357,12 @@ namespace MediaPortal.SkinEngine.SkinManagement
                 location, BACKGROUND_PLUGIN_ITEM_ID, itemStateTracker);
             backgroundManager.Install();
             _backgroundData = new BackgroundManagerData(location, backgroundManager, itemStateTracker);
-            return;
+            return true;
           }
         }
         current = current.InheritedSkinResources;
       }
+      return false;
     }
 
     public void UninstallBackgroundManager()
