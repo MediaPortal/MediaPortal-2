@@ -32,7 +32,6 @@ using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Core.Settings;
 using MediaPortal.SkinEngine.Players;
 using MediaPortal.SkinEngine.Settings;
@@ -133,22 +132,34 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       // Release old resources
       _skinManager.ReleaseSkinResources();
 
-      // Prepare new skin data
-      Skin skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
-      if (skin == null)
-        skin = _skinManager.DefaultSkin;
-      if (skin == null)
-        throw new Exception(string.Format("Skin '{0}' not found", skinName));
-      Theme theme = themeName == null ? null :
-          (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
-      if (theme == null)
-        theme = skin.DefaultTheme;
+      Skin skin;
+      Theme theme;
+      try
+      {
+        // Prepare new skin data
+        skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
+        if (skin == null)
+          skin = _skinManager.DefaultSkin;
+        if (skin == null)
+          throw new Exception(string.Format("Skin '{0}' not found", skinName));
+        theme = themeName == null ? null :
+            (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
+        if (theme == null)
+          theme = skin.DefaultTheme;
 
-      if (!skin.IsValid)
-        throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
-      if (theme != null)
-        if (!theme.IsValid)
-          throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
+        if (!skin.IsValid)
+          throw new ArgumentException(string.Format("Skin '{0}' is invalid", skin.Name));
+        if (theme != null)
+          if (!theme.IsValid)
+            throw new ArgumentException(string.Format("Theme '{0}' of skin '{1}' is invalid", theme.Name, skin.Name));
+      }
+      catch (ArgumentException ex)
+      {
+        ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}'", ex, skinName, themeName);
+        // Fall back to current skin/theme
+        skin = _skin;
+        theme = _theme;
+      }
 
       SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
       Fonts.FontManager.Load(skinResources);
@@ -336,16 +347,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         // FIXME Albert78: Find a better way to make ContentManager observe the current skin
         ContentManager.Clear();
 
-        try
-        {
-          PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
-        }
-        catch (Exception ex)
-        {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}'", ex, newSkinName, newThemeName);
-          // Continue with old skin
-          // TODO: Show error dialog
-        }
+        PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
         PlayersHelper.ReallocGUIResources();
 
         InstallBackgroundManager();
@@ -364,7 +366,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="screenName">The screen to load.</param>
     /// <returns>Root UI element for the specified screen.</returns>
-    protected UIElement LoadSkinFile(string screenName)
+    protected UIElement LoadScreen(string screenName)
     {
       return SkinContext.SkinResources.LoadSkinFile(screenName, _workflowManagerModelLoader) as UIElement;
     }
@@ -374,7 +376,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="backgroundName">Name of the background skinfile.</param>
     /// <returns>Root UI element for the specified background.</returns>
-    protected UIElement LoadBackgroundElement(string backgroundName)
+    protected UIElement LoadBackgroundScreen(string backgroundName)
     {
       return SkinContext.SkinResources.GetBackground(backgroundName) as UIElement;
     }
@@ -389,7 +391,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       Screen result = new Screen(screenName);
       try
       {
-        UIElement root = LoadSkinFile(screenName);
+        UIElement root = LoadScreen(screenName);
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
@@ -429,7 +431,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       Screen result = new Screen(screenName);
       try
       {
-        UIElement root = LoadBackgroundElement(screenName);
+        UIElement root = LoadBackgroundScreen(screenName);
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load background screen '{0}'", screenName);

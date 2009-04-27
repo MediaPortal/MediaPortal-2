@@ -22,11 +22,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -75,6 +74,7 @@ namespace MediaPortal.SkinEngine.Fonts
     /// </summary>
     public static void Load(IResourceAccessor resourcesCollection)
     {
+      Unload();
       string defaultFontFilePath = resourcesCollection.GetResourceFilePath(
           SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + DEFAULT_FONT_FILE);
 
@@ -85,7 +85,6 @@ namespace MediaPortal.SkinEngine.Fonts
       string defaultFontSize = doc.DocumentElement.GetAttribute("FontSize");
       _defaultFontSize = int.Parse(defaultFontSize);
 
-      _families.Clear();
       // Iterate over font family descriptors
       foreach (string descriptorFilePath in resourcesCollection.GetResourceFilePaths(
           "^" + SkinResources.FONTS_DIRECTORY + "\\\\.*\\.desc$").Values)
@@ -93,10 +92,10 @@ namespace MediaPortal.SkinEngine.Fonts
         doc.Load(descriptorFilePath);
         string familyName = doc.DocumentElement.GetAttribute("Name");
         if (string.IsNullOrEmpty(familyName))
-          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse family name for font descriptor file '{0}'", descriptorFilePath);
+          throw new ArgumentException("FontManager: Failed to parse family name for font descriptor file '{0}'", descriptorFilePath);
         string ttfFile = doc.DocumentElement.GetAttribute("Ttf");
         if (string.IsNullOrEmpty(ttfFile))
-          ServiceScope.Get<ILogger>().Error("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFilePath);
+          throw new ArgumentException("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFilePath);
 
         string fontFilePath = resourcesCollection.GetResourceFilePath(
             SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + ttfFile);
