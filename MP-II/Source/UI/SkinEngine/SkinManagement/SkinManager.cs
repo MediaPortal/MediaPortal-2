@@ -29,15 +29,94 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager;
+using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 
 namespace MediaPortal.SkinEngine.SkinManagement
 {
   /// <summary>
-  /// Manager class which caches all skins which are available in the system.
+  /// Manager class which manages and caches all skins which are available in the system.
+  /// This class also is responsible for the skin's background manager.
   /// </summary>
   public class SkinManager : ISkinResourceManager
   {
+    public const string BACKGROUND_PLUGIN_ITEM_ID = "Background";
+
+    /// <summary>
+    /// Plugin item state tracker which allows the background manager to be revoked. When
+    /// this happens, the <see cref="SkinManager"/>'s background manager will be removed automatically
+    /// and its <see cref="SkinManager._backgroundData"/> attribute will be reset.
+    /// </summary>
+    protected class BackgroundManagerPluginItemStateTracker : IPluginItemStateTracker
+    {
+      protected SkinManager _parent;
+
+      public BackgroundManagerPluginItemStateTracker(SkinManager parent)
+      {
+        _parent = parent;
+      }
+
+      #region IPluginItemStateTracker implementation
+
+      public string UsageDescription
+      {
+        get { return "SkinManager: Usage of background manager"; }
+      }
+
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
+      {
+        return true;
+      }
+
+      public void Stop(PluginItemRegistration itemRegistration)
+      {
+        if (_parent._backgroundData != null && _parent._backgroundData.Location == itemRegistration.Metadata.RegistrationLocation)
+        {
+          _parent._backgroundData.BackgroundManager.Uninstall();
+          _parent._backgroundData = null;
+        }
+      }
+
+      public void Continue(PluginItemRegistration itemRegistration)
+      {
+      }
+
+      #endregion
+    }
+
+    /// <summary>
+    /// Data object to store data about the current installed background manager.
+    /// </summary>
+    protected class BackgroundManagerData
+    {
+      protected IBackgroundManager _backgroundManager;
+      protected string _location;
+      protected BackgroundManagerPluginItemStateTracker _backgroundManagerPluginItemStateTracker;
+
+      public BackgroundManagerData(string location, IBackgroundManager backgroundManager,
+          BackgroundManagerPluginItemStateTracker backgroundManagerPluginItemStateTracker)
+      {
+        _location = location;
+        _backgroundManager = backgroundManager;
+        _backgroundManagerPluginItemStateTracker = backgroundManagerPluginItemStateTracker;
+      }
+
+      public string Location
+      {
+        get { return _location; }
+      }
+
+      public IBackgroundManager BackgroundManager
+      {
+        get { return _backgroundManager; }
+      }
+
+      public BackgroundManagerPluginItemStateTracker BgMgrPluginItemStateTracker
+      {
+        get { return _backgroundManagerPluginItemStateTracker; }
+      }
+    }
+
     /// <summary>
     /// Plugin item state tracker which allows skin resources to be revoked. When skin resources
     /// are revoked by the plugin manager, the <see cref="SkinManager.ReloadSkins()"/> method
@@ -110,6 +189,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected SkinResourcesPluginItemStateTracker _skinResourcesPluginItemStateTracker;
     protected SkinResourcesRegistrationChangeListener _skinResourcesRegistrationChangeListener;
 
+    protected BackgroundManagerData _backgroundData = null;
+
     #endregion
 
     public SkinManager()
@@ -124,6 +205,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
     public void Dispose()
     {
+      UninstallBackgroundManager();
       ReleasePluginSkinResources();
       _skins = null;
     }
@@ -251,6 +333,46 @@ namespace MediaPortal.SkinEngine.SkinManagement
       if (_skins.ContainsKey(skinName))
         return _skins[skinName];
       return null;
+    }
+
+    public void InstallBackgroundManager(Skin skin)
+    {
+      // We manage loading and disposing of the background manager outside its management class
+      // BackgroundManagerData, because the plugin manager's callback might revoke the background manager;
+      // in this case we have to reset the background data (which includes resetting our _backgroundData attribute)
+      UninstallBackgroundManager();
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      SkinResources current = skin;
+      while (current != null)
+      {
+        if (current is Skin)
+        {
+          string location = "/Skins/" + current.Name;
+          PluginItemMetadata md = pluginManager.GetPluginItemMetadata(location, BACKGROUND_PLUGIN_ITEM_ID);
+          if (md != null)
+          {
+            BackgroundManagerPluginItemStateTracker itemStateTracker =
+                new BackgroundManagerPluginItemStateTracker(this);
+            IBackgroundManager backgroundManager = pluginManager.RequestPluginItem<IBackgroundManager>(
+                location, BACKGROUND_PLUGIN_ITEM_ID, itemStateTracker);
+            backgroundManager.Install();
+            _backgroundData = new BackgroundManagerData(location, backgroundManager, itemStateTracker);
+            return;
+          }
+        }
+        current = current.InheritedSkinResources;
+      }
+    }
+
+    public void UninstallBackgroundManager()
+    {
+      if (_backgroundData == null)
+        return;
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      _backgroundData.BackgroundManager.Uninstall();
+      pluginManager.RevokePluginItem(_backgroundData.Location, BACKGROUND_PLUGIN_ITEM_ID,
+          _backgroundData.BgMgrPluginItemStateTracker);
+      _backgroundData = null;
     }
 
     protected void SkinResourcesWereChanged()

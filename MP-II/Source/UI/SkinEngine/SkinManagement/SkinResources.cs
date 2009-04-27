@@ -398,7 +398,8 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected void ReleaseAllGUIModels()
     {
       foreach (Guid modelId in _styleGUIModels.Keys)
-        ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
+        ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(),
+            _modelItemStateTracker);
       _styleGUIModels.Clear();
     }
 

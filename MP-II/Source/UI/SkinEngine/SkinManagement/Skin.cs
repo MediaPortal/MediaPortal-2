@@ -28,8 +28,6 @@ using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.Screens;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.SkinManagement
@@ -53,71 +51,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     public const int SKIN_DESCRIPTOR_VERSION_MAJOR = 1;
     public const int MIN_SKIN_DESCRIPTOR_VERSION_MINOR = 0;
 
-    public const string BACKGROUND_PLUGIN_ITEM_ID = "Background";
-
-    protected class BackgroundManagerPluginItemStateTracker : IPluginItemStateTracker
-    {
-      protected Skin _parent;
-
-      public BackgroundManagerPluginItemStateTracker(Skin parent)
-      {
-        _parent = parent;
-      }
-
-      #region IPluginItemStateTracker implementation
-
-      public string UsageDescription
-      {
-        get { return "Skin: Usage of background manager"; }
-      }
-
-      public bool RequestEnd(PluginItemRegistration itemRegistration)
-      {
-        return true;
-      }
-
-      public void Stop(PluginItemRegistration itemRegistration)
-      {
-        if (_parent._backgroundData != null && _parent._backgroundData.Location == itemRegistration.Metadata.RegistrationLocation)
-        {
-          _parent._backgroundData.BackgroundManager.Uninstall();
-          _parent._backgroundData = null;
-        }
-      }
-
-      public void Continue(PluginItemRegistration itemRegistration)
-      {
-      }
-
-      #endregion
-    }
-
-    protected class BackgroundManagerData
-    {
-      protected IBackgroundManager _backgroundManager;
-      protected string _location;
-
-      public BackgroundManagerData(string location, IBackgroundManager backgroundManager)
-      {
-        _location = location;
-        _backgroundManager = backgroundManager;
-      }
-
-      public string Location
-      {
-        get { return _location; }
-      }
-
-      public IBackgroundManager BackgroundManager
-      {
-        get { return _backgroundManager; }
-      }
-    }
-
     #region Protected fields
-
-    protected BackgroundManagerPluginItemStateTracker _backgroundManagerPluginItemStateTracker = null;
-    protected BackgroundManagerData _backgroundData = null;
 
     /// <summary>
     /// Holds all known skin files, stored as a dictionary: The key is the theme name,
@@ -242,43 +176,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
       }
     }
 
-    public void InstallBackgroundManager()
-    {
-      UninstallBackgroundManager();
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      SkinResources current = this;
-      while (current != null)
-      {
-        if (current is Skin)
-        {
-          string location = "/Skins/" + _name;
-          PluginItemMetadata md = pluginManager.GetPluginItemMetadata(location, BACKGROUND_PLUGIN_ITEM_ID);
-          if (md != null)
-          {
-            if (_backgroundManagerPluginItemStateTracker == null)
-              _backgroundManagerPluginItemStateTracker = new BackgroundManagerPluginItemStateTracker(this);
-            IBackgroundManager backgroundManager = pluginManager.RequestPluginItem<IBackgroundManager>(
-                location, BACKGROUND_PLUGIN_ITEM_ID, _backgroundManagerPluginItemStateTracker);
-            backgroundManager.Install();
-            _backgroundData = new BackgroundManagerData(location, backgroundManager);
-            return;
-          }
-        }
-        current = current.InheritedSkinResources;
-      }
-    }
-
-    public void UninstallBackgroundManager()
-    {
-      if (_backgroundData == null)
-        return;
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      _backgroundData.BackgroundManager.Uninstall();
-      pluginManager.RevokePluginItem(_backgroundData.Location, BACKGROUND_PLUGIN_ITEM_ID,
-          _backgroundManagerPluginItemStateTracker);
-      _backgroundData = null;
-    }
-
     internal override void Release()
     {
       base.Release();
@@ -288,7 +185,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
           theme.Release();
           theme.ClearRootDirectories();
         }
-      _backgroundManagerPluginItemStateTracker = null;
     }
 
     /// <summary>

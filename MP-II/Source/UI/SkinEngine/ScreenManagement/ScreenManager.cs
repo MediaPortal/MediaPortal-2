@@ -278,18 +278,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void InstallBackgroundManager()
     {
-      Skin skin = _skin;
       // No locking here
-      if (skin != null)
-        skin.InstallBackgroundManager();
+      _skinManager.InstallBackgroundManager(_skin);
     }
 
     public void UninstallBackgroundManager()
     {
-      Skin skin = _skin;
       // No locking here
-      if (skin != null)
-        skin.UninstallBackgroundManager();
+      _skinManager.UninstallBackgroundManager();
     }
 
     /// <summary>
@@ -368,7 +364,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="screenName">The screen to load.</param>
     /// <returns>Root UI element for the specified screen.</returns>
-    protected UIElement LoadRootElement(string screenName)
+    protected UIElement LoadSkinFile(string screenName)
     {
       return SkinContext.SkinResources.LoadSkinFile(screenName, _workflowManagerModelLoader) as UIElement;
     }
@@ -393,7 +389,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       Screen result = new Screen(screenName);
       try
       {
-        UIElement root = LoadRootElement(screenName);
+        UIElement root = LoadSkinFile(screenName);
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
