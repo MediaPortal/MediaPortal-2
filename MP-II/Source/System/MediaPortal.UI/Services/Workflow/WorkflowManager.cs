@@ -63,6 +63,8 @@ namespace MediaPortal.Services.Workflow
 
       public bool RequestEnd(PluginItemRegistration itemRegistration)
       {
+        // We could store the end-requested model in an array of "suspended models" in the WF manager,
+        // method WFM.GetOrLoadModel would then fail to load any of the suspended models
         return !_parent.IsModelContainedInNavigationStack(new Guid(itemRegistration.Metadata.Id));
       }
 
@@ -71,7 +73,11 @@ namespace MediaPortal.Services.Workflow
         _parent.RemoveModelFromNavigationStack(new Guid(itemRegistration.Metadata.Id));
       }
 
-      public void Continue(PluginItemRegistration itemRegistration) { }
+      public void Continue(PluginItemRegistration itemRegistration)
+      {
+        // If we'd maintain a collection of "suspended models" (like said in comment in method
+        // RequestEnd), we would need to cancel the suspension of the continued model here.
+      }
 
       #endregion
     }
