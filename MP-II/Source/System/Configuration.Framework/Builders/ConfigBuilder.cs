@@ -230,6 +230,11 @@ namespace MediaPortal.Configuration.Builders
           typeof(ConfigBuilder).Name, itemData.BuilderName));
     }
 
+    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      // Nothing to do here
+    }
+
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       return itemData.BuilderName != "ConfigSection" && itemData.BuilderName != "ConfigGroup";

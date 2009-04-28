@@ -91,6 +91,18 @@ namespace MediaPortal.Builders
       }
     }
 
+    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      BackgroundType type;
+      string typeName = GetBackgroundAndType(itemData.Attributes, out type);
+      switch (type)
+      {
+        case BackgroundType.Manager:
+          plugin.RevokePluginObject(typeName);
+          break;
+      }
+    }
+
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       BackgroundType type;

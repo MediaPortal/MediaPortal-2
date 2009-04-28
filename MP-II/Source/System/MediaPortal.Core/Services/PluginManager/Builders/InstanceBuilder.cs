@@ -45,6 +45,11 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
       return plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
     }
 
+    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      plugin.RevokePluginObject(item.GetType().FullName);
+    }
+
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       return true;

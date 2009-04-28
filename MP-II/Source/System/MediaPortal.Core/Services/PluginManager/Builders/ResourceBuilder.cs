@@ -49,6 +49,11 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
           plugin.Metadata.GetAbsolutePath(itemData.Attributes["Directory"]));
     }
 
+    public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)
+    {
+      // Nothing to do here
+    }
+
     public bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       return false;

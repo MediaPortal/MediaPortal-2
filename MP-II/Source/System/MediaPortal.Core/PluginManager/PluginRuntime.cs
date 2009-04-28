@@ -58,6 +58,28 @@ namespace MediaPortal.Core.PluginManager
   /// </remarks>
   public class PluginRuntime
   {
+    #region Structs
+
+    public class ObjectReference
+    {
+      protected int _refCounter = 0;
+      protected object _object = null;
+
+      public int RefCounter
+      {
+        get { return _refCounter; }
+        set { _refCounter = value; }
+      }
+
+      public object Object
+      {
+        get { return _object; }
+        set { _object = value; }
+      }
+    }
+
+    #endregion
+
     #region Protected fields
 
     protected const string ITEMCHANGELISTENER_ID = "PLUGIN_ITEM_CHANGE_LISTENERS";
@@ -70,7 +92,7 @@ namespace MediaPortal.Core.PluginManager
 
     protected IPluginStateTracker _stateTracker = null;
     protected ICollection<Assembly> _loadedAssemblies = null; // Lazy initialized
-    protected IDictionary<string, object> _instantiatedObjects = null; // Lazy initialized
+    protected IDictionary<string, ObjectReference> _instantiatedObjects = null; // Lazy initialized
     protected ICollection<PluginRuntime> _dependentPlugins = null; // Lazy initialized
 
     #endregion
@@ -163,14 +185,37 @@ namespace MediaPortal.Core.PluginManager
     {
       LoadAssemblies();
       if (_instantiatedObjects == null)
-        _instantiatedObjects = new Dictionary<string, object>();
-      else if (_instantiatedObjects.ContainsKey(typeName))
-        return _instantiatedObjects[typeName];
+        _instantiatedObjects = new Dictionary<string, ObjectReference>();
+      ObjectReference reference;
+      if (_instantiatedObjects.ContainsKey(typeName))
+        reference = _instantiatedObjects[typeName];
+      else
+      {
+        Type type = GetPluginType(typeName);
+        if (type == null)
+          return null;
+        reference = _instantiatedObjects[typeName] = new ObjectReference();
+        reference.Object = Activator.CreateInstance(type);
+      }
+      reference.RefCounter++;
+      return reference.Object;
+    }
 
-      Type type = GetPluginType(typeName);
-      if (type != null)
-        return _instantiatedObjects[typeName] = Activator.CreateInstance(type);
-      return null;
+    /// <summary>
+    /// Revokes the specified object from this plugin.
+    /// </summary>
+    public void RevokePluginObject(string typeName)
+    {
+      ObjectReference reference;
+      if (!_instantiatedObjects.TryGetValue(typeName, out reference))
+        return;
+      if (--reference.RefCounter == 0)
+      {
+        IDisposable d = reference.Object as IDisposable;
+        if (d != null)
+          d.Dispose();
+        _instantiatedObjects.Remove(typeName);
+      }
     }
 
     #endregion

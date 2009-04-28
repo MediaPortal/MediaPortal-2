@@ -255,6 +255,23 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     }
 
     /// <summary>
+    /// Releases the config object if it is a <see cref="ConfigSetting"/>.
+    /// </summary>
+    public void DisposeConfigObj()
+    {
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      string itemLocation = Constants.PLUGINTREE_BASELOCATION + (_parent == null ? string.Empty : _parent.Location);
+      ConfigSetting cs = _configObj as ConfigSetting;
+      if (cs != null)
+      {
+        PluginItemMetadata pid = pluginManager.GetPluginItemMetadata(itemLocation, Id);
+        if (pid == null)
+          return;
+        pid.PluginRuntime.RevokePluginObject(cs.GetType().FullName);
+      }
+    }
+
+    /// <summary>
     /// Disposes the child nodes and release their registration at the plugin manager.
     /// After this method was called, the node is in the same state like it was before it was
     /// lazy loaded - and will switch back to a fully initialized state automatically when it is used again.
@@ -268,7 +285,8 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       foreach (ConfigurationNode node in _childNodes)
       {
         node.DisposeChildren();
-        // To fulfil the classes invariant, we need to do the dispose work for our children - like
+        node.DisposeConfigObj();
+        // To fulfill the classes invariant, we need to do the dispose work for our children - like
         // we built up our children in method LoadChildren()
         pluginManager.RevokePluginItem(itemLocation, node.Id, _childPluginItemStateTracker);
         _childPluginItemStateTracker = null;

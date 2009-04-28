@@ -347,14 +347,14 @@ namespace MediaPortal.Core.Services.PluginManager
     /// revoked.</param>
     /// <param name="stateTracker">State tracker for which the usage of the item is revoked.
     /// The state tracker won't be called any more for any plugin state changes.</param>
-    internal static void RevokeItemUsage(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker)
+    internal void RevokeItemUsage(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker)
     {
       itemRegistration.StateTrackers.Remove(stateTracker);
       if (itemRegistration.StateTrackers.Count == 0)
       {
-        IDisposable d = itemRegistration.Item as IDisposable;
-        if (d != null)
-          d.Dispose();
+        PluginItemMetadata metadata = itemRegistration.Metadata;
+        IPluginItemBuilder builder = GetOrCreateBuilder(metadata.BuilderName);
+        builder.RevokeItem(itemRegistration.Item, metadata, metadata.PluginRuntime);
         itemRegistration.Item = null;
       }
       // If we wanted to automatically unload plugins whose items are not accessed any more, this
@@ -410,11 +410,22 @@ namespace MediaPortal.Core.Services.PluginManager
         if (!TryActivate(builderRegistration.PluginRuntime))
           throw new PluginInvalidStateException(
               "Cannot activate plugin providing builder '{0}', which is necessary to build item");
-        result = builderRegistration.PluginRuntime.InstanciatePluginObject(
-              builderRegistration.BuilderClassName) as IPluginItemBuilder;
-        if (result == null)
-          throw new PluginInternalException("Builder class '{0}' could not be instantiated",
-              builderRegistration.PluginRuntime.Metadata.Name);
+        object obj = builderRegistration.PluginRuntime.InstanciatePluginObject(
+              builderRegistration.BuilderClassName);
+        if (obj is IPluginItemBuilder)
+          result = (IPluginItemBuilder) obj;
+        else
+        {
+          if (obj != null)
+          {
+            builderRegistration.PluginRuntime.RevokePluginObject(builderRegistration.BuilderClassName);
+            throw new PluginInternalException("Builder class '{0}' does not implement the plugin item builder interface '{1}'",
+                builderRegistration.BuilderClassName, typeof(IPluginItemBuilder).Name);
+          }
+          else
+            throw new PluginInternalException("Builder class '{0}' could not be instantiated",
+                builderRegistration.BuilderClassName);
+        }
       }
       return result;
     }
@@ -664,8 +675,11 @@ namespace MediaPortal.Core.Services.PluginManager
               plugin.StateTracker.Activated(plugin);
             }
             else
+            {
               logger.Error("PluginManager: Plugin state tracker class '{0}' of plugin '{1}' doesn't implement interface {3}",
                   plugin.Metadata.StateTrackerClassName, pluginName, typeof(IPluginStateTracker).Name);
+              plugin.RevokePluginObject(plugin.Metadata.StateTrackerClassName);
+            }
           }
           catch (Exception e)
           {
@@ -731,12 +745,19 @@ namespace MediaPortal.Core.Services.PluginManager
           {
             plugin.State = PluginState.Stopping;
             if (plugin.StateTracker != null)
+            {
               plugin.StateTracker.Stop();
+              plugin.RevokePluginObject(plugin.StateTracker.GetType().FullName);
+            }
             StopOpenEndRequests(endRequestsToClose);
 
             plugin.UnregisterItems();
             foreach (string builderName in plugin.Metadata.Builders.Keys)
+            {
+              object builder = _builders[builderName];
+              plugin.RevokePluginObject(builder.GetType().FullName);
               _builders.Remove(builderName);
+            }
           }
           else
           {

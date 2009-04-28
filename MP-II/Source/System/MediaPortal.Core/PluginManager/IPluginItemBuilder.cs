@@ -50,6 +50,15 @@ namespace MediaPortal.Core.PluginManager
     object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
 
     /// <summary>
+    /// Revokes the item from the specified item data.
+    /// This will release the item.
+    /// </summary>
+    /// <param name="item">The object to revoke.</param>
+    /// <param name="itemData">The plugin item's metadata.</param>
+    /// <param name="plugin">The plugin runtime instance.</param>
+    void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin);
+
+    /// <summary>
     /// Returns the information if this builder needs the item's plugin in an active state to build
     /// the item.
     /// </summary>
