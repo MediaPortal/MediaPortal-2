@@ -110,8 +110,8 @@ namespace MediaPortal.Presentation.Workflow
 
     protected void ResetContributor()
     {
-      if (_contributor is IDisposable)
-        ((IDisposable) _contributor).Dispose();
+      ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(),
+          _modelItemStateTracker);
       _contributor = null;
       FireStateChanged();
     }
@@ -131,8 +131,6 @@ namespace MediaPortal.Presentation.Workflow
 
     public void Dispose()
     {
-      ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(),
-          _modelItemStateTracker);
       ResetContributor();
     }
 
