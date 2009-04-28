@@ -207,13 +207,6 @@ namespace MediaPortal.Services.Workflow
     /// <param name="modelId">Id of the model to free.</param>
     protected void FreeModel(Guid modelId)
     {
-      ModelEntry entry;
-      if (_modelCache.TryGetValue(modelId, out entry))
-      {
-        IDisposable d = entry.ModelInstance as IDisposable;
-        if (d != null)
-          d.Dispose();
-      }
       ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       _modelCache.Remove(modelId);
     }

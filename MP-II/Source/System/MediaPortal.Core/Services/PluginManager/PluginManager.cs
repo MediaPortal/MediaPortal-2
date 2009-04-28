@@ -350,6 +350,13 @@ namespace MediaPortal.Core.Services.PluginManager
     internal static void RevokeItemUsage(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker)
     {
       itemRegistration.StateTrackers.Remove(stateTracker);
+      if (itemRegistration.StateTrackers.Count == 0)
+      {
+        IDisposable d = itemRegistration.Item as IDisposable;
+        if (d != null)
+          d.Dispose();
+        itemRegistration.Item = null;
+      }
       // If we wanted to automatically unload plugins whose items are not accessed any more, this
       // should be done here
     }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
@@ -42,14 +43,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 {
   public class ScreenManager : IScreenManager
   {
-    protected class WorkflowManagerModelLoader : IModelLoader
-    {
-      public object GetOrLoadModel(Guid modelId)
-      {
-        return ServiceScope.Get<IWorkflowManager>().GetModel(modelId);
-      }
-    }
-
     #region Consts
 
     public const string HOME_SCREEN = "home";
@@ -61,17 +54,141 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public const string BACKGROUND_SCREEN_MISSING_TEXT = "[ScreenManager.BackgroundScreenMissing]";
     public const string BACKGROUND_SCREEN_BROKEN_TEXT = "[ScreenManager.BackgroundScreenBroken]";
 
+    public const string MODELS_REGISTRATION_LOCATION = "/Models";
+
+    #endregion
+
+    #region Classes & Delegates
+
+    protected delegate void ScreenExecutor(Screen screen);
+
+    /// <summary>
+    /// Model loader used in the loading process of normal screens. GUI models requested via this
+    /// model loader are requested from the workflow manger and thus attached to the workflow manager's current context.
+    /// </summary>
+    protected class WorkflowManagerModelLoader : IModelLoader
+    {
+      public object GetOrLoadModel(Guid modelId)
+      {
+        return ServiceScope.Get<IWorkflowManager>().GetModel(modelId);
+      }
+    }
+
+    /// <summary>
+    /// This class manages the backbround screen and holds its dynamic model resources.
+    /// </summary>
+    protected class BackgroundData : IPluginItemStateTracker, IModelLoader
+    {
+      #region Protected fields
+
+      protected ScreenManager _parent;
+      protected IDictionary<Guid, object> _models = new Dictionary<Guid, object>();
+      protected Screen _backgroundScreen = null;
+
+      #endregion
+
+      #region Ctor
+
+      public BackgroundData(ScreenManager parent)
+      {
+        _parent = parent;
+      }
+
+      #endregion
+
+      public Screen BackgroundScreen
+      {
+        get { return _backgroundScreen; }
+      }
+
+      public bool Load(string backgroundName)
+      {
+        Unload();
+        Screen background = GetBackground(backgroundName, this);
+        if (background == null)
+          return false;
+        lock (_parent.SyncRoot)
+        {
+          _backgroundScreen = background;
+          _backgroundScreen.ScreenState = Screen.State.Running;
+        }
+        background.Show();
+        return true;
+      }
+
+      public void Unload()
+      {
+        Screen oldBackground;
+        ICollection<Guid> oldModels;
+        lock (_parent.SyncRoot)
+        {
+          if (_backgroundScreen == null)
+            return;
+          oldBackground = _backgroundScreen;
+          oldBackground.ScreenState = Screen.State.Closing;
+          _backgroundScreen = null;
+          oldModels = new List<Guid>(_models.Keys);
+          _models.Clear();
+        }
+        oldBackground.Hide();
+        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+        foreach (Guid modelId in oldModels)
+          pluginManager.RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), this);
+      }
+
+      #region IPluginItemStateTracker implementation
+
+      public string UsageDescription
+      {
+        get { return "ScreenManager: Usage of model in background screen"; }
+      }
+
+      public bool RequestEnd(PluginItemRegistration itemRegistration)
+      {
+        lock (_parent.SyncRoot)
+          return !_models.ContainsKey(new Guid(itemRegistration.Metadata.Id));
+      }
+
+      public void Stop(PluginItemRegistration itemRegistration)
+      {
+        Unload();
+      }
+
+      public void Continue(PluginItemRegistration itemRegistration) { }
+
+      #endregion
+
+      #region IModelLoader implementation
+
+      public object GetOrLoadModel(Guid modelId)
+      {
+        object result;
+        lock (_parent.SyncRoot)
+          if (_models.TryGetValue(modelId, out result))
+            return result;
+        result = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+            MODELS_REGISTRATION_LOCATION, modelId.ToString(), this);
+        if (result == null)
+          throw new ArgumentException(string.Format("ScreenManager: Model with id '{0}' is not available", modelId));
+        lock (_parent.SyncRoot)
+          _models[modelId] = result;
+        return result;
+      }
+
+      #endregion
+    }
+
     #endregion
 
     #region Protected fields
 
     protected readonly object _syncRoot = new object();
-    protected Screen _backgroundLayer = null;
-    protected Screen _currentScreen = null;
-    protected readonly Stack<Screen> _dialogStack = new Stack<Screen>();
-
     protected readonly SkinManager _skinManager;
-    protected readonly WorkflowManagerModelLoader _workflowManagerModelLoader;
+
+    protected readonly BackgroundData _backgroundData;
+    protected readonly Stack<Screen> _dialogStack = new Stack<Screen>();
+    protected Screen _currentScreen = null;
+
     protected Skin _skin = null;
     protected Theme _theme = null;
 
@@ -81,7 +198,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       SkinSettings screenSettings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       _skinManager = new SkinManager();
-      _workflowManagerModelLoader = new WorkflowManagerModelLoader();
+      _backgroundData = new BackgroundData(this);
 
       string skinName = screenSettings.Skin;
       string themeName = screenSettings.Theme;
@@ -104,11 +221,6 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    public ISkinResourceManager SkinResourceManager
-    {
-      get { return _skinManager; }
-    }
-
     /// <summary>
     /// Disposes all resources which were allocated by the screen manager.
     /// </summary>
@@ -116,6 +228,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       InternalCloseCurrentScreenAndDialogs(true);
       _skinManager.Dispose();
+    }
+
+    public ISkinResourceManager SkinResourceManager
+    {
+      get { return _skinManager; }
+    }
+
+    public object SyncRoot
+    {
+      get { return _syncRoot; }
     }
 
     /// <summary>
@@ -244,7 +366,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected internal void InternalCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
     {
       if (closeBackgroundLayer)
-        InternalSetBackgroundLayer(null);
+        _backgroundData.Unload();
       while (true)
       {
         lock (_syncRoot)
@@ -264,27 +386,27 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       screen.Show();
     }
 
-    protected internal void InternalSetBackgroundLayer(Screen background)
+    protected IList<Screen> GetAllScreens()
     {
-      Screen oldBackground = null;
       lock (_syncRoot)
       {
-        if (_backgroundLayer != null)
-        {
-          _backgroundLayer.ScreenState = Screen.State.Closing;
-          oldBackground = _backgroundLayer;
-        }
+        IList<Screen> result = new List<Screen>();
+        Screen backgroundScreen = _backgroundData.BackgroundScreen;
+        if (backgroundScreen != null)
+          result.Add(backgroundScreen);
+        if (_currentScreen != null)
+          result.Add(_currentScreen);
+        Screen[] dialogs = _dialogStack.ToArray();
+        Array.Reverse(dialogs);
+        CollectionUtils.AddAll(result, dialogs);
+        return result;
       }
-      if (oldBackground != null)
-        oldBackground.Hide();
-      lock (_syncRoot)
-      {
-        _backgroundLayer = background;
-        if (_backgroundLayer != null)
-          _backgroundLayer.ScreenState = Screen.State.Running;
-      }
-      if (background != null)
-        background.Show();
+    }
+
+    protected void ForEachScreen(ScreenExecutor executor)
+    {
+      foreach (Screen screen in GetAllScreens())
+        executor(screen);
     }
 
     public bool InstallBackgroundManager()
@@ -305,19 +427,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public void Render()
     {
       SkinContext.Now = DateTime.Now;
-      IList<Screen> renderScreens = new List<Screen>();
-      lock (_syncRoot)
-      {
-        if (_backgroundLayer != null)
-          renderScreens.Add(_backgroundLayer);
-        if (_currentScreen != null)
-          renderScreens.Add(_currentScreen);
-        Screen[] dialogs = _dialogStack.ToArray();
-        Array.Reverse(dialogs);
-        CollectionUtils.AddAll(renderScreens, dialogs);
-      }
-      foreach (Screen screen in renderScreens)
-        screen.Render();
+      ForEachScreen(screen => screen.Render());
     }
 
     /// <summary>
@@ -336,10 +446,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
             newSkinName, newThemeName);
 
         string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
-        string currentBackgroundName = _backgroundLayer == null ? null : _backgroundLayer.Name;
+        Screen backgroundScreen = _backgroundData.BackgroundScreen;
+        string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.Name;
 
         UninstallBackgroundManager();
-        InternalSetBackgroundLayer(null);
+        _backgroundData.Unload();
 
         InternalCloseCurrentScreenAndDialogs(true);
 
@@ -352,10 +463,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         PlayersHelper.ReallocGUIResources();
 
         if (!InstallBackgroundManager())
-        {
-          Screen background = GetBackground(currentBackgroundName);
-          InternalSetBackgroundLayer(background);
-        }
+          _backgroundData.Load(currentBackgroundName);
 
         Screen screen = GetScreen(currentScreenName);
         InternalShowScreen(screen);
@@ -371,19 +479,20 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="screenName">The screen to load.</param>
     /// <returns>Root UI element for the specified screen.</returns>
-    protected UIElement LoadScreen(string screenName)
+    protected static UIElement LoadScreen(string screenName)
     {
-      return SkinContext.SkinResources.LoadSkinFile(screenName, _workflowManagerModelLoader) as UIElement;
+      return SkinContext.SkinResources.LoadScreenFile(screenName, new WorkflowManagerModelLoader()) as UIElement;
     }
 
     /// <summary>
-    /// Loads the root UI element for the specified background from the current skin.
+    /// Loads the root UI element for the specified background screen from the current skin.
     /// </summary>
-    /// <param name="backgroundName">Name of the background skinfile.</param>
-    /// <returns>Root UI element for the specified background.</returns>
-    protected UIElement LoadBackgroundScreen(string backgroundName)
+    /// <param name="screenName">The background screen to load.</param>
+    /// <param name="loader">Model loader for the new background screen.</param>
+    /// <returns>Root UI element for the specified screen.</returns>
+    protected static UIElement LoadBackgroundScreen(string screenName, IModelLoader loader)
     {
-      return SkinContext.SkinResources.GetBackground(backgroundName) as UIElement;
+      return SkinContext.SkinResources.LoadBackgroundScreenFile(screenName, loader) as UIElement;
     }
 
     /// <summary>
@@ -391,7 +500,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="screenName">Name of the screen to return.</param>
     /// <returns>screen or <c>null</c>, if an error occured while loading the screen.</returns>
-    public Screen GetScreen(string screenName)
+    public static Screen GetScreen(string screenName)
     {
       Screen result = new Screen(screenName);
       try
@@ -430,13 +539,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// Gets the background screen with the specified name.
     /// </summary>
     /// <param name="screenName">Name of the background screen to return.</param>
+    /// <param name="loader">Model loader for the new background screen.</param>
     /// <returns>screen or <c>null</c>, if an error occured while loading the screen.</returns>
-    public Screen GetBackground(string screenName)
+    public static Screen GetBackground(string screenName, IModelLoader loader)
     {
       Screen result = new Screen(screenName);
       try
       {
-        UIElement root = LoadBackgroundScreen(screenName);
+        UIElement root = LoadBackgroundScreen(screenName, loader);
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load background screen '{0}'", screenName);
@@ -468,38 +578,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void Reset()
     {
-      lock (_syncRoot)
-      {
-        foreach (Screen dialog in _dialogStack)
-          dialog.Reset();
-        if (_backgroundLayer != null)
-          _backgroundLayer.Reset();
-        if (_currentScreen != null)
-          _currentScreen.Reset();
-      }
+      ForEachScreen(screen => screen.Reset());
     }
 
     public void Exit()
     {
-      lock (_syncRoot)
-      {
-        foreach (Screen dialog in _dialogStack)
-          dialog.Deallocate();
-        if (_currentScreen != null)
-          _currentScreen.Deallocate();
-      }
+      ForEachScreen(screen => screen.Deallocate());
       Fonts.FontManager.Unload();
     }
 
-    public void SwitchTheme(string newThemeName)
-    {
-      SwitchSkinAndTheme(_skin.Name, newThemeName);
-    }
-
-    public void SwitchSkin(string newSkinName)
-    {
-      SwitchSkinAndTheme(newSkinName, null);
-    }
+    #region IScreenManager implementation
 
     public string SkinName
     {
@@ -533,12 +621,13 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get
       {
-        lock (_syncRoot)
-          return _backgroundLayer == null ? null : _backgroundLayer.Name;
+        // No locking necessary
+        Screen backgroundScreen = _backgroundData.BackgroundScreen;
+        return backgroundScreen == null ? null : backgroundScreen.Name;
       }
     }
 
-      public bool IsDialogVisible
+    public bool IsDialogVisible
     {
       get
       {
@@ -547,51 +636,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    public void SetBackgroundLayer(string backgroundName)
+    public void SwitchTheme(string newThemeName)
     {
-      Screen background = GetBackground(backgroundName);
-      if (background == null)
-        // Error message was shown in GetScreen()
-        return;
-      InternalSetBackgroundLayer(background);
+      SwitchSkinAndTheme(_skin.Name, newThemeName);
     }
 
-    public void ShowDialog(string dialogName)
+    public void SwitchSkin(string newSkinName)
     {
-      ShowDialog(dialogName, null);
-    }
-
-    public void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
-    {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
-      InternalShowDialog(dialogName, dialogCloseCallback);
-    }
-
-    public void CloseDialog()
-    {
-      ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
-      InternalCloseDialog();
-    }
-
-    /// <summary>
-    /// Reloads the current window.
-    /// </summary>
-    public void Reload()
-    {
-      InternalCloseCurrentScreenAndDialogs(true);
-
-      Screen currentScreen;
-      lock (_syncRoot)
-      {
-        if (_currentScreen == null)
-          return;
-        string name = _currentScreen.Name;
-        currentScreen = GetScreen(name);
-      }
-      if (currentScreen == null)
-          // Error message was shown in GetScreen()
-        return;
-      InternalShowScreen(currentScreen);
+      SwitchSkinAndTheme(newSkinName, null);
     }
 
     public bool ShowScreen(string screenName)
@@ -607,5 +659,69 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       InternalShowScreen(newScreen);
       return true;
     }
+
+    public void ShowDialog(string dialogName)
+    {
+      ShowDialog(dialogName, null);
+    }
+
+    public void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    {
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
+      InternalShowDialog(dialogName, dialogCloseCallback);
+    }
+
+    public void SetBackgroundLayer(string backgroundName)
+    {
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Setting background screen '{0}'...", backgroundName);
+      // No locking necessary
+      if (backgroundName == null)
+        _backgroundData.Unload();
+      else
+        _backgroundData.Load(backgroundName);
+    }
+
+    public void CloseDialog()
+    {
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: CloseDialog");
+      InternalCloseDialog();
+    }
+
+    public void Reload()
+    {
+      ServiceScope.Get<ILogger>().Debug("ScreenManager: Reload");
+      // Remember all open screens
+      string backgroundName;
+      string screenName;
+      List<string> dialogNamesReverse;
+      lock (_syncRoot)
+      {
+        backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.Name;
+        screenName = _currentScreen.Name;
+        dialogNamesReverse = new List<string>(_dialogStack.Count);
+        foreach (Screen dialog in _dialogStack)
+          dialogNamesReverse.Add(dialog.Name);
+      }
+
+      // Close all
+      InternalCloseCurrentScreenAndDialogs(true);
+
+      // Reload background
+      if (backgroundName != null)
+        _backgroundData.Load(backgroundName);
+
+      // Reload screen
+      Screen screen = GetScreen(screenName);
+      if (screen == null)
+          // Error message was shown in GetScreen()
+        return;
+      InternalShowScreen(screen);
+
+      // Reload dialogs
+      foreach (string dialogName in dialogNamesReverse)
+        InternalShowDialog(dialogName, null);
+    }
+
+    #endregion
   }
 }

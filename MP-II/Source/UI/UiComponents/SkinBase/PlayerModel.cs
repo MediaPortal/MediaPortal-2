@@ -74,7 +74,7 @@ namespace UiComponents.SkinBase
     protected const string MUTE_OFF_RESOURCE = "[Players.MuteOff]";
     protected const string CLOSE_PLAYER_CONTEXT_RESOURCE = "[Players.ClosePlayerContext]";
 
-    protected Timer _timer;
+    protected Timer _timer = null;
 
     protected Property _isVideoInfoVisibleProperty;
     protected Property _isPipVisibleProperty;
@@ -105,6 +105,11 @@ namespace UiComponents.SkinBase
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
       broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived += OnPlayerContextManagerMessageReceived;
+
+      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
+      if (systemStateService.CurrentState == SystemState.Started)
+        StartListening();
+
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
@@ -120,6 +125,8 @@ namespace UiComponents.SkinBase
 
     protected void StartListening()
     {
+      if (_timer != null)
+        return;
       // Setup timer to update the properties
       _timer = new Timer(500);
       _timer.Elapsed += OnTimerElapsed;
@@ -130,20 +137,29 @@ namespace UiComponents.SkinBase
 
     protected void StopListening()
     {
+      if (_timer == null)
+        return;
       _timer.Enabled = false;
       _timer.Elapsed -= OnTimerElapsed;
+      _timer = null;
     }
 
     protected void OnSystemMessageReceived(QueueMessage message)
     {
       SystemMessaging.MessageType messageType =
           (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
-      if (messageType == SystemMessaging.MessageType.SystemStarted)
-        StartListening();
-      else if (messageType == SystemMessaging.MessageType.SystemShutdown)
+      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
       {
-        StopListening();
-        UnsubscribeFromMessages();
+        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
+        switch (state)
+        {
+          case SystemState.Started:
+            StartListening();
+            break;
+          case SystemState.ShuttingDown:
+            Dispose();
+            break;
+        }
       }
     }
 

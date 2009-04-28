@@ -39,6 +39,27 @@ using MediaPortal.Core.Logging;
 
 namespace MediaPortal
 {
+  internal class SystemStateService : ISystemStateService
+  {
+    protected SystemState _state = SystemState.None;
+
+    internal void SwitchSystemState(SystemState newState, bool sendMessage)
+    {
+      _state = newState;
+      if (sendMessage)
+        SystemMessaging.SendSystemStateChangeMessage(_state);
+    }
+
+    #region ISystemStateService implementation
+
+    public SystemState CurrentState
+    {
+      get { return _state; }
+    }
+
+    #endregion
+  }
+
   internal static class ApplicationLauncher
   {
     /// <summary>
@@ -65,6 +86,10 @@ namespace MediaPortal
 
       using (new ServiceScope(true)) //This is the first servicescope
       {
+        SystemStateService systemStateService = new SystemStateService();
+        ServiceScope.Add<ISystemStateService>(systemStateService);
+        systemStateService.SwitchSystemState(SystemState.Initializing, false);
+
         //Check whether the user wants to log method names in the logger
         //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
         bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
@@ -120,11 +145,11 @@ namespace MediaPortal
         skinEngine.Startup(); // 3)
         UiExtension.RegisterDefaultCommandShortcuts();
 
-        SystemMessaging.SendSystemMessage(SystemMessaging.MessageType.SystemStarted);
+        systemStateService.SwitchSystemState(SystemState.Started, true);
 
         Application.Run();
 
-        SystemMessaging.SendSystemMessage(SystemMessaging.MessageType.SystemShutdown);
+        systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
 
         // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
         // 2) Shutdown SkinEngine (Closes all screens, uninstalls background manager, stops render thread)
@@ -138,6 +163,8 @@ namespace MediaPortal
         pluginManager.Shutdown();
         UiExtension.DisposeUiServices();
         ApplicationCore.DisposeCoreServices();
+
+        systemStateService.SwitchSystemState(SystemState.Ending, false);
 #if !DEBUG
         }
         catch (Exception ex)

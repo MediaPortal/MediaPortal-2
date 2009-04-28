@@ -133,6 +133,7 @@
     <Compile Include="Settings\NoSettingsManager.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
     <Compile Include="SystemMessaging.cs" />
+    <Compile Include="ISystemStateService.cs" />
     <Compile Include="TaskScheduler\ITaskScheduler.cs" />
     <Compile Include="TaskScheduler\Task.cs" />
     <Compile Include="TaskScheduler\TaskMessage.cs" />

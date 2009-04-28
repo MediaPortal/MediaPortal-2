@@ -230,7 +230,7 @@ namespace MediaPortal.Core
       T service = Get<T>(false);
       if (service != null)
       {
-        ServiceScope.Remove<T>();
+        Remove<T>();
         IDisposable disposableService = service as IDisposable;
         if (disposableService != null)
           disposableService.Dispose();
@@ -369,7 +369,7 @@ namespace MediaPortal.Core
 			status.Add("== ServiceScope List Start");
 			foreach (KeyValuePair<Type, object> service in services)
 			{
-				status.Add(String.Format("=== Service = {0}, {1}", service.Key.Name, service.Value.ToString()));
+				status.Add(String.Format("=== Service = {0}, {1}", service.Key.Name, service.Value));
 				IStatus info = service.Value as IStatus;
 				if (info != null)
 				{

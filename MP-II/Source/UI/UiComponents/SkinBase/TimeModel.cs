@@ -41,7 +41,7 @@ namespace UiComponents.SkinBase
   {
     #region Protected fields
 
-    protected Timer _timer;
+    protected Timer _timer = null;
 
     protected string _dateFormat = "D";
     protected string _timeFormat = "t";
@@ -56,20 +56,14 @@ namespace UiComponents.SkinBase
 
     public TimeModel()
     {
-      SubscribeToMessages();
       ReadSettings();
       Update();
-
-      // Setup timer to update the time properties
-      _timer = new Timer(500);
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
+      SubscribeToMessages();
     }
 
     public void Dispose()
     {
-      _timer.Elapsed -= OnTimerElapsed;
-      _timer.Enabled = false;
+      StopListening();
       UnsubscribeFromMessages();
     }
 
@@ -77,6 +71,11 @@ namespace UiComponents.SkinBase
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SkinMessaging.Queue).MessageReceived += OnSkinMessageReceived;
+
+      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
+      if (systemStateService.CurrentState == SystemState.Started)
+        StartListening();
+
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
@@ -85,6 +84,25 @@ namespace UiComponents.SkinBase
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SkinMessaging.Queue).MessageReceived -= OnSkinMessageReceived;
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
+    }
+
+    protected void StartListening()
+    {
+      if (_timer != null)
+        return;
+      // Setup timer to update the properties
+      _timer = new Timer(500);
+      _timer.Elapsed += OnTimerElapsed;
+      _timer.Enabled = true;
+    }
+
+    protected void StopListening()
+    {
+      if (_timer == null)
+        return;
+      _timer.Enabled = false;
+      _timer.Elapsed -= OnTimerElapsed;
+      _timer = null;
     }
 
     protected void ReadSettings()
@@ -106,11 +124,20 @@ namespace UiComponents.SkinBase
 
     protected void OnSystemMessageReceived(QueueMessage message)
     {
-      if (((SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE]) ==
-          SystemMessaging.MessageType.SystemShutdown)
+      SystemMessaging.MessageType messageType =
+          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
+      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
       {
-        _timer.Enabled = false;
-        UnsubscribeFromMessages();
+        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
+        switch (state)
+        {
+          case SystemState.Started:
+            StartListening();
+            break;
+          case SystemState.ShuttingDown:
+            Dispose();
+            break;
+        }
       }
     }
 

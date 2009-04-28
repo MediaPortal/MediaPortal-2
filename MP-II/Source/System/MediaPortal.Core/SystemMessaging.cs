@@ -38,28 +38,28 @@ namespace MediaPortal.Core
     public enum MessageType
     {
       /// <summary>
-      /// All initialization has been done, all plugins are loaded.
+      /// The system state changed to the state given in the PARAM parameter.
       /// </summary>
-      SystemStarted,
+      SystemStateChanged,
 
-      /// <summary>
-      /// The system will go down now.
-      /// </summary>
-      SystemShutdown,
+      // TODO: Further events like hibernate, suspend, ...
     }
 
     // Message data
     public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
 
+    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+
     /// <summary>
-    /// Sends a parameterless system message.
+    /// Sends a <see cref="MessageType.SystemStateChanged"/> message.
     /// </summary>
-    /// <param name="type">Type of the message.</param>
-    public static void SendSystemMessage(MessageType type)
+    /// <param name="newState">The state the system will switch to.</param>
+    public static void SendSystemStateChangeMessage(SystemState newState)
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = type;
+      msg.MessageData[MESSAGE_TYPE] = MessageType.SystemStateChanged;
+      msg.MessageData[PARAM] = newState;
       queue.Send(msg);
     }
   }

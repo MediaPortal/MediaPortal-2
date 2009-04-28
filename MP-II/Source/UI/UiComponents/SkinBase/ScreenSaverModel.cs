@@ -42,7 +42,7 @@ namespace UiComponents.SkinBase
   {
     public const string SCREENSAVER_MODEL_ID_STR = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
 
-    protected Timer _timer;
+    protected Timer _timer = null;
 
     protected Property _isScreenSaverActiveProperty;
     protected Property _isMouseUsedProperty;
@@ -53,16 +53,22 @@ namespace UiComponents.SkinBase
       _isMouseUsedProperty = new Property(typeof(bool), false);
 
       SubscribeToMessages();
+    }
 
-      // Setup timer to update the properties
-      _timer = new Timer(100);
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
+    public void Dispose()
+    {
+      StopListening();
+      UnsubscribeFromMessages();
     }
 
     protected void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+
+      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
+      if (systemStateService.CurrentState == SystemState.Started)
+        StartListening();
+
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
@@ -72,21 +78,42 @@ namespace UiComponents.SkinBase
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
     }
 
-    protected void OnSystemMessageReceived(QueueMessage message)
+    protected void StartListening()
     {
-      if (((SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE]) ==
-          SystemMessaging.MessageType.SystemShutdown)
-      {
-        _timer.Enabled = false;
-        UnsubscribeFromMessages();
-      }
+      if (_timer != null)
+        return;
+      // Setup timer to update the properties
+      _timer = new Timer(100);
+      _timer.Elapsed += OnTimerElapsed;
+      _timer.Enabled = true;
     }
 
-    public void Dispose()
+    protected void StopListening()
     {
-      UnsubscribeFromMessages();
-      _timer.Elapsed -= OnTimerElapsed;
+      if (_timer == null)
+        return;
       _timer.Enabled = false;
+      _timer.Elapsed -= OnTimerElapsed;
+      _timer = null;
+    }
+
+    protected void OnSystemMessageReceived(QueueMessage message)
+    {
+      SystemMessaging.MessageType messageType =
+          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
+      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+      {
+        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
+        switch (state)
+        {
+          case SystemState.Started:
+            StartListening();
+            break;
+          case SystemState.ShuttingDown:
+            Dispose();
+            break;
+        }
+      }
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)

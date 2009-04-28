@@ -35,61 +35,9 @@ namespace MediaPortal.Presentation.Screens
   public interface IScreenManager
   {
     /// <summary>
-    /// Shows the specified screen as background layer.
-    /// </summary>
-    /// <param name="backgroundName">Name of a screen to show as background. This will typically be a media
-    /// player or a background image.</param>
-    void SetBackgroundLayer(string backgroundName);
-
-    /// <summary>
-    /// Shows the dialog screen with the specified name.
-    /// </summary>
-    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
-    void ShowDialog(string dialogName);
-
-    /// <summary>
-    /// Shows the dialog screen with the specified name and calls the specified notification
-    /// callback method when the dialog is closed.
-    /// </summary>
-    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
-    /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
-    /// gets closed, or <c>null</c>.</param>
-    void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
-
-    /// <summary>
-    /// Closes the topmost dialog.
-    /// </summary>
-    void CloseDialog();
-
-    /// <summary>
-    /// Shows the specified screen.
-    /// If the screen was not prepared yet, this method will prepare the screen first before
-    /// showing it.
-    /// </summary>
-    /// <param name="screenName">Name of the screen to be shown.</param>
-    bool ShowScreen(string screenName);
-
-    /// <summary>
-    /// Reloads background, screen and all dialogs.
-    /// </summary>
-    void Reload();
-
-    /// <summary>
-    /// Switches the GUI to the specified skin, using the default theme of the skin.
-    /// </summary>
-    /// <param name="newSkinName">Logical name of the skin.</param>
-    void SwitchSkin(string newSkinName);
-
-    /// <summary>
     /// Gets the logical name of the current skin used.
     /// </summary>
     string SkinName { get;}
-
-    /// <summary>
-    /// Switches the GUI to the specified theme.
-    /// </summary>
-    /// <param name="newThemeName">Logical name of the theme.</param>
-    void SwitchTheme(string newThemeName);
 
     /// <summary>
     /// Gets the name of the current theme used.
@@ -110,5 +58,57 @@ namespace MediaPortal.Presentation.Screens
     /// Returns <c>true</c> if a dialog is currently visible, else <c>false</c>.
     /// </summary>
     bool IsDialogVisible { get; }
+
+    /// <summary>
+    /// Switches the GUI to the specified skin, using the default theme of the skin.
+    /// </summary>
+    /// <param name="newSkinName">Logical name of the skin.</param>
+    void SwitchSkin(string newSkinName);
+
+    /// <summary>
+    /// Switches the GUI to the specified theme.
+    /// </summary>
+    /// <param name="newThemeName">Logical name of the theme.</param>
+    void SwitchTheme(string newThemeName);
+
+    /// <summary>
+    /// Shows the specified screen.
+    /// If the screen was not prepared yet, this method will prepare the screen first before
+    /// showing it.
+    /// </summary>
+    /// <param name="screenName">Name of the screen to be shown.</param>
+    bool ShowScreen(string screenName);
+
+    /// <summary>
+    /// Shows the dialog screen with the specified name.
+    /// </summary>
+    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
+    void ShowDialog(string dialogName);
+
+    /// <summary>
+    /// Shows the dialog screen with the specified name and calls the specified notification
+    /// callback method when the dialog is closed.
+    /// </summary>
+    /// <param name="dialogName">The logical screen name of the dialog to show.</param>
+    /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
+    /// gets closed, or <c>null</c>.</param>
+    void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
+
+    /// <summary>
+    /// Shows the specified screen as background layer.
+    /// </summary>
+    /// <param name="backgroundName">Name of a screen to show as background. This will typically be a media
+    /// player or a background image.</param>
+    void SetBackgroundLayer(string backgroundName);
+
+    /// <summary>
+    /// Closes the topmost dialog.
+    /// </summary>
+    void CloseDialog();
+
+    /// <summary>
+    /// Reloads background, current screen and all dialogs.
+    /// </summary>
+    void Reload();
   }
 }
