@@ -195,7 +195,7 @@ namespace UiComponents.SkinBase
           CheckUpdatePlayerConfigurationData();
           break;
         case PlayerManagerMessaging.MessageType.PlayersMuted:
-        case PlayerManagerMessaging.MessageType.PlayersUnmuted:
+        case PlayerManagerMessaging.MessageType.PlayersResetMute:
           CheckUpdatePlayerConfigurationData();
           break;
       }

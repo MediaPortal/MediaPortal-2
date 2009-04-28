@@ -423,7 +423,7 @@ namespace MediaPortal.Services.Players
           if (_isMuted)
             PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersMuted);
           else
-            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersUnmuted);
+            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayersResetMute);
         }
       }
     }

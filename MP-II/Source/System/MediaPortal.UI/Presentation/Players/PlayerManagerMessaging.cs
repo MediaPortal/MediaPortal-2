@@ -101,7 +101,7 @@ namespace MediaPortal.Presentation.Players
       /// <summary>
       /// The mute state was removed.
       /// </summary>
-      PlayersUnmuted,
+      PlayersResetMute,
 
       #endregion
     }
