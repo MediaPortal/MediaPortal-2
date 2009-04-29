@@ -71,7 +71,7 @@ namespace MediaPortal.Services.Players
       PlayerManagerMessaging.MessageType messageType =
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       PlayerContext pc;
-      lock (SyncObj) // Necessary to lock this instance to preserve the right lock order (this first, PCs next)
+      lock (SyncObj)
       {
         int slotIndex;
         switch (messageType)
@@ -90,7 +90,8 @@ namespace MediaPortal.Services.Players
             pc = GetPlayerContextInternal(slotIndex);
             if (pc == null)
               return;
-            // The player message is sent asynchronous, so we have to check the state of the slot again before closing it
+            // The player message is sent asynchronous, so we have to check the state of the slot again to ensure
+            // we close the correct one
             if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               ClosePlayerContext(slotIndex);
             break;

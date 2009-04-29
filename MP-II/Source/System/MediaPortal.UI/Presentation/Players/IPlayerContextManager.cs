@@ -36,17 +36,17 @@ namespace MediaPortal.Presentation.Players
   /// <remarks>
   /// <para>
   /// <b>Functionality:</b><br/>
-  /// While the <see cref="IPlayerManager"/> deals with primary and secondary player slots, the job of this service
-  /// is to provide a more abstract view for the client, it provides typed player contexts and playlists.
+  /// While the <see cref="IPlayerManager"/> deals with primary and secondary player slots, this service
+  /// provides a more abstract view for the client, it deals with typed player contexts and playlists.
   /// The functionality of this component is comprehensive, it deals with the collectivity of all players, while the
-  /// <see cref="IPlayerManager"/>'s functionality is focused to single technical player slots.
+  /// <see cref="IPlayerManager"/>'s functionality is mostly focused to single technical player slots.
   /// This service manages and solves player conflicts (like two audio players at the same time) automatically by
   /// simply closing an old player when a new conflicting player is opened. Non-conflicting players can be played
   /// concurrently.
   /// The technical target player slot (primary/secondary) of a given <see cref="IPlayerContext"/>
   /// is managed almost transparently for the client. There is a rare number of cases where the client needs to cope
-  /// with primary and secondary players, for example when two video players are running, one in PIP mode. In this
-  /// situation, it can be necessary to explicitly exchange the player slots.
+  /// with the set-up of primary and secondary players, for example when two video players are running, one of them as
+  /// PIP player. In that situation, it can be necessary to explicitly exchange the player slots.
   /// </para>
   /// <para>
   /// <b>Playlists</b><br/>
@@ -57,7 +57,8 @@ namespace MediaPortal.Presentation.Players
   /// <b>Thread-Safety:</b><br/>
   /// This class can be called from multiple threads. It synchronizes thread access to its fields via the
   /// <see cref="IPlayerManager.SyncObj"/> instance, which is also exposed by the <see cref="SyncObj"/> property for
-  /// convenience.
+  /// convenience. Player context manager messages are sent asynchronously to clients via the
+  /// message queue <see cref="PlayerContextManagerMessaging.QUEUE"/>.
   /// </para>
   /// </remarks>
   public interface IPlayerContextManager

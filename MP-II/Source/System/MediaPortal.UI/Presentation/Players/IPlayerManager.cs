@@ -29,23 +29,31 @@ namespace MediaPortal.Presentation.Players
   public delegate void PlayerSlotWorkerDelegate(IPlayerSlotController slotController);
 
   /// <summary>
-  /// Slot 0: Primary Video
-  /// Slot 1: Secondary Video
-  /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>. When muted, the
-  /// <see cref="AudioSlotIndex"/> is <c>-1</c>.
-  /// Each slot must be switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
+  /// The player manager deals with primary and secondary player slots, player volume and muting.
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The player manager provides the very technical interface to players. It deals with primary/secondary player,
-  /// player slots, slot activity states. The compontent to manage players at a more user-related level is
-  /// <see cref="IPlayerContextManager"/>, which is based on this component.
+  /// The player manager provides the very technical interface to players. It deals with primary/secondary player
+  /// (players 0 and 1), player slots, slot activity states. The compontent to manage players at a more user-related
+  /// level is <see cref="IPlayerContextManager"/>, which is based on this component.
   /// </para>
+  /// <para>
+  /// From the player manager's point of view, both the primary and the secondary player slot behave the same, except
+  /// that the secondary slot can only be active if the primary slot is active.
+  /// But the application (i.e. the presentation module) will typically use the primary player slot for the fullscreen
+  /// video display, while a video in the secondary player slot will be displayed as a PIP video.
+  /// </para>
+  /// <para>
+  /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>, except when <see cref="Muted"/>
+  /// is set to <c>true</c>.
+  /// Each slot must be switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
   /// <para>
   /// <b>Thread-Safety:</b><br/>
   /// This class can be called from multiple threads. It synchronizes thread access to its fields via its
   /// <see cref="SyncObj"/> instance. Accesses to its contained <see cref="IPlayerSlotController"/>s are
-  /// synchronized also via that <see cref="SyncObj"/>.
+  /// synchronized also via the same <see cref="SyncObj"/> instance.
+  /// Player manager messages are sent asynchronously to clients via the message queue
+  /// <see cref="PlayerManagerMessaging.QUEUE"/>.
   /// </para>
   /// </remarks>
   public interface IPlayerManager : IDisposable

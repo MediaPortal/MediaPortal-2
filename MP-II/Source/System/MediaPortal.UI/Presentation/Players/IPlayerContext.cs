@@ -60,16 +60,16 @@ namespace MediaPortal.Presentation.Players
     /// are gone then.
     /// </summary>
     /// <remarks>
-    /// The return value of this property only has relevance inside a <c>lock</c> statement locking
-    /// the player manager's lock.<br/>
-    /// So to correctly perform a locking operation, it is necessary to execute this sequence:
+    /// The return value of this property only has relevance when evaluated while holding the player manager's lock.<br/>
+    /// So to read the value of this property, it is necessary to execute this sequence:
     /// <code>
     /// IPlayerManager pm = ...;
     /// lock (pm.SyncObj)
-    ///   if (IsValid)
-    ///   {
-    ///     ...
-    ///   }
+    /// {
+    ///   ...
+    ///   [Evaluation of IsValid property]
+    ///   ...
+    /// }
     /// </code>
     /// </remarks>
     bool IsValid { get; }
