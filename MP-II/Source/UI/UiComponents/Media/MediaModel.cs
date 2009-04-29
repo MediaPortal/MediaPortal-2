@@ -310,9 +310,16 @@ namespace UiComponents.Media
         else
           pc = pcm.OpenAudioPlayerContext(AUDIO_PLAYER_CONTEXT_NAME_RESOURCE, concurrent);
       if (mediaType == PlayerContextType.Video)
-        pc.CloseWhenFinished = true;
-      pc.Playlist.Add(item);
-      pc.Play();
+      {
+        // We don't need a playlist when just playing a single video item
+        pc.DoPlay(item);
+        pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
+      }
+      else
+      {
+        pc.Playlist.Add(item);
+        pc.Play();
+      }
     }
 
     protected void ReloadItems()

@@ -41,14 +41,17 @@ namespace UiComponents.SkinBase
 {
   /// <summary>
   /// This model attends the currently-playing and fullscreen-content workflow states for
-  /// Video, Audio and Image media players.
+  /// Video, Audio and Image media players. It is also used as data model for some dialogs to configure
+  /// the players like "DialogPlayerConfiguration" and "DialogChooseAudioStream".
   /// </summary>
   public class PlayerModel : IDisposable, IWorkflowModel
   {
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
 
     public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
+    public const string FULLSCREEN_CONTENT_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
 
+// TODO: To be deleted
     public const string FULLSCREENVIDEO_SCREEN_NAME = "FullScreenVideo";
     public const string FULLSCREENAUDIO_SCREEN_NAME = "FullScreenAudio";
     public const string FULLSCREENPICTURE_SCREEN_NAME = "FullScreenPicture";
@@ -242,7 +245,7 @@ namespace UiComponents.SkinBase
     }
 
     /// <summary>
-    /// Updates the menu items for the dialogs "dialogPlayerConfiguration" and "dialogChooseAudioStream"
+    /// Updates the menu items for the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream"
     /// and closes the dialogs when their entries are not valid any more.
     /// </summary>
     protected void CheckUpdatePlayerConfigurationData()
@@ -291,12 +294,12 @@ namespace UiComponents.SkinBase
         if (playerManager.Muted)
           item = new ListItem(KEY_NAME, MUTE_OFF_RESOURCE)
             {
-                Command = new MethodDelegateCommand(UnmutePlayers)
+                Command = new MethodDelegateCommand(PlayersResetMute)
             };
         else
           item = new ListItem(KEY_NAME, MUTE_RESOURCE)
             {
-                Command = new MethodDelegateCommand(MutePlayers)
+                Command = new MethodDelegateCommand(PlayersMute)
             };
         _playerConfigurationMenu.Add(item);
       }
@@ -413,6 +416,8 @@ namespace UiComponents.SkinBase
       }
     }
 
+    #region Members to be accessed from the GUI
+
     public Property IsVideoInfoVisibleProperty
     {
       get { return _isVideoInfoVisibleProperty; }
@@ -483,13 +488,13 @@ namespace UiComponents.SkinBase
       playerManager.CloseSlot(playerIndex);
     }
 
-    public void MutePlayers()
+    public void PlayersMute()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       playerManager.Muted = true;
     }
 
-    public void UnmutePlayers()
+    public void PlayersResetMute()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       playerManager.Muted = false;
@@ -501,6 +506,12 @@ namespace UiComponents.SkinBase
       playerManager.SwitchSlots();
     }
 
+    public void OpenPlayerConfigurationDialog()
+    {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      screenManager.ShowDialog(PLAYER_CONFIGURATION_DIALOG_NAME);
+    }
+
     public void OpenChooseAudioStreamDialog()
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
@@ -510,8 +521,14 @@ namespace UiComponents.SkinBase
     public void ChooseAudioStream(AudioStreamDescriptor asd)
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       playerContextManager.SetAudioStream(asd);
+      playerManager.Muted = false;
     }
+
+    #endregion
+
+    #region Methods for general play controls
 
     public static void Play()
     {
@@ -599,6 +616,8 @@ namespace UiComponents.SkinBase
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       playerContextManager.ToggleCurrentPlayer();
     }
+
+    #endregion
 
     #region IWorkflowModel implementation
 
