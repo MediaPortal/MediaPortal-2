@@ -139,6 +139,7 @@
     <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
     <Compile Include="Presentation\Screens\IScreenControl.cs" />
     <Compile Include="Presentation\Models\IWorkflowModel.cs" />
+    <Compile Include="Presentation\Models\BaseTimerControlledUIModel.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowContributor.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowManager.cs" />

@@ -36,6 +36,7 @@ namespace UiComponents.SkinBase
   {
     #region Consts
 
+    protected const string MODEL_ID_STR = "9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0";
     protected const string ITEM_ACTION_KEY = "MenuModel: Item-Action";
 
     #endregion

@@ -23,105 +23,41 @@
 #endregion
 
 using System;
-using System.Timers;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
-using Timer=System.Timers.Timer;
 
 namespace UiComponents.SkinBase
 {
   /// <summary>
   /// This model provides information about the screen saver and mouse controls state. It provides a copy of the
-  /// <see cref="IScreenControl.IsScreenSaverActive"/> and <see cref="IScreenControl.IsMouseUsed"/> data, but as
+  /// <see cref="IScreenControl.IsScreenSaverActive"/> and <see cref="IInputManager.IsMouseUsed"/> data, but as
   /// <see cref="Property"/> to enable the screen controls to bind to the data.
   /// </summary>
-  public class ScreenSaverModel : IDisposable
+  public class ScreenSaverModel : BaseTimerControlledUIModel
   {
     public const string SCREENSAVER_MODEL_ID_STR = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
-
-    protected Timer _timer = null;
 
     protected Property _isScreenSaverActiveProperty;
     protected Property _isMouseUsedProperty;
 
-    public ScreenSaverModel()
+    public ScreenSaverModel() : base(100)
     {
       _isScreenSaverActiveProperty = new Property(typeof(bool), false);
       _isMouseUsedProperty = new Property(typeof(bool), false);
 
+      Update();
       SubscribeToMessages();
     }
 
-    public void Dispose()
+    public override Guid ModelId
     {
-      StopListening();
-      UnsubscribeFromMessages();
+      get { return new Guid(SCREENSAVER_MODEL_ID_STR); }
     }
 
-    protected void SubscribeToMessages()
-    {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-
-      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Started)
-        StartListening();
-
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
-    }
-
-    protected void UnsubscribeFromMessages()
-    {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
-    }
-
-    protected void StartListening()
-    {
-      if (_timer != null)
-        return;
-      // Setup timer to update the properties
-      _timer = new Timer(100);
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
-    }
-
-    protected void StopListening()
-    {
-      if (_timer == null)
-        return;
-      _timer.Enabled = false;
-      _timer.Elapsed -= OnTimerElapsed;
-      _timer = null;
-    }
-
-    protected void OnSystemMessageReceived(QueueMessage message)
-    {
-      SystemMessaging.MessageType messageType =
-          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
-      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-      {
-        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-        switch (state)
-        {
-          case SystemState.Started:
-            StartListening();
-            break;
-          case SystemState.ShuttingDown:
-            Dispose();
-            break;
-        }
-      }
-    }
-
-    protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-      Update();
-    }
-
-    protected void Update()
+    protected override void Update()
     {
       IScreenControl screenControl = ServiceScope.Get<IScreenControl>();
       IInputManager inputManager = ServiceScope.Get<IInputManager>();

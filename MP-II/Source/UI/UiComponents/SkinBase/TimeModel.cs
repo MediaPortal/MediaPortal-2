@@ -24,12 +24,12 @@
 
 using System;
 using System.Globalization;
-using System.Timers;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
+using MediaPortal.Presentation.Models;
 using UiComponents.SkinBase.Settings;
 
 namespace UiComponents.SkinBase
@@ -37,11 +37,11 @@ namespace UiComponents.SkinBase
   /// <summary>
   /// Model which provides data for the skin clock.
   /// </summary>
-  public class TimeModel : IDisposable
+  public class TimeModel : BaseTimerControlledUIModel
   {
-    #region Protected fields
+    protected static string MODEL_ID_STR = "E821B1C8-0666-4339-8027-AA45A4F6F107";
 
-    protected Timer _timer = null;
+    #region Protected fields
 
     protected string _dateFormat = "D";
     protected string _timeFormat = "t";
@@ -54,55 +54,26 @@ namespace UiComponents.SkinBase
 
     #endregion
 
-    public TimeModel()
+    public TimeModel() : base(500)
     {
       ReadSettings();
+
       Update();
       SubscribeToMessages();
     }
 
-    public void Dispose()
+    protected override void SubscribeToMessages()
     {
-      StopListening();
-      UnsubscribeFromMessages();
-    }
-
-    protected void SubscribeToMessages()
-    {
+      base.SubscribeToMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SkinMessaging.Queue).MessageReceived += OnSkinMessageReceived;
-
-      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Started)
-        StartListening();
-
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
-    protected void UnsubscribeFromMessages()
+    protected override void UnsubscribeFromMessages()
     {
+      base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SkinMessaging.Queue).MessageReceived -= OnSkinMessageReceived;
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
-    }
-
-    protected void StartListening()
-    {
-      if (_timer != null)
-        return;
-      // Setup timer to update the properties
-      _timer = new Timer(500);
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
-    }
-
-    protected void StopListening()
-    {
-      if (_timer == null)
-        return;
-      _timer.Enabled = false;
-      _timer.Elapsed -= OnTimerElapsed;
-      _timer = null;
     }
 
     protected void ReadSettings()
@@ -122,31 +93,12 @@ namespace UiComponents.SkinBase
         ReadSettings();
     }
 
-    protected void OnSystemMessageReceived(QueueMessage message)
+    public override Guid ModelId
     {
-      SystemMessaging.MessageType messageType =
-          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
-      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-      {
-        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-        switch (state)
-        {
-          case SystemState.Started:
-            StartListening();
-            break;
-          case SystemState.ShuttingDown:
-            Dispose();
-            break;
-        }
-      }
+      get { return new Guid(MODEL_ID_STR); }
     }
 
-    protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-      Update();
-    }
-
-    protected void Update()
+    protected override void Update()
     {
       ILocalization localization = ServiceScope.Get<ILocalization>();
       CultureInfo culture = localization.CurrentCulture;

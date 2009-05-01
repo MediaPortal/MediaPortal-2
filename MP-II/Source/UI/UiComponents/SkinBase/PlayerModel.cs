@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Timers;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
@@ -35,7 +34,6 @@ using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
-using Timer=System.Timers.Timer;
 
 namespace UiComponents.SkinBase
 {
@@ -44,7 +42,7 @@ namespace UiComponents.SkinBase
   /// Video, Audio and Image media players. It is also used as data model for some dialogs to configure
   /// the players like "DialogPlayerConfiguration" and "DialogChooseAudioStream".
   /// </summary>
-  public class PlayerModel : IDisposable, IWorkflowModel
+  public class PlayerModel : BaseTimerControlledUIModel, IWorkflowModel
   {
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
 
@@ -77,8 +75,6 @@ namespace UiComponents.SkinBase
     protected const string MUTE_OFF_RESOURCE = "[Players.MuteOff]";
     protected const string CLOSE_PLAYER_CONTEXT_RESOURCE = "[Players.ClosePlayerContext]";
 
-    protected Timer _timer = null;
-
     protected Property _isVideoInfoVisibleProperty;
     protected Property _isPipVisibleProperty;
 
@@ -89,81 +85,29 @@ namespace UiComponents.SkinBase
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
 
-    public PlayerModel()
+    public PlayerModel() : base(100)
     {
       _isVideoInfoVisibleProperty = new Property(typeof(bool), false);
       _isPipVisibleProperty = new Property(typeof(bool), false);
 
+      Update();
       SubscribeToMessages();
     }
 
-    public void Dispose()
+    protected override void SubscribeToMessages()
     {
-      StopListening();
-      UnsubscribeFromMessages();
-    }
-
-    protected void SubscribeToMessages()
-    {
+      base.SubscribeToMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
       broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived += OnPlayerContextManagerMessageReceived;
-
-      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Started)
-        StartListening();
-
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived += OnSystemMessageReceived;
     }
 
-    protected void UnsubscribeFromMessages()
+    protected override void UnsubscribeFromMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
-      if (broker == null)
-        return;
+      base.UnsubscribeFromMessages();
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
       broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived -= OnPlayerContextManagerMessageReceived;
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived -= OnSystemMessageReceived;
-    }
-
-    protected void StartListening()
-    {
-      if (_timer != null)
-        return;
-      // Setup timer to update the properties
-      _timer = new Timer(500);
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
-
-      CheckVideoInfoVisible();
-    }
-
-    protected void StopListening()
-    {
-      if (_timer == null)
-        return;
-      _timer.Enabled = false;
-      _timer.Elapsed -= OnTimerElapsed;
-      _timer = null;
-    }
-
-    protected void OnSystemMessageReceived(QueueMessage message)
-    {
-      SystemMessaging.MessageType messageType =
-          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
-      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-      {
-        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-        switch (state)
-        {
-          case SystemState.Started:
-            StartListening();
-            break;
-          case SystemState.ShuttingDown:
-            Dispose();
-            break;
-        }
-      }
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
@@ -216,16 +160,12 @@ namespace UiComponents.SkinBase
       }
     }
 
-    protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-      UpdateProperties();
-      CheckVideoInfoVisible();
-    }
-
-    protected void UpdateProperties()
+    protected override void Update()
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IsPipVisible = playerContextManager.IsPipActive;
+
+      CheckVideoInfoVisible();
     }
 
     protected static string GetNameForPlayerContext(IPlayerContextManager playerContextManager, int playerSlot)
@@ -621,7 +561,7 @@ namespace UiComponents.SkinBase
 
     #region IWorkflowModel implementation
 
-    public Guid ModelId
+    public override Guid ModelId
     {
       get { return PLAYER_MODEL_ID; }
     }
