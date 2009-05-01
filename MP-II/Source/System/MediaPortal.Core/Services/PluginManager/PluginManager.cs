@@ -335,7 +335,8 @@ namespace MediaPortal.Core.Services.PluginManager
             e, itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation);
       }
       // Requested item isn't of type T - revoke usage again
-      RevokeItemUsage(itemRegistration, stateTracker);
+      if (itemRegistration.Item != null)
+        RevokeItemUsage(itemRegistration, stateTracker);
       return null;
     }
 
