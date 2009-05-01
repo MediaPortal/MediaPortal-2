@@ -76,9 +76,11 @@ namespace MediaPortal.Core.Services.Messaging
 
     public void Shutdown()
     {
+      ICollection<IMessageQueue> queuesCopy;
       lock (_syncObj)
-        foreach (IMessageQueue queue in _queues.Values)
-          queue.Shutdown();
+        queuesCopy = new List<IMessageQueue>(_queues.Values);
+      foreach (IMessageQueue queue in queuesCopy)
+        queue.Shutdown();
     }
 
     #endregion
