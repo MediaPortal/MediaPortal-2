@@ -338,23 +338,15 @@ namespace MediaPortal.Services.Workflow
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
-      // Adapt number of navigation contexts to be removed if stack doesn't contain enough entries
-      if (_navigationContextStack.Count <= count)
+      logger.Info("WorkflowManager: Trying to remove {0} workflow states from navigation stack...", count);
+      bool stateChangeAccepted = true;
+      for (int i=0; i<count || !stateChangeAccepted; i++)
       {
         if (_navigationContextStack.Count <= 1)
         {
-          logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but we cannot remove the initial state... skipping",
-              count);
+          logger.Info("WorkflowManager: Cannot remove the initial workflow state... We'll break the loop here");
           return false;
         }
-        int newCount = _navigationContextStack.Count - 1;
-        logger.Info("WorkflowManager: Should remove {0} workflow navigation contexts from navigation stack, but there are only {1} contexts available... we'll only remove {2} contexts",
-            count, _navigationContextStack.Count, newCount);
-        count = newCount;
-      }
-      logger.Info("WorkflowManager: Removing {0} workflow states from navigation stack...", count);
-      for (int i=0; i<count; i++)
-      {
         NavigationContext oldContext = _navigationContextStack.Pop();
         NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
         Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
@@ -377,18 +369,24 @@ namespace MediaPortal.Services.Workflow
 
         // - Handle new workflow model
         if (workflowModel != null)
-          if (modelChange)
-          {
-            logger.Debug("WorkflowManager: Reactivating model context with workflow state '{0}' (old state was '{1}') in temporary deactivated workflow model '{2}'",
-                newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
-            workflowModel.ReActivate(oldContext, newContext);
-          }
-          else
-          {
-            logger.Debug("WorkflowManager: Changing model context to workflow state '{0}' (old state was '{1}') in workflow model '{2}'",
-                newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
-            workflowModel.ChangeModelContext(oldContext, newContext, false);
-          }
+        {
+          stateChangeAccepted = workflowModel.CanEnterState(oldContext, newContext);
+          if (stateChangeAccepted)
+            if (modelChange)
+            {
+              logger.Debug("WorkflowManager: Reactivating model context with workflow state '{0}' (old state was '{1}') in temporary deactivated workflow model '{2}'",
+                  newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
+              workflowModel.ReActivate(oldContext, newContext);
+            }
+            else
+            {
+              logger.Debug("WorkflowManager: Changing model context to workflow state '{0}' (old state was '{1}') in workflow model '{2}'",
+                  newContext.WorkflowState.StateId, oldContext.WorkflowState.StateId, workflowModelId.Value);
+              workflowModel.ChangeModelContext(oldContext, newContext, false);
+            }
+        }
+        else
+          stateChangeAccepted = true;
       }
       IterateCache();
       WorkflowManagerMessaging.SendStatesPoppedMessage(count);

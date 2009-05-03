@@ -78,13 +78,17 @@ namespace MediaPortal.Presentation.Models
   /// <para>
   /// In short, the forward navigation produces this method call sequence:
   /// State 1 -> 2:
+  /// <c>configurationModel.CanEnterState([Home], [Settings]);</c>
   /// <c>configurationModel.EnterModelContext([Home], [Settings]);</c>
   /// State 2 -> 3:
+  /// <c>configurationModel.CanEnterState([Settings], [Shares]);</c>
   /// <c>configurationModel.ChangeModelContext([Settings], [Shares]);</c>
   /// State 3 -> 4:
+  /// <c>mediaModel.CanEnterState([Shares], [New share name]);</c>
   /// <c>configurationModel.Deactivate([Shares], [New share name]);</c>
   /// <c>mediaModel.EnterModelContext([Shares], [New share name]);</c>
   /// State 4 -> 5:
+  /// <c>mediaModel.CanEnterState([New share name], [Choose share provider]);</c>
   /// <c>mediaModel.ChangeModelContext([New share name], [Choose share provider]);</c>
   /// ...
   /// </para>
@@ -92,11 +96,14 @@ namespace MediaPortal.Presentation.Models
   /// When navigating back, the inverse methods are called in the inverse sequence:
   /// ...
   /// State 5 -> 4:
+  /// <c>mediaModel.CanEnterState([Choose share provider], [New share name]);</c>
   /// <c>mediaModel.ChangeModelContext([Choose share provider], [New share name]);</c>
   /// State 4 -> 3:
+  /// <c>configurationModel.CanEnterState([New share name], [Shares]);</c>
   /// <c>mediaModel.ExitModelContext([New share name], [Shares]);</c>
   /// <c>configurationModel.ReActivate([New share name], [Shares]);</c>
   /// State 3 -> 2:
+  /// <c>configurationModel.CanEnterState([Shares], [Settings]);</c>
   /// <c>configurationModel.ChangeModelContext([Shares], [Settings]);</c>
   /// State 2 -> 1:
   /// <c>configurationModel.ExitModelContext([Settings], [Home]);</c>
@@ -114,9 +121,21 @@ namespace MediaPortal.Presentation.Models
     /// Requests this model if the specified state change is accepted.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// This method will be called in both cases when this model is already active and
     /// when the model is not active yet. It might be necessary to implement this method if state changes to
     /// the specified <paramref name="newContext"/> state are only valid under special conditions.
+    /// </para>
+    /// <para>
+    /// When <see cref="CanEnterState"/> returns <c>false</c>, states of this workflow model won't be pushed
+    /// onto the navigation context stack.
+    /// When the <paramref name="newContext"/> is already on the navigation context stack, this method will be called
+    /// before reactivating/changing to the <paramref name="newContext"/>. When in that case this method returns
+    /// <c>false</c>, the methods <see cref="ReActivate"/> and <see cref="ChangeModelContext"/> won't be called for
+    /// the rejected <paramref name="newContext"/>. If this method returns <c>false</c> for each of its states being on the
+    /// context stack, only the method <see cref="ExitModelContext"/> will be called for the last remaining navigation context
+    /// on the navigation context stack which contains a state of this model.
+    /// </para>
     /// </remarks>
     /// <param name="oldContext">The old navigation context which is still active.</param>
     /// <param name="newContext">The workflow navigation context which should be entered. This context
@@ -153,8 +172,15 @@ namespace MediaPortal.Presentation.Models
     /// from one attended context to another attended context.
     /// </summary>
     /// <remarks>
+    /// <para>
+    /// Before this method is called, method <see cref="CanEnterState"/> is called for the same parameters
+    /// <paramref name="oldContext"/> and <paramref name="newContext"/>. If it returns <c>false</c> for those
+    /// parameters, this method won't be called, neither in push nor in pop operations.
+    /// </para>
+    /// <para>
     /// This method will be called before the call of <see cref="UpdateMenuActions"/> and the workflow state
     /// might not be the top context onto the workflow context stack yet.
+    /// </para>
     /// </remarks>
     /// <param name="oldContext">The workflow navigation context which was active before the
     /// <paramref name="newContext"/> and which was attended by this model.</param>
@@ -181,8 +207,16 @@ namespace MediaPortal.Presentation.Models
     /// Reactivates the workflow attendance of this workflow model. This means another model, which did
     /// temporary the attendance of the workflow, was exited.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Before this method is called, method <see cref="CanEnterState"/> is called for the same parameters
+    /// <paramref name="oldContext"/> and <paramref name="newContext"/>. If it returns <c>false</c> for those
+    /// parameters, this method won't be called, neither in push nor in pop operations.
+    /// </para>
+    /// <para>
     /// This method will be called before the call of <see cref="UpdateMenuActions"/> and the workflow state
     /// might not be the top context onto the workflow context stack yet.
+    /// </para>
     /// </remarks>
     /// <param name="oldContext">The workflow navigation context which was active before the
     /// <paramref name="newContext"/> and which was attended by another workflow model.</param>
