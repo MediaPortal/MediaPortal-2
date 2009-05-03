@@ -52,14 +52,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   }
 
   [Flags]
-  public enum UIEvent : int
+  public enum UIEvent
   {
     None = 0,
     Hidden = 1,
     Visible = 2,
     OpacityChange = 4,
-    StrokeChange=8,
-    FillChange=16,
+    StrokeChange = 8,
+    FillChange = 16,
   }
 
   public class ZOrderComparer : IComparer<UIElement>
@@ -664,7 +664,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Will make this element scroll the specified <paramref name="childRect"/> in a visible
+    /// Will make this element scroll the specified <paramref name="element"/> in a visible
     /// position inside this element's borders. If this element cannot scroll, it will delegate
     /// the call to its visual parent.
     /// </summary>
@@ -672,22 +672,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// This method will be overridden by classes which can scroll their content. Such a class
     /// will take two actions here:
     /// <list type="bullet">
-    /// <item>Scroll the specified <paramref name="childRect"/> to a visible region inside its borders,
+    /// <item>Scroll the specified <paramref name="element"/> to a visible region inside its borders,
     /// while undoing layout transformations which will be applied to children.</item>
     /// <item>Call this inherited method, which delegates the call to the visual parent.</item>
     /// </list>
     /// </remarks>
-    public virtual void MakeVisible(RectangleF childRect)
+    public virtual void MakeVisible(UIElement element)
     {
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        m.TransformRect(ref childRect);
-      }
       UIElement parent = VisualParent as UIElement;
       if (parent != null)
-        parent.MakeVisible(childRect);
+        parent.MakeVisible(element);
     }
 
     /// <summary>
@@ -1058,7 +1052,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));
     }
 
-    public bool IsNear(double x, double y)
+    public static bool InVisualPath(UIElement check, UIElement child)
+    {
+      Visual current = child;
+      while (current != null)
+        if (ReferenceEquals(check, current))
+          return true;
+        else
+          current = current.VisualParent;
+      return false;
+    }
+
+    public static bool IsNear(double x, double y)
     {
       return Math.Abs(x - y) < 0.01;
     }

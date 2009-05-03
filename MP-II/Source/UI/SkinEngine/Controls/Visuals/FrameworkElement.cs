@@ -220,7 +220,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (HasFocus)
       {
-        MakeVisible(ActualBounds);
+        MakeVisible(this);
         if (Screen != null)
           Screen.FrameworkElementGotFocus(this);
       }
