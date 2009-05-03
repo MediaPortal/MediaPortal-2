@@ -327,16 +327,12 @@
     <Content Include="Skin\default\screens\dialogSettingsRefreshrateDefault.xaml" />
     <Content Include="Skin\default\screens\dialogSettingsSubtitleLanguage.xaml" />
     <Content Include="Skin\default\screens\dialogSubtitles.xaml" />
-    <Content Include="Skin\default\screens\dialogVideoContextMenu.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherLocations.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherRemoveCity.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSearch.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSetup.xaml" />
     <Content Include="Skin\default\screens\dialogZoomModes.xaml" />
-    <Content Include="Skin\default\screens\FullScreenAudio.xaml" />
-    <Content Include="Skin\default\screens\FullScreenPicture.xaml" />
-    <Content Include="Skin\default\screens\FullScreenVideo.xaml" />
     <Content Include="Skin\default\screens\GenericDialog.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />
     <Content Include="Skin\default\screens\imdbresultchoice.xaml" />

@@ -217,6 +217,12 @@ namespace MediaPortal.Presentation.Players
     bool SetAudioStream(AudioStreamDescriptor stream);
 
     /// <summary>
+    /// Switches to the "fullscreen content" workflow state for the primary player.
+    /// </summary>
+    /// <returns><c>true</c>, if the fullscreen content screen could successfully be shown, else <c>false</c></returns>
+    bool PushFullscreenContentWorkflowState();
+
+    /// <summary>
     /// Stops playback of the current player.
     /// </summary>
     void Stop();

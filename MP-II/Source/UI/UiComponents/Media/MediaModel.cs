@@ -191,43 +191,57 @@ namespace UiComponents.Media
       int numVideo = pcm.NumPlayerContextsOfMediaType(PlayerContextType.Video);
       if (mediaType == PlayerContextType.Audio)
       {
-        ListItem playItem = new ListItem(NAME_KEY, PLAY_AUDIO_ITEM_RESOURCE);
-        playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
+        ListItem playItem = new ListItem(NAME_KEY, PLAY_AUDIO_ITEM_RESOURCE)
+          {
+              Command = new MethodDelegateCommand(() => PlayItem(item))
+          };
         _playMenuItems.Add(playItem);
         if (numAudio > 0)
         {
-          ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_AUDIO_ITEM_RESOURCE);
-          enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false));
+          ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_AUDIO_ITEM_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false))
+            };
           _playMenuItems.Add(enqueueItem);
         }
         if (numVideo > 0)
         {
-          ListItem playItemConcurrently = new ListItem(NAME_KEY, MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE);
-          playItemConcurrently.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false));
+          ListItem playItemConcurrently = new ListItem(NAME_KEY, MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false))
+            };
           _playMenuItems.Add(playItemConcurrently);
         }
       }
       else if (mediaType == PlayerContextType.Video)
       {
-        ListItem playItem = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_RESOURCE);
-        playItem.Command = new MethodDelegateCommand(() => PlayItem(item));
+        ListItem playItem = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_RESOURCE)
+          {
+              Command = new MethodDelegateCommand(() => PlayItem(item))
+          };
         _playMenuItems.Add(playItem);
         if (numVideo > 0)
         {
-          ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_VIDEO_ITEM_RESOURCE);
-          enqueueItem.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false));
+          ListItem enqueueItem = new ListItem(NAME_KEY, ENQUEUE_VIDEO_ITEM_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, false, false, false))
+            };
           _playMenuItems.Add(enqueueItem);
         }
         if (numAudio > 0)
         {
-          ListItem playItem_A = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE);
-          playItem_A.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false));
+          ListItem playItem_A = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, false))
+            };
           _playMenuItems.Add(playItem_A);
         }
         if (numVideo > 0)
         {
-          ListItem playItem_V = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_PIP_RESOURCE);
-          playItem_V.Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, true));
+          ListItem playItem_V = new ListItem(NAME_KEY, PLAY_VIDEO_ITEM_PIP_RESOURCE)
+            {
+                Command = new MethodDelegateCommand(() => PlayOrEnqueueItem(item, true, true, true))
+            };
           _playMenuItems.Add(playItem_V);
         }
       }
@@ -314,6 +328,7 @@ namespace UiComponents.Media
         // We don't need a playlist when just playing a single video item
         pc.DoPlay(item);
         pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
+        pcm.PushFullscreenContentWorkflowState();
       }
       else
       {

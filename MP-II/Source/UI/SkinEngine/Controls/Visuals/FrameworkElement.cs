@@ -316,11 +316,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       get
       {
         RectangleF result = ActualBounds;
-        Thickness margin = Margin;
-        result.Y -= margin.Top;
-        result.Height += margin.Top + margin.Bottom;
-        result.X -= margin.Left;
-        result.Width += margin.Left + margin.Right;
+        AddMargin(ref result);
         return result;
       }
     }

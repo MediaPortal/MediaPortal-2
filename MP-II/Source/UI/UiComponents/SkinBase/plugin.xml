@@ -28,11 +28,11 @@
   </Register>
 
   <Register Location="/Resources/Language">
-    <Resource Id="DefaultLanguage" Directory="Language" Type="Language"/>
+    <Resource Id="SkinBaseLanguage" Directory="Language" Type="Language"/>
   </Register>
 
   <Register Location="/Resources/Skin">
-    <Resource Id="DefaultSkin" Directory="Skin" Type="Skin"/>
+    <Resource Id="DefaultSkinBaseSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
   <!-- Root Sections -->

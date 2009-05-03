@@ -27,6 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Presentation.Players;
+using MediaPortal.Presentation.Workflow;
 
 namespace MediaPortal.Services.Players
 {
@@ -96,6 +97,16 @@ namespace MediaPortal.Services.Players
         return null;
       lock (SyncObj)
         return psc.IsActive ? psc.CurrentPlayer : null;
+    }
+
+    public bool PushFullscreenContentWorkflowState()
+    {
+      IPlayer player = GetCurrentPlayer();
+      if (player == null)
+        return false;
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(player.FullscreenContentWorkflowStateId);
+      return true;
     }
 
     #region IPlayerContext implementation
@@ -197,6 +208,16 @@ namespace MediaPortal.Services.Players
           return result;
       }
       return null;
+    }
+
+    public bool PushCurrentlyPlayingWorkflowState()
+    {
+      IPlayer player = GetCurrentPlayer();
+      if (player == null)
+        return false;
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(player.CurrentlyPlayingWorkflowStateId);
+      return true;
     }
 
     public void Stop()

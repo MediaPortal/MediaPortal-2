@@ -4,13 +4,5 @@
   <States>
     <State Id="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         Name="Home" MainScreen="home"/> <!-- No workflow model -->
-
-    <State Id="5764A810-F298-4a20-BF84-F03D16F775B1"
-        Name="CurrentlyPlaying"
-        WorkflowModel="A2F24149-B44C-498b-AE93-288213B87A1A"/> <!-- Workflow model = Player model -->
-
-    <State Id="882C1142-8028-4112-A67D-370E6E483A33"
-        Name="FullscreenContent"
-        WorkflowModel="A2F24149-B44C-498b-AE93-288213B87A1A"/> <!-- Workflow model = Player model -->
   </States>
 </Workflow>

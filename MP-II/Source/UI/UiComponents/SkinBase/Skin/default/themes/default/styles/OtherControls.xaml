@@ -357,7 +357,7 @@
   </DataTemplate>
 
   <!-- Data template for a share entry markable with a radio button -->
-  <DataTemplate x:Key="DafaultSingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+  <DataTemplate x:Key="DefaultSingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ParentPanel">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -446,7 +446,7 @@
 
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SingleMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DafaultSingleMarkableItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultSingleMarkableItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>

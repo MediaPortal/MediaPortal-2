@@ -55,6 +55,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected string _name;
     protected State _state = State.Running;
+    protected RectangleF _lastFocusRect = new RectangleF();
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at
@@ -360,6 +361,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         RemoveCurrentFocus();
         _focusedElement = focusedElement;
+        _lastFocusRect = focusedElement.ActualBounds;
         _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
       }
     }
@@ -371,7 +373,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// <param name="key">A key which was pressed.</param>
     protected void UpdateFocus(ref Key key)
     {
-      FrameworkElement cntl = PredictFocus(FocusedElement == null ? new RectangleF?() :
+      FrameworkElement cntl = PredictFocus(FocusedElement == null ? _lastFocusRect :
           FocusedElement.ActualBounds, key);
       if (cntl != null)
       {

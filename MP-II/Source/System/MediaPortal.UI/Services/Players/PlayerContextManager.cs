@@ -448,6 +448,12 @@ namespace MediaPortal.Services.Players
       }
     }
 
+    public bool PushFullscreenContentWorkflowState()
+    {
+      PlayerContext pc = GetPlayerContextInternal(PlayerManagerConsts.PRIMARY_SLOT);
+      return pc != null && pc.PushFullscreenContentWorkflowState();
+    }
+
     public void Stop()
     {
       IPlayerContext playerContext = CurrentPlayerContext;

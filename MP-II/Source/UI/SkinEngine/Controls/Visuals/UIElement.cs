@@ -305,7 +305,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Margin = copyManager.GetCopy(el.Margin);
       Visibility = copyManager.GetCopy(el.Visibility);
       IsEnabled = copyManager.GetCopy(el.IsEnabled);
-      // FIXME Albert78: Implement Freezing
+      // TODO Albert78: Implement Freezing
       Freezable = copyManager.GetCopy(el.Freezable);
       Opacity = copyManager.GetCopy(el.Opacity);
       Loaded = copyManager.GetCopy(el.Loaded);
@@ -606,6 +606,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Adds this element's margin to the specified <paramref name="rect"/>.
+    /// </summary>
+    /// <param name="rect">Inner element's rectangle where the margin will be added.</param>
+    public void AddMargin(ref RectangleF rect)
+    {
+      AddMargin(ref rect, Margin);
+    }
+
+    /// <summary>
     /// Removes this element's margin from the specified <param name="size"/> parameter.
     /// </summary>
     /// <remarks>
@@ -633,6 +642,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         size.Width += (margin.Left + margin.Right) * SkinContext.Zoom.Width;
       if (!float.IsNaN(size.Height))
         size.Height += (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
+    }
+
+    public static void AddMargin(ref RectangleF rect, Thickness margin)
+    {
+      rect.X -= margin.Left * SkinContext.Zoom.Width;
+      rect.Y -= margin.Top * SkinContext.Zoom.Height;
+
+      rect.Width += (margin.Left + margin.Right) * SkinContext.Zoom.Width;
+      rect.Height += (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
     }
 
     public static void RemoveMargin(ref SizeF size, Thickness margin)

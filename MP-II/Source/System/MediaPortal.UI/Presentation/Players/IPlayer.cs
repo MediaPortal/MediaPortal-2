@@ -52,8 +52,6 @@ namespace MediaPortal.Presentation.Players
   /// small amount of time to present their content, maybe 3 seconds). The reason is, when used in a playlist,
   /// this media contents will also be shown for their desired <see cref="Duration"/>, for example pictures will
   /// be shown as slideshow.
-  /// <i>FIXME: Hint: This interface and its sub interfaces are still being subject to change during the
-  /// rework of the players subsystem.</i>
   /// </remarks>
   public interface IPlayer
   {
@@ -66,6 +64,16 @@ namespace MediaPortal.Presentation.Players
     /// Returns a unique id for this player.
     /// </summary>
     Guid PlayerId { get; }
+
+    /// <summary>
+    /// Returns the id of an workflow state which provides the "currently playing" functionality for this player.
+    /// </summary>
+    Guid CurrentlyPlayingWorkflowStateId { get; }
+
+    /// <summary>
+    /// Returns the id of an workflow state which provides the "fullscreen content" functionality for this player.
+    /// </summary>
+    Guid FullscreenContentWorkflowStateId { get; }
 
     /// <summary>
     /// Gets the playback state of this player.

@@ -155,6 +155,15 @@ namespace MediaPortal.Presentation.Players
     object GetContextVariable(string key);
 
     /// <summary>
+    /// Switches to the "currently playing" workflow state for the player of this player context.
+    /// </summary>
+    /// <returns><c>true</c>, if the currently playing screen could successfully be shown, else <c>false</c></returns>
+    bool PushCurrentlyPlayingWorkflowState();
+
+    // Fullscreen content workflow state can only be shown by the PlayerContextManager, because the FSC screen can only
+    // be shown for the primary player
+
+    /// <summary>
     /// Stops playback of the current player.
     /// </summary>
     void Stop();
