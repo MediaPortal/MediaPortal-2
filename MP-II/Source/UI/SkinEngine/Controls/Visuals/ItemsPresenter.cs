@@ -25,7 +25,6 @@
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.SkinEngine.InputManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -42,6 +41,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected char _startsWith = ' ';
     protected int _startsWithIndex = 0;
     protected Panel _itemsHostPanel = null;
+    protected bool _canScroll = false;
 
     #endregion
 
@@ -55,9 +55,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ItemsPresenter ip = (ItemsPresenter) source;
       _itemsHostPanel = copyManager.GetCopy(ip._itemsHostPanel);
+      _canScroll = copyManager.GetCopy(ip._canScroll);
+      UpdateCanScroll();
     }
 
     #endregion
+
+    protected void UpdateCanScroll()
+    {
+      IScrollInfo si = _itemsHostPanel as IScrollInfo;
+      if (si != null)
+        si.CanScroll = _canScroll;
+    }
 
     public void ApplyTemplate(FrameworkTemplate template)
     {
@@ -65,6 +74,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ct.AddChild(template.LoadContent());
       Template = ct;
       _itemsHostPanel = TemplateControl.FindElement(ItemsHostFinder.Instance) as Panel;
+      UpdateCanScroll();
     }
 
     public Panel ItemsHostPanel
@@ -117,7 +127,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// is not contained in a sub scrollviewer. This is necessary for this scrollviewer to
     /// handle the focus scrolling keys in this scope.
     /// </summary>
-    bool CheckFocusInScope()
+    private bool CheckFocusInScope()
     {
       Visual focusPath = Screen == null ? null : Screen.FocusedElement;
       while (focusPath != null)
@@ -232,16 +242,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public bool CanScroll
     {
-      get
-      {
-        IScrollInfo si = _itemsHostPanel as IScrollInfo;
-        return si == null ? false : si.CanScroll;
-      }
+      get { return _canScroll; }
       set
       {
-        IScrollInfo si = _itemsHostPanel as IScrollInfo;
-        if (si != null)
-          si.CanScroll = value;
+        _canScroll = value;
+        UpdateCanScroll();
       }
     }
 

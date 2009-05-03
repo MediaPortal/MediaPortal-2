@@ -178,9 +178,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       if (LayoutTransform != null)
         SkinContext.RemoveLayoutTransform();
 
-      if (_canScroll)
-        // If we are able to scroll, we only need the biggest child control dimensions
-        _desiredSize = minSize;
       SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
 
       totalSize = _desiredSize;
@@ -217,33 +214,37 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         {
           case Orientation.Vertical:
             {
-              // Try to correct scroll offset (when scrolled by _scrollOffset, we might have space left)
-              float spaceLeft = bounds.Height;
-              for (int i = visibleChildrenCount-1; i >= 0; i--)
-              {
-                FrameworkElement child = visibleChildren[i];
-                spaceLeft -= child.TotalDesiredSize().Height;
-                if (spaceLeft < 0)
-                  break; // Nothing to correct
-                if (_scrollOffset > i)
-                  // This child also fits into range
-                  _scrollOffset = i;
-              }
               const float startPositionX = 0;
               float startPositionY = 0;
-              // Calculate start position
-              for (int i = 0; i < _scrollOffset; i++)
+              if (_canScroll)
               {
-                FrameworkElement child = visibleChildren[i];
-                startPositionY -= child.TotalDesiredSize().Height;
+                // Try to correct scroll offset (when scrolled by _scrollOffset, we might have space left)
+                float spaceLeft = bounds.Height;
+                for (int i = visibleChildrenCount - 1; i >= 0; i--)
+                {
+                  FrameworkElement child = visibleChildren[i];
+                  spaceLeft -= child.TotalDesiredSize().Height;
+                  if (spaceLeft < 0)
+                    break; // Nothing to correct
+                  if (_scrollOffset > i)
+                    // This child also fits into range
+                    _scrollOffset = i;
+                }
+                // Calculate start position
+                for (int i = 0; i < _scrollOffset; i++)
+                {
+                  FrameworkElement child = visibleChildren[i];
+                  startPositionY -= child.TotalDesiredSize().Height;
+                }
               }
-              int numVisible = 0;
+              else
+                _scrollOffset = 0;
               _actualLastVisibleChild = -1;
               for (int i = 0; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
-                if (startPositionY + childSize.Height <= bounds.Height && numVisible > 1)
+                if (!_canScroll || (i >= _scrollOffset && startPositionY + childSize.Height <= bounds.Height))
                   _actualLastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
@@ -254,9 +255,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 ArrangeChildHorizontal(child, ref location, ref childSize);
 
                 child.Arrange(new RectangleF(location, childSize));
-                _totalWidth = Math.Max(_totalWidth, (float) child.ActualWidth);
-                _totalHeight += (float) child.ActualHeight;
-                numVisible++;
+                _totalWidth = Math.Max(_totalWidth, child.ActualTotalBounds.Width);
+                _totalHeight += child.ActualTotalBounds.Height;
 
                 startPositionY += childSize.Height;
               }
@@ -265,33 +265,37 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
           case Orientation.Horizontal:
             {
-              // Try to correct scroll offset (when scrolled by _scrollOffset, we might have space left)
-              float spaceLeft = bounds.Width;
-              for (int i = visibleChildrenCount - 1; i >= 0; i--)
-              {
-                FrameworkElement child = visibleChildren[i];
-                spaceLeft -= child.TotalDesiredSize().Width;
-                if (spaceLeft < 0)
-                  break; // Nothing to correct
-                if (_scrollOffset > i)
-                  // This child also fits into range
-                  _scrollOffset = i;
-              }
               float startPositionX = 0;
               const float startPositionY = 0;
-              // Calculate start position
-              for (int i = 0; i < _scrollOffset; i++)
+              if (_canScroll)
               {
-                FrameworkElement child = visibleChildren[i];
-                startPositionX -= child.TotalDesiredSize().Width;
+                // Try to correct scroll offset (when scrolled by _scrollOffset, we might have space left)
+                float spaceLeft = bounds.Width;
+                for (int i = visibleChildrenCount - 1; i >= 0; i--)
+                {
+                  FrameworkElement child = visibleChildren[i];
+                  spaceLeft -= child.TotalDesiredSize().Width;
+                  if (spaceLeft < 0)
+                    break; // Nothing to correct
+                  if (_scrollOffset > i)
+                    // This child also fits into range
+                    _scrollOffset = i;
+                }
+                // Calculate start position
+                for (int i = 0; i < _scrollOffset; i++)
+                {
+                  FrameworkElement child = visibleChildren[i];
+                  startPositionX -= child.TotalDesiredSize().Width;
+                }
               }
-              int numVisible = 0;
+              else
+                _scrollOffset = 0;
               _actualLastVisibleChild = -1;
               for (int i = _scrollOffset; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
-                if (startPositionX + childSize.Width <= bounds.Width && numVisible > 1)
+                if (!_canScroll || (i >= _scrollOffset && startPositionX + childSize.Width <= bounds.Width))
                   _actualLastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
@@ -302,9 +306,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 ArrangeChildHorizontal(child, ref location, ref childSize);
 
                 child.Arrange(new RectangleF(location, childSize));
-                _totalHeight = Math.Max(_totalHeight, (float) child.ActualHeight);
-                _totalWidth += (float) child.ActualWidth;
-                numVisible++;
+                _totalHeight = Math.Max(_totalHeight, child.ActualTotalBounds.Height);
+                _totalWidth += child.ActualTotalBounds.Width;
 
                 startPositionX += childSize.Width;
               }
@@ -382,6 +385,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     public override void MakeVisible(UIElement element)
     {
       base.MakeVisible(this);
+      if (!_canScroll)
+        return;
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
       int index = 0;
       foreach (FrameworkElement currentChild in visibleChildren)
@@ -414,11 +419,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           if (!element.IsVisible) 
             continue;
           RectangleF elementBounds = element.ActualBounds;
-          // Don't render elements which are not visible
-          if (elementBounds.Right > bounds.Right) continue;
-          if (elementBounds.Left < bounds.Left) continue;
-          if (elementBounds.Top < bounds.Top) continue;
-          if (elementBounds.Bottom > bounds.Bottom) continue;
+          if (_canScroll)
+          {
+            // Don't render elements which are not visible, if we can scroll
+            if (elementBounds.Right > bounds.Right) continue;
+            if (elementBounds.Left < bounds.Left) continue;
+            if (elementBounds.Top < bounds.Top) continue;
+            if (elementBounds.Bottom > bounds.Bottom) continue;
+          }
           element.Render();
         }
       }
@@ -658,7 +666,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public float ViewPortStartX
     {
-      get { return Children.Count == 0 ? 0 : (Children[_scrollOffset].ActualPosition.X - ActualPosition.X); }
+      get
+      {
+        float spaceBefore = 0;
+        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+        for (int i = 0; i < _scrollOffset; i++)
+          spaceBefore += visibleChildren[i].TotalDesiredSize().Width;
+        return spaceBefore;
+      }
     }
 
     public float ViewPortHeight
@@ -668,31 +683,55 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public float ViewPortStartY
     {
-      get { return Children.Count == 0 ? 0 : (Children[_scrollOffset].ActualPosition.Y - ActualPosition.Y); }
+      get
+      {
+        float spaceBefore = 0;
+        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+        for (int i = 0; i < _scrollOffset; i++)
+          spaceBefore += visibleChildren[i].TotalDesiredSize().Height;
+        return spaceBefore;
+      }
     }
 
     public bool IsViewPortAtTop
     {
-      get { return Orientation == Panels.Orientation.Horizontal || Children.Count == 0 ? true :
-          (Children[_scrollOffset].ActualPosition.Y >= ActualPosition.Y); }
+      get
+      {
+        if (Orientation == Panels.Orientation.Horizontal)
+          return true;
+        return _scrollOffset == 0;
+      }
     }
 
     public bool IsViewPortAtBottom
     {
-      get { return Orientation == Panels.Orientation.Horizontal || Children.Count == 0 ? true :
-          (((FrameworkElement) Children[_actualLastVisibleChild]).ActualBounds.Bottom <= ActualBounds.Bottom); }
+      get
+      {
+        if (Orientation == Panels.Orientation.Horizontal)
+          return true;
+        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+        return _actualLastVisibleChild == visibleChildren.Count - 1;
+      }
     }
 
     public bool IsViewPortAtLeft
     {
-      get { return Orientation == Panels.Orientation.Vertical || Children.Count == 0 ? true :
-          (Children[_scrollOffset].ActualPosition.X >= ActualPosition.X); }
+      get
+      {
+        if (Orientation == Panels.Orientation.Vertical)
+          return true;
+        return _scrollOffset == 0;
+      }
     }
 
     public bool IsViewPortAtRight
     {
-      get { return Orientation == Panels.Orientation.Vertical || Children.Count == 0 ? true :
-          (((FrameworkElement) Children[_actualLastVisibleChild]).ActualBounds.Right <= ActualBounds.Right);
+      get
+      {
+        if (Orientation == Panels.Orientation.Vertical)
+          return true;
+        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+        return _actualLastVisibleChild == visibleChildren.Count - 1;
       }
     }
 

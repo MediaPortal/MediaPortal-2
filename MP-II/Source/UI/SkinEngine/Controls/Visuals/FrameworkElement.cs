@@ -308,6 +308,23 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
     }
 
+    /// <summary>
+    /// Computes the actual bounds plus <see cref="UIElement.Margin"/>.
+    /// </summary>
+    public RectangleF ActualTotalBounds
+    {
+      get
+      {
+        RectangleF result = ActualBounds;
+        Thickness margin = Margin;
+        result.Y -= margin.Top;
+        result.Height += margin.Top + margin.Bottom;
+        result.X -= margin.Left;
+        result.Width += margin.Left + margin.Right;
+        return result;
+      }
+    }
+
     public Property HorizontalAlignmentProperty
     {
       get { return _horizontalAlignmentProperty; }

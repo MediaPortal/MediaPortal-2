@@ -310,9 +310,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (templateControl != null)
       {
         templateControl.Arrange(layoutRect);
-        ActualPosition = templateControl.ActualPosition;
-        ActualWidth = templateControl.ActualWidth;
-        ActualHeight = templateControl.ActualHeight;
+        ActualBounds = templateControl.ActualTotalBounds; // Need to add 
       }
 
       if (LayoutTransform != null)

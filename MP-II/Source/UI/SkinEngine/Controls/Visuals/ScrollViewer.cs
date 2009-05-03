@@ -106,7 +106,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return;
       float totalWidth = Math.Max(1, scrollInfo.TotalWidth);
       float totalHeight = Math.Max(1, scrollInfo.TotalHeight);
-      float scrollAreaWidth = (float)scp.ActualWidth;
+      float scrollAreaWidth = (float) scp.ActualWidth;
       float scrollAreaHeight = (float) scp.ActualHeight;
       ScrollBarXKnobWidth = Math.Min(scrollAreaWidth, Math.Max(
           scrollInfo.ViewPortWidth / totalWidth * scrollAreaWidth, SCROLLBAR_MINLENGTH));

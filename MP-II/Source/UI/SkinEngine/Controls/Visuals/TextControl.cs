@@ -399,8 +399,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       float y = ActualPosition.Y;
       float x = ActualPosition.X;
-      float w = (float)ActualWidth;
-      float h = (float)ActualHeight;
+      float w = (float) ActualWidth;
+      float h = (float) ActualHeight;
       if (_finalLayoutTransform != null)
       {
         GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
