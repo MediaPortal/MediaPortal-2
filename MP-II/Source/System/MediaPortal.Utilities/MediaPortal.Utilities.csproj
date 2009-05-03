@@ -108,7 +108,6 @@
     <Compile Include="StringUtils.cs" />
     <Compile Include="SystemAPI\WindowsAPI.cs" />
     <Compile Include="Versions.cs" />
-    <Compile Include="Win32\EnvironmentUtils.cs" />
     <Compile Include="Win32\Win32API.cs" />
     <Compile Include="Win32\Window.cs" />
     <Compile Include="Xml\XmlNoNamespaceWriter.cs" />
