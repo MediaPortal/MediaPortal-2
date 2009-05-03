@@ -157,13 +157,6 @@
     <Compile Include="Presentation\DataObjects\StaticStringBuilder.cs" />
     <Compile Include="Presentation\DataObjects\IResourceString.cs" />
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
-    <Compile Include="Services\Burning\Burner.cs" />
-    <Compile Include="Services\Burning\BurnManager.cs" />
-    <Compile Include="Services\Burning\DeviceHelper.cs" />
-    <Compile Include="Services\Burning\DriveFeatures.cs" />
-    <Compile Include="Services\Burning\EventHelper.cs" />
-    <Compile Include="Services\Burning\MediaInfo.cs" />
-    <Compile Include="Services\Burning\MediaTypeSupport.cs" />
     <Compile Include="Services\Localization\LocalizationStrings.cs" />
     <Compile Include="Services\Localization\StringManager.cs" />
     <Compile Include="Services\Logging\CrashLogger.cs" />
