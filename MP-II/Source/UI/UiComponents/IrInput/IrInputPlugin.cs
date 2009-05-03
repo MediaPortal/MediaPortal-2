@@ -48,10 +48,10 @@ namespace UiComponents.IrInput
   {
     #region Variables
 
-    protected ICollection<MappedKeyCode> _mappedKeyCodes = null;
+    protected ICollection<MappedKeyCode> _mappedKeyCodes;
     protected Client _client;
 
-    IRServerInfo _irServerInfo;
+    protected IRServerInfo _irServerInfo;
 
     #endregion Variables
 
@@ -152,10 +152,20 @@ namespace UiComponents.IrInput
       try
       {
         // FIXME Albert: See why some areas are commented out here
+        // CHEFKOCH: IRserver is able to send (blast) ir commands
         switch (received.Type)
         {
           case MessageType.RemoteEvent:
-            RemoteHandler(received.GetDataAsString());
+            // RemoteHandler(received.GetDataAsString());
+            // CHEFKOCH:
+            // using the code from irss
+            byte[] data = received.GetDataAsBytes();
+            int deviceNameSize = BitConverter.ToInt32(data, 0);
+            string deviceName = System.Text.Encoding.ASCII.GetString(data, 4, deviceNameSize);
+            int keyCodeSize = BitConverter.ToInt32(data, 4 + deviceNameSize);
+            string keyCode = System.Text.Encoding.ASCII.GetString(data, 8 + deviceNameSize, keyCodeSize);
+
+            RemoteHandler(keyCode);
             break;
           /*
           case MessageType.BlastIR:
@@ -231,6 +241,8 @@ namespace UiComponents.IrInput
 
       foreach (MappedKeyCode mapped in _mappedKeyCodes)
       {
+        ServiceScope.Get<ILogger>().Debug("MappedKeyCode: Code '{0}' Key '{1}' Key_Name '{2}'", mapped.Code, mapped.Key, mapped.Key_Name);
+
         if (mapped.Code == remoteButton)
         {
           inputManager.KeyPress(mapped.Key);

@@ -1,72 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ArrayOfMappedKeyCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
-  <MappedKeyCode Key="S:None" Code="31642" /> <!-- No assigment for PowerTV button -->
+  <MappedKeyCode Key="S:None" Code="Power" /> <!-- No assigment for PowerTV button -->
 
-  <MappedKeyCode Key="S:Power" Code="31731" />
-  <MappedKeyCode Key="S:Back" Code="31708" />
-  <MappedKeyCode Key="S:Ok" Code="31709" />
-  <MappedKeyCode Key="S:Start" Code="31730" />
+  <MappedKeyCode Key="S:Power" Code="Power2" />
+  <MappedKeyCode Key="S:Back" Code="Back" />
+  <MappedKeyCode Key="S:Ok" Code="OK" />
+  <MappedKeyCode Key="S:Start" Code="Start" />
 
-  <MappedKeyCode Key="S:RecordedTV" Code="31671" />
-  <MappedKeyCode Key="S:Guide" Code="31705" />
-  <MappedKeyCode Key="S:LiveTV" Code="31706" />
-  <MappedKeyCode Key="S:DVDMenu" Code="31707" />
+  <MappedKeyCode Key="S:RecordedTV" Code="RecordedTV" />
+  <MappedKeyCode Key="S:Guide" Code="Guide" />
+  <MappedKeyCode Key="S:LiveTV" Code="LiveTV" />
+  <MappedKeyCode Key="S:DVDMenu" Code="DVD" />
 
-  <MappedKeyCode Key="S:VolumeUp" Code="31727" />
-  <MappedKeyCode Key="S:VolumeDown" Code="31726" />
-  <MappedKeyCode Key="S:Mute" Code="31729" />
+  <MappedKeyCode Key="S:VolumeUp" Code="VolumeUp" />
+  <MappedKeyCode Key="S:VolumeDown" Code="VolumeDown" />
+  <MappedKeyCode Key="S:Mute" Code="Mute" />
 
-  <MappedKeyCode Key="S:ChannelUp" Code="31725" />
-  <MappedKeyCode Key="S:ChannelDown" Code="31724" />
+  <MappedKeyCode Key="S:ChannelUp" Code="ChannelUp" />
+  <MappedKeyCode Key="S:ChannelDown" Code="ChannelDown" />
 
-  <MappedKeyCode Key="S:Up" Code="31713" />
-  <MappedKeyCode Key="S:Down" Code="31712" />
-  <MappedKeyCode Key="S:Left" Code="31711" />
-  <MappedKeyCode Key="S:Right" Code="31710" />
-  <MappedKeyCode Key="S:PageDown" Code="31724" />
-  <MappedKeyCode Key="S:PageUp" Code="31725" />
-  <MappedKeyCode Key="S:Info" Code="31728" />
+  <MappedKeyCode Key="S:Up" Code="Up" />
+  <MappedKeyCode Key="S:Down" Code="Down" />
+  <MappedKeyCode Key="S:Left" Code="Left" />
+  <MappedKeyCode Key="S:Right" Code="Right" />
+  <MappedKeyCode Key="S:PageDown" Code="ChannelDown" />
+  <MappedKeyCode Key="S:PageUp" Code="ChannelUp" />
+  <MappedKeyCode Key="S:Info" Code="Info" />
 
-  <MappedKeyCode Key="S:Stop" Code="31718" />
-  <MappedKeyCode Key="S:Pause" Code="31719" />
-  <MappedKeyCode Key="S:Record" Code="31720" />
-  <MappedKeyCode Key="S:Play" Code="31721" />
-  <MappedKeyCode Key="S:Rewind" Code="31722" />
-  <MappedKeyCode Key="S:Forward" Code="31723" />
-  <MappedKeyCode Key="S:None" Code="31716" /> <!-- No assignment for Replay button -->
-  <MappedKeyCode Key="S:None" Code="31717" /> <!-- No assignment for Skip button -->
+  <MappedKeyCode Key="S:Stop" Code="Stop" />
+  <MappedKeyCode Key="S:Pause" Code="Pause" />
+  <MappedKeyCode Key="S:Record" Code="Record" />
+  <MappedKeyCode Key="S:Play" Code="Play" />
+  <MappedKeyCode Key="S:Rewind" Code="Rewind" />
+  <MappedKeyCode Key="S:Forward" Code="FastForward" />
+  <MappedKeyCode Key="S:None" Code="PreviousChapter" /> <!-- No assignment for Replay button -->
+  <MappedKeyCode Key="S:None" Code="NextChapter" /> <!-- No assignment for Skip button -->
 
-  <MappedKeyCode Key="P:0" Code="31743" />
-  <MappedKeyCode Key="P:1" Code="31742" />
-  <MappedKeyCode Key="P:2" Code="31741" />
-  <MappedKeyCode Key="P:3" Code="31740" />
-  <MappedKeyCode Key="P:4" Code="31739" />
-  <MappedKeyCode Key="P:5" Code="31738" />
-  <MappedKeyCode Key="P:6" Code="31737" />
-  <MappedKeyCode Key="P:7" Code="31736" />
-  <MappedKeyCode Key="P:8" Code="31735" />
-  <MappedKeyCode Key="P:9" Code="31734" />
+  <MappedKeyCode Key="P:0" Code="Number0" />
+  <MappedKeyCode Key="P:1" Code="Number1" />
+  <MappedKeyCode Key="P:2" Code="Number2" />
+  <MappedKeyCode Key="P:3" Code="Number3" />
+  <MappedKeyCode Key="P:4" Code="Number4" />
+  <MappedKeyCode Key="P:5" Code="Number5" />
+  <MappedKeyCode Key="P:6" Code="Number6" />
+  <MappedKeyCode Key="P:7" Code="Number7" />
+  <MappedKeyCode Key="P:8" Code="Number8" />
+  <MappedKeyCode Key="P:9" Code="Number9" />
+  <MappedKeyCode Key="S:None" Code="Star" /> <!-- What is Oem8? -->
+  <MappedKeyCode Key="S:None" Code="Hash" /> <!-- What is OemGate? -->
 
-  <MappedKeyCode Key="S:None" Code="31714" /> <!-- What is Oem8? -->
-  <MappedKeyCode Key="S:None" Code="31715" /> <!-- What is OemGate? -->
+  <MappedKeyCode Key="S:Clear" Code="Clear" />
+  <MappedKeyCode Key="S:Enter" Code="Enter" />
 
-  <MappedKeyCode Key="S:Clear" Code="31733" />
-  <MappedKeyCode Key="S:Enter" Code="31732" />
+  <MappedKeyCode Key="S:Teletext" Code="Teletext" />
 
-  <MappedKeyCode Key="S:Teletext" Code="31653" />
+  <MappedKeyCode Key="S:Red" Code="Red" />
+  <MappedKeyCode Key="S:Green" Code="Green" />
+  <MappedKeyCode Key="S:Yellow" Code="Yellow" />
+  <MappedKeyCode Key="S:Blue" Code="Blue" />
 
-  <MappedKeyCode Key="S:Red" Code="31652" />
-  <MappedKeyCode Key="S:Green" Code="31651" />
-  <MappedKeyCode Key="S:Yellow" Code="31650" />
-  <MappedKeyCode Key="S:Blue" Code="31649" />
-
-  <MappedKeyCode Key="S:None" Code="31672" /> <!-- No assignment for MyMusic button -->
-  <MappedKeyCode Key="S:None" Code="31670" /> <!-- No assignment for MyPictures button -->
-  <MappedKeyCode Key="S:None" Code="31663" /> <!-- No assignment for MyRadio button -->
-  <MappedKeyCode Key="S:None" Code="31673" /> <!-- No assignment for MyTV button -->
-  <MappedKeyCode Key="S:None" Code="31669" /> <!-- No assignment for MyVideos button -->
-  <MappedKeyCode Key="S:None" Code="31665" /> <!-- No assignment for Print button -->
+  <MappedKeyCode Key="S:None" Code="Music" /> <!-- No assignment for MyMusic button -->
+  <MappedKeyCode Key="S:None" Code="Pictures" /> <!-- No assignment for MyPictures button -->
+  <MappedKeyCode Key="S:None" Code="Radio" /> <!-- No assignment for MyRadio button -->
+  <MappedKeyCode Key="S:None" Code="TV" /> <!-- No assignment for MyTV button -->
+  <MappedKeyCode Key="S:None" Code="Videos" /> <!-- No assignment for MyVideos button -->
+  <MappedKeyCode Key="S:None" Code="Print" /> <!-- No assignment for Print button -->
   <MappedKeyCode Key="S:None" Code="31704" /> <!-- No assignment for AspectRatio button -->
   <MappedKeyCode Key="S:None" Code="31638" /> <!-- No assignment for Messenger button -->
 
