@@ -14,7 +14,7 @@
         Resource="{Binding Source={Service DialogManager},Path=CurrentDialogData.HeaderText,Mode=OneTime}"/>
 
     <DataTemplate x:Key="DialogButtonItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-      <Label x:Name="ItemLabel" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
+      <Label x:Name="ItemLabel" Margin="10,4,0,4" Content="{Binding [Name]}" FontSize="28"/>
     </DataTemplate>
 
     <Style x:Key="DialogButtonsListViewStyle">

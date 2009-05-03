@@ -215,32 +215,11 @@
     </Setter>
   </Style>
 
-  <!-- An item list container for usage as playlist, DOESN'T WORK YET (because of the commands which won't work) -->
-  <Style x:Key="ItemPlayListContainerStyle" TargetType="{x:Type ListViewItem}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <StackPanel Orientation="Horizontal">
-            <Button Style="{StaticResource ButtonWideStyle}" Height="46" Width="360">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-            <Button Style="{StaticResource ArrowButtonDownStyle}" Command="{Command PlayList:PlayList.MoveDown}" Height="46" Width="46" />
-            <Button Style="{StaticResource ArrowButtonUpStyle}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46" />
-          </StackPanel>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <!-- *************************** ListView item data templates ****************************** -->
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Label x:Name="ItemLabel" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
+    <Label x:Name="ItemLabel" Margin="10,0,0,0" Content="{Binding [Name]}" FontSize="28"/>
   </DataTemplate>
 
   <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
@@ -266,7 +245,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,4" Content="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -403,30 +382,6 @@
     </Grid>
   </DataTemplate>
 
-  <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
-  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Grid Height="46">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
-      <Grid.RowDefinitions>
-        <RowDefinition/>
-      </Grid.RowDefinitions>
-      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
-      <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Content="{Binding [Name]}" FontSize="28"/>
-    </Grid>
-  </DataTemplate>
-
   <!-- ***************************** ListView styles ********************************* -->
 
   <!-- Standard ListView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
@@ -494,12 +449,6 @@
     <Setter Property="ItemTemplate" Value="{StaticResource DafaultSingleMarkableItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
-  </Style>
-
-  <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
-  <Style x:Key="PlayListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource PlayListItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
