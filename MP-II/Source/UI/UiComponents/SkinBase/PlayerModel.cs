@@ -69,6 +69,7 @@ namespace UiComponents.SkinBase
       _isPipVisibleProperty = new Property(typeof(bool), false);
 
       Update();
+      CheckUpdatePlayerConfigurationData();
       SubscribeToMessages();
     }
 
