@@ -36,7 +36,24 @@ namespace MediaPortal.Core.Messaging
   /// </remarks>
   public interface IMessageQueue
   {
-    event MessageReceivedHandler MessageReceived;
+    /// <summary>
+    /// Delivers all queue messages synchronously.
+    /// </summary>
+    /// <remarks>
+    /// The sender might hold locks on its internal mutexes, so it absolutely necessary to not acquire any
+    /// multithreading locks while executing this event. If the callee needs to lock any locks, it MUST do this
+    /// asynchronous from this event.
+    /// </remarks>
+    event MessageReceivedHandler MessageReceived_Sync;
+
+    /// <summary>
+    /// Delivers all queue messages asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// In contrast to <see cref="MessageReceived_Sync"/>, the callee can request any mutexes it needs in
+    /// this event.
+    /// </remarks>
+    event MessageReceivedHandler MessageReceived_Async;
 
     /// <summary>
     /// Gets the information if this queue has subscribers.
@@ -59,13 +76,6 @@ namespace MediaPortal.Core.Messaging
     /// </summary>
     /// <param name="message">The message to send.</param>
     void Send(QueueMessage message);
-
-    /// <summary>
-    /// Sends the specified <paramref name="message"/> asynchronous, i.e. the method returns immediately and the
-    /// message will be sent in an asynchronous thread.
-    /// </summary>
-    /// <param name="message">The message to send.</param>
-    void SendAsync(QueueMessage message);
 
     /// <summary>
     /// Shuts this message queue down. No more messages can be delivered after this method was called.

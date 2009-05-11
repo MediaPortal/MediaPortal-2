@@ -65,18 +65,20 @@ namespace UiComponents.SkinBase
     protected void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived += OnWorkflowManagerMessageReceived;
+      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Sync += OnWorkflowManagerMessageReceived_Sync;
+      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Async += OnWorkflowManagerMessageReceived_Async;
     }
 
     protected void UnsubscribeFromMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived -= OnWorkflowManagerMessageReceived;
+      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Sync -= OnWorkflowManagerMessageReceived_Sync;
+      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Async -= OnWorkflowManagerMessageReceived_Async;
     }
 
-    protected void OnWorkflowManagerMessageReceived(QueueMessage message)
+    protected void OnWorkflowManagerMessageReceived_Sync(QueueMessage message)
     {
-      WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
+      WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
       switch (messageType)
       {
         case WorkflowManagerMessaging.MessageType.StatePushed:
@@ -84,10 +86,19 @@ namespace UiComponents.SkinBase
           // We'll delay the menu update until the navigation complete message, but remember that the menu isn't valid
           // any more - so we can update the menu if it was requested again before the navigation complete message
           // has arrived.
-          // In fact, this will be the normal case, i.e. before the workflow manager sends the navigation complete message,
-          // the screen will be updated.
+          // In fact, this will be the normal case if the screen gets changed when the workflow state changes,
+          // i.e. before the workflow manager sends the navigation complete message, the screen will be updated.
+          // But in case the screen doesn't change for example, the NavigationComplete message updates the menu.
           _invalid = true;
           break;
+      }
+    }
+
+    protected void OnWorkflowManagerMessageReceived_Async(QueueMessage message)
+    {
+      WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
+      switch (messageType)
+      {
         case WorkflowManagerMessaging.MessageType.NavigationComplete:
           if (_invalid)
             RebuildMenu();

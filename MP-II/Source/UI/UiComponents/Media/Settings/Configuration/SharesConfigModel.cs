@@ -430,7 +430,7 @@ namespace UiComponents.Media.Settings.Configuration
           {
             IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
             IMessageQueue queue = broker.GetOrCreate(DialogManagerMessaging.QUEUE);
-            queue.MessageReceived += OnUserReply_UpdateShareRelocateMediaItems;
+            queue.MessageReceived_Async += OnUserReply_UpdateShareRelocateMediaItems;
             IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
             _queryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
                 "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, true);
@@ -786,7 +786,7 @@ namespace UiComponents.Media.Settings.Configuration
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
         IMessageQueue queue = broker.GetOrCreate(DialogManagerMessaging.QUEUE);
-        queue.MessageReceived -= OnUserReply_UpdateShareRelocateMediaItems;
+        queue.MessageReceived_Async -= OnUserReply_UpdateShareRelocateMediaItems;
       }
     }
 

@@ -84,7 +84,7 @@ namespace Ui.Players.Video
       _subscribedToMessages = true;
       base.SubscribeToMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
     }
 
     protected override void UnsubscribeFromMessages()
@@ -94,7 +94,7 @@ namespace Ui.Players.Video
       _subscribedToMessages = false;
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)

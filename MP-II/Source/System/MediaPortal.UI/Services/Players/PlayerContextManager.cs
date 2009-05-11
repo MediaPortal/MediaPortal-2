@@ -55,7 +55,7 @@ namespace MediaPortal.Services.Players
     protected void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
     }
 
     protected void UnsubscribeFromMessages()
@@ -63,7 +63,7 @@ namespace MediaPortal.Services.Players
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
       if (broker == null)
         return;
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
@@ -90,7 +90,7 @@ namespace MediaPortal.Services.Players
             pc = GetPlayerContextInternal(slotIndex);
             if (pc == null)
               return;
-            // The player message is sent asynchronous, so we have to check the state of the slot again to ensure
+            // We get the player message asynchronously, so we have to check the state of the slot again to ensure
             // we close the correct one
             if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               ClosePlayerContext(slotIndex);

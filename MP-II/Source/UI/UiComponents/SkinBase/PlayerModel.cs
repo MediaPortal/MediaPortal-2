@@ -63,6 +63,7 @@ namespace UiComponents.SkinBase
 
     protected ItemsList _playerConfigurationMenu = new ItemsList();
     protected ItemsList _audioStreamsMenu = new ItemsList();
+    protected object _syncObj = new object();
 
     public PlayerModel() : base(100)
     {
@@ -77,16 +78,16 @@ namespace UiComponents.SkinBase
     {
       base.SubscribeToMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
-      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived += OnPlayerContextManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerContextManagerMessageReceived;
     }
 
     protected override void UnsubscribeFromMessages()
     {
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
-      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived -= OnPlayerContextManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerContextManagerMessageReceived;
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
@@ -150,115 +151,118 @@ namespace UiComponents.SkinBase
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
 
-      int numActiveSlots = playerManager.NumActiveSlots;
-      // Build player configuration menu
-      _playerConfigurationMenu.Clear();
-      if (numActiveSlots > 1)
+      lock (_syncObj)
       {
-        // Set player focus
-        int newCurrentPlayer = 1 - playerContextManager.CurrentPlayerIndex;
-        string name = GetNameForPlayerContext(playerContextManager, newCurrentPlayer);
-        if (name != null)
+        int numActiveSlots = playerManager.NumActiveSlots;
+        // Build player configuration menu
+        _playerConfigurationMenu.Clear();
+        if (numActiveSlots > 1)
         {
-          ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(FOCUS_PLAYER_RESOURCE).Evaluate(name))
-            {
+          // Set player focus
+          int newCurrentPlayer = 1 - playerContextManager.CurrentPlayerIndex;
+          string name = GetNameForPlayerContext(playerContextManager, newCurrentPlayer);
+          if (name != null)
+          {
+            ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(FOCUS_PLAYER_RESOURCE).Evaluate(name))
+              {
                 Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
-            };
-          _playerConfigurationMenu.Add(item);
+              };
+            _playerConfigurationMenu.Add(item);
+          }
         }
-      }
-      if (numActiveSlots > 1 && playerContextManager.IsPipActive)
-      {
-        ListItem item = new ListItem(KEY_NAME, SWITCH_PIP_PLAYERS_RESOURCE)
-          {
+        if (numActiveSlots > 1 && playerContextManager.IsPipActive)
+        {
+          ListItem item = new ListItem(KEY_NAME, SWITCH_PIP_PLAYERS_RESOURCE)
+            {
               Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
-          };
-        _playerConfigurationMenu.Add(item);
-      }
-      ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams();
-      if (audioStreams.Count > 1)
-      {
-        ListItem item = new ListItem(KEY_NAME, CHOOSE_AUDIO_STREAM_RESOURCE)
-          {
-              Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
-          };
-        _playerConfigurationMenu.Add(item);
-      }
-      if (numActiveSlots > 0)
-      {
-        ListItem item;
-        if (playerManager.Muted)
-          item = new ListItem(KEY_NAME, MUTE_OFF_RESOURCE)
-            {
-                Command = new MethodDelegateCommand(PlayersResetMute)
-            };
-        else
-          item = new ListItem(KEY_NAME, MUTE_RESOURCE)
-            {
-                Command = new MethodDelegateCommand(PlayersMute)
-            };
-        _playerConfigurationMenu.Add(item);
-      }
-      // TODO: Handle subtitles same as audio streams
-      for (int i = 0; i < numActiveSlots; i++)
-      {
-        string name = GetNameForPlayerContext(playerContextManager, i);
-        if (name != null)
-        {
-          int indexClosureCopy = i;
-          ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(CLOSE_PLAYER_CONTEXT_RESOURCE).Evaluate(name))
-            {
-                Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
             };
           _playerConfigurationMenu.Add(item);
         }
-      }
-      _playerConfigurationMenu.FireChange();
-
-      // Build audio streams menu
-      _audioStreamsMenu.Clear();
-      // Cluster by player
-      IDictionary<IPlayerContext, ICollection<AudioStreamDescriptor>> streamsByPlayerContext =
-          new Dictionary<IPlayerContext, ICollection<AudioStreamDescriptor>>();
-      foreach (AudioStreamDescriptor asd in audioStreams)
-      {
-        IPlayerContext pc = asd.PlayerContext;
-        ICollection<AudioStreamDescriptor> asds;
-        if (!streamsByPlayerContext.TryGetValue(pc, out asds))
-          streamsByPlayerContext[pc] = asds = new List<AudioStreamDescriptor>();
-        asds.Add(asd);
-      }
-      foreach (KeyValuePair<IPlayerContext, ICollection<AudioStreamDescriptor>> pasds in streamsByPlayerContext)
-      {
-        IPlayerContext pc = pasds.Key;
-        IPlayer player = pc.CurrentPlayer;
-        foreach (AudioStreamDescriptor asd in pasds.Value)
+        ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams();
+        if (audioStreams.Count > 1)
         {
-          string playedItem = player == null ? null : player.MediaItemTitle;
-          if (playedItem == null)
-            playedItem = pc.Name;
-          string choiceItemName;
-          if (pasds.Value.Count > 1)
-            // Only display the audio stream name if the player has more than one audio stream
-            choiceItemName = playedItem + ": " + asd.AudioStreamName;
-          else
-            choiceItemName = playedItem;
-          AudioStreamDescriptor asdClosureCopy = asd;
-          ListItem item = new ListItem(KEY_NAME, choiceItemName)
+          ListItem item = new ListItem(KEY_NAME, CHOOSE_AUDIO_STREAM_RESOURCE)
             {
-                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+              Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
             };
-          _audioStreamsMenu.Add(item);
+          _playerConfigurationMenu.Add(item);
         }
-      }
-      _audioStreamsMenu.FireChange();
+        if (numActiveSlots > 0)
+        {
+          ListItem item;
+          if (playerManager.Muted)
+            item = new ListItem(KEY_NAME, MUTE_OFF_RESOURCE)
+              {
+                Command = new MethodDelegateCommand(PlayersResetMute)
+              };
+          else
+            item = new ListItem(KEY_NAME, MUTE_RESOURCE)
+              {
+                Command = new MethodDelegateCommand(PlayersMute)
+              };
+          _playerConfigurationMenu.Add(item);
+        }
+        // TODO: Handle subtitles same as audio streams
+        for (int i = 0; i < numActiveSlots; i++)
+        {
+          string name = GetNameForPlayerContext(playerContextManager, i);
+          if (name != null)
+          {
+            int indexClosureCopy = i;
+            ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(CLOSE_PLAYER_CONTEXT_RESOURCE).Evaluate(name))
+              {
+                Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
+              };
+            _playerConfigurationMenu.Add(item);
+          }
+        }
+        _playerConfigurationMenu.FireChange();
 
-      if (_audioStreamsMenu.Count == 0 && screenManager.ActiveScreenName == CHOOSE_AUDIO_STREAM_DIALOG_NAME)
-        // Automatically close audio stream choice dialog
-        screenManager.CloseDialog();
-      if (_playerConfigurationMenu.Count == 0 && screenManager.ActiveScreenName == PLAYER_CONFIGURATION_DIALOG_NAME)
-        // Automatically close player configuration dialog
-        screenManager.CloseDialog();
+        // Build audio streams menu
+        _audioStreamsMenu.Clear();
+        // Cluster by player
+        IDictionary<IPlayerContext, ICollection<AudioStreamDescriptor>> streamsByPlayerContext =
+            new Dictionary<IPlayerContext, ICollection<AudioStreamDescriptor>>();
+        foreach (AudioStreamDescriptor asd in audioStreams)
+        {
+          IPlayerContext pc = asd.PlayerContext;
+          ICollection<AudioStreamDescriptor> asds;
+          if (!streamsByPlayerContext.TryGetValue(pc, out asds))
+            streamsByPlayerContext[pc] = asds = new List<AudioStreamDescriptor>();
+          asds.Add(asd);
+        }
+        foreach (KeyValuePair<IPlayerContext, ICollection<AudioStreamDescriptor>> pasds in streamsByPlayerContext)
+        {
+          IPlayerContext pc = pasds.Key;
+          IPlayer player = pc.CurrentPlayer;
+          foreach (AudioStreamDescriptor asd in pasds.Value)
+          {
+            string playedItem = player == null ? null : player.MediaItemTitle;
+            if (playedItem == null)
+              playedItem = pc.Name;
+            string choiceItemName;
+            if (pasds.Value.Count > 1)
+              // Only display the audio stream name if the player has more than one audio stream
+              choiceItemName = playedItem + ": " + asd.AudioStreamName;
+            else
+              choiceItemName = playedItem;
+            AudioStreamDescriptor asdClosureCopy = asd;
+            ListItem item = new ListItem(KEY_NAME, choiceItemName)
+              {
+                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+              };
+            _audioStreamsMenu.Add(item);
+          }
+        }
+        _audioStreamsMenu.FireChange();
+
+        if (_audioStreamsMenu.Count == 0 && screenManager.ActiveScreenName == CHOOSE_AUDIO_STREAM_DIALOG_NAME)
+          // Automatically close audio stream choice dialog
+          screenManager.CloseDialog();
+        if (_playerConfigurationMenu.Count == 0 && screenManager.ActiveScreenName == PLAYER_CONFIGURATION_DIALOG_NAME)
+          // Automatically close player configuration dialog
+          screenManager.CloseDialog();
+      }
     }
 
     /// <summary>

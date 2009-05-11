@@ -39,6 +39,7 @@ namespace MediaPortal.Services.Localization
   /// <summary>
   /// This class manages localization strings.
   /// </summary>
+  /// TODO: Make this class multithreading safe
   public class StringManager : ILocalization
   {
     protected class LanguagePluginItemStateTracker : IPluginItemStateTracker
@@ -89,7 +90,7 @@ namespace MediaPortal.Services.Localization
       _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
 
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-      queue.MessageReceived += OnPluginManagerMessageReceived;
+      queue.MessageReceived_Async += OnPluginManagerMessageReceived;
     }
 
     #endregion
@@ -244,7 +245,7 @@ namespace MediaPortal.Services.Localization
         InitializeLanguageResources();
 
         IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-        queue.MessageReceived -= OnPluginManagerMessageReceived;
+        queue.MessageReceived_Async -= OnPluginManagerMessageReceived;
       }
     }
 

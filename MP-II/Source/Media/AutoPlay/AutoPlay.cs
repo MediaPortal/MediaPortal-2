@@ -406,7 +406,7 @@ namespace Components.Services.AutoPlay
         StartListening();
 
         IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-        queue.MessageReceived -= OnPluginManagerMessageReceived;
+        queue.MessageReceived_Async -= OnPluginManagerMessageReceived;
       }
     }
 
@@ -417,7 +417,7 @@ namespace Components.Services.AutoPlay
     public void Activated(PluginRuntime pluginRuntime)
     {
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-      queue.MessageReceived += OnPluginManagerMessageReceived;
+      queue.MessageReceived_Async += OnPluginManagerMessageReceived;
     }
 
     public bool RequestEnd()

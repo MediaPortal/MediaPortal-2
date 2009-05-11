@@ -87,7 +87,7 @@ namespace UiComponents.SkinBase.Actions
     public void Dispose()
     {
       IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived -= OnPlayerManagerMessageReceived;
+      messageBroker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
     }
 
     #endregion
@@ -109,7 +109,7 @@ namespace UiComponents.SkinBase.Actions
     public void Initialize()
     {
       IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived += OnPlayerManagerMessageReceived;
+      messageBroker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
       Update();
     }
 

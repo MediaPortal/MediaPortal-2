@@ -99,7 +99,7 @@ namespace MediaPortal.Core.Services.Messaging
         {
           QueueMessage message;
           if ((message = Dequeue()) != null)
-            _queue.Send(message);
+            _queue.DoSendAsync(message);
           lock (_queue.SyncObj)
             if (_terminated)
               // We have to check this in the synchronized block, else we could miss the PulseAll event
@@ -128,9 +128,10 @@ namespace MediaPortal.Core.Services.Messaging
     {
       _queueName = name;
       _asyncMessageSender = new AsyncMessageSender(this);
+      InitializeAsyncMessaging();
     }
 
-    protected void CheckAsyncMessagingInitialized()
+    protected void InitializeAsyncMessaging()
     {
       lock (_syncObj)
       {
@@ -147,9 +148,18 @@ namespace MediaPortal.Core.Services.Messaging
       get { return _syncObj; }
     }
 
+    protected void DoSendAsync(QueueMessage message)
+    {
+      MessageReceivedHandler asyncHandler = MessageReceived_Async;
+      if (asyncHandler != null)
+        asyncHandler(message);
+    }
+
     #region IMessageQueue implementation
 
-    public event MessageReceivedHandler MessageReceived;
+    public event MessageReceivedHandler MessageReceived_Async;
+
+    public event MessageReceivedHandler MessageReceived_Sync;
 
     public IList<IMessageFilter> Filters
     {
@@ -163,7 +173,7 @@ namespace MediaPortal.Core.Services.Messaging
 
     public bool HasSubscribers
     {
-      get { return (MessageReceived != null); }
+      get { return (MessageReceived_Sync != null); }
     }
 
     public void Shutdown()
@@ -188,16 +198,14 @@ namespace MediaPortal.Core.Services.Messaging
         message = filter.Process(message);
         if (message == null) return;
       }
-      if (MessageReceived != null)
-        MessageReceived(message);
-    }
-
-    public void SendAsync(QueueMessage message)
-    {
+      // Send message synchronously...
+      MessageReceivedHandler syncHandler = MessageReceived_Sync;
+      if (syncHandler != null)
+        syncHandler(message);
+      // ... and asynchronously
       if (_asyncMessageSender.IsTerminated)
         // If already shut down, discard the message
         return;
-      CheckAsyncMessagingInitialized();
       _asyncMessageSender.EnqueueAsyncMessage(message);
     }
 

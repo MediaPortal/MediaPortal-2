@@ -122,7 +122,7 @@ namespace MediaPortal.Presentation.Players
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ namespace MediaPortal.Presentation.Players
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ namespace MediaPortal.Presentation.Players
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
   }
 }

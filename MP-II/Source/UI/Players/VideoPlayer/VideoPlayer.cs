@@ -164,12 +164,12 @@ namespace Ui.Players.Video
 
     protected void SubscribeWindowsMessages()
     {
-      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived += OnWindowsMessageReceived;
+      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived_Sync += OnWindowsMessageReceived;
     }
 
     protected void UnsubscribeWindowsMessages()
     {
-      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived -= OnWindowsMessageReceived;
+      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived_Sync -= OnWindowsMessageReceived;
     }
 
     protected virtual void OnWindowsMessageReceived(QueueMessage message)
@@ -190,7 +190,7 @@ namespace Ui.Players.Video
             if (evCode == EventCode.Complete)
             {
               _state = PlaybackState.Ended;
-              ServiceScope.Get<ILogger>().Debug("VideoPlayer:Playback ended");
+              ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playback ended");
               // TODO: RemoveResumeData();
               FireEnded();
               return;

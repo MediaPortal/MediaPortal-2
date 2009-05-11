@@ -43,6 +43,8 @@ namespace MediaPortal.Presentation.Workflow
     /// <remarks>
     /// After calls of type <see cref="StatePushed"/> and <see cref="StatesPopped"/>,
     /// the workflow manager will trigger a call to <see cref="NavigationComplete"/>.
+    /// These messages are sent synchronous - this means it is not allowed to request any lock which could
+    /// interfere with the lock of the workflow manager, which is helt during the message sending.
     /// </remarks>
     public enum MessageType
     {
@@ -78,7 +80,7 @@ namespace MediaPortal.Presentation.Workflow
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.StatePushed;
       msg.MessageData[PARAM] = stateId;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
 
     /// <summary>
@@ -91,7 +93,7 @@ namespace MediaPortal.Presentation.Workflow
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.StatesPopped;
       msg.MessageData[PARAM] = numStates;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
 
     public static void SendNavigationCompleteMessage()
@@ -99,7 +101,7 @@ namespace MediaPortal.Presentation.Workflow
       IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.NavigationComplete;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
   }
 }

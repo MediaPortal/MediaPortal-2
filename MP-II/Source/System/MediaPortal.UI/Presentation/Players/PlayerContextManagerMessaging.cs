@@ -54,7 +54,7 @@ namespace MediaPortal.Presentation.Players
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = playerSlot;
-      queue.SendAsync(msg);
+      queue.Send(msg);
     }
   }
 }
