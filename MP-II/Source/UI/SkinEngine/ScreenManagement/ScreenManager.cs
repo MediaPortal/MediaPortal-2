@@ -182,7 +182,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     #region Protected fields
 
-    protected readonly object _syncRoot = new object();
+    protected readonly object _syncData = new object(); // Synchronize field access
+    protected readonly object _syncRender = new object(); // Lock-out the render thread, must'nt be acquired when holding the _syncData mutex
     protected readonly SkinManager _skinManager;
 
     protected readonly BackgroundData _backgroundData;
@@ -237,7 +238,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public object SyncRoot
     {
-      get { return _syncRoot; }
+      get { return _syncData; }
     }
 
     /// <summary>
@@ -301,7 +302,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         return;
       }
 
-      lock (_syncRoot)
+      lock (_syncData)
       {
         if (_dialogStack.Count == 0)
         {
@@ -324,7 +325,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected internal void InternalCloseDialog()
     {
-      lock(_syncRoot)
+      lock(_syncData)
       {
         // Do we have a dialog?
         if (_dialogStack.Count == 0)
@@ -349,7 +350,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected internal void InternalCloseScreen()
     {
       Screen screen;
-      lock (_syncRoot)
+      lock (_syncData)
       {
         if (_currentScreen == null)
           return;
@@ -369,7 +370,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         _backgroundData.Unload();
       while (true)
       {
-        lock (_syncRoot)
+        lock (_syncData)
           if (_dialogStack.Count == 0)
             break;
         InternalCloseDialog();
@@ -379,7 +380,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected internal void InternalShowScreen(Screen screen)
     {
-      lock (_syncRoot)
+      lock (_syncData)
         _currentScreen = screen;
       screen.ScreenState = Screen.State.Running;
       screen.AttachInput();
@@ -388,7 +389,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected IList<Screen> GetAllScreens()
     {
-      lock (_syncRoot)
+      lock (_syncData)
       {
         IList<Screen> result = new List<Screen>();
         Screen backgroundScreen = _backgroundData.BackgroundScreen;
@@ -426,8 +427,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     public void Render()
     {
-      SkinContext.Now = DateTime.Now;
-      ForEachScreen(screen => screen.Render());
+      lock (_syncRender)
+      {
+        SkinContext.Now = DateTime.Now;
+        ForEachScreen(screen => screen.Render());
+      }
     }
 
     /// <summary>
@@ -438,36 +442,37 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     public void SwitchSkinAndTheme(string newSkinName, string newThemeName)
     {
-      lock (_syncRoot)
-      {
-        if (newSkinName == _skin.Name &&
-            newThemeName == (_theme == null ? null : _theme.Name)) return;
-        ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
-            newSkinName, newThemeName);
+      lock (_syncRender)
+        lock (_syncData)
+        {
+          if (newSkinName == _skin.Name &&
+              newThemeName == (_theme == null ? null : _theme.Name)) return;
+          ServiceScope.Get<ILogger>().Info("ScreenManager: Switching to skin '{0}', theme '{1}'",
+              newSkinName, newThemeName);
 
-        string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
-        Screen backgroundScreen = _backgroundData.BackgroundScreen;
-        string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.Name;
+          string currentScreenName = _currentScreen == null ? null : _currentScreen.Name;
+          Screen backgroundScreen = _backgroundData.BackgroundScreen;
+          string currentBackgroundName = backgroundScreen == null ? null : backgroundScreen.Name;
 
-        UninstallBackgroundManager();
-        _backgroundData.Unload();
+          UninstallBackgroundManager();
+          _backgroundData.Unload();
 
-        InternalCloseCurrentScreenAndDialogs(true);
+          InternalCloseCurrentScreenAndDialogs(true);
 
-        PlayersHelper.ReleaseGUIResources();
+          PlayersHelper.ReleaseGUIResources();
 
-        // FIXME Albert78: Find a better way to make ContentManager observe the current skin
-        ContentManager.Clear();
+          // FIXME Albert78: Find a better way to make ContentManager observe the current skin
+          ContentManager.Clear();
 
-        PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
-        PlayersHelper.ReallocGUIResources();
+          PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
+          PlayersHelper.ReallocGUIResources();
 
-        if (!InstallBackgroundManager())
-          _backgroundData.Load(currentBackgroundName);
+          if (!InstallBackgroundManager())
+            _backgroundData.Load(currentBackgroundName);
 
-        Screen screen = GetScreen(currentScreenName);
-        InternalShowScreen(screen);
-      }
+          Screen screen = GetScreen(currentScreenName);
+          InternalShowScreen(screen);
+        }
       SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
       settings.Theme = ThemeName;
@@ -593,7 +598,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get
       {
-        lock (_syncRoot)
+        lock (_syncData)
           return _skin.Name;
       }
     }
@@ -602,7 +607,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get
       {
-        lock (_syncRoot)
+        lock (_syncData)
           return _theme == null ? null : _theme.Name;
       }
     }
@@ -611,7 +616,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get
       {
-        lock (_syncRoot)
+        lock (_syncData)
           return _dialogStack.Count > 0 ? _dialogStack.Peek().Name :
               (_currentScreen == null ? null : _currentScreen.Name);
       }
@@ -631,7 +636,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       get
       {
-        lock (_syncRoot)
+        lock (_syncData)
           return _dialogStack.Count > 0;
       }
     }
@@ -694,7 +699,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       string backgroundName;
       string screenName;
       List<string> dialogNamesReverse;
-      lock (_syncRoot)
+      lock (_syncData)
       {
         backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.Name;
         screenName = _currentScreen.Name;
