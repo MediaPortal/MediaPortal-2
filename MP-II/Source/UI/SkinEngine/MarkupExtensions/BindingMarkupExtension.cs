@@ -826,6 +826,19 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       return TypeConverter.Convert(val, targetType, out result);
     }
 
+    protected void SetTargetValue(object value)
+    {
+      if (_targetDataDescriptor == null)
+        return;
+      DependencyObject parent;
+      TreeHelper.FindParent_VT(_contextObject, out parent);
+      UIElement parentUiElement = parent as UIElement;
+      if (parentUiElement != null)
+        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
+      else
+        _targetDataDescriptor.Value = value;
+    }
+
     protected virtual bool UpdateBinding()
     {
       // Avoid recursive calls: For instance, this can occur when
@@ -838,8 +851,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         if (KeepBinding) // This is the case if our target descriptor has a binding type
         { // In this case, this instance should be used rather than the evaluated source value
-          if (_targetDataDescriptor != null)
-            _targetDataDescriptor.Value = this;
+          SetTargetValue(this);
           _retryBinding = false;
           return true;
         }
@@ -870,7 +882,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           object value = sourceDd.Value;
           if (!Convert(value, _targetDataDescriptor.DataType, out value))
             return false;
-          _targetDataDescriptor.Value = value;
+          SetTargetValue(value);
           _retryBinding = false;
           Dispose();
           return true; // In this case, we have finished with only assigning the value

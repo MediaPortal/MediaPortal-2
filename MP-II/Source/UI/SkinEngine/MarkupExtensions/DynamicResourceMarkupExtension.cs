@@ -265,6 +265,17 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       _attachedPropertiesList.Clear();
     }
 
+    protected void SetTargetValue(object value)
+    {
+      DependencyObject parent;
+      TreeHelper.FindParent_VT(_contextObject, out parent);
+      UIElement parentUiElement = parent as UIElement;
+      if (parentUiElement != null)
+        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
+      else
+        _targetDataDescriptor.Value = value;
+    }
+
     protected void UpdateTarget(object value)
     {
       object assignValue;
@@ -279,7 +290,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       }
       else
         throw new XamlBindingException("AssignmentMode value {0} is not implemented", AssignmentMode);
-      _targetDataDescriptor.Value = TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType);
+      SetTargetValue(TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType));
     }
 
     /// <summary>
@@ -339,7 +350,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       ResetEventHandlerAttachments();
       if (KeepBinding)
       { // This instance should be used rather than the evaluated source value
-        _targetDataDescriptor.Value = this;
+        SetTargetValue(this);
         return true;
       }
       DependencyObject current = _contextObject;

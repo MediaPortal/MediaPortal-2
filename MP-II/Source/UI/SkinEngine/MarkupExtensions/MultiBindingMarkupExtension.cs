@@ -25,6 +25,8 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Xaml;
@@ -316,6 +318,17 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       }
     }
 
+    protected void SetTargetValue(object value)
+    {
+      DependencyObject parent;
+      TreeHelper.FindParent_VT(_contextObject, out parent);
+      UIElement parentUiElement = parent as UIElement;
+      if (parentUiElement != null)
+        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
+      else
+        _targetDataDescriptor.Value = value;
+    }
+
     protected bool UpdateBinding()
     {
       // Avoid recursive calls: For instance, this can occur when
@@ -328,7 +341,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         if (KeepBinding) // This is the case if our target descriptor has a binding type
         { // In this case, this instance should be used rather than the evaluated source value
-          _targetDataDescriptor.Value = this;
+          SetTargetValue(this);
           _retryBinding = false;
           return true;
         }
@@ -343,7 +356,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           throw new XamlBindingException("MultiBindingMarkupExtension doesn't support BindingMode.TwoWay and BindingMode.OneWayToSource");
         else if (Mode == BindingMode.OneTime)
         {
-          _targetDataDescriptor.Value = sourceDd.Value;
+          SetTargetValue(sourceDd.Value);
           _retryBinding = false;
           Dispose();
           return true; // In this case, we have finished with only assigning the value

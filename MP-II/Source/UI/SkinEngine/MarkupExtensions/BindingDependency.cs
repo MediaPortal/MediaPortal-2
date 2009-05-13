@@ -35,6 +35,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
   {
     protected IDataDescriptor _sourceDd;
     protected IDataDescriptor _targetDd;
+    protected UIElement _targetParent;
     protected bool _attachedToSource = false;
     protected bool _attachedToTarget = false;
     protected UIElement _attachedToLostFocus = null;
@@ -57,9 +58,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// <see cref="UIElement.EventOccured"/> event of the <paramref name="targetParent"/> object.
     /// If set to <see cref="UpdateSourceTrigger.Explicit"/>, the new binding dependency won't attach to
     /// the target at all.</param>
-    /// <param name="targetParent">This parameter is only necessary if <paramref name="updateSourceTrigger"/>
-    /// is set to <see cref="UpdateSourceTrigger.LostFocus"/>. It specifies the parent UI object of the
-    /// specified <paramref name="targetDd"/> data descriptor.</param>
+    /// <param name="targetParent">The parent <see cref="UIElement"/> of the specified <paramref name="targetDd"/>
+    /// data descriptor. The parent is needed to delegate the property setting to the render thread.
+    /// That avoids threading issues if our update methods are called from different threads.
+    /// The parameter is also used to attach to the lost focus event if <paramref name="updateSourceTrigger"/> is set to
+    /// <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
     /// <param name="customTypeConverter">Set a custom type converter with this parameter. If this parameter
     /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
     public BindingDependency(
@@ -69,6 +72,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
+      _targetParent = targetParent;
       _typeConverter = customTypeConverter;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
       {
@@ -158,7 +162,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         return;
       if (_targetDd.Value == value)
         return;
-      _targetDd.Value = value;
+      if (_targetParent != null)
+        _targetParent.SetValueInRenderThread(_targetDd, value);
+      else
+        _targetDd.Value = value;
     }
   }
 }
