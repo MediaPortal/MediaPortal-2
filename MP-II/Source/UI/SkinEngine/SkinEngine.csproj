@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -281,6 +281,7 @@
     <Compile Include="MarkupExtensions\DynamicResourceMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\ServiceScopeMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\RelativeSource.cs" />
+    <Compile Include="MarkupExtensions\TreeHelper.cs" />
     <Compile Include="MpfElements\MpfAttachedPropertyDataDescriptor.cs" />
     <Compile Include="MpfElements\MpfCopyManager.cs" />
     <Compile Include="MpfElements\Registration.cs" />
