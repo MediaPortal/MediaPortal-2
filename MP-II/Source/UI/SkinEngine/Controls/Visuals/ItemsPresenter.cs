@@ -68,7 +68,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         si.CanScroll = _canScroll;
     }
 
-    public void ApplyTemplate(FrameworkTemplate template)
+    public void ApplyTemplate(ItemsPanelTemplate template)
     {
       ControlTemplate ct = new ControlTemplate();
       ct.AddChild(template.LoadContent());
