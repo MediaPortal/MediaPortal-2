@@ -558,6 +558,24 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       return dataContext != null;
     }
 
+    protected bool FindAncestor(DependencyObject current, out DependencyObject ancestor, FindParentMode mode, int ancestorLevel, Type ancestorType)
+    {
+      if (!FindParent(current, out ancestor, mode)) // Start from the first ancestor
+        return false;
+      int ct = ancestorLevel;
+      while (current != null)
+      {
+        if (ancestorType == null ||
+            ancestorType.IsAssignableFrom(current.GetType()))
+          ct -= 1;
+        if (ct == 0)
+          return true;
+        if (!FindParent(current, out current, mode))
+          return false;
+      }
+      return false;
+    }
+
     /// <summary>
     /// This method does the walk in the visual or logical tree, depending on the existance
     /// of the visual tree for the specified <paramref name="obj"/>.
@@ -735,21 +753,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
                 }
                 return false;
               case RelativeSourceMode.FindAncestor:
-                if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree)) // Start from the first ancestor
-                  return false;
-                int ct = RelativeSource.AncestorLevel;
-                while (current != null)
+                if (FindAncestor(current, out current, FindParentMode.HybridPreferVisualTree,
+                    RelativeSource.AncestorLevel, RelativeSource.AncestorType))
                 {
-                  if (RelativeSource.AncestorType == null ||
-                      RelativeSource.AncestorType.IsAssignableFrom(current.GetType()))
-                    ct -= 1;
-                  if (ct == 0)
-                  {
-                    result = new ValueDataDescriptor(current);
-                    return true;
-                  }
-                  if (!FindParent(current, out current, FindParentMode.HybridPreferVisualTree))
-                    return false;
+                  result = new ValueDataDescriptor(current);
+                  return true;
                 }
                 return false;
                 //case RelativeSourceMode.PreviousData:
@@ -889,9 +897,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         }
         if (_bindingDependency != null)
           _bindingDependency.Detach();
-        DependencyObject parent = null;
-        if (UpdateSourceTrigger == MarkupExtensions.UpdateSourceTrigger.LostFocus)
-          FindParent(_contextObject, out parent, FindParentMode.HybridPreferVisualTree);
+        DependencyObject parent;
+        FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement));
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
             attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
             parent as UIElement, _typeConverter);
