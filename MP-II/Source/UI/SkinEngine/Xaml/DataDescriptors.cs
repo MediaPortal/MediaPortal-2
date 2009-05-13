@@ -544,8 +544,9 @@ namespace MediaPortal.SkinEngine.Xaml
     public override int GetHashCode()
     {
       int sum = 0;
-      foreach (object o in _indices)
-        sum += o.GetHashCode();
+      if (_indices != null)
+        foreach (object o in _indices)
+          sum += o.GetHashCode();
       return _obj.GetHashCode() + _prop.GetHashCode() + sum;
     }
 
