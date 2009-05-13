@@ -96,7 +96,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
 
     public void GetTransform(out ExtendedMatrix m)
     {
-      SlimDX.Matrix matrix;
+      Matrix matrix;
       GetTransform(out matrix);
       m = new ExtendedMatrix();
       m.Matrix *= matrix;
@@ -104,7 +104,7 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
 
     public void GetTransformRel(out ExtendedMatrix m)
     {
-      SlimDX.Matrix matrix;
+      Matrix matrix;
       GetTransformRel(out matrix);
       m = new ExtendedMatrix();
       m.Matrix *= matrix;

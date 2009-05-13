@@ -194,22 +194,19 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     public void Render()
     {
-      uint time = (uint)Environment.TickCount;
+      uint time = (uint) Environment.TickCount;
       SkinContext.TimePassed = time;
       SkinContext.FinalTransform = new ExtendedMatrix();
 
-      if (SkinContext.UseBatching)
+      lock (_visual)
       {
-        lock (_visual)
+        if (SkinContext.UseBatching)
         {
           _animator.Animate();
           Update();
+          return;
         }
-        return;
-      }
-      else
-      {
-        lock (_visual)
+        else
         {
           _animator.Animate();
           _visual.Render();
@@ -337,8 +334,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         ctls = _invalidControls;
         _invalidControls = new List<IUpdateEventHandler>();
       }
-      for (int i = 0; i < ctls.Count; ++i)
-        ctls[i].Update();
+      foreach (IUpdateEventHandler ctl in ctls)
+        ctl.Update();
     }
 
     /// <summary>

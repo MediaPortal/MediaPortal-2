@@ -54,9 +54,9 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     Transform _transformProperty;
     Property _freezableProperty;
     bool _isOpacity;
-    protected System.Drawing.RectangleF _bounds;
-    protected System.Drawing.PointF _orginalPosition;
-    protected System.Drawing.PointF _minPosition;
+    protected RectangleF _bounds;
+    protected PointF _orginalPosition;
+    protected PointF _minPosition;
 
     #endregion
 
@@ -75,8 +75,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
       _relativeTransformProperty = new Property(typeof(TransformGroup), new TransformGroup());
       _transformProperty = null;
       _freezableProperty = new Property(typeof(bool), false);
-      _bounds = new System.Drawing.RectangleF(0, 0, 0, 0);
-      _orginalPosition = new System.Drawing.PointF(0, 0);
+      _bounds = new RectangleF(0, 0, 0, 0);
+      _orginalPosition = new PointF(0, 0);
     }
 
     void Attach()
@@ -92,7 +92,8 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
-      Brush b = source as Brush;
+      base.DeepCopy(source, copyManager);
+      Brush b = (Brush) source;
       IsOpacityBrush = copyManager.GetCopy(b.IsOpacityBrush);
       Opacity = copyManager.GetCopy(b.Opacity);
       RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
@@ -132,7 +133,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public bool Freezable
     {
-      get { return (bool)_freezableProperty.GetValue(); }
+      get { return (bool) _freezableProperty.GetValue(); }
       set { _freezableProperty.SetValue(value); }
     }
 
@@ -143,7 +144,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public double Opacity
     {
-      get { return (double)_opacityProperty.GetValue(); }
+      get { return (double) _opacityProperty.GetValue(); }
       set { _opacityProperty.SetValue(value); }
     }
 
@@ -154,7 +155,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public TransformGroup RelativeTransform
     {
-      get { return (TransformGroup)_relativeTransformProperty.GetValue(); }
+      get { return (TransformGroup) _relativeTransformProperty.GetValue(); }
       set { _relativeTransformProperty.SetValue(value); }
     }
 

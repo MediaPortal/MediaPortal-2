@@ -150,7 +150,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (!_performLayout)
         return;
       base.PerformLayout();
-      //Trace.WriteLine("Line.PerformLayout() " + this.Name);
+      //Trace.WriteLine("Line.PerformLayout() " + Name);
 
       double w = ActualWidth;
       double h = ActualHeight;
@@ -185,7 +185,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
           if (SkinContext.UseBatching)
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-            _verticesCountBorder = (verts.Length / 3);
+            _verticesCountBorder = verts.Length / 3;
             Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
             if (_strokeContext == null)
             {
@@ -204,7 +204,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
               Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
               PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-              _verticesCountBorder = (verts.Length / 3);
+              _verticesCountBorder = verts.Length / 3;
             }
           }
         }
