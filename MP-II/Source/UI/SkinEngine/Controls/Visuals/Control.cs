@@ -138,7 +138,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public FrameworkElement TemplateControl
     {
-      get { return (FrameworkElement)_templateControlProperty.GetValue(); }
+      get { return (FrameworkElement) _templateControlProperty.GetValue(); }
       set { _templateControlProperty.SetValue(value); }
     }
 
@@ -149,7 +149,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public Brush Background
     {
-      get { return (Brush)_backgroundProperty.GetValue(); }
+      get { return (Brush) _backgroundProperty.GetValue(); }
       set { _backgroundProperty.SetValue(value); }
     }
 

@@ -53,7 +53,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
 
     /// <summary>
     /// Gets or sets the value to be set on our target. This value will be
-    /// later converted to the right target type and stored in <see cref="SetterValue"/>.
+    /// later converted to the right target type and stored in the attached property "OriginalValue"
+    /// (see <see cref="SetOriginalValue"/>).
     /// </summary>
     public object Value
     {
@@ -68,9 +69,10 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
     protected bool FindPropertyDescriptor(UIElement element,
         out IDataDescriptor propertyDescriptor, out DependencyObject targetObject)
     {
-      targetObject = null;
       propertyDescriptor = null;
-      if (!string.IsNullOrEmpty(TargetName))
+      if (string.IsNullOrEmpty(TargetName))
+        targetObject = element;
+      else
       {
         // Search the element in "normal" namescope and in the dynamic structure via the FindElement method
         // I think this is more than WPF does. It makes it possible to find elements instantiated
@@ -80,8 +82,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
         if (targetObject == null)
           return false;
       }
-      else
-        targetObject = element;
       int index = Property.IndexOf('.');
       if (index != -1)
       {
@@ -162,7 +162,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
         SetOriginalValue(targetObject, obj);
       }
       if (TypeConverter.Convert(Value, dd.DataType, out obj))
-        element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+      {
+        if (ReferenceEquals(Value, obj))
+          element.SetValueInRenderThread(dd, MpfCopyManager.DeepCopyCutLP(obj));
+        else
+          // Avoid creating a copy twice
+          element.SetValueInRenderThread(dd, obj);
+      }
       else
         // Value is not compatible: We cannot execute
         return;

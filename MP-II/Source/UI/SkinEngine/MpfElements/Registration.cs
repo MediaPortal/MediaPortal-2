@@ -30,6 +30,7 @@ using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Commands;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Commands;
+using MediaPortal.SkinEngine.Controls.Animations;
 using MediaPortal.SkinEngine.Controls.Brushes;
 using MediaPortal.SkinEngine.Controls.Panels;
 using MediaPortal.SkinEngine.Controls.Transforms;
@@ -383,6 +384,12 @@ namespace MediaPortal.SkinEngine.MpfElements
         return true;
       }
       // DataTemplates are modifiable, don't exclude them here from copying
+      else if (source is Timeline)
+      {
+        // Timeline objects are unmodifyable
+        target = source;
+        return true;
+      }
       else if (source is ResourceWrapper && ((ResourceWrapper) source).Freezable)
       {
         target = source;
