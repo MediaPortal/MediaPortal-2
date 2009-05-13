@@ -168,7 +168,6 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     /// <param name="direction">The polygon direction.</param>
     /// <param name="verts">The generated verts.</param>
     /// <param name="finalLayoutTransform">Final layout transform.</param>
-    /// <param name="isCenterFill">True if center fill otherwise left hand fill.</param>
     /// <returns>vertex buffer</returns>
     public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
         PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
