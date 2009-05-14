@@ -34,6 +34,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 {
   public class Grid : Panel
   {
+    #region Consts
+
     protected const string LEFT_ATTACHED_PROPERTY = "Grid.Left";
     protected const string RIGHT_ATTACHED_PROPERTY = "Grid.Right";
     protected const string TOP_ATTACHED_PROPERTY = "Grid.Top";
@@ -43,8 +45,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected const string ROWSPAN_ATTACHED_PROPERTY = "Grid.RowSpan";
     protected const string COLUMNSPAN_ATTACHED_PROPERTY = "Grid.ColumnSpan";
 
-    Property _rowDefinitionsProperty;
-    Property _columnDefinitionsProperty;
+    #endregion
+
+    #region Protected fields
+
+    protected Property _rowDefinitionsProperty;
+    protected Property _columnDefinitionsProperty;
+
+    #endregion
 
     #region Ctor
 
@@ -71,7 +79,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #endregion
 
-    #region properties
+    #region Properties
 
     public Property RowDefinitionsProperty
     {
@@ -160,12 +168,11 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("Grid.measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("Grid.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Grid.Arrange: {0} X {1},Y {2} W {3} H {4}", Name, (int) finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
       RemoveMargin(ref finalRect);
       ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
       ActualWidth = finalRect.Width;
