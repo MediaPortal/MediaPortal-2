@@ -743,40 +743,33 @@ namespace UiComponents.Media.Settings.Configuration
       IsMetadataExtractorsSelected = false;
     }
 
-    protected bool InitializePropertiesWithShare(Guid? shareId)
+    protected bool InitializePropertiesWithShare(Guid shareId)
     {
-      if (shareId.HasValue)
-      {
-        IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-        ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
-        ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId.Value);
-        if (shareDescriptor == null)
-          return false;
-        IMediaProvider mediaProvider;
-        if (!mediaManager.LocalMediaProviders.TryGetValue(shareDescriptor.MediaProviderId, out mediaProvider))
-          return false;
-        MediaProvider = mediaProvider;
-        MediaProviderPath = shareDescriptor.Path;
-        ShareName = shareDescriptor.Name;
-        MediaCategories.Clear();
-        CollectionUtils.AddAll(MediaCategories, shareDescriptor.MediaCategories);
-        MetadataExtractorIds.Clear();
-        CollectionUtils.AddAll(MetadataExtractorIds, shareDescriptor.MetadataExtractorIds);
-        // IsMetadataExtractorsSelected has always to be set also because it is derived from
-        // MediaCategories and MetadataExtractors
-        IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;
-      }
-      else
-      {
-        MediaProvider = null;
-        MediaProviderPath = null;
-        ShareName = null;
-        MediaCategories.Clear();
-        MetadataExtractorIds.Clear();
-        // IsMetadataExtractorsSelected has to be set, see above
-        IsMetadataExtractorsSelected = false;
-      }
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId);
+      if (shareDescriptor == null)
+        return false;
+      IMediaProvider mediaProvider;
+      if (!mediaManager.LocalMediaProviders.TryGetValue(shareDescriptor.MediaProviderId, out mediaProvider))
+        return false;
+      MediaProvider = mediaProvider;
+      MediaProviderPath = shareDescriptor.Path;
+      ShareName = shareDescriptor.Name;
+      MediaCategories.Clear();
+      CollectionUtils.AddAll(MediaCategories, shareDescriptor.MediaCategories);
+      MetadataExtractorIds.Clear();
+      CollectionUtils.AddAll(MetadataExtractorIds, shareDescriptor.MetadataExtractorIds);
+      // IsMetadataExtractorsSelected has always to be set also because it is derived from
+      // MediaCategories and MetadataExtractors
+      IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;
       return true;
+    }
+
+    protected string SuggestShareName()
+    {
+      return string.IsNullOrEmpty(MediaProviderPath) || MediaProvider == null ? string.Empty :
+          MediaProvider.GetResourceName(MediaProviderPath);
     }
 
     protected void OnUserReply_UpdateShareRelocateMediaItems(QueueMessage message)
@@ -838,7 +831,7 @@ namespace UiComponents.Media.Settings.Configuration
           // necessary to do some additional internal initialization because in the "add" case,
           // the state SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID is the first one after the overview
           _editMode = ShareEditMode.AddShare;
-          InitializePropertiesWithShare(null);
+          ClearAllConfiguredProperties();
         }
         // In the "edit" case, the state SHARE_EDIT_STATE_ID is active before SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID,
         // so we do the initialization there
@@ -853,7 +846,10 @@ namespace UiComponents.Media.Settings.Configuration
         UpdateMediaProviderPathTree();
       }
       else if (workflowState == SHARE_EDIT_EDIT_NAME_STATE_ID)
-      {}
+      {
+        if (_editMode == ShareEditMode.AddShare && string.IsNullOrEmpty(ShareName))
+          ShareName = SuggestShareName();
+      }
       else if (workflowState == SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID)
       {
         UpdateMediaCategoriesList();
