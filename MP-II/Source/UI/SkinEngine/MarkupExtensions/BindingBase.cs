@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Xaml;
@@ -129,6 +130,17 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     #endregion
 
     #region Protected properties and methods
+
+    protected void SetTargetValue(object value)
+    {
+      DependencyObject parent;
+      TreeHelper.FindAncestorOfType(_contextObject, out parent, typeof(UIElement));
+      UIElement parentUiElement = parent as UIElement;
+      if (parentUiElement != null)
+        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
+      else
+        _targetDataDescriptor.Value = value;
+    }
 
     protected internal void AttachToTargetObject(DependencyObject obj)
     {

@@ -265,17 +265,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       _attachedPropertiesList.Clear();
     }
 
-    protected void SetTargetValue(object value)
-    {
-      DependencyObject parent;
-      TreeHelper.FindParent_VT(_contextObject, out parent);
-      UIElement parentUiElement = parent as UIElement;
-      if (parentUiElement != null)
-        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
-      else
-        _targetDataDescriptor.Value = value;
-    }
-
     protected void UpdateTarget(object value)
     {
       object assignValue;

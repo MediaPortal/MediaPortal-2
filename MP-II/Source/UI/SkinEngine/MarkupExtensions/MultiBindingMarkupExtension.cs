@@ -318,17 +318,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       }
     }
 
-    protected void SetTargetValue(object value)
-    {
-      DependencyObject parent;
-      TreeHelper.FindParent_VT(_contextObject, out parent);
-      UIElement parentUiElement = parent as UIElement;
-      if (parentUiElement != null)
-        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
-      else
-        _targetDataDescriptor.Value = value;
-    }
-
     protected bool UpdateBinding()
     {
       // Avoid recursive calls: For instance, this can occur when
@@ -364,8 +353,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         // else Mode == BindingMode.OneWay || Mode == BindingMode.Default
         if (_bindingDependency != null)
           _bindingDependency.Detach();
+        DependencyObject parent;
+        TreeHelper.FindAncestorOfType(_contextObject, out parent, typeof(UIElement));
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
-            UpdateSourceTrigger.Explicit, null, null);
+            UpdateSourceTrigger.Explicit, parent as UIElement, null);
         _retryBinding = false;
         return true;
       }

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.MpfElements;
@@ -46,6 +47,22 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       Property parentProperty = obj.LogicalParentProperty;
       parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
+    }
+
+    public static bool FindAncestorOfType(DependencyObject obj, out DependencyObject parent, Type ancestorType)
+    {
+      parent = null;
+      DependencyObject next = obj;
+      while (next != null)
+      {
+        parent = next;
+        if (ancestorType == null ||
+            ancestorType.IsAssignableFrom(parent.GetType()))
+          return true;
+        if (!FindParent_VT(parent, out next) && !FindParent_LT(parent, out next))
+          return false;
+      }
+      return false;
     }
   }
 }
