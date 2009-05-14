@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
@@ -180,7 +179,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public Stretch Stretch
     {
-      get { return (Stretch)_stretchProperty.GetValue(); }
+      get { return (Stretch) _stretchProperty.GetValue(); }
       set { _stretchProperty.SetValue(value); }
     }
 
@@ -349,117 +348,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
         _lastEvent |= eventType;
         if (Screen != null) Screen.Invalidate(this);
       }
-    }
-
-    /// <summary>
-    /// Generates the vertices of a thickened line strip
-    /// </summary>
-    /// <param name="path">Graphics path on the line strip</param>
-    /// <param name="thickness">Thickness of the line</param>
-    /// <param name="close">Whether to connect the last point back to the first</param>
-    /// <param name="widthMode">How to place the weight of the line relative to it</param>
-    /// <returns>Points ready to pass to the Transform constructor</returns>
-    protected VertexBuffer CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode,
-        out PositionColored2Textured[] verts)
-    {
-      verts = null;
-      if (path.PointCount < 3)
-      {
-        if (close) return null;
-        else if (path.PointCount < 2)
-          return null;
-      }
-
-      Matrix matrix = new Matrix();
-      if (_finalLayoutTransform != null)
-      {
-        matrix = _finalLayoutTransform.Matrix;
-      }
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        matrix *= em.Matrix;
-      }
-      int count = path.PointCount;
-      PointF[] pathPoints = path.PathPoints;
-      if (pathPoints[count - 2] == pathPoints[count - 1])
-        count--;
-      Vector2[] points = new Vector2[count];
-      for (int i = 0; i < count; ++i)
-        points[i] = new Vector2(pathPoints[i].X, pathPoints[i].Y);
-
-      Vector2 innerDistance = new Vector2(0, 0);
-      switch (widthMode)
-      {
-        case WidthMode.Centered:
-          //innerDistance =thickness / 2;
-          innerDistance = new Vector2((thickness / 2) * SkinContext.Zoom.Width, (thickness / 2) * SkinContext.Zoom.Height);
-          break;
-        case WidthMode.LeftHanded:
-          //innerDistance = -thickness;
-          innerDistance = new Vector2(-thickness * SkinContext.Zoom.Width, -thickness * SkinContext.Zoom.Height);
-          break;
-        case WidthMode.RightHanded:
-          //innerDistance = thickness;
-          innerDistance = new Vector2(thickness * SkinContext.Zoom.Width, thickness * SkinContext.Zoom.Height);
-          break;
-      }
-
-      Vector2[] outPoints = new Vector2[(points.Length + (close ? 1 : 0)) * 2];
-
-      float slope, intercept;
-      //Get the endpoints
-      if (close)
-      {
-        //Get the overlap points
-        int lastIndex = outPoints.Length - 4;
-        outPoints[lastIndex] = TriangulateHelper.InnerPoint(matrix, innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
-        outPoints[0] = TriangulateHelper.InnerPoint(matrix, innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
-      }
-      else
-      {
-        //Take endpoints based on the end segments' normals alone
-        outPoints[0] = Vector2.Modulate(innerDistance, TriangulateHelper.normal(points[1] - points[0]));
-        TriangulateHelper.TransformXY(ref outPoints[0], matrix);
-        outPoints[0] = points[0] + outPoints[0];
-
-        //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
-        Vector2 norm = Vector2.Modulate(innerDistance, TriangulateHelper.normal(points[points.Length - 1] - points[points.Length - 2])); //DEBUG
-
-        TriangulateHelper.TransformXY(ref norm, matrix);
-        outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;
-
-        //Get the slope and intercept of the first segment to feed into the middle loop
-        slope = TriangulateHelper.vectorSlope(points[1] - points[0]);
-        intercept = TriangulateHelper.lineIntercept(outPoints[0], slope);
-      }
-
-      //Get the middle points
-      for (int i = 1; i < points.Length - 1; i++)
-        outPoints[2 * i] = TriangulateHelper.InnerPoint(matrix, innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
-
-      //Derive the outer points from the inner points
-      if (widthMode == WidthMode.Centered)
-        for (int i = 0; i < points.Length; i++)
-          outPoints[2 * i + 1] = 2 * points[i] - outPoints[2 * i];
-      else
-        for (int i = 0; i < points.Length; i++)
-          outPoints[2 * i + 1] = points[i];
-
-      //Closed strips must repeat the first two points
-      if (close)
-      {
-        outPoints[outPoints.Length - 2] = outPoints[0];
-        outPoints[outPoints.Length - 1] = outPoints[1];
-      }
-      int verticeCount = outPoints.Length;
-      VertexBuffer vertexBuffer = PositionColored2Textured.Create(verticeCount);
-      verts = new PositionColored2Textured[verticeCount];
-
-      for (int i = 0; i < verticeCount; ++i)
-        verts[i].Position = new Vector3(outPoints[i].X, outPoints[i].Y, 1);
-      return vertexBuffer;
     }
 
     public override void Arrange(RectangleF finalRect)

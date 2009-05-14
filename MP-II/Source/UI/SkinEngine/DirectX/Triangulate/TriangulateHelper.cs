@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
@@ -53,7 +54,7 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     {
       verts = null;
       int pointCount = path.PointCount;
-      if (pointCount <= 0) return;
+      if (pointCount <= 2) return;
       PointF[] pathPoints = path.PathPoints;
       if (pointCount == 3)
       {
@@ -99,7 +100,7 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     {
       verts = null;
       int pointCount = path.PointCount;
-      if (pointCount <= 0) return;
+      if (pointCount <= 2) return;
       PointF[] pathPoints = path.PathPoints;
       if (pointCount == 3)
       {
@@ -155,7 +156,13 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
         out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
     {
-      PolygonDirection direction = PointsDirection(path);
+      CPoint2D[] points = new CPoint2D[path.PathPoints.Length];
+      for (int i = 0; i < path.PointCount; i++)
+      {
+        PointF pt = path.PathPoints[i];
+        points[i] = new CPoint2D(pt.X, pt.Y);
+      }
+      PolygonDirection direction = CPolygon.GetPointsDirection(points);
       TriangulateStroke_TriangleList(path, thickness, close, direction, out verts, finalTransLayoutform);
     }
 
@@ -179,7 +186,6 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
       float thicknessW = thickness * SkinContext.Zoom.Width;
       float thicknessH = thickness * SkinContext.Zoom.Height;
       PointF[] points = path.PathPoints;
-      PointF[] newPoints = new PointF[points.Length];
 
       int pointCount;
       if (close)
@@ -214,29 +220,133 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     /// specified <paramref name="path"/>. The path must be closed and describe a simple polygon.
     /// </summary>
     /// <param name="path">Path which may only contain one single subpath.</param>
-    /// <param name="cx">X coordinate of the path's centroid.</param>
-    /// <param name="cy">Y coordinate of the path's centroid.</param>
     /// <param name="verts">Returns a <see cref="PrimitiveType.TriangleList"/> of vertices.</param>
-    public static void Triangulate(GraphicsPath path, float cx, float cy, out PositionColored2Textured[] verts)
+    public static void Triangulate(GraphicsPath path, out PositionColored2Textured[] verts)
     {
-      if (path.PointCount <= 3)
+      if (path.PointCount < 3)
       {
-        FillPolygon_TriangleList(path, cx, cy, out verts);
+        verts = null;
         return;
       }
-      CPolygonShape cutPolygon = new CPolygonShape(path);
-      cutPolygon.CutEar();
-
-      int count = cutPolygon.NumberOfPolygons;
-      verts = new PositionColored2Textured[count * 3];
-      for (int i = 0; i < count; i++)
+      if (path.PointCount == 3)
       {
-        CPoint2D[] triangle = cutPolygon[i];
-        int offset = i * 3;
-        verts[offset].Position = new Vector3(triangle[0].X, triangle[0].Y, 1);
-        verts[offset + 1].Position = new Vector3(triangle[1].X, triangle[1].Y, 1);
-        verts[offset + 2].Position = new Vector3(triangle[2].X, triangle[2].Y, 1);
+        verts = new PositionColored2Textured[3];
+
+        PointF[] pathPoints = path.PathPoints;
+        verts[0].Position = new Vector3(pathPoints[0].X, pathPoints[0].Y, 1);
+        verts[1].Position = new Vector3(pathPoints[1].X, pathPoints[1].Y, 1);
+        verts[2].Position = new Vector3(pathPoints[2].X, pathPoints[2].Y, 1);
+        return;
       }
+      ICollection<CPolygon> polygons = new List<CPolygon>(new CPolygon(path).Triangulate());
+
+      verts = new PositionColored2Textured[polygons.Count * 3];
+      int offset = 0;
+      foreach (CPolygon triangle in polygons)
+      {
+        verts[offset++].Position = new Vector3(triangle[0].X, triangle[0].Y, 1);
+        verts[offset++].Position = new Vector3(triangle[1].X, triangle[1].Y, 1);
+        verts[offset++].Position = new Vector3(triangle[2].X, triangle[2].Y, 1);
+      }
+    }
+
+    /// <summary>
+    /// Generates the vertices of a thickened line strip
+    /// </summary>
+    /// <param name="path">Graphics path on the line strip</param>
+    /// <param name="thickness">Thickness of the line</param>
+    /// <param name="close">Whether to connect the last point back to the first</param>
+    /// <param name="widthMode">How to place the weight of the line relative to it</param>
+    /// <returns>Points ready to pass to the Transform constructor</returns>
+    public void CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode,
+        out PositionColored2Textured[] verts)
+    {
+      verts = null;
+      if (path.PointCount < 3)
+      {
+        if (close) return;
+        else if (path.PointCount < 2)
+          return;
+      }
+
+      Matrix matrix = new Matrix();
+      int count = path.PointCount;
+      PointF[] pathPoints = path.PathPoints;
+      if (pathPoints[count - 2] == pathPoints[count - 1])
+        count--;
+      Vector2[] points = new Vector2[count];
+      for (int i = 0; i < count; ++i)
+        points[i] = new Vector2(pathPoints[i].X, pathPoints[i].Y);
+
+      Vector2 innerDistance = new Vector2(0, 0);
+      switch (widthMode)
+      {
+        case WidthMode.Centered:
+          //innerDistance =thickness / 2;
+          innerDistance = new Vector2((thickness / 2) * SkinContext.Zoom.Width, (thickness / 2) * SkinContext.Zoom.Height);
+          break;
+        case WidthMode.LeftHanded:
+          //innerDistance = -thickness;
+          innerDistance = new Vector2(-thickness * SkinContext.Zoom.Width, -thickness * SkinContext.Zoom.Height);
+          break;
+        case WidthMode.RightHanded:
+          //innerDistance = thickness;
+          innerDistance = new Vector2(thickness * SkinContext.Zoom.Width, thickness * SkinContext.Zoom.Height);
+          break;
+      }
+
+      Vector2[] outPoints = new Vector2[(points.Length + (close ? 1 : 0)) * 2];
+
+      float slope, intercept;
+      //Get the endpoints
+      if (close)
+      {
+        //Get the overlap points
+        int lastIndex = outPoints.Length - 4;
+        outPoints[lastIndex] = InnerPoint(matrix, innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
+        outPoints[0] = InnerPoint(matrix, innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
+      }
+      else
+      {
+        //Take endpoints based on the end segments' normals alone
+        outPoints[0] = Vector2.Modulate(innerDistance, GetNormal(points[1] - points[0]));
+        TransformXY(ref outPoints[0], matrix);
+        outPoints[0] = points[0] + outPoints[0];
+
+        //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
+        Vector2 norm = Vector2.Modulate(innerDistance, GetNormal(points[points.Length - 1] - points[points.Length - 2])); //DEBUG
+
+        TransformXY(ref norm, matrix);
+        outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;
+
+        //Get the slope and intercept of the first segment to feed into the middle loop
+        slope = vectorSlope(points[1] - points[0]);
+        intercept = lineIntercept(outPoints[0], slope);
+      }
+
+      //Get the middle points
+      for (int i = 1; i < points.Length - 1; i++)
+        outPoints[2 * i] = InnerPoint(matrix, innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
+
+      //Derive the outer points from the inner points
+      if (widthMode == WidthMode.Centered)
+        for (int i = 0; i < points.Length; i++)
+          outPoints[2 * i + 1] = 2 * points[i] - outPoints[2 * i];
+      else
+        for (int i = 0; i < points.Length; i++)
+          outPoints[2 * i + 1] = points[i];
+
+      //Closed strips must repeat the first two points
+      if (close)
+      {
+        outPoints[outPoints.Length - 2] = outPoints[0];
+        outPoints[outPoints.Length - 1] = outPoints[1];
+      }
+      int verticeCount = outPoints.Length;
+      verts = new PositionColored2Textured[verticeCount];
+
+      for (int i = 0; i < verticeCount; ++i)
+        verts[i].Position = new Vector3(outPoints[i].X, outPoints[i].Y, 1);
     }
 
     protected static void ZCross(ref PointF left, ref PointF right, out double result)
@@ -275,42 +385,13 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
       cy = Math.Abs(centroid.Y);
     }
 
-    public static PolygonDirection PointsDirection(GraphicsPath points)
-    {
-      int nCount = 0;
-      int nPoints = points.PointCount;
-
-      if (nPoints < 3)
-        return PolygonDirection.Unknown;
-      PointF[] pathPoints = points.PathPoints;
-      for (int i = 0; i < nPoints - 2; i++)
-      {
-        int j = (i + 1) % nPoints;
-        int k = (i + 2) % nPoints;
-
-        double crossProduct = (pathPoints[j].X - pathPoints[i].X) * (pathPoints[k].Y - pathPoints[j].Y);
-        crossProduct = crossProduct - ((pathPoints[j].Y - pathPoints[i].Y) * (pathPoints[k].X - pathPoints[j].X));
-
-        if (crossProduct > 0)
-          nCount++;
-        else
-          nCount--;
-      }
-
-      if (nCount < 0)
-        return PolygonDirection.Count_Clockwise;
-      if (nCount > 0)
-        return PolygonDirection.Clockwise;
-      return PolygonDirection.Unknown;
-    }
-
     #endregion
 
     #region Math helpers
 
     /// <summary>the slope of v, or NaN if it is nearly vertical</summary>
     /// <param name="v">Vector to take slope from</param>
-    public static float vectorSlope(Vector2 v)
+    private static float vectorSlope(Vector2 v)
     {
       return Math.Abs(v.X) < 0.001f ? float.NaN : (v.Y / v.X);
     }
@@ -318,28 +399,23 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     /// <summary>Finds the intercept of a line</summary>
     /// <param name="point">A point on the line</param>
     /// <param name="slope">The slope of the line</param>
-    public static float lineIntercept(Vector2 point, float slope)
+    private static float lineIntercept(Vector2 point, float slope)
     {
       return point.Y - slope * point.X;
     }
 
-    /// <summary>The unit length right-hand normal of v</summary>
-    /// <param name="v">Vector to find the normal of</param>
-    public static Vector2 normal(Vector2 v)
+    /// <summary>
+    /// Calculates the unit length right-hand normal of v.
+    /// </summary>
+    /// <param name="v">Vector to find the normal of.</param>
+    public static Vector2 GetNormal(Vector2 v)
     {
       //Avoid division by zero/returning a zero vector
-      if (Math.Abs(v.Y) < 0.0001) return new Vector2(0, sgn(v.X));
-      if (Math.Abs(v.X) < 0.0001) return new Vector2(-sgn(v.Y), 0);
+      if (Math.Abs(v.Y) < 0.0001) return new Vector2(0, Math.Sign(v.X));
+      if (Math.Abs(v.X) < 0.0001) return new Vector2(-Math.Sign(v.Y), 0);
 
       float r = 1 / v.Length();
       return new Vector2(-v.Y * r, v.X * r);
-    }
-
-    /// <summary>Finds the sign of a number</summary>
-    /// <param name="x">Number to take the sign of</param>
-    private static float sgn(float x)
-    {
-      return (x > 0f ? 1f : (x < 0f ? -1f : 0f));
     }
 
     #endregion
@@ -362,8 +438,8 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     {
       Vector2 lastDifference = point - lastPoint;
       slope = vectorSlope(lastDifference);
-      intercept = lineIntercept(lastPoint + Vector2.Modulate(distance, normal(lastDifference)), slope);
-      return InnerPoint(matrix, distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, normal(lastDifference)), point, nextPoint);
+      intercept = lineIntercept(lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), slope);
+      return InnerPoint(matrix, distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), point, nextPoint);
     }
 
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
@@ -377,11 +453,11 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     /// This overload can reuse information calculated about the previous point, so it is more
     /// efficient for computing the inside of a string of contiguous points on a strip
     /// </remarks>
-    public static Vector2 InnerPoint(Matrix matrix, Vector2 distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
+    private static Vector2 InnerPoint(Matrix matrix, Vector2 distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
     {
       Vector2 edgeVector = nextPoint - point;
       //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
-      Vector2 innerPoint = Vector2.Modulate(distance, normal(edgeVector));
+      Vector2 innerPoint = Vector2.Modulate(distance, GetNormal(edgeVector));
 
       TransformXY(ref innerPoint, matrix);
       innerPoint = nextPoint + innerPoint;
@@ -434,6 +510,5 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
     }
 
     #endregion
-
   }
 }

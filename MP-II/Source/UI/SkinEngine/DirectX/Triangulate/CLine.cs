@@ -490,7 +490,7 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
         float ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / de;
         float ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / de;
 
-        if ((ua > 0) && (ua < 1))
+        if ((ua > 0) && (ua < 1) && (ub > 0) && (ub < 1))
           return true;
         else
           return false;

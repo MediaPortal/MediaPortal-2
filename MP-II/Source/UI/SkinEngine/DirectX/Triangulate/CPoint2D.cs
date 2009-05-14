@@ -49,37 +49,24 @@ namespace MediaPortal.SkinEngine.DirectX.Triangulate
 
     public float X
     {
-      set
-      {
-        m_dCoordinate_X = value;
-      }
-      get
-      {
-        return m_dCoordinate_X;
-      }
+      get { return m_dCoordinate_X; }
+      set { m_dCoordinate_X = value; }
     }
 
     public float Y
     {
-      set
-      {
-        m_dCoordinate_Y = value;
-      }
-      get
-      {
-        return m_dCoordinate_Y;
-      }
+      get { return m_dCoordinate_Y; }
+      set { m_dCoordinate_Y = value; }
     }
 
     public static bool SamePoints(CPoint2D Point1, CPoint2D Point2)
     {
-
-      float dDeff_X =
+      float dDiff_X =
         Math.Abs(Point1.X - Point2.X);
-      float dDeff_Y =
+      float dDiff_Y =
         Math.Abs(Point1.Y - Point2.Y);
 
-      if ((dDeff_X < ConstantValue.SmallValue) && (dDeff_Y < ConstantValue.SmallValue))
+      if ((dDiff_X < ConstantValue.SmallValue) && (dDiff_Y < ConstantValue.SmallValue))
         return true;
       else
         return false;

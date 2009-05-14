@@ -32,7 +32,6 @@ using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.SkinEngine.Rendering;
 using MediaPortal.SkinEngine.Xaml;
-using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -84,9 +83,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       if (!_performLayout)
         return;
       base.PerformLayout();
-      double w = ActualWidth;
-      double h = ActualHeight;
-      SizeF rectSize = new SizeF((float)w, (float)h);
+      SizeF rectSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)
@@ -103,83 +100,67 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       //Fill brush
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
-        GraphicsPath path;
-        if (Fill != null)
+        using (GraphicsPath path = CalculateTransformedPath(rect, _finalLayoutTransform))
         {
-          using (path = GetPath(rect, _finalLayoutTransform, 0))
+          if (Fill != null && !_fillDisabled)
           {
-            if (!_fillDisabled)
+            //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1}", Name, path.PointCount));
+            if (SkinContext.UseBatching)
             {
-              //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1}", Name, path.PointCount));
-              if (Fill != null)
+              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              GraphicsPath subPath = new GraphicsPath();
+              for (int i = 0; i < subPathVerts.Length; i++)
               {
-                if (SkinContext.UseBatching)
+                bool isClosed;
+                gpi.NextSubpath(subPath, out isClosed);
+                TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
+              }
+              PositionColored2Textured[] verts;
+              GraphicsPathHelper.Flatten(subPathVerts, out verts);
+              if (verts != null)
+              {
+                _verticesCountFill = verts.Length / 3;
+                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
+                if (_fillContext == null)
                 {
-                  GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-                  PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-                  GraphicsPath subPath = new GraphicsPath();
-                  for (int i = 0; i < subPathVerts.Length; i++)
-                  {
-                    bool isClosed;
-                    gpi.NextSubpath(subPath, out isClosed);
-                    float centerX;
-                    float centerY;
-                    TriangulateHelper.CalcCentroid(subPath, out centerX, out centerY);
-                    TriangulateHelper.Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
-                  }
-                  PositionColored2Textured[] verts;
-                  GraphicsPathHelper.Flatten(subPathVerts, out verts);
-                  if (verts != null)
-                  {
-                    _verticesCountFill = verts.Length / 3;
-                    Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-                    if (_fillContext == null)
-                    {
-                      _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
-                      Fill.SetupPrimitive(_fillContext);
-                      RenderPipeline.Instance.Add(_fillContext);
-                    }
-                    else
-                      _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
-                  }
+                  _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
+                  Fill.SetupPrimitive(_fillContext);
+                  RenderPipeline.Instance.Add(_fillContext);
                 }
                 else
-                {
-                  GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-                  PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-                  GraphicsPath subPath = new GraphicsPath();
-                  for (int i = 0; i < subPathVerts.Length; i++)
-                  {
-                    bool isClosed;
-                    gpi.NextSubpath(subPath, out isClosed);
-                    float centerX;
-                    float centerY;
-                    TriangulateHelper.CalcCentroid(subPath, out centerX, out centerY);
-                    TriangulateHelper.Triangulate(subPath, centerX, centerY, out subPathVerts[i]);
-                  }
-                  PositionColored2Textured[] verts;
-                  GraphicsPathHelper.Flatten(subPathVerts, out verts);
-                  if (_fillAsset == null)
-                  {
-                    _fillAsset = new VisualAssetContext("Path._fillContext:" + Name, Screen.Name);
-                    ContentManager.Add(_fillAsset);
-                  }
-                  if (verts != null)
-                  {
-                    _verticesCountFill = verts.Length / 3; // _fillPrimitiveType == PrimitiveType.TriangleList
-                    _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                    Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
+                  _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
+              }
+            }
+            else
+            {
+              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+              GraphicsPath subPath = new GraphicsPath();
+              for (int i = 0; i < subPathVerts.Length; i++)
+              {
+                bool isClosed;
+                gpi.NextSubpath(subPath, out isClosed);
+                TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
+              }
+              PositionColored2Textured[] verts;
+              GraphicsPathHelper.Flatten(subPathVerts, out verts);
+              if (_fillAsset == null)
+              {
+                _fillAsset = new VisualAssetContext("Path._fillContext:" + Name, Screen.Name);
+                ContentManager.Add(_fillAsset);
+              }
+              if (verts != null)
+              {
+                _verticesCountFill = verts.Length / 3; // _fillPrimitiveType == PrimitiveType.TriangleList
+                _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
+                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
-                    PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                  }
-                }
+                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
               }
             }
           }
-        }
-        if (Stroke != null && StrokeThickness > 0)
-        {
-          using (path = GetPath(rect, _finalLayoutTransform, (float) StrokeThickness))
+          if (Stroke != null && StrokeThickness > 0)
           {
             if (SkinContext.UseBatching)
             {
@@ -190,7 +171,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               {
                 bool isClosed;
                 gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float)StrokeThickness, isClosed,
+                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
                     out subPathVerts[i], _finalLayoutTransform);
               }
               PositionColored2Textured[] verts;
@@ -244,7 +225,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Measure(ref SizeF totalSize)
     {
-      using (GraphicsPath p = GetPath(new RectangleF(0, 0, 0, 0), null, 0))
+      using (GraphicsPath p = CalculateTransformedPath(new RectangleF(0, 0, 0, 0), null))
       {
         RectangleF bounds = p.GetBounds();
 
@@ -274,9 +255,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    private GraphicsPath GetPath(RectangleF baseRect, ExtendedMatrix finalTransform, float thickness)
+    protected GraphicsPath ParsePath()
     {
-      GraphicsPath mPath = new GraphicsPath(System.Drawing.Drawing2D.FillMode.Alternate);
+      GraphicsPath result = new GraphicsPath(FillMode.Alternate);
       PointF lastPoint = new PointF();
       Regex regex = new Regex(@"[a-zA-Z][-0-9\.,-0-9\. ]*");
       MatchCollection matches = regex.Matches(Data);
@@ -315,21 +296,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               //Relative origin
               PointF point = points[0];
               lastPoint = new PointF(lastPoint.X + point.X, lastPoint.Y + point.Y);
-              mPath.StartFigure();
+              result.StartFigure();
             }
             break;
           case 'M':
             {
               //Absolute origin
               lastPoint = points[0];
-              mPath.StartFigure();
+              result.StartFigure();
             }
             break;
           case 'L':
             //Absolute Line
             for (int i = 0; i < points.Length; ++i)
             {
-              mPath.AddLine(lastPoint, points[i]);
+              result.AddLine(lastPoint, points[i]);
               lastPoint = points[i];
             }
             break;
@@ -339,7 +320,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               points[i].X += lastPoint.X;
               points[i].Y += lastPoint.Y;
-              mPath.AddLine(lastPoint, points[i]);
+              result.AddLine(lastPoint, points[i]);
               lastPoint = points[i];
             }
             break;
@@ -347,7 +328,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               //Horizontal line to absolute X 
               PointF point1 = new PointF(points[0].X, lastPoint.Y);
-              mPath.AddLine(lastPoint, point1);
+              result.AddLine(lastPoint, point1);
               lastPoint = new PointF(point1.X, point1.Y);
             }
             break;
@@ -355,7 +336,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               //Horizontal line to relative X
               PointF point1 = new PointF(lastPoint.X + points[0].X, lastPoint.Y);
-              mPath.AddLine(lastPoint, point1);
+              result.AddLine(lastPoint, point1);
               lastPoint = new PointF(point1.X, point1.Y);
             }
             break;
@@ -363,7 +344,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               //Vertical line to absolute y 
               PointF point1 = new PointF(lastPoint.X, points[0].X);
-              mPath.AddLine(lastPoint, point1);
+              result.AddLine(lastPoint, point1);
               lastPoint = new PointF(point1.X, point1.Y);
             }
             break;
@@ -371,7 +352,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               //Vertical line to relative y
               PointF point1 = new PointF(lastPoint.X, lastPoint.Y + points[0].X);
-              mPath.AddLine(lastPoint, point1);
+              result.AddLine(lastPoint, point1);
               lastPoint = new PointF(point1.X, point1.Y);
             }
             break;
@@ -379,7 +360,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             //Quadratic Bezier curve command C21,17,17,21,13,21
             for (int i = 0; i < points.Length; i += 3)
             {
-              mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
+              result.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
               lastPoint = points[i + 2];
             }
             break;
@@ -389,7 +370,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
             {
               points[i].X += lastPoint.X;
               points[i].Y += lastPoint.Y;
-              mPath.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
+              result.AddBezier(lastPoint, points[i], points[i + 1], points[i + 2]);
               lastPoint = points[i + 2];
             }
             break;
@@ -402,7 +383,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               //from that point to infinity in any direction and counting the number of path 
               //segments within the given shape that the ray crosses. If this number is odd, 
               //the point is inside; if even, the point is outside.
-              mPath.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+              result.FillMode = FillMode.Alternate;
             }
             else if (points[0].X == 1.0f)
             {
@@ -414,97 +395,69 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
               //crosses the ray from left to right and subtract one each time a path
               //segment crosses the ray from right to left. After counting the crossings,
               //if the result is zero then the point is outside the path. Otherwise, it is inside.
-              mPath.FillMode = System.Drawing.Drawing2D.FillMode.Winding;
+              result.FillMode = FillMode.Winding;
             }
             break;
           case 'z':
-            mPath.CloseFigure();
+            result.CloseFigure();
             break;
         }
       }
+      return result;
+    }
+
+    protected GraphicsPath CalculateTransformedPath(RectangleF baseRect, ExtendedMatrix finalTransform)
+    {
+      GraphicsPath result = ParsePath();
       Matrix m = new Matrix();
-      RectangleF bounds = mPath.GetBounds();
+      RectangleF bounds = result.GetBounds();
       _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
+      if (Width > 0) baseRect.Width = (float) (Width * SkinContext.Zoom.Width);
+      if (Height > 0) baseRect.Height = (float) (Height * SkinContext.Zoom.Width);
+      float scaleW;
+      float scaleH;
       if (Stretch == Stretch.Fill)
       {
-        bounds = mPath.GetBounds();
+        scaleW = baseRect.Width / bounds.Width;
+        scaleH = baseRect.Height / bounds.Height;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
-        float xoff = 0;
-        float yoff = 0;
-        if (Width > 0) baseRect.Width = (float)(Width * SkinContext.Zoom.Width);
-        if (Height > 0) baseRect.Height = (float)(Height * SkinContext.Zoom.Width);
-        float scaleW = baseRect.Width / bounds.Width;
-        float scaleH = baseRect.Height / bounds.Height;
-        if (baseRect.Width == 0) scaleW = 1.0f;
-        if (baseRect.Height == 0) scaleH = 1.0f;
-        if (StrokeThickness > 0 && !_fillDisabled)
-        {
-          if (baseRect.Width > 0)
-          {
-            xoff = (float)(StrokeThickness / 2.0f);
-            scaleW = (float)((baseRect.Width - StrokeThickness) / bounds.Width);
-          }
-          if (baseRect.Height > 0)
-          {
-            yoff = (float)(StrokeThickness / 2.0f);
-            scaleH = (float)((baseRect.Height - StrokeThickness) / bounds.Height);
-          }
-        }
-        if (float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
-        if (float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
-        m.Scale(scaleW, scaleH, MatrixOrder.Append);
-        m.Translate(xoff, yoff, MatrixOrder.Append);
       }
-      if (finalTransform != null)
+      else if (Stretch == Stretch.Uniform)
       {
-        m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
-        if (Stretch != Stretch.Fill)
-          m.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
+        scaleW = Math.Min(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
+        scaleH = scaleW;
+        m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
-      ExtendedMatrix em = null;
+      else if (Stretch == Stretch.UniformToFill)
+      {
+        scaleW = Math.Max(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
+        scaleH = scaleW;
+        m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
+      }
+      else
+      { // Stretch == Stretch.None
+        scaleW = 1;
+        scaleH = 1;
+      }
+      // In case bounds.Width or bounds.Height were 0
+      if (float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
+      if (float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
+      m.Scale(scaleW, scaleH, MatrixOrder.Append);
+
+      if (finalTransform != null)
+        m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
+
       if (LayoutTransform != null)
       {
+        ExtendedMatrix em;
         LayoutTransform.GetTransform(out em);
         m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
       }
+      m.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      mPath.Transform(m);
-
-      if (thickness != 0.0)
-      {
-        //thickness /= 2.0f;
-        bounds = mPath.GetBounds();
-        m = new Matrix();
-        float thicknessW = thickness * SkinContext.Zoom.Width;
-        float thicknessH = thickness * SkinContext.Zoom.Height;
-        if (finalTransform != null)
-          finalTransform.TransformXY(ref thicknessW, ref thicknessH);
-        if (em != null)
-          em.TransformXY(ref thicknessW, ref thicknessH);
-        thicknessW = (bounds.Width + Math.Abs(thicknessW));
-        thicknessH = (bounds.Height + Math.Abs(thicknessH));
-
-        float cx = bounds.X + (bounds.Width / 2.0f);
-        float cy = bounds.Y + (bounds.Height / 2.0f);
-        m.Translate(-cx, -cy, MatrixOrder.Append);
-        float scaleW = thicknessW / bounds.Width;
-        float scaleH = thicknessH / bounds.Height;
-        if (float.IsNaN(scaleW) || float.IsInfinity(scaleW))
-        {
-          m.Translate(thickness / 2.0f, 0, MatrixOrder.Append);
-          scaleW = 1;
-        }
-        if (float.IsNaN(scaleH) || float.IsInfinity(scaleH))
-        {
-          m.Translate(0, thickness / 2.0f, MatrixOrder.Append);
-          scaleH = 1;
-        }
-        m.Scale(scaleW, scaleH, MatrixOrder.Append);
-        m.Translate(cx, cy, MatrixOrder.Append);
-        mPath.Transform(m);
-      }
-      mPath.Flatten();
-      return mPath;
+      result.Transform(m);
+      result.Flatten();
+      return result;
     }
   }
 }

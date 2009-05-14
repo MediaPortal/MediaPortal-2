@@ -242,7 +242,6 @@
     <Compile Include="DirectX\Triangulate\CLine.cs" />
     <Compile Include="DirectX\Triangulate\CPoint2D.cs" />
     <Compile Include="DirectX\Triangulate\CPolygon.cs" />
-    <Compile Include="DirectX\Triangulate\CPolygonShape.cs" />
     <Compile Include="DirectX\Triangulate\Definition.cs" />
     <Compile Include="Controls\Visuals\StyleSelector.cs" />
     <Compile Include="Controls\Visuals\Styles\Setter.cs" />
