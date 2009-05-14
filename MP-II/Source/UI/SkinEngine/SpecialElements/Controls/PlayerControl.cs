@@ -32,6 +32,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
+using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.SpecialElements.Controls
@@ -58,7 +59,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Property _titleProperty;
     protected Property _mediaItemTitleProperty;
     protected Property _isAudioProperty;
-    protected Property _isAudioMutedProperty;
+    protected Property _isMutedProperty;
     protected Property _isCurrentPlayerProperty;
     protected Property _showMouseControlsProperty;
     protected Property _canPlayProperty;
@@ -93,7 +94,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _titleProperty = new Property(typeof(string), null);
       _mediaItemTitleProperty = new Property(typeof(string), null);
       _isAudioProperty = new Property(typeof(bool), false);
-      _isAudioMutedProperty = new Property(typeof(bool), false);
+      _isMutedProperty = new Property(typeof(bool), false);
       _isCurrentPlayerProperty = new Property(typeof(bool), false);
       _showMouseControlsProperty = new Property(typeof(bool), false);
       _canPlayProperty = new Property(typeof(bool), false);
@@ -118,6 +119,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       _slotIndexProperty.Attach(OnPropertyChanged);
       _autoVisibilityProperty.Attach(OnPropertyChanged);
+      _isMutedProperty.Attach(OnMuteChanged);
     }
 
     void Detach()
@@ -146,9 +148,17 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     #endregion
 
+    #region Private & protected methods
+
     void OnPropertyChanged(Property prop, object oldValue)
     {
       UpdatePlayControls();
+    }
+
+    void OnMuteChanged(Property prop, object oldValue)
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.Muted = IsMuted;
     }
 
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -201,13 +211,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
       if (player == null)
       {
-        if (playerContext == null)
-          Title = UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE;
-        else
-          Title = playerContext.Name;
+        Title = playerContext == null ? UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE : playerContext.Name;
         MediaItemTitle = null;
         IsAudio = false;
-        IsAudioMuted = false;
+        IsMuted = false;
         IsCurrentPlayer = false;
         CanPlay = false;
         CanPause = false;
@@ -235,7 +242,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         }
         MediaItemTitle = mit;
         IsAudio = playerSlotController.IsAudioSlot;
-        IsAudioMuted = playerSlotController.IsMuted;
+        IsMuted = playerSlotController.IsMuted;
         IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
         IsRunning = player.State == PlaybackState.Playing;
         CanPlay = !IsRunning;
@@ -249,8 +256,16 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       }
       CheckShowMouseControls();
       if (AutoVisibility)
-        IsVisible = playerSlotController.IsActive;
+      {
+        SimplePropertyDataDescriptor dd;
+        if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsVisible", out dd))
+          SetValueInRenderThread(dd, playerSlotController.IsActive);
+        else
+          IsVisible = playerSlotController.IsActive;
+      }
     }
+
+    #endregion
 
     public override void Allocate()
     {
@@ -324,18 +339,18 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       internal set { _isAudioProperty.SetValue(value); }
     }
 
-    public Property IsAudioMutedProperty
+    public Property IsMutedProperty
     {
-      get { return _isAudioMutedProperty; }
+      get { return _isMutedProperty; }
     }
 
     /// <summary>
     /// Returns the information if the underlaying player is the audio player but is muted.
     /// </summary>
-    public bool IsAudioMuted
+    public bool IsMuted
     {
-      get { return (bool) _isAudioMutedProperty.GetValue(); }
-      internal set { _isAudioMutedProperty.SetValue(value); }
+      get { return (bool) _isMutedProperty.GetValue(); }
+      internal set { _isMutedProperty.SetValue(value); }
     }
 
     public Property IsCurrentPlayerProperty

@@ -8,7 +8,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate x:Name="AnalogClockTemplate">
-          <Grid Width="54" Height="54">
+          <Grid Width="54" Height="54" x:Name="AnalogClockGrid">
             <Ellipse VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="{ThemeResource AnalogClockBackgroundColor}" StrokeThickness="3">
               <Ellipse.Stroke>
                 <LinearGradientBrush>

@@ -13,6 +13,10 @@
     <Label Content="{Binding}"/>
   </DataTemplate>
 
+  <!-- ***************************** Converters ********************************* -->
+
+  <ExpressionMultiValueConverter x:Key="ExpressionConverter"/>
+
   <!-- ***************************** Brushes ******************************** -->
 
   <!-- default brush used to paint the background of a page/window -->
@@ -50,8 +54,14 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid>
-            <Rectangle x:Name="ProgressBarTrack" Margin="2,0,2,0" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
             <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarFillColor}"/>
           </Grid>
         </ControlTemplate>
@@ -619,10 +629,25 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource PlayControlMediaItemColor}"
                     Content="{Binding MediaItemTitle}"/>
-                <!-- TODO: Speaker symbol, striked out when muted -->
+                <Grid Grid.Row="0" Grid.Column="1" IsVisible="{Binding !ShowMouseControls}">
+                  <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioControlTemplate}"/>
+                  <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
+                    <Control.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                        <Binding Path="IsAudio"/>
+                        <Binding Path="IsMuted"/>
+                      </MultiBinding>
+                    </Control.IsVisible>
+                  </Control>
+                </Grid>
+                <Grid Grid.Row="0" Grid.Column="1" IsVisible="{Binding ShowMouseControls}">
+                  <CheckBox x:Name="AudioMuteOnOffButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource MuteCheckBoxStyle}"
+                      IsChecked="{Binding Path=IsMuted,Mode=TwoWay}"/>
+                </Grid>
               </Grid>
               <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}">
                 <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipBack}"
