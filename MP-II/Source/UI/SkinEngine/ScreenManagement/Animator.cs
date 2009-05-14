@@ -226,9 +226,12 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         }
         stoppedAnimations.Clear();
 
-        foreach (KeyValuePair<IDataDescriptor, object> valueToSet in _valuesToSet)
-          valueToSet.Key.Value = valueToSet.Value;
+        // We need to copy the values dictionary, because the setting of each value could cause changes to the
+        // values dictionary
+        IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>(_valuesToSet);
         _valuesToSet.Clear();
+        foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values)
+          valueToSet.Key.Value = valueToSet.Value;
       }
     }
 
