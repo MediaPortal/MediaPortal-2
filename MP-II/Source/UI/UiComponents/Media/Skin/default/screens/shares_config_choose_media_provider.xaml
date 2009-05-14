@@ -24,7 +24,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.ChooseMediaProviderForNewShare]" Wrap="True"/>
+        <Label Grid.Row="0" Content="[SharesConfig.ChooseMediaProviderForShare]" Wrap="True"/>
         <ListView Grid.Row="1" Margin="0,10,0,0"
             Style="{StaticResource SingleMarkableListViewStyle}"
             ItemsSource="{Binding Path=AllMediaProviders,Mode=OneTime}"/>

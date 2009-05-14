@@ -743,26 +743,39 @@ namespace UiComponents.Media.Settings.Configuration
       IsMetadataExtractorsSelected = false;
     }
 
-    protected bool InitializePropertiesWithShare(Guid shareId)
+    protected bool InitializePropertiesWithShare(Guid? shareId)
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
-      ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId);
-      if (shareDescriptor == null)
-        return false;
-      IMediaProvider mediaProvider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(shareDescriptor.MediaProviderId, out mediaProvider))
-        return false;
-      MediaProvider = mediaProvider;
-      MediaProviderPath = shareDescriptor.Path;
-      ShareName = shareDescriptor.Name;
-      MediaCategories.Clear();
-      CollectionUtils.AddAll(MediaCategories, shareDescriptor.MediaCategories);
-      MetadataExtractorIds.Clear();
-      CollectionUtils.AddAll(MetadataExtractorIds, shareDescriptor.MetadataExtractorIds);
-      // IsMetadataExtractorsSelected has always to be set also because it is derived from
-      // MediaCategories and MetadataExtractors
-      IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;
+      if (shareId.HasValue)
+      {
+        IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+        ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+        ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId.Value);
+        if (shareDescriptor == null)
+          return false;
+        IMediaProvider mediaProvider;
+        if (!mediaManager.LocalMediaProviders.TryGetValue(shareDescriptor.MediaProviderId, out mediaProvider))
+          return false;
+        MediaProvider = mediaProvider;
+        MediaProviderPath = shareDescriptor.Path;
+        ShareName = shareDescriptor.Name;
+        MediaCategories.Clear();
+        CollectionUtils.AddAll(MediaCategories, shareDescriptor.MediaCategories);
+        MetadataExtractorIds.Clear();
+        CollectionUtils.AddAll(MetadataExtractorIds, shareDescriptor.MetadataExtractorIds);
+        // IsMetadataExtractorsSelected has always to be set also because it is derived from
+        // MediaCategories and MetadataExtractors
+        IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;
+      }
+      else
+      {
+        MediaProvider = null;
+        MediaProviderPath = null;
+        ShareName = null;
+        MediaCategories.Clear();
+        MetadataExtractorIds.Clear();
+        // IsMetadataExtractorsSelected has to be set, see above
+        IsMetadataExtractorsSelected = false;
+      }
       return true;
     }
 
@@ -819,10 +832,16 @@ namespace UiComponents.Media.Settings.Configuration
           workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
       {
         if (workflowState == SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID)
+        {
           // This is a bit weird here. The state SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE has
           // the same function like the SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE, it is only
-          // necessary to do this additional internal initialization
+          // necessary to do some additional internal initialization because in the "add" case,
+          // the state SHARE_ADD_CHOOSE_MEDIA_PROVIDER_STATE_ID is the first one after the overview
           _editMode = ShareEditMode.AddShare;
+          InitializePropertiesWithShare(null);
+        }
+        // In the "edit" case, the state SHARE_EDIT_STATE_ID is active before SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID,
+        // so we do the initialization there
         UpdateMediaProvidersList();
       }
       else if (workflowState == SHARE_EDIT_EDIT_PATH_STATE_ID)
