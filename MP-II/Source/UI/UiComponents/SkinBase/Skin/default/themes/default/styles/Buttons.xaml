@@ -1201,9 +1201,9 @@
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}"/>
             <Path x:Name="PathHorz" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}"
-                Height="25" Width="25" Data="M6,12 L20,12 z" StrokeThickness="2"/>
+                Height="25" Width="25" Data="M5,12 L19,12 z" StrokeThickness="2"/>
             <Path x:Name="PathVert" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}"
-                Height="25" Width="25" Data="M12,6 L12,20 z" StrokeThickness="2"/>
+                Height="25" Width="25" Data="M12,5 L12,19 z" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
