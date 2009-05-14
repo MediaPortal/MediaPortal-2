@@ -75,6 +75,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Timer _timer;
     protected IResourceString _headerNormalResource;
     protected IResourceString _headerPipResource;
+    protected bool _initialized = false;
 
     #endregion
 
@@ -157,6 +158,9 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     void OnMuteChanged(Property prop, object oldValue)
     {
+      if (!_initialized)
+        // Avoid changing the player manager's mute state in the initialization phase
+        return;
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       playerManager.Muted = IsMuted;
     }
@@ -214,7 +218,6 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         Title = playerContext == null ? UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE : playerContext.Name;
         MediaItemTitle = null;
         IsAudio = false;
-        IsMuted = false;
         IsCurrentPlayer = false;
         CanPlay = false;
         CanPause = false;
@@ -242,7 +245,6 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         }
         MediaItemTitle = mit;
         IsAudio = playerSlotController.IsAudioSlot;
-        IsMuted = playerSlotController.IsMuted;
         IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
         IsRunning = player.State == PlaybackState.Playing;
         CanPlay = !IsRunning;
@@ -254,6 +256,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         CanSeekBackward = seekablePlayer != null && seekablePlayer.CanSeekBackward;
         CanSeekForward = seekablePlayer != null && seekablePlayer.CanSeekForward;
       }
+      IsMuted = playerManager.Muted;
       CheckShowMouseControls();
       if (AutoVisibility)
       {
@@ -263,6 +266,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         else
           IsVisible = playerSlotController.IsActive;
       }
+      _initialized = true;
     }
 
     #endregion
