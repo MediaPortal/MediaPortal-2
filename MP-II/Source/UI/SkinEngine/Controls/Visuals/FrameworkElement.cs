@@ -839,7 +839,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         if (RenderTransform != null)
         {
           matrix = new ExtendedMatrix();
-          matrix.Matrix *= SkinContext.FinalTransform.Matrix;
           Vector2 center = new Vector2(bounds.X + bounds.Width * RenderTransformOrigin.X,
               bounds.Y + bounds.Height * RenderTransformOrigin.Y);
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));

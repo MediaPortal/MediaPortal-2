@@ -125,14 +125,12 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
       double radians = Angle / 180.0 * Math.PI;
 
       if (CenterX == 0.0 && CenterY == 0.0)
-      {
-        _matrix = Matrix.RotationZ((float)radians);
-      }
+        _matrix = Matrix.RotationZ((float) radians);
       else
       {
-        _matrix = Matrix.Translation((float)-CenterX * SkinContext.Zoom.Width, (float)-CenterY * SkinContext.Zoom.Height, 0);
-        _matrix *= Matrix.RotationZ((float)radians);
-        _matrix *= Matrix.Translation((float)CenterX * SkinContext.Zoom.Width, (float)CenterY * SkinContext.Zoom.Height, 0);
+        _matrix = Matrix.Translation((float) -CenterX * SkinContext.Zoom.Width, (float) -CenterY * SkinContext.Zoom.Height, 0);
+        _matrix *= Matrix.RotationZ((float) radians);
+        _matrix *= Matrix.Translation((float) CenterX * SkinContext.Zoom.Width, (float) CenterY * SkinContext.Zoom.Height, 0);
       }
     }
 
@@ -142,14 +140,12 @@ namespace MediaPortal.SkinEngine.Controls.Transforms
       double radians = Angle / 180.0 * Math.PI;
 
       if (CenterX == 0.0 && CenterY == 0.0)
-      {
-        _matrixRel = Matrix.RotationZ((float)radians);
-      }
+        _matrixRel = Matrix.RotationZ((float) radians);
       else
       {
-        _matrixRel = Matrix.Translation((float)-CenterX, (float)-CenterY, 0);
-        _matrixRel *= Matrix.RotationZ((float)radians);
-        _matrixRel *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
+        _matrixRel = Matrix.Translation((float) -CenterX, (float) -CenterY, 0);
+        _matrixRel *= Matrix.RotationZ((float) radians);
+        _matrixRel *= Matrix.Translation((float) CenterX, (float) CenterY, 0);
       }
     }
   }
