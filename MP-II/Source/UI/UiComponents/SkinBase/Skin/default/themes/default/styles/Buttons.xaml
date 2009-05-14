@@ -513,43 +513,18 @@
                 </RadialGradientBrush>
               </Ellipse.Fill>
             </Ellipse>
-            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41" RenderTransformOrigin="0.5,0.5">
+            <Ellipse x:Name="ButtonShape" StrokeThickness="2" VerticalAlignment="Top" Margin="3.513,3.53,3.487,0" Width="41" Height="41">
               <Ellipse.Fill>
                 <RadialGradientBrush GradientOrigin="0.499,0.915">
-                  <RadialGradientBrush.RelativeTransform>
-                    <TransformGroup>
-                      <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1" ScaleY="0.993"/>
-                      <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
-                      <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
-                      <TranslateTransform X="0.001" Y="0.001"/>
-                    </TransformGroup>
-                  </RadialGradientBrush.RelativeTransform>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape1Color}" Offset="0"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape2Color}" Offset="0.332"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape3Color}" Offset="0.798"/>
                   <GradientStop Color="{ThemeResource DialogCloseButtonShape4Color}" Offset="1"/>
                 </RadialGradientBrush>
               </Ellipse.Fill>
-              <Ellipse.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                  <SkewTransform AngleX="0" AngleY="0"/>
-                  <RotateTransform Angle="0"/>
-                  <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-              </Ellipse.RenderTransform>
             </Ellipse>
             <Path x:Name="Cross" Stretch="Fill" Stroke="{ThemeResource DialogCloseButtonCrossColor}" StrokeThickness="2" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="15,15,0,0" Width="18" Height="18" Data="M0,20 L20,0 z M0,0 L20,20 z" RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1" ScaleY="1"/>
-                  <SkewTransform AngleX="0" AngleY="0"/>
-                  <RotateTransform Angle="0"/>
-                  <TranslateTransform X="0" Y="0"/>
-                </TransformGroup>
-              </Path.RenderTransform>
-            </Path>
+                Margin="15,15,0,0" Width="18" Height="18" Data="M0,20 L20,0 z M0,0 L20,20 z" RenderTransformOrigin="0.5,0.5"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -572,7 +547,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Control}">
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,2,0,2">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
