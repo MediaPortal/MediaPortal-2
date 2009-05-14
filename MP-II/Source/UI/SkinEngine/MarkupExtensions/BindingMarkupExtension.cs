@@ -560,7 +560,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     protected bool FindAncestor(DependencyObject current, out DependencyObject ancestor, FindParentMode mode, int ancestorLevel, Type ancestorType)
     {
-      if (!FindParent(current, out ancestor, mode)) // Start from the first ancestor
+      ancestor = null;
+      if (!FindParent(current, out current, mode)) // Start from the first ancestor
         return false;
       int ct = ancestorLevel;
       while (current != null)
@@ -569,7 +570,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
             ancestorType.IsAssignableFrom(current.GetType()))
           ct -= 1;
         if (ct == 0)
+        {
+          ancestor = current;
           return true;
+        }
         if (!FindParent(current, out current, mode))
           return false;
       }
@@ -898,7 +902,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         if (_bindingDependency != null)
           _bindingDependency.Detach();
         DependencyObject parent;
-        FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement));
+        if (!FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement)))
+          parent = null;
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
             attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
             parent as UIElement, _typeConverter);

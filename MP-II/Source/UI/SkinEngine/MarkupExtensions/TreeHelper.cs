@@ -49,17 +49,19 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       return parent != null;
     }
 
-    public static bool FindAncestorOfType(DependencyObject obj, out DependencyObject parent, Type ancestorType)
+    public static bool FindAncestorOfType(DependencyObject current, out DependencyObject ancestor, Type ancestorType)
     {
-      parent = null;
-      DependencyObject next = obj;
-      while (next != null)
+      ancestor = null;
+      while (current != null)
       {
-        parent = next;
         if (ancestorType == null ||
-            ancestorType.IsAssignableFrom(parent.GetType()))
+            ancestorType.IsAssignableFrom(current.GetType()))
+        {
+          ancestor = current;
           return true;
-        if (!FindParent_VT(parent, out next) && !FindParent_LT(parent, out next))
+        }
+        DependencyObject c = current;
+        if (!FindParent_VT(c, out current) && !FindParent_LT(c, out current))
           return false;
       }
       return false;
