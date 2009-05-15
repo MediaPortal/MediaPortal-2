@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.Xaml;
 
 namespace MediaPortal.SkinEngine.MarkupExtensions
@@ -35,7 +36,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
   {
     protected IDataDescriptor _sourceDd;
     protected IDataDescriptor _targetDd;
-    protected UIElement _targetParent;
+    protected DependencyObject _targetObject;
     protected bool _attachedToSource = false;
     protected bool _attachedToTarget = false;
     protected UIElement _attachedToLostFocus = null;
@@ -55,24 +56,25 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     /// will automatically attach to property changes of the <paramref name="targetDd"/> data descriptor and
     /// reflect the changed value to the <paramref name="sourceDd"/> data descriptor. If set to
     /// <see cref="UpdateSourceTrigger.LostFocus"/>, the new binding dependency will attach to the
-    /// <see cref="UIElement.EventOccured"/> event of the <paramref name="targetParent"/> object.
+    /// <see cref="UIElement.EventOccured"/> event of the <paramref name="parentUiElement"/> object.
     /// If set to <see cref="UpdateSourceTrigger.Explicit"/>, the new binding dependency won't attach to
     /// the target at all.</param>
-    /// <param name="targetParent">The parent <see cref="UIElement"/> of the specified <paramref name="targetDd"/>
-    /// data descriptor. The parent is needed to delegate the property setting to the render thread.
-    /// That avoids threading issues if our update methods are called from different threads.
-    /// The parameter is also used to attach to the lost focus event if <paramref name="updateSourceTrigger"/> is set to
-    /// <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
+    /// <param name="targetObject">This parameter is needed to delegate the property setting, which synchronizes the
+    /// setting to the render thread, if the target object supports it. That avoids threading issues if our update
+    /// methods are called from different threads.</param>
+    /// <param name="parentUiElement">The parent <see cref="UIElement"/> of the specified <paramref name="targetDd"/>
+    /// data descriptor. This parameter is only used to attach to the lost focus event if
+    /// <paramref name="updateSourceTrigger"/> is set to <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
     /// <param name="customTypeConverter">Set a custom type converter with this parameter. If this parameter
     /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
     public BindingDependency(
         IDataDescriptor sourceDd, IDataDescriptor targetDd,
         bool autoAttachToSource, UpdateSourceTrigger updateSourceTrigger,
-        UIElement targetParent, ITypeConverter customTypeConverter)
+        DependencyObject targetObject, UIElement parentUiElement, ITypeConverter customTypeConverter)
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
-      _targetParent = targetParent;
+      _targetObject = targetObject;
       _typeConverter = customTypeConverter;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
       {
@@ -88,9 +90,9 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         }
         else if (updateSourceTrigger == UpdateSourceTrigger.LostFocus)
         {
-          if (targetParent != null)
-            targetParent.EventOccured += OnTargetElementEventOccured;
-          _attachedToLostFocus = targetParent;
+          if (parentUiElement != null)
+            parentUiElement.EventOccured += OnTargetElementEventOccured;
+          _attachedToLostFocus = parentUiElement;
         }
       }
       // Initially update endpoints
@@ -162,8 +164,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         return;
       if (_targetDd.Value == value)
         return;
-      if (_targetParent != null)
-        _targetParent.SetValueInRenderThread(_targetDd, value);
+      if (_targetObject != null)
+        _targetObject.SetBindingValue(_targetDd, value);
       else
         _targetDd.Value = value;
     }

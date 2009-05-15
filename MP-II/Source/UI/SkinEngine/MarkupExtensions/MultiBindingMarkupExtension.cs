@@ -25,8 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.Xaml;
@@ -330,7 +328,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         if (KeepBinding) // This is the case if our target descriptor has a binding type
         { // In this case, this instance should be used rather than the evaluated source value
-          SetTargetValue(this);
+          if (_targetDataDescriptor != null)
+            _contextObject.SetBindingValue(_targetDataDescriptor, this);
           _retryBinding = false;
           return true;
         }
@@ -345,7 +344,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
           throw new XamlBindingException("MultiBindingMarkupExtension doesn't support BindingMode.TwoWay and BindingMode.OneWayToSource");
         else if (Mode == BindingMode.OneTime)
         {
-          SetTargetValue(sourceDd.Value);
+          _contextObject.SetBindingValue(_targetDataDescriptor, sourceDd.Value);
           _retryBinding = false;
           Dispose();
           return true; // In this case, we have finished with only assigning the value
@@ -353,10 +352,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         // else Mode == BindingMode.OneWay || Mode == BindingMode.Default
         if (_bindingDependency != null)
           _bindingDependency.Detach();
-        DependencyObject parent;
-        TreeHelper.FindAncestorOfType(_contextObject, out parent, typeof(UIElement));
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
-            UpdateSourceTrigger.Explicit, parent as UIElement, null);
+            UpdateSourceTrigger.Explicit, _contextObject, null, null);
         _retryBinding = false;
         return true;
       }

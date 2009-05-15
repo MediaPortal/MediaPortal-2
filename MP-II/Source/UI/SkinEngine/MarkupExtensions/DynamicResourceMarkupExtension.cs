@@ -279,7 +279,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       }
       else
         throw new XamlBindingException("AssignmentMode value {0} is not implemented", AssignmentMode);
-      SetTargetValue(TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType));
+      _contextObject.SetBindingValue(_targetDataDescriptor, TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType));
     }
 
     /// <summary>
@@ -339,7 +339,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       ResetEventHandlerAttachments();
       if (KeepBinding)
       { // This instance should be used rather than the evaluated source value
-        SetTargetValue(this);
+        if (_targetDataDescriptor != null)
+          _contextObject.SetBindingValue(_targetDataDescriptor, this);
         return true;
       }
       DependencyObject current = _contextObject;

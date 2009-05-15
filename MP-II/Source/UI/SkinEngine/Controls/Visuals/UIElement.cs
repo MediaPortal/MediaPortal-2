@@ -1065,6 +1065,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         child.Deallocate();
     }
 
+    public override void SetBindingValue(IDataDescriptor dd, object value)
+    {
+      SetValueInRenderThread(dd, value);
+    }
+
     public void SetScreen(Screen screen)
     {
       ForEachElementInTree_BreadthFirst(new SetScreenAction(screen));

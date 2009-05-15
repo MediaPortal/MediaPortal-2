@@ -131,17 +131,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected properties and methods
 
-    protected void SetTargetValue(object value)
-    {
-      DependencyObject parent;
-      TreeHelper.FindAncestorOfType(_contextObject, out parent, typeof(UIElement));
-      UIElement parentUiElement = parent as UIElement;
-      if (parentUiElement != null)
-        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
-      else
-        _targetDataDescriptor.Value = value;
-    }
-
     protected internal void AttachToTargetObject(DependencyObject obj)
     {
       if (obj == null)

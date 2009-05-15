@@ -196,5 +196,16 @@ namespace MediaPortal.SkinEngine.MpfElements
     }
 
     #endregion
+
+    /// <summary>
+    /// Sets the given data descriptor <paramref name="dd"/> to the specified <paramref name="value"/>.
+    /// Will be overridden in subclasses to synchronize property assignments with the render thread.
+    /// </summary>
+    /// <param name="dd">The data descriptor to be modified.</param>
+    /// <param name="value">The value to be set.</param>
+    public virtual void SetBindingValue(IDataDescriptor dd, object value)
+    {
+      dd.Value = value;
+    }
   }
 }

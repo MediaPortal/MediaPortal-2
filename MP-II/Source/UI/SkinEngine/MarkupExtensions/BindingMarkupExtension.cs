@@ -838,19 +838,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       return TypeConverter.Convert(val, targetType, out result);
     }
 
-    protected void SetTargetValue(object value)
-    {
-      if (_targetDataDescriptor == null)
-        return;
-      DependencyObject parent;
-      TreeHelper.FindParent_VT(_contextObject, out parent);
-      UIElement parentUiElement = parent as UIElement;
-      if (parentUiElement != null)
-        parentUiElement.SetValueInRenderThread(_targetDataDescriptor, value);
-      else
-        _targetDataDescriptor.Value = value;
-    }
-
     protected virtual bool UpdateBinding()
     {
       // Avoid recursive calls: For instance, this can occur when
@@ -863,7 +850,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       {
         if (KeepBinding) // This is the case if our target descriptor has a binding type
         { // In this case, this instance should be used rather than the evaluated source value
-          SetTargetValue(this);
+          if (_targetDataDescriptor != null)
+            _contextObject.SetBindingValue(_targetDataDescriptor, this);
           _retryBinding = false;
           return true;
         }
@@ -876,36 +864,40 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
         bool attachToSource = false;
         bool attachToTarget = false;
-        if (Mode == BindingMode.OneWay || Mode == BindingMode.Default)
-        // Currently, we don't really support the Default binding mode in
-        // MediaPortal skin engine. Maybe we will support it in future -
-        // then we'll be able to initialize the mode with a default value
-        // implied by our target data endpoint.
-          attachToSource = true;
-        else if (Mode == BindingMode.TwoWay)
+        switch (Mode)
         {
-          attachToSource = true;
-          attachToTarget = true;
-        }
-        else if (Mode == BindingMode.OneWayToSource)
-          attachToTarget = true;
-        else if (Mode == BindingMode.OneTime)
-        {
-          object value = sourceDd.Value;
-          if (!Convert(value, _targetDataDescriptor.DataType, out value))
-            return false;
-          SetTargetValue(value);
-          _retryBinding = false;
-          Dispose();
-          return true; // In this case, we have finished with only assigning the value
+          case BindingMode.Default:
+          case BindingMode.OneWay:
+            // Currently, we don't really support the Default binding mode in
+            // MediaPortal skin engine. Maybe we will support it in future -
+            // then we'll be able to initialize the mode with a default value
+            // implied by our target data endpoint.
+            attachToSource = true;
+            break;
+          case BindingMode.TwoWay:
+            attachToSource = true;
+            attachToTarget = true;
+            break;
+          case BindingMode.OneWayToSource:
+            attachToTarget = true;
+            break;
+          case BindingMode.OneTime:
+            object value = sourceDd.Value;
+            if (!Convert(value, _targetDataDescriptor.DataType, out value))
+              return false;
+            _contextObject.SetBindingValue(_targetDataDescriptor, value);
+            _retryBinding = false;
+            Dispose();
+            return true; // In this case, we have finished with only assigning the value
         }
         if (_bindingDependency != null)
           _bindingDependency.Detach();
         DependencyObject parent;
-        if (!FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement)))
+        if (UpdateSourceTrigger != UpdateSourceTrigger.LostFocus ||
+            !FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement)))
           parent = null;
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
-            attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
+            attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit, _contextObject,
             parent as UIElement, _typeConverter);
         _retryBinding = false;
         return true;
@@ -918,7 +910,7 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #endregion
 
-    #region IBinding implementation
+    #region Base overrides
 
     public override void Initialize(IParserContext context)
     {
@@ -932,10 +924,6 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
       base.Activate();
       UpdateBinding();
     }
-
-    #endregion
-
-    #region Base overrides
 
     public override string ToString()
     {
