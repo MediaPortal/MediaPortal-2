@@ -41,12 +41,12 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected float _totalHeight;
     protected float _totalWidth;
 
-    protected bool _canScroll = false; // Set to true if we are located in a scrollable container (ScrollViewer for example)
+    protected bool _canScroll = false; // Set to true by a scrollable container (ScrollViewer for example) if we should provide logical scrolling
 
-    // Offset of the first visible item which will be drawn at our ActualPosition - when modified by method
+    // Index of the first visible item which will be drawn at our ActualPosition - when modified by method
     // SetScrollOffset, it will be applied the next time Arrange is called.
-    protected int _scrollOffset = 0;
-    // Offset of the last visible child item. When scrolling, this index denotes the "opposite children" to the
+    protected int _scrollIndex = 0;
+    // Index of the last visible child item. When scrolling, this index denotes the "opposite children" to the
     // child denoted by the _scrollOffset.
     protected int _actualLastVisibleChild = -1;
 
@@ -87,7 +87,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #endregion
 
-    #region Public properties
+    #region Public properties & events
 
     public Property OrientationProperty
     {
@@ -113,12 +113,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       return result;
     }
 
-    public void SetScrollOffset(int scrollOffset)
+    public void SetScrollIndex(int scrollIndex)
     {
-      if (_scrollOffset == scrollOffset)
+      if (_scrollIndex == scrollIndex)
         return;
-      _scrollOffset = scrollOffset;
+      _scrollIndex = scrollIndex;
       Invalidate();
+      InvokeScrolled();
     }
 
     public override void Measure(ref SizeF totalSize)
@@ -226,25 +227,25 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                   spaceLeft -= child.TotalDesiredSize().Height;
                   if (spaceLeft < 0)
                     break; // Nothing to correct
-                  if (_scrollOffset > i)
+                  if (_scrollIndex > i)
                     // This child also fits into range
-                    _scrollOffset = i;
+                    _scrollIndex = i;
                 }
                 // Calculate start position
-                for (int i = 0; i < _scrollOffset; i++)
+                for (int i = 0; i < _scrollIndex; i++)
                 {
                   FrameworkElement child = visibleChildren[i];
                   startPositionY -= child.TotalDesiredSize().Height;
                 }
               }
               else
-                _scrollOffset = 0;
+                _scrollIndex = 0;
               _actualLastVisibleChild = -1;
               for (int i = 0; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
-                if (!_canScroll || (i >= _scrollOffset && startPositionY + childSize.Height <= bounds.Height))
+                if (!_canScroll || (i >= _scrollIndex && startPositionY + childSize.Height <= bounds.Height))
                   _actualLastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
@@ -277,25 +278,25 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                   spaceLeft -= child.TotalDesiredSize().Width;
                   if (spaceLeft < 0)
                     break; // Nothing to correct
-                  if (_scrollOffset > i)
+                  if (_scrollIndex > i)
                     // This child also fits into range
-                    _scrollOffset = i;
+                    _scrollIndex = i;
                 }
                 // Calculate start position
-                for (int i = 0; i < _scrollOffset; i++)
+                for (int i = 0; i < _scrollIndex; i++)
                 {
                   FrameworkElement child = visibleChildren[i];
                   startPositionX -= child.TotalDesiredSize().Width;
                 }
               }
               else
-                _scrollOffset = 0;
+                _scrollIndex = 0;
               _actualLastVisibleChild = -1;
-              for (int i = _scrollOffset; i < visibleChildrenCount; i++)
+              for (int i = _scrollIndex; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
-                if (!_canScroll || (i >= _scrollOffset && startPositionX + childSize.Width <= bounds.Width))
+                if (!_canScroll || (i >= _scrollIndex && startPositionX + childSize.Width <= bounds.Width))
                   _actualLastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
@@ -327,9 +328,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       base.Arrange(finalRect);
     }
 
+    private void InvokeScrolled()
+    {
+      ScrolledDlgt dlgt = Scrolled;
+      if (dlgt != null) dlgt(this);
+    }
+
     private void ScrollChildToFirst(int childIndex, IList<FrameworkElement> visibleChildren)
     {
-      SetScrollOffset(childIndex);
+      SetScrollIndex(childIndex);
     }
 
     private void ScrollChildToLast(int childIndex, IList<FrameworkElement> visibleChildren)
@@ -353,7 +360,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             }
             if (index < 0)
               index = 0;
-            SetScrollOffset(index);
+            SetScrollIndex(index);
           }
           break;
 
@@ -373,33 +380,70 @@ namespace MediaPortal.SkinEngine.Controls.Panels
             }
             if (index < 0)
               index = 0;
-            SetScrollOffset(index);
+            SetScrollIndex(index);
           }
           break;
       }
     }
 
-    public override void MakeVisible(UIElement element)
+    protected static double SumActualWidths(IList<FrameworkElement> elements, int startIndex, int endIndex)
     {
-      base.MakeVisible(this);
-      if (!_canScroll)
-        return;
-      IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-      int index = 0;
-      foreach (FrameworkElement currentChild in visibleChildren)
+      if (startIndex == endIndex || elements.Count == 0)
+        return 0f;
+      if (startIndex >= elements.Count)
+        startIndex = elements.Count - 1;
+      if (endIndex < 0)
+        endIndex = 0;
+      int direction = Math.Sign(endIndex - startIndex);
+      double result = 0;
+      for (int i = startIndex; direction * i < direction * endIndex; i += direction)
+        result += direction*elements[i].ActualWidth;
+      return result;
+    }
+
+    protected static double SumActualHeights(IList<FrameworkElement> elements, int startIndex, int endIndex)
+    {
+      if (startIndex == endIndex || elements.Count == 0)
+        return 0f;
+      if (startIndex >= elements.Count)
+        startIndex = elements.Count - 1;
+      if (endIndex < 0)
+        endIndex = 0;
+      int direction = Math.Sign(endIndex - startIndex);
+      double result = 0;
+      for (int i = startIndex; direction * i < direction * endIndex; i += direction)
+        result += direction*elements[i].ActualHeight;
+      return result;
+    }
+
+    public override void MakeVisible(UIElement element, RectangleF elementBounds)
+    {
+      if (_canScroll)
       {
-        if (InVisualPath(currentChild, element))
+        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
+        int index = 0;
+        foreach (FrameworkElement currentChild in visibleChildren)
         {
-          if (index < _scrollOffset)
-            ScrollChildToFirst(index, visibleChildren);
-          else if (index <= _actualLastVisibleChild)
+          if (InVisualPath(currentChild, element))
+          {
+            int oldScrollIndex = _scrollIndex;
+            if (index < _scrollIndex)
+              ScrollChildToFirst(index, visibleChildren);
+            else if (index <= _actualLastVisibleChild)
+              break;
+            else
+              ScrollChildToLast(index, visibleChildren);
+            // Adjust the scrolled element's bounds
+            if (Orientation == Orientation.Horizontal)
+              elementBounds.X -= (float) SumActualWidths(visibleChildren, oldScrollIndex, _scrollIndex);
+            else
+              elementBounds.Y -= (float) SumActualHeights(visibleChildren, oldScrollIndex, _scrollIndex);
             break;
-          else
-            ScrollChildToLast(index, visibleChildren);
-          break;
+          }
+          index++;
         }
-        index++;
       }
+      base.MakeVisible(element, elementBounds);
     }
 
     #endregion
@@ -408,6 +452,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     protected override void RenderChildren()
     {
+      // FIXME Alber: Remove lock statement here?
       lock (_orientationProperty)
       {
         RectangleF bounds = ActualBounds;
@@ -427,59 +472,6 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           element.Render();
         }
       }
-    }
-
-    #endregion
-
-    #region Focus movement
-
-    protected FrameworkElement GetFocusedElementOrChild()
-    {
-      FrameworkElement result = Screen == null ? null : Screen.FocusedElement;
-      if (result == null)
-        foreach (UIElement child in Children)
-        {
-          result = child as FrameworkElement;
-          if (result != null)
-            break;
-        }
-      return result;
-    }
-
-    /// <summary>
-    /// Moves the focus from the currently focused element in the screen to the first child element in the given
-    /// direction.
-    /// </summary>
-    /// <param name="direction">Direction to move the focus.</param>
-    /// <returns><c>true</c>, if the focus could be moved to the desired child, else <c>false</c>.</returns>
-    protected bool MoveFocus1(MoveFocusDirection direction)
-    {
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      if (currentElement == null)
-        return false;
-      FrameworkElement nextElement = PredictFocus(currentElement.ActualBounds, direction);
-      if (nextElement == null) return false;
-      nextElement.TrySetFocus();
-      return true;
-    }
-
-    /// <summary>
-    /// Moves the focus from the currently focused element in the screen to our last child in the given
-    /// direction. For example if <c>direction == MoveFocusDirection.Up</c>, this method tries to focus the
-    /// topmost child.
-    /// </summary>
-    /// <param name="direction">Direction to move the focus.</param>
-    /// <returns><c>true</c>, if the focus could be moved to the desired child, else <c>false</c>.</returns>
-    protected bool MoveFocusN(MoveFocusDirection direction)
-    {
-      FrameworkElement currentElement = GetFocusedElementOrChild();
-      if (currentElement == null)
-        return false;
-      FrameworkElement nextElement;
-      while ((nextElement = PredictFocus(currentElement.ActualBounds, direction)) != null)
-        currentElement = nextElement;
-      currentElement.TrySetFocus();
-      return true;
     }
 
     #endregion
@@ -525,7 +517,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         if (visibleChildren.Count == 0)
           return false;
-        FrameworkElement firstVisibleChild = visibleChildren[_scrollOffset];
+        FrameworkElement firstVisibleChild = visibleChildren[_scrollIndex];
         float limitPosition;
         if (InVisualPath(firstVisibleChild, currentElement))
           // The topmost element is focused - move one page up
@@ -581,7 +573,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         if (visibleChildren.Count == 0)
           return false;
-        FrameworkElement firstVisibleChild = visibleChildren[_scrollOffset];
+        FrameworkElement firstVisibleChild = visibleChildren[_scrollIndex];
         float limitPosition;
         if (InVisualPath(firstVisibleChild, currentElement))
           // The leftmost element is focused - move one page left
@@ -640,6 +632,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     #region IScrollInfo implementation
 
+    public event ScrolledDlgt Scrolled;
+
     public bool CanScroll
     {
       get { return _canScroll; }
@@ -667,7 +661,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         float spaceBefore = 0;
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        for (int i = 0; i < _scrollOffset; i++)
+        for (int i = 0; i < _scrollIndex; i++)
           spaceBefore += visibleChildren[i].TotalDesiredSize().Width;
         return spaceBefore;
       }
@@ -684,7 +678,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         float spaceBefore = 0;
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        for (int i = 0; i < _scrollOffset; i++)
+        for (int i = 0; i < _scrollIndex; i++)
           spaceBefore += visibleChildren[i].TotalDesiredSize().Height;
         return spaceBefore;
       }
@@ -696,7 +690,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (Orientation == Panels.Orientation.Horizontal)
           return true;
-        return _scrollOffset == 0;
+        return _scrollIndex == 0;
       }
     }
 
@@ -717,7 +711,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         if (Orientation == Panels.Orientation.Vertical)
           return true;
-        return _scrollOffset == 0;
+        return _scrollIndex == 0;
       }
     }
 

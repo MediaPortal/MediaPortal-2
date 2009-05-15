@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
@@ -42,6 +41,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected Property _scrollBarYKnobPosProperty;
     protected Property _scrollBarYKnobHeightProperty;
     protected Property _scrollBarYVisibleProperty;
+
+    protected Property _canContentScrollProperty;
 
     #endregion
 
@@ -62,6 +63,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _scrollBarYKnobPosProperty = new Property(typeof(float), 0f);
       _scrollBarYKnobHeightProperty = new Property(typeof(float), 30f);
       _scrollBarYVisibleProperty = new Property(typeof(bool), false);
+
+      _canContentScrollProperty = new Property(typeof(bool), false);
     }
 
     void Attach()
@@ -83,11 +86,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ScrollBarXKnobWidth = sv.ScrollBarXKnobWidth;
       ScrollBarYKnobPos = sv.ScrollBarYKnobPos;
       ScrollBarYKnobHeight = sv.ScrollBarYKnobHeight;
+      CanContentScroll = sv.CanContentScroll;
       Attach();
+      copyManager.CopyCompleted += OnCopyCompleted;
+    }
+
+    #endregion
+
+    void OnCopyCompleted(ICopyManager copyManager)
+    {
       UpdateScrollBars();
       ConfigureContentScrollFacility();
     }
-    #endregion
 
     void OnContentChanged(Property property, object oldValue)
     {
@@ -95,13 +105,38 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       ConfigureContentScrollFacility();
     }
 
+    protected override ContentPresenter FindContentPresenter()
+    {
+      return TemplateControl == null ? null :
+          TemplateControl.FindElement_DepthFirst(new SubTypeFinder(typeof(ScrollContentPresenter))) as ContentPresenter;
+    }
+
+    /// <summary>
+    /// Returns the control which is responsible for the scrolling.
+    /// </summary>
+    /// <remarks>
+    /// Depending on our property <see cref="CanContentScroll"/>, either our content presenter's content will
+    /// do the scrolling (<c>CanContentScroll == true</c>, i.e. logical scrolling) or the content presenter itself
+    /// (<c>CanContentScroll == false</c>, i.e. physical scrolling).
+    /// </remarks>
+    /// <returns>The control responsible for doing the scrolling.</returns>
+    protected IScrollInfo FindScrollControl()
+    {
+      ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
+      if (scp == null)
+        return null;
+      if (CanContentScroll)
+        return scp.Content as IScrollInfo;
+      else
+        return scp;
+    }
+
     void UpdateScrollBars()
     {
-      ScrollContentPresenter scp =
-          FindElement_DepthFirst(new SubTypeFinder(typeof(ScrollContentPresenter))) as ScrollContentPresenter;
+      ScrollContentPresenter scp = FindContentPresenter() as ScrollContentPresenter;
       if (scp == null)
         return;
-      IScrollInfo scrollInfo = scp.TemplateControl as IScrollInfo;
+      IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
       float totalWidth = Math.Max(1, scrollInfo.TotalWidth);
@@ -122,10 +157,16 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void ConfigureContentScrollFacility()
     {
-      IScrollInfo scrollInfo = Content as IScrollInfo;
+      IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
       scrollInfo.CanScroll = true;
+      scrollInfo.Scrolled += OnScrollInfoScrolled;
+    }
+
+    void OnScrollInfoScrolled(object sender)
+    {
+      UpdateScrollBars();
     }
 
     public Property ScrollBarXKnobPosProperty
@@ -194,10 +235,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       set { _scrollBarYVisibleProperty.SetValue(value); }
     }
 
-    public override void Arrange(RectangleF finalRect)
+    public Property CanContentScrollProperty
     {
-      base.Arrange(finalRect);
-      UpdateScrollBars();
+      get { return _canContentScrollProperty; }
+    }
+
+    public bool CanContentScroll
+    {
+      get { return (bool) _canContentScrollProperty.GetValue(); }
+      set { _canContentScrollProperty.SetValue(value); }
     }
 
     public override void OnKeyPressed(ref Key key)
@@ -252,49 +298,49 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     bool OnHome()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusHome();
     }
 
     bool OnEnd()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusEnd();
     }
 
     bool OnPageDown()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusPageDown();
     }
 
     bool OnPageUp()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusPageUp();
     }
 
     bool OnLeft()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusLeft();
     }
 
     bool OnRight()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusRight();
     }
 
     bool OnDown()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusDown();
     }
 
     bool OnUp()
     {
-      IScrollViewerFocusSupport svfs = Content as IScrollViewerFocusSupport;
+      IScrollViewerFocusSupport svfs = FindScrollControl() as IScrollViewerFocusSupport;
       return svfs != null && svfs.FocusUp();
     }
   }

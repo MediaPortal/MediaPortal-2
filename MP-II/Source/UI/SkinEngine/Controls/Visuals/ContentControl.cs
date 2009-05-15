@@ -74,14 +74,19 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Content = copyManager.GetCopy(c.Content);
       ContentTemplate = copyManager.GetCopy(c.ContentTemplate);
       Attach();
-      InitializeContentPresenter();
+      copyManager.CopyCompleted += OnCopyCompleted;
     }
 
     #endregion
 
     #region Eventhandlers
 
-    new void OnTemplateControlChanged(Property property, object oldValue)
+    void OnCopyCompleted(ICopyManager copyManager)
+    {
+      InitializeContentPresenter();
+    }
+
+    void OnTemplateControlChanged(Property property, object oldValue)
     {
       InitializeContentPresenter();
     }
@@ -134,7 +139,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected ContentPresenter FindContentPresenter()
+    protected virtual ContentPresenter FindContentPresenter()
     {
       return TemplateControl == null ? null : TemplateControl.FindElement(
           new SubTypeFinder(typeof(ContentPresenter))) as ContentPresenter;

@@ -61,11 +61,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
+    private void InvokeScrolled()
+    {
+      ScrolledDlgt dlgt = Scrolled;
+      if (dlgt != null) dlgt(this);
+    }
+
     protected void UpdateCanScroll()
     {
       IScrollInfo si = _itemsHostPanel as IScrollInfo;
       if (si != null)
+      {
         si.CanScroll = _canScroll;
+        si.Scrolled += OnItemsPanelScrolled; // Repeat the Scrolled event to our subscribers
+      }
+    }
+
+    void OnItemsPanelScrolled(object sender)
+    {
+      InvokeScrolled();
     }
 
     public void ApplyTemplate(ItemsPanelTemplate template)
@@ -239,6 +253,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     #endregion
 
     #region IScrollInfo implementation
+
+    public event ScrolledDlgt Scrolled;
 
     public bool CanScroll
     {

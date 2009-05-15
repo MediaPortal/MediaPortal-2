@@ -232,7 +232,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         PointF position = new PointF(finalRect.X, finalRect.Y);
         SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
         ArrangeChild(_templateControl, ref position, ref availableSize);
-        _templateControl.Arrange(finalRect);
+        RectangleF childRect = new RectangleF(position, availableSize);
+        _templateControl.Arrange(childRect);
       }
 
       if (LayoutTransform != null)

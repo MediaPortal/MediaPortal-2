@@ -22,8 +22,14 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Controls
+namespace MediaPortal.SkinEngine.Controls.Visuals
 {
+  /// <summary>
+  /// Will be used for the <see cref="IScrollInfo.Scrolled"/> event.
+  /// </summary>
+  /// <param name="sender">The <see cref="IScrollInfo"/> instance which scrolled.</param>
+  public delegate void ScrolledDlgt(object sender);
+
   /// <summary>
   /// This interface provides methods to get information about the current
   /// scrolling state.
@@ -40,6 +46,11 @@ namespace MediaPortal.SkinEngine.Controls
   /// </remarks>
   public interface IScrollInfo
   {
+    /// <summary>
+    /// Will be called when 
+    /// </summary>
+    event ScrolledDlgt Scrolled;
+
     /// <summary>
     /// Gets or switches the ability to scroll. If this property is set, this object
     /// is contained in a scroll container. This may affect the desired width and height

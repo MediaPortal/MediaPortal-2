@@ -98,7 +98,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #region Change handlers
 
-    protected void OnTemplateChanged(Property property, object oldValue)
+    void OnTemplateChanged(Property property, object oldValue)
     {
       if (Template != null)
       {
@@ -112,7 +112,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         TemplateControl = null;
     }
 
-    protected void OnTemplateControlChanged(Property property, object oldValue)
+    void OnTemplateControlChanged(Property property, object oldValue)
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
       if (oldTemplateControl != null)

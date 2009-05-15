@@ -220,7 +220,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       if (HasFocus)
       {
-        MakeVisible(this);
+        MakeVisible(this, ActualBounds);
         if (Screen != null)
           Screen.FrameworkElementGotFocus(this);
       }
@@ -646,6 +646,59 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     #region Focus & control predicition
+
+    #region Focus movement
+
+    protected FrameworkElement GetFocusedElementOrChild()
+    {
+      FrameworkElement result = Screen == null ? null : Screen.FocusedElement;
+      if (result == null)
+        foreach (UIElement child in GetChildren())
+        {
+          result = child as FrameworkElement;
+          if (result != null)
+            break;
+        }
+      return result;
+    }
+
+    /// <summary>
+    /// Moves the focus from the currently focused element in the screen to the first child element in the given
+    /// direction.
+    /// </summary>
+    /// <param name="direction">Direction to move the focus.</param>
+    /// <returns><c>true</c>, if the focus could be moved to the desired child, else <c>false</c>.</returns>
+    protected bool MoveFocus1(MoveFocusDirection direction)
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      FrameworkElement nextElement = PredictFocus(currentElement.ActualBounds, direction);
+      if (nextElement == null) return false;
+      nextElement.TrySetFocus();
+      return true;
+    }
+
+    /// <summary>
+    /// Moves the focus from the currently focused element in the screen to our last child in the given
+    /// direction. For example if <c>direction == MoveFocusDirection.Up</c>, this method tries to focus the
+    /// topmost child.
+    /// </summary>
+    /// <param name="direction">Direction to move the focus.</param>
+    /// <returns><c>true</c>, if the focus could be moved to the desired child, else <c>false</c>.</returns>
+    protected bool MoveFocusN(MoveFocusDirection direction)
+    {
+      FrameworkElement currentElement = GetFocusedElementOrChild();
+      if (currentElement == null)
+        return false;
+      FrameworkElement nextElement;
+      while ((nextElement = PredictFocus(currentElement.ActualBounds, direction)) != null)
+        currentElement = nextElement;
+      currentElement.TrySetFocus();
+      return true;
+    }
+
+    #endregion
 
     /// <summary>
     /// Predicts the next control which is positioned in the specified direction

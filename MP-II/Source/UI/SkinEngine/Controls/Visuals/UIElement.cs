@@ -683,8 +683,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Will make this element scroll the specified <paramref name="element"/> in a visible
-    /// position inside this element's borders. If this element cannot scroll, it will delegate
-    /// the call to its visual parent.
+    /// position inside this element's borders. The call should also be delegated to the parent element
+    /// with the original element and its updated bounds as parameter; this will make all parents also
+    /// scroll their visible range.
     /// </summary>
     /// <remarks>
     /// This method will be overridden by classes which can scroll their content. Such a class
@@ -694,12 +695,17 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// while undoing layout transformations which will be applied to children.</item>
     /// <item>Call this inherited method, which delegates the call to the visual parent.</item>
     /// </list>
+    /// The call to the visual parent should use the same <paramref name="element"/> but an updated
+    /// <paramref name="elementBounds"/> rectangle.
     /// </remarks>
-    public virtual void MakeVisible(UIElement element)
+    /// <param name="element">The original element which should be made visible.</param>
+    /// <param name="elementBounds">The element's bounds after the scrolling update has taken place in the
+    /// next layout cycle.</param>
+    public virtual void MakeVisible(UIElement element, RectangleF elementBounds)
     {
       UIElement parent = VisualParent as UIElement;
       if (parent != null)
-        parent.MakeVisible(element);
+        parent.MakeVisible(element, elementBounds);
     }
 
     /// <summary>

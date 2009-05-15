@@ -399,7 +399,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}" CanContentScroll="true">
             <ItemsPresenter VerticalAlignment="Top"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -526,7 +526,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}" CanContentScroll="false">
             <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
           </ScrollViewer>
         </ControlTemplate>
