@@ -34,7 +34,7 @@ namespace MediaPortal.Presentation.Models
   /// virtual <see cref="Update"/> method which will be called automatically in a configurable interval.
   /// This class provides initialization and virtual disposal methods for the timer and for system message queue registrations.
   /// </summary>
-  public abstract class BaseTimerControlledUIModel : BaseMessageControlledUIModel, IDisposable
+  public abstract class BaseTimerControlledUIModel : BaseMessageControlledUIModel
   {
     protected Timer _timer = null;
 
@@ -60,7 +60,7 @@ namespace MediaPortal.Presentation.Models
     /// <summary>
     /// Stops the timer and unsubscribes from messages.
     /// </summary>
-    public virtual void Dispose()
+    public override void Dispose()
     {
       StopListening();
       UnsubscribeFromMessages();
@@ -82,7 +82,7 @@ namespace MediaPortal.Presentation.Models
     /// <summary>
     /// Removes message queue registrations.
     /// </summary>
-    protected virtual void UnsubscribeFromMessages()
+    protected override void UnsubscribeFromMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async -= OnSystemMessageReceived;
@@ -116,7 +116,7 @@ namespace MediaPortal.Presentation.Models
     /// overridden in subclasses, this method has to be called also.
     /// </summary>
     /// <param name="message">The system message which was recieved.</param>
-    protected virtual void OnSystemMessageReceived(QueueMessage message)
+    protected override void OnSystemMessageReceived(QueueMessage message)
     {
       SystemMessaging.MessageType messageType =
           (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
