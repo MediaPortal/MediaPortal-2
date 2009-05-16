@@ -215,13 +215,10 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         SkinContext.RemoveLayoutTransform();
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      if (!finalRect.IsEmpty)
-      {
-        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
-          _performLayout = true;
-        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-        if (Screen != null) Screen.Invalidate(this);
-      }
+      if (_finalRect != finalRect)
+        _performLayout = true;
+      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+      if (Screen != null) Screen.Invalidate(this);
       base.Arrange(finalRect);
     }
 

@@ -154,6 +154,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         oldBackground.ObjectChanged -= OnBrushChanged;
       if (Background != null)
         Background.ObjectChanged += OnBrushChanged;
+      _performLayout = true;
+      if (Screen != null) Screen.Invalidate(this);
     }
 
     public Property BackgroundProperty
@@ -272,7 +274,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         return;
       _performLayout = false;
 
-      //Trace.WriteLine("Panel.AdaptToLayoutChange() " + Name + " -" + GetType().ToString());
+      //Trace.WriteLine("Panel.PerformLayout() " + Name + " -" + GetType().ToString());
 
       if (Background != null)
       {
