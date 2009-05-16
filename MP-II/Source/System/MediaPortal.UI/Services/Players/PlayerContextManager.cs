@@ -425,7 +425,7 @@ namespace MediaPortal.Services.Players
           IPlayerContext playerContext = GetPlayerContext(i);
           if (playerContext == null)
             continue;
-          CollectionUtils.AddAll(result, AudioStreamDescriptor.GetAudioStreamDescriptors(playerContext));
+          CollectionUtils.AddAll(result, playerContext.GetAudioStreamDescriptors());
         }
         return result;
       }

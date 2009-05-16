@@ -22,8 +22,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-
 namespace MediaPortal.Presentation.Players
 {
   /// <summary>
@@ -87,15 +85,5 @@ namespace MediaPortal.Presentation.Players
     }
 
     #endregion
-
-    public static IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors(IPlayerContext playerContext)
-    {
-      IVideoPlayer player = playerContext.CurrentPlayer as IVideoPlayer;
-      if (player == null)
-        yield break;
-      ICollection<string> audioStreamNames = player.AudioStreams;
-      foreach (string streamName in audioStreamNames)
-        yield return new AudioStreamDescriptor(playerContext, player.Name, streamName);
-    }
   }
 }

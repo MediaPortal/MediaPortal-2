@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Timers;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
@@ -32,6 +34,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
+using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -49,6 +52,12 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     public const string UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE = "[PlayerControl.UnknownPlayerContextName]";
     public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
     public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPip]";
+
+    public const string PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
+    public static Guid PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID = new Guid(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR);
+
+    public const string KEY_PLAYER_SLOT = "PlayerSlot";
+    public const string KEY_SHOW_MUTE = "ShowMute";
 
     #endregion
 
@@ -283,7 +292,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _timer.Enabled = false;
     }
 
-    #region Public properties
+    #region Public menbers, to be accessed via the GUI
 
     public Property SlotIndexProperty
     {
@@ -476,6 +485,31 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _isPipProperty.GetValue(); }
       set { _isPipProperty.SetValue(value); }
+    }
+
+    public void AudioButtonPressed()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerContext playerContext = GetPlayerContext();
+      IList<AudioStreamDescriptor> audioStreamDescriptors =
+          new List<AudioStreamDescriptor>(playerContext.GetAudioStreamDescriptors());
+      if (audioStreamDescriptors.Count <= 1)
+        if (IsAudio)
+          playerManager.Muted ^= true;
+        else
+        {
+          playerManager.AudioSlotIndex = SlotIndex;
+          playerManager.Muted = false;
+        }
+      else
+      {
+        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, new Dictionary<string, object>()
+          {
+              {KEY_PLAYER_SLOT, SlotIndex},
+              {KEY_SHOW_MUTE, !IsAudio}
+          });
+      }
     }
 
     #endregion

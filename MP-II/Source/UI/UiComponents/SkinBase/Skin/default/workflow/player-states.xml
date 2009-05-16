@@ -8,5 +8,8 @@
     <DialogState Id="A3F53310-4D93-4f93-8B09-D53EE8ACD829"
         Name="ChooseAudioStreamDialog" DialogScreen="DialogChooseAudioStream"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
+    <DialogState Id="428326CE-9DE1-41ff-A33B-BBB80C8AFAC5"
+        Name="PlayerSlotAudioDialog" DialogScreen="DialogPlayerSlotAudio"
+        WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
   </States>
 </Workflow>

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
@@ -132,6 +133,12 @@ namespace MediaPortal.Presentation.Players
     /// which don't extract metadata from the media file themselves.</param>
     /// <returns><c>true</c>, if the specified item could be played, else <c>false</c>.</returns>
     bool DoPlay(IMediaItemLocator locator, string mimeType, string mediaItemTitle);
+
+    /// <summary>
+    /// Returns all audio stream descriptors for this player context.
+    /// </summary>
+    /// <returns>Enumeration of audio stream descriptors.</returns>
+    IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors();
 
     /// <summary>
     /// Sets a user-defined context variable in this player context.

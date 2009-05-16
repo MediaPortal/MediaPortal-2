@@ -226,6 +226,9 @@
   <!-- Yellow -->
   <ResourceWrapper x:Key="PlayControlsFillColor" Resource="Yellow"/>
 
+  <!-- Light gray -->
+  <ResourceWrapper x:Key="InactivePlayControlsFillColor" Resource="LightGray"/>
+
   <!-- Red -->
   <ResourceWrapper x:Key="PlayControlsMuteOffCrossColor" Resource="Red"/>
 

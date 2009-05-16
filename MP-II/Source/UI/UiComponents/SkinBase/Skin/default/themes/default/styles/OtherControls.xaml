@@ -614,7 +614,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
           <GroupBox x:Name="Shine" Style="{ThemeResource PlayerControlGroupBoxStyle}"
-              Header="{TemplateBinding Title}" HeaderColor="{ThemeResource PlayControlTitleColor}">
+              DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+              Header="{Binding Title}" HeaderColor="{ThemeResource PlayControlTitleColor}">
             <GroupBox.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="0"/>
@@ -622,7 +623,7 @@
                 <GradientStop Color="{ThemeResource PlayerControlBackgroundColor}" Offset="1"/>
               </LinearGradientBrush>
             </GroupBox.Background>
-            <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <StackPanel Orientation="Vertical">
               <Grid Margin="5" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto"/>
@@ -634,7 +635,7 @@
                 <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource PlayControlMediaItemColor}"
                     Content="{Binding MediaItemTitle}"/>
                 <Grid Grid.Row="0" Grid.Column="1" IsVisible="{Binding !ShowMouseControls}">
-                  <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioControlTemplate}"/>
+                  <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
                   <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
                     <Control.IsVisible>
                       <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -645,8 +646,10 @@
                   </Control>
                 </Grid>
                 <Grid Grid.Row="0" Grid.Column="1" IsVisible="{Binding ShowMouseControls}">
-                  <CheckBox x:Name="AudioMuteOnOffButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource MuteCheckBoxStyle}"
-                      IsChecked="{Binding Path=IsMuted,Mode=TwoWay}"/>
+                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                      Command="{Command AudioButtonPressed}"/>
+                  <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                      Command="{Command AudioButtonPressed}"/>
                 </Grid>
               </Grid>
               <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}">

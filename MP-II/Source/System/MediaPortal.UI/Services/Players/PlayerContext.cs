@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
@@ -176,6 +177,16 @@ namespace MediaPortal.Services.Players
           return false;
         else
           return psc.Play(locator, mimeType, mediaItemTitle);
+    }
+
+    public IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors()
+    {
+      IVideoPlayer player = CurrentPlayer as IVideoPlayer;
+      if (player == null)
+        yield break;
+      ICollection<string> audioStreamNames = player.AudioStreams;
+      foreach (string streamName in audioStreamNames)
+        yield return new AudioStreamDescriptor(this, player.Name, streamName);
     }
 
     public void SetContextVariable(string key, object value)

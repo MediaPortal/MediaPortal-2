@@ -41,12 +41,17 @@ namespace UiComponents.SkinBase.Models
   public class PlayerConfigurationDialogModel : BaseMessageControlledUIModel, IWorkflowModel
   {
     public const string PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR = "58A7F9E3-1514-47af-8E83-2AD60BA8A037";
-    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID_STR = "D0B79345-69DF-4870-B80E-39050434C8B3";
-    public const string CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID_STR = "A3F53310-4D93-4f93-8B09-D53EE8ACD829";
-
     public static Guid PLAYER_CONFIGURATION_DIALOG_MODEL_ID = new Guid(PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR);
-    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE_ID = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID_STR);
+
+    public const string CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID_STR = "A3F53310-4D93-4f93-8B09-D53EE8ACD829";
     public static Guid CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID = new Guid(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID_STR);
+    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID_STR = "D0B79345-69DF-4870-B80E-39050434C8B3";
+    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE_ID = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID_STR);
+    public const string PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
+    public static Guid PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID = new Guid(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR);
+
+    public const string KEY_PLAYER_SLOT = "PlayerSlot";
+    public const string KEY_SHOW_MUTE = "ShowMute";
 
     protected const string KEY_NAME = "Name";
 
@@ -59,11 +64,24 @@ namespace UiComponents.SkinBase.Models
     protected const string MUTE_OFF_RESOURCE = "[Players.MuteOff]";
     protected const string CLOSE_PLAYER_CONTEXT_RESOURCE = "[Players.ClosePlayerContext]";
 
-    protected ItemsList _playerConfigurationMenu = new ItemsList();
-    protected ItemsList _audioStreamsMenu = new ItemsList();
+    protected const string PLAYER_SLOT_AUDIO_MENU_RESOURCE = "[Players.PlayerSlotAudioMenu]";
+
     protected object _syncObj = new object();
+
+    // Mode 1: Player configuration menu dialog
     protected bool _inPlayerConfigurationDialog = false;
+    protected ItemsList _playerConfigurationMenu = new ItemsList();
+
+    // Mode 2: Choose audio streams dialog
     protected bool _inChooseAudioStreamDialog = false;
+    protected ItemsList _audioStreamsMenu = new ItemsList();
+
+    // Mode 3: Audio menu for a special player slot
+    protected bool _inPlayerSlotAudioMenuDialog = false;
+    protected int _slotIndex = 0;
+    protected bool _showToggleMute = true;
+    protected ItemsList _playerSlotAudioMenu = new ItemsList();
+    protected string _playerSlotAudioMenuHeader = null;
 
     public PlayerConfigurationDialogModel()
     {
@@ -138,7 +156,7 @@ namespace UiComponents.SkinBase.Models
         IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
         int numActiveSlots = playerManager.NumActiveSlots;
-        // Build player configuration menu
+
         _playerConfigurationMenu.Clear();
         if (numActiveSlots > 1)
         {
@@ -209,33 +227,25 @@ namespace UiComponents.SkinBase.Models
       // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
         IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-        ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams();
 
-        // Build audio streams menu
         _audioStreamsMenu.Clear();
         // Cluster by player
         IDictionary<IPlayerContext, ICollection<AudioStreamDescriptor>> streamsByPlayerContext =
             new Dictionary<IPlayerContext, ICollection<AudioStreamDescriptor>>();
-        foreach (AudioStreamDescriptor asd in audioStreams)
+        for (int i = 0; i < playerManager.NumActiveSlots; i++)
         {
-          IPlayerContext pc = asd.PlayerContext;
-          ICollection<AudioStreamDescriptor> asds;
-          if (!streamsByPlayerContext.TryGetValue(pc, out asds))
-            streamsByPlayerContext[pc] = asds = new List<AudioStreamDescriptor>();
-          asds.Add(asd);
-        }
-        foreach (KeyValuePair<IPlayerContext, ICollection<AudioStreamDescriptor>> pasds in streamsByPlayerContext)
-        {
-          IPlayerContext pc = pasds.Key;
+          IPlayerContext pc = playerContextManager.GetPlayerContext(i);
           IPlayer player = pc.CurrentPlayer;
-          foreach (AudioStreamDescriptor asd in pasds.Value)
+          IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors());
+          foreach (AudioStreamDescriptor asd in asds)
           {
             string playedItem = player == null ? null : player.MediaItemTitle;
             if (playedItem == null)
               playedItem = pc.Name;
             string choiceItemName;
-            if (pasds.Value.Count > 1)
+            if (asds.Count > 1)
                 // Only display the audio stream name if the player has more than one audio stream
               choiceItemName = playedItem + ": " + asd.AudioStreamName;
             else
@@ -249,6 +259,57 @@ namespace UiComponents.SkinBase.Models
           }
         }
         _audioStreamsMenu.FireChange();
+      }
+    }
+
+    protected void UpdatePlayerSlotAudioMenu()
+    {
+      // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
+      lock (_syncObj)
+      {
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+
+        _playerSlotAudioMenu.Clear();
+        IPlayerContext pc = playerContextManager.GetPlayerContext(_slotIndex);
+        IPlayer player = pc.CurrentPlayer;
+        IList<AudioStreamDescriptor> asds = new List<AudioStreamDescriptor>(pc.GetAudioStreamDescriptors());
+        foreach (AudioStreamDescriptor asd in asds)
+        {
+          string playedItem = player == null ? null : player.MediaItemTitle;
+          if (playedItem == null)
+            playedItem = pc.Name;
+          string choiceItemName;
+          if (asds.Count > 1)
+              // Only display the audio stream name if the player has more than one audio stream
+            choiceItemName = playedItem + ": " + asd.AudioStreamName;
+          else
+            choiceItemName = playedItem;
+          AudioStreamDescriptor asdClosureCopy = asd;
+          ListItem item = new ListItem(KEY_NAME, choiceItemName)
+            {
+                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+            };
+          _playerSlotAudioMenu.Add(item);
+        }
+        if (_showToggleMute)
+        {
+          ListItem item;
+          if (playerManager.Muted)
+            item = new ListItem(KEY_NAME, MUTE_OFF_RESOURCE)
+              {
+                  Command = new MethodDelegateCommand(PlayersResetMute)
+              };
+          else
+            item = new ListItem(KEY_NAME, MUTE_RESOURCE)
+              {
+                  Command = new MethodDelegateCommand(PlayersMute)
+              };
+          _playerSlotAudioMenu.Add(item);
+        }
+
+        _playerSlotAudioMenu.FireChange();
+        _playerSlotAudioMenuHeader = LocalizationHelper.CreateResourceString(PLAYER_SLOT_AUDIO_MENU_RESOURCE).Evaluate(GetNameForPlayerContext(playerContextManager, _slotIndex));
       }
     }
 
@@ -279,6 +340,16 @@ namespace UiComponents.SkinBase.Models
           {
             // Automatically close audio stream choice dialog
             while (_inChooseAudioStreamDialog)
+              workflowManager.NavigatePop(1);
+          }
+        }
+        if (_inPlayerConfigurationDialog)
+        {
+          UpdatePlayerSlotAudioMenu();
+          if (_playerSlotAudioMenu.Count <= 1)
+          {
+            // Automatically close audio stream choice dialog
+            while (_inPlayerSlotAudioMenuDialog)
               workflowManager.NavigatePop(1);
           }
         }
@@ -314,6 +385,16 @@ namespace UiComponents.SkinBase.Models
     public ItemsList AudioStreamsMenu
     {
       get { return _audioStreamsMenu; }
+    }
+
+    public ItemsList PlayerSlotAudioMenu
+    {
+      get { return _playerSlotAudioMenu; }
+    }
+
+    public string PlayerSlotAudioMenuHeader
+    {
+      get { return _playerSlotAudioMenuHeader; }
     }
 
     public void ExecuteMenuItem(ListItem item)
@@ -385,8 +466,13 @@ namespace UiComponents.SkinBase.Models
         UpdateAudioStreamsMenu();
         return _audioStreamsMenu.Count > 0;
       }
-      else
-        return false;
+      else if (newContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
+      {
+        // Check if we got our necessary player slot parameter
+        if (newContext.GetContextVariable(KEY_PLAYER_SLOT, false) != null)
+          return true;
+      }
+      return false;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -400,6 +486,21 @@ namespace UiComponents.SkinBase.Models
       {
         UpdateAudioStreamsMenu();
         _inChooseAudioStreamDialog = true;
+      }
+      else if (newContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
+      {
+        int? slotIndex = newContext.GetContextVariable(KEY_PLAYER_SLOT, false) as int?;
+        if (slotIndex.HasValue)
+          _slotIndex = slotIndex.Value;
+        else
+          _slotIndex = 0;
+        bool? showToggleMute = newContext.GetContextVariable(KEY_SHOW_MUTE, false) as bool?;
+        if (showToggleMute.HasValue)
+          _showToggleMute = showToggleMute.Value;
+        else
+          _showToggleMute = true;
+        UpdatePlayerSlotAudioMenu();
+        _inPlayerSlotAudioMenuDialog = true;
       }
     }
 
