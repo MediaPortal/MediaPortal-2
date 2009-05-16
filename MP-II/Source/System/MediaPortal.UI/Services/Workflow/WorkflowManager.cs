@@ -85,7 +85,7 @@ namespace MediaPortal.Services.Workflow
     protected class ModelEntry
     {
       protected object _instance;
-      protected int _statesUnused = 0;
+      protected int _numStatesUnused = 0;
 
       public ModelEntry(object modelInstance)
       {
@@ -97,20 +97,20 @@ namespace MediaPortal.Services.Workflow
         get { return _instance; }
       }
 
-      public int StatesUnused
+      public int NumStatesUnused
       {
-        get { return _statesUnused; }
-        set { _statesUnused = value; }
+        get { return _numStatesUnused; }
+        set { _numStatesUnused = value; }
       }
 
       public void Use()
       {
-        _statesUnused = 0;
+        _numStatesUnused = 0;
       }
 
       public void Iterate()
       {
-        _statesUnused++;
+        _numStatesUnused++;
       }
     }
 
@@ -401,7 +401,7 @@ namespace MediaPortal.Services.Workflow
       {
         Guid modelId = modelEntry.Key;
         if (!IsModelContainedInNavigationStack(modelId))
-          if (modelEntry.Value.StatesUnused > MODEL_CACHE_MAX_NUM_UNUSED)
+          if (modelEntry.Value.NumStatesUnused > MODEL_CACHE_MAX_NUM_UNUSED)
           {
             logger.Debug("WorkflowManager: Freeing unused model with id '{0}'", modelId);
             FreeModel(modelId);
