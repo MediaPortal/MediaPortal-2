@@ -95,7 +95,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnCopyCompleted(ICopyManager copyManager)
     {
-      UpdateScrollBars();
       ConfigureContentScrollFacility();
     }
 
@@ -139,19 +138,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       IScrollInfo scrollInfo = FindScrollControl();
       if (scrollInfo == null)
         return;
-      float totalWidth = Math.Max(1, scrollInfo.TotalWidth);
-      float totalHeight = Math.Max(1, scrollInfo.TotalHeight);
+      float totalWidth = scrollInfo.TotalWidth;
+      float totalWidthNN = Math.Max(1, totalWidth); // Avoid divisions by zero
+      float totalHeight = scrollInfo.TotalHeight;
+      float totalHeightNN = Math.Max(1, totalHeight); // Avoid divisions by zero
+
       float scrollAreaWidth = (float) scp.ActualWidth;
       float scrollAreaHeight = (float) scp.ActualHeight;
       ScrollBarXKnobWidth = Math.Min(scrollAreaWidth, Math.Max(
-          scrollInfo.ViewPortWidth / totalWidth * scrollAreaWidth, SCROLLBAR_MINLENGTH));
+          scrollInfo.ViewPortWidth / totalWidthNN * scrollAreaWidth, SCROLLBAR_MINLENGTH));
       ScrollBarXKnobPos = Math.Min(scrollAreaWidth-ScrollBarXKnobWidth,
-          scrollInfo.ViewPortStartX / totalWidth * scrollAreaWidth);
+          scrollInfo.ViewPortStartX / totalWidthNN * scrollAreaWidth);
       ScrollBarXVisible = totalWidth > scrollInfo.ViewPortWidth;
       ScrollBarYKnobHeight = Math.Min(scrollAreaHeight, Math.Max(
-          scrollInfo.ViewPortHeight / totalHeight * scrollAreaHeight, SCROLLBAR_MINLENGTH));
+          scrollInfo.ViewPortHeight / totalHeightNN * scrollAreaHeight, SCROLLBAR_MINLENGTH));
       ScrollBarYKnobPos = Math.Min(scrollAreaHeight - ScrollBarYKnobHeight,
-          scrollInfo.ViewPortStartY / totalHeight * scrollAreaHeight);
+          scrollInfo.ViewPortStartY / totalHeightNN * scrollAreaHeight);
       ScrollBarYVisible = totalHeight > scrollInfo.ViewPortHeight;
     }
 
@@ -166,6 +168,13 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnScrollInfoScrolled(object sender)
     {
+      UpdateScrollBars();
+    }
+
+    public override void Arrange(System.Drawing.RectangleF finalRect)
+    {
+      base.Arrange(finalRect);
+      // We need to update the scrollbars after our and our content's final rectangles are set
       UpdateScrollBars();
     }
 
