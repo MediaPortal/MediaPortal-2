@@ -16,10 +16,11 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="D4B7FEDD-243F-4afc-A8BE-28BBBF17D799" Name="ScreenSaverModel" ClassName="UiComponents.SkinBase.ScreenSaverModel"/>
-    <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="UiComponents.SkinBase.MenuModel"/>
-    <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="UiComponents.SkinBase.TimeModel"/>
-    <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="PlayerModel" ClassName="UiComponents.SkinBase.PlayerModel"/>
+    <Model Id="D4B7FEDD-243F-4afc-A8BE-28BBBF17D799" Name="ScreenSaverModel" ClassName="UiComponents.SkinBase.Models.ScreenSaverModel"/>
+    <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="UiComponents.SkinBase.Models.MenuModel"/>
+    <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="UiComponents.SkinBase.Models.TimeModel"/>
+    <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="PlayerModel" ClassName="UiComponents.SkinBase.Models.PlayerModel"/>
+    <Model Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037" Name="PlayerConfigurationDialogModel" ClassName="UiComponents.SkinBase.Models.PlayerConfigurationDialogModel"/>
     <Model Id="95DD6923-058A-4481-AF33-2455CEBB7A03" Name="PlayerConfigurationContributorModel" ClassName="UiComponents.SkinBase.Actions.PlayerConfiguration"/>
   </Register>
 

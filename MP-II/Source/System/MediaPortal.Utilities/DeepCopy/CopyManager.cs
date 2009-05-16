@@ -137,7 +137,7 @@ namespace MediaPortal.Utilities.DeepCopy
       if (source == null)
         return default(T);
       if (_identities.ContainsKey(source))
-        return (T)_identities[source];
+        return (T) _identities[source];
       T result;
       if (CopyHook(source, out result))
         return result;

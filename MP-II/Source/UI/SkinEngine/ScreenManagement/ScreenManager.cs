@@ -293,13 +293,13 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _theme = theme;
     }
 
-    protected internal void InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    protected internal bool InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
       {
         ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to show dialog {0}", dialogName);
-        return;
+        return false;
       }
 
       lock (_syncData)
@@ -321,6 +321,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
       // Don't hold the lock while showing the screen
       newDialog.Show();
+      return true;
     }
 
     protected internal void InternalCloseDialog()
@@ -665,25 +666,28 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       return true;
     }
 
-    public void ShowDialog(string dialogName)
+    public bool ShowDialog(string dialogName)
     {
-      ShowDialog(dialogName, null);
+      return ShowDialog(dialogName, null);
     }
 
-    public void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    public bool ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
-      InternalShowDialog(dialogName, dialogCloseCallback);
+      return InternalShowDialog(dialogName, dialogCloseCallback);
     }
 
-    public void SetBackgroundLayer(string backgroundName)
+    public bool SetBackgroundLayer(string backgroundName)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Setting background screen '{0}'...", backgroundName);
       // No locking necessary
       if (backgroundName == null)
+      {
         _backgroundData.Unload();
+        return true;
+      }
       else
-        _backgroundData.Load(backgroundName);
+        return _backgroundData.Load(backgroundName);
     }
 
     public void CloseDialog()

@@ -112,6 +112,7 @@
     <Compile Include="Presentation\Localization\NoLocalization.cs" />
     <Compile Include="Presentation\Localization\RegionSettings.cs" />
     <Compile Include="Presentation\Localization\StringId.cs" />
+    <Compile Include="Presentation\Models\BaseMessageControlledUIModel.cs" />
     <Compile Include="Presentation\Players\IAudioPlayer.cs" />
     <Compile Include="Presentation\Players\AudioStreamDescriptor.cs" />
     <Compile Include="Presentation\Players\ICrossfadingEnabledPlayer.cs" />

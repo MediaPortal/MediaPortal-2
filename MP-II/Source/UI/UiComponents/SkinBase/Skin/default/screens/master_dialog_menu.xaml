@@ -41,7 +41,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- Contents -->
     <ListView x:Key="Contents_Element" x:Name="MainMenu" Style="{StaticResource MenuListViewStyle}" ItemsSource="{DynamicResource Menu_Items}"
-        HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
     <ResourceWrapper x:Key="Focused_Element" Resource="{Binding Source={StaticResource Contents_Element}}"/>
   </Include.Resources>

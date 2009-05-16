@@ -5,52 +5,52 @@
 
     <!-- Media main screen(s) -->
 
-    <State Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
+    <WorkflowState Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
         Name="MediaNavigation" MainScreen="media"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <!-- Shares configuration -->
 
-    <State Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
+    <WorkflowState Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         Name="SharesConfigurationOverview" MainScreen="shares_config_overview"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="900BA520-F989-48c0-B076-5DAD61945845"
+    <WorkflowState Id="900BA520-F989-48c0-B076-5DAD61945845"
         Name="SharesRemove" MainScreen="shares_config_remove_shares"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
+    <WorkflowState Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
         Name="SharesEditChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <!-- This additional state has a similar function like the SharesEditChooseMediaProvider state,
          but we need an additional state as target for the "Add share" transition to initialize
          the shares config model properly. -->
-    <State Id="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
+    <WorkflowState Id="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
         Name="SharesAddChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
+    <WorkflowState Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
         Name="SharesEditEditPath" MainScreen="shares_config_edit_path"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="5652A9C9-6B20-45f0-889E-CFBF6086FB0A"
+    <WorkflowState Id="5652A9C9-6B20-45f0-889E-CFBF6086FB0A"
         Name="SharesEditChoosePath" MainScreen="shares_config_choose_path"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="ACDD705B-E60B-454a-9671-1A12A3A3985A"
+    <WorkflowState Id="ACDD705B-E60B-454a-9671-1A12A3A3985A"
         Name="SharesEditEditName" MainScreen="shares_config_edit_name"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="6218FE5B-767E-48e6-9691-65E466B6020B"
+    <WorkflowState Id="6218FE5B-767E-48e6-9691-65E466B6020B"
         Name="SharesEditChooseCategories" MainScreen="shares_config_choose_categories"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D"
+    <WorkflowState Id="B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D"
         Name="SharesEditChooseMetadataExtractors" MainScreen="shares_config_choose_metadata_extractors"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
-    <State Id="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
+    <WorkflowState Id="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
         Name="SharesEdit" MainScreen="shares_config_edit_share"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
   </States>

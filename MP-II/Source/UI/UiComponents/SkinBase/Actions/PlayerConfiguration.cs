@@ -26,7 +26,6 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
 
 namespace UiComponents.SkinBase.Actions
@@ -40,10 +39,10 @@ namespace UiComponents.SkinBase.Actions
     #region Consts
 
     public const string PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR = "95DD6923-058A-4481-AF33-2455CEBB7A03";
-
-    public const string PLAYER_CONFIGURATION_DIALOG_NAME = "DialogPlayerConfiguration";
+    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
 
     public static Guid PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID = new Guid(PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR);
+    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
 
     #endregion
 
@@ -115,8 +114,8 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.ShowDialog(PLAYER_CONFIGURATION_DIALOG_NAME);
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
     }
 
     #endregion

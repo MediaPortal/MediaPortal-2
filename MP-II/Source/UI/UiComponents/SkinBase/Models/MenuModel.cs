@@ -28,11 +28,12 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Workflow;
 
-namespace UiComponents.SkinBase
+namespace UiComponents.SkinBase.Models
 {
-  public class MenuModel : IDisposable
+  public class MenuModel : BaseMessageControlledUIModel
   {
     #region Consts
 
@@ -62,18 +63,24 @@ namespace UiComponents.SkinBase
 
     #region Protected methods
 
-    protected void SubscribeToMessages()
+    void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Sync += OnWorkflowManagerMessageReceived_Sync;
       broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Async += OnWorkflowManagerMessageReceived_Async;
     }
 
-    protected void UnsubscribeFromMessages()
+    protected override void UnsubscribeFromMessages()
     {
+      base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Sync -= OnWorkflowManagerMessageReceived_Sync;
       broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Async -= OnWorkflowManagerMessageReceived_Async;
+    }
+
+    public override Guid ModelId
+    {
+      get { return new Guid(MODEL_ID_STR); }
     }
 
     protected void OnWorkflowManagerMessageReceived_Sync(QueueMessage message)
@@ -234,15 +241,6 @@ namespace UiComponents.SkinBase
           RebuildMenu();
         return _currentMenuItems;
       }
-    }
-
-    #endregion
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      UnsubscribeFromMessages();
     }
 
     #endregion

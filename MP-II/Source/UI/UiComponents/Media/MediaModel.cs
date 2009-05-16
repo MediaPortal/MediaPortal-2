@@ -163,7 +163,7 @@ namespace UiComponents.Media
     protected static void NavigateToView(View view)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
-          "View: " + view.DisplayName, MEDIA_MAIN_SCREEN, true, true);
+          "View: " + view.DisplayName, MEDIA_MAIN_SCREEN, true, WorkflowType.Workflow);
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {

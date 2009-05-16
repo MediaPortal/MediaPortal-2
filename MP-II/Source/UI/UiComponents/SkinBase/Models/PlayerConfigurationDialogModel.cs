@@ -31,22 +31,22 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.Presentation.Workflow;
 
-namespace UiComponents.SkinBase
+namespace UiComponents.SkinBase.Models
 {
   /// <summary>
-  /// This model attends the currently-playing and fullscreen-content workflow states for
-  /// Video, Audio and Image media players. It is also used as data model for some dialogs to configure
-  /// the players like "DialogPlayerConfiguration" and "DialogChooseAudioStream".
+  /// This model attends the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream".
   /// </summary>
-  public class PlayerModel : BaseTimerControlledUIModel
+  public class PlayerConfigurationDialogModel : BaseMessageControlledUIModel, IWorkflowModel
   {
-    public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
-    public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
+    public const string PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR = "58A7F9E3-1514-47af-8E83-2AD60BA8A037";
+    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID_STR = "D0B79345-69DF-4870-B80E-39050434C8B3";
+    public const string CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID_STR = "A3F53310-4D93-4f93-8B09-D53EE8ACD829";
 
-    public const string CHOOSE_AUDIO_STREAM_DIALOG_NAME = "DialogChooseAudioStream";
-    public const string PLAYER_CONFIGURATION_DIALOG_NAME = "DialogPlayerConfiguration";
+    public static Guid PLAYER_CONFIGURATION_DIALOG_MODEL_ID = new Guid(PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR);
+    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE_ID = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID_STR);
+    public static Guid CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID = new Guid(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID_STR);
 
     protected const string KEY_NAME = "Name";
 
@@ -59,24 +59,19 @@ namespace UiComponents.SkinBase
     protected const string MUTE_OFF_RESOURCE = "[Players.MuteOff]";
     protected const string CLOSE_PLAYER_CONTEXT_RESOURCE = "[Players.ClosePlayerContext]";
 
-    protected Property _isPipVisibleProperty;
-
     protected ItemsList _playerConfigurationMenu = new ItemsList();
     protected ItemsList _audioStreamsMenu = new ItemsList();
     protected object _syncObj = new object();
+    protected bool _inPlayerConfigurationDialog = false;
+    protected bool _inChooseAudioStreamDialog = false;
 
-    public PlayerModel() : base(100)
+    public PlayerConfigurationDialogModel()
     {
-      _isPipVisibleProperty = new Property(typeof(bool), false);
-
-      Update();
-      CheckUpdatePlayerConfigurationData();
       SubscribeToMessages();
     }
 
-    protected override void SubscribeToMessages()
+    void SubscribeToMessages()
     {
-      base.SubscribeToMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
       broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerContextManagerMessageReceived;
@@ -119,12 +114,6 @@ namespace UiComponents.SkinBase
       }
     }
 
-    protected override void Update()
-    {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IsPipVisible = playerContextManager.IsPipActive;
-    }
-
     protected static string GetNameForPlayerContext(IPlayerContextManager playerContextManager, int playerSlot)
     {
       IPlayerContext pc = playerContextManager.GetPlayerContext(playerSlot);
@@ -141,18 +130,13 @@ namespace UiComponents.SkinBase
         return player.Name + ": " + player.MediaItemTitle;
     }
 
-    /// <summary>
-    /// Updates the menu items for the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream"
-    /// and closes the dialogs when their entries are not valid any more.
-    /// </summary>
-    protected void CheckUpdatePlayerConfigurationData()
+    protected void UpdatePlayerConfigurationMenu()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-
+      // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
       lock (_syncObj)
       {
+        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
         int numActiveSlots = playerManager.NumActiveSlots;
         // Build player configuration menu
         _playerConfigurationMenu.Clear();
@@ -165,7 +149,7 @@ namespace UiComponents.SkinBase
           {
             ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(FOCUS_PLAYER_RESOURCE).Evaluate(name))
               {
-                Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
+                  Command = new MethodDelegateCommand(() => SetCurrentPlayer(newCurrentPlayer))
               };
             _playerConfigurationMenu.Add(item);
           }
@@ -174,7 +158,7 @@ namespace UiComponents.SkinBase
         {
           ListItem item = new ListItem(KEY_NAME, SWITCH_PIP_PLAYERS_RESOURCE)
             {
-              Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
+                Command = new MethodDelegateCommand(SwitchPrimarySecondaryPlayer)
             };
           _playerConfigurationMenu.Add(item);
         }
@@ -183,7 +167,7 @@ namespace UiComponents.SkinBase
         {
           ListItem item = new ListItem(KEY_NAME, CHOOSE_AUDIO_STREAM_RESOURCE)
             {
-              Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
+                Command = new MethodDelegateCommand(OpenChooseAudioStreamDialog)
             };
           _playerConfigurationMenu.Add(item);
         }
@@ -193,12 +177,12 @@ namespace UiComponents.SkinBase
           if (playerManager.Muted)
             item = new ListItem(KEY_NAME, MUTE_OFF_RESOURCE)
               {
-                Command = new MethodDelegateCommand(PlayersResetMute)
+                  Command = new MethodDelegateCommand(PlayersResetMute)
               };
           else
             item = new ListItem(KEY_NAME, MUTE_RESOURCE)
               {
-                Command = new MethodDelegateCommand(PlayersMute)
+                  Command = new MethodDelegateCommand(PlayersMute)
               };
           _playerConfigurationMenu.Add(item);
         }
@@ -211,12 +195,22 @@ namespace UiComponents.SkinBase
             int indexClosureCopy = i;
             ListItem item = new ListItem(KEY_NAME, LocalizationHelper.CreateResourceString(CLOSE_PLAYER_CONTEXT_RESOURCE).Evaluate(name))
               {
-                Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
+                  Command = new MethodDelegateCommand(() => ClosePlayerContext(indexClosureCopy))
               };
             _playerConfigurationMenu.Add(item);
           }
         }
         _playerConfigurationMenu.FireChange();
+      }
+    }
+
+    protected void UpdateAudioStreamsMenu()
+    {
+      // Some updates could be avoided if we tracked a "dirty" flag and break execution if !dirty
+      lock (_syncObj)
+      {
+        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+        ICollection<AudioStreamDescriptor> audioStreams = playerContextManager.GetAvailableAudioStreams();
 
         // Build audio streams menu
         _audioStreamsMenu.Clear();
@@ -242,26 +236,52 @@ namespace UiComponents.SkinBase
               playedItem = pc.Name;
             string choiceItemName;
             if (pasds.Value.Count > 1)
-              // Only display the audio stream name if the player has more than one audio stream
+                // Only display the audio stream name if the player has more than one audio stream
               choiceItemName = playedItem + ": " + asd.AudioStreamName;
             else
               choiceItemName = playedItem;
             AudioStreamDescriptor asdClosureCopy = asd;
             ListItem item = new ListItem(KEY_NAME, choiceItemName)
               {
-                Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
+                  Command = new MethodDelegateCommand(() => ChooseAudioStream(asdClosureCopy))
               };
             _audioStreamsMenu.Add(item);
           }
         }
         _audioStreamsMenu.FireChange();
+      }
+    }
 
-        if (_audioStreamsMenu.Count == 0 && screenManager.ActiveScreenName == CHOOSE_AUDIO_STREAM_DIALOG_NAME)
-          // Automatically close audio stream choice dialog
-          screenManager.CloseDialog();
-        if (_playerConfigurationMenu.Count == 0 && screenManager.ActiveScreenName == PLAYER_CONFIGURATION_DIALOG_NAME)
-          // Automatically close player configuration dialog
-          screenManager.CloseDialog();
+    /// <summary>
+    /// Updates the menu items for the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream"
+    /// and closes the dialogs when their entries are not valid any more.
+    /// </summary>
+    protected void CheckUpdatePlayerConfigurationData()
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+
+      lock (_syncObj)
+      {
+        if (_inPlayerConfigurationDialog)
+        {
+          UpdatePlayerConfigurationMenu();
+          if (_playerConfigurationMenu.Count == 0)
+          {
+            // Automatically close player configuration dialog
+            while (_inPlayerConfigurationDialog)
+              workflowManager.NavigatePop(1);
+          }
+        }
+        if (_inChooseAudioStreamDialog)
+        {
+          UpdateAudioStreamsMenu();
+          if (_audioStreamsMenu.Count <= 1)
+          {
+            // Automatically close audio stream choice dialog
+            while (_inChooseAudioStreamDialog)
+              workflowManager.NavigatePop(1);
+          }
+        }
       }
     }
 
@@ -281,21 +301,10 @@ namespace UiComponents.SkinBase
 
     public override Guid ModelId
     {
-      get { return PLAYER_MODEL_ID; }
+      get { return PLAYER_CONFIGURATION_DIALOG_MODEL_ID; }
     }
 
     #region Members to be accessed from the GUI
-
-    public Property IsPipVisibleProperty
-    {
-      get { return _isPipVisibleProperty; }
-    }
-
-    public bool IsPipVisible
-    {
-      get { return (bool) _isPipVisibleProperty.GetValue(); }
-      set { _isPipVisibleProperty.SetValue(value); }
-    }
 
     public ItemsList PlayerConfigurationMenu
     {
@@ -346,16 +355,10 @@ namespace UiComponents.SkinBase
       playerManager.SwitchSlots();
     }
 
-    public void OpenPlayerConfigurationDialog()
-    {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.ShowDialog(PLAYER_CONFIGURATION_DIALOG_NAME);
-    }
-
     public void OpenChooseAudioStreamDialog()
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.ShowDialog(CHOOSE_AUDIO_STREAM_DIALOG_NAME);
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID);
     }
 
     public void ChooseAudioStream(AudioStreamDescriptor asd)
@@ -368,93 +371,70 @@ namespace UiComponents.SkinBase
 
     #endregion
 
-    #region Methods for general play controls
+    #region IWorkflowModel implementation
 
-    public static void Play()
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      if (pc.PlayerState == PlaybackState.Paused)
-        pc.Pause();
+      if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
+      {
+        UpdatePlayerConfigurationMenu();
+        return _playerConfigurationMenu.Count > 0;
+      }
+      else if (newContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
+      {
+        UpdateAudioStreamsMenu();
+        return _audioStreamsMenu.Count > 0;
+      }
       else
-        pc.Restart();
+        return false;
     }
 
-    public static void Pause()
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.Pause();
+      if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
+      {
+        UpdatePlayerConfigurationMenu();
+        _inPlayerConfigurationDialog = true;
+      }
+      else if (newContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
+      {
+        UpdateAudioStreamsMenu();
+        _inChooseAudioStreamDialog = true;
+      }
     }
 
-    public static void TogglePause()
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      playerContextManager.TogglePlayPause();
+      if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
+        _inPlayerConfigurationDialog = false;
+      else if (oldContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
+        _inChooseAudioStreamDialog = false;
     }
 
-    public static void Stop()
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.Stop();
+      if (!push)
+      {
+        if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
+          _inPlayerConfigurationDialog = false;
+        else if (oldContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
+          _inChooseAudioStreamDialog = false;
+      }
     }
 
-    public static void SeekBackward()
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The BKWD command is not implemented yet", DialogType.OkDialog, false);
+      // Nothing to do here
     }
 
-    public static void SeekForward()
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The FWD command is not implemented yet", DialogType.OkDialog, false);
+      // Nothing to do here
     }
 
-    public static void Previous()
+    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.PreviousItem();
-    }
-
-    public static void Next()
-    {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.NextItem();
-    }
-
-    public static void VolumeUp()
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.VolumeUp();
-    }
-
-    public static void VolumeDown()
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.VolumeDown();
-    }
-
-    public static void ToggleMute()
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.Muted ^= true;
-    }
-
-    public static void ToggleCurrentPlayer()
-    {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      playerContextManager.ToggleCurrentPlayer();
+      // Nothing to do here
     }
 
     #endregion

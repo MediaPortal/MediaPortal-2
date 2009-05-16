@@ -158,7 +158,10 @@ namespace MediaPortal.Services.Workflow
         foreach (WorkflowAction action in _menuActions.Values)
           if (action is IDisposable)
             ((IDisposable) action).Dispose();
-      ServiceScope.Get<ILogger>().Debug("WorkflowManager: (Re)loading workflow resources");
+      if (_states.Count == 0)
+        ServiceScope.Get<ILogger>().Debug("WorkflowManager: Loading workflow resources");
+      else
+        ServiceScope.Get<ILogger>().Debug("WorkflowManager: Reloading workflow resources");
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
       _states = loader.States;
@@ -232,7 +235,7 @@ namespace MediaPortal.Services.Workflow
       NavigationContext current = CurrentNavigationContext;
       while (current != null && current.WorkflowState.IsTransient)
         current = current.Predecessor;
-      // Now we have found the last context with a non-transient state on the stack
+      // Now we have skipped all contexts with transient states on the stack
       return current == null ? null : current.WorkflowState;
     }
 
@@ -279,8 +282,8 @@ namespace MediaPortal.Services.Workflow
         return false;
 
       // Push new context
-      _navigationContextStack.Push(newContext);
       logger.Debug("WorkflowManager: Entering workflow state '{0}'", state.Name);
+      _navigationContextStack.Push(newContext);
 
       Guid? predecessorModelId = predecessor == null ? null : predecessor.WorkflowModelId;
 
@@ -316,18 +319,20 @@ namespace MediaPortal.Services.Workflow
               newContext.WorkflowState.StateId, predecessor == null ? null : predecessor.WorkflowState.StateId.ToString(), workflowModelId.Value);
           workflowModel.ChangeModelContext(predecessor, newContext, true);
         }
+      if (state.WorkflowType == WorkflowType.Workflow)
+      {
+        // Compile menu actions
+        logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
+        ICollection<WorkflowAction> menuActions = new List<WorkflowAction>();
+        if (state.InheritMenu && predecessor != null)
+          CollectionUtils.AddAll(menuActions, predecessor.MenuActions.Values);
+        CollectionUtils.AddAll(menuActions, FilterActionsBySourceState(state.StateId, _menuActions.Values));
+        if (workflowModel != null)
+          workflowModel.UpdateMenuActions(newContext, menuActions);
 
-      // Compile menu actions
-      logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
-      ICollection<WorkflowAction> menuActions = new List<WorkflowAction>();
-      if (state.InheritMenu && predecessor != null)
-        CollectionUtils.AddAll(menuActions, predecessor.MenuActions.Values);
-      CollectionUtils.AddAll(menuActions, FilterActionsBySourceState(state.StateId, _menuActions.Values));
-      if (workflowModel != null)
-        workflowModel.UpdateMenuActions(newContext, menuActions);
-
-      foreach (WorkflowAction menuAction in menuActions)
-        newContext.MenuActions[menuAction.ActionId] = menuAction;
+        foreach (WorkflowAction menuAction in menuActions)
+          newContext.MenuActions[menuAction.ActionId] = menuAction;
+      }
 
       IterateCache();
       WorkflowManagerMessaging.SendStatePushedMessage(state.StateId);
@@ -348,6 +353,14 @@ namespace MediaPortal.Services.Workflow
           return false;
         }
         NavigationContext oldContext = _navigationContextStack.Pop();
+        if (oldContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
+        {
+          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+          if (screenManager.IsDialogVisible && screenManager.ActiveScreenName == oldContext.WorkflowState.MainScreen)
+            // This will trigger our close dialog delegate which we attached in the UpdateScreen method,
+            // but the anonymous method checks the current navigation context, which has already been removed here
+            screenManager.CloseDialog();
+        }
         NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
         Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
         IWorkflowModel workflowModel = workflowModelId.HasValue ?
@@ -419,12 +432,29 @@ namespace MediaPortal.Services.Workflow
     protected bool UpdateScreen()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
-      NavigationContext context = CurrentNavigationContext;
-      string screen = context.WorkflowState.MainScreen;
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      NavigationContext currentContext = CurrentNavigationContext;
+      string screen = currentContext.WorkflowState.MainScreen;
       if (screen == null)
         return true;
-      logger.Info("WorkflowManager: Trying to show screen '{0}'...", screen);
-      bool result = ServiceScope.Get<IScreenManager>().ShowScreen(screen);
+      bool result;
+      if (currentContext.WorkflowState.WorkflowType == WorkflowType.Workflow)
+      {
+        logger.Info("WorkflowManager: Trying to show screen '{0}'...", screen);
+        result = screenManager.ShowScreen(screen);
+      }
+      else if (currentContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
+      {
+        logger.Info("WorkflowManager: Trying to open dialog screen '{0}'...", screen);
+        result = screenManager.ShowDialog(screen, dialogName =>
+          {
+            if (ReferenceEquals(CurrentNavigationContext, currentContext))
+              NavigatePop(1);
+          });
+      }
+      else
+        result = true;
+
       if (result)
         logger.Info("WorkflowManager: Screen '{0}' successfully shown", screen);
       else

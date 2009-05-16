@@ -139,13 +139,21 @@ namespace MediaPortal.Services.Workflow
           continue;
         switch (childElement.Name)
         {
-          case "State":
-            WorkflowState state = LoadState(childElement);
-            if (_states.ContainsKey(state.StateId))
+          case "WorkflowState":
+            WorkflowState workflowState = LoadWorkflowState(childElement);
+            if (_states.ContainsKey(workflowState.StateId))
               throw new ArgumentException(string.Format(
-                  "A workflow state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
-                  state.StateId, _states[state.StateId].Name, state.Name));
-            _states.Add(state.StateId, state);
+                  "A workflow or dialog state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
+                  workflowState.StateId, _states[workflowState.StateId].Name, workflowState.Name));
+            _states.Add(workflowState.StateId, workflowState);
+            break;
+          case "DialogState":
+            WorkflowState dialogState = LoadDialogState(childElement);
+            if (_states.ContainsKey(dialogState.StateId))
+              throw new ArgumentException(string.Format(
+                  "A workflow or dialog state with id '{0}' was already declared with name '{1}' (name of duplicate state is '{2}') -> Forgot to create a new GUID?",
+                  dialogState.StateId, _states[dialogState.StateId].Name, dialogState.Name));
+            _states.Add(dialogState.StateId, dialogState);
             break;
           default:
             throw new ArgumentException("'" + statesElement.Name + "' element doesn't support a child element '" + child.Name + "'");
@@ -178,13 +186,48 @@ namespace MediaPortal.Services.Workflow
       }
     }
 
-    protected static WorkflowState LoadState(XmlElement stateElement)
+    protected static WorkflowState LoadDialogState(XmlElement stateElement)
+    {
+      string id = null;
+      string name = null;
+      string dialogScreen = null;
+      string workflowModelId = null;
+      foreach (XmlAttribute attr in stateElement.Attributes)
+      {
+        switch (attr.Name)
+        {
+          case "Id":
+            id = attr.Value;
+            break;
+          case "Name":
+            name = attr.Value;
+            break;
+          case "DialogScreen":
+            dialogScreen = attr.Value;
+            break;
+          case "WorkflowModel":
+            workflowModelId = attr.Value;
+            break;
+          default:
+            throw new ArgumentException("'" + stateElement.Name + "' element doesn't support an attribute '" + attr.Name + "'");
+        }
+      }
+      if (string.IsNullOrEmpty(id))
+        throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateElement.Name, name));
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateElement.Name, id));
+      if (string.IsNullOrEmpty(dialogScreen) || string.IsNullOrEmpty(workflowModelId))
+        throw new ArgumentException(string.Format("{0} '{1}': Both 'WorkflowModel' and 'DialogScreen' atrributes must be specified", stateElement.Name, name));
+      return new WorkflowState(new Guid(id), name, dialogScreen, false, false,
+          new Guid(workflowModelId), WorkflowType.Dialog);
+    }
+
+    protected static WorkflowState LoadWorkflowState(XmlElement stateElement)
     {
       string id = null;
       string name = null;
       string mainScreen = null;
       bool inheritMenu = false;
-      bool inheritContextMenu = false;
       string workflowModelId = null;
       foreach (XmlAttribute attr in stateElement.Attributes)
       {
@@ -203,10 +246,6 @@ namespace MediaPortal.Services.Workflow
             if (!bool.TryParse(attr.Value, out inheritMenu))
               throw new ArgumentException("'InheritMenu' attribute has to be of type bool");
             break;
-          case "InheritContextMenu":
-            if (!bool.TryParse(attr.Value, out inheritContextMenu))
-              throw new ArgumentException("'InheritContextMenu' attribute has to be of type bool");
-            break;
           case "WorkflowModel":
             workflowModelId = attr.Value;
             break;
@@ -220,8 +259,8 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateElement.Name, id));
       if (string.IsNullOrEmpty(mainScreen) && string.IsNullOrEmpty(workflowModelId))
         throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'MainScreen' atrribute must be specified", stateElement.Name, name));
-      return new WorkflowState(new Guid(id), name, mainScreen, inheritMenu, inheritContextMenu, false,
-          string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), new List<Guid>());
+      return new WorkflowState(new Guid(id), name, mainScreen, inheritMenu, false,
+          string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), WorkflowType.Workflow);
     }
 
     protected static WorkflowAction LoadPushNavigationTransition(XmlElement actionElement)

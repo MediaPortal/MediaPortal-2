@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workflow states for the home screen -->
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <DialogState Id="D0B79345-69DF-4870-B80E-39050434C8B3"
+        Name="PlayerConfigurationDialog" DialogScreen="DialogPlayerConfiguration"
+        WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
+    <DialogState Id="A3F53310-4D93-4f93-8B09-D53EE8ACD829"
+        Name="ChooseAudioStreamDialog" DialogScreen="DialogChooseAudioStream"
+        WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
+  </States>
+</Workflow>

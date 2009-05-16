@@ -23,38 +23,23 @@
 #endregion
 
 using System;
-using System.Timers;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Presentation.Models
 {
   /// <summary>
-  /// Base class for UI models which use a timer to update their properties periodically. Provides a timer-controlled
-  /// virtual <see cref="Update"/> method which will be called automatically in a configurable interval.
-  /// This class provides initialization and virtual disposal methods for the timer and for system message queue registrations.
+  /// Base class for UI models which are registered to messages from the system.
+  /// This class provides virtual initialization and disposal methods for system message queue registrations.
   /// </summary>
-  public abstract class BaseTimerControlledUIModel : BaseMessageControlledUIModel, IDisposable
+  public abstract class BaseMessageControlledUIModel : IDisposable
   {
-    protected Timer _timer = null;
-
     /// <summary>
-    /// Initializes the internal timer with the specified <paramref name="updateInterval"/>.
+    /// Initializes the message subscribtions.
     /// </summary>
-    /// <remarks>
-    /// Subclasses need to call method <see cref="SubscribeToMessages"/>, and, if appropriate, <see cref="Update"/>.
-    /// </remarks>
-    /// <param name="updateInterval">Timer update interval in milliseconds.</param>
-    protected BaseTimerControlledUIModel(long updateInterval)
+    protected BaseMessageControlledUIModel()
     {
-      _timer = new Timer(updateInterval);
-
       SubscribeToMessages();
-    }
-
-    protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
-    {
-      Update();
     }
 
     /// <summary>
@@ -62,7 +47,6 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     public virtual void Dispose()
     {
-      StopListening();
       UnsubscribeFromMessages();
     }
 
@@ -71,10 +55,6 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     void SubscribeToMessages()
     {
-      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Started)
-        StartListening();
-
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async += OnSystemMessageReceived;
     }
@@ -86,29 +66,6 @@ namespace MediaPortal.Presentation.Models
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async -= OnSystemMessageReceived;
-    }
-
-    /// <summary>
-    /// Sets the timer up to be called periodically.
-    /// </summary>
-    protected void StartListening()
-    {
-      if (_timer.Enabled)
-        return;
-      // Setup timer to update the properties
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
-    }
-
-    /// <summary>
-    /// Disables the timer.
-    /// </summary>
-    protected virtual void StopListening()
-    {
-      if (!_timer.Enabled)
-        return;
-      _timer.Enabled = false;
-      _timer.Elapsed -= OnTimerElapsed;
     }
 
     /// <summary>
@@ -125,16 +82,16 @@ namespace MediaPortal.Presentation.Models
         SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
         switch (state)
         {
-          case SystemState.Started:
-            StartListening();
+          case SystemState.ShuttingDown:
+            Dispose();
             break;
         }
       }
     }
 
     /// <summary>
-    /// Called periodically to update properties. This methd has to be implemented in concrete subclasses.
+    /// Provides the id of this model. This property has to be implemented in subclasses.
     /// </summary>
-    protected abstract void Update();
+    public abstract Guid ModelId { get; }
   }
 }

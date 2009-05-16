@@ -32,7 +32,7 @@ using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using UiComponents.SkinBase.Settings;
 
-namespace UiComponents.SkinBase
+namespace UiComponents.SkinBase.Models
 {
   /// <summary>
   /// Model which provides data for the skin clock.
@@ -62,9 +62,8 @@ namespace UiComponents.SkinBase
       SubscribeToMessages();
     }
 
-    protected override void SubscribeToMessages()
+    void SubscribeToMessages()
     {
-      base.SubscribeToMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SkinMessaging.Queue).MessageReceived_Async += OnSkinMessageReceived;
     }
@@ -88,8 +87,8 @@ namespace UiComponents.SkinBase
     {
       if (((SkinMessaging.NotificationType) message.MessageData[SkinMessaging.Notification]) ==
           SkinMessaging.NotificationType.DateTimeFormatChanged)
-        // The DateFormat and TimeFormat configuration classes will send this message when they
-        // changed the formats, so we have to update our format here
+          // The DateFormat and TimeFormat configuration classes will send this message when they
+          // changed the formats, so we have to update our format here
         ReadSettings();
     }
 

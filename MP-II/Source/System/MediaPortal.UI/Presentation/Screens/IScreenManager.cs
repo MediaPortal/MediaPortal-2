@@ -77,13 +77,15 @@ namespace MediaPortal.Presentation.Screens
     /// showing it.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
+    /// <returns><c>true</c>, if the screen could successfully be shown, else <c>false</c>.</returns>
     bool ShowScreen(string screenName);
 
     /// <summary>
     /// Shows the dialog screen with the specified name.
     /// </summary>
     /// <param name="dialogName">The logical screen name of the dialog to show.</param>
-    void ShowDialog(string dialogName);
+    /// <returns><c>true</c>, if the dialog screen could successfully be shown, else <c>false</c>.</returns>
+    bool ShowDialog(string dialogName);
 
     /// <summary>
     /// Shows the dialog screen with the specified name and calls the specified notification
@@ -92,14 +94,16 @@ namespace MediaPortal.Presentation.Screens
     /// <param name="dialogName">The logical screen name of the dialog to show.</param>
     /// <param name="dialogCloseCallback">Callback delegate method to be called when the dialog
     /// gets closed, or <c>null</c>.</param>
-    void ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
+    /// <returns><c>true</c>, if the dialog screen could successfully be shown, else <c>false</c>.</returns>
+    bool ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback);
 
     /// <summary>
     /// Shows the specified screen as background layer.
     /// </summary>
     /// <param name="backgroundName">Name of a screen to show as background. This will typically be a media
     /// player or a background image.</param>
-    void SetBackgroundLayer(string backgroundName);
+    /// <returns><c>true</c>, if the background screen could successfully be set, else <c>false</c>.</returns>
+    bool SetBackgroundLayer(string backgroundName);
 
     /// <summary>
     /// Closes the topmost dialog.

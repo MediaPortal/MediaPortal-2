@@ -29,7 +29,7 @@ using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
 
-namespace UiComponents.SkinBase
+namespace UiComponents.SkinBase.Models
 {
   /// <summary>
   /// This model provides information about the screen saver and mouse controls state. It provides a copy of the
@@ -49,7 +49,6 @@ namespace UiComponents.SkinBase
       _isMouseUsedProperty = new Property(typeof(bool), false);
 
       Update();
-      SubscribeToMessages();
     }
 
     public override Guid ModelId

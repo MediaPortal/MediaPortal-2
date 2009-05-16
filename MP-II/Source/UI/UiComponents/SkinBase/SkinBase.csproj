@@ -58,11 +58,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\PlayerConfiguration.cs" />
-    <Compile Include="MenuModel.cs" />
+    <Compile Include="Models\PlayerConfigurationDialogModel.cs" />
+    <Compile Include="Models\MenuModel.cs" />
     <Compile Include="PlayerBackgroundManager.cs" />
-    <Compile Include="PlayerModel.cs" />
+    <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScreenSaverModel.cs" />
+    <Compile Include="Models\ScreenSaverModel.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\DateFormat.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
@@ -70,7 +71,7 @@
     <Compile Include="Settings\General\Autostart.cs" />
     <Compile Include="Settings\General\Balloontips.cs" />
     <Compile Include="SkinMessaging.cs" />
-    <Compile Include="TimeModel.cs" />
+    <Compile Include="Models\TimeModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
@@ -371,6 +372,7 @@
     <Content Include="Skin\default\themes\black\styles\Colors.xaml" />
     <Content Include="Skin\default\backgrounds\default-background.xaml" />
     <Content Include="Skin\default\backgrounds\video-background.xaml" />
+    <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
   </ItemGroup>
   <ItemGroup>

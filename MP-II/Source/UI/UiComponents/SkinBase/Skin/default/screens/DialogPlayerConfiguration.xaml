@@ -10,16 +10,16 @@
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Players.PlayerConfiguration]"/>
 
     <!-- DataContext -->
-    <Model x:Key="PlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
+    <Model x:Key="PlayerConfigurationDialogModel" Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/>
 
     <!-- Menu -->
     <ResourceWrapper x:Key="Menu_Items">
-      <Binding Source="{StaticResource PlayerModel}" Path="PlayerConfigurationMenu" Mode="OneTime"/>
+      <Binding Source="{StaticResource PlayerConfigurationDialogModel}" Path="PlayerConfigurationMenu" Mode="OneTime"/>
     </ResourceWrapper>
 
     <!-- Command -->
     <CommandStencil x:Key="Execute_Command_Stencil"
-        Source="{StaticResource PlayerModel}" Path="ExecuteMenuItem"/>
+        Source="{StaticResource PlayerConfigurationDialogModel}" Path="ExecuteMenuItem"/>
 
   </Include.Resources>
 </Include>

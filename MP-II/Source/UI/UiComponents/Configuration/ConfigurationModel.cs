@@ -519,7 +519,7 @@ namespace UiComponents.Configuration
           // Create transient state for new config section
           WorkflowState newState = WorkflowState.CreateTransientState(
               string.Format("Config: '{0}'", childNode.Location), CONFIGURATION_SECTION_SCREEN,
-              false, false);
+              false, WorkflowType.Workflow);
           // Add action for menu
           IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);
           WorkflowAction wa = new PushTransientStateNavigationTransition(

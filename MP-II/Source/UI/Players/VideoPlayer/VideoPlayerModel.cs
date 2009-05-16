@@ -65,7 +65,7 @@ namespace Ui.Players.Video
 
     protected IPlayerContext _playerContext = null; // Assigned and cleared in workflow model methods
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
-    protected bool _subscribedToMessages = false;
+    protected bool _locallySubscribedToMessages = false;
     protected VideoScreenState _currentScreenState = VideoScreenState.None;
 
 
@@ -77,22 +77,21 @@ namespace Ui.Players.Video
       // Don't SubscribeToMessages and StartListening here, that will be done in method EnterModelContext
     }
 
-    protected override void SubscribeToMessages()
+    void SubscribeToMessages()
     {
-      if (_subscribedToMessages)
+      if (_locallySubscribedToMessages)
         return;
-      _subscribedToMessages = true;
-      base.SubscribeToMessages();
+      _locallySubscribedToMessages = true;
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
     }
 
     protected override void UnsubscribeFromMessages()
     {
-      if (!_subscribedToMessages)
-        return;
-      _subscribedToMessages = false;
       base.UnsubscribeFromMessages();
+      if (!_locallySubscribedToMessages)
+        return;
+      _locallySubscribedToMessages = false;
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
     }

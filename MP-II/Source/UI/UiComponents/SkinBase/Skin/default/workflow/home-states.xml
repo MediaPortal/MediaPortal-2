@@ -2,7 +2,7 @@
 <!-- Workflow states for the home screen -->
 <Workflow DescriptorVersion="1.0">
   <States>
-    <State Id="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+    <WorkflowState Id="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         Name="Home" MainScreen="home"/> <!-- No workflow model -->
   </States>
 </Workflow>
