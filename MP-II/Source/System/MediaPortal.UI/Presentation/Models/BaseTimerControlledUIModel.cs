@@ -62,7 +62,7 @@ namespace MediaPortal.Presentation.Models
     public override void Dispose()
     {
       StopListening();
-      UnsubscribeFromMessages();
+      base.Dispose();
     }
 
     /// <summary>
@@ -70,12 +70,12 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     void SubscribeToMessages()
     {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async += OnSystemMessageReceived;
+
       ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
       if (systemStateService.CurrentState == SystemState.Started)
         StartListening();
-
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async += OnSystemMessageReceived;
     }
 
     /// <summary>
@@ -83,6 +83,7 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     protected override void UnsubscribeFromMessages()
     {
+      base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async -= OnSystemMessageReceived;
     }
@@ -129,6 +130,7 @@ namespace MediaPortal.Presentation.Models
             break;
         }
       }
+      base.OnSystemMessageReceived(message);
     }
 
     /// <summary>
