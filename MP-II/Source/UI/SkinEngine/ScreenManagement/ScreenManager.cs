@@ -107,6 +107,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         Screen background = GetBackground(backgroundName, this);
         if (background == null)
           return false;
+        background.Prepare();
         lock (_parent.SyncRoot)
         {
           _backgroundScreen = background;
@@ -301,7 +302,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Error("ScreenManager: Unable to show dialog {0}", dialogName);
         return false;
       }
-
+      newDialog.Prepare();
       lock (_syncData)
       {
         if (_dialogStack.Count == 0)
@@ -381,6 +382,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected internal void InternalShowScreen(Screen screen)
     {
+      screen.Prepare();
       lock (_syncData)
         _currentScreen = screen;
       screen.ScreenState = Screen.State.Running;

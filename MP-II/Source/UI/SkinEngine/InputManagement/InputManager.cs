@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.Actions;
@@ -62,6 +63,7 @@ namespace MediaPortal.SkinEngine.InputManagement
     protected DateTime _lastMouseUsageTime = DateTime.MinValue;
     protected DateTime _lastInputTime = DateTime.MinValue;
     protected IDictionary<Key, KeyAction> _keyBindings = new Dictionary<Key, KeyAction>();
+    protected PointF _mousePosition = new PointF();
 
     protected static InputManager _instance = null;
 
@@ -113,11 +115,17 @@ namespace MediaPortal.SkinEngine.InputManagement
       get { return DateTime.Now - _lastMouseUsageTime < MOUSE_CONTROLS_TIMEOUT; }
     }
 
+    public PointF MousePosition
+    {
+      get { return _mousePosition; }
+    }
+
     public void MouseMove(float x, float y)
     {
       DateTime now = DateTime.Now;
       _lastInputTime = now;
       _lastMouseUsageTime = now;
+      _mousePosition = new PointF(x, y);
       if (MouseMoved != null)
         MouseMoved(x, y);
     }

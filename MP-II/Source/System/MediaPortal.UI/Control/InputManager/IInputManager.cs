@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Presentation.Actions;
 
@@ -47,6 +48,11 @@ namespace MediaPortal.Control.InputManager
     /// Returns the information if the mouse was 
     /// </summary>
     bool IsMouseUsed { get; }
+
+    /// <summary>
+    /// Returns the current mouse position;
+    /// </summary>
+    PointF MousePosition { get; }
 
     /// <summary>
     /// Called to handle a mouse move event.

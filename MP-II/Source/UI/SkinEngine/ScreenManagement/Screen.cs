@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Control.InputManager;
+using MediaPortal.Core;
 using MediaPortal.Presentation.Actions;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Controls.Visuals;
@@ -247,10 +248,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    public void Show()
+    public void Prepare()
     {
-      //Trace.WriteLine("Screen Show: " + Name);
-
       lock (_visual)
       {
         if (SkinContext.UseBatching)
@@ -262,7 +261,20 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         _visual.Initialize();
         //if (SkinContext.UseBatching)
         //  _visual.BuildRenderTree();
+        _visual.UpdateLayout();
+      }
+    }
+
+    public void Show()
+    {
+      //Trace.WriteLine("Screen Show: " + Name);
+
+      lock (_visual)
+      {
         _setFocusedElement = true;
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        if (_attachedInput && inputManager.IsMouseUsed)
+          _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
       }
     }
 
