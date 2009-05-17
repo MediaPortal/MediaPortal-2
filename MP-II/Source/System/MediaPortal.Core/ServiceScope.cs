@@ -116,6 +116,7 @@ namespace MediaPortal.Core
 		private static ServiceScope global;
 
 		private static bool isRunning = false;
+	  private static bool _isShuttingDown = false;
 
 		/// <summary>
 		/// Pointer to the previous <see cref="ServiceScope"/>.  We need this pointer 
@@ -183,6 +184,12 @@ namespace MediaPortal.Core
 		{
 			get { return isRunning; }
 		}
+
+    public static bool IsShuttingDown
+  	{
+	    get  { return _isShuttingDown; }
+	    set  { _isShuttingDown = value; }
+	  }
 
 		#region IDisposable Members
 
@@ -300,10 +307,9 @@ namespace MediaPortal.Core
 			}
 			if (oldInstance == null)
 			{
-				if (!(type == typeof(IPluginManager)))
+				if (!IsShuttingDown)
 				{
-					Get<ILogger>().Info("ServiceScope.GetService<{0}>: Try to load service from plugin manager at /Services/{0}",
-						type.Name);
+					Get<ILogger>().Info("ServiceScope.GetService<{0}>: Try to load service from plugin manager at /Services/{0}", type.Name);
 					object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name,
 						new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
 					if (newService != null)

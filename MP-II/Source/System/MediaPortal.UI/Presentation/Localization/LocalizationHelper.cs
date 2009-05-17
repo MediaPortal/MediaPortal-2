@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 
@@ -45,6 +46,19 @@ namespace MediaPortal.Presentation.Localization
     public static IResourceString CreateStaticString(string unlocalizedString)
     {
       return new StaticStringBuilder(unlocalizedString);
+    }
+
+    public static string Translate(string maybeLocalizationResource, params object[] parameters)
+    {
+      string section;
+      string name;
+      if (StringId.ExtractSectionAndName(maybeLocalizationResource, out section, out name))
+      {
+        ILocalization localization = ServiceScope.Get<ILocalization>();
+        return localization.ToString(section, name, parameters);
+      }
+      else
+        return string.Format(maybeLocalizationResource, parameters);
     }
   }
 }

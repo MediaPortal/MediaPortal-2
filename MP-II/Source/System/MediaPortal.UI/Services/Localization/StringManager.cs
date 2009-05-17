@@ -191,31 +191,20 @@ namespace MediaPortal.Services.Localization
       LanguageChange(this, culture);
     }
 
-    public string ToString(string section, string name, object[] parameters)
+    public string ToString(string section, string name, params object[] parameters)
     {
       string translation = _strings.ToString(section, name);
-      if ((translation == null) || (parameters == null))
+      if (translation == null || parameters == null || parameters.Length == 0)
         return translation;
-
       try
       {
         return string.Format(translation, parameters);
       }
       catch (FormatException e)
       {
-        ServiceScope.Get<ILogger>().Warn("LocalizationStrings: Error formatting localation '{0}' (Section={1}, Name={2})", e, translation, section, name);
+        ServiceScope.Get<ILogger>().Warn("LocalizationStrings: Error formatting localation '{0}' (Section='{1}', Name='{2}')", e, translation, section, name);
         return translation;
       }
-    }
-
-    public string ToString(string section, string name)
-    {
-      return _strings.ToString(section, name);
-    }
-
-    public string ToString(StringId id)
-    {
-      return _strings.ToString(id.Section, id.Name);
     }
 
     public ICollection<CultureInfo> AvailableLanguages

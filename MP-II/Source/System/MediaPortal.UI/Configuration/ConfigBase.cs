@@ -32,14 +32,14 @@ namespace MediaPortal.Configuration
 {
   public abstract class ConfigBase
   {
-    #region Variables
+    #region Protected fields
 
-    protected ConfigBaseMetadata _metadata;
+    protected ConfigBaseMetadata _metadata = null;
 
     /// <summary>
     /// Text to display for the current ConfigBase.
     /// </summary>
-    protected IResourceString _text;
+    protected IResourceString _text = null;
     protected Property _visibleProperty;
     protected Property _enabledProperty;
 

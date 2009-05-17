@@ -73,25 +73,7 @@ namespace MediaPortal.Presentation.Localization
     /// <returns>
     /// String containing the translated text.
     /// </returns>
-    string ToString(string section, string name, object[] parameters);
-
-    /// <summary>
-    /// Returns the translation for a given string resource (given by section name and name)
-    /// without parameters in the current language.
-    /// </summary>
-    /// <param name="section">Section of the string resource in the resource file.</param>
-    /// <param name="name">Name of the string resource in the resource file.</param>
-    /// <returns>
-    /// String containing the translated text.
-    /// </returns>
-    string ToString(string section, string name);
-
-    /// <summary>
-    /// Returns the translation for the given string resource descriptor in the current language.
-    /// </summary>
-    /// <param name="id">String resource descriptor to be translated to the current language.</param>
-    /// <returns></returns>
-    string ToString(StringId id);
+    string ToString(string section, string name, params object[] parameters);
 
     /// <summary>
     /// Returns the <see cref="CultureInfo"/>s for all installed languages.

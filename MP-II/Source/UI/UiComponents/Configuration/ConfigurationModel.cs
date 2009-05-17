@@ -290,6 +290,8 @@ namespace UiComponents.Configuration
           }
         if (result == null)
         {
+          // FIXME Albert: Make configuration controllers to models; load them via the workflow manager.
+          // This will make configuration controllers be managed correctly
           result = Activator.CreateInstance(controllerType) as ConfigurationController;
           if (result != null)
             // Lazily add the new controller type to our registered controllers

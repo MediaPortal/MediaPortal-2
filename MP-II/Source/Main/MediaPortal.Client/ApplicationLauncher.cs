@@ -150,6 +150,7 @@ namespace MediaPortal
         Application.Run();
 
         systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+        ServiceScope.IsShuttingDown = true; // Block ServiceScope from trying to load new services in shutdown phase
 
         // 1) Stop UI extensions (Releases all active players, must be done before shutting down SE)
         // 2) Shutdown SkinEngine (Closes all screens, uninstalls background manager, stops render thread)

@@ -118,14 +118,8 @@ namespace MediaPortal.Presentation.Localization
     public StringId(string label)
     {
       // Parse string example [section.name]
-      if (IsResourceString(label))
-      {
-        int pos = label.IndexOf('.');
-        _section = label.Substring(1, pos - 1).ToLower();
-        _name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
-
+      if (ExtractSectionAndName(label, out _section, out _name))
         ServiceScope.Get<ILocalization>().LanguageChange += LanguageChange;
-      }
       else
       {
         // Should we raise an exception here?
@@ -133,6 +127,11 @@ namespace MediaPortal.Presentation.Localization
         _name = label;
         _localised = label;
       }
+    }
+
+    ~StringId()
+    {
+      Dispose();
     }
 
     #endregion
@@ -144,7 +143,9 @@ namespace MediaPortal.Presentation.Localization
     /// </summary>
     public void Dispose()
     {
-      ServiceScope.Get<ILocalization>().LanguageChange -= LanguageChange;
+      ILocalization localization = ServiceScope.Get<ILocalization>(false);
+      if (localization != null)
+        localization.LanguageChange -= LanguageChange;
     }
 
     /// <summary>
@@ -155,7 +156,7 @@ namespace MediaPortal.Presentation.Localization
     public override string ToString()
     {
       if (_localised == null)
-        _localised = ServiceScope.Get<ILocalization>().ToString(this);
+        _localised = ServiceScope.Get<ILocalization>().ToString(_section, _name);
 
       if (_localised == null)
         return Label;
@@ -174,6 +175,33 @@ namespace MediaPortal.Presentation.Localization
     #endregion
 
     #region Static methods
+
+    /// <summary>
+    /// Given a localization string (<paramref name="label"/>) of the form <c>[section.name]</c>, this method extracts
+    /// its section and name parts.
+    /// </summary>
+    /// <param name="label">The localization string to be examined.</param>
+    /// <param name="section">The section of the given <paramref name="label"/>.</param>
+    /// <param name="name">The name of the given <paramref name="label"/>.</param>
+    /// <returns><c>true</c>, if the given <paramref name="label"/> was a localization string and could be processed,
+    /// else <c>false</c>.</returns>
+    public static bool ExtractSectionAndName(string label, out string section, out string name)
+    {
+      section = null;
+      name = null;
+      if (label != null && label.StartsWith("[") &&
+          label.EndsWith("]"))
+      {
+        int pos = label.IndexOf('.');
+        if (pos == -1)
+          return false;
+        section = label.Substring(1, pos - 1).ToLower();
+        name = label.Substring(pos + 1, label.Length - pos - 2).ToLower();
+        return true;
+      }
+      else
+        return false;
+    }
 
     /// <summary>
     /// Tests if the given string is of form <c>[section.name]</c> and hence can be looked up

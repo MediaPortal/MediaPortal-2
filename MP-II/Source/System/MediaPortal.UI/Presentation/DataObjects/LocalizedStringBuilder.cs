@@ -47,6 +47,11 @@ namespace MediaPortal.Presentation.DataObjects
       _localizedString = value;
     }
 
+    ~LocalizedStringBuilder()
+    {
+      _localizedString.Dispose();
+    }
+
     public StringId LocalizedString
     {
       get { return _localizedString; }

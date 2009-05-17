@@ -40,26 +40,11 @@ namespace MediaPortal.Presentation.Localization
       get { return CultureInfo.CurrentUICulture; }
     }
 
-    public int Characters
-    {
-      get { return 1; }
-    }
-
     public void ChangeLanguage(CultureInfo culture) {}
 
-    public string ToString(string section, string name, object[] parameters)
+    public string ToString(string section, string name, params object[] parameters)
     {
       return string.Format("{0}.{1}", section, name);
-    }
-
-    public string ToString(string section, string name)
-    {
-      return string.Format("{0}.{1}", section, name);
-    }
-
-    public string ToString(StringId id)
-    {
-      return id.Label;
     }
 
     public ICollection<CultureInfo> AvailableLanguages
