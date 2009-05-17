@@ -352,7 +352,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Arrange(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Shape.Arrange :{0} X {1},Y {2} W {3}xH {4}", Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
+      //Trace.WriteLine(String.Format("Shape.Arrange: {0} X {1},Y {2} W {3}xH {4}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
 
       RemoveMargin(ref finalRect);
 
@@ -371,7 +371,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public override void Measure(ref SizeF totalSize)
     {
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
       if (LayoutTransform != null)
       {
@@ -387,7 +387,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       totalSize = _desiredSize;
       AddMargin(ref totalSize);
 
-      //Trace.WriteLine(String.Format("shape.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      //Trace.WriteLine(String.Format("Shape.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
     public override void Deallocate()

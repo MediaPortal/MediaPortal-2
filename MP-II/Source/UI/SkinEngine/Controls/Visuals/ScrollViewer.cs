@@ -25,6 +25,7 @@
 using System;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals
@@ -145,16 +146,26 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       float scrollAreaWidth = (float) scp.ActualWidth;
       float scrollAreaHeight = (float) scp.ActualHeight;
-      ScrollBarXKnobWidth = Math.Min(scrollAreaWidth, Math.Max(
+      // Hint about the coordinate systems used:
+      // The values our calculations are based on are in the coordinate system which is scaled by the
+      // SkinContext.Zoom setting. The output values must be in the original coordinate system, so we have to
+      // subtract out the zoom value
+      float w = Math.Min(scrollAreaWidth, Math.Max(
           scrollInfo.ViewPortWidth / totalWidthNN * scrollAreaWidth, SCROLLBAR_MINLENGTH));
-      ScrollBarXKnobPos = Math.Min(scrollAreaWidth-ScrollBarXKnobWidth,
+      float x = Math.Min(scrollAreaWidth-w,
           scrollInfo.ViewPortStartX / totalWidthNN * scrollAreaWidth);
-      ScrollBarXVisible = totalWidth > scrollInfo.ViewPortWidth;
-      ScrollBarYKnobHeight = Math.Min(scrollAreaHeight, Math.Max(
+      float h = Math.Min(scrollAreaHeight, Math.Max(
           scrollInfo.ViewPortHeight / totalHeightNN * scrollAreaHeight, SCROLLBAR_MINLENGTH));
-      ScrollBarYKnobPos = Math.Min(scrollAreaHeight - ScrollBarYKnobHeight,
+      float y = Math.Min(scrollAreaHeight - h,
           scrollInfo.ViewPortStartY / totalHeightNN * scrollAreaHeight);
-      ScrollBarYVisible = totalHeight > scrollInfo.ViewPortHeight;
+
+      ScrollBarXKnobWidth = w / SkinContext.Zoom.Width;
+      ScrollBarXKnobPos = x / SkinContext.Zoom.Width;
+      ScrollBarXVisible = !IsNear(totalWidth, 0) && totalWidth > scrollInfo.ViewPortWidth;
+
+      ScrollBarYKnobHeight = h / SkinContext.Zoom.Height;
+      ScrollBarYKnobPos = y / SkinContext.Zoom.Height;
+      ScrollBarYVisible = !IsNear(totalHeight, 0) && totalHeight > scrollInfo.ViewPortHeight;
     }
 
     void ConfigureContentScrollFacility()

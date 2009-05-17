@@ -229,7 +229,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       {
         RectangleF bounds = p.GetBounds();
 
-        _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
+        _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
         if (double.IsNaN(Width))
           _desiredSize.Width = bounds.Width * SkinContext.Zoom.Width;
@@ -412,8 +412,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
       Matrix m = new Matrix();
       RectangleF bounds = result.GetBounds();
       _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
-      if (Width > 0) baseRect.Width = (float) (Width * SkinContext.Zoom.Width);
-      if (Height > 0) baseRect.Height = (float) (Height * SkinContext.Zoom.Width);
+      if (Width > 0) baseRect.Width = (float) Width;
+      if (Height > 0) baseRect.Height = (float) Height;
       float scaleW;
       float scaleH;
       if (Stretch == Stretch.Fill)
