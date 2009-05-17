@@ -185,7 +185,7 @@ namespace UiComponents.Media
         PlayItem(item);
         return;
       }
-      _playMenuItems.Clear();
+      _playMenuItems = new ItemsList();
       PlayerContextType mediaType = pcm.GetTypeOfMediaItem(item);
       int numAudio = pcm.NumPlayerContextsOfMediaType(PlayerContextType.Audio);
       int numVideo = pcm.NumPlayerContextsOfMediaType(PlayerContextType.Video);
