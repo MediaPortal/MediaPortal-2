@@ -135,6 +135,21 @@ namespace MediaPortal.Utilities
       return true;
     }
 
+    /// <summary>
+    /// Returns the indexth element of the specified <paramref name="list"/>. If the list is null or empty or if the index
+    /// is outside the list's bounds, <c>null</c> will be returned.
+    /// </summary>
+    /// <typeparam name="T">Type of the list's elements.</typeparam>
+    /// <param name="list">The list to access.</param>
+    /// <param name="index">The index of the list to access.</param>
+    /// <returns><c>list[index]</c> or <c>null</c>.</returns>
+    public static T SafeGet<T>(IList<T> list, int index) where T : class
+    {
+      if (list == null || list.Count == 0 || index < 0 || index >= list.Count)
+        return null;
+      return list[index];
+    }
+
     private class ComparisonEqualityComparer<T> : IEqualityComparer<T>
     {
       protected readonly Comparison<T> _comparison;

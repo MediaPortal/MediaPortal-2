@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Utilities;
 using SlimDX;
 using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
@@ -240,13 +241,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               }
               else
                 _scrollIndex = 0;
-              _actualLastVisibleChild = -1;
+              int lastVisibleChild = -1;
               for (int i = 0; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
                 if (!_canScroll || (i >= _scrollIndex && startPositionY + childSize.Height <= bounds.Height))
-                  _actualLastVisibleChild = i;
+                  lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
 
@@ -261,6 +262,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
                 startPositionY += childSize.Height;
               }
+              _actualLastVisibleChild = lastVisibleChild;
             }
             break;
 
@@ -291,13 +293,13 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               }
               else
                 _scrollIndex = 0;
-              _actualLastVisibleChild = -1;
+              int lastVisibleChild = -1;
               for (int i = _scrollIndex; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
                 if (!_canScroll || (i >= _scrollIndex && startPositionX + childSize.Width <= bounds.Width))
-                  _actualLastVisibleChild = i;
+                  lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
 
@@ -312,6 +314,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
                 startPositionX += childSize.Width;
               }
+              _actualLastVisibleChild = lastVisibleChild;
             }
             break;
           }
@@ -517,7 +520,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         if (visibleChildren.Count == 0)
           return false;
-        FrameworkElement firstVisibleChild = visibleChildren[_scrollIndex];
+        FrameworkElement firstVisibleChild = CollectionUtils.SafeGet(visibleChildren, _scrollIndex);
+        if (firstVisibleChild == null)
+          return false;
         float limitPosition;
         if (InVisualPath(firstVisibleChild, currentElement))
           // The topmost element is focused - move one page up
@@ -545,7 +550,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         if (visibleChildren.Count == 0)
           return false;
-        FrameworkElement lastVisibleChild = visibleChildren[_actualLastVisibleChild];
+        FrameworkElement lastVisibleChild = CollectionUtils.SafeGet(visibleChildren, _actualLastVisibleChild);
+        if (lastVisibleChild == null)
+          return false;
         float limitPosition;
         if (InVisualPath(lastVisibleChild, currentElement))
           // The element at the bottom is focused - move one page down
@@ -573,7 +580,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         if (visibleChildren.Count == 0)
           return false;
-        FrameworkElement firstVisibleChild = visibleChildren[_scrollIndex];
+        FrameworkElement firstVisibleChild = CollectionUtils.SafeGet(visibleChildren, _scrollIndex);
+        if (firstVisibleChild == null)
+          return false;
         float limitPosition;
         if (InVisualPath(firstVisibleChild, currentElement))
           // The leftmost element is focused - move one page left
@@ -601,7 +610,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         if (visibleChildren.Count == 0)
           return false;
-        FrameworkElement lastVisibleChild = visibleChildren[_actualLastVisibleChild];
+        FrameworkElement lastVisibleChild = CollectionUtils.SafeGet(visibleChildren, _actualLastVisibleChild);
+        if (lastVisibleChild == null)
+          return false;
         float limitPosition;
         if (InVisualPath(lastVisibleChild, currentElement))
           // The element at the bottom is focused - move one page down
@@ -661,8 +672,16 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         float spaceBefore = 0;
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        for (int i = 0; i < _scrollIndex; i++)
-          spaceBefore += visibleChildren[i].TotalDesiredSize().Width;
+        // Need to avoid threading issues. If the render thread is arranging at the same time, _scrollIndex
+        // might be adapted while this code executes
+        int scrollIndex = _scrollIndex;
+        for (int i = 0; i < scrollIndex; i++)
+        {
+          FrameworkElement fe = CollectionUtils.SafeGet(visibleChildren, i);
+          if (fe == null)
+            continue;
+          spaceBefore += fe.TotalDesiredSize().Width;
+        }
         return spaceBefore;
       }
     }
@@ -678,8 +697,16 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       {
         float spaceBefore = 0;
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        for (int i = 0; i < _scrollIndex; i++)
+        // Need to avoid threading issues. If the render thread is arranging at the same time, _scrollIndex
+        // might be adapted while this code executes
+        int scrollIndex = _scrollIndex;
+        for (int i = 0; i < scrollIndex; i++)
+        {
+          FrameworkElement fe = CollectionUtils.SafeGet(visibleChildren, i);
+          if (fe == null)
+            continue;
           spaceBefore += visibleChildren[i].TotalDesiredSize().Height;
+        }
         return spaceBefore;
       }
     }
