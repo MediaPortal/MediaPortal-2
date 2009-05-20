@@ -46,9 +46,11 @@ namespace Ui.Players.Video
 
     public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
     public const string FULLSCREEN_CONTENT_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
+    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
 
     public static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
     public static Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
+    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
 
     public const string FULLSCREENVIDEO_SCREEN_NAME = "FullscreenContentVideo";
     public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingVideo";
@@ -63,6 +65,7 @@ namespace Ui.Players.Video
     public static float DEFAULT_PIP_WIDTH = 192;
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
+    protected bool _inactive = false;
     protected VideoStateType _currentVideoStateType = VideoStateType.None;
 
     protected Property _isOSDVisibleProperty;
@@ -109,7 +112,7 @@ namespace Ui.Players.Video
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
 
-      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
+      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT || _inactive;
       IsPrimaryPlayerActive = primaryPlayer != null;
       IsSecondaryPlayerActive = secondaryPlayer != null;
       if (primaryPlayer == null)
@@ -348,12 +351,12 @@ namespace Ui.Players.Video
 
     public void ShowVideoInfo()
     {
-      _lastVideoInfoDemand = DateTime.Now;
       if (IsOSDVisible)
       { // Pressing the info button twice will bring up the context menu
-        IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-        screenManager.ShowDialog(VIDEOCONTEXTMENU_DIALOG_NAME);
+        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
       }
+      _lastVideoInfoDemand = DateTime.Now;
       Update();
     }
 
@@ -402,7 +405,6 @@ namespace Ui.Players.Video
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       StartListening(); // Lazily start our timer
       UpdateVideoStateType(newContext);
     }
@@ -420,12 +422,12 @@ namespace Ui.Players.Video
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do
+      _inactive = true;
     }
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do
+      _inactive = false;
     }
 
     public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
