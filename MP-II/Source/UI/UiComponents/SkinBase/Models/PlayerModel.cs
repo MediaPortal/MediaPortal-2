@@ -42,12 +42,19 @@ namespace UiComponents.SkinBase.Models
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
 
+    public static float DEFAULT_PIP_HEIGHT = 108;
+    public static float DEFAULT_PIP_WIDTH = 192;
+
     protected Property _isPipVisibleProperty;
+    protected Property _pipWidthProperty;
+    protected Property _pipHeightProperty;
     protected Property _isMutedProperty;
 
     public PlayerModel()
     {
       _isPipVisibleProperty = new Property(typeof(bool), false);
+      _pipWidthProperty = new Property(typeof(float), 0f);
+      _pipHeightProperty = new Property(typeof(float), 0f);
       _isMutedProperty = new Property(typeof(bool), false);
 
       SubscribeToMessages();
@@ -85,8 +92,13 @@ namespace UiComponents.SkinBase.Models
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
+      IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IsPipVisible = playerContextManager.IsPipActive;
       IsMuted = playerManager.Muted;
+      PipHeight = DEFAULT_PIP_HEIGHT;
+      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH :
+          PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
     }
 
     /// <summary>
@@ -119,6 +131,28 @@ namespace UiComponents.SkinBase.Models
     {
       get { return (bool) _isPipVisibleProperty.GetValue(); }
       set { _isPipVisibleProperty.SetValue(value); }
+    }
+
+    public Property PipWidthProperty
+    {
+      get { return _pipWidthProperty; }
+    }
+
+    public float PipWidth
+    {
+      get { return (float) _pipWidthProperty.GetValue(); }
+      set { _pipWidthProperty.SetValue(value); }
+    }
+
+    public Property PipHeightProperty
+    {
+      get { return _pipHeightProperty; }
+    }
+
+    public float PipHeight
+    {
+      get { return (float) _pipHeightProperty.GetValue(); }
+      set { _pipHeightProperty.SetValue(value); }
     }
 
     public Property IsMutedProperty

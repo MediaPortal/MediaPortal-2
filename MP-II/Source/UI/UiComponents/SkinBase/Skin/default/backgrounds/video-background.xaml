@@ -24,7 +24,8 @@ Video background
     <RowDefinition Height="Auto"/>
     <RowDefinition Height="50"/>
   </Grid.RowDefinitions>
-  <Rectangle Grid.Column="1" Grid.Row="1" x:Name="PIP" Width="160" Height="104" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
+  <Rectangle x:Name="PIP" Grid.Column="1" Grid.Row="1" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
+      Width="{Binding Source={StaticResource PlayerModel},Path=PipWidth}" Height="{Binding Source={StaticResource PlayerModel},Path=PipHeight}"
       IsVisible="{Binding Source={StaticResource PlayerModel},Path=IsPipVisible}">
     <Rectangle.Fill>
       <VideoBrush Stream="1"/>

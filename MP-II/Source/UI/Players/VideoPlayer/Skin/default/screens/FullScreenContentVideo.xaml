@@ -1,79 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- FIXME: Has to be reworked completely -->
-<DockPanel
+<Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}}"
-    > <!-- DataContext model = PlayerModel -->
-  <DockPanel.Resources>
-    <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
-  </DockPanel.Resources>
-  <Canvas x:Name="Osd" DockPanel.Dock="Center"
-      IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=IsVideoInfoVisible}">
-    <Border Canvas.Top="562" Width="1280" Height="158" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-          <GradientStop Offset="0" Color="#90FFFFFF"/>
-          <GradientStop Offset="0.5" Color="#F87A7673"/>
-          <GradientStop Offset="1" Color="#F87A7673"/>
-        </LinearGradientBrush >
-      </Border.Background>
-    </Border>
-    <Line X1="131" X2="1275" Y1="637" Y2="637" Stroke="#FF939393" StrokeThickness="3" />
-    <Border Canvas.Left="121" Canvas.Top="662" Width="94" Height="46" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
-      <Border.Background>
-        <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
-          <GradientStop Offset="0" Color="#F8F2F2F2"/>
-          <GradientStop Offset="1" Color="#F8ACACAC"/>
-        </RadialGradientBrush>
-      </Border.Background>
-    </Border>
-    <Border Canvas.Left="23" Canvas.Top="573" Width="115" Height="108" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
-      <Border.Background>
-        <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
-          <GradientStop Offset="0" Color="#48F2F2F2"/>
-          <GradientStop Offset="0.4" Color="#A0F2F2F2"/>
-          <GradientStop Offset="1" Color="#F8ACACAC"/>
-        </RadialGradientBrush>
-      </Border.Background>
-    </Border>
+    xmlns:mp_special="clr-namespace:MediaPortal.SkinEngine.SpecialElements.Controls"
+    x:Name="FullscreenLayoutGrid"
+    DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}"
+    > <!-- DataContext model = VideoPlayerModel -->
+  <Grid.Background>
+    <VideoBrush Stream="0"/>
+  </Grid.Background>
+  <Grid x:Name="PipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+      <ColumnDefinition Width="50"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="50"/>
+    </Grid.RowDefinitions>
 
-    <Border x:Name="BgProgressbar" Canvas.Left="224" Canvas.Top="580" Width="955" Height="15" BorderBrush="Black" CornerRadius="8" BorderThickness="1">
-      <Border.Background>
-        <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
-          <GradientStop Offset="0" Color="#48F2F2F2"/>
-          <GradientStop Offset="1" Color="#F8CCCCCC"/>
-        </RadialGradientBrush>
-      </Border.Background>
-    </Border>
-    <ProgressBar x:Name="progressBar" Canvas.Left="227" Canvas.Top="582" Width="950" Height="10" Value="{Binding Source={Service Players},Path=OSD.PercentPlayed}" Style="{StaticResource ProgressBarStyle}"/>
-
-    <Label x:Name="startTime" FontSize="12" VerticalAlignment="Top" HorizontalAlignment="Center" Canvas.Left="145" Canvas.Top="578" Color="Black" Width="100" Height="30" Content="{Binding Source={Service Players},Path=OSD.CurrentTime}" />
-    <Label x:Name="endTime" FontSize="12" VerticalAlignment="Top" HorizontalAlignment="Center" Canvas.Left="1169"  Canvas.Top="578" Color="Black" Width="100" Height="30" Content="{Binding Source={Service Players},Path=OSD.RemainingTime}" />
-    <Label x:Name="osdname" FontSize="12" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="654" Color="Black" Width="190" Height="30" Content="Video" />
-
-    <Label x:Name="time" FontSize="13" Canvas.Left="1170" Canvas.Top="657" Content="{Binding Source={Service ScreenManager},Path=Utils.CurrentTime}" Width="120" Height="32" Color="Black" HorizontalAlignment="Left"/>
-    <Label x:Name="osdTitle" FontSize="13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="610" Color="Black" Width="420" Height="30" Content="{Binding Source={Service Players},Path=OSD.Title}" />
-    <Label x:Name="osdTime" FontSize="13" HorizontalAlignment="Left" Canvas.Left="30" Canvas.Top="684" Color="Black" Width="190" Height="30" Content="{Binding Source={Service Players},Path=OSD.CurrentTime}" />
-    <Label x:Name="osdDuration" FontSize="13" HorizontalAlignment="Left" Canvas.Left="225" Canvas.Top="677" Color="Black" Width="190" Height="30" Content="{Binding Source={Service Players},Path=OSD.Duration}" />
-    <Label x:Name="row1" FontSize="13" Canvas.Left="129" Canvas.Top="674"  Width="100" Height="30" Color="Black" Content="{Binding Source={Service Players},Path=OSD.SeekTime}" />
-    <Image x:Name="pause" Source="video-pause.png" Canvas.Left="144" Canvas.Top="593" Width="25" Height="32" IsVisible="{Binding Source={Service Players},Path=Paused}"/>
-    <Image x:Name="play" Source="video-play.png" Canvas.Left="144" Canvas.Top="593" Width="25" Height="32" IsVisible="{Binding Source={Service Players},Path=Playing}"/>
-
-    <Control x:Name="Clock" Canvas.Left="1110" Canvas.Top="654" Width="25" Height="25" Style="{StaticResource AnalogClockStyle}"/>
-    <Canvas x:Name="PipWindow" Canvas.Left="30" Canvas.Top="582" Width="100" Height="93" IsVisible="{Binding IsPip}">
-      <Canvas.Background>
-        <VideoBrush Stream="{Binding PipVideoStream}"/>
-      </Canvas.Background>
-    </Canvas>
-  </Canvas>
-  <Canvas x:Name="PlayControls" DockPanel.Dock="Center" IsVisible="{Binding IsPlayControlsVisible}">
-    <StackPanel Canvas.Left="330" Canvas.Top="674">
-      <Include Source="screens\osd.xaml"/>
-    </StackPanel>
-  </Canvas>
+    <Rectangle x:Name="PIP" Grid.Column="1" Grid.Row="1" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
+        Width="{Binding PipWidth}" Height="{Binding PipHeight}">
+      <Rectangle.IsVisible>
+        <!-- The background PIP will be replaced by the OSD PIP when the OSD is visible -->
+        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+          <Binding Path="IsPip"/>
+          <Binding Path="!IsOSDVisible"/>
+        </MultiBinding>
+      </Rectangle.IsVisible>
+      <Rectangle.Fill>
+        <VideoBrush Stream="1"/>
+      </Rectangle.Fill>
+    </Rectangle> <!-- PIP -->
+  </Grid> <!-- PipLayoutGrid -->
+  <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false">
+    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="512" LastChildFill="false">
+      <Border x:Name="OSD_PrimaryBackground" DockPanel.Dock="Bottom"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          BorderBrush="Black" CornerRadius="8" BorderThickness="1"
+          IsVisible="{Binding IsOSDVisible}">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Offset="0" Color="#90FFFFFF"/>
+            <GradientStop Offset="0.5" Color="#F87A7673"/>
+            <GradientStop Offset="1" Color="#F87A7673"/>
+          </LinearGradientBrush >
+        </Border.Background>
+        <Grid x:Name="PrimaryPlayerGrid" Margin="10,0,10,0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Label x:Name="PrimaryVideoName" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
+              Content="{Binding Path=PrimaryVideoName}" Scroll="true"/>
+          <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Top"
+              BorderBrush="Black" CornerRadius="3" BorderThickness="1">
+            <Border.Background>
+              <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
+                <GradientStop Offset="0" Color="#48F2F2F2"/>
+                <GradientStop Offset="1" Color="#F8CCCCCC"/>
+              </RadialGradientBrush>
+            </Border.Background>
+            <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                Style="{StaticResource ProgressBarStyle}"
+                Value="{Binding Path=PrimaryPercentPlayed}"/>
+          </Border>
+          <Grid x:Name="StatusLineGrid" Grid.Row="2" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label x:Name="PlayerStateLabel" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
+                Content="{Binding PrimaryPlayerStateText}"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="10,0,0,0" HorizontalAlignment="Right"
+                IsVisible="{Binding IsPrimaryPlayerActive}">
+              <Label x:Name="PrimaryCurrentTimeLabel" Content="{Binding PrimaryCurrentTime}"/>
+              <Label Content="/" Margin="4,0,4,0"/>
+              <Label x:Name="PrimaryVideoLengthLabel" Content="{Binding PrimaryDuration}"/>
+            </StackPanel>
+          </Grid> <!-- StatusLineGrid -->
+          <mp_special:PlayerControl x:Name="PrimaryPlayerControl" Grid.Column="0" Grid.Row="3"
+              VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10,10,10,0"
+              Style="{ThemeResource VideoPlayerPlayControlsStyle}" SlotIndex="0" AutoVisibility="True"/>
+        </Grid> <!-- PrimaryPlayerGrid -->
+      </Border> <!-- OSD_PrimaryBackground -->
+    </DockPanel> <!-- OSD_LeftPanel -->
+    <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" LastChildFill="false">
+      <Border x:Name="OSD_SecondaryBackground" DockPanel.Dock="Bottom"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          BorderBrush="Black" CornerRadius="8" BorderThickness="1">
+        <Border.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="IsOSDVisible"/>
+            <Binding Path="IsSecondaryPlayerActive"/>
+          </MultiBinding>
+        </Border.IsVisible>
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Offset="0" Color="#90FFFFFF"/>
+            <GradientStop Offset="0.5" Color="#F87A7673"/>
+            <GradientStop Offset="1" Color="#F87A7673"/>
+          </LinearGradientBrush >
+        </Border.Background>
+        <Grid x:Name="SecondaryPlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label x:Name="SecondaryMediaName" Grid.Column="0" Grid.Row="0" Content="{Binding SecondaryMediaName}"
+              VerticalAlignment="Center" HorizontalAlignment="Center" Scroll="true"/>
+          <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
+              VerticalAlignment="Center" HorizontalAlignment="Center"
+              Command="{Command SwitchPip}">
+            <Button.IsVisible>
+              <!-- The background PIP will be replaced by the OSD PIP when the OSD is visible -->
+              <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                <Binding Path="IsPip"/> <!-- only visible if secondary player is PIP video -->
+                <Binding Path="IsOSDVisible"/>
+              </MultiBinding>
+            </Button.IsVisible>
+            <Button.Template>
+              <ControlTemplate TargetType="{x:Type Button}">
+                <Rectangle x:Name="PIPRectangle" Grid.Column="0" Grid.Row="1" Stroke="Black" StrokeThickness="1"
+                    Width="{Binding OsdPipWidth}" Height="{Binding OsdPipHeight}">
+                  <Rectangle.Fill>
+                    <VideoBrush Stream="1"/>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </ControlTemplate>
+            </Button.Template>
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="PIPRectangle" Property="Stroke" Value="Yellow"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button> <!-- PIPButton -->
+          <mp_special:PlayerControl Grid.Column="0" Grid.Row="2" Margin="10,10,10,0" Style="{ThemeResource VideoPlayerPlayControlsStyle}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Center" SlotIndex="1"/>
+        </Grid> <!-- SecondaryPlayerGrid -->
+      </Border> <!-- OSD_SecondaryBackground -->
+    </DockPanel> <!-- OSD_RightPanel -->
+  </DockPanel> <!-- OSD_LayoutPanel -->
   <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>
-  <KeyBinding Key="ZoomMode" Command="{Command NextZoomMode}"/>
-  <KeyBinding Key="Left" Command="{Command SeekBackward}"/>
-  <KeyBinding Key="Right" Command="{Command SeekForward}"/>
-</DockPanel>
+  <!-- TODO: Zoom menu, all player remote controls -->
+</Grid>

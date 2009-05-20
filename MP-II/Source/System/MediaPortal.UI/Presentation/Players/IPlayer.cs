@@ -114,12 +114,6 @@ namespace MediaPortal.Presentation.Players
     void SetMediaItemTitleHint(string title);
 
     /// <summary>
-    /// Will be called from outside to update the <see cref="CurrentTime"/> property to the current
-    /// media position.
-    /// </summary>
-    void UpdateTime();
-
-    /// <summary>
     /// Stops playback.
     /// </summary>
     void Stop();

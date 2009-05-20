@@ -191,6 +191,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected readonly Stack<Screen> _dialogStack = new Stack<Screen>();
     protected Screen _currentScreen = null;
 
+    protected bool _backgroundDisabled = false;
+
     protected Skin _skin = null;
     protected Theme _theme = null;
 
@@ -392,17 +394,31 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected IList<Screen> GetAllScreens()
     {
+      return GetScreens(true, true, true);
+    }
+
+    protected IList<Screen> GetScreens(bool background, bool main, bool dialogs)
+    {
       lock (_syncData)
       {
         IList<Screen> result = new List<Screen>();
-        Screen backgroundScreen = _backgroundData.BackgroundScreen;
-        if (backgroundScreen != null)
-          result.Add(backgroundScreen);
-        if (_currentScreen != null)
-          result.Add(_currentScreen);
-        Screen[] dialogs = _dialogStack.ToArray();
-        Array.Reverse(dialogs);
-        CollectionUtils.AddAll(result, dialogs);
+        if (background)
+        {
+          Screen backgroundScreen = _backgroundData.BackgroundScreen;
+          if (backgroundScreen != null)
+            result.Add(backgroundScreen);
+        }
+        if (main)
+        {
+          if (_currentScreen != null)
+            result.Add(_currentScreen);
+        }
+        if (dialogs)
+        {
+          Screen[] dialogsArray = _dialogStack.ToArray();
+          Array.Reverse(dialogsArray);
+          CollectionUtils.AddAll(result, dialogsArray);
+        }
         return result;
       }
     }
@@ -426,14 +442,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Renders the current window and dialog.
+    /// Renders the current screens (background, main and dialogs).
     /// </summary>
     public void Render()
     {
+      IList<Screen> screens = GetScreens(!_backgroundDisabled, true, true);
       lock (_syncRender)
       {
         SkinContext.Now = DateTime.Now;
-        ForEachScreen(screen => screen.Render());
+        foreach (Screen screen in screens)
+          screen.Render();
       }
     }
 
@@ -641,6 +659,20 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         lock (_syncData)
           return _dialogStack.Count > 0;
+      }
+    }
+
+    public bool BackgroundDisabled
+    {
+      get
+      {
+        lock (_syncRender)
+          return _backgroundDisabled;
+      }
+      set
+      {
+        lock (_syncRender)
+          _backgroundDisabled = value;
       }
     }
 

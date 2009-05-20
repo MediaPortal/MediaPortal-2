@@ -33,6 +33,18 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.Services.Players
 {
+  // TODO:
+  // Install an automatic trigger which checks those conditions:
+  //  - if (a player slot was closed by PM): pop all its CP states from workflow navigation stack
+  //  - if ((primary player was started OR the player slots were switched) AND we have been in a FSC state): switch to the current
+  //        primary player's FSC state
+  //  - if (the current player changed AND we have been in in the former current player's CP state): switch to the new current
+  //        player's PC state.
+  // The problems to solve for that are
+  // - we need to know which of the states on the navigation stack are CP states (you cannot see that property in the states itself)
+  // - we need to track whether we have been in an FSC/CP state before a player was exchanged/cleared, because
+  //   after it has gone, we don't get the information of its FSC/CP states any more
+  // Both problems are caused by the fact that we cannot determine whether a state is an FSC or CP state
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {
     #region Consts
@@ -55,7 +67,7 @@ namespace MediaPortal.Services.Players
     protected void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived_Async;
     }
 
     protected void UnsubscribeFromMessages()
@@ -63,10 +75,10 @@ namespace MediaPortal.Services.Players
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
       if (broker == null)
         return;
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
+      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived_Async;
     }
 
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
+    protected void OnPlayerManagerMessageReceived_Async(QueueMessage message)
     {
       PlayerManagerMessaging.MessageType messageType =
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
@@ -276,6 +288,15 @@ namespace MediaPortal.Services.Players
       }
     }
 
+    public Guid? FullscreenContentWorkflowStateId
+    {
+      get
+      {
+        PlayerContext pc = GetPlayerContextInternal(PlayerManagerConsts.PRIMARY_SLOT);
+        return pc == null ? null : pc.FullscreenContentWorkflowStateId;
+      }
+    }
+
     public void Shutdown()
     {
       UnsubscribeFromMessages();
@@ -446,12 +467,6 @@ namespace MediaPortal.Services.Players
         playerManager.AudioSlotIndex = playerContext.PlayerSlotController.SlotIndex;
         return true;
       }
-    }
-
-    public bool PushFullscreenContentWorkflowState()
-    {
-      PlayerContext pc = GetPlayerContextInternal(PlayerManagerConsts.PRIMARY_SLOT);
-      return pc != null && pc.PushFullscreenContentWorkflowState();
     }
 
     public void Stop()

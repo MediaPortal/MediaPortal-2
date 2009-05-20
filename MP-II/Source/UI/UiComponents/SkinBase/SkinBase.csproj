@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -346,7 +346,6 @@
     <Content Include="Skin\default\screens\movieResume.xaml" />
     <Content Include="Skin\default\screens\movieStopped.xaml" />
     <Content Include="Skin\default\screens\music.xaml" />
-    <Content Include="Skin\default\screens\osd.xaml" />
     <Content Include="Skin\default\screens\picturedetail.xaml" />
     <Content Include="Skin\default\screens\pictureEditting.xaml" />
     <Content Include="Skin\default\screens\pictures.xaml" />

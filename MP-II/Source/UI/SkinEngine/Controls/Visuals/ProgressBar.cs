@@ -74,7 +74,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     void OnValueChanged(Property property, object oldValue)
     {
+      CalcPartIndicatorWidth();
+    }
+
+    protected void CalcPartIndicatorWidth()
+    {
       PartIndicatorWidth = (float) (ActualWidth*Value/100.0);
+    }
+
+    public override void Arrange(System.Drawing.RectangleF finalRect)
+    {
+      base.Arrange(finalRect);
+      CalcPartIndicatorWidth();
     }
 
     public Property ValueProperty

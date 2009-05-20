@@ -60,6 +60,7 @@
     <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\DialogVideoContextMenu.xaml" />
+    <Content Include="Skin\default\themes\default\styles\VideoPlayerStyles.xaml" />
     <Compile Include="DvdPlayer.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="FilterGraphTools.cs" />

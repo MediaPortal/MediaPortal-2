@@ -60,6 +60,12 @@ namespace MediaPortal.Presentation.Screens
     bool IsDialogVisible { get; }
 
     /// <summary>
+    /// Gets or sets the flag which disables the screenmanager from rendering the background screen.
+    /// This can be used for temporary providing another background in some screens.
+    /// </summary>
+    bool BackgroundDisabled { get; set; }
+
+    /// <summary>
     /// Switches the GUI to the specified skin, using the default theme of the skin.
     /// </summary>
     /// <param name="newSkinName">Logical name of the skin.</param>

@@ -24,10 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
@@ -40,13 +41,6 @@ namespace Ui.Players.Video
   /// </summary>
   public class VideoPlayerModel : BaseTimerControlledUIModel, IWorkflowModel
   {
-    public enum VideoScreenState
-    {
-      None,
-      CurrentlyPlaying,
-      FullscreenContent,
-    }
-
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
     public static Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
@@ -61,74 +55,110 @@ namespace Ui.Players.Video
 
     public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
 
+    public const string NO_VIDEO_RESOURCE = "[VideoPlayer.NoVideo]";
+
     protected static TimeSpan VIDEO_INFO_TIMEOUT = new TimeSpan(0, 0, 0, 5);
 
-    protected IPlayerContext _playerContext = null; // Assigned and cleared in workflow model methods
+    public static float DEFAULT_PIP_HEIGHT = 108;
+    public static float DEFAULT_PIP_WIDTH = 192;
+
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
-    protected bool _locallySubscribedToMessages = false;
-    protected VideoScreenState _currentScreenState = VideoScreenState.None;
+    protected VideoStateType _currentVideoStateType = VideoStateType.None;
 
+    protected Property _isOSDVisibleProperty;
+    protected Property _isPrimaryPlayerActiveProperty;
+    protected Property _isSecondaryPlayerActiveProperty;
+    protected Property _primaryPercentPlayedProperty;
+    protected Property _primaryCurrentTimeProperty;
+    protected Property _primaryDurationProperty;
+    protected Property _primaryPlayerStateTextProperty;
+    protected Property _primaryVideoNameProperty;
+    protected Property _secondaryMediaNameProperty;
+    protected Property _pipWidthProperty;
+    protected Property _pipHeightProperty;
+    protected Property _osdPipWidthProperty;
+    protected Property _osdPipHeightProperty;
+    protected Property _isPipProperty;
 
-    protected Property _isVideoInfoVisibleProperty;
-
-    public VideoPlayerModel() : base(500)
+    public VideoPlayerModel() : base(300)
     {
-      _isVideoInfoVisibleProperty = new Property(typeof(bool), false);
-      // Don't SubscribeToMessages and StartListening here, that will be done in method EnterModelContext
-    }
-
-    void SubscribeToMessages()
-    {
-      if (_locallySubscribedToMessages)
-        return;
-      _locallySubscribedToMessages = true;
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
-    }
-
-    protected override void UnsubscribeFromMessages()
-    {
-      base.UnsubscribeFromMessages();
-      if (!_locallySubscribedToMessages)
-        return;
-      _locallySubscribedToMessages = false;
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
-    }
-
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
-    {
-      PlayerManagerMessaging.MessageType messageType =
-          (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
-      {
-        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
-          if (_playerContext != null && !_playerContext.IsValid)
-          {
-            IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-            // Maybe we should do more handling in this case if we are in FSC state - show dialogs "do you want to delete"
-            // etc.? At the moment we'll simply return to the last workflow state.
-            workflowManager.NavigatePop(1);
-          }
-          break;
-      }
+      _isOSDVisibleProperty = new Property(typeof(bool), false);
+      _isPrimaryPlayerActiveProperty = new Property(typeof(bool), false);
+      _isSecondaryPlayerActiveProperty = new Property(typeof(bool), false);
+      _primaryPercentPlayedProperty = new Property(typeof(float), 0f);
+      _primaryCurrentTimeProperty = new Property(typeof(string), string.Empty);
+      _primaryDurationProperty = new Property(typeof(string), string.Empty);
+      _primaryPlayerStateTextProperty = new Property(typeof(string), string.Empty);
+      _primaryVideoNameProperty = new Property(typeof(string), string.Empty);
+      _secondaryMediaNameProperty = new Property(typeof(string), string.Empty);
+      _pipWidthProperty = new Property(typeof(float), 0f);
+      _pipHeightProperty = new Property(typeof(float), 0f);
+      _osdPipWidthProperty = new Property(typeof(float), 0f);
+      _osdPipHeightProperty = new Property(typeof(float), 0f);
+      _isPipProperty = new Property(typeof(bool), false);
+      // Don't StartListening here, since that will be done in method EnterModelContext
     }
 
     protected override void Update()
     {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext primaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
+      IVideoPlayer primaryPlayer = primaryPlayerContext == null ? null : primaryPlayerContext.CurrentPlayer as IVideoPlayer;
+      IVideoPlayer secondaryPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
+      IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
-      IsVideoInfoVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
+
+      IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT;
+      IsPrimaryPlayerActive = primaryPlayer != null;
+      IsSecondaryPlayerActive = secondaryPlayer != null;
+      if (primaryPlayer == null)
+      {
+        PrimaryPercentPlayed = 0f;
+        PrimaryCurrentTime = string.Empty;
+        PrimaryDuration = string.Empty;
+        PrimaryPlayerStateText = string.Empty;
+        PrimaryVideoName = NO_VIDEO_RESOURCE;
+      }
+      else
+      {
+        TimeSpan currentTime = primaryPlayer.CurrentTime;
+        TimeSpan duration = primaryPlayer.Duration;
+        if (duration.TotalMilliseconds == 0)
+        {
+          PrimaryPercentPlayed = 0;
+          PrimaryCurrentTime = string.Empty;
+          PrimaryDuration = string.Empty;
+        }
+        else
+        {
+          ILocalization localization = ServiceScope.Get<ILocalization>();
+          CultureInfo culture = localization.CurrentCulture;
+          PrimaryPercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
+          PrimaryCurrentTime = new DateTime().Add(currentTime).ToString("T", culture);
+          PrimaryDuration = new DateTime().Add(duration).ToString("T", culture);
+        }
+        PrimaryPlayerStateText = primaryPlayer.State.ToString();
+        PrimaryVideoName = primaryPlayer.MediaItemTitle;
+      }
+      SecondaryMediaName = secondaryPlayer == null ? string.Empty : secondaryPlayer.MediaItemTitle;
+      IsPip = pipPlayer != null;
+      PipHeight = DEFAULT_PIP_HEIGHT;
+      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH :
+          PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
+      OsdPipHeight = PipHeight;
+      OsdPipWidth = PipWidth;
     }
 
     protected void UpdateScreen()
     {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      switch (_currentScreenState)
+      switch (_currentVideoStateType)
       {
-        case VideoScreenState.CurrentlyPlaying:
+        case VideoStateType.CurrentlyPlaying:
           screenManager.ShowScreen(CURRENTLY_PLAYING_SCREEN_NAME);
           break;
-        case VideoScreenState.FullscreenContent:
+        case VideoStateType.FullscreenContent:
           screenManager.ShowScreen(FULLSCREENVIDEO_SCREEN_NAME);
           break;
       }
@@ -139,39 +169,205 @@ namespace Ui.Players.Video
       return player is IVideoPlayer;
     }
 
-    protected void UpdateVideoScreenState(NavigationContext newContext)
+    protected void UpdateVideoStateType(NavigationContext newContext)
     {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
-        _currentScreenState = VideoScreenState.CurrentlyPlaying;
+      {
+        screenManager.BackgroundDisabled = true;
+        _currentVideoStateType = VideoStateType.CurrentlyPlaying;
+      }
       else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
-        _currentScreenState = VideoScreenState.FullscreenContent;
+      {
+        screenManager.BackgroundDisabled = true;
+        _currentVideoStateType = VideoStateType.FullscreenContent;
+      }
       else
-        _currentScreenState = VideoScreenState.None;
+      {
+        screenManager.BackgroundDisabled = false;
+        _currentVideoStateType = VideoStateType.None;
+      }
       UpdateScreen();
     }
 
     #region Members to be accessed from the GUI
 
-    public Property IsVideoInfoVisibleProperty
+    public Property IsOSDVisibleProperty
     {
-      get { return _isVideoInfoVisibleProperty; }
+      get { return _isOSDVisibleProperty; }
     }
 
-    public bool IsVideoInfoVisible
+    public bool IsOSDVisible
     {
-      get { return (bool) _isVideoInfoVisibleProperty.GetValue(); }
-      set { _isVideoInfoVisibleProperty.SetValue(value); }
+      get { return (bool) _isOSDVisibleProperty.GetValue(); }
+      set { _isOSDVisibleProperty.SetValue(value); }
+    }
+
+    public Property IsPrimaryPlayerActiveProperty
+    {
+      get { return _isPrimaryPlayerActiveProperty; }
+    }
+
+    public bool IsPrimaryPlayerActive
+    {
+      get { return (bool) _isPrimaryPlayerActiveProperty.GetValue(); }
+      set { _isPrimaryPlayerActiveProperty.SetValue(value); }
+    }
+
+    public Property IsSecondaryPlayerActiveProperty
+    {
+      get { return _isSecondaryPlayerActiveProperty; }
+    }
+
+    public bool IsSecondaryPlayerActive
+    {
+      get { return (bool) _isSecondaryPlayerActiveProperty.GetValue(); }
+      set { _isSecondaryPlayerActiveProperty.SetValue(value); }
+    }
+
+    public Property PrimaryPercentPlayedProperty
+    {
+      get { return _primaryPercentPlayedProperty; }
+    }
+
+    public float PrimaryPercentPlayed
+    {
+      get { return (float) _primaryPercentPlayedProperty.GetValue(); }
+      set { _primaryPercentPlayedProperty.SetValue(value); }
+    }
+
+    public Property PrimaryCurrentTimeProperty
+    {
+      get { return _primaryCurrentTimeProperty; }
+    }
+
+    public string PrimaryCurrentTime
+    {
+      get { return (string) _primaryCurrentTimeProperty.GetValue(); }
+      set { _primaryCurrentTimeProperty.SetValue(value); }
+    }
+
+    public Property PrimaryDurationProperty
+    {
+      get { return _primaryDurationProperty; }
+    }
+
+    public string PrimaryDuration
+    {
+      get { return (string) _primaryDurationProperty.GetValue(); }
+      set { _primaryDurationProperty.SetValue(value); }
+    }
+
+    public Property PrimaryPlayerStateTextProperty
+    {
+      get { return _primaryPlayerStateTextProperty; }
+    }
+
+    public string PrimaryPlayerStateText
+    {
+      get { return (string) _primaryPlayerStateTextProperty.GetValue(); }
+      set { _primaryPlayerStateTextProperty.SetValue(value); }
+    }
+
+    public Property PrimaryVideoNameProperty
+    {
+      get { return _primaryVideoNameProperty; }
+    }
+
+    public string PrimaryVideoName
+    {
+      get { return (string) _primaryVideoNameProperty.GetValue(); }
+      set { _primaryVideoNameProperty.SetValue(value); }
+    }
+
+    public Property SecondaryMediaNameProperty
+    {
+      get { return _secondaryMediaNameProperty; }
+    }
+
+    public string SecondaryMediaName
+    {
+      get { return (string) _secondaryMediaNameProperty.GetValue(); }
+      set { _secondaryMediaNameProperty.SetValue(value); }
+    }
+
+    public Property IsPipProperty
+    {
+      get { return _isPipProperty; }
+    }
+
+    public bool IsPip
+    {
+      get { return (bool) _isPipProperty.GetValue(); }
+      set { _isPipProperty.SetValue(value); }
+    }
+
+    public Property PipWidthProperty
+    {
+      get { return _pipWidthProperty; }
+    }
+
+    public float PipWidth
+    {
+      get { return (float) _pipWidthProperty.GetValue(); }
+      set { _pipWidthProperty.SetValue(value); }
+    }
+
+    public Property PipHeightProperty
+    {
+      get { return _pipHeightProperty; }
+    }
+
+    public float PipHeight
+    {
+      get { return (float) _pipHeightProperty.GetValue(); }
+      set { _pipHeightProperty.SetValue(value); }
+    }
+
+    public Property OsdPipWidthProperty
+    {
+      get { return _osdPipWidthProperty; }
+    }
+
+    public float OsdPipWidth
+    {
+      get { return (float) _osdPipWidthProperty.GetValue(); }
+      set { _osdPipWidthProperty.SetValue(value); }
+    }
+
+    public Property OsdPipHeightProperty
+    {
+      get { return _osdPipHeightProperty; }
+    }
+
+    public float OsdPipHeight
+    {
+      get { return (float) _osdPipHeightProperty.GetValue(); }
+      set { _osdPipHeightProperty.SetValue(value); }
     }
 
     public void ShowVideoInfo()
     {
       _lastVideoInfoDemand = DateTime.Now;
-      if (IsVideoInfoVisible)
+      if (IsOSDVisible)
       { // Pressing the info button twice will bring up the context menu
         IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
         screenManager.ShowDialog(VIDEOCONTEXTMENU_DIALOG_NAME);
       }
       Update();
+    }
+
+    /// <summary>
+    /// To be called from the FSC state.
+    /// </summary>
+    public void SwitchPip()
+    {
+      if (_currentVideoStateType != VideoStateType.FullscreenContent)
+        return;
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.SwitchSlots();
+      // The workflow state will be changed to the new primary player's FSC- or CP-state automatically by the PCM,
+      // if necessary
     }
 
     #endregion
@@ -186,45 +382,55 @@ namespace Ui.Players.Video
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext playerContext = _playerContext ?? playerContextManager.CurrentPlayerContext;
-      return playerContext != null && CanHandlePlayer(playerContext.CurrentPlayer);
+      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+      {
+        IPlayerContext pc = playerContextManager.CurrentPlayerContext;
+        // The "currently playing" screen is always bound to the "current player"
+        if (pc == null)
+          return false;
+        return CanHandlePlayer(pc.CurrentPlayer);
+      }
+      else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
+      {
+        // The "fullscreen content" screen is always bound to the "primary player"
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+        return playerContext != null && CanHandlePlayer(playerContext.CurrentPlayer);
+      }
+      else
+        return false;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      _playerContext = playerContextManager.CurrentPlayerContext;
-      StartListening();
-      SubscribeToMessages();
-      UpdateVideoScreenState(newContext);
+      StartListening(); // Lazily start our timer
+      UpdateVideoStateType(newContext);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _playerContext = null;
-      StopListening();
-      UnsubscribeFromMessages();
-      UpdateVideoScreenState(newContext);
+      StopListening(); // Reduce workload when none of our states is used
+      UpdateVideoStateType(newContext);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      UpdateVideoScreenState(newContext);
+      UpdateVideoStateType(newContext);
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Not implemented
+      // Nothing to do
     }
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Not implemented
+      // Nothing to do
     }
 
     public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
-      // Not implemented yet
+      // Nothing to do
     }
 
     #endregion

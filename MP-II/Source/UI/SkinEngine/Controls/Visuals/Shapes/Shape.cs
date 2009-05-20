@@ -23,20 +23,16 @@
 #endregion
 
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
-using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using Matrix = SlimDX.Matrix;
 using Brush = MediaPortal.SkinEngine.Controls.Brushes.Brush;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -144,12 +140,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     void OnFillBrushChanged(IObservable observable)
     {
+      _performLayout = true;
       _lastEvent |= UIEvent.FillChange;
       if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnStrokeBrushChanged(IObservable observable)
     {
+      _performLayout = true;
       _lastEvent |= UIEvent.StrokeChange;
       if (Screen != null) Screen.Invalidate(this);
     }
@@ -157,7 +155,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
     void OnFillBrushPropertyChanged(Property property, object oldValue)
     {
       if (oldValue is Brush)
-        ((Brush)oldValue).ObjectChanged -= OnFillBrushChanged;
+        ((Brush) oldValue).ObjectChanged -= OnFillBrushChanged;
       if (Fill != null)
         Fill.ObjectChanged += OnFillBrushChanged;
       OnFillBrushChanged(null);
@@ -212,7 +210,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
 
     public double StrokeThickness
     {
-      get { return (double)_strokeThicknessProperty.GetValue(); }
+      get { return (double) _strokeThicknessProperty.GetValue(); }
       set { _strokeThicknessProperty.SetValue(value); }
     }
 

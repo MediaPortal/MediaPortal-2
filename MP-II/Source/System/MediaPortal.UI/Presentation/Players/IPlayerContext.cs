@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
@@ -116,6 +117,12 @@ namespace MediaPortal.Presentation.Players
     string Name { get; }
 
     /// <summary>
+    /// Returns the id of the "currently playing" workflow state for the current player of this player context,
+    /// if present.
+    /// </summary>
+    Guid? CurrentlyPlayingWorkflowStateId { get; }
+
+    /// <summary>
     /// Plays the specified media item without putting it into the playlist.
     /// </summary>
     /// <param name="item">Media item to play.</param>
@@ -160,12 +167,6 @@ namespace MediaPortal.Presentation.Players
     /// <returns>Context variable for the specified <paramref name="key"/> or <c>null</c>, if the variable was not
     /// set before.</returns>
     object GetContextVariable(string key);
-
-    /// <summary>
-    /// Switches to the "currently playing" workflow state for the player of this player context.
-    /// </summary>
-    /// <returns><c>true</c>, if the currently playing screen could successfully be shown, else <c>false</c></returns>
-    bool PushCurrentlyPlayingWorkflowState();
 
     // Fullscreen content workflow state can only be shown by the PlayerContextManager, because the FSC screen can only
     // be shown for the primary player

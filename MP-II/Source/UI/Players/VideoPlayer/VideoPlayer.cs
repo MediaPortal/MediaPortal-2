@@ -125,8 +125,6 @@ namespace Ui.Players.Video
     protected IBaseFilter _videoCodec;
     protected IBaseFilter _audioCodec;
 
-    private TimeSpan _duration;
-    private TimeSpan _currentTime;
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
@@ -999,20 +997,15 @@ namespace Ui.Players.Video
       get { return _mediaItemTitle; }
     }
 
-    public virtual void UpdateTime()
+    public virtual TimeSpan CurrentTime
     {
-      if (!_initialized)
+      get
       {
-        _currentTime = new TimeSpan();
-        _duration = new TimeSpan();
-        return;
-      }
-      if (_graphBuilder == null) return;
-      lock (_mediaItemAccessor)
-      {
-        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
-        if (mediaSeeking != null)
+        lock (_mediaItemAccessor)
         {
+          if (!_initialized || !(_graphBuilder is IMediaSeeking))
+            return new TimeSpan();
+          IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
           long lStreamPos;
           mediaSeeking.GetCurrentPosition(out lStreamPos); // stream position
           double fCurrentPos = lStreamPos;
@@ -1021,27 +1014,20 @@ namespace Ui.Players.Video
           long lContentStart, lContentEnd;
           mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
           double fContentStart = lContentStart;
-          double fContentEnd = lContentEnd;
           fContentStart /= 10000000d;
-          fContentEnd /= 10000000d;
-          fContentEnd -= fContentStart;
           fCurrentPos -= fContentStart;
-          _currentTime = new TimeSpan(0, 0, 0, 0, (int)(fCurrentPos * 1000.0f));
-          _duration = new TimeSpan(0, 0, 0, 0, (int)(fContentEnd * 1000.0f));
+          return new TimeSpan(0, 0, 0, 0, (int) (fCurrentPos * 1000.0f));
         }
       }
-    }
-
-    public virtual TimeSpan CurrentTime
-    {
-      get { return _currentTime; }
       set
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Seek {0} / {1}", value.TotalSeconds, _duration.TotalSeconds);
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Seek to {0} seconds", value.TotalSeconds);
 
         lock (_graphBuilder)
         {
           IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+          if (mediaSeeking == null)
+            return;
           double dTimeInSecs = value.TotalSeconds;
           dTimeInSecs *= 10000000d;
 
@@ -1065,7 +1051,23 @@ namespace Ui.Players.Video
 
     public virtual TimeSpan Duration
     {
-      get { return _duration; }
+      get
+      {
+        lock (_mediaItemAccessor)
+        {
+          if (!_initialized || !(_graphBuilder is IMediaSeeking))
+            return new TimeSpan();
+          IMediaSeeking mediaSeeking = (IMediaSeeking) _graphBuilder;
+          long lContentStart, lContentEnd;
+          mediaSeeking.GetAvailable(out lContentStart, out lContentEnd);
+          double fContentStart = lContentStart;
+          double fContentEnd = lContentEnd;
+          fContentStart /= 10000000d;
+          fContentEnd /= 10000000d;
+          fContentEnd -= fContentStart;
+          return new TimeSpan(0, 0, 0, 0, (int) (fContentEnd * 1000.0f));
+        }
+      }
     }
 
     public virtual string[] AudioStreams

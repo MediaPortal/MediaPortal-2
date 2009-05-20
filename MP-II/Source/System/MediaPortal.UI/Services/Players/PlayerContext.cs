@@ -28,7 +28,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Workflow;
 
 namespace MediaPortal.Services.Players
 {
@@ -100,14 +99,13 @@ namespace MediaPortal.Services.Players
         return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
-    public bool PushFullscreenContentWorkflowState()
+    public Guid? FullscreenContentWorkflowStateId
     {
-      IPlayer player = GetCurrentPlayer();
-      if (player == null)
-        return false;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(player.FullscreenContentWorkflowStateId);
-      return true;
+      get
+      {
+        IPlayer player = GetCurrentPlayer();
+        return player == null ? new Guid?() : player.FullscreenContentWorkflowStateId;
+      }
     }
 
     #region IPlayerContext implementation
@@ -155,6 +153,15 @@ namespace MediaPortal.Services.Players
     public string Name
     {
       get { return _name; }
+    }
+
+    public Guid? CurrentlyPlayingWorkflowStateId
+    {
+      get
+      {
+        IPlayer player = GetCurrentPlayer();
+        return player == null ? new Guid?() : player.CurrentlyPlayingWorkflowStateId;
+      }
     }
 
     public bool DoPlay(MediaItem item)
@@ -219,16 +226,6 @@ namespace MediaPortal.Services.Players
           return result;
       }
       return null;
-    }
-
-    public bool PushCurrentlyPlayingWorkflowState()
-    {
-      IPlayer player = GetCurrentPlayer();
-      if (player == null)
-        return false;
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(player.CurrentlyPlayingWorkflowStateId);
-      return true;
     }
 
     public void Stop()

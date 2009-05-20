@@ -22,11 +22,43 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
+  /// <summary>
+  /// For each video player, there need to be present two special states to present its video content:
+  /// The currently playing state and the fullscreen content state.
+  /// </summary>
+  public enum VideoStateType
+  {
+    /// <summary>
+    /// No special video screen.
+    /// </summary>
+    None,
+
+    /// <summary>
+    /// Indicates the currently playing state. The screen to this state shows detailed information
+    /// about the current played media item, the current playing state and presents additional actions
+    /// for the current played media.
+    /// </summary>
+    /// <remarks>
+    /// The currently playing screen can be shown for both the primary and the secondary player.
+    /// </remarks>
+    CurrentlyPlaying,
+
+    /// <summary>
+    /// Indicates the fullscreen content state. The screen to this state shows the video fullscreen
+    /// with additional onscreen display, info and/or actions to be taken by the user.
+    /// </summary>
+    /// <remarks>
+    /// The fullscreen content screen can only be shown for the "primary" player.
+    /// </remarks>
+    FullscreenContent,
+  }
+
   /// <summary>
   /// User-related player management service interface. This interface maps user-related, understandable player
   /// management functions to the very general and technical underlaying information and methods from the
@@ -100,6 +132,11 @@ namespace MediaPortal.Presentation.Players
     /// Returns the number of active player contexts.
     /// </summary>
     int NumActivePlayerContexts { get; }
+
+    /// <summary>
+    /// Returns the id of the "fullscreen content" workflow state for the primary player, if present.
+    /// </summary>
+    Guid? FullscreenContentWorkflowStateId { get; }
 
     /// <summary>
     /// Shuts the function of this service down. This is necessary before the player manager gets closed.
@@ -215,12 +252,6 @@ namespace MediaPortal.Presentation.Players
     /// <returns><c>true</c>, if the specified <paramref name="stream"/> could successfully be activated, else
     /// <c>false</c>.</returns>
     bool SetAudioStream(AudioStreamDescriptor stream);
-
-    /// <summary>
-    /// Switches to the "fullscreen content" workflow state for the primary player.
-    /// </summary>
-    /// <returns><c>true</c>, if the fullscreen content screen could successfully be shown, else <c>false</c></returns>
-    bool PushFullscreenContentWorkflowState();
 
     /// <summary>
     /// Stops playback of the current player.

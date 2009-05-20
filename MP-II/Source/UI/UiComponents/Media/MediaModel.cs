@@ -328,7 +328,12 @@ namespace UiComponents.Media
         // We don't need a playlist when just playing a single video item
         pc.DoPlay(item);
         pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
-        pcm.PushFullscreenContentWorkflowState();
+        Guid? fscStateId = pcm.FullscreenContentWorkflowStateId;
+        if (fscStateId.HasValue)
+        {
+          IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+          workflowManager.NavigatePush(fscStateId.Value);
+        }
       }
       else
       {
