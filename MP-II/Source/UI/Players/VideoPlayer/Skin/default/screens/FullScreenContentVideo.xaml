@@ -36,127 +36,17 @@
     </Rectangle> <!-- PIP -->
   </Grid> <!-- PipLayoutGrid -->
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false">
-    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="512" LastChildFill="false">
-      <Border x:Name="OSD_PrimaryBackground" DockPanel.Dock="Bottom"
+    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="512" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
+      <mp_special:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+          Style="{ThemeResource PrimaryOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          BorderBrush="Black" CornerRadius="8" BorderThickness="1"
-          IsVisible="{Binding IsOSDVisible}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-            <GradientStop Offset="0" Color="#90FFFFFF"/>
-            <GradientStop Offset="0.5" Color="#F87A7673"/>
-            <GradientStop Offset="1" Color="#F87A7673"/>
-          </LinearGradientBrush >
-        </Border.Background>
-        <Grid x:Name="PrimaryPlayerGrid" Margin="10,0,10,0"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Label x:Name="PrimaryVideoName" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
-              Content="{Binding Path=PrimaryVideoName}" Scroll="true"/>
-          <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="0"
-              HorizontalAlignment="Stretch" VerticalAlignment="Top"
-              BorderBrush="Black" CornerRadius="3" BorderThickness="1">
-            <Border.Background>
-              <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
-                <GradientStop Offset="0" Color="#48F2F2F2"/>
-                <GradientStop Offset="1" Color="#F8CCCCCC"/>
-              </RadialGradientBrush>
-            </Border.Background>
-            <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                Style="{StaticResource ProgressBarStyle}"
-                Value="{Binding Path=PrimaryPercentPlayed}"/>
-          </Border>
-          <Grid x:Name="StatusLineGrid" Grid.Row="2" Grid.Column="0">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Label x:Name="PlayerStateLabel" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
-                Content="{Binding PrimaryPlayerStateText}"/>
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="10,0,0,0" HorizontalAlignment="Right"
-                IsVisible="{Binding IsPrimaryPlayerActive}">
-              <Label x:Name="PrimaryCurrentTimeLabel" Content="{Binding PrimaryCurrentTime}"/>
-              <Label Content="/" Margin="4,0,4,0"/>
-              <Label x:Name="PrimaryVideoLengthLabel" Content="{Binding PrimaryDuration}"/>
-            </StackPanel>
-          </Grid> <!-- StatusLineGrid -->
-          <mp_special:PlayerControl x:Name="PrimaryPlayerControl" Grid.Column="0" Grid.Row="3"
-              VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="10,10,10,0"
-              Style="{ThemeResource VideoPlayerPlayControlsStyle}" SlotIndex="0" AutoVisibility="True"/>
-        </Grid> <!-- PrimaryPlayerGrid -->
-      </Border> <!-- OSD_PrimaryBackground -->
+          SlotIndex="0"/>
     </DockPanel> <!-- OSD_LeftPanel -->
-    <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" LastChildFill="false">
-      <Border x:Name="OSD_SecondaryBackground" DockPanel.Dock="Bottom"
+    <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
+      <mp_special:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom" FixedVideoHeight="108"
+          Style="{ThemeResource SecondaryOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          BorderBrush="Black" CornerRadius="8" BorderThickness="1">
-        <Border.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-            <Binding Path="IsOSDVisible"/>
-            <Binding Path="IsSecondaryPlayerActive"/>
-          </MultiBinding>
-        </Border.IsVisible>
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-            <GradientStop Offset="0" Color="#90FFFFFF"/>
-            <GradientStop Offset="0.5" Color="#F87A7673"/>
-            <GradientStop Offset="1" Color="#F87A7673"/>
-          </LinearGradientBrush >
-        </Border.Background>
-        <Grid x:Name="SecondaryPlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-          </Grid.RowDefinitions>
-          <Label x:Name="SecondaryMediaName" Grid.Column="0" Grid.Row="0" Content="{Binding SecondaryMediaName}"
-              VerticalAlignment="Center" HorizontalAlignment="Center" Scroll="true"/>
-          <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
-              VerticalAlignment="Center" HorizontalAlignment="Center"
-              Command="{Command SwitchPip}">
-            <Button.IsVisible>
-              <!-- The background PIP will be replaced by the OSD PIP when the OSD is visible -->
-              <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                <Binding Path="IsPip"/> <!-- only visible if secondary player is PIP video -->
-                <Binding Path="IsOSDVisible"/>
-              </MultiBinding>
-            </Button.IsVisible>
-            <Button.Template>
-              <ControlTemplate TargetType="{x:Type Button}">
-                <Rectangle x:Name="PIPRectangle" Grid.Column="0" Grid.Row="1" Stroke="Black" StrokeThickness="1"
-                    Width="{Binding OsdPipWidth}" Height="{Binding OsdPipHeight}">
-                  <Rectangle.Fill>
-                    <VideoBrush Stream="1"/>
-                  </Rectangle.Fill>
-                </Rectangle>
-              </ControlTemplate>
-            </Button.Template>
-            <Button.Triggers>
-              <Trigger Property="HasFocus" Value="True">
-                <Setter TargetName="PIPRectangle" Property="Stroke" Value="Yellow"/>
-              </Trigger>
-            </Button.Triggers>
-          </Button> <!-- PIPButton -->
-          <mp_special:PlayerControl Grid.Column="0" Grid.Row="2" Margin="10,10,10,0" Style="{ThemeResource VideoPlayerPlayControlsStyle}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Center" SlotIndex="1"/>
-        </Grid> <!-- SecondaryPlayerGrid -->
-      </Border> <!-- OSD_SecondaryBackground -->
+          AutoVisibility="true" SlotIndex="1"/>
     </DockPanel> <!-- OSD_RightPanel -->
   </DockPanel> <!-- OSD_LayoutPanel -->
   <KeyBinding Key="Info" Command="{Command ShowVideoInfo}"/>

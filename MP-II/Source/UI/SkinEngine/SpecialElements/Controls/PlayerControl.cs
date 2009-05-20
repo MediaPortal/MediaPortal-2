@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Timers;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
@@ -48,7 +49,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
   {
     #region Consts
 
-    public const string UNKNOWN_MEDIA_ITEM_RESOURCE = "[PlayerControl.UnknownMediaItem]";
+    public const string NO_MEDIA_ITEM_RESOURCE = "[PlayerControl.NoMediaItem]";
     public const string UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE = "[PlayerControl.UnknownPlayerContextName]";
     public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
     public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPip]";
@@ -65,11 +66,16 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     protected Property _slotIndexProperty;
     protected Property _autoVisibilityProperty;
+    protected Property _isPlayerActiveProperty;
     protected Property _titleProperty;
     protected Property _mediaItemTitleProperty;
     protected Property _isAudioProperty;
     protected Property _isMutedProperty;
     protected Property _isCurrentPlayerProperty;
+    protected Property _percentPlayedProperty;
+    protected Property _currentTimeProperty;
+    protected Property _durationProperty;
+    protected Property _playerStateTextProperty;
     protected Property _showMouseControlsProperty;
     protected Property _canPlayProperty;
     protected Property _canPauseProperty;
@@ -80,6 +86,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Property _canSeekBackwardProperty;
     protected Property _isRunningProperty;
     protected Property _isPipProperty;
+    protected float _fixedVideoWidth;
+    protected float _fixedVideoHeight;
+    protected Property _videoWidthProperty;
+    protected Property _videoHeightProperty;
 
     protected Timer _timer;
     protected IResourceString _headerNormalResource;
@@ -95,17 +105,23 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       Init();
       Attach();
       SubscribeToMessages();
+      UpdatePlayControls();
     }
 
     void Init()
     {
       _slotIndexProperty = new Property(typeof(int), 0);
       _autoVisibilityProperty = new Property(typeof(bool), false);
+      _isPlayerActiveProperty = new Property(typeof(bool), false);
       _titleProperty = new Property(typeof(string), null);
       _mediaItemTitleProperty = new Property(typeof(string), null);
       _isAudioProperty = new Property(typeof(bool), false);
       _isMutedProperty = new Property(typeof(bool), false);
       _isCurrentPlayerProperty = new Property(typeof(bool), false);
+      _percentPlayedProperty = new Property(typeof(float), 0f);
+      _currentTimeProperty = new Property(typeof(string), string.Empty);
+      _durationProperty = new Property(typeof(string), string.Empty);
+      _playerStateTextProperty = new Property(typeof(string), string.Empty);
       _showMouseControlsProperty = new Property(typeof(bool), false);
       _canPlayProperty = new Property(typeof(bool), false);
       _canPauseProperty = new Property(typeof(bool), false);
@@ -116,6 +132,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _canSeekBackwardProperty = new Property(typeof(bool), false);
       _isRunningProperty = new Property(typeof(bool), false);
       _isPipProperty = new Property(typeof(bool), false);
+      _fixedVideoWidth = 0f;
+      _fixedVideoHeight = 0f;
+      _videoWidthProperty = new Property(typeof(float), 0f);
+      _videoHeightProperty = new Property(typeof(float), 0f);
 
       _timer = new Timer(200);
       _timer.Enabled = false;
@@ -177,6 +197,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
       CheckShowMouseControls();
+      UpdatePlayControls();
     }
 
     protected void SubscribeToMessages()
@@ -222,12 +243,42 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       IPlayer player = playerManager[SlotIndex];
       IPlayerContext playerContext = GetPlayerContext();
       IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
+      
+      IsPlayerActive = player != null;
+      IVideoPlayer vp = player as IVideoPlayer;
+      if (vp == null)
+      {
+        VideoWidth = 0f;
+        VideoHeight = 0f;
+      }
+      else
+      {
+        if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
+        {
+          VideoWidth = FixedVideoWidth;
+          VideoHeight = FixedVideoHeight;
+        }
+        else if (FixedVideoWidth > 0f)
+        { // Calculate the video height from the width
+          VideoWidth = FixedVideoWidth;
+          VideoHeight = FixedVideoWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
+        }
+        else
+        { // FixedVideoHeight > 0f
+          VideoHeight = FixedVideoHeight;
+          VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
+        }
+      }
       if (player == null)
       {
-        Title = playerContext == null ? UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE : playerContext.Name;
+        Title = playerContext == null ? NO_MEDIA_ITEM_RESOURCE : playerContext.Name;
         MediaItemTitle = null;
         IsAudio = false;
         IsCurrentPlayer = false;
+        PercentPlayed = 0f;
+        CurrentTime = string.Empty;
+        Duration = string.Empty;
+        PlayerStateText = string.Empty;
         CanPlay = false;
         CanPause = false;
         CanStop = false;
@@ -250,11 +301,28 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
           if (mediaItem != null)
             mit = mediaItem.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string;
           if (mit == null)
-            mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
+            mit = NO_MEDIA_ITEM_RESOURCE;
         }
         MediaItemTitle = mit;
         IsAudio = playerSlotController.IsAudioSlot;
         IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
+        TimeSpan currentTime = player.CurrentTime;
+        TimeSpan duration = player.Duration;
+        if (duration.TotalMilliseconds == 0)
+        {
+          PercentPlayed = 0;
+          CurrentTime = string.Empty;
+          Duration = string.Empty;
+        }
+        else
+        {
+          ILocalization localization = ServiceScope.Get<ILocalization>();
+          CultureInfo culture = localization.CurrentCulture;
+          PercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
+          CurrentTime = new DateTime().Add(currentTime).ToString("T", culture);
+          Duration = new DateTime().Add(duration).ToString("T", culture);
+        }
+        PlayerStateText = player.State.ToString();
         IsRunning = player.State == PlaybackState.Playing;
         CanPlay = !IsRunning;
         CanPause = IsRunning;
@@ -316,6 +384,17 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       set { _autoVisibilityProperty.SetValue(value); }
     }
 
+    public Property IsPlayerActiveProperty
+    {
+      get { return _isPlayerActiveProperty; }
+    }
+
+    public bool IsPlayerActive
+    {
+      get { return (bool) _isPlayerActiveProperty.GetValue(); }
+      set { _isPlayerActiveProperty.SetValue(value); }
+    }
+
     public Property TitleProperty
     {
       get { return _titleProperty; }
@@ -375,6 +454,50 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _isCurrentPlayerProperty.GetValue(); }
       internal set { _isCurrentPlayerProperty.SetValue(value); }
+    }
+
+    public Property PercentPlayedProperty
+    {
+      get { return _percentPlayedProperty; }
+    }
+
+    public float PercentPlayed
+    {
+      get { return (float) _percentPlayedProperty.GetValue(); }
+      set { _percentPlayedProperty.SetValue(value); }
+    }
+
+    public Property CurrentTimeProperty
+    {
+      get { return _currentTimeProperty; }
+    }
+
+    public string CurrentTime
+    {
+      get { return (string) _currentTimeProperty.GetValue(); }
+      set { _currentTimeProperty.SetValue(value); }
+    }
+
+    public Property DurationProperty
+    {
+      get { return _durationProperty; }
+    }
+
+    public string Duration
+    {
+      get { return (string) _durationProperty.GetValue(); }
+      set { _durationProperty.SetValue(value); }
+    }
+
+    public Property PlayerStateTextProperty
+    {
+      get { return _playerStateTextProperty; }
+    }
+
+    public string PlayerStateText
+    {
+      get { return (string) _playerStateTextProperty.GetValue(); }
+      set { _playerStateTextProperty.SetValue(value); }
     }
 
     public Property ShowMouseControlsProperty
@@ -485,6 +608,40 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       get { return (bool) _isPipProperty.GetValue(); }
       set { _isPipProperty.SetValue(value); }
+    }
+
+    public float FixedVideoWidth
+    {
+      get { return _fixedVideoWidth; }
+      set { _fixedVideoWidth = value; }
+    }
+
+    public float FixedVideoHeight
+    {
+      get { return _fixedVideoHeight; }
+      set { _fixedVideoHeight = value; }
+    }
+
+    public Property VideoWidthProperty
+    {
+      get { return _videoWidthProperty; }
+    }
+
+    public float VideoWidth
+    {
+      get { return (float) _videoWidthProperty.GetValue(); }
+      set { _videoWidthProperty.SetValue(value); }
+    }
+
+    public Property VideoHeightProperty
+    {
+      get { return _videoHeightProperty; }
+    }
+
+    public float VideoHeight
+    {
+      get { return (float) _videoHeightProperty.GetValue(); }
+      set { _videoHeightProperty.SetValue(value); }
     }
 
     public void AudioButtonPressed()
@@ -602,6 +759,14 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       playerContextManager.CurrentPlayerIndex = SlotIndex;
+    }
+
+    public void SwitchPip()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.SwitchSlots();
+      // The workflow state will be changed to the new primary player's FSC- or CP-state automatically by the PCM,
+      // if necessary
     }
 
     #endregion

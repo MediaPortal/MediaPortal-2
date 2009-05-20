@@ -24,11 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
@@ -57,8 +55,6 @@ namespace Ui.Players.Video
 
     public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
 
-    public const string NO_VIDEO_RESOURCE = "[VideoPlayer.NoVideo]";
-
     protected static TimeSpan VIDEO_INFO_TIMEOUT = new TimeSpan(0, 0, 0, 5);
 
     public static float DEFAULT_PIP_HEIGHT = 108;
@@ -69,35 +65,15 @@ namespace Ui.Players.Video
     protected VideoStateType _currentVideoStateType = VideoStateType.None;
 
     protected Property _isOSDVisibleProperty;
-    protected Property _isPrimaryPlayerActiveProperty;
-    protected Property _isSecondaryPlayerActiveProperty;
-    protected Property _primaryPercentPlayedProperty;
-    protected Property _primaryCurrentTimeProperty;
-    protected Property _primaryDurationProperty;
-    protected Property _primaryPlayerStateTextProperty;
-    protected Property _primaryVideoNameProperty;
-    protected Property _secondaryMediaNameProperty;
     protected Property _pipWidthProperty;
     protected Property _pipHeightProperty;
-    protected Property _osdPipWidthProperty;
-    protected Property _osdPipHeightProperty;
     protected Property _isPipProperty;
 
     public VideoPlayerModel() : base(300)
     {
       _isOSDVisibleProperty = new Property(typeof(bool), false);
-      _isPrimaryPlayerActiveProperty = new Property(typeof(bool), false);
-      _isSecondaryPlayerActiveProperty = new Property(typeof(bool), false);
-      _primaryPercentPlayedProperty = new Property(typeof(float), 0f);
-      _primaryCurrentTimeProperty = new Property(typeof(string), string.Empty);
-      _primaryDurationProperty = new Property(typeof(string), string.Empty);
-      _primaryPlayerStateTextProperty = new Property(typeof(string), string.Empty);
-      _primaryVideoNameProperty = new Property(typeof(string), string.Empty);
-      _secondaryMediaNameProperty = new Property(typeof(string), string.Empty);
       _pipWidthProperty = new Property(typeof(float), 0f);
       _pipHeightProperty = new Property(typeof(float), 0f);
-      _osdPipWidthProperty = new Property(typeof(float), 0f);
-      _osdPipHeightProperty = new Property(typeof(float), 0f);
       _isPipProperty = new Property(typeof(bool), false);
       // Don't StartListening here, since that will be done in method EnterModelContext
     }
@@ -105,52 +81,14 @@ namespace Ui.Players.Video
     protected override void Update()
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext primaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
-      IVideoPlayer primaryPlayer = primaryPlayerContext == null ? null : primaryPlayerContext.CurrentPlayer as IVideoPlayer;
-      IVideoPlayer secondaryPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
 
       IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT || _inactive;
-      IsPrimaryPlayerActive = primaryPlayer != null;
-      IsSecondaryPlayerActive = secondaryPlayer != null;
-      if (primaryPlayer == null)
-      {
-        PrimaryPercentPlayed = 0f;
-        PrimaryCurrentTime = string.Empty;
-        PrimaryDuration = string.Empty;
-        PrimaryPlayerStateText = string.Empty;
-        PrimaryVideoName = NO_VIDEO_RESOURCE;
-      }
-      else
-      {
-        TimeSpan currentTime = primaryPlayer.CurrentTime;
-        TimeSpan duration = primaryPlayer.Duration;
-        if (duration.TotalMilliseconds == 0)
-        {
-          PrimaryPercentPlayed = 0;
-          PrimaryCurrentTime = string.Empty;
-          PrimaryDuration = string.Empty;
-        }
-        else
-        {
-          ILocalization localization = ServiceScope.Get<ILocalization>();
-          CultureInfo culture = localization.CurrentCulture;
-          PrimaryPercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
-          PrimaryCurrentTime = new DateTime().Add(currentTime).ToString("T", culture);
-          PrimaryDuration = new DateTime().Add(duration).ToString("T", culture);
-        }
-        PrimaryPlayerStateText = primaryPlayer.State.ToString();
-        PrimaryVideoName = primaryPlayer.MediaItemTitle;
-      }
-      SecondaryMediaName = secondaryPlayer == null ? string.Empty : secondaryPlayer.MediaItemTitle;
-      IsPip = pipPlayer != null;
       PipHeight = DEFAULT_PIP_HEIGHT;
       PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH :
           PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
-      OsdPipHeight = PipHeight;
-      OsdPipWidth = PipWidth;
     }
 
     protected void UpdateScreen()
@@ -206,94 +144,6 @@ namespace Ui.Players.Video
       set { _isOSDVisibleProperty.SetValue(value); }
     }
 
-    public Property IsPrimaryPlayerActiveProperty
-    {
-      get { return _isPrimaryPlayerActiveProperty; }
-    }
-
-    public bool IsPrimaryPlayerActive
-    {
-      get { return (bool) _isPrimaryPlayerActiveProperty.GetValue(); }
-      set { _isPrimaryPlayerActiveProperty.SetValue(value); }
-    }
-
-    public Property IsSecondaryPlayerActiveProperty
-    {
-      get { return _isSecondaryPlayerActiveProperty; }
-    }
-
-    public bool IsSecondaryPlayerActive
-    {
-      get { return (bool) _isSecondaryPlayerActiveProperty.GetValue(); }
-      set { _isSecondaryPlayerActiveProperty.SetValue(value); }
-    }
-
-    public Property PrimaryPercentPlayedProperty
-    {
-      get { return _primaryPercentPlayedProperty; }
-    }
-
-    public float PrimaryPercentPlayed
-    {
-      get { return (float) _primaryPercentPlayedProperty.GetValue(); }
-      set { _primaryPercentPlayedProperty.SetValue(value); }
-    }
-
-    public Property PrimaryCurrentTimeProperty
-    {
-      get { return _primaryCurrentTimeProperty; }
-    }
-
-    public string PrimaryCurrentTime
-    {
-      get { return (string) _primaryCurrentTimeProperty.GetValue(); }
-      set { _primaryCurrentTimeProperty.SetValue(value); }
-    }
-
-    public Property PrimaryDurationProperty
-    {
-      get { return _primaryDurationProperty; }
-    }
-
-    public string PrimaryDuration
-    {
-      get { return (string) _primaryDurationProperty.GetValue(); }
-      set { _primaryDurationProperty.SetValue(value); }
-    }
-
-    public Property PrimaryPlayerStateTextProperty
-    {
-      get { return _primaryPlayerStateTextProperty; }
-    }
-
-    public string PrimaryPlayerStateText
-    {
-      get { return (string) _primaryPlayerStateTextProperty.GetValue(); }
-      set { _primaryPlayerStateTextProperty.SetValue(value); }
-    }
-
-    public Property PrimaryVideoNameProperty
-    {
-      get { return _primaryVideoNameProperty; }
-    }
-
-    public string PrimaryVideoName
-    {
-      get { return (string) _primaryVideoNameProperty.GetValue(); }
-      set { _primaryVideoNameProperty.SetValue(value); }
-    }
-
-    public Property SecondaryMediaNameProperty
-    {
-      get { return _secondaryMediaNameProperty; }
-    }
-
-    public string SecondaryMediaName
-    {
-      get { return (string) _secondaryMediaNameProperty.GetValue(); }
-      set { _secondaryMediaNameProperty.SetValue(value); }
-    }
-
     public Property IsPipProperty
     {
       get { return _isPipProperty; }
@@ -327,28 +177,6 @@ namespace Ui.Players.Video
       set { _pipHeightProperty.SetValue(value); }
     }
 
-    public Property OsdPipWidthProperty
-    {
-      get { return _osdPipWidthProperty; }
-    }
-
-    public float OsdPipWidth
-    {
-      get { return (float) _osdPipWidthProperty.GetValue(); }
-      set { _osdPipWidthProperty.SetValue(value); }
-    }
-
-    public Property OsdPipHeightProperty
-    {
-      get { return _osdPipHeightProperty; }
-    }
-
-    public float OsdPipHeight
-    {
-      get { return (float) _osdPipHeightProperty.GetValue(); }
-      set { _osdPipHeightProperty.SetValue(value); }
-    }
-
     public void ShowVideoInfo()
     {
       if (IsOSDVisible)
@@ -358,19 +186,6 @@ namespace Ui.Players.Video
       }
       _lastVideoInfoDemand = DateTime.Now;
       Update();
-    }
-
-    /// <summary>
-    /// To be called from the FSC state.
-    /// </summary>
-    public void SwitchPip()
-    {
-      if (_currentVideoStateType != VideoStateType.FullscreenContent)
-        return;
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.SwitchSlots();
-      // The workflow state will be changed to the new primary player's FSC- or CP-state automatically by the PCM,
-      // if necessary
     }
 
     #endregion
