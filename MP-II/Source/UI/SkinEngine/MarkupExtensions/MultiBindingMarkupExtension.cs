@@ -70,8 +70,15 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
-      base.Dispose();
+      if (_bindingDependency != null)
+      {
+        _bindingDependency.Detach();
+        _bindingDependency = null;
+      }
+      // Child bindings will be disposed automatically by DependencyObject.Dispose, because they are
+      // added to our binding collection (was done by method AddChild)
       ResetBindingAttachments();
+      base.Dispose();
     }
 
     protected void Attach()
@@ -174,9 +181,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
-    /// Holds the evaluated source value for this binding. Clients may attach
-    /// change handlers to the returned data descriptor; if the evaluated
-    /// source value changes, this data descriptor will remain the same,
+    /// Holds the evaluated source value for this binding. Clients may attach change handlers to the returned
+    /// data descriptor; if the evaluated source value changes, this data descriptor will keep its identity,
     /// only the value will change.
     /// </summary>
     public IDataDescriptor EvaluatedSourceValue
@@ -215,6 +221,11 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         UpdateSourceValue();
     }
 
+    /// <summary>
+    /// Called when one of our child bindings changed its source value.
+    /// Will trigger an update of our source value here.
+    /// </summary>
+    /// <param name="dd">The source value of the child binding.</param>
     protected void OnSourceBindingChanged(IDataDescriptor dd)
     {
       if (_active)
@@ -236,6 +247,10 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     #region Protected properties and methods
 
+    /// <summary>
+    /// Attaches this multi binding to change events of the specified (child) binding <paramref name="bme"/>.
+    /// </summary>
+    /// <param name="bme">(Child) binding to be attached to.</param>
     protected void AttachToSourceBinding(BindingMarkupExtension bme)
     {
       IDataDescriptor dd = bme.EvaluatedSourceValue;
@@ -318,9 +333,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
 
     protected bool UpdateBinding()
     {
-      // Avoid recursive calls: For instance, this can occur when
-      // the later call to Evaluate will change our evaluated source value, which
-      // will cause a recursive call to UpdateBinding.
+      // Avoid recursive calls: For instance, this can occur when the later call to Evaluate will change our evaluated
+      // source value, which will cause a recursive call to UpdateBinding.
       if (_isUpdatingBinding)
         return false;
       _isUpdatingBinding = true;

@@ -364,9 +364,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
-    /// Holds the evaluated source value for this binding. Clients may attach
-    /// change handlers to the returned data descriptor; if the evaluated
-    /// source value changes, this data descriptor will remain the same,
+    /// Holds the evaluated source value for this binding. Clients may attach change handlers to the returned
+    /// data descriptor; if the evaluated source value changes, this data descriptor will keep its identity,
     /// only the value will change.
     /// </summary>
     public IDataDescriptor EvaluatedSourceValue
