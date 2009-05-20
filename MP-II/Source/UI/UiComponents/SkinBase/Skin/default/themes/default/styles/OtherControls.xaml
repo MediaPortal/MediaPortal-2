@@ -229,12 +229,12 @@
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Label x:Name="ItemLabel" Margin="10,0,0,0" Content="{Binding [Name]}" FontSize="28"/>
+    <Label x:Name="ItemLabel" Margin="10,7,0,7" Content="{Binding [Name]}" FontSize="28"/>
   </DataTemplate>
 
   <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
   <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Grid Height="46">
+    <Grid>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -242,8 +242,8 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" Margin="0,7,0,7" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,7,0,7" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
     </Grid>
   </DataTemplate>
 
