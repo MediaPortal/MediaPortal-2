@@ -661,7 +661,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       else
       {
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, new Dictionary<string, object>()
+        workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, new Dictionary<string, object>
           {
               {KEY_PLAYER_SLOT, SlotIndex},
               {KEY_SHOW_MUTE, !IsAudio}

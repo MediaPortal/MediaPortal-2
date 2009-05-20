@@ -107,6 +107,9 @@ namespace MediaPortal.Services.Players
             if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               ClosePlayerContext(slotIndex);
             break;
+          case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
+            _currentPlayerIndex = 1 - _currentPlayerIndex;
+            break;
         }
         CheckCurrentPlayerSlot();
       }
