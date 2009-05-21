@@ -28,7 +28,7 @@ using MediaPortal.Presentation.Geometries;
 namespace MediaPortal.SkinEngine.Geometry
 {
   /// <summary>
-  /// Cropping = yes
+  /// Cropping = Yes
   /// Stretch = UniformToFill
   /// Zoom = None
   /// Shader = None

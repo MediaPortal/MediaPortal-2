@@ -615,14 +615,6 @@ namespace Ui.Players.Video
       }
     }
 
-    // Not used
-    public override void Render()
-    {
-      base.Render();
-      if (_renderer != null)
-        _renderer.Render();
-    }
-
     public override void EndRender(EffectAsset effect)
     {
       base.EndRender(effect);

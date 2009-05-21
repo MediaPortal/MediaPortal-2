@@ -50,6 +50,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     #region Consts
 
     public const string NO_MEDIA_ITEM_RESOURCE = "[PlayerControl.NoMediaItem]";
+    public const string UNKNOWN_MEDIA_ITEM_RESOURCE = "[PlayerControl.UnknownMediaItem]";
     public const string UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE = "[PlayerControl.UnknownPlayerContextName]";
     public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
     public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPip]";
@@ -272,7 +273,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       if (player == null)
       {
         Title = playerContext == null ? NO_MEDIA_ITEM_RESOURCE : playerContext.Name;
-        MediaItemTitle = null;
+        MediaItemTitle = NO_MEDIA_ITEM_RESOURCE;
         IsAudio = false;
         IsCurrentPlayer = false;
         PercentPlayed = 0f;
@@ -301,7 +302,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
           if (mediaItem != null)
             mit = mediaItem.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string;
           if (mit == null)
-            mit = NO_MEDIA_ITEM_RESOURCE;
+            mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
         }
         MediaItemTitle = mit;
         IsAudio = playerSlotController.IsAudioSlot;

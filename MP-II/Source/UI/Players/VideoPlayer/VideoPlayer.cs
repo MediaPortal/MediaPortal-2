@@ -335,44 +335,6 @@ namespace Ui.Players.Video
         _resumed(this);
     }
 
-    public virtual Guid PlayerId
-    {
-      get { return new Guid(PLAYER_ID_STR); }
-    }
-
-    public Guid CurrentlyPlayingWorkflowStateId
-    {
-      get { return new Guid(CURRENTLY_PLAYING_WORKFLOW_STATE_ID); }
-    }
-
-    public Guid FullscreenContentWorkflowStateId
-    {
-      get { return new Guid(FULLSCREEN_CONTENT_WORKFLOW_STATE_ID); }
-    }
-
-    public virtual string Name
-    {
-      get { return "Video"; }
-    }
-
-    public Size VideoSize
-    {
-      get
-      {
-        if (_allocator == null || !_initialized) return new Size(0, 0);
-        return _allocator.VideoSize;
-      }
-    }
-
-    public Size VideoAspectRatio
-    {
-      get
-      {
-        if (_allocator == null || !_initialized) return new Size(0, 0);
-        return _allocator.AspectRatio;
-      }
-    }
-
     void AddEvr()
     {
       ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initialize EVR");
@@ -912,6 +874,46 @@ namespace Ui.Players.Video
         audio.put_Volume(VolumeToHundredthDeciBel(volume));
     }
 
+    #region ISlimDXVideoPlayer implementation
+
+    public virtual Guid PlayerId
+    {
+      get { return new Guid(PLAYER_ID_STR); }
+    }
+
+    public Guid CurrentlyPlayingWorkflowStateId
+    {
+      get { return new Guid(CURRENTLY_PLAYING_WORKFLOW_STATE_ID); }
+    }
+
+    public Guid FullscreenContentWorkflowStateId
+    {
+      get { return new Guid(FULLSCREEN_CONTENT_WORKFLOW_STATE_ID); }
+    }
+
+    public virtual string Name
+    {
+      get { return "Video"; }
+    }
+
+    public Size VideoSize
+    {
+      get
+      {
+        if (_allocator == null || !_initialized) return new Size(0, 0);
+        return _allocator.VideoSize;
+      }
+    }
+
+    public Size VideoAspectRatio
+    {
+      get
+      {
+        if (_allocator == null || !_initialized) return new Size(0, 0);
+        return _allocator.AspectRatio;
+      }
+    }
+
     public virtual void BeginRender(EffectAsset effect)
     {
       if (!_initialized) return;
@@ -924,12 +926,6 @@ namespace Ui.Players.Video
       if (!_initialized) return;
       if (_allocator == null) return;
       effect.EndRender();
-    }
-
-    // Not used
-    // FIXME Albert: Remove?
-    public virtual void Render()
-    {
     }
 
     public virtual void Stop()
@@ -1249,5 +1245,7 @@ namespace Ui.Players.Video
         _initialized = true;
       }
     }
+
+    #endregion
   }
 }

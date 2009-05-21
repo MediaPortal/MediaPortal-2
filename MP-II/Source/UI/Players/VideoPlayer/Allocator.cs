@@ -236,13 +236,10 @@ namespace Ui.Players.Video
           ContentManager.TextureReferences++;
         }
 
-        unsafe
+        using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))
         {
-          using (Surface surf = Surface.FromPointer(new IntPtr(dwImg)))
-          {
-            GraphicsDevice.Device.StretchRectangle(surf, new Rectangle(Point.Empty, _videoSize),
-                _surface, new Rectangle(Point.Empty, _videoSize), TextureFilter.None);
-          }
+          GraphicsDevice.Device.StretchRectangle(surf, new Rectangle(Point.Empty, _videoSize),
+              _surface, new Rectangle(Point.Empty, _videoSize), TextureFilter.None);
         }
       }
       return 0;

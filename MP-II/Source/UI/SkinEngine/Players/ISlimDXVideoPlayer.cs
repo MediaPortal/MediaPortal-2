@@ -49,12 +49,7 @@ namespace MediaPortal.SkinEngine.Players
 
     // TODO: Tidy up from here
 
-    /// <summary>
-    /// Render the video
-    /// </summary>
-    void Render();
     void BeginRender(EffectAsset effect);
     void EndRender(EffectAsset effect);
-
   }
 }
