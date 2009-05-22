@@ -40,6 +40,8 @@ namespace UiComponents.SkinBase.Models
   /// </summary>
   public class PlayerConfigurationDialogModel : BaseMessageControlledUIModel, IWorkflowModel
   {
+    #region Consts
+
     public const string PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR = "58A7F9E3-1514-47af-8E83-2AD60BA8A037";
     public static Guid PLAYER_CONFIGURATION_DIALOG_MODEL_ID = new Guid(PLAYER_CONFIGURATION_DIALOG_MODEL_ID_STR);
 
@@ -66,6 +68,10 @@ namespace UiComponents.SkinBase.Models
 
     protected const string PLAYER_SLOT_AUDIO_MENU_RESOURCE = "[Players.PlayerSlotAudioMenu]";
 
+    #endregion
+
+    #region Protected fields
+
     protected object _syncObj = new object();
 
     // Mode 1: Player configuration menu dialog
@@ -82,6 +88,8 @@ namespace UiComponents.SkinBase.Models
     protected bool _showToggleMute = true;
     protected ItemsList _playerSlotAudioMenu = new ItemsList();
     protected string _playerSlotAudioMenuHeader = null;
+
+    #endregion
 
     public PlayerConfigurationDialogModel()
     {
@@ -370,9 +378,52 @@ namespace UiComponents.SkinBase.Models
       return pcm.GetPlayerContext(currentPlayerSlot);
     }
 
-    public override Guid ModelId
+    public void EnterContext(NavigationContext newContext)
     {
-      get { return PLAYER_CONFIGURATION_DIALOG_MODEL_ID; }
+      if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
+      {
+        UpdatePlayerConfigurationMenu();
+        _inPlayerConfigurationDialog = true;
+      }
+      else if (newContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
+      {
+        UpdateAudioStreamsMenu();
+        _inChooseAudioStreamDialog = true;
+      }
+      else if (newContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
+      {
+        int? slotIndex = newContext.GetContextVariable(KEY_PLAYER_SLOT, false) as int?;
+        if (slotIndex.HasValue)
+          _slotIndex = slotIndex.Value;
+        else
+          _slotIndex = 0;
+        bool? showToggleMute = newContext.GetContextVariable(KEY_SHOW_MUTE, false) as bool?;
+        if (showToggleMute.HasValue)
+          _showToggleMute = showToggleMute.Value;
+        else
+          _showToggleMute = true;
+        UpdatePlayerSlotAudioMenu();
+        _inPlayerSlotAudioMenuDialog = true;
+      }
+    }
+
+    public void ExitContext(NavigationContext oldContext)
+    {
+      if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
+      {
+        _inPlayerConfigurationDialog = false;
+        _playerConfigurationMenu.Clear();
+      }
+      else if (oldContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
+      {
+        _inChooseAudioStreamDialog = false;
+        _audioStreamsMenu.Clear();
+      }
+      else if (oldContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
+      {
+        _inPlayerSlotAudioMenuDialog = false;
+        _playerSlotAudioMenu.Clear();
+      }
     }
 
     #region Members to be accessed from the GUI
@@ -454,6 +505,11 @@ namespace UiComponents.SkinBase.Models
 
     #region IWorkflowModel implementation
 
+    public override Guid ModelId
+    {
+      get { return PLAYER_CONFIGURATION_DIALOG_MODEL_ID; }
+    }
+
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
@@ -477,50 +533,18 @@ namespace UiComponents.SkinBase.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
-      {
-        UpdatePlayerConfigurationMenu();
-        _inPlayerConfigurationDialog = true;
-      }
-      else if (newContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
-      {
-        UpdateAudioStreamsMenu();
-        _inChooseAudioStreamDialog = true;
-      }
-      else if (newContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
-      {
-        int? slotIndex = newContext.GetContextVariable(KEY_PLAYER_SLOT, false) as int?;
-        if (slotIndex.HasValue)
-          _slotIndex = slotIndex.Value;
-        else
-          _slotIndex = 0;
-        bool? showToggleMute = newContext.GetContextVariable(KEY_SHOW_MUTE, false) as bool?;
-        if (showToggleMute.HasValue)
-          _showToggleMute = showToggleMute.Value;
-        else
-          _showToggleMute = true;
-        UpdatePlayerSlotAudioMenu();
-        _inPlayerSlotAudioMenuDialog = true;
-      }
+      EnterContext(newContext);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
-        _inPlayerConfigurationDialog = false;
-      else if (oldContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
-        _inChooseAudioStreamDialog = false;
+      ExitContext(oldContext);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       if (!push)
-      {
-        if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
-          _inPlayerConfigurationDialog = false;
-        else if (oldContext.WorkflowState.StateId == CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID)
-          _inChooseAudioStreamDialog = false;
-      }
+        ExitContext(oldContext);
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
