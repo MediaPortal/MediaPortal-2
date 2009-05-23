@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
@@ -33,20 +34,19 @@ using MediaPortal.Presentation.Workflow;
 namespace UiComponents.SkinBase.Actions
 {
   /// <summary>
-  /// Action which is visible when player slots are open. This action will show the dialog
-  /// "DialogPlayerConfiguration" when executed.
+  /// Action which is visible when player slots are open. Depending on the currently active players, this action will
+  /// show the current player's content.
   /// </summary>
-  public class PlayerConfiguration : IWorkflowContributor, IDisposable
+  public class ShowPlayerContent : IWorkflowContributor, IDisposable
   {
     #region Consts
 
-    public const string PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR = "95DD6923-058A-4481-AF33-2455CEBB7A03";
-    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
+    public const string SHOW_CONTENT_CONTRIBUTOR_MODEL_ID_STR = "04854BDB-0933-4194-8AAE-DEC50062F37F";
 
-    public static Guid PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID = new Guid(PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR);
-    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
+    public static Guid SHOW_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(SHOW_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string DISPLAY_TITLE_RESOURCE = "[Players.PlayerConfiguration]";
+    public const string SHOW_FULLSCREEN_VIDEO_RESOURCE = "[Players.ShowFullscreenVideo]";
+    public const string SHOW_CURRENTLY_PLAYING_RESOURCE = "[Players.ShowCurrentlyPlaying]";
 
     #endregion
 
@@ -56,11 +56,6 @@ namespace UiComponents.SkinBase.Actions
     protected IResourceString _displayTitle;
 
     #endregion
-
-    public PlayerConfiguration()
-    {
-      _displayTitle = LocalizationHelper.CreateResourceString(DISPLAY_TITLE_RESOURCE);
-    }
 
     protected void SubscribeToMessages()
     {
@@ -89,12 +84,15 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      bool oldVisible = _isVisible;
-
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       _isVisible = playerManager.NumActiveSlots > 0;
-      if (oldVisible != _isVisible)
-        FireStateChanged();
+      IPlayerSlotController psc = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
+      IPlayer player = psc.IsActive ? psc.CurrentPlayer : null;
+      if (player is IVideoPlayer)
+        _displayTitle = LocalizationHelper.CreateResourceString(SHOW_FULLSCREEN_VIDEO_RESOURCE);
+      else
+        _displayTitle = LocalizationHelper.CreateResourceString(SHOW_CURRENTLY_PLAYING_RESOURCE);
+      FireStateChanged();
     }
 
     protected void FireStateChanged()
@@ -139,8 +137,21 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      IPlayerSlotController psc = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
+      IPlayer player = psc.IsActive ? psc.CurrentPlayer : null;
+      Guid? workflowState = null;
+      if (player is IVideoPlayer)
+        workflowState = player.FullscreenContentWorkflowStateId;
+      else if (player != null)
+        workflowState = player.CurrentlyPlayingWorkflowStateId;
+      if (!workflowState.HasValue)
+      {
+        ServiceScope.Get<ILogger>().Warn("ShowPlayerContent: No workflow state present to show player content");
+        return;
+      }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
+      workflowManager.NavigatePush(workflowState.Value);
     }
 
     #endregion

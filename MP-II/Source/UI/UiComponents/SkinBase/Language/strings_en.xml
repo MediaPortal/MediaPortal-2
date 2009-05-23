@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language>
-  <Section Name="Login">
-    <String Name="Welcome" Text="Welcome"/>
+  <Section Name="Home">
+    <String Name="Title" Text="MediaPortal-II"/>
   </Section>
   <Section Name="Dialogs">
     <String Name="InfoHeaderText" Text="Info"/>
@@ -10,6 +10,8 @@
   </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
+    <String Name="ShowFullscreenVideo" Text="Fullscreen video"/>
+    <String Name="ShowCurrentlyPlaying" Text="Currently playing"/>
     <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "video player" -->
     <String Name="SlotNo" Text="Slot #{0}"/>
     <String Name="FocusPlayer" Text="Focus {0}"/> <!-- for example "Focus video player" -->
@@ -37,14 +39,6 @@
     <String Name="Information" Text="Information"/>
     <String Name="Warning" Text="Warning"/>
     <String Name="Error" Text="Error"/>
-
-    <String Name="0" Text="Exit"/>
-    <String Name="1" Text="Invalid string"/>
-    <String Name="2" Text="hours"/>
-    <String Name="3" Text="mins"/>
-    <String Name="4" Text="secs"/>
-    <String Name="5" Text="Menu"/>
-    <String Name="Eject" Text="Eject"/>
   </Section>
   <Section Name="Settings">
     <String Name="Appearance" Text="Appearance"/>
@@ -76,14 +70,14 @@
     <String Name="Tags" Text="Tags"/>
     <String Name="Filename" Text="File Name"/>
   </Section>
-  <Section Name="Days">
-    <String Name="0" Text="Sunday"/>
+  <Section Name="DaysOfWeek">
     <String Name="1" Text="Monday"/>
     <String Name="2" Text="Tuesday"/>
     <String Name="3" Text="Wednesday"/>
     <String Name="4" Text="Thursday"/>
     <String Name="5" Text="Friday"/>
     <String Name="6" Text="Saturday"/>
+    <String Name="7" Text="Sunday"/>
   </Section>
   <Section Name="Months">
     <String Name="1" Text="January"/>
@@ -99,72 +93,9 @@
     <String Name="11" Text="November"/>
     <String Name="12" Text="December"/>
   </Section>
-  <Section Name="playback">
-    <String Name="0" Text="Zoom modes"/>
-    <String Name="1" Text="Previous Window"/>
-    <String Name="2" Text="Cropping"/>
-    <String Name="3" Text="Subtitle Language"/>
-    <String Name="4" Text="Audio Language"/>
-    <String Name="5" Text="start"/>
-    <String Name="6" Text="end"/>
-    <String Name="14" Text="Subtitles"/>
-    <String Name="15" Text="Top Left"/>
-    <String Name="16" Text="Bottom Right"/>
-    <String Name="17" Text="Off"/>
-    <String Name="18" Text=" (big)"/>
-    <String Name="19" Text=" (children)"/>
-    <String Name="20" Text=" (CC)"/>
-    <String Name="21" Text=" (CC big)"/>
-    <String Name="22" Text=" (CC children)"/>
-    <String Name="23" Text=" (forced)"/>
-    <String Name="24" Text=" (Directors Comments)"/>
-    <String Name="25" Text=" (Directors Comments big)"/>
-    <String Name="26" Text=" (Directors Comments 2)"/>
-    <String Name="27" Text=" (Visually Impaired)"/>
-    <String Name="28" Text="Titles"/>
-    <String Name="29" Text="Chapters"/>
-    <String Name="30" Text="PiP"/>
-    <String Name="31" Text="Disable"/>
-    <String Name="32" Text="Switch"/>
-    <String Name="33" Text="Stopped"/>
-    <String Name="34" Text="Done"/>
-    <String Name="35" Text="Resume"/>
-    <String Name="36" Text="Restart"/>
-    <String Name="37" Text="Delete"/>
-    <String Name="38" Text="Ended"/>
-  </Section>
-  <Section Name="movies">
-    <String Name="0" Text="Name"/>
-    <String Name="1" Text="Date"/>
-    <String Name="2" Text="Size"/>
-    <String Name="duration" Text="Duration"/>
-    <String Name="3" Text="My Movies"/>
-    <String Name="4" Text="View"/>
-    <String Name="5" Text="Sort"/>
-    <String Name="6" Text="Play DVD"/>
-    <String Name="7" Text="Eject"/>
-    <String Name="8" Text="Library"/>
-    <String Name="dvd" Text="DVD Library"/>
-	<String Name="onlineresult" Text="Online search resut"/>
-  </Section>
-  <Section Name="music">
-    <String Name="0" Text="Name"/>
-    <String Name="1" Text="Date"/>
-    <String Name="2" Text="Size"/>
-    <String Name="3" Text="My Music"/>
-    <String Name="4" Text="View"/>
-    <String Name="5" Text="Sort"/>
-    <String Name="6" Text="Play CD"/>
-    <String Name="7" Text="Eject"/>
-    <String Name="8" Text="Library"/>
-    <String Name="settings" Text="Settings"/>
-    <String Name="settingsgeneral" Text="General"/>
-    <String Name="settingsfade" Text="Fade on Stop"/>
-    <String Name="settingsgapless" Text="Gapless Playback"/>
-  </Section>
-  <Section Name="home">
-    <String Name="title" Text="MediaPortal"/>
-  </Section>
+
+  
+  
   <Section Name="weather">
     <String Name="0" Text="My Weather"/>
     <String Name="1" Text="Location"/>

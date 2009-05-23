@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[login.welcome]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Home.Title]"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element"/>

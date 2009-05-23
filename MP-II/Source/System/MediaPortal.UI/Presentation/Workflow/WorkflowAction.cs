@@ -118,7 +118,7 @@ namespace MediaPortal.Presentation.Workflow
     /// <summary>
     /// Returns the localized string displayed at the GUI in the menu for this action.
     /// </summary>
-    public IResourceString DisplayTitle
+    public virtual IResourceString DisplayTitle
     {
       get { return _displayTitle; }
     }

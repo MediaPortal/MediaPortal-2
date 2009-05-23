@@ -148,6 +148,11 @@ namespace MediaPortal.Presentation.Workflow
       get { return _contributor != null && _contributor.IsActionEnabled; }
     }
 
+    public override IResourceString DisplayTitle
+    {
+      get { return _contributor == null ? base.DisplayTitle : _contributor.DisplayTitle; }
+    }
+
     public override void Initialize()
     {
       base.Initialize();

@@ -22,6 +22,7 @@
     <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="PlayerModel" ClassName="UiComponents.SkinBase.Models.PlayerModel"/>
     <Model Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037" Name="PlayerConfigurationDialogModel" ClassName="UiComponents.SkinBase.Models.PlayerConfigurationDialogModel"/>
     <Model Id="95DD6923-058A-4481-AF33-2455CEBB7A03" Name="PlayerConfigurationContributorModel" ClassName="UiComponents.SkinBase.Actions.PlayerConfiguration"/>
+    <Model Id="04854BDB-0933-4194-8AAE-DEC50062F37F" Name="ShowPlayerContentContributorModel" ClassName="UiComponents.SkinBase.Actions.ShowPlayerContent"/>
   </Register>
 
   <Register Location="/Skins/default">

@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Presentation.DataObjects;
+
 namespace MediaPortal.Presentation.Workflow
 {
   public delegate void ContributorStateChangeDelegate();
@@ -46,6 +48,11 @@ namespace MediaPortal.Presentation.Workflow
     /// Returns the information if the associated workflow action should be enabled.
     /// </summary>
     bool IsActionEnabled { get; }
+
+    /// <summary>
+    /// Returns the title to be displayed for this workflow contributor action.
+    /// </summary>
+    IResourceString DisplayTitle { get; }
 
     /// <summary>
     /// Initializes this workflow action contributor. The implementor can execute any initialization code here.

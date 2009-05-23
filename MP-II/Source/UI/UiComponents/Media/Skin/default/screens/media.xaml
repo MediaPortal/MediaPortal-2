@@ -9,12 +9,11 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.Name]"/>
 
-    <!-- Media model -->
-    <Model x:Key="Model" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+    <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid DataContext="{Binding Source={StaticResource Model}}">
+      <Grid DataContext="{Binding Source={StaticResource MediaModel}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -43,7 +42,7 @@
             Style="{StaticResource ContentsMenuListViewStyle}"
             ItemsSource="{Binding MediaItems}" IsVisible="{Binding CurrentView.IsValid}">
           <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
+            <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
                 Parameters="{LateBoundValue Value={Binding}}"/>
           </ListView.Resources>
         </ListView>

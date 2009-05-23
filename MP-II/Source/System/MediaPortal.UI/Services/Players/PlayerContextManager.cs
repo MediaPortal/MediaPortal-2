@@ -35,7 +35,8 @@ namespace MediaPortal.Services.Players
 {
   // TODO:
   // Install an automatic trigger which checks those conditions:
-  //  - if (a player slot was closed by PM): pop all its CP states from workflow navigation stack
+  //  - if (a player slot was closed by PM): pop all its CP states from workflow navigation stack, and, if no more video player
+  //      is available, pop all its FSC states from workflow navigation stack
   //  - if ((primary player was started OR the player slots were switched) AND we have been in a FSC state): switch to the current
   //        primary player's FSC state
   //  - if (the current player changed AND we have been in in the former current player's CP state): switch to the new current

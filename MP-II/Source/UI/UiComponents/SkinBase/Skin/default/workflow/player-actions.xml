@@ -7,7 +7,12 @@
         DisplayCategory="z-WorkflowContributors"
         SortOrder="a"
         SourceState="*"
-        ContributorModelId="95DD6923-058A-4481-AF33-2455CEBB7A03"
-        DisplayTitle="[Players.PlayerConfiguration]"/>
+        ContributorModelId="95DD6923-058A-4481-AF33-2455CEBB7A03"/>
+    <WorkflowContributorAction Id="D83604C0-0936-4416-9DE8-7B6D7C50023C"
+        Name="*->ShowPlayerContent"
+        DisplayCategory="z-WorkflowContributors"
+        SortOrder="b"
+        SourceState="*"
+        ContributorModelId="04854BDB-0933-4194-8AAE-DEC50062F37F"/>
   </MenuActions>
 </Workflow>
