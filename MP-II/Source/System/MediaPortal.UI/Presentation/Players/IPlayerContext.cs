@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -146,6 +147,16 @@ namespace MediaPortal.Presentation.Players
     /// </summary>
     /// <returns>Enumeration of audio stream descriptors.</returns>
     IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors();
+    
+    /// <summary>
+    /// Sets a special <paramref name="geometry"/> for the <see cref="CurrentPlayer"/>, if it is a video player.
+    /// The geometry will only be applied to the current player. It will be lost when the current player is disposed.
+    /// </summary>
+    /// <remarks>
+    /// This method takes care of notifying all video output modules of the geometry change.
+    /// </remarks>
+    /// <param name="geometry">The geometry to be used with the <see cref="CurrentPlayer"/>.</param>
+    void OverrideGeometry(IGeometry geometry);
 
     /// <summary>
     /// Sets a user-defined context variable in this player context.

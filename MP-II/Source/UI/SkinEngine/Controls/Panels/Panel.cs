@@ -128,6 +128,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       _lastEvent |= UIEvent.OpacityChange;
       if (Screen != null) Screen.Invalidate(this);
+      _performLayout = true;
     }
 
     /// <summary>

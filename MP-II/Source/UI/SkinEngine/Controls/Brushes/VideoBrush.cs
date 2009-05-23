@@ -47,7 +47,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     EffectAsset _effect;
     Size _videoSize;
     Size _videoAspectRatio;
-    IGeometry _previousGeometry;
+    IGeometry _currentGeometry;
     PositionColored2Textured[] _verts;
     ISlimDXVideoPlayer _renderPlayer = null;
 
@@ -108,22 +108,22 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     {
       Size size = player.VideoSize;
       Size aspectRatio = player.VideoAspectRatio;
-      if (size == _videoSize && aspectRatio == _videoAspectRatio)
-      {
-        if (ServiceScope.Get<IGeometryManager>().CurrentVideoGeometry == _previousGeometry)
+      IGeometry geometry = player.GeometryOverride;
+      IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
+      if (geometry == null)
+        geometry = geometryManager.DefaultVideoGeometry;
+      if (size == _videoSize && aspectRatio == _videoAspectRatio && geometry == _currentGeometry)
           return;
-      }
 
       _videoSize = size;
       _videoAspectRatio = aspectRatio;
-      IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
-      IGeometry geometry = geometryManager.CurrentVideoGeometry;
-      _previousGeometry = geometry;
+
+      _currentGeometry = geometry;
       Rectangle sourceRect;
       Rectangle destinationRect;
       GeometryData gd = new GeometryData(
           new Size(_videoSize.Width, _videoSize.Height), new Size((int) _bounds.Width, (int) _bounds.Height), 1.0f);
-      geometryManager.Transform(gd, out sourceRect, out destinationRect);
+      geometryManager.Transform(_currentGeometry, gd, out sourceRect, out destinationRect);
       string shaderName = geometry.Shader;
       _effect = string.IsNullOrEmpty(shaderName) ? ContentManager.GetEffect("normal") :
           ContentManager.GetEffect(shaderName);

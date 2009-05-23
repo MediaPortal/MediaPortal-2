@@ -23,6 +23,7 @@
 #endregion
 
 using System.Drawing;
+using MediaPortal.Presentation.Geometries;
 
 namespace MediaPortal.Presentation.Players
 {
@@ -47,22 +48,27 @@ namespace MediaPortal.Presentation.Players
     /// </summary>
     Size VideoAspectRatio { get;  }
 
-    // TODO: Tidy up from here
     /// <summary>
-    /// returns list of available audio streams
+    /// Gets or sets a geometry to be used for this player. If this property is not set, a default geometry will be used.
+    /// In this case, this property is <c>null</c>.
+    /// </summary>
+    IGeometry GeometryOverride { get; set; }
+
+    /// <summary>
+    /// Returns a list of names of available audio streams. The list may be ordered by relevance or by some other criterion.
     /// </summary>
     string[] AudioStreams { get; }
 
     /// <summary>
-    /// sets the current audio stream
+    /// Sets the current audio stream.
     /// </summary>
-    /// <param name="audioStream">audio stream</param>
+    /// <param name="audioStream">Name of the audio stream to set. The name should be equal to some of the stream names returned
+    /// by the <see cref="AudioStreams"/> property.</param>
     void SetAudioStream(string audioStream);
 
     /// <summary>
-    /// Gets the current audio stream.
+    /// Gets the name of the current audio stream.
     /// </summary>
-    /// <value>The current audio stream.</value>
     string CurrentAudioStream { get; }
   }
 }

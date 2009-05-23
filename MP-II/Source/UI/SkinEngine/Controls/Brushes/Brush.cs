@@ -108,7 +108,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     #region Protected methods
 
-    protected void Fire()
+    protected void FireChanged()
     {
       if (ObjectChanged != null)
         ObjectChanged(this);

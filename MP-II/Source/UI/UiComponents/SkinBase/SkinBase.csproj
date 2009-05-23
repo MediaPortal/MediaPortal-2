@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -300,6 +300,7 @@
     <Content Include="Skin\default\screens\batchtest.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAudioStream.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
+    <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml"/>
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
     <Content Include="Skin\default\screens\dialogDvdChapters.xaml" />
     <Content Include="Skin\default\screens\dialogDvdTitles.xaml" />

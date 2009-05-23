@@ -120,7 +120,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     protected override void OnPropertyChanged(Property prop, object oldValue)
     {
       _refresh = true;
-      Fire();
+      FireChanged();
     }
 
     #endregion

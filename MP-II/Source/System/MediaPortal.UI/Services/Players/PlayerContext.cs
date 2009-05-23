@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Presentation.Geometries;
 using MediaPortal.Presentation.Players;
 
 namespace MediaPortal.Services.Players
@@ -194,6 +195,20 @@ namespace MediaPortal.Services.Players
       ICollection<string> audioStreamNames = player.AudioStreams;
       foreach (string streamName in audioStreamNames)
         yield return new AudioStreamDescriptor(this, player.Name, streamName);
+    }
+
+    public void OverrideGeometry(IGeometry geometry)
+    {
+      IPlayerSlotController slotController = _slotController;
+      if (slotController == null)
+        return;
+      IVideoPlayer player = CurrentPlayer as IVideoPlayer;
+      if (player == null)
+        return;
+      bool changed = player.GeometryOverride != geometry;
+      player.GeometryOverride = geometry;
+      if (changed)
+        PlayerGeometryMessaging.SendGeometryChangedMessage(slotController.SlotIndex);
     }
 
     public void SetContextVariable(string key, object value)

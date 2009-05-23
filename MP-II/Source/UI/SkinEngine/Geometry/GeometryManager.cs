@@ -30,17 +30,17 @@ namespace MediaPortal.SkinEngine.Geometry
 {
   /// <summary>
   /// Class which can do transformations for video windows.
-  /// currently it supports Zoom, Zoom 14:9, normal, stretch, original, letterbox 4:3 and panscan 4:3.
+  /// currently it supports zoom, zoom 14:9, normal, stretch, original, letterbox 4:3 and panscan 4:3.
   /// </summary>
   public class GeometryManager : IGeometryManager
   {
     private readonly IDictionary<string, IGeometry> _availableGeometries = new Dictionary<string, IGeometry>();
-    private IGeometry _currentVideoGeometry;
+    private IGeometry _defaultVideoGeometry;
     private CropSettings _cropSettings = new CropSettings();
 
     public GeometryManager()
     {
-      Add(_currentVideoGeometry = new GeometryNormal());
+      Add(_defaultVideoGeometry = new GeometryNormal());
       Add(new GeometryOrignal());
       Add(new GeometryStretch());
       Add(new GeometryZoom());
@@ -60,10 +60,16 @@ namespace MediaPortal.SkinEngine.Geometry
       _availableGeometries.Remove(geometryName);
     }
 
-    public IGeometry CurrentVideoGeometry 
+    public IGeometry DefaultVideoGeometry 
     {
-      get { return _currentVideoGeometry; }
-      set { _currentVideoGeometry = value; }
+      get { return _defaultVideoGeometry; }
+      set
+      {
+        bool changed = _defaultVideoGeometry != value;
+        _defaultVideoGeometry = value;
+        if (changed)
+          PlayerGeometryMessaging.SendGeometryChangedMessage(PlayerGeometryMessaging.ALL_PLAYERS);
+      }
     }
 
     public IDictionary<string, IGeometry> AvailableGeometries
@@ -79,7 +85,12 @@ namespace MediaPortal.SkinEngine.Geometry
 
     public void Transform(GeometryData data, out Rectangle rSource, out Rectangle rDest)
     {
-      _currentVideoGeometry.Transform(data, _cropSettings, out rSource, out rDest);
+      Transform(_defaultVideoGeometry, data, out rSource, out rDest);
+    }
+
+    public void Transform(IGeometry geometry, GeometryData data, out Rectangle rSource, out Rectangle rDest)
+    {
+      geometry.Transform(data, _cropSettings, out rSource, out rDest);
     }
   }
 }

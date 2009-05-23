@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- DataContext -->
+    <Model x:Key="PlayerConfigurationDialogModel" Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="{Binding Source={StaticResource PlayerConfigurationDialogModel},Path=PlayerChooseGeometryHeader}"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items">
+      <Binding Source="{StaticResource PlayerConfigurationDialogModel}" Path="PlayerChooseGeometryMenu" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource PlayerConfigurationDialogModel}" Path="ExecuteMenuItem"/>
+
+  </Include.Resources>
+</Include>

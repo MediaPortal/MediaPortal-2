@@ -101,6 +101,7 @@
     <Compile Include="Presentation\DataObjects\ListItem.cs" />
     <Compile Include="Presentation\Geometries\CropSettings.cs" />
     <Compile Include="Presentation\Geometries\GeometryData.cs" />
+    <Compile Include="Presentation\Geometries\PlayerGeometryMessaging.cs" />
     <Compile Include="Presentation\ISkinEngine.cs" />
     <Compile Include="Presentation\Localization\LocalizationHelper.cs" />
     <Compile Include="Presentation\DataObjects\TreeItem.cs" />

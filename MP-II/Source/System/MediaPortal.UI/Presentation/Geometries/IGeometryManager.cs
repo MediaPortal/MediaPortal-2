@@ -34,9 +34,9 @@ namespace MediaPortal.Presentation.Geometries
   public interface IGeometryManager
   {
     /// <summary>
-    /// Gets or sets the current geometry to be used for video playback.
+    /// Gets or sets the default geometry to be used for playback of a new video.
     /// </summary>
-    IGeometry CurrentVideoGeometry { get; set; }
+    IGeometry DefaultVideoGeometry { get; set; }
 
     /// <summary>
     /// Gets or sets the current cropping settings.
@@ -62,9 +62,9 @@ namespace MediaPortal.Presentation.Geometries
     IDictionary<string, IGeometry> AvailableGeometries { get;}
 
     /// <summary>
-    /// This method will do the transformation based on the current geometry.
+    /// This method will do the transformation based on the given <paramref name="geometry"/>.
     /// It will calculate 2 rectangles: A source and destination rectangle based on the
-    /// current geometry, video and target size.
+    /// given geometry, video and target size.
     /// the returned source rectangle specifies which part of the image/video should be copied
     /// the returned destination rectangle specifies where the copied part should be presented on screen
     /// </summary>
@@ -72,6 +72,12 @@ namespace MediaPortal.Presentation.Geometries
     /// <param name="rSource">Rectangle specifying which part of the image/video should be copied.</param>
     /// <param name="rDest">Rectangle specifying to which part of the target rectangle (given in the
     /// <paramref name="data"/>) the copied part should be presented.</param>
+    /// <param name="geometry">Geometry to be used for the calculations.</param>
+    void Transform(IGeometry geometry, GeometryData data, out Rectangle rSource, out Rectangle rDest);
+
+    /// <summary>
+    /// This method will do the transformation based on the current geometry
+    /// (see <see cref="Transform(IGeometry,GeometryData,out Rectangle,out Rectangle)"/>).
     void Transform(GeometryData data, out Rectangle rSource, out Rectangle rDest);
   }
 }

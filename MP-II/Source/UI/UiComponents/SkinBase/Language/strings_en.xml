@@ -19,6 +19,7 @@
     <String Name="Mute" Text="Mute"/>
     <String Name="MuteOff" Text="Mute off"/>
     <String Name="ClosePlayerContext" Text="Close {0}"/> <!-- for example "Close video player" -->
+    <String Name="ChoosePlayerGeometry" Text="Zoom mode"/>
   </Section>
   <Section Name="System">
     <String Name="Yes" Text="Yes"/>

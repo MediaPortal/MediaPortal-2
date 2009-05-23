@@ -26,7 +26,6 @@ using System;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Visuals;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
@@ -89,7 +88,7 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     protected override void OnPropertyChanged(Property prop, object oldValue)
     {
-      Fire();
+      FireChanged();
     }
 
     public Property ColorProperty

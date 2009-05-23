@@ -36,6 +36,7 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
 using MediaPortal.General;
+using MediaPortal.Presentation.Geometries;
 using MediaPortal.Presentation.Players;
 using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
@@ -69,20 +70,20 @@ namespace Ui.Players.Video
     #region DLL imports
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe int EvrInit(IVMR9PresentCallback callback, uint dwD3DDevice,
+    private static extern int EvrInit(IVMR9PresentCallback callback, uint dwD3DDevice,
         IBaseFilter vmr9Filter, uint monitor);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void EvrDeinit(int handle);
+    private static extern void EvrDeinit(int handle);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void EvrEnableFrameSkipping(int handle, bool onOff);
+    private static extern void EvrEnableFrameSkipping(int handle, bool onOff);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void EvrFreeResources(int handle);
+    private static extern void EvrFreeResources(int handle);
 
     [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern unsafe void EvrReAllocResources(int handle);
+    private static extern void EvrReAllocResources(int handle);
 
     #endregion
 
@@ -124,13 +125,14 @@ namespace Ui.Players.Video
     protected IBaseFilter _videoh264Codec;
     protected IBaseFilter _videoCodec;
     protected IBaseFilter _audioCodec;
+    protected IGeometry _geometryOverride = null;
 
     protected PlaybackState _state;
     protected int _volume = 100;
     protected bool _isMuted = false;
     protected bool _isAudioEnabled = true;
     protected bool _initialized = false;
-    List<IPin> _evrConnectionPins = new List<IPin>();
+    protected readonly List<IPin> _evrConnectionPins = new List<IPin>();
     protected IMediaItemLocator _mediaItemLocator;
     protected IMediaItemLocalFsAccessor _mediaItemAccessor;
     protected string _mediaItemTitle = null;
@@ -147,6 +149,11 @@ namespace Ui.Players.Video
 
     public VideoPlayer()
     {
+      // EVR is available since Vista
+      OperatingSystem osInfo = Environment.OSVersion;
+      if (osInfo.Version.Major <= 5)
+        throw new EnvironmentException("This video player can only run on Windows Vista or above");
+
       SubscribeWindowsMessages();
     }
 
@@ -222,11 +229,6 @@ namespace Ui.Players.Video
         _instancePtr = Marshal.AllocCoTaskMem(4);
         IMediaEventEx mee = _graphBuilder as IMediaEventEx;
         int hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
-
-        //only use EVR if we're running Vista
-        OperatingSystem osInfo = Environment.OSVersion;
-        if (osInfo.Version.Major <= 5)
-          throw new EnvironmentException("The video player can only run on Windows Vista or above");
 
         // Create the Allocator / Presenter object
         _allocator = new Allocator(this);
@@ -912,6 +914,12 @@ namespace Ui.Players.Video
         if (_allocator == null || !_initialized) return new Size(0, 0);
         return _allocator.AspectRatio;
       }
+    }
+
+    public IGeometry GeometryOverride
+    {
+      get { return _geometryOverride; }
+      set { _geometryOverride = value; }
     }
 
     public virtual void BeginRender(EffectAsset effect)

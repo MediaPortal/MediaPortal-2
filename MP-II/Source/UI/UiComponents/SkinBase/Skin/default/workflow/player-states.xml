@@ -11,5 +11,8 @@
     <DialogState Id="428326CE-9DE1-41ff-A33B-BBB80C8AFAC5"
         Name="PlayerSlotAudioDialog" DialogScreen="DialogPlayerSlotAudio"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
+    <DialogState Id="D46F66DD-9E91-4788-ADFE-EBD96F1A489E"
+        Name="PlayerChooseGeometryDialog" DialogScreen="DialogPlayerChooseGeometry"
+        WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
   </States>
 </Workflow>
