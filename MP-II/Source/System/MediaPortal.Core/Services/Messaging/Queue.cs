@@ -100,6 +100,19 @@ namespace MediaPortal.Core.Services.Messaging
         }
       }
 
+      public void WaitForAsyncExecutions()
+      {
+        lock (_queue.SyncObj)
+        {
+          while (true)
+          {
+            if (_terminated || !MessagesAvailable)
+              return;
+            Monitor.Wait(_queue.SyncObj);
+          }
+        }
+      }
+
       public void DoWork()
       {
         while (true)
@@ -108,13 +121,18 @@ namespace MediaPortal.Core.Services.Messaging
           if ((message = Dequeue()) != null)
             _queue.DoSendAsync(message);
           lock (_queue.SyncObj)
+          {
             if (_terminated)
               // We have to check this in the synchronized block, else we could miss the PulseAll event
               break;
             else if (!MessagesAvailable)
-              // We need to check this here again in a synchronized block. If we wouldn't prevent other threads from
-              // enqueuing data in this moment, we could miss the PulseAll event
+            // We need to check this here again in a synchronized block. If we wouldn't prevent other threads from
+            // enqueuing data in this moment, we could miss the PulseAll event
+            {
+              Monitor.PulseAll(_queue.SyncObj); // Necessary to awake the waiting threads in method WaitForAsyncExecutions()
               Monitor.Wait(_queue.SyncObj);
+            }
+          }
         }
       }
     }
@@ -152,6 +170,11 @@ namespace MediaPortal.Core.Services.Messaging
     public object SyncObj
     {
       get { return _syncObj; }
+    }
+
+    public void WaitForAsyncExecutions()
+    {
+      _asyncMessageSender.WaitForAsyncExecutions();
     }
 
     protected void DoSendAsync(QueueMessage message)

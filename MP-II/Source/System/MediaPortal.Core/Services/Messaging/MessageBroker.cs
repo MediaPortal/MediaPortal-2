@@ -45,13 +45,33 @@ namespace MediaPortal.Core.Services.Messaging
       {
         if (_shuttingDown)
           throw new IllegalCallException("The MessageBroker is shutting down, no more message queues can be created");
-        if (!_queues.ContainsKey(queueName))
+        Queue result;
+        if (!_queues.TryGetValue(queueName, out result))
         {
-          Queue q = new Queue(queueName);
-          _queues[queueName] = q;
+          result = new Queue(queueName);
+          _queues[queueName] = result;
         }
-        return _queues[queueName];
+        return result;
       }
+    }
+
+    public Queue Get(string queueName)
+    {
+      lock (_syncObj)
+      {
+        Queue result;
+        if (_queues.TryGetValue(queueName, out result))
+          return result;
+        return null;
+      }
+    }
+
+    protected Queue GetQueueCheckShutdown(string queueName)
+    {
+      if (_shuttingDown)
+        return Get(queueName);
+      else
+        return GetOrCreate(queueName);
     }
 
     #region IMessageBroker implementation
@@ -69,9 +89,9 @@ namespace MediaPortal.Core.Services.Messaging
     {
       lock (_syncObj)
       {
-        if (_shuttingDown)
-          return;
-        GetOrCreate(queueName).MessageReceived_Sync += handler;
+        Queue queue = GetQueueCheckShutdown(queueName);
+        if (queue != null)
+          queue.MessageReceived_Sync += handler;
       }
     }
 
@@ -79,9 +99,13 @@ namespace MediaPortal.Core.Services.Messaging
     {
       lock (_syncObj)
       {
-        if (_shuttingDown)
-          return;
-        GetOrCreate(queueName).MessageReceived_Sync -= handler;
+        Queue queue = GetQueueCheckShutdown(queueName);
+        if (queue != null)
+        {
+          queue.MessageReceived_Sync -= handler;
+          // Block the caller until we don't have any async operations any more in the queue
+          queue.WaitForAsyncExecutions();
+        }
       }
     }
 
@@ -89,9 +113,9 @@ namespace MediaPortal.Core.Services.Messaging
     {
       lock (_syncObj)
       {
-        if (_shuttingDown)
-          return;
-        GetOrCreate(queueName).MessageReceived_Async += handler;
+        Queue queue = GetQueueCheckShutdown(queueName);
+        if (queue != null)
+          queue.MessageReceived_Async += handler;
       }
     }
 
@@ -99,9 +123,13 @@ namespace MediaPortal.Core.Services.Messaging
     {
       lock (_syncObj)
       {
-        if (_shuttingDown)
-          return;
-        GetOrCreate(queueName).MessageReceived_Async -= handler;
+        Queue queue = GetQueueCheckShutdown(queueName);
+        if (queue != null)
+        {
+          queue.MessageReceived_Async -= handler;
+          // Block the caller until we don't have any async operations any more in the queue
+          queue.WaitForAsyncExecutions();
+        }
       }
     }
 
@@ -129,7 +157,11 @@ namespace MediaPortal.Core.Services.Messaging
         queuesCopy = new List<Queue>(_queues.Values);
       }
       foreach (Queue queue in queuesCopy)
+      {
         queue.Shutdown();
+        // Block until we don't have any async operations any more in the queue
+        queue.WaitForAsyncExecutions();
+      }
     }
 
     #endregion
