@@ -306,7 +306,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
                 childSize.Height = (float) ActualHeight;
                 childSize.Width = Math.Min(childSize.Width, bounds.Width);
 
-                ArrangeChildHorizontal(child, ref location, ref childSize);
+                ArrangeChildVertical(child, ref location, ref childSize);
 
                 child.Arrange(new RectangleF(location, childSize));
                 _totalHeight = Math.Max(_totalHeight, child.ActualTotalBounds.Height);
