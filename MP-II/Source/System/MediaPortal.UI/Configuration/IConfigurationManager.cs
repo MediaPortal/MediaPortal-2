@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 
 
 namespace MediaPortal.Configuration
@@ -88,14 +87,9 @@ namespace MediaPortal.Configuration
     void Load();
 
     /// <summary>
-    /// Saves all settings managed by this configuration manager.
+    /// Applies and saves all settings managed by this configuration manager.
     /// </summary>
     void Save();
-
-    /// <summary>
-    /// Applies all settings managed by this configuration manager to the application.
-    /// </summary>
-    void Apply();
 
     /// <summary>
     /// Gets the config node at the specified <paramref name="nodeLocation"/>.

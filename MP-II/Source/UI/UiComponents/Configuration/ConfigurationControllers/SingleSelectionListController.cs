@@ -59,7 +59,6 @@ namespace UiComponents.Configuration.ConfigurationControllers
 
     protected void OnSelectionChanged(Property property, object oldValue)
     {
-      SingleSelectionList ssl = (SingleSelectionList) _setting;
       _selectedIndex = FindSelectedIndex();
     }
 

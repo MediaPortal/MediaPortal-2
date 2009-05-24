@@ -80,7 +80,6 @@ namespace UiComponents.Configuration
     {
       UpdateSetting();
       _setting.Save();
-      _setting.Apply();
     }
 
     protected virtual void SettingChanged()

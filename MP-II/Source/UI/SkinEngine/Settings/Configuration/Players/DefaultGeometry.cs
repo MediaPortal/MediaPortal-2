@@ -24,49 +24,43 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Presentation.Geometries;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Configuration.ConfigurationClasses;
 
-namespace UiComponents.SkinBase.Settings.Configuration.Regional
+namespace MediaPortal.SkinEngine.Settings.Configuration.Players
 {
-  public class MainLanguage : SingleSelectionList
+  public class DefaultGeometry : SingleSelectionList
   {
     #region Variables
 
-    private IList<CultureInfo> _cultures;
+    private IList<IGeometry> _geometries;
 
     #endregion
-
-    protected static int CompareByName(CultureInfo culture1, CultureInfo culture2)
-    {
-      return string.Compare(culture1.DisplayName, culture2.DisplayName);
-    }
 
     #region Base overrides
 
     public override void Load()
     {
-      List<CultureInfo> cultures = new List<CultureInfo>(CultureInfo.GetCultures(CultureTypes.SpecificCultures));
-      cultures.Sort(CompareByName);
-      _cultures = cultures;
-      CultureInfo current = ServiceScope.Get<ILocalization>().CurrentCulture;
+      IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
+      _geometries = new List<IGeometry>(geometryManager.AvailableGeometries.Values);
+      IGeometry current = geometryManager.DefaultVideoGeometry;
       // Fill items
-      _items = new List<IResourceString>(_cultures.Count);
-      for (int i = 0; i < _cultures.Count; i++)
+      _items = new List<IResourceString>(_geometries.Count);
+      for (int i = 0; i < _geometries.Count; i++)
       {
-        CultureInfo ci = _cultures[i];
-        _items.Add(LocalizationHelper.CreateStaticString(ci.DisplayName));
-        if (ci == current)
+        IGeometry geometry = _geometries[i];
+        _items.Add(LocalizationHelper.CreateResourceString(geometry.Name));
+        if (geometry == current)
           Selected = i;
       }
     }
 
     public override void Save()
     {
-      ServiceScope.Get<ILocalization>().ChangeLanguage(_cultures[Selected]);
+      ServiceScope.Get<IGeometryManager>().DefaultVideoGeometry = _geometries[Selected];
     }
 
     #endregion

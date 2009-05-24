@@ -24,17 +24,32 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.SkinEngine.Settings
+namespace MediaPortal.Services.Players.Settings
 {
-  public class AppSettings
+  public class FadingSettings
   {
-    private bool _fullScreen;
+    #region Protected properties
 
-    [Setting(SettingScope.User, false)]
-    public bool FullScreen
+    protected bool _crossFadingEnabled = false;
+    protected float _crossFadeDuration = 3.0f;
+
+    #endregion
+
+    [Setting(SettingScope.User)]
+    public bool CrossFadingEnabled
     {
-      get { return _fullScreen; }
-      set { _fullScreen = value; }
+      get { return _crossFadingEnabled; }
+      set { _crossFadingEnabled = value; }
+    }
+
+    /// <summary>
+    /// Duration of crossfading in seconds.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public float CrossFadeDuration
+    {
+      get { return _crossFadeDuration; }
+      set { _crossFadeDuration = value; }
     }
   }
 }

@@ -79,9 +79,9 @@ namespace MediaPortal.SkinEngine
           //switch to fullscreen
           IScreenControl sc = ServiceScope.Get<IScreenControl>();
           if (sc.IsFullScreen)
-            sc.SwitchMode(ScreenMode.NormalWindowed, FPS.None);
+            sc.SwitchMode(ScreenMode.NormalWindowed);
           else
-            sc.SwitchMode(ScreenMode.FullScreenWindowed, FPS.None);
+            sc.SwitchMode(ScreenMode.FullScreenWindowed);
           return true;
         });
     }

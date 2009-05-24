@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -171,6 +171,10 @@
     <Compile Include="Players\PlayersHelper.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
+    <Compile Include="Settings\Configuration\Players\CrossFadeDuration.cs" />
+    <Compile Include="Settings\Configuration\Players\CrossFadingEnabled.cs" />
+    <Compile Include="Settings\Configuration\Players\DefaultGeometry.cs" />
+    <Compile Include="Settings\PlayerSettings.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="SpecialElements\Controls\PlayerControl.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />

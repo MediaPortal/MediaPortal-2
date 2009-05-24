@@ -379,8 +379,8 @@ namespace MediaPortal.Services.Players
         try
         {
           CheckActive();
-          PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
-          if (settings.CrossFading)
+          FadingSettings settings = ServiceScope.Get<ISettingsManager>().Load<FadingSettings>();
+          if (settings.CrossFadingEnabled)
           {
             ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
             if (cep != null)

@@ -49,14 +49,14 @@
         Id="General"
         Redundant="true"
         Text="[Settings.General]"
-        IconSmallPath="Images\general-22.png"
-        IconLargePath="Images\general-48.png"/>
+        IconSmallPath="Resources\ConfigurationImages\general-22.png"
+        IconLargePath="Resources\ConfigurationImages\general-48.png"/>
     <ConfigSection
         Id="Regional"
         Redundant="true"
         Text="[Settings.Regional]"
-        IconSmallPath="Images\globe-22.png"
-        IconLargePath="Images\globe-48.png"/>
+        IconSmallPath="Resources\ConfigurationImages\globe-22.png"
+        IconLargePath="Resources\ConfigurationImages\globe-48.png"/>
   </Register>
 
   <!-- Contents of '/Appearance' section -->
@@ -116,7 +116,7 @@
     <ConfigGroup
         Id="Language"
         Redundant="true"
-        Text="[Settings.Language]"/>
+        Text="[Settings.Regional.Language]"/>
   </Register>
 
   <!-- Contents of '/Regional/Language' group -->

@@ -23,9 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
 using MediaPortal.Core.Registry;
-using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Configuration.ConfigurationManagement
 {
@@ -60,12 +58,6 @@ namespace MediaPortal.Configuration.ConfigurationManagement
         ((IDisposable) node).Dispose();
     }
 
-    protected static void ApplyNodeAction(IConfigurationNode node)
-    {
-      if (node.ConfigObj is ConfigSetting)
-        ((ConfigSetting) node.ConfigObj).Apply();
-    }
-
     protected static void SaveNodeAction(IConfigurationNode node)
     {
       ConfigSetting cs = node.ConfigObj as ConfigSetting;
@@ -88,11 +80,6 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     #endregion
 
     #region Public methods
-
-    public void Apply()
-    {
-      _root.ForEach(ApplyNodeAction, true);
-    }
 
     public void SaveSettings()
     {

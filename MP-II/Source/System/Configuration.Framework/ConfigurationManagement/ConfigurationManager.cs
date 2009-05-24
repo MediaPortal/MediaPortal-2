@@ -124,12 +124,6 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       Dispose();
     }
 
-    public void Apply()
-    {
-      CheckInitialized();
-      _tree.Apply();
-    }
-
     public void Load()
     {
       Initialize();

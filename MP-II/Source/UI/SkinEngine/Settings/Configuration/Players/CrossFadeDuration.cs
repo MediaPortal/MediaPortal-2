@@ -24,30 +24,26 @@
 #endregion
 
 using MediaPortal.Configuration.ConfigurationClasses;
-using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.Services.Players.Settings;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance
+namespace MediaPortal.SkinEngine.Settings.Configuration.Players
 {
-  /// <summary>
-  /// Configuration setting class to change the fullscreen setting.
-  /// </summary>
-  public class Fullscreen : YesNo
+  public class CrossFadeDuration : NumberSelect
   {
     #region Public Methods
 
     public override void Load()
     {
-      _yes = SettingsManager.Load<AppSettings>().FullScreen;
+      _type = NumberType.FloatingPoint;
+      _step = 0.1;
+      _value = SettingsManager.Load<FadingSettings>().CrossFadeDuration;
     }
 
     public override void Save()
     {
-      IScreenControl sc = ServiceScope.Get<IScreenControl>();
-      if (_yes)
-        sc.SwitchMode(ScreenMode.FullScreenWindowed);
-      else
-        sc.SwitchMode(ScreenMode.NormalWindowed);
+      FadingSettings settings = SettingsManager.Load<FadingSettings>();
+      settings.CrossFadeDuration = (float) _value;
+      SettingsManager.Save(settings);
     }
 
     #endregion

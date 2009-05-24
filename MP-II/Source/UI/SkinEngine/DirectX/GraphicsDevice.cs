@@ -153,8 +153,7 @@ namespace MediaPortal.SkinEngine
     /// </summary>
     /// <param name="exclusiveMode">If set to <c>true</c> then use DirectX exclusive mode
     /// else DirectX windowed mode.</param>
-    /// <param name="displaySetting">Mode to set on the DirectX device.</param>
-    public static bool Reset(bool exclusiveMode, string displaySetting)
+    public static bool Reset(bool exclusiveMode)
     {
       ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
       if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
@@ -162,7 +161,7 @@ namespace MediaPortal.SkinEngine
         if (_backBuffer != null)
           _backBuffer.Dispose();
         _backBuffer = null;
-        _setup.SwitchExlusiveOrWindowed(exclusiveMode, displaySetting);
+        _setup.SwitchExlusiveOrWindowed(exclusiveMode, DesktopDisplayMode);
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,

@@ -31,17 +31,8 @@ namespace MediaPortal.Presentation.Screens
   {
     NormalWindowed,
     FullScreenWindowed,
+    // FIXME Albert: Still needed?
     ExclusiveMode
-  };
-
-  public enum FPS
-  {
-    None, // Used setting ScreenMode to NormalWindowed or NormalWindowed
-    FPS_24, // Used for 24 FPS film material in ExclusiveMode
-    FPS_25, // Used for 25 FPS film material in ExclusiveMode
-    FPS_30, // Used for 30 FPS film material in ExclusiveMode
-    Default, // Used for unknow FPS film material in ExclusiveMode
-    Desktop // Used for GUI in ExclusiveMode
   };
 
   public interface IScreenControl
@@ -53,8 +44,7 @@ namespace MediaPortal.Presentation.Screens
     /// Switches between diffrent sceen modes.
     /// </summary>
     /// <param name="mode">The requested mode</param>
-    /// <param name="fps">FPS of material to show, only valid when mode is ExclusiveMode</param>
-    void SwitchMode(ScreenMode mode, FPS fps);
+    void SwitchMode(ScreenMode mode);
 
     /// <summary>
     /// returns if application is fullscreen mode or in windowed mode
@@ -65,14 +55,6 @@ namespace MediaPortal.Presentation.Screens
     bool IsFullScreen { get; }
 
     /// <summary>
-    /// set / get if refresh rate control is enabled
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if enabled; otherwise, <c>false</c>.
-    /// </value>
-    bool RefreshRateControlEnabled { get; set;}
-
-    /// <summary>
     /// Returns available display modes
     /// </summary>
     IList<string> DisplayModes { get; }
@@ -81,18 +63,5 @@ namespace MediaPortal.Presentation.Screens
     /// Returns the window handle of the main window.
     /// </summary>
     IntPtr MainWindowHandle { get; }
-
-    /// <summary>
-    /// Sets the display mode for a give frame rate
-    /// </summary>
-    /// <param name="fps">The frame rate to set</param>
-    /// <param name="displaymode">The display mode for the frame rate</param>
-    void SetDisplayMode(FPS fps, string displaymode);
-
-    /// <summary>
-    /// Get the display mode for a give frame rate
-    /// </summary>
-    /// <param name="fps">The frame rate</param>
-    string GetDisplayMode(FPS fps);
   }
 }

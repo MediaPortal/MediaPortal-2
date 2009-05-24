@@ -107,23 +107,9 @@ namespace MediaPortal.Configuration
     public virtual void Load() { }
 
     /// <summary>
-    /// Saves the setting to the underlaying setting. The setting can be loaded from the
-    /// <see cref="ISettingsManager"/> service, changed, and saved again at the
-    /// <see cref="ISettingsManager"/> service.
+    /// Applies and saves the setting in the application.
     /// </summary>
-    /// <remarks>
-    /// This method should not apply the setting to the system, as the <see cref="Apply"/> method will
-    /// also be called. The <see cref="Apply"/> method will be called after this method was called.
-    /// </remarks>
     public virtual void Save() { }
-
-    /// <summary>
-    /// Applies the setting in the application.
-    /// </summary>
-    /// <remarks>
-    /// Before this method is called, method <see cref="Save"/> will be called.
-    /// </remarks>
-    public virtual void Apply() { }
 
     /// <summary>
     /// Registers this instance to the <see cref="Changed"/> of the <paramref name="other"/>

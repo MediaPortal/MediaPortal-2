@@ -79,15 +79,6 @@ namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
 
     public override void Save()
     {
-      if (_currentSkinName == null)
-        return;
-      SkinSettings settings = SettingsManager.Load<SkinSettings>();
-      settings.Skin = _currentSkinName;
-      SettingsManager.Save(settings);
-    }
-
-    public override void Apply()
-    {
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       if (screenManager == null)
         return;

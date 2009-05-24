@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Settings
     /// This is a convenience method for <see cref="Load(Type)"/>.
     /// </summary>
     /// <typeparam name="SettingsType">Type of the settings object to load.</typeparam>
-    /// <returns>Application settings of the specified <typeparamref name="SettingsType"/>, if
+    /// <returns>Loaded Application settings of the specified <typeparamref name="SettingsType"/>, if
     /// present. Else, returns an empty instance of that type.</returns>
     SettingsType Load<SettingsType>() where SettingsType: class;
 
@@ -57,7 +57,7 @@ namespace MediaPortal.Core.Settings
     /// Retrieves an object's public properties from the application's settings store.
     /// </summary>
     /// <param name="settingsType">Type of settings to load.</param>
-    /// <returns>Application settings of the specified <paramref name="settingsType"/>, if
+    /// <returns>Loaded Application settings of the specified <paramref name="settingsType"/>, if
     /// present. Else, returns an empty instance of that type.</returns>
     object Load(Type settingsType);
 

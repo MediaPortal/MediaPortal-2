@@ -169,7 +169,7 @@
     <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
-    <Compile Include="Services\Players\Settings\PlayerSettings.cs" />
+    <Compile Include="Services\Players\Settings\FadingSettings.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />

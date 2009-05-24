@@ -40,10 +40,6 @@ namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
       SkinBaseSettings settings = SettingsManager.Load<SkinBaseSettings>();
       settings.TimeFormat = _value;
       SettingsManager.Save(settings);
-    }
-
-    public override void Apply()
-    {
       SkinMessaging.SendSkinMessage(SkinMessaging.NotificationType.DateTimeFormatChanged);
     }
 

@@ -24,7 +24,10 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Core;
+using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Geometries;
+using MediaPortal.SkinEngine.Settings;
 
 namespace MediaPortal.SkinEngine.Geometry
 {
@@ -48,6 +51,11 @@ namespace MediaPortal.SkinEngine.Geometry
       Add(new GeometryLetterBox());
       Add(new GeometryPanAndScan());
       Add(new GeometryIntelligentZoom());
+      PlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PlayerSettings>();
+      string defaultGeometry = settings.DefaultGeometry;
+      foreach (IGeometry geometry in _availableGeometries.Values)
+        if (geometry.Name == defaultGeometry)
+          _defaultVideoGeometry = geometry;
     }
 
     public void Add(IGeometry geometry)
@@ -67,8 +75,12 @@ namespace MediaPortal.SkinEngine.Geometry
       {
         bool changed = _defaultVideoGeometry != value;
         _defaultVideoGeometry = value;
+        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+        PlayerSettings settings = settingsManager.Load<PlayerSettings>();
+        settings.DefaultGeometry = _defaultVideoGeometry == null ? null : _defaultVideoGeometry.Name;
         if (changed)
           PlayerGeometryMessaging.SendGeometryChangedMessage(PlayerGeometryMessaging.ALL_PLAYERS);
+        settingsManager.Save(settings);
       }
     }
 

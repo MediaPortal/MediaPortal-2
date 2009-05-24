@@ -3,5 +3,8 @@
   <Section Name="Configuration">
     <String Name="Name" Text="Settings"/>
     <String Name="MainSettings" Text="Main settings"/> <!-- 2nd Header for root configuration section -->
+
+    <String Name="ErrorFloatingPointValue" Text="'{0}' is not a valid floating point number"/>
+    <String Name="ErrorIntegerValue" Text="'{0}' is not a valid integer number"/>
   </Section>
 </Language>

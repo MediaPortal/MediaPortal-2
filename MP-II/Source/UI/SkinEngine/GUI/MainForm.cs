@@ -65,7 +65,6 @@ namespace MediaPortal.SkinEngine.GUI
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
     private bool _hasFocus = false;
-    private string _displaySetting;
     private ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
@@ -106,7 +105,6 @@ namespace MediaPortal.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Initialize DirectX");
       _directX = new GraphicsDevice(this, appSettings.FullScreen);
 
-      _displaySetting = GraphicsDevice.DesktopDisplayMode;
       Application.Idle += OnApplicationIdle;
     }
 
@@ -377,7 +375,7 @@ namespace MediaPortal.SkinEngine.GUI
 
         if (WindowState != FormWindowState.Minimized)
         {
-          GraphicsDevice.Reset((_mode == ScreenMode.ExclusiveMode), _displaySetting);
+          GraphicsDevice.Reset(_mode == ScreenMode.ExclusiveMode);
 
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread_Async();
@@ -397,46 +395,17 @@ namespace MediaPortal.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Running");
     }
 
-    public void SwitchMode(ScreenMode mode, FPS fps)
+    public void SwitchMode(ScreenMode mode)
     {
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: SwitchMode({0}, {1})", mode, fps);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: SwitchMode({0})", mode);
       bool oldFullscreen = IsFullScreen;
       bool newFullscreen = (mode == ScreenMode.ExclusiveMode) || (mode == ScreenMode.FullScreenWindowed);
-      string displaySetting;
       AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
-      // Get the display setting
-      switch (fps)
-      {
-        case FPS.FPS_24:
-          displaySetting = settings.FPS24;
-          break;
-        case FPS.FPS_25:
-          displaySetting = settings.FPS25;
-          break;
-        case FPS.FPS_30:
-          displaySetting = settings.FPS30;
-          break;
-        case FPS.Default:
-          displaySetting = settings.FPSDefault;
-          break;
-        case FPS.Desktop:
-          displaySetting = GraphicsDevice.DesktopDisplayMode;
-          break;
-        default:
-          displaySetting = null;
-          break;
-      }
-
-      // Fallback if nothing is found
-      if (string.IsNullOrEmpty(displaySetting))
-        displaySetting = GraphicsDevice.DesktopDisplayMode;
-
       // Already done, no need to do it twice
-      if (mode == _mode && _displaySetting == displaySetting)
+      if (mode == _mode)
         return;
 
-      _displaySetting = displaySetting;
       _mode = mode;
 
       settings.FullScreen = newFullscreen;
@@ -472,10 +441,10 @@ namespace MediaPortal.SkinEngine.GUI
       Update();
       Activate();
 
-      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}, displaySetting = {2}", newFullscreen, mode, displaySetting);
+      ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}", newFullscreen, mode);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
-      GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode, displaySetting);
+      GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode);
 
       PlayersHelper.ReallocGUIResources();
 
@@ -498,22 +467,6 @@ namespace MediaPortal.SkinEngine.GUI
       set { _isScreenSaverEnabled = value; }
     }
 
-    public bool RefreshRateControlEnabled
-    {
-      get
-      {
-        AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
-
-        return settings.RefreshRateControl;
-      }
-      set
-      {
-        AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
-        settings.RefreshRateControl = value;
-        ServiceScope.Get<ISettingsManager>().Save(settings);
-      }
-    }
-
     public IList<string> DisplayModes
     {
       get
@@ -528,47 +481,6 @@ namespace MediaPortal.SkinEngine.GUI
     public IntPtr MainWindowHandle
     {
       get { return Handle; }
-    }
-
-    public void SetDisplayMode(FPS fps, string displaymode)
-    {
-      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
-
-      switch (fps)
-      {
-        case FPS.FPS_24:
-          settings.FPS24 = displaymode;
-          break;
-        case FPS.FPS_25:
-          settings.FPS25 = displaymode;
-          break;
-        case FPS.FPS_30:
-          settings.FPS30 = displaymode;
-          break;
-        case FPS.Default:
-          settings.FPSDefault = displaymode;
-          break;
-      }
-      ServiceScope.Get<ISettingsManager>().Save(settings);
-    }
-
-    public string GetDisplayMode(FPS fps)
-    {
-      AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
-
-      switch (fps)
-      {
-        case FPS.FPS_24:
-          return settings.FPS24;
-        case FPS.FPS_25:
-          return settings.FPS25;
-        case FPS.FPS_30:
-          return settings.FPS30;
-        case FPS.Default:
-          return settings.FPSDefault;
-        default:
-          throw new ArgumentException("Illegal frame rate");
-      }
     }
 
     protected static string ToString(DisplayMode mode)

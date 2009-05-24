@@ -134,6 +134,7 @@ namespace UiComponents.Configuration
       Register(new EntryController());
       Register(new SingleSelectionListController());
       Register(new MultiSelectionListController());
+      Register(new NumberSelectController());
       // More generic controller types go here
 
       _workflowConfigurationController = new WorkflowConfigurationController();
@@ -343,7 +344,7 @@ namespace UiComponents.Configuration
           if (IsSettingSupported((ConfigSetting) childNode.ConfigObj))
             result++;
         }
-        else if (childNode.ConfigObj is ConfigGroup)
+        else if (childNode.ConfigObj is ConfigGroup || childNode.ConfigObj is ConfigSection)
           result += NumSettingsSupported(childNode);
       }
       return result;
@@ -409,6 +410,7 @@ namespace UiComponents.Configuration
         // This is an error case, should not happen
         return;
       AddConfigSettings(currentNode, _configSettingsList);
+      _configSettingsList.FireChange();
     }
 
     /// <summary>
@@ -442,7 +444,9 @@ namespace UiComponents.Configuration
       else
         HeaderText = currentNode.ConfigObj.Text.Evaluate();
       _currentLocation = configLocation;
-      _configSettingsList = new ItemsList(); // Break references to old GUI screens by creating a new list (can be removed as soon as weak references are used in the change events of ItemsList)
+      // We need to create a new items list instance because the old GUI screen is still showing the old items list and we don't
+      // want to update it
+      _configSettingsList = new ItemsList();
       UpdateConfigSettings();
     }
 

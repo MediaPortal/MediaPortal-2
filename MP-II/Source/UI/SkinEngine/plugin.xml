@@ -30,6 +30,14 @@
     <Resource Id="SkinEngineSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
   <!-- Contents of '/Appearance' section -->
   <Register Location="/Configuration/Settings/Appearance">
     <ConfigGroup
@@ -73,5 +81,39 @@
         HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help]"
         ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigSetting"
         AdditionalTypes="CustomConfigController=MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigurationController,ConfAppPanel=..."/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+        Id="Rendering"
+        Redundant="true"
+        Text="[Settings.Players.Rendering]"/>
+  </Register>
+
+  <!-- Contents of '/Players/Rendering' section -->
+  <Register Location="/Configuration/Settings/Players/Rendering">
+    <ConfigGroup
+        Id="CrossFading"
+        Redundant="true"
+        Text="[Settings.Players.Rendering.CrossFading]"/>
+    <ConfigSetting
+        Id="DefaultGeometry"
+        Text="[Settings.Players.Rendering.DefaultGeometry]"
+        HelpText="[Settings.Players.Rendering.DefaultGeometry.Help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Players.DefaultGeometry"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Rendering/CrossFading">
+    <ConfigSetting
+        Id="CrossFadingEnabled"
+        Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
+        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Players.CrossFadingEnabled"/>
+    <ConfigSetting
+        Id="CrossFadeDuration"
+        Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
+        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
+        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Players.CrossFadeDuration"/>
   </Register>
 </Plugin>

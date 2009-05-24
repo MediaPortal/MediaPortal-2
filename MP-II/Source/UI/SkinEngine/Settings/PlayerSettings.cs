@@ -24,32 +24,17 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.Players.Settings
+namespace MediaPortal.SkinEngine.Settings
 {
   public class PlayerSettings
   {
-    #region Protected properties
+    string _defaultGeometry;
 
-    protected bool _crossFading = false;
-    protected float _crossFadeDuration = 3.0f;
-
-    #endregion
-
-    [Setting(SettingScope.User)]
-    public bool CrossFading
+    [Setting(SettingScope.User, Geometry.GeometryNormal.NAME)]
+    public string DefaultGeometry
     {
-      get { return _crossFading; }
-      set { _crossFading = value; }
-    }
-
-    /// <summary>
-    /// Duration of crossfading in seconds.
-    /// </summary>
-    [Setting(SettingScope.User)]
-    public float CrossFadeDuration
-    {
-      get { return _crossFadeDuration; }
-      set { _crossFadeDuration = value; }
+      get { return _defaultGeometry; }
+      set { _defaultGeometry = value; }
     }
   }
 }
