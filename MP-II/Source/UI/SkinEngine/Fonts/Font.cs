@@ -661,8 +661,9 @@ namespace MediaPortal.SkinEngine.Fonts
         double width = c.Width * sizeScale;
         double height = c.Height * sizeScale;
 
-        // Albert: The following check makes texts disappear under certain circumstances, see Mantis #1676.
         // TODO: We need to rework this complicated Font code.
+
+        // Albert: The following check makes texts disappear under certain circumstances, see Mantis #1676.
         // Check vertical bounds
         //if (y + yOffset + height > b.TextBox.Bottom)
         //  break;
