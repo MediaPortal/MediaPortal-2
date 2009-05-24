@@ -405,6 +405,7 @@ xcopy /Y /S "$(ProjectDir)Language\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(Ou
 mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
 xcopy /Y /S "$(ProjectDir)Skin\*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Skin"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-</PostBuildEvent>
+mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Resources\ConfigurationImages"
+xcopy /Y /S "$(ProjectDir)Resources\ConfigurationImages\*"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Resources\ConfigurationImages"</PostBuildEvent>
   </PropertyGroup>
 </Project>

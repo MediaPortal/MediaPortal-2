@@ -43,8 +43,8 @@
         Id="Appearance"
         Redundant="true"
         Text="[Settings.Appearance]"
-        IconSmallPath="Images\skin-22.png"
-        IconLargePath="Images\skin-48.png"/>
+        IconSmallPath="Resources\ConfigurationImages\skin-22.png"
+        IconLargePath="Resources\ConfigurationImages\skin-48.png"/>
     <ConfigSection
         Id="General"
         Redundant="true"
