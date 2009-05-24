@@ -329,6 +329,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       if (Screen != null) Screen.Invalidate(this);
       _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
       base.Arrange(finalRect);
+      _updateRenderOrder = true;
     }
 
     private void InvokeScrolled()
@@ -449,31 +450,46 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       base.MakeVisible(element, elementBounds);
     }
 
+    public override bool IsChildVisibleAt(UIElement child, float x, float y)
+    {
+      if (!child.IsInArea(x, y) || !IsInVisibleArea(x, y))
+        return false;
+      RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
+      // Check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
+      RectangleF bounds = ActualBounds;
+      if (elementBounds.Right > bounds.Right) return false;
+      if (elementBounds.Left < bounds.Left) return false;
+      if (elementBounds.Top < bounds.Top) return false;
+      if (elementBounds.Bottom > bounds.Bottom) return false;
+      return true;
+    }
+
     #endregion
 
     #region Rendering
 
-    protected override void RenderChildren()
+    protected override void UpdateRenderOrder()
     {
-      // FIXME Alber: Remove lock statement here?
-      lock (_orientationProperty)
+      if (!_updateRenderOrder) return;
+      _updateRenderOrder = false;
+      if (_renderOrder == null || Children == null)
+        return;
+      _renderOrder.Clear();
+      RectangleF bounds = ActualBounds;
+      foreach (FrameworkElement element in Children)
       {
-        RectangleF bounds = ActualBounds;
-        foreach (FrameworkElement element in _renderOrder)
+        if (!element.IsVisible)
+          continue;
+        if (_canScroll)
         {
-          if (!element.IsVisible) 
-            continue;
           RectangleF elementBounds = element.ActualBounds;
-          if (_canScroll)
-          {
-            // Don't render elements which are not visible, if we can scroll
-            if (elementBounds.Right > bounds.Right) continue;
-            if (elementBounds.Left < bounds.Left) continue;
-            if (elementBounds.Top < bounds.Top) continue;
-            if (elementBounds.Bottom > bounds.Bottom) continue;
-          }
-          element.Render();
+          // Don't render elements which are not visible, if we can scroll
+          if (elementBounds.Right > bounds.Right) continue;
+          if (elementBounds.Left < bounds.Left) continue;
+          if (elementBounds.Top < bounds.Top) continue;
+          if (elementBounds.Bottom > bounds.Bottom) continue;
         }
+        _renderOrder.Add(element);
       }
     }
 

@@ -620,9 +620,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         {
           IsMouseOver = true;
           FireEvent(MOUSEENTER_EVENT);
+          if (!HasFocus && IsInVisibleArea(x, y))
+            TrySetFocus();
         }
-        if (!HasFocus && IsInVisibleArea(x, y))
-          TrySetFocus();
       }
       else
       {
@@ -639,10 +639,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public override bool IsInVisibleArea(float x, float y)
     {
-      if (x < ActualPosition.X || x > ActualPosition.X + ActualWidth ||
-          y < ActualPosition.Y || y > ActualPosition.Y + ActualHeight)
+      if (!IsInArea(x, y))
         return false;
-      return (VisualParent is UIElement) ? ((UIElement) VisualParent).IsInVisibleArea(x, y) : true;
+      UIElement parent = VisualParent as UIElement;
+      if (parent != null)
+        return parent.IsChildVisibleAt(this, x, y);
+      return true;
+    }
+
+    public override bool IsInArea(float x, float y)
+    {
+      return x >= ActualPosition.X && x <= ActualPosition.X + ActualWidth &&
+          y >= ActualPosition.Y && y <= ActualPosition.Y + ActualHeight;
     }
 
     #region Focus & control predicition

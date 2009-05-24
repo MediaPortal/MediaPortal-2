@@ -720,6 +720,29 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
+    /// Returns the information if the specified (absolute) coordinates lay in this element's range.
+    /// </summary>
+    /// <param name="x">Absolute X-coordinate.</param>
+    /// <param name="y">Absolute Y-coordinate.</param>
+    /// <returns><c>true</c> if the specified coordinates lay in this element's range.</returns>
+    public virtual bool IsInArea(float x, float y)
+    {
+      return false;
+    }
+
+    /// <summary>
+    /// Returns the information if the specified (absolute) coordinates lay in the specified child's visible range.
+    /// </summary>
+    /// <param name="child">The child to check.</param>
+    /// <param name="x">Absolute X-coordinate.</param>
+    /// <param name="y">Absolute Y-coordinate.</param>
+    /// <returns><c>true</c> if the specified coordinates lay in the specified child's visible range.</returns>
+    public virtual bool IsChildVisibleAt(UIElement child, float x, float y)
+    {
+      return child.IsInArea(x, y) && IsInVisibleArea(x, y);
+    }
+
+    /// <summary>
     /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
     /// </summary>
     /// <remarks>

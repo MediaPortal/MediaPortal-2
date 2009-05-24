@@ -218,8 +218,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     protected virtual void RenderChildren()
     {
       foreach (UIElement element in _renderOrder)
-        if (element.IsVisible)
-          element.Render();
+        element.Render();
     }
 
     public void Update()
@@ -329,7 +328,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
     }
 
-    protected void UpdateRenderOrder()
+    protected virtual void UpdateRenderOrder()
     {
       if (!_updateRenderOrder) return;
       _updateRenderOrder = false;
@@ -338,7 +337,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         Children.FixZIndex();
         _renderOrder.Clear();
         foreach (UIElement element in Children)
-          _renderOrder.Add(element);
+          if (element.IsVisible)
+            _renderOrder.Add(element);
         _renderOrder.Sort(new ZOrderComparer());
       }
     }
@@ -355,6 +355,26 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       base.AddChildren(childrenOut);
       CollectionUtils.AddAll(childrenOut, Children);
+    }
+
+    public override bool IsChildVisibleAt(UIElement child, float x, float y)
+    {
+      if (!IsInVisibleArea(x, y) || !child.IsInArea(x, y))
+        return false;
+      IList<UIElement> children = new List<UIElement>(GetChildren());
+      // Iterate from last to first to find elements which are located on top
+      for (int i = children.Count - 1; i <= 0; i--)
+      {
+        UIElement current = children[i];
+        if (!current.IsVisible)
+          continue;
+        if (current == child)
+          // Found our search target, all other children are located under the child so we can stop here
+          break;
+        if (current.IsInArea(x, y))
+          return false;
+      }
+      return true;
     }
 
     public override void Deallocate()
