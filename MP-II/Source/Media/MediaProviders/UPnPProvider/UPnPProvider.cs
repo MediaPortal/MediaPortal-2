@@ -111,13 +111,11 @@ namespace Media.Providers.UpNpProvider
       }
       if (sendMsg)
       {
-        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        IMessageQueue queue = broker.GetOrCreate(MEDIAMANAGERQUEUE_NAME);
         QueueMessage msg = new QueueMessage();
         msg.MessageData["action"] = "changed";
         msg.MessageData["fullpath"] = "/";
         msg.MessageData["container"] = this;
-        queue.Send(msg);
+        ServiceScope.Get<IMessageBroker>().Send(MEDIAMANAGERQUEUE_NAME, msg);
       }
     }
 

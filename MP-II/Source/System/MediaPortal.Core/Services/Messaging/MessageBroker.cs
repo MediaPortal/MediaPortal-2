@@ -23,7 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.Messaging
 {
@@ -31,40 +33,18 @@ namespace MediaPortal.Core.Services.Messaging
   {
     #region Protected fields
 
-    protected IDictionary<string, IMessageQueue> _queues;
+    protected IDictionary<string, Queue> _queues = new Dictionary<string, Queue>();
     protected object _syncObj = new object();
+    protected bool _shuttingDown = false;
 
     #endregion
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MessageBroker"/> class.
-    /// </summary>
-    public MessageBroker()
-    {
-      _queues = new Dictionary<string, IMessageQueue>();
-    }
-
-    #region IMessageBroker implementation
-
-    public ICollection<string> Queues
-    {
-      get 
-      {
-        lock (_syncObj)
-        {
-          ICollection<string> queueNames = new List<string>();
-          IEnumerator<KeyValuePair<string, IMessageQueue>> enumer = _queues.GetEnumerator();
-          while (enumer.MoveNext())
-            queueNames.Add(enumer.Current.Key);
-          return queueNames;
-        }
-      }
-    }
-
-    public IMessageQueue GetOrCreate(string queueName)
+    public Queue GetOrCreate(string queueName)
     {
       lock (_syncObj)
       {
+        if (_shuttingDown)
+          throw new IllegalCallException("The MessageBroker is shutting down, no more message queues can be created");
         if (!_queues.ContainsKey(queueName))
         {
           Queue q = new Queue(queueName);
@@ -74,12 +54,81 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
+    #region IMessageBroker implementation
+
+    public ICollection<string> Queues
+    {
+      get 
+      {
+        lock (_syncObj)
+          return new List<string>(_queues.Keys);
+      }
+    }
+
+    public void Register_Sync(string queueName, MessageReceivedHandler handler)
+    {
+      lock (_syncObj)
+      {
+        if (_shuttingDown)
+          return;
+        GetOrCreate(queueName).MessageReceived_Sync += handler;
+      }
+    }
+
+    public void Unregister_Sync(string queueName, MessageReceivedHandler handler)
+    {
+      lock (_syncObj)
+      {
+        if (_shuttingDown)
+          return;
+        GetOrCreate(queueName).MessageReceived_Sync -= handler;
+      }
+    }
+
+    public void Register_Async(string queueName, MessageReceivedHandler handler)
+    {
+      lock (_syncObj)
+      {
+        if (_shuttingDown)
+          return;
+        GetOrCreate(queueName).MessageReceived_Async += handler;
+      }
+    }
+
+    public void Unregister_Async(string queueName, MessageReceivedHandler handler)
+    {
+      lock (_syncObj)
+      {
+        if (_shuttingDown)
+          return;
+        GetOrCreate(queueName).MessageReceived_Async -= handler;
+      }
+    }
+
+    public void Send(string queueName, QueueMessage msg)
+    {
+      Queue queue;
+      lock (_syncObj)
+      {
+        if (_shuttingDown)
+        {
+          ServiceScope.Get<ILogger>().Warn("Trying to send a message while message broker is still shutting down (Queue = '{0}', MessageData = {1}", queueName, msg.MessageData);
+          return;
+        }
+        queue = GetOrCreate(queueName);
+      }
+      queue.Send(msg);
+    }
+
     public void Shutdown()
     {
-      ICollection<IMessageQueue> queuesCopy;
+      ICollection<Queue> queuesCopy;
       lock (_syncObj)
-        queuesCopy = new List<IMessageQueue>(_queues.Values);
-      foreach (IMessageQueue queue in queuesCopy)
+      {
+        _shuttingDown = true;
+        queuesCopy = new List<Queue>(_queues.Values);
+      }
+      foreach (Queue queue in queuesCopy)
         queue.Shutdown();
     }
 

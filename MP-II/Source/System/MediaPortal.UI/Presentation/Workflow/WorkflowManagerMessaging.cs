@@ -76,11 +76,10 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="stateId">Workflow state id of the new state.</param>
     public static void SendStatePushedMessage(Guid stateId)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.StatePushed;
       msg.MessageData[PARAM] = stateId;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
 
     /// <summary>
@@ -89,19 +88,17 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="numStates">Number of states which were popped.</param>
     public static void SendStatesPoppedMessage(int numStates)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.StatesPopped;
       msg.MessageData[PARAM] = numStates;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
 
     public static void SendNavigationCompleteMessage()
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.NavigationComplete;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

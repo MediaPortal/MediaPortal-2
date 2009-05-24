@@ -68,7 +68,7 @@ namespace MediaPortal.Services.Players
     protected void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived_Async;
+      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived_Async);
     }
 
     protected void UnsubscribeFromMessages()
@@ -76,7 +76,7 @@ namespace MediaPortal.Services.Players
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
       if (broker == null)
         return;
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived_Async;
+      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived_Async);
     }
 
     protected void OnPlayerManagerMessageReceived_Async(QueueMessage message)

@@ -363,11 +363,10 @@ namespace Components.Services.ImporterManager
 
     protected static void SendImporterQueueMessage(string action, string folder)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(IMPORTERSQUEUE_NAME);
       QueueMessage msg = new QueueMessage();
       msg.MessageData["action"] = action;
       msg.MessageData["folder"] = folder;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(IMPORTERSQUEUE_NAME, msg);
     }
 
     /// <summary>

@@ -42,10 +42,9 @@ namespace MediaPortal.General
 
     public static void BroadcastWindowsMessage(ref Message message)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE] = message;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
       // Copy message back to the ref message
       message = (Message) msg.MessageData[MESSAGE];
     }

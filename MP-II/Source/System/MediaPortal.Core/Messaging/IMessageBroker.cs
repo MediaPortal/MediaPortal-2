@@ -26,6 +26,8 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Core.Messaging
 {
+  public delegate void MessageReceivedHandler(QueueMessage message);
+
   /// <summary>
   /// Registration for all system message queues.
   /// </summary>
@@ -41,11 +43,43 @@ namespace MediaPortal.Core.Messaging
     ICollection<string> Queues { get;}
 
     /// <summary>
-    /// Get the message queue with the specified name.
+    /// Registers the specified synchronous message <paramref name="handler"/> at the queue with the specified
+    /// <paramref name="queueName"/>.
     /// </summary>
-    /// <param name="queueName">The name of the queue to return.</param>
-    /// <returns>The queue with the specified name.</returns>
-    IMessageQueue GetOrCreate(string queueName);
+    /// <param name="queueName">Name of the queue to register the handler.</param>
+    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
+    void Register_Sync(string queueName, MessageReceivedHandler handler);
+
+    /// <summary>
+    /// Unregisters the specified synchronous message <paramref name="handler"/> at the queue with the specified
+    /// <paramref name="queueName"/>.
+    /// </summary>
+    /// <param name="queueName">Name of the queue to register the handler.</param>
+    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
+    void Unregister_Sync(string queueName, MessageReceivedHandler handler);
+
+    /// <summary>
+    /// Registers the specified asynchronous message <paramref name="handler"/> at the queue with the specified
+    /// <paramref name="queueName"/>.
+    /// </summary>
+    /// <param name="queueName">Name of the queue to register the handler.</param>
+    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
+    void Register_Async(string queueName, MessageReceivedHandler handler);
+
+    /// <summary>
+    /// Unregisters the specified asynchronous message <paramref name="handler"/> at the queue with the specified
+    /// <paramref name="queueName"/>.
+    /// </summary>
+    /// <param name="queueName">Name of the queue to register the handler.</param>
+    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
+    void Unregister_Async(string queueName, MessageReceivedHandler handler);
+
+    /// <summary>
+    /// Sends the specified message in the queue of the specified <paramref name="queueName"/>.
+    /// </summary>
+    /// <param name="queueName">Name of the queue to be used for sending the message.</param>
+    /// <param name="msg">Message to send.</param>
+    void Send(string queueName, QueueMessage msg);
 
     /// <summary>
     /// Shuts the message broker down. No more messages can be delivered after this method was called.

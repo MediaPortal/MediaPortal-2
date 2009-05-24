@@ -158,10 +158,10 @@ namespace MediaPortal
         // 4) Shutdown PluginManager (Shuts down all plugins)
         // 5) Remove all services
         UiExtension.StopAll();
-        ApplicationCore.StopAll();
         skinEngine.Shutdown();
         workflowManager.Shutdown();
         pluginManager.Shutdown();
+        ApplicationCore.StopAll();
         UiExtension.DisposeUiServices();
         ApplicationCore.DisposeCoreServices();
 

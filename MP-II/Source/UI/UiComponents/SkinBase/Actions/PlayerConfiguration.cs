@@ -65,13 +65,13 @@ namespace UiComponents.SkinBase.Actions
     protected void SubscribeToMessages()
     {
       IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
+      messageBroker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
     }
 
     protected void UnsubscribeFromMessages()
     {
       IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
+      messageBroker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)

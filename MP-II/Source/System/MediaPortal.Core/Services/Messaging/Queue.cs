@@ -28,7 +28,14 @@ using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Core.Services.Messaging
 {
-  public class Queue : IMessageQueue
+  /// <summary>
+  /// <summary>
+  /// Named message queue to send messages through the system.
+  /// </summary>
+  /// <remarks>
+  /// This service is thread-safe.
+  /// </remarks>
+  public class Queue
   {
     #region Classes
 
@@ -116,7 +123,6 @@ namespace MediaPortal.Core.Services.Messaging
 
     #region Protected fields
 
-    protected IList<IMessageFilter> _filters = new List<IMessageFilter>();
     protected object _syncObj = new object();
     protected Thread _asyncThread = null; // Lazy initialized
     protected string _queueName;
@@ -157,25 +163,48 @@ namespace MediaPortal.Core.Services.Messaging
 
     #region IMessageQueue implementation
 
-    public event MessageReceivedHandler MessageReceived_Async;
-
+    /// <summary>
+    /// Delivers all queue messages synchronously.
+    /// </summary>
+    /// <remarks>
+    /// The sender might hold locks on its internal mutexes, so it absolutely necessary to not acquire any
+    /// multithreading locks while executing this event. If the callee needs to lock any locks, it MUST do this
+    /// asynchronous from this event.
+    /// </remarks>
     public event MessageReceivedHandler MessageReceived_Sync;
 
-    public IList<IMessageFilter> Filters
-    {
-      get { return _filters; }
-    }
+    /// <summary>
+    /// Delivers all queue messages asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// In contrast to <see cref="MessageReceived_Sync"/>, the callee can request any mutexes it needs in
+    /// this event.
+    /// </remarks>
+    public event MessageReceivedHandler MessageReceived_Async;
 
+    /// <summary>
+    /// Returns the name of this message queue.
+    /// </summary>
     public string Name
     {
       get { return _queueName; }
     }
 
-    public bool HasSubscribers
+    /// <summary>
+    /// Returns the information if this queue is already shut down.
+    /// </summary>
+    public bool IsShutdown
     {
-      get { return (MessageReceived_Sync != null); }
+      get
+      {
+        lock (_syncObj)
+          return _asyncThread == null;
+      }
     }
 
+    /// <summary>
+    /// Shuts this queue down. No more messages will be delivered.
+    /// </summary>
     public void Shutdown()
     {
       _asyncMessageSender.Terminate();
@@ -192,12 +221,10 @@ namespace MediaPortal.Core.Services.Messaging
 
     public void Send(QueueMessage message)
     {
-      message.MessageQueue = this;
-      foreach (IMessageFilter filter in _filters)
-      {
-        message = filter.Process(message);
-        if (message == null) return;
-      }
+      lock (_syncObj)
+        if (IsShutdown)
+          return;
+      message.MessageQueue = _queueName;
       // Send message synchronously...
       MessageReceivedHandler syncHandler = MessageReceived_Sync;
       if (syncHandler != null)

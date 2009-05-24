@@ -33,7 +33,7 @@ namespace UiComponents.SkinBase
   public static class SkinMessaging
   {
     // Message Queue name
-    public const string Queue = "SkinMessages";
+    public const string QUEUE = "SkinMessages";
 
     // Message data
     public const string Notification = "Notification"; // Notification stored as NotificationType
@@ -49,10 +49,9 @@ namespace UiComponents.SkinBase
     public static void SendSkinMessage(NotificationType notificationType)
     {
       // Send Startup Finished Message.
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(Queue);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[Notification] = notificationType;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

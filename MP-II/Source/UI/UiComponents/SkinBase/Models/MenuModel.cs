@@ -66,16 +66,16 @@ namespace UiComponents.SkinBase.Models
     void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Sync += OnWorkflowManagerMessageReceived_Sync;
-      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Async += OnWorkflowManagerMessageReceived_Async;
+      broker.Register_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
+      broker.Register_Async(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Async);
     }
 
     protected override void UnsubscribeFromMessages()
     {
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Sync -= OnWorkflowManagerMessageReceived_Sync;
-      broker.GetOrCreate(WorkflowManagerMessaging.QUEUE).MessageReceived_Async -= OnWorkflowManagerMessageReceived_Async;
+      broker.Unregister_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
+      broker.Unregister_Async(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Async);
     }
 
     public override Guid ModelId

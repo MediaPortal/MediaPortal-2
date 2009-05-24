@@ -71,7 +71,7 @@ namespace MediaPortal.Presentation.Models
     void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async += OnSystemMessageReceived;
+      broker.Register_Async(SystemMessaging.QUEUE, OnSystemMessageReceived);
 
       ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
       if (systemStateService.CurrentState == SystemState.Started)
@@ -85,7 +85,7 @@ namespace MediaPortal.Presentation.Models
     {
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(SystemMessaging.QUEUE).MessageReceived_Async -= OnSystemMessageReceived;
+      broker.Unregister_Async(SystemMessaging.QUEUE, OnSystemMessageReceived);
     }
 
     /// <summary>

@@ -250,8 +250,7 @@ namespace Components.Services.AutoPlay
       QueueMessage msg = new QueueMessage();
       msg.MessageData["drive"] = driveLetter;
       msg.MessageData["action"] = "Inserted";
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("autoplay");
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
 
       ExamineVolume(driveLetter);
     }
@@ -267,8 +266,7 @@ namespace Components.Services.AutoPlay
       QueueMessage msg = new QueueMessage();
       msg.MessageData["drive"] = driveLetter;
       msg.MessageData["action"] = "Removed";
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("autoplay");
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
     }
     #endregion
 
@@ -405,8 +403,7 @@ namespace Components.Services.AutoPlay
         _windowHandle = sc.MainWindowHandle;
         StartListening();
 
-        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-        queue.MessageReceived_Async -= OnPluginManagerMessageReceived;
+        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
       }
     }
 
@@ -416,8 +413,7 @@ namespace Components.Services.AutoPlay
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-      queue.MessageReceived_Async += OnPluginManagerMessageReceived;
+      ServiceScope.Get<IMessageBroker>().Register_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
     }
 
     public bool RequestEnd()

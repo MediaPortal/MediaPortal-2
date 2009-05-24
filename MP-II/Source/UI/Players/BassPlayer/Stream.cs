@@ -238,8 +238,7 @@ namespace Media.Players.BassPlayer
     private void AsyncMessageSend(object message)
     {
       QueueMessage msg = (QueueMessage)message;
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("bass");
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send("bass", msg);
     }
     #endregion
 

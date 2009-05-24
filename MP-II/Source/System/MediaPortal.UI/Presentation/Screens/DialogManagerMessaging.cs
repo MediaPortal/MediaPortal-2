@@ -51,11 +51,10 @@ namespace MediaPortal.Presentation.Screens
 
     public static void SendDialogManagerMessage(Guid dialogHandle, DialogResult result)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[DIALOG_HANDLE] = dialogHandle;
       msg.MessageData[DIALOG_RESULT] = result;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

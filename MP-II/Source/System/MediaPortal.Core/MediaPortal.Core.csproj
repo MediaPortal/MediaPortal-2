@@ -92,8 +92,6 @@
     <Compile Include="MediaManagement\MLQueries\IQuery.cs" />
     <Compile Include="MediaManagement\ShareDescriptor.cs" />
     <Compile Include="Messaging\IMessageBroker.cs" />
-    <Compile Include="Messaging\IMessageFilter.cs" />
-    <Compile Include="Messaging\IMessageQueue.cs" />
     <Compile Include="Messaging\QueueMessage.cs" />
     <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />

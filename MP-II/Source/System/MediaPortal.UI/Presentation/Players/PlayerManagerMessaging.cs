@@ -118,11 +118,10 @@ namespace MediaPortal.Presentation.Players
     /// <param name="slot">Slot of the specific player which was changed.</param>
     public static void SendPlayerMessage(MessageType type, int slot)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
 
     /// <summary>
@@ -133,11 +132,10 @@ namespace MediaPortal.Presentation.Players
     /// <param name="slot">Slot of the player which is involved.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type, int slot)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
       msg.MessageData[PARAM] = slot;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
 
     /// <summary>
@@ -147,10 +145,9 @@ namespace MediaPortal.Presentation.Players
     /// <param name="type">Type of the message.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = type;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

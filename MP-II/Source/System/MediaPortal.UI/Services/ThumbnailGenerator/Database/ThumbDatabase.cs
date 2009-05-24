@@ -64,8 +64,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
       _dbFilePath = dbFilePath;
       // FIXME: Don't observe the contentmanager queue here
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
-      queue.MessageReceived_Async += queue_OnMessageReceived;
+      msgBroker.Register_Async("contentmanager", queue_OnMessageReceived);
       Load();
     }
 

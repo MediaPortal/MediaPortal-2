@@ -52,12 +52,10 @@ namespace Media.Players.PicturePlayer
       _state = PlaybackState.Playing;
       _mediaItem = item;
       ServiceScope.Get<IScreenManager>().PrepareScreen("pictureviewer");
-      IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate(PICTUREVIEWERQUEUE_NAME);
       QueueMessage msg = new QueueMessage();
       msg.MessageData["action"] = "show";
       msg.MessageData["mediaitem"] = item;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(PICTUREVIEWERQUEUE_NAME, msg);
       ServiceScope.Get<IScreenManager>().ShowScreen("pictureviewer");
     }
 

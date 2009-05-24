@@ -33,7 +33,7 @@ namespace MediaPortal.Core.Messaging
   {
     #region Protected fields
 
-    protected IMessageQueue _queue;
+    protected string _queue;
     protected IDictionary<string, object> _metaData = new Dictionary<string, object>();
 
     #endregion
@@ -41,10 +41,9 @@ namespace MediaPortal.Core.Messaging
     #region Public properties
 
     /// <summary>
-    /// Gets or sets the queue this message will be send in.
+    /// Gets or sets the name of the queue this message is sent.
     /// </summary>
-    /// <value>The queue.</value>
-    public IMessageQueue MessageQueue 
+    public string MessageQueue 
     {
       get { return _queue; }
       set { _queue = value; }

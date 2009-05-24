@@ -59,11 +59,10 @@ namespace MediaPortal.Presentation.Geometries
     /// <see cref="PlayerGeometryMessaging.ALL_PLAYERS"/>, all player slots are affected.</param>
     public static void SendGeometryChangedMessage(int playerSlot)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[NOTIFICATION_TYPE] = NotificationType.GeometryChanged;
       msg.MessageData[PLAYER_SLOT] = playerSlot;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

@@ -49,15 +49,15 @@ namespace UiComponents.SkinBase
 
       // Install manager
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerManagerMessageReceived;
-      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived_Async += OnPlayerContextManagerMessageReceived;
+      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
+      broker.Register_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
     }
 
     internal void DoUninstall()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(PlayerManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerManagerMessageReceived;
-      broker.GetOrCreate(PlayerContextManagerMessaging.QUEUE).MessageReceived_Async -= OnPlayerContextManagerMessageReceived;
+      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
+      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)

@@ -65,14 +65,14 @@ namespace UiComponents.SkinBase.Models
     void SubscribeToMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(SkinMessaging.Queue).MessageReceived_Async += OnSkinMessageReceived;
+      broker.Register_Async(SkinMessaging.QUEUE, OnSkinMessageReceived);
     }
 
     protected override void UnsubscribeFromMessages()
     {
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.GetOrCreate(SkinMessaging.Queue).MessageReceived_Async -= OnSkinMessageReceived;
+      broker.Unregister_Async(SkinMessaging.QUEUE, OnSkinMessageReceived);
     }
 
     protected void ReadSettings()

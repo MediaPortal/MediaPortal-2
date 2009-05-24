@@ -33,6 +33,7 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.ContentManagement
 {
+  // FIXME Albert: make a real signleton object, implement a disposal method to unsubscribe from queue
   public class ContentManager
   {
     static public int TextureReferences = 0;
@@ -51,8 +52,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
     static ContentManager()
     {
       IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      IMessageQueue queue = msgBroker.GetOrCreate("contentmanager");
-      queue.MessageReceived_Async += queue_OnMessageReceived;
+      msgBroker.Register_Async("contentmanager", queue_OnMessageReceived);
     }
 
     static void queue_OnMessageReceived(QueueMessage message)

@@ -89,8 +89,7 @@ namespace MediaPortal.Services.Localization
     {
       _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
 
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-      queue.MessageReceived_Async += OnPluginManagerMessageReceived;
+      ServiceScope.Get<IMessageBroker>().Register_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
     }
 
     #endregion
@@ -233,8 +232,7 @@ namespace MediaPortal.Services.Localization
       {
         InitializeLanguageResources();
 
-        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(PluginManagerMessaging.QUEUE);
-        queue.MessageReceived_Async -= OnPluginManagerMessageReceived;
+        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
       }
     }
 

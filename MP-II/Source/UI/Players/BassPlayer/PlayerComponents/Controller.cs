@@ -380,8 +380,7 @@ namespace Media.Players.BassPlayer
         msg.MessageData["player"] = this;
         msg.MessageData["action"] = action;
 
-        IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("players-internal");
-        queue.Send(msg);
+        ServiceScope.Get<IMessageBroker>().Send("players-internal", msg);
       }
 
       /// <summary>

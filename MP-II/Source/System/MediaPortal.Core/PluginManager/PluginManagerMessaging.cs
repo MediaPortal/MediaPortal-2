@@ -62,12 +62,11 @@ namespace MediaPortal.Core.PluginManager
       Shutdown
     }
 
-    public static void SendPluginManagerMessage(PluginManagerMessaging.NotificationType notificationType)
+    public static void SendPluginManagerMessage(NotificationType notificationType)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[NOTIFICATION] = notificationType;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

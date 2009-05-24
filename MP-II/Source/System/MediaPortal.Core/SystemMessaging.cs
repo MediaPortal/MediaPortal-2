@@ -56,11 +56,10 @@ namespace MediaPortal.Core
     /// <param name="newState">The state the system will switch to.</param>
     public static void SendSystemStateChangeMessage(SystemState newState)
     {
-      IMessageQueue queue = ServiceScope.Get<IMessageBroker>().GetOrCreate(QUEUE);
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.SystemStateChanged;
       msg.MessageData[PARAM] = newState;
-      queue.Send(msg);
+      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
   }
 }

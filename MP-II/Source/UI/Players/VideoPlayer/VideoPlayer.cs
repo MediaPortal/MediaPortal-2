@@ -169,12 +169,12 @@ namespace Ui.Players.Video
 
     protected void SubscribeWindowsMessages()
     {
-      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived_Sync += OnWindowsMessageReceived;
+      ServiceScope.Get<IMessageBroker>().Register_Sync(WindowsMessaging.QUEUE, OnWindowsMessageReceived);
     }
 
     protected void UnsubscribeWindowsMessages()
     {
-      ServiceScope.Get<IMessageBroker>().GetOrCreate(WindowsMessaging.QUEUE).MessageReceived_Sync -= OnWindowsMessageReceived;
+      ServiceScope.Get<IMessageBroker>().Unregister_Sync(WindowsMessaging.QUEUE, OnWindowsMessageReceived);
     }
 
     protected virtual void OnWindowsMessageReceived(QueueMessage message)

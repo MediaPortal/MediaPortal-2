@@ -41,11 +41,6 @@ namespace MediaPortal.Core.Services.TaskScheduler
     #region Private fields
 
     /// <summary>
-    /// The "taskscheduler" message queue.
-    /// </summary>
-    private IMessageQueue _queue;
-    
-    /// <summary>
     /// The persistent settings used by the task scheduler
     /// </summary>
     private TaskSchedulerSettings _settings;
@@ -66,12 +61,11 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     public TaskScheduler()
     {
-      _queue = ServiceScope.Get<IMessageBroker>().GetOrCreate("taskscheduler");
       _settings = ServiceScope.Get<ISettingsManager>().Load <TaskSchedulerSettings>();
       SaveChanges(false);
 
       DoStartup();
-      _work = new IntervalWork(new DoWorkHandler(this.DoWork), new TimeSpan(0, 0, 20));
+      _work = new IntervalWork(DoWork, new TimeSpan(0, 0, 20));
       ServiceScope.Get<IThreadPool>().AddIntervalWork(_work, false);
     }
 
@@ -212,7 +206,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
       QueueMessage msg = new QueueMessage();
       msg.MessageData["taskmessage"] = message;
       // asynchronously send message through queue
-      ServiceScope.Get<IThreadPool>().Add(new Work(new DoWorkHandler(delegate() { _queue.Send(msg); })));
+      ServiceScope.Get<IThreadPool>().Add(new Work(() => ServiceScope.Get<IMessageBroker>().Send("taskscheduler", msg)));
     }
 
     /// <summary>
