@@ -134,6 +134,8 @@ namespace MediaPortal.Core.Services.Messaging
             }
           }
         }
+        lock (_queue.SyncObj)
+          Monitor.PulseAll(_queue.SyncObj); // Necessary to awake the waiting threads in method WaitForAsyncExecutions()
       }
     }
 
