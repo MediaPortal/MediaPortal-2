@@ -38,13 +38,13 @@
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false">
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="512" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
       <mp_special:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-          Style="{ThemeResource PrimaryOSDStyle}"
+          Style="{ThemeResource PrimaryVideoOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           SlotIndex="0"/>
     </DockPanel> <!-- OSD_LeftPanel -->
     <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
-      <mp_special:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom" FixedVideoHeight="108"
-          Style="{ThemeResource SecondaryOSDStyle}"
+      <mp_special:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
+          Style="{ThemeResource SecondaryMediaOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           AutoVisibility="true" SlotIndex="1"/>
     </DockPanel> <!-- OSD_RightPanel -->

@@ -19,7 +19,7 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Style x:Key="PrimaryOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
+  <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
@@ -140,19 +140,14 @@
     </Setter>
   </Style>
 
-  <Style x:Key="SecondaryOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
+  <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
+    <Setter Property="FixedVideoHeight" Value="108"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
               CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Border.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                <Binding Path="IsOSDVisible"/>
-                <Binding Path="IsSecondaryPlayerActive"/>
-              </MultiBinding>
-            </Border.IsVisible>
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Offset="0" Color="{ThemeResource OSDPlayerControlBackgroundColor1}"/>
