@@ -320,8 +320,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
         Type targetType = _targetDataDescriptor == null ? typeof(object) : _targetDataDescriptor.DataType;
         if (!_converter.Convert(values, targetType, ConverterParameter, out result))
           return false;
+        IsSourceValueValid = sourceValueValid = true;
         _evaluatedSourceValue.SourceValue = new ValueDataDescriptor(result);
-        sourceValueValid = true;
         return true;
       }
       finally

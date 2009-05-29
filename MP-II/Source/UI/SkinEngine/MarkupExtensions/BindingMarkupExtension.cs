@@ -820,8 +820,8 @@ namespace MediaPortal.SkinEngine.MarkupExtensions
             return false;
           }
         // If no path is specified, evaluatedValue will be the source value
+        IsSourceValueValid = sourceValueValid = true;
         _evaluatedSourceValue.SourceValue = evaluatedValue;
-        sourceValueValid = true;
         return true;
       }
       finally
