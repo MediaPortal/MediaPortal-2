@@ -530,9 +530,9 @@ namespace MediaPortal.SkinEngine.SkinManagement
       while ((kvp = _pendingStyleResources.FirstOrDefault(
           kvpArg => kvpArg.Value.State == LoadState.Pending)).Key != null)
         LoadStyleResource(kvp.Key);
-      _pendingStyleResources = null;
       if (_inheritedSkinResources != null)
         _inheritedSkinResources.LoadAllStyleResources();
+      _pendingStyleResources = null;
     }
 
     protected virtual void LoadDirectory(string rootDirectoryPath)
