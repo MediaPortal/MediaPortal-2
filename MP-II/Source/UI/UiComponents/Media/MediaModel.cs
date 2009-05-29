@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Media.ClientMediaManager.Views;
 using MediaPortal.Presentation.DataObjects;
@@ -42,7 +43,16 @@ namespace UiComponents.Media
   /// </summary>
   public class MediaModel : IWorkflowModel
   {
+    #region Consts
+
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
+
+    public const string MUSIC_MODULE_ID_STR = "53130C0E-D19C-4972-92F4-DB6665E51CBC";
+    public const string VIDEO_MODULE_ID_STR = "BB5362E4-3723-4a11-A989-A4B01ECCEB14";
+    public const string PICTURE_MODULE_ID_STR = "DE0A2E53-1898-4e50-B27F-8652C3D11EDF";
+
+    public const string CURRENTLY_PLAYING_WORKFLOW_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
+    public const string FULLSCREEN_CONTENT_WORKFLOW_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
 
     public const string MEDIA_MAIN_SCREEN = "media";
 
@@ -62,12 +72,22 @@ namespace UiComponents.Media
     public const string PLAY_VIDEO_ITEM_PIP_RESOURCE = "[Media.PlayVideoItemPIP]";
 
     public const string VIDEO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.VideoPlayerContextName]";
+    public const string PICTURE_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.PicturePlayerContextName]";
     public const string AUDIO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.AudioPlayerContextName]";
 
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
     public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
 
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
+
+    public static Guid MUSIC_MODULE_ID = new Guid(MUSIC_MODULE_ID_STR);
+    public static Guid VIDEO_MODULE_ID = new Guid(VIDEO_MODULE_ID_STR);
+    public static Guid PICTURE_MODULE_ID = new Guid(PICTURE_MODULE_ID_STR);
+
+    public static Guid CURRENTLY_PLAYING_WORKFLOW_STATE_ID = new Guid(CURRENTLY_PLAYING_WORKFLOW_STATE_ID_STR);
+    public static Guid FULLSCREEN_CONTENT_WORKFLOW_STATE_ID = new Guid(FULLSCREEN_CONTENT_WORKFLOW_STATE_ID_STR);
+
+    #endregion
 
     #region Protected fields
 
@@ -282,7 +302,7 @@ namespace UiComponents.Media
     protected static IPlayerContext GetPlayerContextByMediaType(PlayerContextType mediaType, bool concurrent)
     {
       IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext result = null;
+      IPlayerContext result;
       if (mediaType == PlayerContextType.Video && concurrent || mediaType == PlayerContextType.Audio)
         // Concurrent video & audio - search in reverse order
         for (int i = 1; i >= 0; i--)
@@ -299,9 +319,34 @@ namespace UiComponents.Media
       return null;
     }
 
+    public static bool GetModuleIdAndNameForMediaItem(MediaItem item, out Guid moduleId, out string contextName)
+    {
+      // No locking necessary
+      if (item.Aspects.ContainsKey(MovieAspect.Metadata.AspectId))
+      {
+        moduleId = VIDEO_MODULE_ID;
+        contextName = VIDEO_PLAYER_CONTEXT_NAME_RESOURCE;
+        return true;
+      }
+      else if (item.Aspects.ContainsKey(PictureAspect.Metadata.AspectId))
+      {
+        moduleId = PICTURE_MODULE_ID;
+        contextName = PICTURE_PLAYER_CONTEXT_NAME_RESOURCE;
+        return true;
+      }
+      else if (item.Aspects.ContainsKey(MusicAspect.Metadata.AspectId))
+      {
+        moduleId = MUSIC_MODULE_ID;
+        contextName = AUDIO_PLAYER_CONTEXT_NAME_RESOURCE;
+        return true;
+      }
+      moduleId = new Guid();
+      contextName = null;
+      return false;
+    }
+
     /// <summary>
-    /// Depending on parameter <paramref name="play"/>, plays or enqueues the specified media item
-    /// <paramref name="item"/>.
+    /// Depending on parameter <paramref name="play"/>, plays or enqueues the specified media <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to be played.</param>
     /// <param name="play">If <c>true</c>, plays the specified <paramref name="item"/>, else enqueues it.</param>
@@ -313,27 +358,37 @@ namespace UiComponents.Media
     {
       IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
       PlayerContextType mediaType = pcm.GetTypeOfMediaItem(item);
+      Guid moduleId;
+      string contextName;
+      if (!GetModuleIdAndNameForMediaItem(item, out moduleId, out contextName))
+        return;
       IPlayerContext pc = null;
       if (!play)
-        // !play means enqueue, so open an already existing player context for our media type
-        pc = GetPlayerContextByMediaType(mediaType, concurrent);
+        // !play means enqueue - so find our first player context of the correct media type
+        foreach (IPlayerContext mmPC in pcm.GetPlayerContextsByMediaModuleId(moduleId))
+          if (mmPC.MediaType == mediaType)
+          {
+            pc = mmPC;
+            break;
+          }
       if (pc == null)
-        // Open a new player context, which will close conflicting player contexts
+        // No player context to reuse - so open a new one
         if (mediaType == PlayerContextType.Video)
-          pc = pcm.OpenVideoPlayerContext(VIDEO_PLAYER_CONTEXT_NAME_RESOURCE, concurrent, subordinatedVideo);
-        else
-          pc = pcm.OpenAudioPlayerContext(AUDIO_PLAYER_CONTEXT_NAME_RESOURCE, concurrent);
+          pc = pcm.OpenVideoPlayerContext(moduleId, contextName, concurrent, subordinatedVideo,
+              CURRENTLY_PLAYING_WORKFLOW_STATE_ID, FULLSCREEN_CONTENT_WORKFLOW_STATE_ID);
+        else if (mediaType == PlayerContextType.Audio)
+          pc = pcm.OpenAudioPlayerContext(moduleId, contextName, concurrent,
+              CURRENTLY_PLAYING_WORKFLOW_STATE_ID, FULLSCREEN_CONTENT_WORKFLOW_STATE_ID);
+      if (pc == null)
+        return;
+      if (play)
+        pc.Playlist.Clear();
       if (mediaType == PlayerContextType.Video)
       {
         // We don't need a playlist when just playing a single video item
         pc.DoPlay(item);
         pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
-        Guid? fscStateId = pcm.FullscreenContentWorkflowStateId;
-        if (fscStateId.HasValue)
-        {
-          IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-          workflowManager.NavigatePush(fscStateId.Value);
-        }
+        pcm.ShowFullscreenContent();
       }
       else
       {

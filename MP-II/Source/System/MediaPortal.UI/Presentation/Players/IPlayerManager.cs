@@ -29,13 +29,14 @@ namespace MediaPortal.Presentation.Players
   public delegate void PlayerSlotWorkerDelegate(IPlayerSlotController slotController);
 
   /// <summary>
-  /// The player manager deals with primary and secondary player slots, player volume and muting.
+  /// The player manager provides basic, technical player information for a maximum set of two players
+  /// (primary and secondary player). It deals with primary and secondary player slots, player volume and muting.
   /// </summary>
   /// <remarks>
   /// <para>
   /// The player manager provides the very technical interface to players. It deals with primary/secondary player
-  /// (players 0 and 1), player slots, slot activity states. The compontent to manage players at a more user-related
-  /// level is <see cref="IPlayerContextManager"/>, which is based on this component.
+  /// (players 0 and 1), player slots and slot activity states. The compontent to manage players at a more user-related
+  /// level is <see cref="IPlayerContextManager"/>, which is based on this <see cref="IPlayerManager"/> component.
   /// </para>
   /// <para>
   /// From the player manager's point of view, both the primary and the secondary player slot behave the same, except
@@ -44,15 +45,15 @@ namespace MediaPortal.Presentation.Players
   /// video display, while a video in the secondary player slot will be displayed as a PIP video.
   /// </para>
   /// <para>
-  /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>, except when <see cref="Muted"/>
-  /// is set to <c>true</c>.
-  /// Each slot must be switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
+  /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>, except when the
+  /// <see cref="Muted"/> property is set to <c>true</c>.
+  /// Slots are switched active and inactive EXPLICITLY (no implicit CloseSlot(N)!).
   /// <para>
   /// <b>Thread-Safety:</b><br/>
   /// This class can be called from multiple threads. It synchronizes thread access to its fields via its
   /// <see cref="SyncObj"/> instance. Accesses to its contained <see cref="IPlayerSlotController"/>s are
-  /// synchronized also via the same <see cref="SyncObj"/> instance.
-  /// Player manager messages are sent asynchronously to clients via the message queue
+  /// also synchronized via the same <see cref="SyncObj"/> instance.
+  /// Important player manager notification messages are sent via the message queue
   /// <see cref="PlayerManagerMessaging.QUEUE"/>.
   /// </para>
   /// </remarks>

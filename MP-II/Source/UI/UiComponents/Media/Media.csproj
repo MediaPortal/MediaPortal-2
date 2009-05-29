@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -38,6 +38,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\SharesConfigModel.cs" />
     <Compile Include="Settings\Configuration\SharesConfigSetting.cs" />
+    <Compile Include="VideoPlayerModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Media\ClientMediaManager\ClientMediaManager.csproj">
@@ -77,6 +79,11 @@
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\media.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
+    <Content Include="Skin\default\workflow\video-player-states.xml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
+    <Content Include="Skin\default\screens\DialogVideoContextMenu.xaml" />
+    <Content Include="Skin\default\themes\default\styles\VideoPlayerStyles.xaml" />
     <Content Include="Skin\default\screens\shares_config_overview.xaml" />
     <Content Include="Skin\default\screens\shares_config_remove_shares.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml" />

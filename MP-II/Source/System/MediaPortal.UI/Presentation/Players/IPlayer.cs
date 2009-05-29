@@ -66,16 +66,6 @@ namespace MediaPortal.Presentation.Players
     Guid PlayerId { get; }
 
     /// <summary>
-    /// Returns the id of an workflow state which provides the "currently playing" functionality for this player.
-    /// </summary>
-    Guid CurrentlyPlayingWorkflowStateId { get; }
-
-    /// <summary>
-    /// Returns the id of an workflow state which provides the "fullscreen content" functionality for this player.
-    /// </summary>
-    Guid FullscreenContentWorkflowStateId { get; }
-
-    /// <summary>
     /// Gets the playback state of this player.
     /// </summary>
     PlaybackState State { get; }

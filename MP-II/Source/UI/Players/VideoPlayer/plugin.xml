@@ -14,17 +14,4 @@
   <Register Location="/Players/Builders">
     <PlayerBuilder Id="47924D05-C8B6-4a75-8EFE-8A9CD73AA518" ClassName="Ui.Players.Video.VideoPlayerBuilder"/>
   </Register>
-
-  <Register Location="/Models">
-    <Model Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256" Name="VideoPlayerModel" ClassName="Ui.Players.Video.VideoPlayerModel"/>
-  </Register>
-
-  <Register Location="/Resources/Language">
-    <Resource Id="VideoPlayerLanguage" Directory="Language" Type="Language"/>
-  </Register>
-
-  <Register Location="/Resources/Skin">
-    <Resource Id="DefaultVideoPlayerSkin" Directory="Skin" Type="Skin"/>
-  </Register>
-
 </Plugin>

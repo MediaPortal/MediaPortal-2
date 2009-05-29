@@ -16,8 +16,9 @@
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" ClassName="UiComponents.Media.MediaModel"/>
-    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" ClassName="UiComponents.Media.Settings.Configuration.SharesConfigModel"/>
+    <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" Name="MediaModel" ClassName="UiComponents.Media.MediaModel"/>
+    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SaresModel" ClassName="UiComponents.Media.Settings.Configuration.SharesConfigModel"/>
+    <Model Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256" Name="VideoPlayerModel" ClassName="UiComponents.Media.VideoPlayerModel"/>
   </Register>
 
   <Register Location="/Resources/Language">

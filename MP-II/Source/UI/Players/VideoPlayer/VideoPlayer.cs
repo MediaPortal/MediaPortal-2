@@ -93,9 +93,6 @@ namespace Ui.Players.Video
 
     public const string PLAYER_ID_STR = "9EF8D975-575A-4c64-AA54-500C97745969";
 
-    public const string CURRENTLY_PLAYING_WORKFLOW_STATE_ID = "5764A810-F298-4a20-BF84-F03D16F775B1";
-    public const string FULLSCREEN_CONTENT_WORKFLOW_STATE_ID = "882C1142-8028-4112-A67D-370E6E483A33";
-
     public const string AUDIO_STREAM_NAME = "Audio1";
 
     #endregion
@@ -881,16 +878,6 @@ namespace Ui.Players.Video
     public virtual Guid PlayerId
     {
       get { return new Guid(PLAYER_ID_STR); }
-    }
-
-    public Guid CurrentlyPlayingWorkflowStateId
-    {
-      get { return new Guid(CURRENTLY_PLAYING_WORKFLOW_STATE_ID); }
-    }
-
-    public Guid FullscreenContentWorkflowStateId
-    {
-      get { return new Guid(FULLSCREEN_CONTENT_WORKFLOW_STATE_ID); }
     }
 
     public virtual string Name

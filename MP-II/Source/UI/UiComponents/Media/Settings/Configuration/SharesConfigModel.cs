@@ -458,7 +458,7 @@ namespace UiComponents.Media.Settings.Configuration
     public void NavigateBackToOverview()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePopToState(SHARES_OVERVIEW_STATE_ID);
+      workflowManager.NavigatePopToState(SHARES_OVERVIEW_STATE_ID, false);
     }
 
     #endregion

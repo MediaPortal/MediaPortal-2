@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -54,13 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="Skin\default\workflow\video-player-states.xml" />
-    <Content Include="Skin\default\workflow\video-player-actions.xml" />
-    <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
-    <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
-    <Content Include="Skin\default\screens\DialogVideoContextMenu.xaml" />
-    <Content Include="Skin\default\themes\default\styles\VideoPlayerStyles.xaml" />
     <Compile Include="DvdPlayer.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="FilterGraphTools.cs" />
@@ -85,7 +78,6 @@
     <Compile Include="Teletext\TSHeader.cs" />
     <Compile Include="TsVideoPlayer.cs" />
     <Compile Include="VideoPlayer.cs" />
-    <Compile Include="VideoPlayerModel.cs" />
     <Compile Include="VideoPlayerBuilder.cs" />
     <Compile Include="Allocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

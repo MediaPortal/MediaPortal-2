@@ -57,7 +57,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions\ShowPlayerContent.cs" />
+    <Compile Include="Actions\CurrentMedia.cs" />
+    <Compile Include="Actions\FullscreenContent.cs" />
     <Compile Include="Actions\PlayerConfiguration.cs" />
     <Compile Include="Models\PlayerConfigurationDialogModel.cs" />
     <Compile Include="Models\MenuModel.cs" />

@@ -9,6 +9,16 @@
         Name="MediaNavigation" MainScreen="media"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
+    <!-- Media screen states -->
+
+    <WorkflowState Id="5764A810-F298-4a20-BF84-F03D16F775B1"
+        Name="VideoCurrentlyPlaying"
+        WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
+
+    <WorkflowState Id="882C1142-8028-4112-A67D-370E6E483A33"
+        Name="VideoFullscreenContent"
+        WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
+
     <!-- Shares configuration -->
 
     <WorkflowState Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"

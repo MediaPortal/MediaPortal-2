@@ -48,7 +48,8 @@ namespace MediaPortal.Presentation.Players
   }
 
   /// <summary>
-  /// High-level descriptor, describing a typed "place" where a player can run.
+  /// High-level descriptor, describing a typed "place" where a player can run. A player context belongs to a specified
+  /// media module, defined by its <see cref="MediaModuleId"/>.
   /// The player context can contain a typed playlist (A/V/AV) which will automatically be advanced.
   /// </summary>
   /// <remarks>
@@ -76,6 +77,11 @@ namespace MediaPortal.Presentation.Players
     /// </code>
     /// </remarks>
     bool IsValid { get; }
+
+    /// <summary>
+    /// Returns the id of the module which belongs to this player context.
+    /// </summary>
+    Guid MediaModuleId { get; }
 
     /// <summary>
     /// Returns the type of this player context. The type determines if this context plays audio by default and
@@ -118,10 +124,14 @@ namespace MediaPortal.Presentation.Players
     string Name { get; }
 
     /// <summary>
-    /// Returns the id of the "currently playing" workflow state for the current player of this player context,
-    /// if present.
+    /// Returns the id of an workflow state which provides the "currently playing" functionality for this player context.
     /// </summary>
-    Guid? CurrentlyPlayingWorkflowStateId { get; }
+    Guid CurrentlyPlayingWorkflowStateId { get; }
+
+    /// <summary>
+    /// Returns the id of an workflow state which provides the "fullscreen content" functionality for this player context.
+    /// </summary>
+    Guid FullscreenContentWorkflowStateId { get; }
 
     /// <summary>
     /// Plays the specified media item without putting it into the playlist.

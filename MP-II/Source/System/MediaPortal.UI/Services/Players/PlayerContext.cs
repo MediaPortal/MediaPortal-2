@@ -41,22 +41,28 @@ namespace MediaPortal.Services.Players
     protected IPlayerSlotController _slotController;
     protected PlayerContextManager _contextManager;
     protected IPlaylist _playlist;
+    protected Guid _mediaModuleId;
     protected string _name;
-
     protected PlayerContextType _type;
+    protected Guid _currentlyPlayingWorkflowStateId;
+    protected Guid _fullscreenContentWorkflowStateId;
 
     #endregion
 
     #region Ctor
 
     internal PlayerContext(PlayerContextManager contextManager, IPlayerSlotController slotController,
-        PlayerContextType type, string name)
+        Guid mediaModuleId, string name, PlayerContextType type,
+        Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId)
     {
       _contextManager = contextManager;
       _slotController = slotController;
       _playlist = new Playlist();
-      _type = type;
+      _mediaModuleId = mediaModuleId;
       _name = name;
+      _type = type;
+      _currentlyPlayingWorkflowStateId = currentlyPlayingWorkflowStateId;
+      _fullscreenContentWorkflowStateId = fullscreenContentWorkflowStateId;
     }
 
     public void Dispose()
@@ -100,20 +106,16 @@ namespace MediaPortal.Services.Players
         return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
-    public Guid? FullscreenContentWorkflowStateId
-    {
-      get
-      {
-        IPlayer player = GetCurrentPlayer();
-        return player == null ? new Guid?() : player.FullscreenContentWorkflowStateId;
-      }
-    }
-
     #region IPlayerContext implementation
 
     public bool IsValid
     {
       get { return _slotController != null; }
+    }
+
+    public Guid MediaModuleId
+    {
+       get { return _mediaModuleId; }
     }
 
     public PlayerContextType MediaType
@@ -156,13 +158,14 @@ namespace MediaPortal.Services.Players
       get { return _name; }
     }
 
-    public Guid? CurrentlyPlayingWorkflowStateId
+    public Guid CurrentlyPlayingWorkflowStateId
     {
-      get
-      {
-        IPlayer player = GetCurrentPlayer();
-        return player == null ? new Guid?() : player.CurrentlyPlayingWorkflowStateId;
-      }
+      get { return _currentlyPlayingWorkflowStateId; }
+    }
+
+    public Guid FullscreenContentWorkflowStateId
+    {
+      get { return _fullscreenContentWorkflowStateId; }
     }
 
     public bool DoPlay(MediaItem item)

@@ -60,12 +60,26 @@ namespace MediaPortal.Presentation.Players
   }
 
   /// <summary>
-  /// User-related player management service interface. This interface maps user-related, understandable player
-  /// management functions to the very general and technical underlaying information and methods from the
-  /// <see cref="IPlayerManager"/> and the <see cref="IPlayerSlotController"/>s. Plugins should use this service
-  /// interface to manage players instead of using the <see cref="IPlayerManager"/> API itself.
+  /// Management service for active players and their integration into the UI.
   /// </summary>
   /// <remarks>
+  /// <para>
+  /// Media modules (like Music, Video, Picture, TV, Radio) can initiate and access player contexts,
+  /// which are specially created for them. The player context manager service manages all those player contexts,
+  /// tracks their player state and manages UI workflow states relating to active players.
+  /// The separation of player context initiator (= media plugin) and player context manager
+  /// (= <see cref="IPlayerContextManager"/>) is necessary, because players also need to run while the
+  /// media modules possibly don't have the active control over them.
+  /// The typical separation of roles is like this:
+  /// The media module initiates one or more player contexts. It doesn't need to track its player contexts, because
+  /// it is always possible to find the player contexts of the media module again.
+  /// The player context manager will track current media workflow states to switch between states, if necessary
+  /// (for example when the primary and secondary players are switched, the fullscreen content workflow state needs
+  /// to be exchanged). It tracks player context activity states, takes care of automatic playlist advance and closes
+  /// player contexts automatically, if necessary.
+  /// Media modules should use this service interface to manage their player contexts instead of using the
+  /// basic <see cref="IPlayerManager"/> API itself.
+  /// </para>
   /// <para>
   /// <b>Functionality:</b><br/>
   /// While the <see cref="IPlayerManager"/> deals with primary and secondary player slots, this service
@@ -134,11 +148,6 @@ namespace MediaPortal.Presentation.Players
     int NumActivePlayerContexts { get; }
 
     /// <summary>
-    /// Returns the id of the "fullscreen content" workflow state for the primary player, if present.
-    /// </summary>
-    Guid? FullscreenContentWorkflowStateId { get; }
-
-    /// <summary>
     /// Shuts the function of this service down. This is necessary before the player manager gets closed.
     /// </summary>
     void Shutdown();
@@ -171,13 +180,20 @@ namespace MediaPortal.Presentation.Players
     /// playlist typically will contain multiple entries.
     /// After the playlist was filled, the player context has to be started.
     /// </remarks>
+    /// <param name="mediaModuleId">Id of the requesting media module. The new player context will be sticked to the specified
+    /// module.</param>
     /// <param name="name">A name for the new player context. The name will be shown in each skin control which
     /// represents the player context.</param>
     /// <param name="concurrent">If set to <c>true</c>, an already active video player will continue to play muted.
     /// If set to <c>false</c>, an active video player context will be deactivated.</param>
+    /// <param name="currentlyPlayingWorkflowStateId">The id of the workflow state to be used as currently playing
+    /// workflow state for the new player context.</param>
+    /// <param name="fullscreenContentWorkflowStateId">The id of the workflow state to be used as fullscreen content
+    /// workflow state for the new player context.</param>
     /// <returns>Descriptor object for the new audio player context. The returned player context will be installed
     /// into the system but is not playing yet.</returns>
-    IPlayerContext OpenAudioPlayerContext(string name, bool concurrent);
+    IPlayerContext OpenAudioPlayerContext(Guid mediaModuleId, string name, bool concurrent,
+        Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId);
 
     /// <summary>
     /// Opens a video player context. If there is already an active player, it depends on the parameter
@@ -209,6 +225,8 @@ namespace MediaPortal.Presentation.Players
     /// subsequently to this method (see <see cref="IPlayerManager.AudioSlotIndex"/>).
     /// </para>
     /// </remarks>
+    /// <param name="mediaModuleId">Id of the requesting media module. The new player context will be sticked to the specified
+    /// module.</param>
     /// <param name="name">A name for the new player context. The name will be shown in each skin control which
     /// represents the player context.</param>
     /// <param name="concurrent">If set to <c>true</c>, an already active player will continue to play and the new
@@ -220,8 +238,30 @@ namespace MediaPortal.Presentation.Players
     /// secondary player/PIP.
     /// If set to <c>false</c>, an already active primary video player context will be replaced by the new player
     /// context.</param>
+    /// <param name="currentlyPlayingWorkflowStateId">The id of the workflow state to be used as currently playing
+    /// workflow state for the new player context.</param>
+    /// <param name="fullscreenContentWorkflowStateId">The id of the workflow state to be used as fullscreen content
+    /// workflow state for the new player context.</param>
     /// <returns>Descriptor object for the new video player context.</returns>
-    IPlayerContext OpenVideoPlayerContext(string name, bool concurrent, bool subordinatedVideo);
+    IPlayerContext OpenVideoPlayerContext(Guid mediaModuleId, string name, bool concurrent, bool subordinatedVideo,
+        Guid currentlyPlayingWorkflowStateId, Guid fullscreenContentWorkflowStateId);
+
+    /// <summary>
+    /// Returns all player contexts of the media module with the specified <paramref name="mediaModuleId"/>.
+    /// </summary>
+    /// <param name="mediaModuleId">The id of the media module which is looking for its player contexts.</param>
+    /// <returns>Enumeration of player contexts belonging the specified media module.</returns>
+    IEnumerable<IPlayerContext> GetPlayerContextsByMediaModuleId(Guid mediaModuleId);
+
+    /// <summary>
+    /// Switches to the "currently playing" workflow state for the current player.
+    /// </summary>
+    void ShowCurrentlyPlaying();
+
+    /// <summary>
+    /// Switches to the "fullscreen content" workflow state for the primary player.
+    /// </summary>
+    void ShowFullscreenContent();
 
     /// <summary>
     /// Closes the player context with the specified player slot index.

@@ -24,7 +24,6 @@
 
 using System;
 using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
@@ -33,20 +32,15 @@ using MediaPortal.Presentation.Workflow;
 
 namespace UiComponents.SkinBase.Actions
 {
-  /// <summary>
-  /// Action which is visible when player slots are open. Depending on the currently active players, this action will
-  /// show the current player's content.
-  /// </summary>
-  public class ShowPlayerContent : IWorkflowContributor, IDisposable
+  public class FullscreenContent : IWorkflowContributor, IDisposable
   {
     #region Consts
 
-    public const string SHOW_CONTENT_CONTRIBUTOR_MODEL_ID_STR = "04854BDB-0933-4194-8AAE-DEC50062F37F";
+    public const string FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR = "08E19EDA-7BB3-4e74-8079-FFB0D52F3838";
 
-    public static Guid SHOW_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(SHOW_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
+    public static Guid FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string SHOW_FULLSCREEN_VIDEO_RESOURCE = "[Players.ShowFullscreenVideo]";
-    public const string SHOW_CURRENTLY_PLAYING_RESOURCE = "[Players.ShowCurrentlyPlaying]";
+    public const string FULLSCREEN_CONTENT_RESOURCE = "[Players.Fullscreen]";
 
     #endregion
 
@@ -75,8 +69,9 @@ namespace UiComponents.SkinBase.Actions
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       switch (messageType)
       {
-        case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+        case PlayerManagerMessaging.MessageType.PlayerStarted:
+        case PlayerManagerMessaging.MessageType.PlayerStopped:
+        case PlayerManagerMessaging.MessageType.PlayerEnded:
           Update();
           break;
       }
@@ -84,14 +79,16 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      _isVisible = playerManager.NumActiveSlots > 0;
-      IPlayerSlotController psc = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
-      IPlayer player = psc.IsActive ? psc.CurrentPlayer : null;
-      if (player is IVideoPlayer)
-        _displayTitle = LocalizationHelper.CreateResourceString(SHOW_FULLSCREEN_VIDEO_RESOURCE);
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
+      _isVisible = vp != null;
+      if (vp == null)
+        _displayTitle = null;
       else
-        _displayTitle = LocalizationHelper.CreateResourceString(SHOW_CURRENTLY_PLAYING_RESOURCE);
+        _displayTitle =
+            LocalizationHelper.CreateStaticString(
+                LocalizationHelper.CreateResourceString(FULLSCREEN_CONTENT_RESOURCE).Evaluate(vp.Name));
       FireStateChanged();
     }
 
@@ -137,21 +134,12 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayerSlotController psc = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
-      IPlayer player = psc.IsActive ? psc.CurrentPlayer : null;
-      Guid? workflowState = null;
-      if (player is IVideoPlayer)
-        workflowState = player.FullscreenContentWorkflowStateId;
-      else if (player != null)
-        workflowState = player.CurrentlyPlayingWorkflowStateId;
-      if (!workflowState.HasValue)
-      {
-        ServiceScope.Get<ILogger>().Warn("ShowPlayerContent: No workflow state present to show player content");
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      if (pc == null)
         return;
-      }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(workflowState.Value);
+      workflowManager.NavigatePush(pc.FullscreenContentWorkflowStateId);
     }
 
     #endregion

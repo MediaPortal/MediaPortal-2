@@ -32,7 +32,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
 
-namespace Ui.Players.Video
+namespace UiComponents.Media
 {
   /// <summary>
   /// Attends the CurrentlyPlaying and FullscreenContent states for the video player.
@@ -87,8 +87,7 @@ namespace Ui.Players.Video
 
       IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT || _inactive;
       PipHeight = DEFAULT_PIP_HEIGHT;
-      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH :
-          PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
+      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
     }
 
     protected void UpdateScreen()

@@ -56,7 +56,7 @@ namespace MediaPortal.Presentation.Workflow
 
       /// <summary>
       /// States were popped from the workflow navigation context stack.
-      /// The param will contain an int with the number of popped states.
+      /// The param will contain an array of Guid values containing the ids of the states which were popped.
       /// </summary>
       StatesPopped,
 
@@ -85,12 +85,12 @@ namespace MediaPortal.Presentation.Workflow
     /// <summary>
     /// Sends a <see cref="MessageType.StatesPopped"/> message.
     /// </summary>
-    /// <param name="numStates">Number of states which were popped.</param>
-    public static void SendStatesPoppedMessage(int numStates)
+    /// <param name="stateIds">Ids of the states which were popped.</param>
+    public static void SendStatesPoppedMessage(params Guid[] stateIds)
     {
       QueueMessage msg = new QueueMessage();
       msg.MessageData[MESSAGE_TYPE] = MessageType.StatesPopped;
-      msg.MessageData[PARAM] = numStates;
+      msg.MessageData[PARAM] = stateIds;
       ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
     }
 

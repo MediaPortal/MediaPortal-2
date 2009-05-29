@@ -10,9 +10,9 @@
   </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
-    <String Name="ShowFullscreenVideo" Text="Fullscreen video"/>
-    <String Name="ShowCurrentlyPlaying" Text="Currently playing"/>
-    <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "video player" -->
+    <String Name="CurrentMedia" Text="Current Media"/>
+    <String Name="Fullscreen" Text="Fullscreen {0}"/> <!--for example "Fullscreen TV" -->
+    <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "Video player" -->
     <String Name="SlotNo" Text="Slot #{0}"/>
     <String Name="FocusPlayer" Text="Focus {0}"/> <!-- for example "Focus video player" -->
     <String Name="SwitchPipPlayers" Text="Switch PiP players"/>
