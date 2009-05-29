@@ -101,11 +101,7 @@ namespace MediaPortal.Core.Services.Messaging
       {
         Queue queue = GetQueueCheckShutdown(queueName);
         if (queue != null)
-        {
           queue.MessageReceived_Sync -= handler;
-          // Block the caller until we don't have any async operations any more in the queue
-          queue.WaitForAsyncExecutions();
-        }
       }
     }
 
@@ -125,11 +121,7 @@ namespace MediaPortal.Core.Services.Messaging
       {
         Queue queue = GetQueueCheckShutdown(queueName);
         if (queue != null)
-        {
           queue.MessageReceived_Async -= handler;
-          // Block the caller until we don't have any async operations any more in the queue
-          queue.WaitForAsyncExecutions();
-        }
       }
     }
 
