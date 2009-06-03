@@ -159,11 +159,11 @@ namespace MediaPortal.SkinEngine
       ServiceScope.Remove<IGeometryManager>();
 
       _mainForm.StopRenderThread();
+      _screenManager.Shutdown();
     }
 
     public void Dispose()
     {
-      _screenManager.Dispose();
       _mainForm.DisposeDirectX();
       _mainForm.Dispose();
       _screenManager = null;

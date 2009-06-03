@@ -84,6 +84,11 @@ namespace MediaPortal.Presentation.Players
       /// </summary>
       PlayerSlotDeactivated,
 
+      /// <summary>
+      /// The slot was started.
+      /// </summary>
+      PlayerSlotStarted,
+
       #endregion
 
       #region General messages which don't concern a special player. The param doesn't have a special meaning for these messages.

@@ -244,11 +244,10 @@ namespace MediaPortal.Services.Players
               PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, _slotIndex);
               break;
             case Presentation.Players.PlayerSlotState.Playing:
-              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
+              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotStarted, _slotIndex);
               break;
-            case Presentation.Players.PlayerSlotState.Stopped:
-              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, _slotIndex);
-              break;
+            // Presentation.Players.PlayerSlotState.Stopped:
+            // this is no extra message, as we sent the PlayerSlotActivated message above
           }
       }
     }

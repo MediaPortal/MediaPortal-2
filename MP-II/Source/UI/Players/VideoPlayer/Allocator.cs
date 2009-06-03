@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -44,28 +44,25 @@ namespace Ui.Players.Video
   [ComVisible(true), ComImport,
    Guid("324FAA1F-7DA6-4778-833B-3993D8FF4151"),
    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-  public interface IVMR9PresentCallback
+  public interface IEVRPresentCallback
   {
-    [PreserveSig]
-    int PresentImage(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwImg);
-
     [PreserveSig]
     int PresentSurface(Int16 cx, Int16 cy, Int16 arx, Int16 ary, uint dwImg);
   }
 
   [ComVisible(true)]
   [ClassInterface(ClassInterfaceType.None)]
-  public class Allocator : IVMR9PresentCallback
+  public class Allocator : IEVRPresentCallback
   {
     #region variables
 
+    private readonly object _lock;
+    readonly EffectAsset _normalEffect;
     private Size _videoSize;
     private Size _aspectRatio;
     private Texture _texture;
     private Surface _surface;
-    private object _lock;
     private bool _guiBeingReinitialized = false;
-    EffectAsset _normalEffect;
 
     #endregion
 
@@ -84,7 +81,6 @@ namespace Ui.Players.Video
     /// <summary>
     /// Gets the size of the texture.
     /// </summary>
-    /// <value>The size of the texture.</value>
     public Size TextureSize
     {
       get { return _videoSize; }
@@ -93,7 +89,6 @@ namespace Ui.Players.Video
     /// <summary>
     /// Gets the size of the video.
     /// </summary>
-    /// <value>The size of the video.</value>
     public Size VideoSize
     {
       get { return _videoSize; }
@@ -102,7 +97,6 @@ namespace Ui.Players.Video
     /// <summary>
     /// Gets the aspect ratio.
     /// </summary>
-    /// <value>The aspect ratio.</value>
     public Size AspectRatio
     {
       get { return _aspectRatio; }
@@ -174,24 +168,10 @@ namespace Ui.Players.Video
       }
     }
 
-    #region IVMR9PresentCallback Members
+    #region IEVRPresentCallback implementation
 
     /// <summary>
-    /// callback from vmr9helper.dll to display a DirectX.Texture
-    /// </summary>
-    /// <param name="cx">video width</param>
-    /// <param name="cy">video height</param>
-    /// <param name="arx">Aspect Ratio X</param>
-    /// <param name="ary">Aspect Ratio Y</param>
-    /// <param name="dwImg">address of the DirectX.Texture.</param>
-    /// <returns></returns>
-    public int PresentImage(short cx, short cy, short arx, short ary, uint dwImg)
-    {
-      return 0;
-    }
-
-    /// <summary>
-    /// callback from vmr9helper.dll to display a DirectX.Surface
+    /// Callback from DShowHelper.dll to display a DirectX.Surface
     /// </summary>
     /// <param name="cx">video width</param>
     /// <param name="cy">video height</param>
@@ -220,8 +200,6 @@ namespace Ui.Players.Video
             _texture = null;
             ContentManager.TextureReferences--;
           }
-          _videoSize = new Size(cx, cy);
-          _aspectRatio = new Size(arx, ary);
         }
         _videoSize = new Size(cx, cy);
         _aspectRatio = new Size(arx, ary);

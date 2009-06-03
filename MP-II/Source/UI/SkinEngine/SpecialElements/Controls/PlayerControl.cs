@@ -65,8 +65,15 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     #region Protected fields
 
+    // Direct properties/fields
     protected Property _slotIndexProperty;
     protected Property _autoVisibilityProperty;
+    protected float _fixedVideoWidth;
+    protected float _fixedVideoHeight;
+    protected Timer _timer;
+    protected bool _initialized = false;
+
+    // Derived properties/fields
     protected Property _isPlayerActiveProperty;
     protected Property _titleProperty;
     protected Property _mediaItemTitleProperty;
@@ -87,15 +94,11 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected Property _canSeekBackwardProperty;
     protected Property _isRunningProperty;
     protected Property _isPipProperty;
-    protected float _fixedVideoWidth;
-    protected float _fixedVideoHeight;
     protected Property _videoWidthProperty;
     protected Property _videoHeightProperty;
 
-    protected Timer _timer;
     protected IResourceString _headerNormalResource;
     protected IResourceString _headerPipResource;
-    protected bool _initialized = false;
 
     #endregion
 
@@ -166,6 +169,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       PlayerControl pc = (PlayerControl) source;
 
       SlotIndex = copyManager.GetCopy(pc.SlotIndex);
+      AutoVisibility = copyManager.GetCopy(pc.AutoVisibility);
       Attach();
       UpdatePlayControls();
     }
@@ -211,8 +215,8 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected void UnsubscribeFromMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
-      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
+      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
+      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived, true);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
@@ -338,11 +342,12 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       CheckShowMouseControls();
       if (AutoVisibility)
       {
+        bool isVisible = playerSlotController.IsActive;
         SimplePropertyDataDescriptor dd;
         if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsVisible", out dd))
-          SetValueInRenderThread(dd, playerSlotController.IsActive);
+          SetValueInRenderThread(dd, isVisible);
         else
-          IsVisible = playerSlotController.IsActive;
+          IsVisible = isVisible;
       }
       _initialized = true;
     }

@@ -228,7 +228,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// <summary>
     /// Disposes all resources which were allocated by the screen manager.
     /// </summary>
-    public void Dispose()
+    public void Shutdown()
     {
       InternalCloseCurrentScreenAndDialogs(true);
       _skinManager.Dispose();
@@ -446,12 +446,18 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     public void Render()
     {
-      IList<Screen> screens = GetScreens(!_backgroundDisabled, true, true);
+      IList<Screen> disabledScreens = GetScreens(_backgroundDisabled, false, false);
+      IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true);
       lock (_syncRender)
       {
         SkinContext.Now = DateTime.Now;
-        foreach (Screen screen in screens)
+        foreach (Screen screen in disabledScreens)
+          screen.Animate();
+        foreach (Screen screen in enabledScreens)
+        {
+          screen.Animate();
           screen.Render();
+        }
       }
     }
 
@@ -672,7 +678,13 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       set
       {
         lock (_syncRender)
+        {
+          if (value)
+            ServiceScope.Get<ILogger>().Debug("ScreenManager: Disabling background screen rendering");
+          else
+            ServiceScope.Get<ILogger>().Debug("ScreenManager: Enabling background screen rendering");
           _backgroundDisabled = value;
+        }
       }
     }
 

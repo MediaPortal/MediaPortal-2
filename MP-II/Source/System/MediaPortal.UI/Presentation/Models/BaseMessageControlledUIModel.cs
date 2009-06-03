@@ -35,7 +35,7 @@ namespace MediaPortal.Presentation.Models
   public abstract class BaseMessageControlledUIModel : IDisposable
   {
     /// <summary>
-    /// Initializes the message subscribtions.
+    /// Creates a new <see cref="BaseMessageControlledUIModel"/> instance and initializes the message subscribtions.
     /// </summary>
     protected BaseMessageControlledUIModel()
     {
@@ -65,7 +65,7 @@ namespace MediaPortal.Presentation.Models
     protected virtual void UnsubscribeFromMessages()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(SystemMessaging.QUEUE, OnSystemMessageReceived);
+      broker.Unregister_Async(SystemMessaging.QUEUE, OnSystemMessageReceived, true);
     }
 
     /// <summary>

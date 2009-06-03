@@ -72,7 +72,7 @@ namespace UiComponents.SkinBase.Models
     {
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(SkinMessaging.QUEUE, OnSkinMessageReceived);
+      broker.Unregister_Async(SkinMessaging.QUEUE, OnSkinMessageReceived, true);
     }
 
     protected void ReadSettings()

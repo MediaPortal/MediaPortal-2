@@ -38,17 +38,21 @@ namespace MediaPortal.Presentation.Models
     protected Timer _timer = null;
 
     /// <summary>
-    /// Initializes the internal timer with the specified <paramref name="updateInterval"/>.
+    /// Creates a new <see cref="BaseTimerControlledUIModel"/> instance and initializes the internal timer
+    /// and message queue registrations.
     /// </summary>
-    /// <remarks>
-    /// Subclasses need to call method <see cref="SubscribeToMessages"/>, and, if appropriate, <see cref="Update"/>.
-    /// </remarks>
     /// <param name="updateInterval">Timer update interval in milliseconds.</param>
+    /// <remarks>
+    /// Subclasses might need to call method <see cref="Update"/> in their constructor to initialize the initial model state,
+    /// if appropriate.
+    /// </remarks>
     protected BaseTimerControlledUIModel(long updateInterval)
     {
       _timer = new Timer(updateInterval);
 
-      SubscribeToMessages();
+      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
+      if (systemStateService.CurrentState == SystemState.Started)
+        StartListening();
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -63,29 +67,6 @@ namespace MediaPortal.Presentation.Models
     {
       StopListening();
       base.Dispose();
-    }
-
-    /// <summary>
-    /// Initializes message queue registrations.
-    /// </summary>
-    void SubscribeToMessages()
-    {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(SystemMessaging.QUEUE, OnSystemMessageReceived);
-
-      ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Started)
-        StartListening();
-    }
-
-    /// <summary>
-    /// Removes message queue registrations.
-    /// </summary>
-    protected override void UnsubscribeFromMessages()
-    {
-      base.UnsubscribeFromMessages();
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(SystemMessaging.QUEUE, OnSystemMessageReceived);
     }
 
     /// <summary>

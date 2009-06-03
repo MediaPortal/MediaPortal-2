@@ -232,7 +232,7 @@ namespace MediaPortal.Services.Localization
       {
         InitializeLanguageResources();
 
-        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
+        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived, false);
       }
     }
 

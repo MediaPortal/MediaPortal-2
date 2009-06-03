@@ -29,11 +29,27 @@ using MediaPortal.Core.Messaging;
 namespace MediaPortal.Core.Services.Messaging
 {
   /// <summary>
-  /// <summary>
   /// Named message queue to send messages through the system.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// This service is thread-safe.
+  /// </para>
+  /// <para>
+  /// TODO: There is a potential problem with asynchronous messages sent to clients: You never know, when a message to a client C
+  /// will arrive. It depends on other message handlers which were registered before C registered its async message handler.
+  /// This leads to multiple problems. 1) Other handlers might paralyse the whole async message sender thread for a single
+  /// queue, because the same message sender thread will be reused. 2) After C unregistered its message handler, it is still
+  /// possible to receive an async message because the async message sender thread, well, runs asynchronous. This might lead
+  /// to problems in the disposal phase of a client. There is no real solution for this problem while retaining async messages.
+  /// One "naive" solution could be to call <see cref="WaitForAsyncExecutions"/> before returning from the
+  /// <see cref="IMessageBroker.Unregister_Async"/> method. But then the system can deadlock when the client, which calls
+  /// <see cref="IMessageBroker.Unregister_Async"/> (or any of its callers), are holding multithreading locks somewhere in the
+  /// system.
+  /// Another possible solution would be to implement a "messages_were_unregistered" or "terminated" flag in the client which
+  /// will be checked first when receiving a message. But this solution doesn't work very well when the system wants to unload
+  /// the client's code after its disposal.
+  /// </para>
   /// </remarks>
   public class Queue
   {
@@ -169,16 +185,6 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
-    public object SyncObj
-    {
-      get { return _syncObj; }
-    }
-
-    public void WaitForAsyncExecutions()
-    {
-      _asyncMessageSender.WaitForAsyncExecutions();
-    }
-
     protected void DoSendAsync(QueueMessage message)
     {
       MessageReceivedHandler asyncHandler = MessageReceived_Async;
@@ -186,15 +192,13 @@ namespace MediaPortal.Core.Services.Messaging
         asyncHandler(message);
     }
 
-    #region IMessageQueue implementation
-
     /// <summary>
     /// Delivers all queue messages synchronously.
     /// </summary>
     /// <remarks>
-    /// The sender might hold locks on its internal mutexes, so it absolutely necessary to not acquire any
-    /// multithreading locks while executing this event. If the callee needs to lock any locks, it MUST do this
-    /// asynchronous from this event.
+    /// Because the sender might hold locks on its internal mutexes while sending a synchronous message,
+    /// it absolutely necessary to not acquire any multithreading locks in the handler of this event.
+    /// If the callee needs to acquire any locks as a result of this event, it MUST do this asynchronous from this event.
     /// </remarks>
     public event MessageReceivedHandler MessageReceived_Sync;
 
@@ -202,8 +206,7 @@ namespace MediaPortal.Core.Services.Messaging
     /// Delivers all queue messages asynchronously.
     /// </summary>
     /// <remarks>
-    /// In contrast to <see cref="MessageReceived_Sync"/>, the callee can request any mutexes it needs in
-    /// this event.
+    /// In contrast to <see cref="MessageReceived_Sync"/>, the callee is allowed to acquire mutexes while executing this event.
     /// </remarks>
     public event MessageReceivedHandler MessageReceived_Async;
 
@@ -225,6 +228,31 @@ namespace MediaPortal.Core.Services.Messaging
         lock (_syncObj)
           return _asyncThread == null;
       }
+    }
+
+    /// <summary>
+    /// The synchronization object of this queue to lock out other threads.
+    /// </summary>
+    public object SyncObj
+    {
+      get { return _syncObj; }
+    }
+
+    /// <summary>
+    /// Locks the current thread down until the async message sender thread sent all its messages to subscribers
+    /// (Exception: If the current thread is the async sender thread itself. In this case, this method will return
+    /// immediately).
+    /// </summary>
+    /// <remarks>
+    /// This method will request and release the queue's <see cref="SyncObj"/>. When calling this method,
+    /// the caller tree should not hold any multithreading locks in the system, else the method might deadlock.
+    /// </remarks>
+    public void WaitForAsyncExecutions()
+    {
+      // Check, if the current thread is the async sender thread itself. This case could lead to a deadlock.
+      if (Thread.CurrentThread == _asyncThread)
+        return;
+      _asyncMessageSender.WaitForAsyncExecutions();
     }
 
     /// <summary>
@@ -260,7 +288,5 @@ namespace MediaPortal.Core.Services.Messaging
         return;
       _asyncMessageSender.EnqueueAsyncMessage(message);
     }
-
-    #endregion
   }
 }

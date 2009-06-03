@@ -790,7 +790,7 @@ namespace UiComponents.Media.Settings.Configuration
       finally
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        broker.Unregister_Async(DialogManagerMessaging.QUEUE, OnUserReply_UpdateShareRelocateMediaItems);
+        broker.Unregister_Async(DialogManagerMessaging.QUEUE, OnUserReply_UpdateShareRelocateMediaItems, false);
       }
     }
 

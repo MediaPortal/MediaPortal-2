@@ -70,9 +70,20 @@ namespace MediaPortal.Core.Messaging
     /// Unregisters the specified asynchronous message <paramref name="handler"/> at the queue with the specified
     /// <paramref name="queueName"/>.
     /// </summary>
+    /// <remarks>
+    /// If <paramref name="waitForAsyncMessages"/> is set to <c>true</c>, the method waits until all asynchronous messages
+    /// are delivered before returning. This will ensure that after this method returns, no more async messages will
+    /// arrive over the unregistered <paramref name="handler"/>. But be careful:
+    /// Never call this method with <c>waitForAsyncMessages == true</c> while holding any multithreading locks over the
+    /// system in the caller tree. This situation can lead to deadlocks.
+    /// </remarks>
     /// <param name="queueName">Name of the queue to register the handler.</param>
     /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
-    void Unregister_Async(string queueName, MessageReceivedHandler handler);
+    /// <param name="waitForAsyncMessages">If set to <c>true</c>, this method waits until all asynchronous messages
+    /// were delivered before returning. Exception: if this method is called from the async message sender thread itself.
+    /// In this case, it won't block to avoid deadlocks. If set to <c>false</c>, this method returns immediately after
+    /// unregistering the handler.</param>
+    void Unregister_Async(string queueName, MessageReceivedHandler handler, bool waitForAsyncMessages);
 
     /// <summary>
     /// Sends the specified message in the queue of the specified <paramref name="queueName"/>.

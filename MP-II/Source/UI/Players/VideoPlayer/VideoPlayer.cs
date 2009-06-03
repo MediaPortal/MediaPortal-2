@@ -69,20 +69,20 @@ namespace Ui.Players.Video
 
     #region DLL imports
 
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern int EvrInit(IVMR9PresentCallback callback, uint dwD3DDevice,
-        IBaseFilter vmr9Filter, uint monitor);
+    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern int EvrInit(IEVRPresentCallback callback, uint dwD3DDevice,
+        IBaseFilter evrFilter, uint monitor);
 
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern void EvrDeinit(int handle);
 
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern void EvrEnableFrameSkipping(int handle, bool onOff);
 
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern void EvrFreeResources(int handle);
 
-    [DllImport("vmr9Helper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
+    [DllImport("DShowHelper.dll", ExactSpelling = true, CharSet = CharSet.Auto, SetLastError = true)]
     private static extern void EvrReAllocResources(int handle);
 
     #endregion
@@ -571,7 +571,6 @@ namespace Ui.Players.Video
 
           _allocatorKey = -1;
 
-          // Dispose the allocator
           FreeCodecs();
 
           if (_allocator != null)
@@ -638,216 +637,6 @@ namespace Ui.Players.Video
       if (_vertices != null)
         _vertices = null;
     }
-
-#if NOTUSED
-    /// <summary>
-    /// Gets a value indicating whether render attributes (like position/size) have been changed
-    /// </summary>
-    /// <value><c>true</c> if changed; otherwise, <c>false</c>.</value>
-    private bool Changed(bool usePIP)
-    {
-      if (usePIP)
-      {
-        _sourceRect = new Rectangle(0, 0, _allocator.TextureSize.Width, _allocator.TextureSize.Height);
-        _destinationRect = new Rectangle(0, 0, DisplaySize.Width, DisplaySize.Height);
-        return true;
-      }
-      Rectangle sourceRect;
-      Rectangle destinationRect;
-      if (_allocator.TextureSize == _previousTextureSize &&
-          _allocator.VideoSize == _previousVideoSize &&
-          _allocator.AspectRatio == _previousAspectRatio &&
-          DisplaySize == _previousDisplaySize)
-      {
-        SkinContext.Geometry.ImageWidth = (int)_allocator.VideoSize.Width;
-        SkinContext.Geometry.ImageHeight = (int)_allocator.VideoSize.Height;
-        SkinContext.Geometry.ScreenWidth = (int)_displaySize.Width;
-        SkinContext.Geometry.ScreenHeight = (int)_displaySize.Height;
-
-        SkinContext.Geometry.GetWindow(_allocator.AspectRatio.Width, _allocator.AspectRatio.Height, out sourceRect,
-                                       out destinationRect, SkinContext.CropSettings);
-        if (sourceRect == _sourceRect && _destinationRect == destinationRect)
-          return false;
-      }
-
-      SkinContext.Geometry.ImageWidth = (int)_allocator.VideoSize.Width;
-      SkinContext.Geometry.ImageHeight = (int)_allocator.VideoSize.Height;
-      SkinContext.Geometry.ScreenWidth = (int)_displaySize.Width;
-      SkinContext.Geometry.ScreenHeight = (int)_displaySize.Height;
-      SkinContext.Geometry.GetWindow(_allocator.AspectRatio.Width, _allocator.AspectRatio.Height, out sourceRect,
-                                     out destinationRect, SkinContext.CropSettings);
-      string shaderName = SkinContext.Geometry.Current.Shader;
-      if (!string.IsNullOrEmpty(shaderName))
-      {
-        Effect = null;
-        EffectAsset effect = ContentManager.GetEffect(shaderName);
-        if (effect != null)
-          Effect = effect;
-      }
-      _sourceRect = sourceRect;
-      _destinationRect = destinationRect;
-
-      _previousTextureSize = _allocator.TextureSize;
-      _previousVideoSize = _allocator.VideoSize;
-      _previousAspectRatio = _allocator.AspectRatio;
-      _previousDisplaySize = DisplaySize;
-      return true;
-    }
-
-    /// <summary>
-    /// Updates the vertex buffers with the new rendering attributes like size/position.
-    /// </summary>
-    protected void UpdateVertex()
-    {
-      Size vmrTexSize = _allocator.TextureSize;
-      Size vmrVidSize = _allocator.VideoSize;
-
-      float uValue = (float)vmrVidSize.Width / (float)vmrTexSize.Width;
-      float vValue = (float)vmrVidSize.Height / (float)vmrTexSize.Height;
-
-      float uoffs = ((float)_sourceRect.X) / ((float)(vmrVidSize.Width));
-      float voffs = ((float)_sourceRect.Y) / ((float)(vmrVidSize.Height));
-      float u = ((float)_sourceRect.Width) / ((float)(vmrVidSize.Width));
-      float v = ((float)_sourceRect.Height) / ((float)(vmrVidSize.Height));
-
-      //take in account that the texture might be larger
-      //then the video size
-      uoffs *= uValue;
-      u *= uValue;
-      voffs *= vValue;
-      v *= vValue;
-
-      /*
-      Size vmrAspectRatio = _allocator.AspectRatio;
-      RectangleF videoClientRectangle = Rectangle.Empty;
-      float videoAR = (float)vmrAspectRatio.Width / (float)vmrAspectRatio.Height;
-
-      if (vmrVidSize.Width >= vmrVidSize.Height)
-      {
-        // Compute the video aspect-ratio for a landscape proportioned image
-        videoClientRectangle.X = 0.0f;
-        videoClientRectangle.Width = (float)displaySize.Width;
-        videoClientRectangle.Height = ((float)displaySize.Width) / videoAR;
-        videoClientRectangle.Y = ((float)displaySize.Height - videoClientRectangle.Height) / 2;
-      }
-      else
-      {
-        // Compute the video aspect-ratio for a portrait proportioned image
-        videoClientRectangle.Y = 0.0f;
-        videoClientRectangle.Width = (float)displaySize.Height * videoAR;
-        videoClientRectangle.Height = (float)displaySize.Height;
-        videoClientRectangle.X = ((float)displaySize.Width - videoClientRectangle.Width) / 2;
-      }*/
-
-      RectangleF videoClientRectangle =
-        new RectangleF(_destinationRect.X, _destinationRect.Y, _destinationRect.Width, _destinationRect.Height);
-
-      // The Quad is built using a triangle fan of 2 triangles : 0,1,2 and 0, 2, 3
-      // 0 *-------------------* 1
-      //   |\                  |
-      //   |   \               |
-      //   |      \            |
-      //   |         \         |
-      //   |            \      |
-      //   |               \   |
-      //   |                  \|
-      // 3 *-------------------* 2
-
-      float alphaUpperLeft = AlphaMask.X;
-      if (alphaUpperLeft < 0)
-        alphaUpperLeft = 0;
-      if (alphaUpperLeft > 255)
-        alphaUpperLeft = 255;
-
-      float alphaBottomLeft = AlphaMask.Width;
-      if (alphaBottomLeft < 0)
-        alphaBottomLeft = 0;
-      if (alphaBottomLeft > 255)
-        alphaBottomLeft = 255;
-
-      float alphaBottomRight = AlphaMask.Height;
-      if (alphaBottomRight < 0)
-        alphaBottomRight = 0;
-      if (alphaBottomRight > 255)
-        alphaBottomRight = 255;
-
-      float alphaUpperRight = AlphaMask.Y;
-      if (alphaUpperRight < 0)
-        alphaUpperRight = 0;
-      if (alphaUpperRight > 255)
-        alphaUpperRight = 255;
-
-      long colorUpperLeft = (long)alphaUpperLeft;
-      colorUpperLeft <<= 24;
-      colorUpperLeft += 0xffffff;
-      long colorBottomLeft = (long)alphaBottomLeft;
-      colorBottomLeft <<= 24;
-      colorBottomLeft += 0xffffff;
-      long colorBottomRight = (long)alphaBottomRight;
-      colorBottomRight <<= 24;
-      colorBottomRight += 0xffffff;
-      long colorUpperRight = (long)alphaUpperRight;
-      colorUpperRight <<= 24;
-      colorUpperRight += 0xffffff;
-
-      _movieRect.X = (int)(videoClientRectangle.X + Position.X);
-      _movieRect.Y = (int)(videoClientRectangle.Y + Position.Y);
-      _movieRect.Height = (int)(videoClientRectangle.Height);
-      _movieRect.Width = (int)(videoClientRectangle.Width);
-
-      //upperleft
-      _vertices[0].X = videoClientRectangle.X + Position.X;
-      _vertices[0].Y = videoClientRectangle.Y + Position.Y;
-      _vertices[0].Color = (int)colorUpperLeft;
-
-      //upperright
-      _vertices[1].X = videoClientRectangle.Width + videoClientRectangle.X + Position.X;
-      _vertices[1].Y = videoClientRectangle.Y + Position.Y;
-      _vertices[1].Color = (int)colorUpperRight;
-
-      //bottomright
-      _vertices[2].X = videoClientRectangle.Width + videoClientRectangle.X + Position.X;
-      _vertices[2].Y = videoClientRectangle.Height + videoClientRectangle.Y + Position.Y;
-      _vertices[2].Color = (int)colorBottomRight;
-
-      //bottomleft
-      _vertices[3].X = videoClientRectangle.X + Position.X;
-      _vertices[3].Y = videoClientRectangle.Height + videoClientRectangle.Y + Position.Y;
-      _vertices[3].Color = (int)colorBottomLeft;
-
-      //upperleft
-      float tu2, tv2;
-      SkinContext.GetAlphaGradientUV(new Vector3(_vertices[0].X, _vertices[0].Y, 0), out tu2, out tv2);
-      _vertices[0].Tu1 = uoffs;
-      _vertices[0].Tv1 = voffs;
-      _vertices[0].Tu2 = tu2;
-      _vertices[0].Tv2 = tv2;
-
-      //upperright
-      SkinContext.GetAlphaGradientUV(new Vector3(_vertices[1].X, _vertices[1].Y, 0), out tu2, out tv2);
-      _vertices[1].Tu1 = uoffs + u;
-      _vertices[1].Tv1 = voffs;
-      _vertices[1].Tu2 = tu2;
-      _vertices[1].Tv2 = tv2;
-
-      //bottomright
-      SkinContext.GetAlphaGradientUV(new Vector3(_vertices[2].X, _vertices[2].Y, 0), out tu2, out tv2);
-      _vertices[2].Tu1 = uoffs + u;
-      _vertices[2].Tv1 = voffs + v;
-      _vertices[2].Tu2 = tu2;
-      _vertices[2].Tv2 = tv2;
-
-      //bottomleft
-      SkinContext.GetAlphaGradientUV(new Vector3(_vertices[3].X, _vertices[3].Y, 0), out tu2, out tv2);
-      _vertices[3].Tu1 = uoffs;
-      _vertices[3].Tv1 = voffs + v;
-      _vertices[3].Tu2 = tu2;
-      _vertices[3].Tv2 = tv2;
-
-      // Fill the vertex buffer
-      PositionColored2Textured.Set(_vertexBuffer, ref _vertices);
-    }
-#endif
 
     /// <summary>
     /// Helper method for calculating the hundredth decibel value, needed by the <see cref="IBasicAudio"/>

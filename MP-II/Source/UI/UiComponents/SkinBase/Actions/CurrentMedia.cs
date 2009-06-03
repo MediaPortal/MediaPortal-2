@@ -63,7 +63,7 @@ namespace UiComponents.SkinBase.Actions
     protected void UnsubscribeFromMessages()
     {
       IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
+      messageBroker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)

@@ -191,7 +191,7 @@ namespace MediaPortal.Services.Players
       {
         LoadPlayerBuilders();
 
-        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
+        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived, false);
       }
     }
 

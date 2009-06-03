@@ -70,7 +70,7 @@ namespace MediaPortal.Services.Players
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
       if (broker == null)
         return;
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived_Async);
+      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived_Async, true);
       broker.Unregister_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
     }
 

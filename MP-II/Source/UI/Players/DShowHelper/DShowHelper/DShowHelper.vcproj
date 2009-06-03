@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
-	Name="vmr9Helper"
+	Version="9,00"
+	Name="DShowHelper"
 	ProjectGUID="{BC2D286C-9ED7-499B-AC3A-6978B708190E}"
-	RootNamespace="vmr9Helper"
+	RootNamespace="DShowHelper"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -20,7 +21,6 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -41,7 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VMR9HELPER_EXPORTS"
+				AdditionalIncludeDirectories="&quot;$(DSHOW_BASE)&quot;;&quot;$(WINDOWS_SDK)Include\&quot;;&quot;$(DXSDK_DIR)Include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;DSHOWHELPER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -63,9 +64,12 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies=" winmm.lib comsupp.lib dxguid.lib d3d9.lib d3dx9.lib mfuuid.lib dxva2.lib evr.lib mf.lib strmiids.lib strmbasd.lib"
 				LinkIncremental="2"
-				ModuleDefinitionFile="Vmr9Helper.def"
+				AdditionalLibraryDirectories="&quot;$(DSHOW_BASE)Debug_MBCS&quot;;&quot;$(DXSDK_DIR)lib\x86&quot;;&quot;$(WINDOWS_SDK)\lib&quot;"
+				ModuleDefinitionFile="DShowHelper.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -87,9 +91,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -98,8 +99,9 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
 			CharacterSet="2"
+			ManagedExtensions="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -118,12 +120,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;VMR9HELPER_EXPORTS"
-				RuntimeLibrary="0"
+				InlineFunctionExpansion="0"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="1"
+				AdditionalIncludeDirectories="&quot;$(DSHOW_BASE)&quot;;&quot;$(WINDOWS_SDK)Include&quot;;&quot;$(DXSDK_DIR)Include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;DSHOWHELPER_EXPORTS"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
+				DebugInformationFormat="1"
+				UseFullPaths="false"
+				OmitDefaultLibName="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -136,14 +143,24 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" winmm.lib comsupp.lib dxguid.lib d3d9.lib d3dx9.lib mfuuid.lib dxva2.lib evr.lib mf.lib strmiids.lib strmbase.lib"
+				IgnoreImportLibrary="false"
+				LinkLibraryDependencies="true"
+				UseLibraryDependencyInputs="false"
+				AdditionalDependencies="winmm.lib comsupp.lib dxguid.lib d3d9.lib d3dx9.lib mfuuid.lib dxva2.lib evr.lib mf.lib strmiids.lib strmbase.lib"
+				ShowProgress="0"
 				LinkIncremental="1"
-				GenerateManifest="false"
-				ModuleDefinitionFile="Vmr9Helper.def"
+				AdditionalLibraryDirectories="&quot;$(DSHOW_BASE)Release_MBCS&quot;;&quot;$(DXSDK_DIR)lib\x86&quot;;&quot;$(WINDOWS_SDK)lib&quot;"
+				GenerateManifest="true"
+				EnableUAC="true"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
+				ModuleDefinitionFile="DShowHelper.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -165,9 +182,6 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -181,19 +195,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\DShowHelper.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\DShowHelper.def"
+				>
+			</File>
+			<File
 				RelativePath=".\EVRCustomPresenter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Vmr9CustomAllocator.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Vmr9Helper.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Vmr9Helper.def"
 				>
 			</File>
 		</Filter>
@@ -207,11 +217,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\IVmr9Callback.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Vmr9CustomAllocator.h"
+				RelativePath=".\IEVRCallback.h"
 				>
 			</File>
 		</Filter>

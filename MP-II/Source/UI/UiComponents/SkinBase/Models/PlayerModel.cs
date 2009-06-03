@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
@@ -70,7 +71,7 @@ namespace UiComponents.SkinBase.Models
     {
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
+      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
@@ -79,8 +80,9 @@ namespace UiComponents.SkinBase.Models
           (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
       switch (messageType)
       {
-        case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+        case PlayerManagerMessaging.MessageType.PlayerStarted:
+        case PlayerManagerMessaging.MessageType.PlayerEnded:
+        case PlayerManagerMessaging.MessageType.PlayerStopped:
         case PlayerManagerMessaging.MessageType.PlayersMuted:
         case PlayerManagerMessaging.MessageType.PlayersResetMute:
           Update();
@@ -94,11 +96,11 @@ namespace UiComponents.SkinBase.Models
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       IPlayerContext secondaryPlayerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT);
       IVideoPlayer pipPlayer = secondaryPlayerContext == null ? null : secondaryPlayerContext.CurrentPlayer as IVideoPlayer;
+      Size videoAspectRatio = pipPlayer == null ? new Size(4, 3) : pipPlayer.VideoAspectRatio;
       IsPipVisible = playerContextManager.IsPipActive;
       IsMuted = playerManager.Muted;
       PipHeight = DEFAULT_PIP_HEIGHT;
-      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH :
-          PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
+      PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*videoAspectRatio.Width/videoAspectRatio.Height;
     }
 
     /// <summary>

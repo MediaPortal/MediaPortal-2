@@ -403,7 +403,7 @@ namespace Components.Services.AutoPlay
         _windowHandle = sc.MainWindowHandle;
         StartListening();
 
-        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
+        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived, true);
       }
     }
 

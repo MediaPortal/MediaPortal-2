@@ -44,8 +44,39 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Label x:Name="VideoName" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                  Content="{Binding Path=MediaItemTitle}" Scroll="true"/>
+              <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+                <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
+                  <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
+                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
+                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
+                      <Control.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                          <Binding Path="IsAudio"/>
+                          <Binding Path="IsMuted"/>
+                        </MultiBinding>
+                      </Control.IsVisible>
+                    </Control>
+                  </Grid>
+                  <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                  </Grid>
+                </Grid>
+                <Grid DockPanel.Dock="Center">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Grid>
+              </DockPanel>
               <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="0"
                   HorizontalAlignment="Stretch" VerticalAlignment="Top"
                   BorderBrush="Black" CornerRadius="3" BorderThickness="1">
@@ -77,52 +108,23 @@
                   <Label x:Name="VideoLengthLabel" Content="{Binding Duration}"/>
                 </StackPanel>
               </Grid> <!-- StatusLineGrid -->
-              <Grid x:Name="PlayControlsGrid" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
-                  VerticalAlignment="Center" HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}" Grid.Column="0" Grid.Row="0"
-                    VerticalAlignment="Center" HorizontalAlignment="Center">
-                  <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
-                      Command="{Command Previous}"/>
-                  <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                      Command="{Command Rewind}"/>
-                  <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                      Command="{Command Play}"/>
-                  <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                      Command="{Command Pause}"/>
-                  <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
-                      Command="{Command Stop}"/>
-                  <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                      Command="{Command Forward}"/>
-                  <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
-                      Command="{Command Next}"/>
-                </StackPanel>
-                <Grid x:Name="Audio_NoMouse" Grid.Row="0" Grid.Column="1" IsVisible="{Binding !ShowMouseControls}"
-                    VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
-                  <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                  <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                    <Control.IsVisible>
-                      <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                        <Binding Path="IsAudio"/>
-                        <Binding Path="IsMuted"/>
-                      </MultiBinding>
-                    </Control.IsVisible>
-                  </Control>
-                </Grid>
-                <Grid x:Name="Audio_Mouse" Grid.Row="0" Grid.Column="1" IsVisible="{Binding ShowMouseControls}"
-                    VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
-                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
-                  <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
-                </Grid>
-              </Grid> <!-- PlayControlsGrid -->
+              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
+                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                    Command="{Command Previous}"/>
+                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                    Command="{Command Rewind}"/>
+                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                    Command="{Command Play}"/>
+                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                    Command="{Command Pause}"/>
+                <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                    Command="{Command Stop}"/>
+                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                    Command="{Command Forward}"/>
+                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
+                    Command="{Command Next}"/>
+              </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
           </Border> <!-- OSD_Background -->
           <ControlTemplate.Triggers>
@@ -165,8 +167,39 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              <Label x:Name="MediaName" Grid.Column="0" Grid.Row="0" Content="{Binding MediaItemTitle}"
-                  VerticalAlignment="Center" HorizontalAlignment="Center" Scroll="true"/>
+              <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+                <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
+                  <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
+                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
+                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
+                      <Control.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                          <Binding Path="IsAudio"/>
+                          <Binding Path="IsMuted"/>
+                        </MultiBinding>
+                      </Control.IsVisible>
+                    </Control>
+                  </Grid>
+                  <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
+                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                  </Grid>
+                </Grid>
+                <Grid DockPanel.Dock="Center">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                </Grid>
+              </DockPanel>
               <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
@@ -186,52 +219,23 @@
                   </Trigger>
                 </Button.Triggers>
               </Button> <!-- PIPButton -->
-              <Grid x:Name="PlayControlsGrid" Grid.Column="0" Grid.Row="2" Margin="10,10,10,0"
-                  VerticalAlignment="Center" HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                  <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}" Grid.Column="0" Grid.Row="0"
-                    VerticalAlignment="Center" HorizontalAlignment="Center">
-                  <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
-                      Command="{Command Previous}"/>
-                  <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                      Command="{Command Rewind}"/>
-                  <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                      Command="{Command Play}"/>
-                  <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                      Command="{Command Pause}"/>
-                  <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
-                      Command="{Command Stop}"/>
-                  <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                      Command="{Command Forward}"/>
-                  <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
-                      Command="{Command Next}"/>
-                </StackPanel>
-                <Grid x:Name="Audio_NoMouse" Grid.Row="0" Grid.Column="1" IsVisible="{Binding !ShowMouseControls}"
-                    VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
-                  <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                  <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                    <Control.IsVisible>
-                      <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                        <Binding Path="IsAudio"/>
-                        <Binding Path="IsMuted"/>
-                      </MultiBinding>
-                    </Control.IsVisible>
-                  </Control>
-                </Grid>
-                <Grid x:Name="Audio_Mouse" Grid.Row="0" Grid.Column="1" IsVisible="{Binding ShowMouseControls}"
-                    VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
-                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
-                  <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
-                </Grid>
-              </Grid> <!-- PlayControlsGrid -->
+              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="2" Margin="10,10,10,0"
+                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                    Command="{Command Previous}"/>
+                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                    Command="{Command Rewind}"/>
+                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                    Command="{Command Play}"/>
+                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                    Command="{Command Pause}"/>
+                <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                    Command="{Command Stop}"/>
+                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                    Command="{Command Forward}"/>
+                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
+                    Command="{Command Next}"/>
+              </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
           </Border> <!-- OSD_Background -->
           <ControlTemplate.Triggers>

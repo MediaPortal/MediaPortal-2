@@ -75,7 +75,7 @@ namespace UiComponents.SkinBase.Models
       base.UnsubscribeFromMessages();
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
       broker.Unregister_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
-      broker.Unregister_Async(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Async);
+      broker.Unregister_Async(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Async, true);
     }
 
     public override Guid ModelId

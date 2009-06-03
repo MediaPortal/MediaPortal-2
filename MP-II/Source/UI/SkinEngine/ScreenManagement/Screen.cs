@@ -193,6 +193,12 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _visual.Deallocate();
     }
 
+    public void Animate()
+    {
+      lock (_visual)
+        _animator.Animate();
+    }
+
     public void Render()
     {
       uint time = (uint) Environment.TickCount;
@@ -203,15 +209,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       {
         if (SkinContext.UseBatching)
         {
-          _animator.Animate();
           Update();
           return;
         }
         else
-        {
-          _animator.Animate();
           _visual.Render();
-        }
       }
       if (_setFocusedElement)
       {

@@ -377,6 +377,10 @@ namespace MediaPortal.SkinEngine.SkinManagement
     internal virtual void Release()
     {
       _localResourceFilePaths = null;
+      if (_localStyleResources != null && false)
+        foreach (object resource in _localStyleResources.Values)
+          if (resource is IDisposable)
+            ((IDisposable) resource).Dispose();
       _localStyleResources = null;
       ReleaseAllGUIModels();
     }

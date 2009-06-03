@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -27,7 +27,7 @@ using System.Collections.Generic;
 namespace MediaPortal.Core.Messaging
 {
   /// <summary>
-  /// Message to be used in <see cref="IMessageQueue"/>
+  /// Message to be sent via <see cref="IMessageBroker"/>
   /// </summary>
   public class QueueMessage
   {

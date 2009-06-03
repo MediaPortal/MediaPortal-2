@@ -56,8 +56,8 @@ namespace UiComponents.SkinBase
     internal void DoUninstall()
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
-      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
+      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
+      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived, true);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)

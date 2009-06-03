@@ -115,14 +115,17 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
-    public void Unregister_Async(string queueName, MessageReceivedHandler handler)
+    public void Unregister_Async(string queueName, MessageReceivedHandler handler, bool waitForAsyncMessages)
     {
+      Queue queue;
       lock (_syncObj)
       {
-        Queue queue = GetQueueCheckShutdown(queueName);
+        queue = GetQueueCheckShutdown(queueName);
         if (queue != null)
           queue.MessageReceived_Async -= handler;
       }
+      if (waitForAsyncMessages && queue != null)
+        queue.WaitForAsyncExecutions();
     }
 
     public void Send(string queueName, QueueMessage msg)

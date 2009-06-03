@@ -212,6 +212,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       UninstallBackgroundManager();
       ReleasePluginSkinResources();
+      ReleaseSkinResources();
       _skins.Clear();
     }
 
