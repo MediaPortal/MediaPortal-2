@@ -43,7 +43,7 @@ namespace UiComponents.Media.Settings.Configuration
   /// Provides a model to attend the complex shares configuration process in the MP-II configuration.
   /// This model is the workflow model for this process.
   /// </summary>
-  public class SharesConfigModel : IWorkflowModel
+  public class SharesConfigModel : IWorkflowModel, IDisposable
   {
     #region Enums
 
@@ -121,7 +121,9 @@ namespace UiComponents.Media.Settings.Configuration
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected ICollection<Guid> _metadataExtractorIds = new HashSet<Guid>();
     protected Guid _currentShareId;
-    protected Guid _queryDialogHandle;
+    protected Guid _relocateSharesQueryDialogHandle;
+
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
 
@@ -148,6 +150,11 @@ namespace UiComponents.Media.Settings.Configuration
       _allMetadataExtractorsList = new ItemsList();
       _mediaCategories = new HashSet<string>();
       _metadataExtractorIds = new HashSet<Guid>();
+    }
+
+    public void Dispose()
+    {
+      UnsubscribeFromMessages();
     }
 
     #endregion
@@ -428,10 +435,8 @@ namespace UiComponents.Media.Settings.Configuration
           if (share.MediaProviderId != MediaProvider.Metadata.MediaProviderId ||
               share.Path != MediaProviderPath)
           {
-            IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-            broker.Register_Async(DialogManagerMessaging.QUEUE, OnUserReply_UpdateShareRelocateMediaItems);
             IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-            _queryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
+            _relocateSharesQueryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
                 "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, true);
           }
           else
@@ -464,6 +469,24 @@ namespace UiComponents.Media.Settings.Configuration
     #endregion
 
     #region Protected methods
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           DialogManagerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
 
     protected void OnShareItemSelectionChanged(Property shareItem, object oldValue)
     {
@@ -771,13 +794,14 @@ namespace UiComponents.Media.Settings.Configuration
           MediaProvider.GetResourceName(MediaProviderPath);
     }
 
-    protected void OnUserReply_UpdateShareRelocateMediaItems(QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      Guid dialogHandle = (Guid) message.MessageData[DialogManagerMessaging.DIALOG_HANDLE];
-      if (dialogHandle != _queryDialogHandle)
-        return;
-      try
+      if (message.ChannelName == DialogManagerMessaging.CHANNEL)
       {
+        Guid dialogHandle = (Guid) message.MessageData[DialogManagerMessaging.DIALOG_HANDLE];
+        if (dialogHandle != _relocateSharesQueryDialogHandle)
+          return;
+        _relocateSharesQueryDialogHandle = Guid.Empty;
         DialogResult dialogResult = (DialogResult) message.MessageData[DialogManagerMessaging.DIALOG_RESULT];
         if (dialogResult == DialogResult.Cancel)
         {
@@ -786,11 +810,6 @@ namespace UiComponents.Media.Settings.Configuration
         }
         bool relocateMediaItems = dialogResult == DialogResult.Yes;
         UpdateShareAndFinish(relocateMediaItems);
-      }
-      finally
-      {
-        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        broker.Unregister_Async(DialogManagerMessaging.QUEUE, OnUserReply_UpdateShareRelocateMediaItems, false);
       }
     }
 
@@ -884,12 +903,13 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      SubscribeToMessages();
       PrepareState(newContext.WorkflowState.StateId);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      UnsubscribeFromMessages();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

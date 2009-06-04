@@ -41,40 +41,48 @@ namespace UiComponents.SkinBase
 
     protected ICollection<Key> _registeredKeyBindings = new List<Key>();
     protected object _syncObj = new object();
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     internal void DoInstall()
     {
       // Set initial background
       UpdateBackground();
 
-      // Install manager
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
-      broker.Register_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
+      // Install message queue
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           PlayerManagerMessaging.CHANNEL,
+           PlayerContextManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     internal void DoUninstall()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
-      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived, true);
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
     }
 
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      UpdateKeyBindings();
-      UpdateBackground();
-    }
-
-    protected void OnPlayerContextManagerMessageReceived(QueueMessage message)
-    {
-      PlayerContextManagerMessaging.MessageType messageType =
-          (PlayerContextManagerMessaging.MessageType) message.MessageData[PlayerContextManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
-          UpdateKeyBindings();
-          break;
+        UpdateKeyBindings();
+        UpdateBackground();
+      }
+      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      {
+        PlayerContextManagerMessaging.MessageType messageType =
+            (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+            UpdateKeyBindings();
+            break;
+        }
       }
     }
 

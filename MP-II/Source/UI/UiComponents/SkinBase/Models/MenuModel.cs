@@ -65,17 +65,9 @@ namespace UiComponents.SkinBase.Models
 
     void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
-      broker.Register_Async(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Async);
-    }
-
-    protected override void UnsubscribeFromMessages()
-    {
-      base.UnsubscribeFromMessages();
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
-      broker.Unregister_Async(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Async, true);
+      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
+      _messageQueue.PreviewMessage += OnPreviewMessage;
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     public override Guid ModelId
@@ -83,33 +75,39 @@ namespace UiComponents.SkinBase.Models
       get { return new Guid(MODEL_ID_STR); }
     }
 
-    protected void OnWorkflowManagerMessageReceived_Sync(QueueMessage message)
+    void OnPreviewMessage(IMessageReceiver queue, QueueMessage message)
     {
-      WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
-        case WorkflowManagerMessaging.MessageType.StatePushed:
-        case WorkflowManagerMessaging.MessageType.StatesPopped:
-          // We'll delay the menu update until the navigation complete message, but remember that the menu isn't valid
-          // any more - so we can update the menu if it was requested again before the navigation complete message
-          // has arrived.
-          // In fact, this will be the normal case if the screen gets changed when the workflow state changes,
-          // i.e. before the workflow manager sends the navigation complete message, the screen will be updated.
-          // But in case the screen doesn't change for example, the NavigationComplete message updates the menu.
-          _invalid = true;
-          break;
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.StatePushed:
+          case WorkflowManagerMessaging.MessageType.StatesPopped:
+            // We'll delay the menu update until the navigation complete message, but remember that the menu isn't valid
+            // any more - so we can update the menu if it was requested again before the navigation complete message
+            // has arrived.
+            // In fact, this will be the normal case if the screen gets changed when the workflow state changes,
+            // i.e. before the workflow manager sends the navigation complete message, the screen will be updated.
+            // But in case the screen doesn't change for example, the NavigationComplete message updates the menu.
+            _invalid = true;
+            break;
+        }
       }
     }
 
-    protected void OnWorkflowManagerMessageReceived_Async(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
-        case WorkflowManagerMessaging.MessageType.NavigationComplete:
-          if (_invalid)
-            RebuildMenu();
-          break;
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            if (_invalid)
+              RebuildMenu();
+            break;
+        }
       }
     }
 

@@ -52,7 +52,14 @@ namespace MediaPortal.Presentation.Models
 
       ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
       if (systemStateService.CurrentState == SystemState.Started)
-        StartListening();
+        StartTimer();
+      SubscribeToMessages();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
@@ -65,14 +72,14 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     public override void Dispose()
     {
-      StopListening();
+      StopTimer();
       base.Dispose();
     }
 
     /// <summary>
     /// Sets the timer up to be called periodically.
     /// </summary>
-    protected void StartListening()
+    protected void StartTimer()
     {
       if (_timer.Enabled)
         return;
@@ -84,7 +91,7 @@ namespace MediaPortal.Presentation.Models
     /// <summary>
     /// Disables the timer.
     /// </summary>
-    protected virtual void StopListening()
+    protected virtual void StopTimer()
     {
       if (!_timer.Enabled)
         return;
@@ -92,26 +99,22 @@ namespace MediaPortal.Presentation.Models
       _timer.Elapsed -= OnTimerElapsed;
     }
 
-    /// <summary>
-    /// Will be called when a system message is received. Can be overridden to provide additional functionality. When
-    /// overridden in subclasses, this method has to be called also.
-    /// </summary>
-    /// <param name="message">The system message which was recieved.</param>
-    protected override void OnSystemMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      SystemMessaging.MessageType messageType =
-          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
-      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+      if (message.ChannelName == SystemMessaging.CHANNEL)
       {
-        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-        switch (state)
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
-          case SystemState.Started:
-            StartListening();
-            break;
+          SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
+          switch (state)
+          {
+            case SystemState.Started:
+              StartTimer();
+              break;
+          }
         }
       }
-      base.OnSystemMessageReceived(message);
     }
 
     /// <summary>

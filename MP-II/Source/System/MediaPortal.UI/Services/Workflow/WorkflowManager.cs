@@ -154,10 +154,6 @@ namespace MediaPortal.Services.Workflow
     /// </summary>
     protected void ReloadWorkflowResources()
     {
-      if (_menuActions != null)
-        foreach (WorkflowAction action in _menuActions.Values)
-          if (action is IDisposable)
-            ((IDisposable) action).Dispose();
       if (_states.Count == 0)
         ServiceScope.Get<ILogger>().Debug("WorkflowManager: Loading workflow resources");
       else
@@ -166,8 +162,6 @@ namespace MediaPortal.Services.Workflow
       loader.Load();
       _states = loader.States;
       _menuActions = loader.MenuActions;
-      foreach (WorkflowAction action in _menuActions.Values)
-        action.Initialize();
       int count = 0;
       int numPop = 0;
       foreach (NavigationContext context in _navigationContextStack)
@@ -323,15 +317,12 @@ namespace MediaPortal.Services.Workflow
       {
         // Compile menu actions
         logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
-        ICollection<WorkflowAction> menuActions = new List<WorkflowAction>();
-        if (state.InheritMenu && predecessor != null)
-          CollectionUtils.AddAll(menuActions, predecessor.MenuActions.Values);
-        CollectionUtils.AddAll(menuActions, FilterActionsBySourceState(state.StateId, _menuActions.Values));
+        ICollection<WorkflowAction> menuActions =
+            new List<WorkflowAction>(FilterActionsBySourceState(state.StateId, _menuActions.Values));
         if (workflowModel != null)
           workflowModel.UpdateMenuActions(newContext, menuActions);
 
-        foreach (WorkflowAction menuAction in menuActions)
-          newContext.MenuActions[menuAction.ActionId] = menuAction;
+        newContext.SetMenuActions(menuActions);
       }
 
       IterateCache();
@@ -359,8 +350,9 @@ namespace MediaPortal.Services.Workflow
         {
           IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
           if (screenManager.IsDialogVisible && screenManager.ActiveScreenName == oldContext.WorkflowState.MainScreen)
-            // This will trigger our close dialog delegate which we attached in the UpdateScreen method,
-            // but the anonymous method checks the current navigation context, which has already been removed here
+            // In fact this will trigger our close dialog delegate which we attached in the UpdateScreen method,
+            // but the anonymous close event delegate checks the current navigation context, which has already been
+            // removed here (see method UpdateScreen)
             screenManager.CloseDialog();
         }
         NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
@@ -402,6 +394,7 @@ namespace MediaPortal.Services.Workflow
         }
         else
           stateChangeAccepted = true;
+        oldContext.Dispose();
       }
       IterateCache();
       Guid[] statesRemovedArray = new Guid[statesRemoved.Count];
@@ -506,6 +499,8 @@ namespace MediaPortal.Services.Workflow
         skinResourceManager.SkinResourcesChanged -= OnSkinResourcesChanged;
       foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
         FreeModel(modelId);
+      foreach (NavigationContext context in _navigationContextStack)
+        context.Dispose();
     }
 
     public void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables)

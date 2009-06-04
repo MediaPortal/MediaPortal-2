@@ -64,15 +64,8 @@ namespace UiComponents.SkinBase.Models
 
     void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(SkinMessaging.QUEUE, OnSkinMessageReceived);
-    }
-
-    protected override void UnsubscribeFromMessages()
-    {
-      base.UnsubscribeFromMessages();
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(SkinMessaging.QUEUE, OnSkinMessageReceived, true);
+      _messageQueue.SubscribeToMessageChannel(SkinMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
     protected void ReadSettings()
@@ -83,13 +76,16 @@ namespace UiComponents.SkinBase.Models
       _timeFormat = settings.TimeFormat;
     }
 
-    protected void OnSkinMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      if (((SkinMessaging.NotificationType) message.MessageData[SkinMessaging.Notification]) ==
-          SkinMessaging.NotificationType.DateTimeFormatChanged)
-          // The DateFormat and TimeFormat configuration classes will send this message when they
-          // changed the formats, so we have to update our format here
-        ReadSettings();
+      if (message.ChannelName == SkinMessaging.CHANNEL)
+      {
+        if (((SkinMessaging.MessageType) message.MessageData[SkinMessaging.Notification]) ==
+            SkinMessaging.MessageType.DateTimeFormatChanged)
+            // The DateFormat and TimeFormat configuration classes will send this message when they
+            // changed the formats, so we have to update our format here
+          ReadSettings();
+      }
     }
 
     public override Guid ModelId

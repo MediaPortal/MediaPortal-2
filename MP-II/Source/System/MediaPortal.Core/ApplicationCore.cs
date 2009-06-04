@@ -92,14 +92,6 @@ namespace MediaPortal.Core
       pluginManager.Shutdown();
     }
 
-    public static void StopAll()
-    {
-      ILogger logger = ServiceScope.Get<ILogger>();
-
-      logger.Debug("ApplicationCore: Shutting down IMessageBroker");
-      ServiceScope.Get<IMessageBroker>().Shutdown();
-    }
-
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();

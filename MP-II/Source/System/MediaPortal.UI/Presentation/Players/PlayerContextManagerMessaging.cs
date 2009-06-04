@@ -34,8 +34,9 @@ namespace MediaPortal.Presentation.Players
   public class PlayerContextManagerMessaging
   {
     // Message Queue name
-    public const string QUEUE = "PlayerContextManager";
+    public const string CHANNEL = "PlayerContextManager";
 
+    // Message type
     public enum MessageType
     {
       /// <summary>
@@ -45,15 +46,13 @@ namespace MediaPortal.Presentation.Players
     }
 
     // Message data
-    public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
 
     public static void SendPlayerContextManagerMessage(MessageType type, int playerSlot)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = type;
+      QueueMessage msg = new QueueMessage(type);
       msg.MessageData[PARAM] = playerSlot;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

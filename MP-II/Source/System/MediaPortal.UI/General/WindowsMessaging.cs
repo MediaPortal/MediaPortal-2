@@ -34,17 +34,23 @@ namespace MediaPortal.General
   /// </summary>
   public static class WindowsMessaging
   {
-    // Message Queue name
-    public const string QUEUE = "Windows";
+    // Message channel name
+    public const string CHANNEL = "Windows";
+
+    // Message type
+    public enum MessageType
+    {
+      WindowsBroadcast,
+    }
 
     // Message data
     public const string MESSAGE = "Message"; // Windows message stored as System.Windows.Forms.Message - Take care to copy the message back to the message data after modifying it, else the auto unboxing will prevent applying the new values
 
     public static void BroadcastWindowsMessage(ref Message message)
     {
-      QueueMessage msg = new QueueMessage();
+      QueueMessage msg = new QueueMessage(MessageType.WindowsBroadcast);
       msg.MessageData[MESSAGE] = message;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
       // Copy message back to the ref message
       message = (Message) msg.MessageData[MESSAGE];
     }

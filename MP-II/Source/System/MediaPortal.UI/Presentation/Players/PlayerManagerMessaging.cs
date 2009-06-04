@@ -33,9 +33,10 @@ namespace MediaPortal.Presentation.Players
   /// </summary>
   public class PlayerManagerMessaging
   {
-    // Message Queue name
-    public const string QUEUE = "PlayerManager";
+    // Message channel name
+    public const string CHANNEL = "PlayerManager";
 
+    // Message type
     public enum MessageType
     {
       #region Player messages. The param will denote the player slot (int).
@@ -112,7 +113,6 @@ namespace MediaPortal.Presentation.Players
     }
 
     // Message data
-    public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
 
     /// <summary>
@@ -123,10 +123,9 @@ namespace MediaPortal.Presentation.Players
     /// <param name="slot">Slot of the specific player which was changed.</param>
     public static void SendPlayerMessage(MessageType type, int slot)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = type;
+      QueueMessage msg = new QueueMessage(type);
       msg.MessageData[PARAM] = slot;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -137,10 +136,9 @@ namespace MediaPortal.Presentation.Players
     /// <param name="slot">Slot of the player which is involved.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type, int slot)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = type;
+      QueueMessage msg = new QueueMessage(type);
       msg.MessageData[PARAM] = slot;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -150,9 +148,8 @@ namespace MediaPortal.Presentation.Players
     /// <param name="type">Type of the message.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = type;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      QueueMessage msg = new QueueMessage(type);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

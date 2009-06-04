@@ -139,6 +139,7 @@ namespace Ui.Players.Video
     protected PlayerEventDlgt _paused = null;
     protected PlayerEventDlgt _resumed = null;
     protected PlayerEventDlgt _playbackError = null;
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
 
@@ -151,7 +152,7 @@ namespace Ui.Players.Video
       if (osInfo.Version.Major <= 5)
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
-      SubscribeWindowsMessages();
+      SubscribeToMessages();
     }
 
     public void Dispose()
@@ -159,43 +160,54 @@ namespace Ui.Players.Video
       if (_mediaItemAccessor != null)
         _mediaItemAccessor.Dispose();
       _mediaItemAccessor = null;
-      UnsubscribeWindowsMessages();
+      UnsubscribeFromMessages();
     }
 
     #endregion
 
-    protected void SubscribeWindowsMessages()
+    void SubscribeToMessages()
     {
-      ServiceScope.Get<IMessageBroker>().Register_Sync(WindowsMessaging.QUEUE, OnWindowsMessageReceived);
-    }
-
-    protected void UnsubscribeWindowsMessages()
-    {
-      ServiceScope.Get<IMessageBroker>().Unregister_Sync(WindowsMessaging.QUEUE, OnWindowsMessageReceived);
-    }
-
-    protected virtual void OnWindowsMessageReceived(QueueMessage message)
-    {
-      Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
-      if (m.LParam.Equals(_instancePtr))
-      {
-        if (m.Msg == WM_GRAPHNOTIFY)
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
         {
-          IMediaEventEx eventEx = (IMediaEventEx)_graphBuilder;
+           WindowsMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
 
-          EventCode evCode;
-          IntPtr param1, param2;
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
 
-          while (eventEx.GetEvent(out evCode, out param1, out param2, 0) == 0)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == WindowsMessaging.CHANNEL)
+      {
+        Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
+        if (m.LParam.Equals(_instancePtr))
+        {
+          if (m.Msg == WM_GRAPHNOTIFY)
           {
-            eventEx.FreeEventParams(evCode, param1, param2);
-            if (evCode == EventCode.Complete)
+            IMediaEventEx eventEx = (IMediaEventEx) _graphBuilder;
+
+            EventCode evCode;
+            IntPtr param1, param2;
+
+            while (eventEx.GetEvent(out evCode, out param1, out param2, 0) == 0)
             {
-              _state = PlaybackState.Ended;
-              ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playback ended");
-              // TODO: RemoveResumeData();
-              FireEnded();
-              return;
+              eventEx.FreeEventParams(evCode, param1, param2);
+              if (evCode == EventCode.Complete)
+              {
+                _state = PlaybackState.Ended;
+                ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playback ended");
+                // TODO: RemoveResumeData();
+                FireEnded();
+                return;
+              }
             }
           }
         }

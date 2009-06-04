@@ -36,7 +36,7 @@ namespace UiComponents.SkinBase.Actions
   /// Action which is visible when player slots are open. This action will show the dialog
   /// "DialogPlayerConfiguration" when executed.
   /// </summary>
-  public class PlayerConfiguration : IWorkflowContributor, IDisposable
+  public class PlayerConfiguration : IWorkflowContributor
   {
     #region Consts
 
@@ -52,6 +52,7 @@ namespace UiComponents.SkinBase.Actions
 
     #region Protected fields
 
+    protected AsynchronousMessageQueue _messageQueue = null;
     protected bool _isVisible;
     protected IResourceString _displayTitle;
 
@@ -62,28 +63,37 @@ namespace UiComponents.SkinBase.Actions
       _displayTitle = LocalizationHelper.CreateResourceString(DISPLAY_TITLE_RESOURCE);
     }
 
-    protected void SubscribeToMessages()
+    void SubscribeToMessages()
     {
-      IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           PlayerManagerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
-    protected void UnsubscribeFromMessages()
+    void UnsubscribeFromMessages()
     {
-      IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
-      messageBroker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
     }
 
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      PlayerManagerMessaging.MessageType messageType =
-          (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
-          Update();
-          break;
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+            Update();
+            break;
+        }
       }
     }
 
@@ -102,15 +112,6 @@ namespace UiComponents.SkinBase.Actions
       ContributorStateChangeDelegate d = StateChanged;
       if (d != null) d();
     }
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      UnsubscribeFromMessages();
-    }
-
-    #endregion
 
     #region IWorkflowContributor implementation
 
@@ -135,6 +136,11 @@ namespace UiComponents.SkinBase.Actions
     {
       SubscribeToMessages();
       Update();
+    }
+
+    public void Uninitialize()
+    {
+      UnsubscribeFromMessages();
     }
 
     public void Execute()

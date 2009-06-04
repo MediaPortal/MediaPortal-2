@@ -45,6 +45,7 @@ namespace MediaPortal.Services.Players
 
     #region Protected fields
 
+    protected AsynchronousMessageQueue _messageQueue = null;
     private int _currentPlayerIndex = -1; // Set this value via the CurrentPlayerIndex property to correctly raise the update event
 
     // Remember the state id when we are in a "currently playing" or "fullscreen content" state
@@ -58,72 +59,82 @@ namespace MediaPortal.Services.Players
       SubscribeToMessages();
     }
 
-    protected void SubscribeToMessages()
+    void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived_Async);
-      broker.Register_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
-    }
-
-    protected void UnsubscribeFromMessages()
-    {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
-      if (broker == null)
-        return;
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived_Async, true);
-      broker.Unregister_Sync(WorkflowManagerMessaging.QUEUE, OnWorkflowManagerMessageReceived_Sync);
-    }
-
-    protected void OnPlayerManagerMessageReceived_Async(QueueMessage message)
-    {
-      PlayerManagerMessaging.MessageType messageType =
-          (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
-      PlayerContext pc;
-      lock (SyncObj)
-      {
-        int slotIndex;
-        switch (messageType)
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
         {
-          case PlayerManagerMessaging.MessageType.PlayerEnded:
-            slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-            pc = GetPlayerContextInternal(slotIndex);
-            if (pc == null)
-              return;
-            if (!pc.NextItem())
-              if (pc.CloseWhenFinished)
-                ClosePlayerContext(slotIndex);
-            break;
-          case PlayerManagerMessaging.MessageType.PlayerStopped:
-            slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-            pc = GetPlayerContextInternal(slotIndex);
-            if (pc == null)
-              return;
-            // We get the player message asynchronously, so we have to check the state of the slot again to ensure
-            // we close the correct one
-            if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
-              ClosePlayerContext(slotIndex);
-            break;
-          case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
-            _currentPlayerIndex = 1 - _currentPlayerIndex;
-            break;
+           WorkflowManagerMessaging.CHANNEL,
+           PlayerManagerMessaging.CHANNEL,
+        });
+      _messageQueue.PreviewMessage += OnPreviewMessage;
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    void OnPreviewMessage(IMessageReceiver queue, QueueMessage message)
+    {
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType =
+            (WorkflowManagerMessaging.MessageType) message.MessageType;
+        if (messageType == WorkflowManagerMessaging.MessageType.StatesPopped)
+        {
+          ICollection<Guid> statesRemoved = new List<Guid>((Guid[]) message.MessageData[WorkflowManagerMessaging.PARAM]);
+          // Don't request the lock here, because we're in a synchronous message notification method
+          if (_inCurrentlyPlayingState.HasValue && statesRemoved.Contains(_inCurrentlyPlayingState.Value))
+            _inCurrentlyPlayingState = null;
+          if (_inFullscreenContentState.HasValue && statesRemoved.Contains(_inFullscreenContentState.Value))
+            _inFullscreenContentState = null;
         }
       }
-      CheckCurrentPlayerSlot();
-      CheckMediaWorkflowStates();
     }
 
-    protected void OnWorkflowManagerMessageReceived_Sync(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      WorkflowManagerMessaging.MessageType messageType =
-          (WorkflowManagerMessaging.MessageType) message.MessageData[WorkflowManagerMessaging.MESSAGE_TYPE];
-      if (messageType == WorkflowManagerMessaging.MessageType.StatesPopped)
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        ICollection<Guid> statesRemoved = new List<Guid>((Guid[]) message.MessageData[WorkflowManagerMessaging.PARAM]);
-        // Don't request the lock here, because we're in a synchronous message notification method
-        if (_inCurrentlyPlayingState.HasValue && statesRemoved.Contains(_inCurrentlyPlayingState.Value))
-          _inCurrentlyPlayingState = null;
-        if (_inFullscreenContentState.HasValue && statesRemoved.Contains(_inFullscreenContentState.Value))
-          _inFullscreenContentState = null;
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType) message.MessageType;
+        PlayerContext pc;
+        lock (SyncObj)
+        {
+          int slotIndex;
+          switch (messageType)
+          {
+            case PlayerManagerMessaging.MessageType.PlayerEnded:
+              slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+              pc = GetPlayerContextInternal(slotIndex);
+              if (pc == null)
+                return;
+              if (!pc.NextItem())
+                if (pc.CloseWhenFinished)
+                  ClosePlayerContext(slotIndex);
+              break;
+            case PlayerManagerMessaging.MessageType.PlayerStopped:
+              slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
+              pc = GetPlayerContextInternal(slotIndex);
+              if (pc == null)
+                return;
+              // We get the player message asynchronously, so we have to check the state of the slot again to ensure
+              // we close the correct one
+              if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
+                ClosePlayerContext(slotIndex);
+              break;
+            case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
+              _currentPlayerIndex = 1 - _currentPlayerIndex;
+              break;
+          }
+        }
+        CheckCurrentPlayerSlot();
+        CheckMediaWorkflowStates();
       }
     }
 

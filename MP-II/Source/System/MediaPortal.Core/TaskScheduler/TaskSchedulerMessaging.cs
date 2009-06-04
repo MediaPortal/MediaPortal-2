@@ -22,32 +22,37 @@
 
 #endregion
 
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Messaging;
 
-namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
+namespace MediaPortal.Core.TaskScheduler
 {
-  public class TimeFormat : Entry
+  public class TaskSchedulerMessaging
   {
-    #region Base overrides
+    // Message channel name
+    public const string CHANNEL = "TaskScheduler";
 
-    public override void Load()
+    // Message type
+    public enum MessageType
     {
-      _value = SettingsManager.Load<SkinBaseSettings>().TimeFormat;
+      DUE,
+      CHANGED,
+      DELETED,
+      EXPIRED
     }
 
-    public override void Save()
-    {
-      SkinBaseSettings settings = SettingsManager.Load<SkinBaseSettings>();
-      settings.TimeFormat = _value;
-      SettingsManager.Save(settings);
-      SkinMessaging.SendSkinMessage(SkinMessaging.MessageType.DateTimeFormatChanged);
-    }
+    // Message data
+    public const string TASK = "Task"; // Stores the task of this message
 
-    public override int DisplayLength
+    /// <summary>
+    /// Sends a message in the <see cref="CHANNEL"/>.
+    /// </summary>
+    /// <param name="type">The type of the message to send.</param>
+    /// <param name="task">The task of the message to send.</param>
+    public static void SendTaskSchedulerMessage(MessageType type, Task task)
     {
-      get { return 10; }
+      QueueMessage msg = new QueueMessage(type);
+      msg.MessageData[TASK] = task;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
-
-    #endregion
   }
 }

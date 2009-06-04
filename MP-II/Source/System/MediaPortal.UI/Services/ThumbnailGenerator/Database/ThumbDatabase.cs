@@ -55,6 +55,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
     protected IDictionary<string, Thumb> _thumbs = new Dictionary<string, Thumb>(
         WindowsFilesystemPathEqualityComparer.Instance);
     protected bool _changed = false;
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     public ThumbDatabase(string folderPath) : this(folderPath, Path.Combine(folderPath, THUMB_DB_FILENAME)) { }
 
@@ -62,26 +63,46 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
     {
       _folderPath = folderPath;
       _dbFilePath = dbFilePath;
-      // FIXME: Don't observe the contentmanager queue here
-      IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      msgBroker.Register_Async("contentmanager", queue_OnMessageReceived);
+      SubscribeToMessages();
       Load();
     }
 
-    void queue_OnMessageReceived(QueueMessage message)
+    void SubscribeToMessages()
     {
-      if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
-      {
-        string action = (string)message.MessageData["action"];
-        if (action == "changed")
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
         {
-          string filePath = (string) message.MessageData["fullpath"];
-          if (FileUtils.PathEquals(Path.GetDirectoryName(filePath), _folderPath))
-            lock (this)
-            {
-              if (_thumbs.Remove(Path.GetFileName(filePath)))
-                _changed = true;
-            }
+          // FIXME: Don't observe the contentmanager queue here
+          "contentmanager"
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == "contentmanager")
+      {
+        if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
+        {
+          string action = (string) message.MessageData["action"];
+          if (action == "changed")
+          {
+            string filePath = (string) message.MessageData["fullpath"];
+            if (FileUtils.PathEquals(Path.GetDirectoryName(filePath), _folderPath))
+              lock (this)
+              {
+                if (_thumbs.Remove(Path.GetFileName(filePath)))
+                  _changed = true;
+              }
+          }
         }
       }
     }
@@ -158,6 +179,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
     public void Close()
     {
       Flush();
+      UnsubscribeFromMessages();
     }
 
     /// <summary>

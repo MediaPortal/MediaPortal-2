@@ -32,13 +32,11 @@ namespace MediaPortal.Core.PluginManager
   /// </summary>
   public static class PluginManagerMessaging
   {
-    // Message Queue name
-    public const string QUEUE = "Plugin";
+    // Message channel name
+    public const string CHANNEL = "Plugin";
 
-    // Message data
-    public const string NOTIFICATION = "Notification"; // Notification stored as NotificationType
-
-    public enum NotificationType
+    // Message type
+    public enum MessageType
     {
       /// <summary>
       /// This message will be sent before the plugin manager performs its startup tasks.
@@ -62,11 +60,10 @@ namespace MediaPortal.Core.PluginManager
       Shutdown
     }
 
-    public static void SendPluginManagerMessage(NotificationType notificationType)
+    public static void SendPluginManagerMessage(MessageType messageType)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[NOTIFICATION] = notificationType;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      QueueMessage msg = new QueueMessage(messageType);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

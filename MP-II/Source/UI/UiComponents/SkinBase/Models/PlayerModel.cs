@@ -63,30 +63,25 @@ namespace UiComponents.SkinBase.Models
 
     void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
-    }
-
-    protected override void UnsubscribeFromMessages()
-    {
-      base.UnsubscribeFromMessages();
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
+      _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
     }
 
     protected void OnPlayerManagerMessageReceived(QueueMessage message)
     {
-      PlayerManagerMessaging.MessageType messageType =
-          (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        case PlayerManagerMessaging.MessageType.PlayerStarted:
-        case PlayerManagerMessaging.MessageType.PlayerEnded:
-        case PlayerManagerMessaging.MessageType.PlayerStopped:
-        case PlayerManagerMessaging.MessageType.PlayersMuted:
-        case PlayerManagerMessaging.MessageType.PlayersResetMute:
-          Update();
-          break;
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerStarted:
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayersMuted:
+          case PlayerManagerMessaging.MessageType.PlayersResetMute:
+            Update();
+            break;
+        }
       }
     }
 

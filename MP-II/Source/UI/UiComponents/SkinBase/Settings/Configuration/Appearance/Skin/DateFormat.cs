@@ -40,7 +40,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
       SkinBaseSettings settings = SettingsManager.Load<SkinBaseSettings>();
       settings.DateFormat = _value;
       SettingsManager.Save(settings);
-      SkinMessaging.SendSkinMessage(SkinMessaging.NotificationType.DateTimeFormatChanged);
+      SkinMessaging.SendSkinMessage(SkinMessaging.MessageType.DateTimeFormatChanged);
     }
 
     public override int DisplayLength

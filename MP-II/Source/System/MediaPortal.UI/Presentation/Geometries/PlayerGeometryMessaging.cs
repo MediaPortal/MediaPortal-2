@@ -34,9 +34,10 @@ namespace MediaPortal.Presentation.Geometries
   public static class PlayerGeometryMessaging
   {
     // Message Queue name
-    public const string QUEUE = "PlayerGeometry";
+    public const string CHANNEL = "PlayerGeometry";
 
-    public enum NotificationType
+    // Message type
+    public enum MessageType
     {
       /// <summary>
       /// Will be sent when the default geometry changed or when the geometry of a special player slot changed.
@@ -47,22 +48,20 @@ namespace MediaPortal.Presentation.Geometries
     }
 
     // Message data
-    public const string NOTIFICATION_TYPE = "Notification"; // Notification stored as NotificationType
     public const string PLAYER_SLOT = "PlayerSlot"; // Player slot which changed its geometry
 
     public const int ALL_PLAYERS = -1;
 
     /// <summary>
-    /// Sends a <see cref="NotificationType.GeometryChanged"/> message.
+    /// Sends a <see cref="MessageType.GeometryChanged"/> message.
     /// </summary>
     /// <param name="playerSlot">The player slot which is affected from the change. If this parameter is equal to
     /// <see cref="PlayerGeometryMessaging.ALL_PLAYERS"/>, all player slots are affected.</param>
     public static void SendGeometryChangedMessage(int playerSlot)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[NOTIFICATION_TYPE] = NotificationType.GeometryChanged;
+      QueueMessage msg = new QueueMessage(MessageType.GeometryChanged);
       msg.MessageData[PLAYER_SLOT] = playerSlot;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

@@ -72,6 +72,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected float _fixedVideoHeight;
     protected Timer _timer;
     protected bool _initialized = false;
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     // Derived properties/fields
     protected Property _isPlayerActiveProperty;
@@ -205,28 +206,30 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       UpdatePlayControls();
     }
 
-    protected void SubscribeToMessages()
+    void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
-      broker.Register_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           PlayerManagerMessaging.CHANNEL,
+           PlayerContextManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
-    protected void UnsubscribeFromMessages()
+    void UnsubscribeFromMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
-      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived, true);
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
     }
 
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      UpdatePlayControls();
-    }
-
-    protected void OnPlayerContextManagerMessageReceived(QueueMessage message)
-    {
-      UpdatePlayControls();
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL ||
+          message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+        UpdatePlayControls();
     }
 
     protected IPlayerContext GetPlayerContext()

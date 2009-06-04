@@ -23,142 +23,48 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.Services.Messaging
 {
   public class MessageBroker : IMessageBroker
   {
-    #region Protected fields
-
-    protected IDictionary<string, Queue> _queues = new Dictionary<string, Queue>();
+    protected IDictionary<string, ICollection<IMessageReceiver>> _registeredQueues =
+        new Dictionary<string, ICollection<IMessageReceiver>>();
     protected object _syncObj = new object();
-    protected bool _shuttingDown = false;
 
-    #endregion
-
-    public Queue GetOrCreate(string queueName)
+    public void RegisterMessageQueue(string channel, IMessageReceiver queue)
     {
       lock (_syncObj)
       {
-        if (_shuttingDown)
-          throw new IllegalCallException("The MessageBroker is shutting down, no more message queues can be created");
-        Queue result;
-        if (!_queues.TryGetValue(queueName, out result))
+        ICollection<IMessageReceiver> queues;
+        if (!_registeredQueues.TryGetValue(channel, out queues))
+          _registeredQueues[channel] = queues = new List<IMessageReceiver>();
+        queues.Add(queue);
+      }
+    }
+
+    public void UnregisterMessageQueue(string channel, IMessageReceiver queue)
+    {
+      lock (_syncObj)
+      {
+        ICollection<IMessageReceiver> queues;
+        if (_registeredQueues.TryGetValue(channel, out queues))
         {
-          result = new Queue(queueName);
-          _queues[queueName] = result;
+          queues.Remove(queue);
+          if (queues.Count == 0)
+            _registeredQueues.Remove(channel);
         }
-        return result;
       }
     }
 
-    public Queue Get(string queueName)
+    public void Send(string channelName, QueueMessage msg)
     {
-      lock (_syncObj)
-      {
-        Queue result;
-        if (_queues.TryGetValue(queueName, out result))
-          return result;
-        return null;
-      }
+      msg.ChannelName = channelName;
+      ICollection<IMessageReceiver> queues;
+      if (_registeredQueues.TryGetValue(channelName, out queues))
+        foreach (IMessageReceiver queue in queues)
+          queue.Enqueue(msg);
     }
-
-    protected Queue GetQueueCheckShutdown(string queueName)
-    {
-      if (_shuttingDown)
-        return Get(queueName);
-      else
-        return GetOrCreate(queueName);
-    }
-
-    #region IMessageBroker implementation
-
-    public ICollection<string> Queues
-    {
-      get 
-      {
-        lock (_syncObj)
-          return new List<string>(_queues.Keys);
-      }
-    }
-
-    public void Register_Sync(string queueName, MessageReceivedHandler handler)
-    {
-      lock (_syncObj)
-      {
-        Queue queue = GetQueueCheckShutdown(queueName);
-        if (queue != null)
-          queue.MessageReceived_Sync += handler;
-      }
-    }
-
-    public void Unregister_Sync(string queueName, MessageReceivedHandler handler)
-    {
-      lock (_syncObj)
-      {
-        Queue queue = GetQueueCheckShutdown(queueName);
-        if (queue != null)
-          queue.MessageReceived_Sync -= handler;
-      }
-    }
-
-    public void Register_Async(string queueName, MessageReceivedHandler handler)
-    {
-      lock (_syncObj)
-      {
-        Queue queue = GetQueueCheckShutdown(queueName);
-        if (queue != null)
-          queue.MessageReceived_Async += handler;
-      }
-    }
-
-    public void Unregister_Async(string queueName, MessageReceivedHandler handler, bool waitForAsyncMessages)
-    {
-      Queue queue;
-      lock (_syncObj)
-      {
-        queue = GetQueueCheckShutdown(queueName);
-        if (queue != null)
-          queue.MessageReceived_Async -= handler;
-      }
-      if (waitForAsyncMessages && queue != null)
-        queue.WaitForAsyncExecutions();
-    }
-
-    public void Send(string queueName, QueueMessage msg)
-    {
-      Queue queue;
-      lock (_syncObj)
-      {
-        if (_shuttingDown)
-        {
-          ServiceScope.Get<ILogger>().Warn("Trying to send a message while message broker is still shutting down (Queue = '{0}', MessageData = {1}", queueName, msg.MessageData);
-          return;
-        }
-        queue = GetOrCreate(queueName);
-      }
-      queue.Send(msg);
-    }
-
-    public void Shutdown()
-    {
-      ICollection<Queue> queuesCopy;
-      lock (_syncObj)
-      {
-        _shuttingDown = true;
-        queuesCopy = new List<Queue>(_queues.Values);
-      }
-      foreach (Queue queue in queuesCopy)
-      {
-        queue.Shutdown();
-        // Block until we don't have any async operations any more in the queue
-        queue.WaitForAsyncExecutions();
-      }
-    }
-
-    #endregion
   }
 }

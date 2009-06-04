@@ -32,9 +32,10 @@ namespace MediaPortal.Core
   /// </summary>
   public class SystemMessaging
   {
-    // Message Queue name
-    public const string QUEUE = "System";
+    // Message channel name
+    public const string CHANNEL = "System";
 
+    // Message type
     public enum MessageType
     {
       /// <summary>
@@ -46,8 +47,6 @@ namespace MediaPortal.Core
     }
 
     // Message data
-    public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
-
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
 
     /// <summary>
@@ -56,10 +55,9 @@ namespace MediaPortal.Core
     /// <param name="newState">The state the system will switch to.</param>
     public static void SendSystemStateChangeMessage(SystemState newState)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = MessageType.SystemStateChanged;
+      QueueMessage msg = new QueueMessage(MessageType.SystemStateChanged);
       msg.MessageData[PARAM] = newState;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

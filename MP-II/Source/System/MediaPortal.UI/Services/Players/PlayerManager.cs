@@ -144,10 +144,11 @@ namespace MediaPortal.Services.Players
 
     protected PlayerBuilderPluginItemStateTracker _playerBuilderPluginItemStateTracker;
     protected PlayerBuilderRegistrationChangeListener _playerBuilderRegistrationChangeListener;
-    internal IDictionary<string, PlayerBuilderRegistration> _playerBuilders = new Dictionary<string, PlayerBuilderRegistration>();
     internal PlayerSlotController[] _slots;
+    internal IDictionary<string, PlayerBuilderRegistration> _playerBuilders = new Dictionary<string, PlayerBuilderRegistration>();
     protected int _volume = 100;
     protected bool _isMuted = false;
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     protected object _syncObj = new object();
 
@@ -163,7 +164,7 @@ namespace MediaPortal.Services.Players
       };
       _playerBuilderPluginItemStateTracker = new PlayerBuilderPluginItemStateTracker(this);
       _playerBuilderRegistrationChangeListener = new PlayerBuilderRegistrationChangeListener(this);
-      ServiceScope.Get<IMessageBroker>().Register_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
+      SubscribeToMessages();
     }
 
     #endregion
@@ -173,6 +174,7 @@ namespace MediaPortal.Services.Players
     public void Dispose()
     {
       CloseAllSlots();
+      UnsubscribeFromMessages();
     }
 
     #endregion
@@ -183,21 +185,41 @@ namespace MediaPortal.Services.Players
     /// Called when the plugin manager notifies the system about its events.
     /// Adds player builders to our pool when all plugins are initialized.
     /// </summary>
+    /// <param name="queue">Queue which sent the message.</param>
     /// <param name="message">Message containing the notification data.</param>
-    private void OnPluginManagerMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) ==
-          PluginManagerMessaging.NotificationType.PluginsInitialized)
+      if (message.ChannelName == PluginManagerMessaging.CHANNEL)
       {
-        LoadPlayerBuilders();
-
-        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived, false);
+        if (((PluginManagerMessaging.MessageType) message.MessageType) == PluginManagerMessaging.MessageType.PluginsInitialized)
+        {
+          LoadPlayerBuilders();
+          UnsubscribeFromMessages();
+        }
       }
     }
 
     #endregion
 
     #region Protected & internal methods
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           PluginManagerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
 
     internal void ForEachInternal(PlayerSlotWorkerInternalDelegate execute)
     {

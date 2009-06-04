@@ -33,20 +33,38 @@ namespace MediaPortal.Core.Messaging
   {
     #region Protected fields
 
-    protected string _queue;
+    protected object _messageType;
+    protected string _channelName = null;
     protected IDictionary<string, object> _metaData = new Dictionary<string, object>();
+
+    #endregion
+
+    #region Ctor
+
+    public QueueMessage(object messageType)
+    {
+      _messageType = messageType;
+    }
 
     #endregion
 
     #region Public properties
 
     /// <summary>
-    /// Gets or sets the name of the queue this message is sent.
+    /// Gets the type of this message.
     /// </summary>
-    public string MessageQueue 
+    public object MessageType
     {
-      get { return _queue; }
-      set { _queue = value; }
+      get { return _messageType; }
+    }
+
+    /// <summary>
+    /// Gets or sets the name of the message channel this message is being sent.
+    /// </summary>
+    public string ChannelName
+    {
+      get { return _channelName; }
+      set { _channelName = value; }
     }
 
     /// <summary>

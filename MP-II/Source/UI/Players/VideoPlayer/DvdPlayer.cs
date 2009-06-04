@@ -121,6 +121,43 @@ namespace Ui.Players.Video
 
     public DvdPlayer()
     {
+      SubscribeToMessages();
+    }
+
+    void SubscribeToMessages()
+    {
+      _messageQueue.SubscribeToMessageChannel(WindowsMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == WindowsMessaging.CHANNEL)
+      {
+        Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
+
+        try
+        {
+          if (m.Msg == WM_DVD_EVENT)
+          {
+            if (_mediaEvt != null)
+              OnDvdEvent();
+            return;
+          }
+
+          if (m.Msg == WM_MOUSEMOVE)
+            if (_menuMode != MenuMode.No)
+              _mouseMsg.Add(m);
+
+          if (m.Msg == WM_LBUTTONUP)
+            if (_menuMode != MenuMode.No)
+              _mouseMsg.Add(m);
+        }
+        catch (Exception ex)
+        {
+          Trace.WriteLine(String.Format("DVDPlayer:WndProc() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace));
+        }
+      }
     }
 
     protected override void CreateGraphBuilder()
@@ -438,34 +475,6 @@ namespace Ui.Players.Video
       }
       Marshal.FreeCoTaskMem(pFetched);
       Marshal.ReleaseComObject(enumer);
-    }
-
-    protected override void OnWindowsMessageReceived(QueueMessage message)
-    {
-      base.OnWindowsMessageReceived(message);
-      Message m = (Message) message.MessageData[WindowsMessaging.MESSAGE];
-
-      try
-      {
-        if (m.Msg == WM_DVD_EVENT)
-        {
-          if (_mediaEvt != null)
-            OnDvdEvent();
-          return;
-        }
-
-        if (m.Msg == WM_MOUSEMOVE)
-          if (_menuMode != MenuMode.No)
-            _mouseMsg.Add(m);
-
-        if (m.Msg == WM_LBUTTONUP)
-          if (_menuMode != MenuMode.No)
-            _mouseMsg.Add(m);
-      }
-      catch (Exception ex)
-      {
-        Trace.WriteLine(String.Format("DVDPlayer:WndProc() {0} {1} {2}", ex.Message, ex.Source, ex.StackTrace));
-      }
     }
 
     /// <summary>

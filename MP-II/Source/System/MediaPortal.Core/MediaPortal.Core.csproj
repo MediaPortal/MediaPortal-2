@@ -91,8 +91,11 @@
     <Compile Include="MediaManagement\MetadataExtractorMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\IQuery.cs" />
     <Compile Include="MediaManagement\ShareDescriptor.cs" />
+    <Compile Include="Messaging\AsynchronousMessageQueue.cs" />
     <Compile Include="Messaging\IMessageBroker.cs" />
+    <Compile Include="Messaging\MessageQueueBase.cs" />
     <Compile Include="Messaging\QueueMessage.cs" />
+    <Compile Include="Messaging\SynchronousMessageQueue.cs" />
     <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />
     <Compile Include="Registry\RegistryHelper.cs" />
@@ -134,7 +137,7 @@
     <Compile Include="ISystemStateService.cs" />
     <Compile Include="TaskScheduler\ITaskScheduler.cs" />
     <Compile Include="TaskScheduler\Task.cs" />
-    <Compile Include="TaskScheduler\TaskMessage.cs" />
+    <Compile Include="TaskScheduler\TaskSchedulerMessaging.cs" />
     <Compile Include="Threading\IntervalWork.cs" />
     <Compile Include="Threading\IThreadPool.cs" />
     <Compile Include="Threading\IWork.cs" />
@@ -142,7 +145,6 @@
     <Compile Include="Threading\Work.cs" />
     <Compile Include="Threading\WorkEventArgs.cs" />
     <Compile Include="Services\Messaging\MessageBroker.cs" />
-    <Compile Include="Services\Messaging\Queue.cs" />
     <Compile Include="Services\PathManager\PathDefinition.cs" />
     <Compile Include="Services\PathManager\PathListFile.cs" />
     <Compile Include="Services\PathManager\PathManager.cs" />

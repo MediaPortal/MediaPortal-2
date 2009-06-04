@@ -22,14 +22,15 @@
 
 #endregion
 
-using System.Collections.Generic;
-
 namespace MediaPortal.Core.Messaging
 {
-  public delegate void MessageReceivedHandler(QueueMessage message);
+  public interface IMessageReceiver
+  {
+    void Enqueue(QueueMessage message);
+  }
 
   /// <summary>
-  /// Registration for all system message queues.
+  /// Message delivery service.
   /// </summary>
   /// <remarks>
   /// This service is thread-safe.
@@ -37,64 +38,22 @@ namespace MediaPortal.Core.Messaging
   public interface IMessageBroker
   {
     /// <summary>
-    /// Gets the names of all queues registered in this message broker.
+    /// Registers the specified message <paramref name="queue"/> to receive messages of the specified messages
+    /// <paramref name="channel"/>.
     /// </summary>
-    /// <returns>List of queue names.</returns>
-    ICollection<string> Queues { get;}
+    void RegisterMessageQueue(string channel, IMessageReceiver queue);
 
     /// <summary>
-    /// Registers the specified synchronous message <paramref name="handler"/> at the queue with the specified
-    /// <paramref name="queueName"/>.
+    /// Unregisters the specified message <paramref name="queue"/> from receiving messages of the specified messages
+    /// <paramref name="channel"/>.
     /// </summary>
-    /// <param name="queueName">Name of the queue to register the handler.</param>
-    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
-    void Register_Sync(string queueName, MessageReceivedHandler handler);
+    void UnregisterMessageQueue(string channel, IMessageReceiver queue);
 
     /// <summary>
-    /// Unregisters the specified synchronous message <paramref name="handler"/> at the queue with the specified
-    /// <paramref name="queueName"/>.
+    /// Sends the specified message in the message channel of the specified <paramref name="channelName"/>.
     /// </summary>
-    /// <param name="queueName">Name of the queue to register the handler.</param>
-    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
-    void Unregister_Sync(string queueName, MessageReceivedHandler handler);
-
-    /// <summary>
-    /// Registers the specified asynchronous message <paramref name="handler"/> at the queue with the specified
-    /// <paramref name="queueName"/>.
-    /// </summary>
-    /// <param name="queueName">Name of the queue to register the handler.</param>
-    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
-    void Register_Async(string queueName, MessageReceivedHandler handler);
-
-    /// <summary>
-    /// Unregisters the specified asynchronous message <paramref name="handler"/> at the queue with the specified
-    /// <paramref name="queueName"/>.
-    /// </summary>
-    /// <remarks>
-    /// If <paramref name="waitForAsyncMessages"/> is set to <c>true</c>, the method waits until all asynchronous messages
-    /// are delivered before returning. This will ensure that after this method returns, no more async messages will
-    /// arrive over the unregistered <paramref name="handler"/>. But be careful:
-    /// Never call this method with <c>waitForAsyncMessages == true</c> while holding any multithreading locks over the
-    /// system in the caller tree. This situation can lead to deadlocks.
-    /// </remarks>
-    /// <param name="queueName">Name of the queue to register the handler.</param>
-    /// <param name="handler">Message handler that will receive all messages from the specified queue.</param>
-    /// <param name="waitForAsyncMessages">If set to <c>true</c>, this method waits until all asynchronous messages
-    /// were delivered before returning. Exception: if this method is called from the async message sender thread itself.
-    /// In this case, it won't block to avoid deadlocks. If set to <c>false</c>, this method returns immediately after
-    /// unregistering the handler.</param>
-    void Unregister_Async(string queueName, MessageReceivedHandler handler, bool waitForAsyncMessages);
-
-    /// <summary>
-    /// Sends the specified message in the queue of the specified <paramref name="queueName"/>.
-    /// </summary>
-    /// <param name="queueName">Name of the queue to be used for sending the message.</param>
+    /// <param name="channelName">Name of the message channel to be used for sending the message.</param>
     /// <param name="msg">Message to send.</param>
-    void Send(string queueName, QueueMessage msg);
-
-    /// <summary>
-    /// Shuts the message broker down. No more messages can be delivered after this method was called.
-    /// </summary>
-    void Shutdown();
+    void Send(string channelName, QueueMessage msg);
   }
 }

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -40,7 +40,7 @@ namespace MediaPortal.Services.Localization
   /// This class manages localization strings.
   /// </summary>
   /// TODO: Make this class multithreading safe
-  public class StringManager : ILocalization
+  public class StringManager : ILocalization, IDisposable
   {
     protected class LanguagePluginItemStateTracker : IPluginItemStateTracker
     {
@@ -78,6 +78,7 @@ namespace MediaPortal.Services.Localization
 
     #region Protected fields
 
+    protected AsynchronousMessageQueue _messageQueue = null;
     protected LocalizationStrings _strings;
     protected IPluginItemStateTracker _languagePluginStateTracker;
 
@@ -89,12 +90,36 @@ namespace MediaPortal.Services.Localization
     {
       _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
 
-      ServiceScope.Get<IMessageBroker>().Register_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
+      SubscribeToMessages();
+    }
+
+    public void Dispose()
+    {
+      ServiceScope.Get<IPluginManager>().RevokeAllPluginItems("/Resources/Language", _languagePluginStateTracker);
+      UnsubscribeFromMessages();
     }
 
     #endregion
 
     #region Protected methods
+
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           PluginManagerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
 
     protected void InitializeLanguageResources()
     {
@@ -163,11 +188,6 @@ namespace MediaPortal.Services.Localization
       _strings.RemoveDirectory(languageResource.Path);
     }
 
-    public void Dispose()
-    {
-      ServiceScope.Get<IPluginManager>().RevokeAllPluginItems("/Resources/Language", _languagePluginStateTracker);
-    }
-
     #endregion
 
     #region ILocalization implementation
@@ -224,15 +244,15 @@ namespace MediaPortal.Services.Localization
     /// Called when the plugin manager notifies the system about its events.
     /// Adds plugin language resource folders to the directory list when all plugins are initialized.
     /// </summary>
+    /// <param name="queue">Queue which sent the message.</param>
     /// <param name="message">Message containing the notification data.</param>
-    private void OnPluginManagerMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) ==
-          PluginManagerMessaging.NotificationType.PluginsInitialized)
+      if (message.ChannelName == PluginManagerMessaging.CHANNEL)
       {
-        InitializeLanguageResources();
-
-        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived, false);
+        if (((PluginManagerMessaging.MessageType) message.MessageType) ==
+            PluginManagerMessaging.MessageType.PluginsInitialized)
+          InitializeLanguageResources();
       }
     }
 

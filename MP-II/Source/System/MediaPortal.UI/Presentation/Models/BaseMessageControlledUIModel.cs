@@ -34,6 +34,8 @@ namespace MediaPortal.Presentation.Models
   /// </summary>
   public abstract class BaseMessageControlledUIModel : IDisposable
   {
+    protected AsynchronousMessageQueue _messageQueue;
+
     /// <summary>
     /// Creates a new <see cref="BaseMessageControlledUIModel"/> instance and initializes the message subscribtions.
     /// </summary>
@@ -55,36 +57,39 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(SystemMessaging.QUEUE, OnSystemMessageReceived);
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           SystemMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     /// <summary>
     /// Removes message queue registrations.
     /// </summary>
-    protected virtual void UnsubscribeFromMessages()
+    void UnsubscribeFromMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(SystemMessaging.QUEUE, OnSystemMessageReceived, true);
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
     }
 
-    /// <summary>
-    /// Will be called when a system message is received. Can be overridden to provide additional functionality. When
-    /// overridden in subclasses, this method has to be called also.
-    /// </summary>
-    /// <param name="message">The system message which was recieved.</param>
-    protected virtual void OnSystemMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      SystemMessaging.MessageType messageType =
-          (SystemMessaging.MessageType) message.MessageData[SystemMessaging.MESSAGE_TYPE];
-      if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+      if (message.ChannelName == SystemMessaging.CHANNEL)
       {
-        SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-        switch (state)
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
         {
-          case SystemState.ShuttingDown:
-            Dispose();
-            break;
+          SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
+          switch (state)
+          {
+            case SystemState.ShuttingDown:
+              Dispose();
+              break;
+          }
         }
       }
     }

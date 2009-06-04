@@ -219,13 +219,13 @@ namespace UiComponents.Media
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      StartListening(); // Lazily start our timer
+      StartTimer(); // Lazily start our timer
       UpdateVideoStateType(newContext);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      StopListening(); // Reduce workload when none of our states is used
+      StopTimer(); // Reduce workload when none of our states is used
       UpdateVideoStateType(newContext);
     }
 

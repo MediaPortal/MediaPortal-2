@@ -43,7 +43,13 @@ namespace MediaPortal.Presentation.Screens
   public static class DialogManagerMessaging
   {
     // Message Queue name
-    public const string QUEUE = "DialogManager";
+    public const string CHANNEL = "DialogManager";
+
+    // Message type
+    public enum MessageType
+    {
+      DialogClosed,
+    }
 
     // Message data
     public const string DIALOG_HANDLE = "DialogHandle"; // Dialog handle stored as Guid
@@ -51,10 +57,10 @@ namespace MediaPortal.Presentation.Screens
 
     public static void SendDialogManagerMessage(Guid dialogHandle, DialogResult result)
     {
-      QueueMessage msg = new QueueMessage();
+      QueueMessage msg = new QueueMessage(MessageType.DialogClosed);
       msg.MessageData[DIALOG_HANDLE] = dialogHandle;
       msg.MessageData[DIALOG_RESULT] = result;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

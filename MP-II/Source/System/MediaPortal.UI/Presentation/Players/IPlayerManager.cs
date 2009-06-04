@@ -53,8 +53,8 @@ namespace MediaPortal.Presentation.Players
   /// This class can be called from multiple threads. It synchronizes thread access to its fields via its
   /// <see cref="SyncObj"/> instance. Accesses to its contained <see cref="IPlayerSlotController"/>s are
   /// also synchronized via the same <see cref="SyncObj"/> instance.
-  /// Important player manager notification messages are sent via the message queue
-  /// <see cref="PlayerManagerMessaging.QUEUE"/>.
+  /// Important player manager notification messages are sent via the message channel of name
+  /// <see cref="PlayerManagerMessaging.CHANNEL"/>.
   /// </para>
   /// </remarks>
   public interface IPlayerManager : IDisposable

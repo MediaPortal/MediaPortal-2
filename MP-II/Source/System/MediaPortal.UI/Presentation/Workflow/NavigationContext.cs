@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Models;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Presentation.Workflow
 {
@@ -36,7 +37,7 @@ namespace MediaPortal.Presentation.Workflow
   /// structure presented by the menu. The current state of the application is composed by
   /// all navigation contexts in the navigation path taken so far.
   /// </remarks>
-  public class NavigationContext
+  public class NavigationContext : IDisposable
   {
     #region Protected fields
 
@@ -64,6 +65,27 @@ namespace MediaPortal.Presentation.Workflow
         _workflowModelId = workflowModel.ModelId;
         _models.Add(workflowModel.ModelId, workflowModel);
       }
+    }
+
+    public void Dispose()
+    {
+      UninitializeMenuActions();
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected void InitializeMenuActions()
+    {
+      foreach (WorkflowAction action in _menuActions.Values)
+        action.AddRef();
+    }
+
+    protected void UninitializeMenuActions()
+    {
+      foreach (WorkflowAction action in _menuActions.Values)
+        action.RemoveRef();
     }
 
     #endregion
@@ -105,11 +127,40 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     /// <summary>
-    /// Returns a collection of all menu actions available from this navigation context.
+    /// Returns a collection of all menu actions available from this navigation context and inherited from
+    /// the predecessor navigation context.
     /// </summary>
     public IDictionary<Guid, WorkflowAction> MenuActions
     {
-      get { return _menuActions; }
+      get
+      {
+        if (_predecessor == null || !_workflowState.InheritMenu)
+          return _menuActions;
+        // Try to inherit menu actions from predecessor
+        IDictionary<Guid, WorkflowAction> result =
+            new Dictionary<Guid, WorkflowAction>(_predecessor.MenuActions);
+        if (result.Count == 0)
+          // Nothing to inherit
+          return _menuActions;
+        foreach (KeyValuePair<Guid, WorkflowAction> pair in _menuActions)
+          // Don't use method CollectionUtils.AddAll for the copying process, because we can get duplicate keys here
+          // (for example if an action is visible in both our predecessor and in this context). We simply use the action
+          // which is registered in this instance.
+          result[pair.Key] = pair.Value;
+        return result;
+      }
+    }
+
+    /// <summary>
+    /// Sets the menu actions which belong to this navigation context. The collection of actions
+    /// which will be bound to the system in this method and unbound when this navigation context is disposed.
+    /// </summary>
+    public void SetMenuActions(IEnumerable<WorkflowAction> actions)
+    {
+      _menuActions.Clear();
+      foreach (WorkflowAction action in actions)
+        _menuActions[action.ActionId] = action;
+      InitializeMenuActions();
     }
 
     /// <summary>

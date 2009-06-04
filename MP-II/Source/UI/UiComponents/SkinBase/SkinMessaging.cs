@@ -32,13 +32,14 @@ namespace UiComponents.SkinBase
   /// </summary>
   public static class SkinMessaging
   {
-    // Message Queue name
-    public const string QUEUE = "SkinMessages";
+    // Message channel name
+    public const string CHANNEL = "SkinMessages";
 
     // Message data
     public const string Notification = "Notification"; // Notification stored as NotificationType
 
-    public enum NotificationType
+    // Message type
+    public enum MessageType
     {
       /// <summary>
       /// This message will be sent when the skin's date format or time format was changed.
@@ -46,12 +47,12 @@ namespace UiComponents.SkinBase
       DateTimeFormatChanged,
     }
 
-    public static void SendSkinMessage(NotificationType notificationType)
+    public static void SendSkinMessage(MessageType messageType)
     {
       // Send Startup Finished Message.
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[Notification] = notificationType;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      QueueMessage msg = new QueueMessage(messageType);
+      msg.MessageData[Notification] = messageType;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

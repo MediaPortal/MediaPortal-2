@@ -75,7 +75,7 @@ namespace MediaPortal.Presentation.Workflow
 
       public void Stop(PluginItemRegistration itemRegistration)
       {
-        _parent.ResetContributor();
+        _parent.Unbind();
       }
 
       public void Continue(PluginItemRegistration itemRegistration) { }
@@ -90,6 +90,7 @@ namespace MediaPortal.Presentation.Workflow
     protected Guid _contributorModelId;
     protected IWorkflowContributor _contributor;
     protected ModelItemStateTracker _modelItemStateTracker;
+    protected int usages = 0;
 
     #endregion
 
@@ -108,10 +109,25 @@ namespace MediaPortal.Presentation.Workflow
       FireStateChanged();
     }
 
-    protected void ResetContributor()
+    protected void Bind()
     {
+      object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
+          MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(), _modelItemStateTracker);
+      if (model == null)
+        throw new ArgumentException(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));
+      _contributor = (IWorkflowContributor) model;
+      _contributor.Initialize();
+      _contributor.StateChanged += OnContributorStateChanged;
+      FireStateChanged();
+    }
+
+    protected void Unbind()
+    {
+      if (_contributor == null)
+        return;
       ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(),
           _modelItemStateTracker);
+      _contributor.Uninitialize();
       _contributor = null;
       FireStateChanged();
     }
@@ -123,15 +139,6 @@ namespace MediaPortal.Presentation.Workflow
     public IWorkflowContributor Contributor
     {
       get { return _contributor; }
-    }
-
-    #endregion
-
-    #region IDisposable implementation
-
-    public void Dispose()
-    {
-      ResetContributor();
     }
 
     #endregion
@@ -153,17 +160,20 @@ namespace MediaPortal.Presentation.Workflow
       get { return _contributor == null ? base.DisplayTitle : _contributor.DisplayTitle; }
     }
 
-    public override void Initialize()
+    public override void AddRef()
     {
-      base.Initialize();
-      object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
-          MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(), _modelItemStateTracker);
-      if (model == null)
-        throw new ArgumentException(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));
-      _contributor = (IWorkflowContributor) model;
-      _contributor.Initialize();
-      _contributor.StateChanged += OnContributorStateChanged;
-      FireStateChanged();
+      base.AddRef();
+      if (usages == 0)
+        Bind();
+      usages++;
+    }
+
+    public override void RemoveRef()
+    {
+      base.RemoveRef();
+      usages--;
+      if (usages == 0)
+        Unbind();
     }
 
     /// <summary>

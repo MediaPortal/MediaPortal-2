@@ -127,6 +127,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
             return;
           oldBackground = _backgroundScreen;
           oldBackground.ScreenState = Screen.State.Closing;
+          _backgroundScreen.Hide();
           _backgroundScreen = null;
           oldModels = new List<Guid>(_models.Keys);
           _models.Clear();
@@ -329,16 +330,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected internal void InternalCloseDialog()
     {
+      Screen oldDialog;
       lock(_syncData)
       {
         // Do we have a dialog?
         if (_dialogStack.Count == 0)
           return;
-        Screen oldDialog = _dialogStack.Pop();
+        oldDialog = _dialogStack.Pop();
 
         oldDialog.ScreenState = Screen.State.Closing;
         oldDialog.DetachInput();
-        oldDialog.Hide();
 
         // Is this the last dialog?
         if (_dialogStack.Count == 0)
@@ -349,6 +350,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         else
           _dialogStack.Peek().AttachInput();
       }
+      // Don't hold the lock while hiding the dialog
+      oldDialog.Hide();
     }
 
     protected internal void InternalCloseScreen()

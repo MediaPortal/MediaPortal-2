@@ -48,6 +48,7 @@ namespace Components.Services.AutoPlay
     private DeviceVolumeMonitor _deviceMonitor;
     private AutoPlaySettings _settings;
     private IntPtr _windowHandle = IntPtr.Zero;
+    private AsynchronousMessageQueue _messageQueue = null;
 
     enum MediaType
     {
@@ -247,9 +248,8 @@ namespace Components.Services.AutoPlay
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
       Logger.Info("AutoPlay: Media inserted in drive {0}", driveLetter);
 
-      QueueMessage msg = new QueueMessage();
+      QueueMessage msg = new QueueMessage("Inserted");
       msg.MessageData["drive"] = driveLetter;
-      msg.MessageData["action"] = "Inserted";
       ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
 
       ExamineVolume(driveLetter);
@@ -263,9 +263,8 @@ namespace Components.Services.AutoPlay
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
       Logger.Info("AutoPlay: Media removed from drive {0}", driveLetter);
 
-      QueueMessage msg = new QueueMessage();
+      QueueMessage msg = new QueueMessage("Removed");
       msg.MessageData["drive"] = driveLetter;
-      msg.MessageData["action"] = "Removed";
       ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
     }
     #endregion
@@ -388,22 +387,44 @@ namespace Components.Services.AutoPlay
 
     #endregion
 
+    void SubscribeToMessages()
+    {
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           PluginManagerMessaging.CHANNEL
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
     #region Event Handlers
 
     /// <summary>
     /// Called when the plugin manager notifies the system about its events.
     /// Requests the main window handle from the main screen.
     /// </summary>
+    /// <param name="queue">Queue which sent the message.</param>
     /// <param name="message">Message containing the notification data.</param>
-    private void OnPluginManagerMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      if (((PluginManagerMessaging.NotificationType) message.MessageData[PluginManagerMessaging.NOTIFICATION]) == PluginManagerMessaging.NotificationType.PluginsInitialized)
+      if (message.ChannelName == PluginManagerMessaging.CHANNEL)
       {
-        IScreenControl sc = ServiceScope.Get<IScreenControl>();
-        _windowHandle = sc.MainWindowHandle;
-        StartListening();
+        if (((PluginManagerMessaging.MessageType) message.MessageType) == PluginManagerMessaging.MessageType.PluginsInitialized)
+        {
+          IScreenControl sc = ServiceScope.Get<IScreenControl>();
+          _windowHandle = sc.MainWindowHandle;
+          StartListening();
 
-        ServiceScope.Get<IMessageBroker>().Unregister_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived, true);
+          UnsubscribeFromMessages();
+        }
       }
     }
 
@@ -413,7 +434,7 @@ namespace Components.Services.AutoPlay
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      ServiceScope.Get<IMessageBroker>().Register_Async(PluginManagerMessaging.QUEUE, OnPluginManagerMessageReceived);
+      SubscribeToMessages();
     }
 
     public bool RequestEnd()
@@ -424,6 +445,7 @@ namespace Components.Services.AutoPlay
     public void Stop()
     {
       StopListening();
+      UnsubscribeFromMessages();
     }
 
     public void Continue() { }
@@ -431,6 +453,7 @@ namespace Components.Services.AutoPlay
     public void Shutdown()
     {
       StopListening();
+      UnsubscribeFromMessages();
     }
 
     #endregion

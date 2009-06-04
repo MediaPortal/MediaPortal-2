@@ -56,8 +56,15 @@ namespace MediaPortal.Presentation.Workflow
 
     /// <summary>
     /// Initializes this workflow action contributor. The implementor can execute any initialization code here.
+    /// Typically, the action will register at message channels here.
     /// </summary>
     void Initialize();
+
+    /// <summary>
+    /// Removes this workflow action contributor's registration from the system. The implementor should
+    /// uninitialize the actions it initialized in method <see cref="Initialize()"/>.
+    /// </summary>
+    void Uninitialize();
 
     /// <summary>
     /// Executes the contributor's code when the action is triggered.

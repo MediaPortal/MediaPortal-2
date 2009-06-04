@@ -31,6 +31,7 @@ using MediaPortal.Presentation.Geometries;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.Presentation.Workflow;
+using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Geometry;
 using MediaPortal.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
@@ -98,6 +99,8 @@ namespace MediaPortal.SkinEngine
 
     public void Initialize()
     {
+      ContentManager.Initialize();
+
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Registering IGeometryManager service");
       IGeometryManager geometryManager = new GeometryManager();
       ServiceScope.Add<IGeometryManager>(geometryManager);
@@ -160,6 +163,8 @@ namespace MediaPortal.SkinEngine
 
       _mainForm.StopRenderThread();
       _screenManager.Shutdown();
+
+      ContentManager.Uninitialize();
     }
 
     public void Dispose()

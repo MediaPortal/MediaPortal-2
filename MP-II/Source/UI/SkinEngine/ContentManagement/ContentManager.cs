@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.Fonts;
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -46,37 +45,48 @@ namespace MediaPortal.SkinEngine.ContentManagement
     private static List<IAsset> _vertexBuffers = new List<IAsset>();
     private static List<IAsset> _unnamedAssets = new List<IAsset>();
     private static DateTime _timer = SkinContext.Now;
+    private static AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
-    static ContentManager()
+    public static void Initialize()
     {
-      IMessageBroker msgBroker = ServiceScope.Get<IMessageBroker>();
-      msgBroker.Register_Async("contentmanager", queue_OnMessageReceived);
+      _messageQueue = new AsynchronousMessageQueue("ContentManager message listener queue", new string[] {"contentmanager"});
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
-    static void queue_OnMessageReceived(QueueMessage message)
+    public static void Uninitialize()
     {
-      if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
+      _messageQueue.Dispose();
+      _messageQueue = null;
+    }
+
+    static void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == "contentmanager")
       {
-        string action = (string)message.MessageData["action"];
-        if (action == "changed")
+        if (message.MessageData.ContainsKey("action") && message.MessageData.ContainsKey("fullpath"))
         {
-          string fileName = (string)message.MessageData["fullpath"];
-          lock (_assetsNormal)
+          string action = (string) message.MessageData["action"];
+          if (action == "changed")
           {
-            if (_assetsNormal.ContainsKey(fileName))
+            string fileName = (string) message.MessageData["fullpath"];
+            lock (_assetsNormal)
             {
-              TextureAsset asset = (TextureAsset)_assetsNormal[fileName];
-              asset.Free(true);
+              if (_assetsNormal.ContainsKey(fileName))
+              {
+                TextureAsset asset = (TextureAsset) _assetsNormal[fileName];
+                asset.Free(true);
+              }
             }
-          }
-          lock (_assetsHigh)
-          {
-            if (_assetsHigh.ContainsKey(fileName))
+            lock (_assetsHigh)
             {
-              TextureAsset asset = (TextureAsset)_assetsHigh[fileName];
-              asset.Free(true);
+              if (_assetsHigh.ContainsKey(fileName))
+              {
+                TextureAsset asset = (TextureAsset) _assetsHigh[fileName];
+                asset.Free(true);
+              }
             }
           }
         }

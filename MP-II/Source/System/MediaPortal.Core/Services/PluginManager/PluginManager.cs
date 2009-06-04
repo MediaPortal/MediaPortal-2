@@ -117,7 +117,7 @@ namespace MediaPortal.Core.Services.PluginManager
         ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
       _maintenanceMode = maintenanceMode;
       _state = PluginManagerState.Starting;
-      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Startup);
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.Startup);
       PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
       ICollection<Guid> disabledPlugins = settings.UserDisabledPlugins;
       ServiceScope.Get<ILogger>().Debug("PluginManager: Checking dependencies");
@@ -128,7 +128,7 @@ namespace MediaPortal.Core.Services.PluginManager
         else
           TryEnable(plugin, !_maintenanceMode);
       }
-      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.NotificationType.PluginsInitialized);
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.PluginsInitialized);
       _state = PluginManagerState.Running;
       if (maintenanceMode)
         ServiceScope.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
@@ -140,7 +140,7 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       ServiceScope.Get<ILogger>().Info("PluginManager: Shutdown");
       _state = PluginManagerState.ShuttingDown;
-      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.NotificationType.Shutdown);
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.Shutdown);
       foreach (PluginRuntime plugin in _availablePlugins.Values)
       {
         if (plugin.StateTracker != null)
@@ -286,7 +286,8 @@ namespace MediaPortal.Core.Services.PluginManager
     public void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker)
     {
       PluginItemRegistration itemRegistration = PluginRuntime.GetItemRegistration(location, id);
-      RevokeItemUsage(itemRegistration, stateTracker);
+      if (itemRegistration != null)
+        RevokeItemUsage(itemRegistration, stateTracker);
     }
 
     public void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker)

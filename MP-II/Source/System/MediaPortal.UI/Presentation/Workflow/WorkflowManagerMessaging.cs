@@ -34,8 +34,8 @@ namespace MediaPortal.Presentation.Workflow
   /// </summary>
   public class WorkflowManagerMessaging
   {
-    // Message Queue name
-    public const string QUEUE = "WorkflowManager";
+    // Message channel name
+    public const string CHANNEL = "WorkflowManager";
 
     /// <summary>
     /// Messages of this type are sent by the <see cref="IWorkflowManager"/>.
@@ -67,7 +67,6 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     // Message data
-    public const string MESSAGE_TYPE = "MessagType"; // Message type stored as MessageType
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
 
     /// <summary>
@@ -76,10 +75,9 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="stateId">Workflow state id of the new state.</param>
     public static void SendStatePushedMessage(Guid stateId)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = MessageType.StatePushed;
+      QueueMessage msg = new QueueMessage(MessageType.StatePushed);
       msg.MessageData[PARAM] = stateId;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
@@ -88,17 +86,15 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="stateIds">Ids of the states which were popped.</param>
     public static void SendStatesPoppedMessage(params Guid[] stateIds)
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = MessageType.StatesPopped;
+      QueueMessage msg = new QueueMessage(MessageType.StatesPopped);
       msg.MessageData[PARAM] = stateIds;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     public static void SendNavigationCompleteMessage()
     {
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData[MESSAGE_TYPE] = MessageType.NavigationComplete;
-      ServiceScope.Get<IMessageBroker>().Send(QUEUE, msg);
+      QueueMessage msg = new QueueMessage(MessageType.NavigationComplete);
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

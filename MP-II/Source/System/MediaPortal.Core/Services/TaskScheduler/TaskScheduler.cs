@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Threading;
 using MediaPortal.Core.TaskScheduler;
 
@@ -172,9 +171,10 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <param name="task">Task to expire</param>
     private void ExpireTask(Task task)
     {
-      SendMessage(new TaskMessage(task.Clone() as Task, TaskMessageType.EXPIRED));
+      Task tc = (Task) task.Clone();
+      TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.EXPIRED, tc);
       _settings.TaskCollection.Remove(task);
-      SendMessage(new TaskMessage(task.Clone() as Task, TaskMessageType.DELETED));
+      TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, tc);
       SaveChanges(false);
     }
 
@@ -186,27 +186,14 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <param name="task">Task to process</param>
     private void ProcessTask(Task task)
     {
-      SendMessage(new TaskMessage(task.Clone() as Task, TaskMessageType.DUE));
+      Task tc = (Task) task.Clone();
+      TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DUE, tc);
       task.LastRun = task.NextRun;
       if (task.Occurrence == Occurrence.Once)
       {
         _settings.TaskCollection.Remove(task);
-        SendMessage(new TaskMessage(task.Clone() as Task, TaskMessageType.DELETED));
+        TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, tc);
       }
-    }
-
-    /// <summary>
-    /// Handles broadcasting of messages from the task scheduler. Embeds the given <see cref="TaskMessage"/>
-    /// into a generic message.
-    /// </summary>
-    /// <param name="message">message to send</param>
-    private void SendMessage(TaskMessage message)
-    {
-      // create message
-      QueueMessage msg = new QueueMessage();
-      msg.MessageData["taskmessage"] = message;
-      // asynchronously send message through queue
-      ServiceScope.Get<IThreadPool>().Add(new Work(() => ServiceScope.Get<IMessageBroker>().Send("taskscheduler", msg)));
     }
 
     /// <summary>
@@ -242,7 +229,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
         updatedTask.ID = taskId;
         _settings.TaskCollection.Replace(taskId, updatedTask);
         SaveChanges(false);
-        SendMessage(new TaskMessage(updatedTask, TaskMessageType.CHANGED));
+        TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.CHANGED, updatedTask);
       }
     }
 
@@ -260,7 +247,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
         {
           _settings.TaskCollection.Remove(task);
           SaveChanges(false);
-          SendMessage(new TaskMessage(task, TaskMessageType.DELETED));
+          TaskSchedulerMessaging.SendTaskSchedulerMessage(TaskSchedulerMessaging.MessageType.DELETED, task);
         }
       }
     }

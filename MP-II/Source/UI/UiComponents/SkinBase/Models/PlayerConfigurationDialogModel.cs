@@ -109,45 +109,39 @@ namespace UiComponents.SkinBase.Models
 
     void SubscribeToMessages()
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Register_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived);
-      broker.Register_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived);
+      _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(PlayerContextManagerMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
-    protected override void UnsubscribeFromMessages()
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      base.UnsubscribeFromMessages();
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.Unregister_Async(PlayerManagerMessaging.QUEUE, OnPlayerManagerMessageReceived, true);
-      broker.Unregister_Async(PlayerContextManagerMessaging.QUEUE, OnPlayerContextManagerMessageReceived, true);
-    }
-
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
-    {
-      PlayerManagerMessaging.MessageType messageType =
-          (PlayerManagerMessaging.MessageType) message.MessageData[PlayerManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
-        case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
-        case PlayerManagerMessaging.MessageType.PlayerStarted:
-        case PlayerManagerMessaging.MessageType.PlayerStopped:
-        case PlayerManagerMessaging.MessageType.PlayersMuted:
-        case PlayerManagerMessaging.MessageType.PlayersResetMute:
-          CheckUpdatePlayerConfigurationData();
-          break;
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
+          case PlayerManagerMessaging.MessageType.PlayerSlotDeactivated:
+          case PlayerManagerMessaging.MessageType.PlayerStarted:
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+          case PlayerManagerMessaging.MessageType.PlayersMuted:
+          case PlayerManagerMessaging.MessageType.PlayersResetMute:
+            CheckUpdatePlayerConfigurationData();
+            break;
+        }
       }
-    }
-
-    protected void OnPlayerContextManagerMessageReceived(QueueMessage message)
-    {
-      PlayerContextManagerMessaging.MessageType messageType =
-          (PlayerContextManagerMessaging.MessageType) message.MessageData[PlayerContextManagerMessaging.MESSAGE_TYPE];
-      switch (messageType)
+      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
       {
-        case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
-          CheckUpdatePlayerConfigurationData();
-          break;
+        PlayerContextManagerMessaging.MessageType messageType =
+            (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+            CheckUpdatePlayerConfigurationData();
+            break;
+        }
       }
     }
 

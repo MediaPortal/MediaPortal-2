@@ -145,10 +145,14 @@ namespace MediaPortal.Presentation.Workflow
     public abstract void Execute();
 
     /// <summary>
-    /// Can be overridden in sub classes to do initialization work.
+    /// Can be overridden in sub classes to track a usage counter. If the number of <see cref="AddRef"/> is the same as
+    /// the number of <see cref="RemoveRef"/> calls, the action can be unbound from the system.
     /// </summary>
-    public virtual void Initialize()
-    {
-    }
+    public virtual void AddRef() { }
+
+    /// <summary>
+    /// Can be overridden in sub classes to track a usage counter. See <see cref="AddRef"/>.
+    /// </summary>
+    public virtual void RemoveRef() { }
   }
 }
