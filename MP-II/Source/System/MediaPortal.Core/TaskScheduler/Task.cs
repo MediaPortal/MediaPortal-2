@@ -181,6 +181,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// Creates a new task for the <see cref="TaskScheduler"/> with a time-based <see cref="Schedule"/>.
     /// This schedule will occur every every minute, every hour, every day.
     /// </summary>
+    /// <param name="owner">specifies the owner of this task</param>
     /// <param name="occurrence">specifies when the task's schedule should occur</param>
     public Task(string owner, Occurrence occurrence)
       : this(owner, -1, occurrence) { }
