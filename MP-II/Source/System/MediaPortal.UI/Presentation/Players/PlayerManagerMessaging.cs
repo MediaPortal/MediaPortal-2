@@ -39,7 +39,7 @@ namespace MediaPortal.Presentation.Players
     // Message type
     public enum MessageType
     {
-      #region Player messages. The param will denote the player slot (int).
+      #region Player messages. The param will denote the player slot controller (IPlayerSlotController).
 
       /// <summary>
       /// A player started.
@@ -68,7 +68,7 @@ namespace MediaPortal.Presentation.Players
 
       #endregion
 
-      #region PlayerManager messages concerning a special player slot. The param will denote the player slot (int).
+      #region PlayerManager messages concerning a special player slot. The param will denote the player slot controller (IPlayerSlotController).
 
       /// <summary>
       /// The slot playing audio changed to a new slot index.
@@ -120,11 +120,11 @@ namespace MediaPortal.Presentation.Players
     /// the "player messages" message types.
     /// </summary>
     /// <param name="type">Type of the message.</param>
-    /// <param name="slot">Slot of the specific player which was changed.</param>
-    public static void SendPlayerMessage(MessageType type, int slot)
+    /// <param name="psc">Player slot controller of the player which was changed.</param>
+    public static void SendPlayerMessage(MessageType type, IPlayerSlotController psc)
     {
       QueueMessage msg = new QueueMessage(type);
-      msg.MessageData[PARAM] = slot;
+      msg.MessageData[PARAM] = psc;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
@@ -133,11 +133,11 @@ namespace MediaPortal.Presentation.Players
     /// slot. This method handles the "player manager messages concerning a special player" message types.
     /// </summary>
     /// <param name="type">Type of the message.</param>
-    /// <param name="slot">Slot of the player which is involved.</param>
-    public static void SendPlayerManagerPlayerMessage(MessageType type, int slot)
+    /// <param name="psc">Player slot controller of the player which is involved.</param>
+    public static void SendPlayerManagerPlayerMessage(MessageType type, IPlayerSlotController psc)
     {
       QueueMessage msg = new QueueMessage(type);
-      msg.MessageData[PARAM] = slot;
+      msg.MessageData[PARAM] = psc;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

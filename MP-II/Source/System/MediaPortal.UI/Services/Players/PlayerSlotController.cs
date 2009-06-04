@@ -198,32 +198,32 @@ namespace MediaPortal.Services.Players
 
     internal void OnPlayerStarted(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, this);
     }
 
     internal void OnPlayerStopped(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, _slotIndex);
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
     }
 
     internal void OnPlayerEnded(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerEnded, _slotIndex);
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerEnded, this);
     }
 
     internal void OnPlayerPaused(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerPaused, _slotIndex);
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerPaused, this);
     }
 
     internal void OnPlayerResumed(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, _slotIndex);
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStarted, this);
     }
 
     internal void OnPlaybackError(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerError, _slotIndex);
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerError, this);
     }
 
     protected void SetSlotState(PlayerSlotState slotState)
@@ -241,10 +241,10 @@ namespace MediaPortal.Services.Players
           switch (slotState)
           {
             case Presentation.Players.PlayerSlotState.Inactive:
-              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, _slotIndex);
+              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, this);
               break;
             case Presentation.Players.PlayerSlotState.Playing:
-              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotStarted, _slotIndex);
+              PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotStarted, this);
               break;
             // Presentation.Players.PlayerSlotState.Stopped:
             // this is no extra message, as we sent the PlayerSlotActivated message above
@@ -282,7 +282,7 @@ namespace MediaPortal.Services.Players
           _isAudioSlot = value;
           CheckAudio();
           if (wasChanged)
-            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, _slotIndex);
+            PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.AudioSlotChanged, this);
         }
       }
     }
@@ -411,6 +411,8 @@ namespace MediaPortal.Services.Players
       {
         CheckActive();
         SetSlotState(PlayerSlotState.Stopped);
+        // We need to simulate the PlayerStopped event, as the ReleasePlayer_NeedLock() method discards all further player events
+        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
         ReleasePlayer_NeedLock();
       }
     }

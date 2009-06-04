@@ -104,29 +104,29 @@ namespace MediaPortal.Services.Players
         PlayerManagerMessaging.MessageType messageType =
             (PlayerManagerMessaging.MessageType) message.MessageType;
         PlayerContext pc;
+        IPlayerSlotController psc;
         lock (SyncObj)
         {
-          int slotIndex;
           switch (messageType)
           {
             case PlayerManagerMessaging.MessageType.PlayerEnded:
-              slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-              pc = GetPlayerContextInternal(slotIndex);
+              psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+              pc = GetPlayerContext(psc);
               if (pc == null)
                 return;
               if (!pc.NextItem())
                 if (pc.CloseWhenFinished)
-                  ClosePlayerContext(slotIndex);
+                  ClosePlayerContext(psc.SlotIndex);
               break;
             case PlayerManagerMessaging.MessageType.PlayerStopped:
-              slotIndex = (int) message.MessageData[PlayerManagerMessaging.PARAM];
-              pc = GetPlayerContextInternal(slotIndex);
+              psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+              pc = GetPlayerContext(psc);
               if (pc == null)
                 return;
               // We get the player message asynchronously, so we have to check the state of the slot again to ensure
               // we close the correct one
               if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
-                ClosePlayerContext(slotIndex);
+                ClosePlayerContext(psc.SlotIndex);
               break;
             case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
               _currentPlayerIndex = 1 - _currentPlayerIndex;

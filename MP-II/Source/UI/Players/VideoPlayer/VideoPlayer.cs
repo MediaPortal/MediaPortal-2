@@ -537,7 +537,7 @@ namespace Ui.Players.Video
 
     protected void Shutdown()
     {
-      _initialized = false; ;
+      _initialized = false;
       lock (_mediaItemAccessor)
       {
         ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop playing");
@@ -726,12 +726,15 @@ namespace Ui.Players.Video
 
     public virtual void Stop()
     {
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop");
-      // FIXME
-//      ResetRefreshRate();
-      // TODO: WriteResumeData();
-      Shutdown();
-      FireStopped();
+      if (_state != PlaybackState.Stopped)
+      {
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop");
+        // FIXME
+//        ResetRefreshRate();
+        // TODO: WriteResumeData();
+        Shutdown();
+        FireStopped();
+      }
     }
 
     public void Pause()
