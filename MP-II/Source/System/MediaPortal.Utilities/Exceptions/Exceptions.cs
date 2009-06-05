@@ -61,6 +61,17 @@ namespace MediaPortal.Utilities.Exceptions
   }
 
   /// <summary>
+  /// Thrown if a module or a variable is in an unexpected state.
+  /// </summary>
+  public class UnexpectedStateException : ApplicationException
+  {
+    public UnexpectedStateException(string msg, params object[] args) :
+      base(string.Format(msg, args)) { }
+    public UnexpectedStateException(string msg, Exception ex, params object[] args) :
+      base(string.Format(msg, args), ex) { }
+  }
+
+  /// <summary>
   /// Thrown if the environment doesn't act like expected.
   /// </summary>
   public class EnvironmentException : ApplicationException

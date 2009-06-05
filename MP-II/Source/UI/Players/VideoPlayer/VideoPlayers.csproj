@@ -59,7 +59,6 @@
     <Compile Include="FilterGraphTools.cs" />
     <Compile Include="IInitializablePlayer.cs" />
     <Compile Include="IPersistMemory.cs" />
-    <Compile Include="OsdProperties.cs" />
     <Compile Include="Seeking.cs" />
     <Compile Include="settings\AudioSettings.cs" />
     <Compile Include="settings\Settings.cs" />
@@ -79,7 +78,7 @@
     <Compile Include="TsVideoPlayer.cs" />
     <Compile Include="VideoPlayer.cs" />
     <Compile Include="VideoPlayerBuilder.cs" />
-    <Compile Include="Allocator.cs" />
+    <Compile Include="EVRCallback.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -86,6 +86,7 @@ namespace UiComponents.Media
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
 
       IsOSDVisible = inputManager.IsMouseUsed || DateTime.Now - _lastVideoInfoDemand < VIDEO_INFO_TIMEOUT || _inactive;
+      IsPip = pipPlayer != null;
       PipHeight = DEFAULT_PIP_HEIGHT;
       PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
     }

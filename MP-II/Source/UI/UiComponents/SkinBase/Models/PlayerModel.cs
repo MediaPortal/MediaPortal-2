@@ -64,9 +64,10 @@ namespace UiComponents.SkinBase.Models
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
     }
 
-    protected void OnPlayerManagerMessageReceived(QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
@@ -75,6 +76,7 @@ namespace UiComponents.SkinBase.Models
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerStarted:
+          case PlayerManagerMessaging.MessageType.PlayerStateReady:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayersMuted:
@@ -96,20 +98,6 @@ namespace UiComponents.SkinBase.Models
       IsMuted = playerManager.Muted;
       PipHeight = DEFAULT_PIP_HEIGHT;
       PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*videoAspectRatio.Width/videoAspectRatio.Height;
-    }
-
-    /// <summary>
-    /// Returns the player context for the current focused player. The current player governs which
-    /// "currently playing" screen is shown.
-    /// </summary>
-    /// <returns>Player context for the current player or <c>null</c>, if there is no current player.</returns>
-    protected static IPlayerContext GetCurrentPlayerContext()
-    {
-      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      int currentPlayerSlot = pcm.CurrentPlayerIndex;
-      if (currentPlayerSlot == -1)
-        currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
-      return pcm.GetPlayerContext(currentPlayerSlot);
     }
 
     public override Guid ModelId
@@ -199,21 +187,14 @@ namespace UiComponents.SkinBase.Models
 
     public static void Play()
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      if (pc.PlayerState == PlaybackState.Paused)
-        pc.Pause();
-      else
-        pc.Restart();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.Play();
     }
 
     public static void Pause()
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.Pause();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.Pause();
     }
 
     public static void TogglePause()
@@ -224,10 +205,8 @@ namespace UiComponents.SkinBase.Models
 
     public static void Stop()
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.Stop();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.Stop();
     }
 
     public static void SeekBackward()
@@ -246,18 +225,14 @@ namespace UiComponents.SkinBase.Models
 
     public static void Previous()
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.PreviousItem();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.PreviousItem();
     }
 
     public static void Next()
     {
-      IPlayerContext pc = GetCurrentPlayerContext();
-      if (pc == null)
-        return;
-      pc.NextItem();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.NextItem();
     }
 
     public static void VolumeUp()

@@ -128,7 +128,7 @@
     <Compile Include="Presentation\Players\IPlayerSlotController.cs" />
     <Compile Include="Presentation\Players\IPlayList.cs" />
     <Compile Include="Presentation\Players\IReusablePlayer.cs" />
-    <Compile Include="Presentation\Players\ISeekable.cs" />
+    <Compile Include="Presentation\Players\IMediaPlaybackControl.cs" />
     <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
     <Compile Include="Presentation\Players\IVideoPlayer.cs" />
     <Compile Include="Presentation\Players\IVolumeControl.cs" />

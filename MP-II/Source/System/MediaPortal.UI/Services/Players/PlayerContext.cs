@@ -29,6 +29,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Presentation.Geometries;
 using MediaPortal.Presentation.Players;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Services.Players
 {
@@ -144,7 +145,26 @@ namespace MediaPortal.Services.Players
       get
       {
         IPlayer player = CurrentPlayer;
-        return player == null ? PlaybackState.Stopped : player.State;
+        if (player == null)
+          return PlaybackState.Stopped;
+        switch (player.State)
+        {
+          case Presentation.Players.PlayerState.Active:
+            IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
+            if (mpc == null)
+              return PlaybackState.Playing;
+            if (mpc.IsPaused)
+              return PlaybackState.Paused;
+            else
+              return PlaybackState.Playing;
+          case Presentation.Players.PlayerState.Ended:
+            return PlaybackState.Ended;
+          case Presentation.Players.PlayerState.Stopped:
+            return PlaybackState.Stopped;
+          default:
+            throw new UnexpectedStateException("Handling code for {0}.{1} is not implemented",
+                typeof(PlayerState).Name, player.State);
+        }
       }
     }
 
@@ -260,7 +280,9 @@ namespace MediaPortal.Services.Players
       IPlayer player = GetCurrentPlayer();
       if (player == null)
         return;
-      player.Pause();
+      IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
+      if (mpc != null)
+        mpc.Pause();
     }
 
     public void Play()
@@ -271,7 +293,9 @@ namespace MediaPortal.Services.Players
         NextItem();
         return;
       }
-      player.Resume();
+      IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
+      if (mpc != null)
+        mpc.Resume();
     }
 
     public void TogglePlayPause()
@@ -282,12 +306,16 @@ namespace MediaPortal.Services.Players
         NextItem();
         return;
       }
-      if (player.State == PlaybackState.Playing)
-        player.Pause();
-      else if (player.State == PlaybackState.Paused)
-        player.Resume();
+      IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
+      if (mpc == null)
+        return;
+      if (player.State == Presentation.Players.PlayerState.Active)
+        if (mpc.IsPaused)
+          mpc.Resume();
+        else
+          mpc.Pause();
       else
-        player.Restart();
+        mpc.Restart();
     }
 
     public void Restart()
@@ -298,7 +326,9 @@ namespace MediaPortal.Services.Players
         NextItem();
         return;
       }
-      player.Restart();
+      IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
+      if (mpc != null)
+        mpc.Restart();
     }
 
     public bool PreviousItem()

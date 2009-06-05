@@ -27,31 +27,36 @@ using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Presentation.Players
 {
-  public enum PlaybackState
+  public enum PlayerState
   {
-    Playing,
-    Paused,
+    /// <summary>
+    /// In active state, a player is either playing or seeking or paused or whatever.
+    /// To determine the actual state, check the <see cref="IMediaPlaybackControl.PlaybackRate"/> property of the player.
+    /// </summary>
+    Active,
+
+    /// <summary>
+    /// The player was stopped from outside.
+    /// </summary>
     Stopped,
+
+    /// <summary>
+    /// The media content has ended.
+    /// </summary>
     Ended
-  };
+  }
 
   /// <summary>
   /// Generic interface for all kinds of players.
   /// Instances, which are passed via this interface, are already prepared to play a media resource.
   /// To get a player for another resource, the player manager has to be called.
   /// Typically, players support sub interfaces of this interface. Players typically will implement
-  /// additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>, <see cref="ISeekable"/>, etc.
+  /// additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>, <see cref="IMediaPlaybackControl"/>, etc.
   /// </summary>
   /// <remarks>
   /// Different kinds of players have very different kinds of methods and properties.
   /// The player interfaces hierarchy reflects this fact.
   /// Methods and properties, which are common to all players, are introduced by this interface.
-  /// Note that each player needs also to implement the <see cref="CurrentTime"/> and <see cref="Duration"/>
-  /// properties, even picture players (and other players without a "native" play time). Those players should
-  /// implement these properties as if their media content would have a play duration (i.e. they should return a
-  /// small amount of time to present their content, maybe 3 seconds). The reason is, when used in a playlist,
-  /// this media contents will also be shown for their desired <see cref="Duration"/>, for example pictures will
-  /// be shown as slideshow.
   /// </remarks>
   public interface IPlayer
   {
@@ -61,30 +66,14 @@ namespace MediaPortal.Presentation.Players
     string Name { get; }
 
     /// <summary>
-    /// Returns a unique id for this player.
+    /// Returns the unique id of this player.
     /// </summary>
     Guid PlayerId { get; }
 
     /// <summary>
     /// Gets the playback state of this player.
     /// </summary>
-    PlaybackState State { get; }
-
-    /// <summary>
-    /// Returns the current play time.
-    /// </summary>
-    TimeSpan CurrentTime { get; set; }
-
-    /// <summary>
-    /// Returns the playing duration of the media item.
-    /// </summary>
-    TimeSpan Duration { get; }
-
-    /// <summary>
-    /// Overrides any special player audio setting. If this property is set to <c>false</c>, the player isn't
-    /// allowed to play audio.
-    /// </summary>
-    bool IsAudioEnabled { get; set; }
+    PlayerState State { get; }
 
     /// <summary>
     /// Returns the title of the currently playing media item, or <c>null</c> if the player doesn't know the title.
@@ -99,28 +88,20 @@ namespace MediaPortal.Presentation.Players
 
     /// <summary>
     /// Notifies this player about the current media item's title, like it is known in the system.
-    /// The player might or might not use this hint to build its <see cref="MediaItemTitle"/> property.
     /// </summary>
+    /// <remarks>
+    /// The player might or might not use this hint to build its <see cref="MediaItemTitle"/> property.
+    /// For example a video player, which doesn't know anything about the title of its current media item,
+    /// will use that hint. A TV- or radio-player will typically use extended streaming information about the
+    /// media content currently played.
+    /// </remarks>
     void SetMediaItemTitleHint(string title);
 
     /// <summary>
-    /// Stops playback.
+    /// Stops playback. The player will set its <see cref="State"/> to <see cref="PlayerState.Stopped"/>.
     /// </summary>
     void Stop();
 
-    /// <summary>
-    /// Pauses playback.
-    /// </summary>
-    void Pause();
-
-    /// <summary>
-    /// Resumes playback.
-    /// </summary>
-    void Resume();
-
-    /// <summary>
-    /// Restarts playback from the beginning.
-    /// </summary>
-    void Restart();
+    // Other playback methods can be found in interface IMediaPlaybackControl
   }
 }

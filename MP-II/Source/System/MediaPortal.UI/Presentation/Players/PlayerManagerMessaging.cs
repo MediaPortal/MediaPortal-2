@@ -47,6 +47,11 @@ namespace MediaPortal.Presentation.Players
       PlayerStarted,
 
       /// <summary>
+      /// The player state is ready. This message will be sent after the <see cref="PlayerStarted"/> message.
+      /// </summary>
+      PlayerStateReady,
+
+      /// <summary>
       /// A player was stopped.
       /// </summary>
       PlayerStopped,
@@ -57,9 +62,9 @@ namespace MediaPortal.Presentation.Players
       PlayerEnded,
 
       /// <summary>
-      /// A player was paused.
+      /// The playback state of a player changed. This can be a change in the "paused" state or a change in the seeking state.
       /// </summary>
-      PlayerPaused,
+      PlaybackStateChanged,
 
       /// <summary>
       /// A player error has occured. The player cannot play.

@@ -49,7 +49,7 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace Ui.Players.Video
 {
-  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer
+  public class VideoPlayer : ISlimDXVideoPlayer, IDisposable, IPlayerEvents, IInitializablePlayer, IMediaPlaybackControl
   {
     #region Classes & interfaces
 
@@ -103,7 +103,7 @@ namespace Ui.Players.Video
     protected IGraphBuilder _graphBuilder;
     protected DsROTEntry _rot;
     protected IBaseFilter _evr;
-    protected Allocator _allocator;
+    protected EVRCallback _evrCallback;
 
     // Managed Direct3D Resources
     protected VertexBuffer _vertexBuffer = null;
@@ -124,20 +124,20 @@ namespace Ui.Players.Video
     protected IBaseFilter _audioCodec;
     protected IGeometry _geometryOverride = null;
 
-    protected PlaybackState _state;
+    protected PlayerState _state;
+    protected bool _isPaused = false;
     protected int _volume = 100;
     protected bool _isMuted = false;
-    protected bool _isAudioEnabled = true;
     protected bool _initialized = false;
     protected readonly List<IPin> _evrConnectionPins = new List<IPin>();
     protected IMediaItemLocator _mediaItemLocator;
     protected IMediaItemLocalFsAccessor _mediaItemAccessor;
     protected string _mediaItemTitle = null;
     protected PlayerEventDlgt _started = null;
+    protected PlayerEventDlgt _stateReady = null;
     protected PlayerEventDlgt _stopped = null;
     protected PlayerEventDlgt _ended = null;
-    protected PlayerEventDlgt _paused = null;
-    protected PlayerEventDlgt _resumed = null;
+    protected PlayerEventDlgt _playbackStateChanged = null;
     protected PlayerEventDlgt _playbackError = null;
     protected AsynchronousMessageQueue _messageQueue = null;
 
@@ -202,7 +202,7 @@ namespace Ui.Players.Video
               eventEx.FreeEventParams(evCode, param1, param2);
               if (evCode == EventCode.Complete)
               {
-                _state = PlaybackState.Ended;
+                _state = PlayerState.Ended;
                 ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playback ended");
                 // TODO: RemoveResumeData();
                 FireEnded();
@@ -214,13 +214,19 @@ namespace Ui.Players.Video
       }
     }
 
+    void OnVideoSizePresent(EVRCallback sender)
+    {
+      FireStateReady();
+    }
+
     #region IInitializablePlayer implementation
 
     public void SetMediaItemLocator(IMediaItemLocator locator)
     {
       _mediaItemLocator = locator;
       _mediaItemAccessor = _mediaItemLocator.CreateLocalFsAccessor();
-      _state = PlaybackState.Paused;
+      _state = PlayerState.Active;
+      _isPaused = true;
       _vertices = new PositionColored2Textured[4];
       ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initializing for media file '{0}'", _mediaItemAccessor.LocalFileSystemPath);
 
@@ -240,7 +246,8 @@ namespace Ui.Players.Video
         int hr = mee.SetNotifyWindow(SkinContext.Form.Handle, WM_GRAPHNOTIFY, _instancePtr);
 
         // Create the Allocator / Presenter object
-        _allocator = new Allocator(this);
+        _evrCallback = new EVRCallback(this);
+        _evrCallback.VideoSizePresent += OnVideoSizePresent;
 
         AddEvr();
 
@@ -294,14 +301,14 @@ namespace Ui.Players.Video
 
     #region IPlayerEvents implementation
 
-    public void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stopped,
-        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed, PlayerEventDlgt playbackError)
+    public void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stateReady, PlayerEventDlgt stopped,
+        PlayerEventDlgt ended, PlayerEventDlgt playbackStateChanged, PlayerEventDlgt playbackError)
     {
       _started = started;
+      _stateReady = stateReady;
       _stopped = stopped;
       _ended = ended;
-      _paused = paused;
-      _resumed = resumed;
+      _playbackStateChanged = playbackStateChanged;
       _playbackError = playbackError;
     }
 
@@ -310,8 +317,7 @@ namespace Ui.Players.Video
       _started = null;
       _stopped = null;
       _ended = null;
-      _paused = null;
-      _resumed = null;
+      _playbackStateChanged = null;
     }
 
     #endregion
@@ -320,6 +326,12 @@ namespace Ui.Players.Video
     {
       if (_started != null)
         _started(this);
+    }
+
+    protected void FireStateReady()
+    {
+      if (_stateReady != null)
+        _stateReady(this);
     }
 
     protected void FireStopped()
@@ -334,16 +346,10 @@ namespace Ui.Players.Video
         _ended(this);
     }
 
-    protected void FirePaused()
+    protected void FirePlaybackStateChanged()
     {
-      if (_paused != null)
-        _paused(this);
-    }
-
-    protected void FireResumed()
-    {
-      if (_resumed != null)
-        _resumed(this);
+      if (_playbackStateChanged != null)
+        _playbackStateChanged(this);
     }
 
     void AddEvr()
@@ -359,13 +365,13 @@ namespace Ui.Players.Video
       AdapterInformation ai = MPDirect3D.Direct3D.Adapters[ordinal];
       IntPtr hMonitor = MPDirect3D.Direct3D.GetAdapterMonitor(ai.Adapter);
       IntPtr upDevice = GraphicsDevice.Device.ComPointer;
-      _allocatorKey = EvrInit(_allocator, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
+      _allocatorKey = EvrInit(_evrCallback, (uint) upDevice.ToInt32(), _evr, (uint) hMonitor.ToInt32());
       if (_allocatorKey < 0)
       {
         EvrDeinit(_allocatorKey);
         Marshal.ReleaseComObject(_evr);
-        _allocator.Dispose();
-        _allocator = null;
+        _evrCallback.Dispose();
+        _evrCallback = null;
         throw new VideoPlayerException("Initializing of EVR failed");
       }
       hr = _graphBuilder.AddFilter(_evr, "Enhanced Video Renderer");
@@ -546,7 +552,7 @@ namespace Ui.Players.Video
         if (_graphBuilder != null)
         {
           IMediaEventEx mee = _graphBuilder as IMediaEventEx;
-          IMediaControl mc = _graphBuilder as IMediaControl;
+          IMediaControl mc = (IMediaControl) _graphBuilder;
 
           // Stop DirectShow notifications
           hr = mee.SetNotifyWindow(IntPtr.Zero, 0, IntPtr.Zero);
@@ -585,10 +591,10 @@ namespace Ui.Players.Video
 
           FreeCodecs();
 
-          if (_allocator != null)
+          if (_evrCallback != null)
           {
-            _allocator.Dispose();
-            _allocator = null;
+            _evrCallback.Dispose();
+            _evrCallback = null;
           }
 
           if (_instancePtr != IntPtr.Zero)
@@ -664,9 +670,8 @@ namespace Ui.Players.Video
 
     protected void CheckAudio()
     {
-      int volume = 0;
-      if (!_isMuted && _isAudioEnabled)
-        volume = _volume;
+      int volume;
+      volume = _isMuted ? 0 : _volume;
       IBasicAudio audio = _graphBuilder as IBasicAudio;
       if (audio != null)
         // Our volume range is from 0 to 100, IBasicAudio volume range is from -10000 to 0 (in hundredth decibel).
@@ -690,8 +695,8 @@ namespace Ui.Players.Video
     {
       get
       {
-        if (_allocator == null || !_initialized) return new Size(0, 0);
-        return _allocator.VideoSize;
+        if (_evrCallback == null || !_initialized) return new Size(0, 0);
+        return _evrCallback.VideoSize;
       }
     }
 
@@ -699,8 +704,8 @@ namespace Ui.Players.Video
     {
       get
       {
-        if (_allocator == null || !_initialized) return new Size(0, 0);
-        return _allocator.AspectRatio;
+        if (_evrCallback == null || !_initialized) return new Size(0, 0);
+        return _evrCallback.AspectRatio;
       }
     }
 
@@ -713,83 +718,15 @@ namespace Ui.Players.Video
     public virtual void BeginRender(EffectAsset effect)
     {
       if (!_initialized) return;
-      if (_allocator == null) return;
-      effect.StartRender(_allocator.Texture);
+      if (_evrCallback == null) return;
+      effect.StartRender(_evrCallback.Texture);
     }
 
     public virtual void EndRender(EffectAsset effect)
     {
       if (!_initialized) return;
-      if (_allocator == null) return;
+      if (_evrCallback == null) return;
       effect.EndRender();
-    }
-
-    public virtual void Stop()
-    {
-      if (_state != PlaybackState.Stopped)
-      {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop");
-        // FIXME
-//        ResetRefreshRate();
-        // TODO: WriteResumeData();
-        Shutdown();
-        FireStopped();
-      }
-    }
-
-    public void Pause()
-    {
-      if (_state != PlaybackState.Paused)
-      {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Pause");
-        IMediaControl mc = _graphBuilder as IMediaControl;
-        if (mc != null)
-          mc.Pause();
-        _state = PlaybackState.Paused;
-        FirePaused();
-      }
-    }
-
-    public void Resume()
-    {
-      if (_state == PlaybackState.Paused)
-      {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Resume");
-        IMediaControl mc = _graphBuilder as IMediaControl;
-        if (mc != null)
-        {
-          int hr = mc.Run();
-          if (hr != 0 && hr != 1)
-          {
-            ServiceScope.Get<ILogger>().Error("VideoPlayer: Resume Failed to start: {0:X}", hr);
-            Shutdown();
-            FireStopped();
-            return;
-          }
-        }
-        _state = PlaybackState.Playing;
-        FireResumed();
-      }
-    }
-
-    public void Restart()
-    {
-      CurrentTime = new TimeSpan(0, 0, 0);
-      IMediaControl mc = _graphBuilder as IMediaControl;
-      mc.Run();
-      _state = PlaybackState.Playing;
-      FireStarted();
-    }
-
-    public void SetMediaItemTitleHint(string title)
-    {
-      // We don't extract the title by ourselves, we just use the title hint
-      _mediaItemTitle = title;
-    }
-
-    public string MediaItemTitle
-    {
-      get { return _mediaItemTitle; }
     }
 
     public virtual TimeSpan CurrentTime
@@ -818,6 +755,10 @@ namespace Ui.Players.Video
       {
         ServiceScope.Get<ILogger>().Debug("VideoPlayer: Seek to {0} seconds", value.TotalSeconds);
 
+        if (_state != PlayerState.Active)
+          // If the player isn't active when setting its position, we will switch to pause mode to prevent the
+          // player from run.
+          Pause();
         lock (_graphBuilder)
         {
           IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
@@ -865,6 +806,141 @@ namespace Ui.Players.Video
       }
     }
 
+    public virtual double PlaybackRate
+    {
+      get
+      {
+        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+        double rate;
+        if (mediaSeeking == null || mediaSeeking.GetRate(out rate) != 0)
+          return 1.0;
+        else
+          return rate;
+      }
+      set
+      {
+        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+        if (mediaSeeking == null)
+          return;
+        double currentRate;
+        if (mediaSeeking.GetRate(out currentRate) == 0 && currentRate != value)
+        {
+          if (mediaSeeking.SetRate(value) == 0)
+            FirePlaybackStateChanged();
+        }
+      }
+    }
+
+    protected void StopSeeking()
+    {
+      PlaybackRate = 1.0;
+    }
+
+    public virtual bool CanSeekForward
+    {
+      get
+      {
+        IMediaPosition mediaPosition = _graphBuilder as IMediaPosition;
+        OABool result;
+        if (mediaPosition == null || mediaPosition.CanSeekForward(out result) != 0)
+          return false;
+        return result == OABool.True;
+      }
+    }
+
+    public virtual bool CanSeekBackward
+    {
+      get
+      {
+        IMediaPosition mediaPosition = _graphBuilder as IMediaPosition;
+        OABool result;
+        if (mediaPosition == null || mediaPosition.CanSeekBackward(out result) != 0)
+          return false;
+        return result == OABool.True;
+      }
+    }
+
+    public bool IsPaused
+    {
+      get { return _isPaused; }
+    }
+
+    public virtual void Stop()
+    {
+      if (_state != PlayerState.Stopped)
+      {
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop");
+        // FIXME
+//        ResetRefreshRate();
+        // TODO: WriteResumeData();
+        StopSeeking();
+        _isPaused = false;
+        Shutdown();
+        FireStopped();
+      }
+    }
+
+    public void Pause()
+    {
+      if (!_isPaused)
+      {
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Pause");
+        IMediaControl mc = (IMediaControl) _graphBuilder;
+        if (mc != null)
+          mc.Pause();
+        StopSeeking();
+        _isPaused = true;
+        _state = PlayerState.Active;
+        FirePlaybackStateChanged();
+      }
+    }
+
+    public void Resume()
+    {
+      if (_isPaused)
+      {
+        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Resume");
+        IMediaControl mc = (IMediaControl) _graphBuilder;
+        if (mc != null)
+        {
+          int hr = mc.Run();
+          if (hr != 0 && hr != 1)
+          {
+            ServiceScope.Get<ILogger>().Error("VideoPlayer: Resume Failed to start: {0:X}", hr);
+            Shutdown();
+            FireStopped();
+            return;
+          }
+        }
+        StopSeeking();
+        _isPaused = false;
+        _state = PlayerState.Active;
+        FirePlaybackStateChanged();
+      }
+    }
+
+    public void Restart()
+    {
+      CurrentTime = new TimeSpan(0, 0, 0);
+      IMediaControl mc = (IMediaControl) _graphBuilder;
+      mc.Run();
+      StopSeeking();
+      _isPaused = false;
+      _state = PlayerState.Active;
+      FireStarted();
+    }
+
+    public void SetMediaItemTitleHint(string title)
+    {
+      // We don't extract the title by ourselves, we just use the title hint
+      _mediaItemTitle = title;
+    }
+
+    public string MediaItemTitle
+    {
+      get { return _mediaItemTitle; }
+    }
+
     public virtual string[] AudioStreams
     {
       get { return new string[] { AUDIO_STREAM_NAME }; }
@@ -877,22 +953,10 @@ namespace Ui.Players.Video
       get { return AUDIO_STREAM_NAME; }
     }
 
-    public PlaybackState State
+    public PlayerState State
     {
       get { return _state; }
       set { _state = value; }
-    }
-
-    public bool IsAudioEnabled
-    {
-      get { return _isAudioEnabled; }
-      set
-      {
-        if (_isAudioEnabled == value)
-          return;
-        _isAudioEnabled = value;
-        CheckAudio();
-      }
     }
 
     public int Volume
@@ -924,10 +988,10 @@ namespace Ui.Players.Video
       //stops the renderer threads all of it's own.
       //this could be split into two parts, but we would need
       //EvrSuspend(_allocatorKey) for that.
-      lock (_allocator)
+      lock (_evrCallback)
       {
         FreeResources();
-        _allocator.ReleaseResources();
+        _evrCallback.ReleaseResources();
         int hr;
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
@@ -964,7 +1028,7 @@ namespace Ui.Players.Video
         }
 
         FilterState state;
-        IMediaControl mc = _graphBuilder as IMediaControl;
+        IMediaControl mc = (IMediaControl) _graphBuilder;
         mc.GetState(10, out state);
         if (state == FilterState.Running)
         {
@@ -972,10 +1036,10 @@ namespace Ui.Players.Video
           hr = mc.Stop();
         }
 
-        if (_allocator != null)
+        if (_evrCallback != null)
         {
-          _allocator.Dispose();
-          _allocator = null;
+          _evrCallback.Dispose();
+          _evrCallback = null;
         }
 
         if (_evr != null)
@@ -1000,7 +1064,7 @@ namespace Ui.Players.Video
       if (_graphBuilder != null)
       {
         _vertices = new PositionColored2Textured[4];
-        _allocator = new Allocator(this);
+        _evrCallback = new EVRCallback(this);
         AddEvr();
         IEnumPins enumer;
         _evr.EnumPins(out enumer);
@@ -1034,12 +1098,15 @@ namespace Ui.Players.Video
           Marshal.ReleaseComObject(enumer);
         }
         AllocateResources();
-        _allocator.ReallocResources();
+        _evrCallback.ReallocResources();
 
-        if (State == PlaybackState.Playing)
+        if (State == PlayerState.Active)
         {
-          IMediaControl mc = _graphBuilder as IMediaControl;
-          mc.Run();
+          IMediaControl mc = (IMediaControl) _graphBuilder;
+          if (_isPaused)
+            mc.Pause();
+          else
+            mc.Run();
         }
         _initialized = true;
       }

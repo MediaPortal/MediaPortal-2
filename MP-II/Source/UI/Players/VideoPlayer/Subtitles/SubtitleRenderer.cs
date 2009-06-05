@@ -202,7 +202,7 @@ namespace Ui.Players.Video.Subtitles
     private double startPos = 0;
 
     private Subtitle currentSubtitle = null;
-    private IPlayer player = null;
+    private IMediaPlaybackControl player = null;
     private LinkedList<Subtitle> subtitles;
     private object alert = new object();
 
@@ -236,7 +236,7 @@ namespace Ui.Players.Video.Subtitles
       updateTimeoutCallBack = new UpdateTimeoutCallback(UpdateTimeout);
     }
 
-    public void SetPlayer(IPlayer p)
+    public void SetPlayer(IMediaPlaybackControl p)
     {
       lock (subtitles)
       {

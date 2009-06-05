@@ -41,6 +41,8 @@ using MediaPortal.SkinEngine.DirectX;
 
 namespace Ui.Players.Video
 {
+  public delegate void VideoSizePresentDlgt(EVRCallback sender);
+
   [ComVisible(true), ComImport,
    Guid("324FAA1F-7DA6-4778-833B-3993D8FF4151"),
    InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -52,7 +54,7 @@ namespace Ui.Players.Video
 
   [ComVisible(true)]
   [ClassInterface(ClassInterfaceType.None)]
-  public class Allocator : IEVRPresentCallback
+  public class EVRCallback : IEVRPresentCallback
   {
     #region variables
 
@@ -68,7 +70,7 @@ namespace Ui.Players.Video
 
     #region ctor/dtor
 
-    public Allocator(IPlayer player)
+    public EVRCallback(IPlayer player)
     {
       _lock = new Object();
       _normalEffect = ContentManager.GetEffect("normal");
@@ -103,6 +105,12 @@ namespace Ui.Players.Video
     }
 
     #endregion
+
+    /// <summary>
+    /// The first time the <see cref="VideoSize"/> property is present is when the EVR presenter delivered the first video
+    /// frame. At that time, this event will be raised.
+    /// </summary>
+    public event VideoSizePresentDlgt VideoSizePresent;
 
     public void ReleaseResources()
     {
@@ -203,6 +211,12 @@ namespace Ui.Players.Video
         }
         _videoSize = new Size(cx, cy);
         _aspectRatio = new Size(arx, ary);
+        VideoSizePresentDlgt vsp = VideoSizePresent;
+        if (vsp != null)
+        {
+          vsp(this);
+          VideoSizePresent = null;
+        }
         if (_texture == null)
         {
           int ordinal = GraphicsDevice.Device.Capabilities.AdapterOrdinal;

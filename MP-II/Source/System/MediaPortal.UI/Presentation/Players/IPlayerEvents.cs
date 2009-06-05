@@ -35,14 +35,17 @@ namespace MediaPortal.Presentation.Players
     /// Initializes the player event delegate methods.
     /// </summary>
     /// <param name="started">Event delegate to be called when the player was started.</param>
+    /// <param name="stateReady">Event delegate to be called when the player state was initialized. This event
+    /// is necessary to be a dedicated event which will be fired after the <paramref name="started"/> event because
+    /// some players are not done with their state initialization when the <paramref name="started"/> event is raised.</param>
     /// <param name="stopped">Event delegate to be called when the player was stopped.</param>
     /// <param name="ended">Event delegate to be called when the player content has ended.</param>
-    /// <param name="paused">Event delegate to be called when the player was paused.</param>
-    /// <param name="resumed">Event delegate to be called when the player was resumed.</param>
+    /// <param name="playbackStateChanged">Event delegate to be called when the playback state of this player
+    /// changed, i.e. when it was paused, resumed or the seeking state changed.</param>
     /// <param name="playbackError">Event delegate to be called when the player was an unrecoverable
     /// error during playback.</param>
-    void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stopped,
-        PlayerEventDlgt ended, PlayerEventDlgt paused, PlayerEventDlgt resumed, PlayerEventDlgt playbackError);
+    void InitializePlayerEvents(PlayerEventDlgt started, PlayerEventDlgt stateReady, PlayerEventDlgt stopped,
+        PlayerEventDlgt ended, PlayerEventDlgt playbackStateChanged, PlayerEventDlgt playbackError);
 
     /// <summary>
     /// Removes all player event delegates.

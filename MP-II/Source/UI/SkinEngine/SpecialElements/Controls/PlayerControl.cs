@@ -312,10 +312,11 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
             mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
         }
         MediaItemTitle = mit;
+        IMediaPlaybackControl playbackControl = player as IMediaPlaybackControl;
         IsAudio = playerSlotController.IsAudioSlot;
         IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
-        TimeSpan currentTime = player.CurrentTime;
-        TimeSpan duration = player.Duration;
+        TimeSpan currentTime = playbackControl == null ? new TimeSpan() : playbackControl.CurrentTime;
+        TimeSpan duration = playbackControl == null ? new TimeSpan() : playbackControl.Duration;
         if (duration.TotalMilliseconds == 0)
         {
           PercentPlayed = 0;
@@ -331,15 +332,14 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
           Duration = new DateTime().Add(duration).ToString("T", culture);
         }
         PlayerStateText = player.State.ToString();
-        IsRunning = player.State == PlaybackState.Playing;
-        CanPlay = !IsRunning;
-        CanPause = IsRunning;
+        IsRunning = player.State == PlayerState.Active;
+        CanPlay = playbackControl == null || playbackControl.IsPaused;
+        CanPause = playbackControl != null && !playbackControl.IsPaused;
         CanStop = true;
         CanSkipBack = playerContext.Playlist.HasPrevious;
         CanSkipForward = playerContext.Playlist.HasNext;
-        ISeekable seekablePlayer = player as ISeekable;
-        CanSeekBackward = seekablePlayer != null && seekablePlayer.CanSeekBackward;
-        CanSeekForward = seekablePlayer != null && seekablePlayer.CanSeekForward;
+        CanSeekBackward = playbackControl != null && playbackControl.CanSeekBackward;
+        CanSeekForward = playbackControl != null && playbackControl.CanSeekForward;
       }
       IsMuted = playerManager.Muted;
       CheckShowMouseControls();

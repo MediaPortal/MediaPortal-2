@@ -47,6 +47,14 @@ namespace MediaPortal.Presentation.Players
     Video,
   }
 
+  public enum PlaybackState
+  {
+    Playing,
+    Paused,
+    Ended,
+    Stopped,
+  }
+
   /// <summary>
   /// High-level descriptor, describing a typed "place" where a player can run. A player context belongs to a specified
   /// media module, defined by its <see cref="MediaModuleId"/>.
