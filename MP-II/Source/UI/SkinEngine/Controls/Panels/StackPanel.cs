@@ -246,7 +246,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
-                if (!_canScroll || (i >= _scrollIndex && startPositionY + childSize.Height <= bounds.Height))
+                if (!_canScroll || (i >= _scrollIndex && startPositionY + childSize.Height <= bounds.Height + 0.5))
                   lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
@@ -298,7 +298,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
               {
                 FrameworkElement child = visibleChildren[i];
                 SizeF childSize = child.TotalDesiredSize();
-                if (!_canScroll || (i >= _scrollIndex && startPositionX + childSize.Width <= bounds.Width))
+                if (!_canScroll || (i >= _scrollIndex && startPositionX + childSize.Width <= bounds.Width + 0.5))
                   lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
