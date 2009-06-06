@@ -117,18 +117,18 @@ public:
 	//IMFRateSupport
   virtual HRESULT STDMETHODCALLTYPE GetSlowestRate( 
       /* [in] */ MFRATE_DIRECTION eDirection,
-      /* [in] */ BOOL fThin,
-      /* [out] */ float *pflRate);
+      /* [in] */ BOOL bThin,
+      /* [out] */ float *pfRate);
     
   virtual HRESULT STDMETHODCALLTYPE GetFastestRate( 
       /* [in] */ MFRATE_DIRECTION eDirection,
-      /* [in] */ BOOL fThin,
-      /* [out] */ float *pflRate);
+      /* [in] */ BOOL bThin,
+      /* [out] */ float *pfRate);
     
   virtual HRESULT STDMETHODCALLTYPE IsRateSupported( 
-      /* [in] */ BOOL fThin,
-      /* [in] */ float flRate,
-      /* [unique][out][in] */ float *pflNearestSupportedRate);
+      /* [in] */ BOOL bThin,
+      /* [in] */ float fRate,
+      /* [unique][out][in] */ float *pfNearestSupportedRate);
 
   virtual HRESULT STDMETHODCALLTYPE GetNativeVideoSize( 
       /* [unique][out][in] */ SIZE *pszVideo,
@@ -184,8 +184,8 @@ public:
   virtual HRESULT STDMETHODCALLTYPE GetFullscreen( 
       /* [out] */ BOOL *pfFullscreen);
   
-  virtual HRESULT STDMETHODCALLTYPE IsInTrustedVideoMode (BOOL *pYes);
-  virtual HRESULT STDMETHODCALLTYPE CanConstrict (BOOL *pYes);
+  virtual HRESULT STDMETHODCALLTYPE IsInTrustedVideoMode(BOOL *pYes);
+  virtual HRESULT STDMETHODCALLTYPE CanConstrict(BOOL *pYes);
   virtual HRESULT STDMETHODCALLTYPE SetConstriction(DWORD dwKPix);
   virtual HRESULT STDMETHODCALLTYPE DisableImageExport(BOOL bDisable);
 
@@ -213,6 +213,7 @@ public:
   bool m_guiReinitializing;
 protected:
   int m_id;
+  float GetMaxRate(BOOL bThin);
 	void ReleaseSurfaces();
 	HRESULT Paint(CComPtr<IDirect3DSurface9> pSurface);
 	HRESULT SetMediaType(CComPtr<IMFMediaType> pType);
@@ -222,6 +223,7 @@ protected:
 	HRESULT CreateProposedOutputType(IMFMediaType* pMixerType, IMFMediaType** pType);
 	HRESULT RenegotiateMediaOutputType();
 	BOOL CheckForEndOfStream();
+  HRESULT CheckShutdown() const;
 	void StartWorkers();
 	void StopWorkers();
 	void StartThread(PHANDLE handle, SchedulerParams* pParams,
@@ -280,7 +282,7 @@ protected:
 	BOOL m_bReallocSurfaces;
 	int m_iFramesDrawn, m_iFramesDropped, m_iJitter;
 	LONGLONG m_hnsLastFrameTime, m_hnsTotalDiff;
-	RENDER_STATE m_state;
+	RENDER_STATE m_RenderState;
   bool m_enableFrameSkipping;
   int m_iSurfacesAllocated;
 };

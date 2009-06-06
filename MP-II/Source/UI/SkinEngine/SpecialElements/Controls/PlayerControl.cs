@@ -34,7 +34,6 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
@@ -84,6 +83,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     protected float _fixedVideoHeight;
     protected Timer _timer;
     protected bool _initialized = false;
+    protected bool _updating = false;
     protected AsynchronousMessageQueue _messageQueue = null;
 
     // Derived properties/fields
@@ -255,7 +255,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
         PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
-        if (messageType == PlayerManagerMessaging.MessageType.PlayerSlotsChanged)
+        if (messageType == PlayerManagerMessaging.MessageType.PlayerSlotsChanged && _stickToPlayerContext)
           SlotIndex = 1 - SlotIndex; // Will trigger an Update
         else
           UpdateProperties();
@@ -278,186 +278,196 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     protected void UpdateProperties()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayer player = playerManager[SlotIndex];
-      IPlayerContext playerContext = GetPlayerContext();
-      IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
-      
-      IsPlayerPresent = player != null;
-      IVideoPlayer vp = player as IVideoPlayer;
-      if (vp == null)
+      if (_updating)
+        return;
+      _updating = true;
+      try
       {
-        VideoWidth = 0f;
-        VideoHeight = 0f;
-      }
-      else
-      {
-        if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+        IPlayer player = playerManager[SlotIndex];
+        IPlayerContext playerContext = GetPlayerContext();
+        IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
+        
+        IsPlayerPresent = player != null;
+        IVideoPlayer vp = player as IVideoPlayer;
+        if (vp == null)
         {
-          VideoWidth = FixedVideoWidth;
-          VideoHeight = FixedVideoHeight;
-        }
-        else if (FixedVideoWidth > 0f)
-        { // Calculate the video height from the width
-          VideoWidth = FixedVideoWidth;
-          VideoHeight = FixedVideoWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
+          VideoWidth = 0f;
+          VideoHeight = 0f;
         }
         else
-        { // FixedVideoHeight > 0f
-          VideoHeight = FixedVideoHeight;
-          VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
-        }
-      }
-      if (player == null)
-      {
-        Title = playerContext == null ? NO_PLAYER_RESOURCE : playerContext.Name;
-        MediaItemTitle = NO_MEDIA_ITEM_RESOURCE;
-        IsAudio = false;
-        IsPlaying = false;
-        IsPaused = false;
-        IsSeekingForward = false;
-        IsSeekingBackward = false;
-        SeekHint = string.Empty;
-        IsCurrentPlayer = false;
-        PercentPlayed = 0f;
-        CurrentTime = string.Empty;
-        Duration = string.Empty;
-        PlayerStateText = string.Empty;
-        CanPlay = false;
-        CanPause = false;
-        CanStop = false;
-        CanSkipBack = false;
-        CanSkipForward = false;
-        CanSeekBackward = false;
-        CanSeekForward = false;
-        IsPlayerActive = false;
-        IsPip = false;
-      }
-      else
-      {
-        IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
-        string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
-        Title = IsPip ? _headerPipResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
-        string mit = player.MediaItemTitle;
-        if (mit == null)
         {
-          MediaItem mediaItem = playerContext.Playlist.Current;
-          if (mediaItem != null)
-            mit = mediaItem.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string;
-          if (mit == null)
-            mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
+          if (FixedVideoWidth > 0f && FixedVideoHeight > 0f)
+          {
+            VideoWidth = FixedVideoWidth;
+            VideoHeight = FixedVideoHeight;
+          }
+          else if (FixedVideoWidth > 0f)
+          { // Calculate the video height from the width
+            VideoWidth = FixedVideoWidth;
+            VideoHeight = FixedVideoWidth*vp.VideoAspectRatio.Height/vp.VideoAspectRatio.Width;
+          }
+          else
+          { // FixedVideoHeight > 0f
+            VideoHeight = FixedVideoHeight;
+            VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
+          }
         }
-        MediaItemTitle = mit;
-        IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
-        IsAudio = playerSlotController.IsAudioSlot;
-        IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
-        TimeSpan currentTime = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.CurrentTime;
-        TimeSpan duration = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.Duration;
-        if (duration.TotalMilliseconds == 0)
+        if (player == null)
         {
-          PercentPlayed = 0;
+          Title = playerContext == null ? NO_PLAYER_RESOURCE : playerContext.Name;
+          MediaItemTitle = NO_MEDIA_ITEM_RESOURCE;
+          IsAudio = false;
+          IsPlaying = false;
+          IsPaused = false;
+          IsSeekingForward = false;
+          IsSeekingBackward = false;
+          SeekHint = string.Empty;
+          IsCurrentPlayer = false;
+          PercentPlayed = 0f;
           CurrentTime = string.Empty;
           Duration = string.Empty;
+          PlayerStateText = string.Empty;
+          CanPlay = false;
+          CanPause = false;
+          CanStop = false;
+          CanSkipBack = false;
+          CanSkipForward = false;
+          CanSeekBackward = false;
+          CanSeekForward = false;
+          IsPlayerActive = false;
+          IsPip = false;
         }
         else
         {
-          ILocalization localization = ServiceScope.Get<ILocalization>();
-          CultureInfo culture = localization.CurrentCulture;
-          PercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
-          CurrentTime = new DateTime().Add(currentTime).ToString("T", culture);
-          Duration = new DateTime().Add(duration).ToString("T", culture);
-        }
-        string seekHint = string.Empty;
-        bool playing = false;
-        bool paused = false;
-        bool seekingForward = false;
-        bool seekingBackward = false;
-        switch (player.State)
-        {
-          case PlayerState.Active:
-            if (mediaPlaybackControl == null)
-            {
-              playing = true;
-              PlayerStateText = PLAYER_ACTIVE_RESOURCE;
-            }
-            else
-            {
-              if (mediaPlaybackControl.IsPaused)
-              {
-                paused = true;
-                PlayerStateText = PLAYER_PAUSED_RESOURCE;
-              }
-              else if (mediaPlaybackControl.IsPlayingAtNormalRate)
+          IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
+          string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
+          Title = IsPip ? _headerPipResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
+          string mit = player.MediaItemTitle;
+          if (mit == null)
+          {
+            MediaItem mediaItem = playerContext.Playlist.Current;
+            if (mediaItem != null)
+              mit = mediaItem.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string;
+            if (mit == null)
+              mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
+          }
+          MediaItemTitle = mit;
+          IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
+          IsAudio = playerSlotController.IsAudioSlot;
+          IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
+          TimeSpan currentTime = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.CurrentTime;
+          TimeSpan duration = mediaPlaybackControl == null ? new TimeSpan() : mediaPlaybackControl.Duration;
+          if (duration.TotalMilliseconds == 0)
+          {
+            PercentPlayed = 0;
+            CurrentTime = string.Empty;
+            Duration = string.Empty;
+          }
+          else
+          {
+            ILocalization localization = ServiceScope.Get<ILocalization>();
+            CultureInfo culture = localization.CurrentCulture;
+            PercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
+            CurrentTime = new DateTime().Add(currentTime).ToString("T", culture);
+            Duration = new DateTime().Add(duration).ToString("T", culture);
+          }
+          string seekHint = string.Empty;
+          bool playing = false;
+          bool paused = false;
+          bool seekingForward = false;
+          bool seekingBackward = false;
+          switch (player.State)
+          {
+            case PlayerState.Active:
+              if (mediaPlaybackControl == null)
               {
                 playing = true;
-                PlayerStateText = PLAYER_PLAYING_RESOURCE;
+                PlayerStateText = PLAYER_ACTIVE_RESOURCE;
               }
               else
               {
-                string playerStateTextResource;
-                double playbackRate = mediaPlaybackControl.PlaybackRate;
-                string format = "#";
-                if (playbackRate > 1.0)
+                if (mediaPlaybackControl.IsPaused)
                 {
-                  seekingForward = true;
-                  playerStateTextResource = PLAYER_SEEKING_FORWARD_RESOURCE;
+                  paused = true;
+                  PlayerStateText = PLAYER_PAUSED_RESOURCE;
                 }
-                else if (playbackRate < -1.0)
+                else if (mediaPlaybackControl.IsPlayingAtNormalRate)
                 {
-                  seekingBackward = true;
-                  playerStateTextResource = PLAYER_SEEKING_BACKWARD_RESOURCE;
+                  playing = true;
+                  PlayerStateText = PLAYER_PLAYING_RESOURCE;
                 }
-                else if (playbackRate > 0.0)
+                else
                 {
-                  seekingForward = true;
-                  playerStateTextResource = PLAYER_SLOWMOTION_FORWARD_RESOURCE;
-                  format = "#.#";
+                  string playerStateTextResource;
+                  double playbackRate = mediaPlaybackControl.PlaybackRate;
+                  string format = "#";
+                  if (playbackRate > 1.0)
+                  {
+                    seekingForward = true;
+                    playerStateTextResource = PLAYER_SEEKING_FORWARD_RESOURCE;
+                  }
+                  else if (playbackRate < -1.0)
+                  {
+                    seekingBackward = true;
+                    playerStateTextResource = PLAYER_SEEKING_BACKWARD_RESOURCE;
+                  }
+                  else if (playbackRate > 0.0)
+                  {
+                    seekingForward = true;
+                    playerStateTextResource = PLAYER_SLOWMOTION_FORWARD_RESOURCE;
+                    format = "0.#";
+                  }
+                  else // playbackRate < 0.0
+                  {
+                    seekingBackward = true;
+                    playerStateTextResource = PLAYER_SLOWMOTION_BACKWARD_RESOURCE;
+                    format = "0.#";
+                  }
+                  seekHint = _playbackRateHintResource.Evaluate(string.Format("{0:" + format + "}", Math.Abs(playbackRate)));
+                  PlayerStateText = LocalizationHelper.CreateResourceString(playerStateTextResource).Evaluate(seekHint);
                 }
-                else // playbackRate < 0.0
-                {
-                  seekingBackward = true;
-                  playerStateTextResource = PLAYER_SLOWMOTION_BACKWARD_RESOURCE;
-                  format = "#.#";
-                }
-                seekHint = _playbackRateHintResource.Evaluate(string.Format("{0:" + format + "}", playbackRate));
-                PlayerStateText = LocalizationHelper.CreateResourceString(playerStateTextResource).Evaluate(seekHint);
               }
-            }
-            break;
-          case PlayerState.Stopped:
-            PlayerStateText = PLAYER_STOPPED_RESOURCE;
-            break;
-          case PlayerState.Ended:
-            PlayerStateText = PLAYER_ENDED_RESOURCE;
-            break;
+              break;
+            case PlayerState.Stopped:
+              PlayerStateText = PLAYER_STOPPED_RESOURCE;
+              break;
+            case PlayerState.Ended:
+              PlayerStateText = PLAYER_ENDED_RESOURCE;
+              break;
+          }
+          IsPlaying = playing;
+          IsPaused = paused;
+          IsSeekingForward = seekingForward;
+          IsSeekingBackward = seekingBackward;
+          SeekHint = seekHint;
+          IsPlayerActive = player.State == PlayerState.Active;
+          CanPlay = mediaPlaybackControl == null || mediaPlaybackControl.IsPaused || seekingForward || seekingBackward;
+          CanPause = mediaPlaybackControl != null && !mediaPlaybackControl.IsPaused && !mediaPlaybackControl.IsSeeking;
+          CanStop = true;
+          CanSkipBack = playerContext.Playlist.HasPrevious;
+          CanSkipForward = playerContext.Playlist.HasNext;
+          CanSeekBackward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekBackwards;
+          CanSeekForward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekForwards;
         }
-        IsPlaying = playing;
-        IsPaused = paused;
-        IsSeekingForward = seekingForward;
-        IsSeekingBackward = seekingBackward;
-        SeekHint = seekHint;
-        IsPlayerActive = player.State == PlayerState.Active;
-        CanPlay = mediaPlaybackControl == null || mediaPlaybackControl.IsPaused || seekingForward || seekingBackward;
-        CanPause = mediaPlaybackControl != null && !mediaPlaybackControl.IsPaused;
-        CanStop = true;
-        CanSkipBack = playerContext.Playlist.HasPrevious;
-        CanSkipForward = playerContext.Playlist.HasNext;
-        CanSeekBackward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekBackwards;
-        CanSeekForward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekForwards;
+        IsMuted = playerManager.Muted;
+        CheckShowMouseControls();
+        if (AutoVisibility)
+        {
+          bool isVisible = playerSlotController.IsActive;
+          SimplePropertyDataDescriptor dd;
+          if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsVisible", out dd))
+            SetValueInRenderThread(dd, isVisible);
+          else
+            IsVisible = isVisible;
+        }
       }
-      IsMuted = playerManager.Muted;
-      CheckShowMouseControls();
-      if (AutoVisibility)
+      finally
       {
-        bool isVisible = playerSlotController.IsActive;
-        SimplePropertyDataDescriptor dd;
-        if (SimplePropertyDataDescriptor.CreateSimplePropertyDataDescriptor(this, "IsVisible", out dd))
-          SetValueInRenderThread(dd, isVisible);
-        else
-          IsVisible = isVisible;
+        _initialized = true;
+        _updating = false;
       }
-      _initialized = true;
     }
 
     #endregion
@@ -968,7 +978,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       IPlayerContext pc = GetPlayerContext();
       if (pc == null)
         return;
-      if (pc.PlayerState == PlaybackState.Paused)
+      if (pc.PlayerState == PlaybackState.Paused || pc.PlayerState == PlaybackState.Seeking)
         pc.Play();
       else
         pc.Restart();

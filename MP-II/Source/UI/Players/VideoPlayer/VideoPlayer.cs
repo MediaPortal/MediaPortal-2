@@ -95,6 +95,8 @@ namespace Ui.Players.Video
 
     public const string AUDIO_STREAM_NAME = "Audio1";
 
+    protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
+
     #endregion
 
     #region Variables
@@ -543,6 +545,7 @@ namespace Ui.Players.Video
 
     protected void Shutdown()
     {
+      StopSeeking();
       _initialized = false;
       lock (_mediaItemAccessor)
       {
@@ -817,46 +820,60 @@ namespace Ui.Players.Video
         else
           return rate;
       }
-      set
+    }
+
+    public virtual bool SetPlaybackRate(double value)
+    {
+      IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+      if (mediaSeeking == null)
+        return false;
+      double currentRate;
+      if (mediaSeeking.GetRate(out currentRate) == 0 && currentRate != value)
       {
-        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
-        if (mediaSeeking == null)
-          return;
-        double currentRate;
-        if (mediaSeeking.GetRate(out currentRate) == 0 && currentRate != value)
-        {
-          if (mediaSeeking.SetRate(value) == 0)
-            FirePlaybackStateChanged();
-        }
+        bool result = mediaSeeking.SetRate(value) == 0;
+        if (result)
+          FirePlaybackStateChanged();
+        return result;
       }
+      return false;
+    }
+
+    public virtual bool IsPlayingAtNormalRate
+    {
+      get { return Math.Abs(PlaybackRate - 1) < PLAYBACK_RATE_PLAY_THRESHOLD; }
+    }
+
+    public virtual bool IsSeeking
+    {
+      get { return _state == PlayerState.Active && !IsPlayingAtNormalRate; }
     }
 
     protected void StopSeeking()
     {
-      PlaybackRate = 1.0;
+      SetPlaybackRate(1);
     }
 
-    public virtual bool CanSeekForward
+    public virtual bool CanSeekForwards
     {
       get
       {
-        IMediaPosition mediaPosition = _graphBuilder as IMediaPosition;
-        OABool result;
-        if (mediaPosition == null || mediaPosition.CanSeekForward(out result) != 0)
+        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+        AMSeekingSeekingCapabilities capabilities;
+        if (mediaSeeking == null || mediaSeeking.GetCapabilities(out capabilities) != 0)
           return false;
-        return result == OABool.True;
+        return (capabilities & AMSeekingSeekingCapabilities.CanSeekForwards) != 0;
       }
     }
 
-    public virtual bool CanSeekBackward
+    public virtual bool CanSeekBackwards
     {
       get
       {
-        IMediaPosition mediaPosition = _graphBuilder as IMediaPosition;
-        OABool result;
-        if (mediaPosition == null || mediaPosition.CanSeekBackward(out result) != 0)
+        IMediaSeeking mediaSeeking = _graphBuilder as IMediaSeeking;
+        AMSeekingSeekingCapabilities capabilities;
+        if (mediaSeeking == null || mediaSeeking.GetCapabilities(out capabilities) != 0)
           return false;
-        return result == OABool.True;
+        return (capabilities & AMSeekingSeekingCapabilities.CanSeekBackwards) != 0;
       }
     }
 
@@ -897,7 +914,7 @@ namespace Ui.Players.Video
 
     public void Resume()
     {
-      if (_isPaused)
+      if (_isPaused || IsSeeking)
       {
         ServiceScope.Get<ILogger>().Debug("VideoPlayer: Resume");
         IMediaControl mc = (IMediaControl) _graphBuilder;

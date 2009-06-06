@@ -35,6 +35,8 @@ namespace MediaPortal.Services.Players
 {
   public class PlayerContext : IPlayerContext, IDisposable
   {
+    public const double MAX_SEEK_RATE = 100;
+
     #region Protected fields
 
     protected bool _closeWhenFinished = false;
@@ -107,6 +109,28 @@ namespace MediaPortal.Services.Players
         return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
+    protected void Seek(double startValue)
+    {
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player == null)
+        return;
+      double newRate;
+      if (player.IsPaused)
+        newRate = startValue;
+      else
+      {
+        double currentRate = player.PlaybackRate;
+        if (currentRate > MAX_SEEK_RATE)
+          return;
+        if (Math.Sign(currentRate) != Math.Sign(startValue))
+          newRate = -currentRate;
+        else
+          newRate = currentRate*2;
+      }
+      if (!player.SetPlaybackRate(newRate) && !player.SetPlaybackRate(2*newRate))
+        player.SetPlaybackRate(4*newRate);
+    }
+
     #region IPlayerContext implementation
 
     public bool IsValid
@@ -155,6 +179,8 @@ namespace MediaPortal.Services.Players
               return PlaybackState.Playing;
             if (mpc.IsPaused)
               return PlaybackState.Paused;
+            else if (mpc.IsSeeking)
+              return PlaybackState.Seeking;
             else
               return PlaybackState.Playing;
           case Presentation.Players.PlayerState.Ended:
@@ -277,12 +303,9 @@ namespace MediaPortal.Services.Players
 
     public void Pause()
     {
-      IPlayer player = GetCurrentPlayer();
-      if (player == null)
-        return;
-      IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
-      if (mpc != null)
-        mpc.Pause();
+      IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
+      if (player != null)
+        player.Pause();
     }
 
     public void Play()
@@ -329,6 +352,16 @@ namespace MediaPortal.Services.Players
       IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
       if (mpc != null)
         mpc.Restart();
+    }
+
+    public void SeekForward()
+    {
+      Seek(0.5);
+    }
+
+    public void SeekBackward()
+    {
+      Seek(-0.5);
     }
 
     public bool PreviousItem()

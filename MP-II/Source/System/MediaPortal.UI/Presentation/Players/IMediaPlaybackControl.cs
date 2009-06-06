@@ -45,10 +45,29 @@ namespace MediaPortal.Presentation.Players
     TimeSpan Duration { get; }
 
     /// <summary>
-    /// Gets or sets the playback rate as a ratio to the normal speed. Thus, 1.0 means normal playback speed,
+    /// Gets the playback rate as a ratio to the normal speed. Thus, 1.0 means normal playback speed,
     /// 2.0 is double speed, 0.5 is half playback speed.
     /// </summary>
-    double PlaybackRate { get; set; }
+    double PlaybackRate { get; }
+
+    /// <summary>
+    /// Tries to set the specified plaback rate.
+    /// </summary>
+    /// <param name="value">Playback rate to set. See <see cref="PlaybackRate"/>.</param>
+    /// <returns><c>true</c>, if the requested playback rate was accepted, else <c>false</c>.</returns>
+    bool SetPlaybackRate(double value);
+
+    /// <summary>
+    /// Returns the information whether this player currently plays in normal playback rate. This makes the complicated
+    /// comparison of the <see cref="PlaybackRate"/> with <c>1.0</c> (plus/minus delta) unnecessary.
+    /// </summary>
+    bool IsPlayingAtNormalRate { get; }
+
+    /// <summary>
+    /// Returns the information whether this player is seeking at another playback rate than 1 (fast forward/backward or
+    /// slowmotion forward/backward).
+    /// </summary>
+    bool IsSeeking { get; }
 
     /// <summary>
     /// Returns the information whether this player is in paused state.
@@ -58,12 +77,12 @@ namespace MediaPortal.Presentation.Players
     /// <summary>
     /// Gets the information if we can seek forward, i.e. set a <see cref="PlaybackRate"/> bigger than 1.
     /// </summary>
-    bool CanSeekForward { get; }
+    bool CanSeekForwards { get; }
 
     /// <summary>
     /// Gets the information if we can seek backward, i.e. set a <see cref="PlaybackRate"/> below 0.
     /// </summary>
-    bool CanSeekBackward { get; }
+    bool CanSeekBackwards { get; }
 
     /// <summary>
     /// Pauses playback.

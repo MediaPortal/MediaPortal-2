@@ -632,6 +632,22 @@ namespace MediaPortal.Services.Players
       playerContext.Restart();
     }
 
+    public void SeekForward()
+    {
+      IPlayerContext playerContext = CurrentPlayerContext;
+      if (playerContext == null)
+        return;
+      playerContext.SeekForward();
+    }
+
+    public void SeekBackward()
+    {
+      IPlayerContext playerContext = CurrentPlayerContext;
+      if (playerContext == null)
+        return;
+      playerContext.SeekBackward();
+    }
+
     public bool PreviousItem()
     {
       IPlayerContext playerContext = CurrentPlayerContext;

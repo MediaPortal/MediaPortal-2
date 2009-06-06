@@ -668,7 +668,7 @@
                 <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
                 <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                    Command="{Command Rewind}"/>
+                    Command="{Command SeekBackward}"/>
                 <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
                     Command="{Command Play}"/>
                 <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
@@ -676,7 +676,7 @@
                 <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
                     Command="{Command Stop}"/>
                 <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                    Command="{Command Forward}"/>
+                    Command="{Command SeekForward}"/>
                 <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
               </StackPanel>

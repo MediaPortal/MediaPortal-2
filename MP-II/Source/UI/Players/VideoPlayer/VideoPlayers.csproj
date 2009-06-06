@@ -59,7 +59,6 @@
     <Compile Include="FilterGraphTools.cs" />
     <Compile Include="IInitializablePlayer.cs" />
     <Compile Include="IPersistMemory.cs" />
-    <Compile Include="Seeking.cs" />
     <Compile Include="settings\AudioSettings.cs" />
     <Compile Include="settings\Settings.cs" />
     <Compile Include="settings\VideoSettings.cs" />

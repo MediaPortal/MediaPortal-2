@@ -51,6 +51,7 @@ namespace MediaPortal.Presentation.Players
   {
     Playing,
     Paused,
+    Seeking,
     Ended,
     Stopped,
   }
@@ -224,6 +225,20 @@ namespace MediaPortal.Presentation.Players
     /// Restarts playback of the item in the current player.
     /// </summary>
     void Restart();
+
+    /// <summary>
+    /// Starts seeking forward or doubles the play rate, if we are already seeking forward. If we are already seeking
+    /// in the other direction, the seek direction will be inverted. If the player is currently in paused state,
+    /// the playback rate will be set to 0.5.
+    /// </summary>
+    void SeekForward();
+
+    /// <summary>
+    /// Starts seeking backward or doubles the play rate, if we are already seeking backward. If we are already seeking
+    /// in the other direction, the seek direction will be inverted. If the player is currently in paused state,
+    /// the playback rate will be set to -0.5.
+    /// </summary>
+    void SeekBackward();
 
     /// <summary>
     /// Plays the previous item from the playlist.

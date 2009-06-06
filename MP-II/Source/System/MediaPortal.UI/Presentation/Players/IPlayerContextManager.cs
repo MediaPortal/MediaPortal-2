@@ -319,6 +319,16 @@ namespace MediaPortal.Presentation.Players
     void Restart();
 
     /// <summary>
+    /// Triggers seeking forward at the current player (see <see cref="IPlayerContext.SeekForward"/>).
+    /// </summary>
+    void SeekForward();
+
+    /// <summary>
+    /// Triggers seeking backward at the current player (see <see cref="IPlayerContext.SeekBackward"/>).
+    /// </summary>
+    void SeekBackward();
+
+    /// <summary>
     /// Plays the previous item from the current player's playlist.
     /// </summary>
     /// <returns>

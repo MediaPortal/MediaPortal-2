@@ -125,7 +125,7 @@ UINT CALLBACK WorkerThread(void* param)
 	while ( true ) 
 	{
 		p->csLock.Lock();
-		if ( p->bDone ) 
+		if (p->bDone)
 		{
 			Log("Worker done.");
 			p->csLock.Unlock();
@@ -133,8 +133,8 @@ UINT CALLBACK WorkerThread(void* param)
 			return 0;
 		}
 		
-		if ( !p->pPresenter->CheckForInput() ) {
-		}
+		if (!p->pPresenter->CheckForInput())
+    { }
 		p->csLock.Unlock();
 		LOG_TRACE("Worker sleeping.");
 		while ( !p->eHasWork.Wait() );
@@ -208,33 +208,33 @@ EVRCustomPresenter::EVRCustomPresenter(int id, IEVRCallback* pCallback, IDirect3
   m_id=id;
   m_enableFrameSkipping=true;
   m_guiReinitializing=false;
-    if (m_pMFCreateVideoSampleFromSurface!=NULL)
-    {
-        Log("----------v0.37---------------------------");
-        m_hMonitor=monitor;
-        m_pD3DDev=direct3dDevice;
-        HRESULT hr = m_pDXVA2CreateDirect3DDeviceManager9(
-            &m_iResetToken, &m_pDeviceManager);
-        if ( FAILED(hr) ) {
-            Log( "Could not create DXVA2 Device Manager" );
-        } else {
-            m_pDeviceManager->ResetDevice(direct3dDevice, m_iResetToken);
-        }
-        m_pCallback=pCallback;
-//		m_lInputAvailable = 0;
-//		m_bInputAvailable = FALSE;
-		m_bendStreaming = FALSE;
-		m_state = RENDER_STATE_SHUTDOWN;
-        m_bSchedulerRunning = FALSE;
-		m_bReallocSurfaces = FALSE;
-        m_fRate = 1.0f;
-		m_iFreeSamples = 0;
-        //TODO: use ZeroMemory
-        /*for ( int i=0; i<NUM_SURFACES; i++ ) {
-            chains[i] = NULL;
-            surfaces[i] = NULL;
-            //samples[i] = NULL;
-        }*/
+  if (m_pMFCreateVideoSampleFromSurface!=NULL)
+  {
+    Log("----------v0.37---------------------------");
+    m_hMonitor=monitor;
+    m_pD3DDev=direct3dDevice;
+    HRESULT hr = m_pDXVA2CreateDirect3DDeviceManager9(
+        &m_iResetToken, &m_pDeviceManager);
+    if ( FAILED(hr) ) {
+      Log( "Could not create DXVA2 Device Manager" );
+    } else {
+      m_pDeviceManager->ResetDevice(direct3dDevice, m_iResetToken);
+    }
+    m_pCallback=pCallback;
+//    m_lInputAvailable = 0;
+//    m_bInputAvailable = FALSE;
+    m_bendStreaming = FALSE;
+    m_RenderState = RENDER_STATE_SHUTDOWN;
+    m_bSchedulerRunning = FALSE;
+    m_bReallocSurfaces = FALSE;
+    m_fRate = 1.0f;
+    m_iFreeSamples = 0;
+    //TODO: use ZeroMemory
+    /*for ( int i=0; i<NUM_SURFACES; i++ ) {
+      chains[i] = NULL;
+      surfaces[i] = NULL;
+      //samples[i] = NULL;
+    }*/
     }
 }
 
@@ -280,93 +280,95 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::Invoke(
 // IUnknown
 HRESULT EVRCustomPresenter::QueryInterface(REFIID riid, void** ppvObject)
 {
-    HRESULT hr = E_NOINTERFACE;
-    if( ppvObject == NULL ) {
-        hr = E_POINTER;
-    } 
-	else if( riid == IID_IMFVideoDeviceID) {
-		*ppvObject = static_cast<IMFVideoDeviceID*>( this );
-        AddRef();
-        hr = S_OK;
-    } 
-	else if( riid == IID_IMFTopologyServiceLookupClient) {
-		*ppvObject = static_cast<IMFTopologyServiceLookupClient*>( this );
-        AddRef();
-        hr = S_OK;
-    } 
-	else if( riid == IID_IMFVideoPresenter) {
-		*ppvObject = static_cast<IMFVideoPresenter*>( this );
-        AddRef();
-        hr = S_OK;
-    } 
-	else if( riid == IID_IMFGetService) {
-		*ppvObject = static_cast<IMFGetService*>( this );
-        AddRef();
-        hr = S_OK;
-    } 
-	else if( riid == IID_IQualProp) {
-		*ppvObject = static_cast<IQualProp*>( this );
-        AddRef();
-        hr = S_OK;
-    } 
-	else if( riid == IID_IMFRateSupport) {
-		*ppvObject = static_cast<IMFRateSupport*>( this );
-        AddRef();
-        hr = S_OK;
-    }
-    else if( riid == IID_IMFVideoDisplayControl  ) {
-        *ppvObject = static_cast<IMFVideoDisplayControl*>( this );
-        AddRef();
-        Log( "QueryInterface:IID_IMFVideoDisplayControl:%x",(*ppvObject)  );
-        hr = S_OK;
-    } 
-    else if( riid == IID_IEVRTrustedVideoPlugin  ) {
-        *ppvObject = static_cast<IEVRTrustedVideoPlugin*>( this );
-        AddRef();
-        Log( "QueryInterface:IID_IEVRTrustedVideoPlugin:%x",(*ppvObject)  );
-        hr = S_OK;
-    } 
-    else if( riid == IID_IMFVideoPositionMapper  ) {
-        *ppvObject = static_cast<IMFVideoPositionMapper*>( this );
-        AddRef();
-        hr = S_OK;
-    } 
-    else if( riid == IID_IUnknown ) {
-        *ppvObject = static_cast<IUnknown*>( static_cast<IMFVideoDeviceID*>( this ) );
-        AddRef();
-        hr = S_OK;    
-    }
-    else
-    {
-        LogIID( riid );
-        *ppvObject=NULL;
-        hr=E_NOINTERFACE;
-    }
-	if ( FAILED(hr) ) {
+  HRESULT hr = E_NOINTERFACE;
+  if( ppvObject == NULL ) {
+    hr = E_POINTER;
+  } 
+  else if( riid == IID_IMFVideoDeviceID)
+  {
+    *ppvObject = static_cast<IMFVideoDeviceID*>( this );
+    AddRef();
+    hr = S_OK;
+  } 
+  else if( riid == IID_IMFTopologyServiceLookupClient)
+  {
+    *ppvObject = static_cast<IMFTopologyServiceLookupClient*>( this );
+    AddRef();
+    hr = S_OK;
+  } 
+  else if( riid == IID_IMFVideoPresenter)
+  {
+    *ppvObject = static_cast<IMFVideoPresenter*>( this );
+    AddRef();
+    hr = S_OK;
+  } 
+  else if( riid == IID_IMFGetService) {
+    *ppvObject = static_cast<IMFGetService*>( this );
+    AddRef();
+    hr = S_OK;
+  } 
+  else if( riid == IID_IQualProp) {
+    *ppvObject = static_cast<IQualProp*>( this );
+    AddRef();
+    hr = S_OK;
+  } 
+  else if( riid == IID_IMFRateSupport) {
+    *ppvObject = static_cast<IMFRateSupport*>( this );
+    AddRef();
+    hr = S_OK;
+  }
+  else if( riid == IID_IMFVideoDisplayControl  ) {
+    *ppvObject = static_cast<IMFVideoDisplayControl*>( this );
+    AddRef();
+    Log( "QueryInterface:IID_IMFVideoDisplayControl:%x",(*ppvObject)  );
+    hr = S_OK;
+  } 
+  else if( riid == IID_IEVRTrustedVideoPlugin  ) {
+    *ppvObject = static_cast<IEVRTrustedVideoPlugin*>( this );
+    AddRef();
+    Log( "QueryInterface:IID_IEVRTrustedVideoPlugin:%x",(*ppvObject)  );
+    hr = S_OK;
+  } 
+  else if( riid == IID_IMFVideoPositionMapper  ) {
+    *ppvObject = static_cast<IMFVideoPositionMapper*>( this );
+    AddRef();
+    hr = S_OK;
+  } 
+  else if( riid == IID_IUnknown ) {
+    *ppvObject = static_cast<IUnknown*>( static_cast<IMFVideoDeviceID*>( this ) );
+    AddRef();
+    hr = S_OK;    
+  }
+  else
+  {
+    LogIID( riid );
+    *ppvObject=NULL;
+    hr=E_NOINTERFACE;
+  }
+  if ( FAILED(hr) ) {
     Log( "QueryInterface failed:%x",hr );
-	}
-    return hr;
+  }
+  return hr;
 }
 
 
 ULONG EVRCustomPresenter::AddRef()
 {
-    Log("EVRCustomPresenter::AddRef()");
-    return InterlockedIncrement(& m_refCount);
+  Log("EVRCustomPresenter::AddRef()");
+  return InterlockedIncrement(& m_refCount);
 }
 
 
 ULONG EVRCustomPresenter::Release()
 {
-    Log("EVRCustomPresenter::Release()");
-    ULONG ret = InterlockedDecrement(& m_refCount);
-    if( ret == 0 )
-    {
-        Log("EVRCustomPresenter::Cleanup()");
-        delete this;
-    }
-
-    return ret;
+  Log("EVRCustomPresenter::Release()");
+  ULONG ret = InterlockedDecrement(& m_refCount);
+  if( ret == 0 )
+  {
+    Log("EVRCustomPresenter::Cleanup()");
+    delete this;
+  }
+  return ret;
 }
 
 
@@ -384,30 +386,124 @@ void EVRCustomPresenter::ResetStatistics()
 HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetSlowestRate( 
     /* [in] */ MFRATE_DIRECTION eDirection,
     /* [in] */ BOOL fThin,
-    /* [out] */ __RPC__out float *pflRate)
+    /* [out] */ __RPC__out float *pfRate)
 {
-	Log("GetSlowestRate");
+  Log("GetSlowestRate, returning 0.0");
+	*pfRate = 0.0f; // No minimum rate
 	return S_OK;
 }
 
 
-HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetFastestRate( 
+HRESULT STDMETHODCALLTYPE EVRCustomPresenter::GetFastestRate(
     /* [in] */ MFRATE_DIRECTION eDirection,
-    /* [in] */ BOOL fThin,
-    /* [out] */ __RPC__out float *pflRate)
+    /* [in] */ BOOL bThin,
+    /* [out] */ __RPC__out float *pfRate)
 {
-	Log("GetFastestRate");
-	return S_OK;
+  Log("GetFastestRate bThin=%i", bThin);
+
+  HRESULT hr = S_OK;
+  float fMaxRate = 0.0f;
+
+  //AutoLock lock(m_ObjectLock);
+  if (pfRate == NULL)
+  { 
+    return E_POINTER; 
+  }
+  hr = CheckShutdown();
+	if (FAILED(hr)) {
+    Log("ERR: GetFastestRate must not called while shutting down.");
+    return hr;
+	}
+  
+  // Get the maximum forward rate.
+  fMaxRate = GetMaxRate(bThin);
+
+  // For reverse playback, swap the sign.
+  if (eDirection == MFRATE_REVERSE)
+  {
+    fMaxRate = -fMaxRate;
+  }
+  *pfRate = fMaxRate;
+
+  Log("GetFastestRate returning %i", fMaxRate);
+done:
+  return hr;
 }
 
+// GetMaxRate: Returns the maximum forward rate.
+float EVRCustomPresenter::GetMaxRate(BOOL bThin)
+{
+  float   fMaxRate = FLT_MAX;  // Default.
+  //UINT32  fpsNumerator = 0, fpsDenominator = 0;
+  //UINT    MonitorRateHz = 0; 
+
+  //if (!bThin && (m_pMediaType != NULL))
+  //{
+  //  // Non-thinned: Use the frame rate and monitor refresh rate.
+  //  
+  //  // Frame rate:
+  //  MFGetAttributeRatio(m_pMediaType, MF_MT_FRAME_RATE, 
+  //      &fpsNumerator, &fpsDenominator);
+
+  //  // Monitor refresh rate:
+  //  MonitorRateHz = m_DisplayMode.RefreshRate; // D3DDISPLAYMODE
+
+  //  if (fpsDenominator && fpsNumerator && MonitorRateHz)
+  //  {
+  //    // Max Rate = Refresh Rate / Frame Rate
+  //    fMaxRate = (float)MulDiv(MonitorRateHz, fpsDenominator, fpsNumerator);
+  //  }
+  //}
+  return fMaxRate;
+}
 
 HRESULT STDMETHODCALLTYPE EVRCustomPresenter::IsRateSupported( 
-    /* [in] */ BOOL fThin,
-    /* [in] */ float flRate,
-    /* [unique][out][in] */ __RPC__inout_opt float *pflNearestSupportedRate)
+    /* [in] */ BOOL bThin,
+    /* [in] */ float fRate,
+    /* [unique][out][in] */ __RPC__inout_opt float *pfNearestSupportedRate)
 {
-	Log("IsRateSupported");
-	return S_OK;
+  // fRate can be negative for reverse playback.
+  // pfNearestSupportedRate can be NULL.
+
+  //AutoLock lock(m_ObjectLock);
+
+  Log("IsRateSupported, bThin=%i, fRate=%f", bThin, fRate);
+  HRESULT hr = S_OK;
+  float   fMaxRate = 0.0f;
+  float   fNearestRate = fRate;   // Default.
+
+  hr = CheckShutdown();
+	if (FAILED(hr)) {
+    Log("ERR: IsRateSupported must not called while shutting down.");
+    return hr;
+	}
+
+  // Find the maximum forward rate.
+  fMaxRate = GetMaxRate(bThin);
+
+  if (fabsf(fRate) > fMaxRate)
+  {
+    // The (absolute) requested rate exceeds the maximum rate.
+    hr = MF_E_UNSUPPORTED_RATE;
+
+    // The nearest supported rate is fMaxRate.
+    fNearestRate = fMaxRate;
+    if (fRate < 0)
+    {
+      // For reverse playback, swap the sign.
+      fNearestRate = -fNearestRate;
+    }
+  }
+
+  // Return the nearest supported rate if the caller requested it.
+  if (pfNearestSupportedRate != NULL)
+  {
+    *pfNearestSupportedRate = fNearestRate;
+  }
+
+  Log("IsRateSupported returning %f", fNearestRate);
+done:
+  return hr;
 }
 
 
@@ -520,7 +616,11 @@ HRESULT EVRCustomPresenter::GetCurrentMediaType(IMFVideoMediaType** ppMediaType)
     return E_POINTER;
   }
 
-  //CHECK_HR(hr = CheckShutdown());
+  hr = CheckShutdown();
+	if (FAILED(hr)) {
+    Log("ERR: GetCurrentMediaType must not called while shutting down.");
+    return hr;
+	}
 
   if (m_pMediaType == NULL)
   {
@@ -770,7 +870,7 @@ HRESULT EVRCustomPresenter::CreateProposedOutputType(IMFMediaType* pMixerType, I
     (*pType)->SetUINT32 (MF_MT_PAN_SCAN_ENABLED, 0);
 
     i64Size.HighPart = 800;
-    64Size.LowPart	 = 600;
+    i64Size.LowPart	 = 600;
     //(*pType)->SetUINT64 (MF_MT_FRAME_SIZE, i64Size.QuadPart);
 
     i64Size.HighPart = 1;
@@ -1074,7 +1174,7 @@ HRESULT EVRCustomPresenter::CheckForScheduledSample(LONGLONG *pNextSampleTime, D
 	while ( m_vScheduledSamples.size() > 0 ) {
 		CComPtr<IMFSample> pSample = PeekSample();
 		if ( pSample == NULL ) break;
-		if ( m_state == RENDER_STATE_STARTED ) 
+		if ( m_RenderState == RENDER_STATE_STARTED ) 
 		{
 			CHECK_HR(hr=GetTimeToSchedule(pSample, pNextSampleTime), "Couldn't get time to schedule!");
 			if ( FAILED(hr) ) *pNextSampleTime = 1;
@@ -1248,6 +1348,18 @@ void EVRCustomPresenter::ScheduleSample(CComPtr<IMFSample> pSample)
 }
 
 
+HRESULT EVRCustomPresenter::CheckShutdown() const 
+{
+  if (m_RenderState == RENDER_STATE_SHUTDOWN)
+  {
+    return MF_E_SHUTDOWN;
+  }
+  else
+  {
+    return S_OK;
+  }
+}
+
 BOOL EVRCustomPresenter::CheckForEndOfStream()
 {
 	//CAutoLock lock(this);
@@ -1374,7 +1486,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::ProcessMessage(
 			//Streaming has started. No particular action is required by this message, but you can use it to allocate resources.
 			Log("ProcessMessage %x", eMessage);
 			m_bendStreaming = FALSE;
-			m_state = RENDER_STATE_STARTED;
+			m_RenderState = RENDER_STATE_STARTED;
 			ResetStatistics();
 			StartWorkers();
 			break;
@@ -1383,7 +1495,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::ProcessMessage(
 			//Streaming has ended. Release any resources that you allocated in response to the MFVP_MESSAGE_BEGINSTREAMING message.
 			Log("ProcessMessage %x", eMessage);
 			//m_bendStreaming = TRUE;
-			m_state = RENDER_STATE_STOPPED;
+			m_RenderState = RENDER_STATE_STOPPED;
 			break;
 
 		case MFVP_MESSAGE_PROCESSINPUTNOTIFY:
@@ -1434,7 +1546,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockStart(
     /* [in] */ LONGLONG llClockStartOffset)
 {
 	Log("OnClockStart");
-	m_state = RENDER_STATE_STARTED;
+	m_RenderState = RENDER_STATE_STARTED;
 	Flush();
 //	m_bInputAvailable = TRUE;
 	NotifyWorker();
@@ -1447,7 +1559,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockStop(
     /* [in] */ MFTIME hnsSystemTime)
 {
 	Log("OnClockStop");
-	m_state = RENDER_STATE_STOPPED;
+	m_RenderState = RENDER_STATE_STOPPED;
 	return S_OK;
 }
 
@@ -1457,7 +1569,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockPause(
 {
 	Log("OnClockPause");
 	m_bfirstFrame = TRUE;
-	m_state = RENDER_STATE_PAUSED;
+	m_RenderState = RENDER_STATE_PAUSED;
 	return S_OK;
 }
 
@@ -1466,7 +1578,7 @@ HRESULT STDMETHODCALLTYPE EVRCustomPresenter::OnClockRestart(
     /* [in] */ MFTIME hnsSystemTime)
 {
 	Log("OnClockRestart");
-	m_state = RENDER_STATE_STARTED;
+	m_RenderState = RENDER_STATE_STARTED;
 //	m_bInputAvailable = TRUE;
 	NotifyScheduler();
 	NotifyWorker();

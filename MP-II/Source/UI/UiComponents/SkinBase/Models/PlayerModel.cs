@@ -43,8 +43,8 @@ namespace UiComponents.SkinBase.Models
     public const string PLAYER_MODEL_ID_STR = "A2F24149-B44C-498b-AE93-288213B87A1A";
     public static Guid PLAYER_MODEL_ID = new Guid(PLAYER_MODEL_ID_STR);
 
-    public static float DEFAULT_PIP_HEIGHT = 108;
-    public static float DEFAULT_PIP_WIDTH = 192;
+    public const float DEFAULT_PIP_HEIGHT = 108;
+    public const float DEFAULT_PIP_WIDTH = 192;
 
     protected Property _isPipVisibleProperty;
     protected Property _pipWidthProperty;
@@ -209,18 +209,16 @@ namespace UiComponents.SkinBase.Models
       playerContextManager.Stop();
     }
 
-    public static void SeekBackward()
-    {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The BKWD command is not implemented yet", DialogType.OkDialog, false);
-    }
-
     public static void SeekForward()
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The FWD command is not implemented yet", DialogType.OkDialog, false);
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.SeekForward();
+    }
+
+    public static void SeekBackward()
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.SeekBackward();
     }
 
     public static void Previous()
