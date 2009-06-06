@@ -242,8 +242,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
           SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
+          childSize = new SizeF(availableSize.Width, availableSize.Height);
           if (count == Children.Count && LastChildFill)
-            child.Arrange(new RectangleF(location, new SizeF(availableSize.Width, availableSize.Height)));
+            child.Arrange(new RectangleF(location, childSize));
           else
           {
             ArrangeChild(child, ref location, ref childSize);
