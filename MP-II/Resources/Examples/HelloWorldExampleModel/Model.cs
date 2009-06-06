@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,71 +22,77 @@
 
 #endregion
 
-using System;
 using MediaPortal.Presentation.DataObjects;
 
 namespace Models.HelloWorld
 {
   /// <summary>
-  /// Example for a Viewmodel
-  /// the screenfile to this model is located at:
-  /// /Skins/default/helloworld.xaml
+  /// Example for a simple model. Models are used for providing data from the system to the skin.
+  /// There are also models which implement special interfaces, for example
+  /// <see cref="MediaPortal.Presentation.Models.IWorkflowModel"/>. Those special models can be plugged into
+  /// several system components, for example workflow models can contribute at the screenflow = workflow of
+  /// the user session.
+  /// The screenfile to this model is located at:
+  /// /Skins/default/screens/helloworld.xaml
   /// </summary>
   public class Model
   {
     /// <summary>
-    ///  this property holds a string that we will modify 
-    ///  later on in this tutorial
+    /// This is a localized string resource. Localized string resources always look like this:<br/>
+    /// <para>
+    /// [Section.Name]
+    /// </para>
+    /// Localized resources must be present at least in the english language, as this is the default.
+    /// Look into the language file: /Language/strings_en.xml
+    /// </summary>
+    protected const string HELLOWORLD_RESOURCE = "[HelloWorld.HelloWorldText]";
+
+    /// <summary>
+    /// Another localized string resource.
+    /// </summary>
+    protected const string COMMAND_TRIGGERED_RESOURCE = "[HelloWorld.HelloWorldCommandExecuted]";
+
+    /// <summary>
+    /// This property holds a string that we will modify in this tutorial.
     /// </summary>
     private Property _helloStringProperty;
 
-    
     /// <summary>
-    /// Constructor... this one is called by the ModelManager when access from the screenfiles
-    /// to the model is needed (via reflection)
+    /// Constructor... this one is called by the WorkflowManager when accessed from a screen.
     /// </summary>
     public Model()
     {
-      _helloStringProperty = new Property(typeof(string), "Hello World!");
+      _helloStringProperty = new Property(typeof(string), HELLOWORLD_RESOURCE);
     }
 
     /// <summary>
-    /// some property that can be accessed
+    /// Some property that can be accessed. This property
     /// </summary>
-    public String HelloString
+    public string HelloString
     {
-      get
-      {
-        return (String)HelloStringProperty.GetValue();
-      }
-      set
-      {
-        HelloStringProperty.SetValue(value);
-      }
+      get { return (string) _helloStringProperty.GetValue(); }
+      set { _helloStringProperty.SetValue(value); }
     }
 
     /// <summary>
-    /// Dependency Property for our string... this is needed
-    /// if our string shouldn't be static, so the skinning engine knows
-    /// that it should update the display when the string has changed
-    /// 
-    /// NOTE: when databinding from the XAML to this a property it will always first look for "XYZProperty"
-    /// if that one is not found, it will bind to "XYZ"... so in our case if you databind to "HelloString" it will
-    /// first try to find a "HelloStringProperty" property to bind to, if that doesn't succeed it will bind to the
-    /// "HelloString" String property...
+    /// Dependency Property for our string... This is needed
+    /// if our string shouldn't be static, so the SkinEngine can attach to the change handler
+    /// of the property. So it knows when it should update the display when the string has changed.
+    ///
+    /// Every property Xyz, which should be able to be attached to, must be present also as XyzProperty.
+    /// Only if XyzProperty is present in the model, the binding can attach to that property.
     /// </summary>
     public Property HelloStringProperty
     {
       get { return _helloStringProperty; }
     }
 
-
     /// <summary>
-    /// this will change the HelloWorld Property string
+    /// Method which will be called from our screen. This will change the HelloWorld Property string.
     /// </summary>
     public void ChangeHelloWorldString()
     {
-      HelloString = "Congrats, you just triggered a Command!";
+      HelloString = COMMAND_TRIGGERED_RESOURCE;
     }
   }
 }

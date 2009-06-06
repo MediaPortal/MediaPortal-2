@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- This file contains language resources for the english language. The naming of the file must always be like this:
+     strings_[culture name].xml -->
+<Language>
+  <Section Name="HelloWorld">
+    <String Name="MenuEntry" Text="Hello world"/>
+    <String Name="ButtonText" Text="Press me"/>
+    <String Name="HelloWorldText" Text="Hello World!"/>
+    <String Name="HelloWorldCommandExecuted" Text="Congrats, you just triggered a Command!"/>
+  </Section>
+</Language>

@@ -1,16 +1,29 @@
 <Plugin
-    Version = "1.0"
-    Name = "Hello World"
-    Author = "Team MediaPortal"
-    Copyright = "GPL"
-    Description = "Sample Plugin"
-    PluginVersion = "1.0">
+    DescriptorVersion="1.0"
+    Name="HelloWorld"
+    PluginId="C28ABD6B-9615-4512-B8DA-A04096F35628"
+    Author="Albert"
+    Copyright="GPL"
+    Description="Sample plugin"
+    PluginVersion="0.1">
 
   <Runtime>
-    <Assembly FileName = "HelloWorld.dll"/>
+    <Assembly FileName="HelloWorld.dll"/>
   </Runtime>
 
-  <Register Location = "/Models/HelloWorld">
-    <Instance Id = "Model" ClassName = "Models.HelloWorld.Model"/>
+  <Register Location="/Models">
+    <!-- This registration is necessary to 1) make the model id public and 2) find the model's class.
+         Guids are always written without the enclosing curly braces "{}". -->
+    <Model Id="5726DA5A-70D5-458f-AF67-611293D97912" ClassName="Models.HelloWorld.Model"/>
+  </Register>
+
+  <!-- Registration of our skin directory -->
+  <Register Location="/Resources/Skin">
+    <Resource Id="HelloWorldSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Registration of our language directory -->
+  <Register Location="/Resources/Language">
+    <Resource Id="HelloWorldLanguage" Directory="Language" Type="Language"/>
   </Register>
 </Plugin>

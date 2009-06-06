@@ -1,0 +1,13 @@
+<DockPanel
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Context="{Model Id=5726DA5A-70D5-458f-AF67-611293D97912}" LastChildFill="False">
+  <Label Content="This is the sample screen of the HelloWorld plugin" FontSize="40" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
+  <StackPanel DockPanel.Dock="Center" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Button Content="Press me" Style="{ThemeResource ButtonWideStyle}" Margin="10"
+        HorizontalAlignment="Right" VerticalAlignment="Center"
+        Command="{Command ChangeHelloWorldString}"/>
+    <Label Content="{Binding HelloString}" Margin="10"
+        HorizontalAlignment="Left" VerticalAlignment="Center"/>
+  </StackPanel>
+</DockPanel>

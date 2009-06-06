@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hello world workflow states -->
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <WorkflowState Id="D5CD9D35-1B36-4ede-8BED-A4FB658F27BD"
+        Name="HelloWorldMain" MainScreen="hello_world"/> <!-- No workflow model -->
+  </States>
+</Workflow>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hello world workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="EA48BD6E-60D3-45b2-9C35-1AB437CC72FB"
+        Name="Home->HelloWorld"
+        DisplayCategory="z-HelloWorld"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="D5CD9D35-1B36-4ede-8BED-A4FB658F27BD"
+        DisplayTitle="[HelloWorld.MenuEntry]"/>
+  </MenuActions>
+</Workflow>
