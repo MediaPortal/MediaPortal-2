@@ -42,10 +42,21 @@
     <String Name="Zoom149" Text="Zoom 14:9"/>
   </Section>
   <Section Name="PlayerControl">
+    <String Name="NoPlayer" Text="No player"/>
     <String Name="NoMediaItem" Text="No media item"/>
     <String Name="UnknownMediaItem" Text="Unknown media item"/>
     <String Name="UnknownPlayerContextName" Text="Player"/>
     <String Name="HeaderNormal" Text="{0}"/> <!-- {0} = media item title -->
     <String Name="HeaderPip" Text="{0} (PiP)"/> <!-- {0} = media item title -->
+    <String Name="Playing" Text="Playing"/>
+    <String Name="Paused" Text="Paused"/>
+    <String Name="SeekingForward" Text="Seeking forward ({0})"/> <!-- For example: "Seeking forward (2x)" -->
+    <String Name="SeekingBackward" Text="Seeking backward ({0})"/> <!-- For example: "Seeking forward (2x)" -->
+    <String Name="SlowMotionForward" Text="Slowmotion forward ({0})"/> <!-- For example: "Slowmotion forward (0.5x)" -->
+    <String Name="SlowMotionBackward" Text="Slowmotion backward ({0})"/> <!-- For example: "Slowmotion backward (0.5x)" -->
+    <String Name="PlaybackRateHint" Text="{0}x"/> <!-- For example: 2x or 0.5x -->
+    <String Name="Stopped" Text="Stopped"/>
+    <String Name="Ended" Text="Ended"/>
+    <String Name="Active" Text="Active"/>
   </Section>
 </Language>

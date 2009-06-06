@@ -32,9 +32,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 {
   public class ScrollViewer : ContentControl
   {
-    #region Protected fields
-
     protected const float SCROLLBAR_MINLENGTH = 10f;
+
+    #region Protected fields
 
     protected Property _scrollBarXKnobPosProperty;
     protected Property _scrollBarXKnobWidthProperty;

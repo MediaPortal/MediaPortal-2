@@ -99,10 +99,10 @@
                 <Grid.RowDefinitions>
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Label x:Name="PlayerStateLabel" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"
+                <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
                     Content="{Binding PlayerStateText}"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="10,0,0,0" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsPlayerActive}">
+                    IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"/>
                   <Label Content="/" Margin="4,0,4,0"/>
                   <Label x:Name="VideoLengthLabel" Content="{Binding Duration}"/>
@@ -166,8 +166,9 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
-              <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+              <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
                 <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
                   <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
                       VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
@@ -199,7 +200,7 @@
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Grid>
-              </DockPanel>
+              </DockPanel> <!-- PiPHeaderPanel -->
               <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
@@ -219,7 +220,9 @@
                   </Trigger>
                 </Button.Triggers>
               </Button> <!-- PIPButton -->
-              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="2" Margin="10,10,10,0"
+              <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
+                  Content="{Binding PlayerStateText}"/>
+              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>

@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special="clr-namespace:MediaPortal.SkinEngine.SpecialElements.Controls"
-    DependsOnStyleResources="Colors"
+    DependsOnStyleResources="Colors,Graphics"
     >
 
   <!-- ***************************** Storyboards ******************************** -->
@@ -768,8 +768,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="Play" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
-                Data="F1 M0.5,0.0 L11.5,11.5 0.5,22.0 z"/>
+            <Control x:Name="Play" Template="{ThemeResource PlayControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -820,8 +819,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="Pause" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
-                Data="F1 M0.0,0.5 L6,0.5 6,21.5 0.0,21.5 0.0,0.5 z M11.0,0.5 L17.0,0.5 17.0,21.5 11.0,21.5 11.0,0.5 z"/>
+            <Control x:Name="Pause" Template="{ThemeResource PauseControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -872,7 +870,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Rectangle x:Name="Stop" Fill="{ThemeResource PlayControlsFillColor}" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"/>
+            <Control x:Name="Stop" Template="{ThemeResource StopControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -923,8 +921,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="Forward" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
-                Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L15,9 7.5,17.5 7.5,0.5 z"/>
+            <Control x:Name="Forward" Template="{ThemeResource ForwardControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -975,13 +972,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="Rewind" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
-                Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L15,9 7.5,17.5 7.5,0.5 z"
-                RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <RotateTransform Angle="180"/>
-              </Path.RenderTransform>
-            </Path>
+            <Control x:Name="Rewind" Template="{ThemeResource RewindControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1032,8 +1023,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="SkipForward" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
-                Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L13.5,0.5 13.5,17.5 7.5,17.5 7.5,0.5 z"/>
+            <Control x:Name="SkipForward" Template="{ThemeResource SkipForwardControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1084,13 +1074,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Path x:Name="SkipBack" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}" Width="18" Height="18" Margin="10,5,10,5"
-                Data="F1 M0.0,0.5 L7.5,9 0.0,17.5 0.0,0.5 z M7.5,0.5 L13.5,0.5 13.5,17.5 7.5,17.5 7.5,0.5 z"
-                RenderTransformOrigin="0.5,0.5">
-              <Path.RenderTransform>
-                <RotateTransform Angle="180"/>
-              </Path.RenderTransform>
-            </Path>
+            <Control x:Name="SkipBack" Template="{ThemeResource SkipBackControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -1124,24 +1108,6 @@
     </Setter>
   </Style>
 
-  <ControlTemplate x:Key="AudioActiveControlTemplate">
-    <Path x:Name="Audio" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
-        Width="18" Height="18" Margin="10,7,10,7" HorizontalAlignment="Center" VerticalAlignment="Center"
-        Data="F1 M0.0,5.0 L3.0,5 3.0,13 0.0,13 z M3.0,6.0 L10.0,2 10.0,16 3.0,12.0 3.0,6.0 z M10.0,0.5 L12.0,0.5 12.0,17.5 10.0,17.5 z"/>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="AudioInactiveControlTemplate">
-    <Path x:Name="Audio" Fill="{ThemeResource InactivePlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
-        Width="18" Height="18" Margin="10,7,10,7" HorizontalAlignment="Center" VerticalAlignment="Center"
-        Data="F1 M0.0,5.0 L3.0,5 3.0,13 0.0,13 z M3.0,6.0 L10.0,2 10.0,16 3.0,12.0 3.0,6.0 z M10.0,0.5 L12.0,0.5 12.0,17.5 10.0,17.5 z"/>
-  </ControlTemplate>
-
-  <ControlTemplate x:Key="MuteOnOffControlTemplate">
-		<Path x:Name="MuteOff" Fill="{ThemeResource PlayControlsMuteOffCrossColor}" Stretch="Fill"
-        Width="30" Height="30" Margin="4,0,4,0" HorizontalAlignment="Center" VerticalAlignment="Center"
-		    Data="F1 M0,10 C0,20 20,20 20,10 C20,0 0,0 0,10 L2,10 C2,2 18,2 18,10 C18,18 2,18 2,10 L0,10 z M4,15 L15,4 17,6 6,17 4,15 z"/>
-  </ControlTemplate>
-
   <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -1159,8 +1125,8 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}"/>
-            <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}"
+            <Control x:Name="Audio" Template="{ThemeResource AudioActiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Control x:Name="MuteOnOff" Template="{ThemeResource MuteOnOffControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type mp_special:PlayerControl}},Path=IsMuted}"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -1212,7 +1178,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}"/>
+            <Control x:Name="Audio" Template="{ThemeResource AudioInactiveControlTemplate}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

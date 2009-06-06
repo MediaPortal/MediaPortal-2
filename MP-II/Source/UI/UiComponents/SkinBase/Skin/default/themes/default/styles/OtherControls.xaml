@@ -631,25 +631,37 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource DefaultPlayControlMediaItemColor}"
                     Content="{Binding MediaItemTitle}"/>
-                <Grid Grid.Row="0" Grid.Column="1" IsVisible="{Binding !ShowMouseControls}">
-                  <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                  <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                    <Control.IsVisible>
-                      <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                        <Binding Path="IsAudio"/>
-                        <Binding Path="IsMuted"/>
-                      </MultiBinding>
-                    </Control.IsVisible>
-                  </Control>
+                <Grid Grid.Row="0" Grid.Column="1">
+                  <Control x:Name="StatePlay" IsVisible="{Binding IsPlaying}" Template="{ThemeResource PlayControlTemplate}"/>
+                  <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"/>
+                  <Control x:Name="StateForward" IsVisible="{Binding IsSeekingForward}" Template="{ThemeResource ForwardControlTemplate}"/>
+                  <Control x:Name="StateRewind" IsVisible="{Binding IsSeekingBackward}" Template="{ThemeResource RewindControlTemplate}"/>
+                  <Label x:Name="SeekHint" FontSize="10" Content="{Binding SeekHint}"/>
                 </Grid>
-                <Grid Grid.Row="0" Grid.Column="1" IsVisible="{Binding ShowMouseControls}">
-                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
-                  <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
+                <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <Grid IsVisible="{Binding !ShowMouseControls}">
+                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"
+                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}"
+                         VerticalAlignment="Center" HorizontalAlignment="Center">
+                      <Control.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                          <Binding Path="IsAudio"/>
+                          <Binding Path="IsMuted"/>
+                        </MultiBinding>
+                      </Control.IsVisible>
+                    </Control>
+                  </Grid>
+                  <Grid IsVisible="{Binding ShowMouseControls}">
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
+                        Command="{Command AudioButtonPressed}"/>
+                  </Grid>
                 </Grid>
               </Grid>
               <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}" Margin="0,10,0,5">
