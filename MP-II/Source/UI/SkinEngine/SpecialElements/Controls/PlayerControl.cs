@@ -72,8 +72,6 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     public const string KEY_PLAYER_SLOT = "PlayerSlot";
     public const string KEY_SHOW_MUTE = "ShowMute";
 
-    protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
-
     #endregion
 
     #region Protected fields
@@ -390,38 +388,40 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
                 paused = true;
                 PlayerStateText = PLAYER_PAUSED_RESOURCE;
               }
-              else if (Math.Abs(mediaPlaybackControl.PlaybackRate - 1) < PLAYBACK_RATE_PLAY_THRESHOLD)
+              else if (mediaPlaybackControl.IsPlayingAtNormalRate)
               {
                 playing = true;
                 PlayerStateText = PLAYER_PLAYING_RESOURCE;
               }
               else
               {
+                string playerStateTextResource;
                 double playbackRate = mediaPlaybackControl.PlaybackRate;
                 string format = "#";
                 if (playbackRate > 1.0)
                 {
                   seekingForward = true;
-                  PlayerStateText = PLAYER_SEEKING_FORWARD_RESOURCE;
+                  playerStateTextResource = PLAYER_SEEKING_FORWARD_RESOURCE;
                 }
                 else if (playbackRate < -1.0)
                 {
                   seekingBackward = true;
-                  PlayerStateText = PLAYER_SEEKING_BACKWARD_RESOURCE;
+                  playerStateTextResource = PLAYER_SEEKING_BACKWARD_RESOURCE;
                 }
-                if (playbackRate > 0.0)
+                else if (playbackRate > 0.0)
                 {
                   seekingForward = true;
-                  PlayerStateText = PLAYER_SLOWMOTION_FORWARD_RESOURCE;
+                  playerStateTextResource = PLAYER_SLOWMOTION_FORWARD_RESOURCE;
                   format = "#.#";
                 }
-                else if (playbackRate < 0.0)
+                else // playbackRate < 0.0
                 {
                   seekingBackward = true;
-                  PlayerStateText = PLAYER_SLOWMOTION_BACKWARD_RESOURCE;
+                  playerStateTextResource = PLAYER_SLOWMOTION_BACKWARD_RESOURCE;
                   format = "#.#";
                 }
                 seekHint = _playbackRateHintResource.Evaluate(string.Format("{0:" + format + "}", playbackRate));
+                PlayerStateText = LocalizationHelper.CreateResourceString(playerStateTextResource).Evaluate(seekHint);
               }
             }
             break;
@@ -438,13 +438,13 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         IsSeekingBackward = seekingBackward;
         SeekHint = seekHint;
         IsPlayerActive = player.State == PlayerState.Active;
-        CanPlay = mediaPlaybackControl == null || mediaPlaybackControl.IsPaused;
+        CanPlay = mediaPlaybackControl == null || mediaPlaybackControl.IsPaused || seekingForward || seekingBackward;
         CanPause = mediaPlaybackControl != null && !mediaPlaybackControl.IsPaused;
         CanStop = true;
         CanSkipBack = playerContext.Playlist.HasPrevious;
         CanSkipForward = playerContext.Playlist.HasNext;
-        CanSeekBackward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekBackward;
-        CanSeekForward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekForward;
+        CanSeekBackward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekBackwards;
+        CanSeekForward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekForwards;
       }
       IsMuted = playerManager.Muted;
       CheckShowMouseControls();
@@ -963,10 +963,6 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       }
     }
 
-    #endregion
-
-    #region Public methods
-
     public void Play()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1012,18 +1008,20 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       pc.Stop();
     }
 
-    public void Rewind()
+    public void SeekBackward()
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The BKWD command is not implemented yet", DialogType.OkDialog, false);
+      IPlayerContext pc = GetPlayerContext();
+      if (pc == null)
+        return;
+      pc.SeekBackward();
     }
 
-    public void Forward()
+    public void SeekForward()
     {
-      // TODO
-      IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-      dialogManager.ShowDialog("Not implemented", "The FWD command is not implemented yet", DialogType.OkDialog, false);
+      IPlayerContext pc = GetPlayerContext();
+      if (pc == null)
+        return;
+      pc.SeekForward();
     }
 
     public void Previous()
