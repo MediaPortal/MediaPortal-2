@@ -54,9 +54,9 @@ namespace MediaPortal.SkinEngine.Controls.Panels
       }
 
       if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width;
+        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
       if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height;
+        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
 
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       foreach (UIElement child in Children)

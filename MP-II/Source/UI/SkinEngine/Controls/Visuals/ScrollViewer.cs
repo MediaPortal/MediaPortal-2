@@ -161,11 +161,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       ScrollBarXKnobWidth = w / SkinContext.Zoom.Width;
       ScrollBarXKnobPos = x / SkinContext.Zoom.Width;
-      ScrollBarXVisible = !IsNear(totalWidth, 0) && totalWidth > scrollInfo.ViewPortWidth;
+      ScrollBarXVisible = !IsNear(totalWidth, 0) && totalWidth > scrollInfo.ViewPortWidth + DELTA_DOUBLE;
 
       ScrollBarYKnobHeight = h / SkinContext.Zoom.Height;
       ScrollBarYKnobPos = y / SkinContext.Zoom.Height;
-      ScrollBarYVisible = !IsNear(totalHeight, 0) && totalHeight > scrollInfo.ViewPortHeight;
+      ScrollBarYVisible = !IsNear(totalHeight, 0) && totalHeight > scrollInfo.ViewPortHeight + DELTA_DOUBLE;
     }
 
     void ConfigureContentScrollFacility()

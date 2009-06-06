@@ -224,6 +224,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
     protected const string LOADED_EVENT = "UIElement.Loaded";
 
+    public const double DELTA_DOUBLE = 0.01;
+
     #region Protected fields
 
     protected Property _nameProperty;
@@ -823,17 +825,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             size.Width = SkinContext.SkinWidth * SkinContext.Zoom.Width;
           if (Double.IsNaN(size.Height)) 
             size.Height = SkinContext.SkinHeight * SkinContext.Zoom.Height;
+
+          SizeF childSize = new SizeF(size.Width, size.Height);
           ExtendedMatrix m = _finalLayoutTransform;
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-
-          SizeF childSize = new SizeF(size.Width, size.Height);
           Measure(ref childSize);
-          if (m != null)
-            SkinContext.RemoveLayoutTransform();
-
-          if (m != null)
-            SkinContext.AddLayoutTransform(m);
           Arrange(new RectangleF(0, 0, size.Width, size.Height));
           if (m != null)
             SkinContext.RemoveLayoutTransform();
@@ -1117,7 +1114,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public static bool IsNear(double x, double y)
     {
-      return Math.Abs(x - y) < 0.01;
+      return Math.Abs(x - y) < DELTA_DOUBLE;
     }
 
     #region IContentEnabled members

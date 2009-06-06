@@ -199,7 +199,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public double BorderThickness
     {
-      get { return (double)_borderThicknessProperty.GetValue(); }
+      get { return (double) _borderThicknessProperty.GetValue(); }
       set { _borderThicknessProperty.SetValue(value); }
     }
 
@@ -210,7 +210,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     public double CornerRadius
     {
-      get { return (double)_cornerRadiusProperty.GetValue(); }
+      get { return (double) _cornerRadiusProperty.GetValue(); }
       set { _cornerRadiusProperty.SetValue(value); }
     }
 
@@ -225,13 +225,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
       MeasureBorder(totalSize);
 
-      Thickness borderMargin = GetTotalBorderMargin();
-
       if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width;
+        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
       if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height;
+        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
 
+      Thickness borderMargin = GetTotalBorderMargin();
       RemoveMargin(ref totalSize, borderMargin);
 
       SizeF childSize;
@@ -287,12 +286,14 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets the size needed for this element's border.
+    /// Gets the size needed for this element's border in total. Will be subtracted from the total available area
+    /// when our content will be layouted. The returned value is not zoomed by <see cref="SkinContext.Zoom"/>.
     /// </summary>
     protected virtual Thickness GetTotalBorderMargin()
     {
-      float borderInsets = GetBorderInset()*2;
-      return new Thickness(borderInsets);
+      float borderInsetsX = GetBorderInsetX()*2;
+      float borderInsetsY = GetBorderInsetY()*2;
+      return new Thickness(borderInsetsX, borderInsetsY, borderInsetsX, borderInsetsY);
     }
 
     protected virtual void MeasureBorder(SizeF totalSize)
@@ -305,7 +306,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _borderRect = new RectangleF(finalRect.Location, finalRect.Size);
     }
 
-    protected float GetBorderInset()
+    protected float GetBorderInsetX()
+    {
+      return (float) Math.Max(BorderThickness, CornerRadius);
+    }
+
+    protected float GetBorderInsetY()
     {
       return (float) Math.Max(BorderThickness, CornerRadius);
     }
@@ -440,7 +446,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out em);
         layoutTransform = layoutTransform.Multiply(em);
       }
-      return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius, layoutTransform);
+      return GraphicsPathHelper.CreateRoundedRectPath(baseRect,
+          (float) CornerRadius * SkinContext.Zoom.Width, (float) CornerRadius * SkinContext.Zoom.Width, layoutTransform);
     }
 
     #endregion

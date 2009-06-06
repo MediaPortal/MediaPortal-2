@@ -136,7 +136,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     protected override Thickness GetTotalBorderMargin()
     {
       Thickness result = base.GetTotalBorderMargin();
-      float halfLabel = _headerLabel.DesiredSize.Height/2;
+      float halfLabel = _headerLabel.TotalDesiredSize().Height/(2*SkinContext.Zoom.Height); // Value has to be adjusted by zoom because the label returns a zoomed value
       result.Top = halfLabel + Math.Max(halfLabel, result.Top);
       return result;
     }
@@ -149,9 +149,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      float borderInset = GetBorderInset();
-      SizeF headerSize = new SizeF(totalSize.Width - (borderInset + HEADER_INSET_LINE + HEADER_INSET_SPACE) * 2,
-          totalSize.Height);
+      float realHeaderInset = (HEADER_INSET_LINE + HEADER_INSET_SPACE)*SkinContext.Zoom.Width;
+      float borderInsetX = GetBorderInsetX();
+      SizeF headerSize = new SizeF(totalSize.Width - (borderInsetX + realHeaderInset) * 2, totalSize.Height);
       _headerLabel.Measure(ref headerSize);
       if (LayoutTransform != null)
         SkinContext.RemoveLayoutTransform();
@@ -160,7 +160,8 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     protected override void ArrangeBorder(RectangleF finalRect)
     {
-      float halfLabelHeight = _headerLabel.DesiredSize.Height/2;
+      float totalHeaderLabelHeight = _headerLabel.TotalDesiredSize().Height;
+      float halfLabelHeight = totalHeaderLabelHeight/2;
       RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + halfLabelHeight,
           finalRect.Width, finalRect.Height - halfLabelHeight);
       base.ArrangeBorder(borderRect);
@@ -170,9 +171,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out m);
         SkinContext.AddLayoutTransform(m);
       }
-      float borderInset = GetBorderInset();
-      _headerLabelRect = new RectangleF(finalRect.X + borderInset + HEADER_INSET_LINE + HEADER_INSET_SPACE, finalRect.Y,
-          finalRect.Width - (borderInset + HEADER_INSET_LINE + HEADER_INSET_SPACE) * 2, _headerLabel.DesiredSize.Height);
+      float realHeaderInset = (HEADER_INSET_LINE + HEADER_INSET_SPACE)*SkinContext.Zoom.Width;
+      float borderInsetX = GetBorderInsetX();
+      _headerLabelRect = new RectangleF(
+          finalRect.X + borderInsetX + realHeaderInset, finalRect.Y,
+          finalRect.Width - (borderInsetX + realHeaderInset) * 2, totalHeaderLabelHeight);
       if (_headerLabelRect.Width < 0)
         _headerLabelRect.Width = 0;
       if (_headerLabelRect.Height > finalRect.Height)
@@ -194,8 +197,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       }
       baseRect.Y += _headerLabel.DesiredSize.Height/2;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(baseRect,
-          (float) CornerRadius, (float) CornerRadius, true,
-          HEADER_INSET_LINE, _headerLabel.DesiredSize.Width + HEADER_INSET_SPACE * 2, layoutTransform);
+          (float) CornerRadius * SkinContext.Zoom.Width, (float) CornerRadius * SkinContext.Zoom.Width, true,
+          HEADER_INSET_LINE * SkinContext.Zoom.Width,
+          _headerLabel.DesiredSize.Width + HEADER_INSET_SPACE * SkinContext.Zoom.Width * 2, layoutTransform);
     }
 
     public override void DoRender()
