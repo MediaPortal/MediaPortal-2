@@ -36,12 +36,5 @@ namespace MediaPortal.Presentation.SkinResources
     /// of the currently active skin.
     /// </summary>
     IResourceAccessor SkinResourceContext { get; }
-
-    /// <summary>
-    /// Gets fired when the resource collection of skin resources changed. This is the case if plugins
-    /// are added or removed, for example.
-    /// </summary>
-    event SkinResourceCollectionChangedDlgt SkinResourcesChanged;
-
   }
 }

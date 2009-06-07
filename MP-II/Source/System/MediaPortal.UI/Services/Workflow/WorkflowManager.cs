@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
@@ -37,6 +38,8 @@ namespace MediaPortal.Services.Workflow
 {
   public class WorkflowManager : IWorkflowManager
   {
+    #region Classes
+
     protected class ModelItemStateTracker : IPluginItemStateTracker
     {
       #region Protected fields
@@ -114,6 +117,8 @@ namespace MediaPortal.Services.Workflow
       }
     }
 
+    #endregion
+
     #region Consts
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
@@ -129,6 +134,7 @@ namespace MediaPortal.Services.Workflow
     protected ModelItemStateTracker _modelItemStateTracker;
     protected IDictionary<Guid, WorkflowState> _states = new Dictionary<Guid, WorkflowState>();
     protected IDictionary<Guid, WorkflowAction> _menuActions =  new Dictionary<Guid, WorkflowAction>();
+    protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
 
@@ -144,9 +150,32 @@ namespace MediaPortal.Services.Workflow
 
     #region Protected methods
 
-    protected void OnSkinResourcesChanged()
+    void SubscribeToMessages()
     {
-      ReloadWorkflowResources();
+      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+        {
+           SkinResourcesMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
+    }
+
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == SkinResourcesMessaging.CHANNEL)
+      {
+        SkinResourcesMessaging.MessageType messageType = (SkinResourcesMessaging.MessageType) message.MessageType;
+        if (messageType == SkinResourcesMessaging.MessageType.SkinResourcesChanged)
+          ReloadWorkflowResources();
+      }
     }
 
     /// <summary>
@@ -204,8 +233,8 @@ namespace MediaPortal.Services.Workflow
     /// <param name="modelId">Id of the model to free.</param>
     protected void FreeModel(Guid modelId)
     {
-      ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       _modelCache.Remove(modelId);
+      ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
     }
 
     protected void RemoveModelFromNavigationStack(Guid modelId)
@@ -486,17 +515,14 @@ namespace MediaPortal.Services.Workflow
     public void Initialize()
     {
       ServiceScope.Get<ILogger>().Info("WorkflowManager: Startup");
-      ISkinResourceManager skinResourceManager = ServiceScope.Get<ISkinResourceManager>();
-      skinResourceManager.SkinResourcesChanged += OnSkinResourcesChanged;
+      SubscribeToMessages();
       ReloadWorkflowResources();
     }
 
     public void Shutdown()
     {
       ServiceScope.Get<ILogger>().Info("WorkflowManager: Shutdown");
-      ISkinResourceManager skinResourceManager = ServiceScope.Get<ISkinResourceManager>(false);
-      if (skinResourceManager != null)
-        skinResourceManager.SkinResourcesChanged -= OnSkinResourcesChanged;
+      UnsubscribeFromMessages();
       foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
         FreeModel(modelId);
       foreach (NavigationContext context in _navigationContextStack)

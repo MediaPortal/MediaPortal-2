@@ -47,6 +47,11 @@ namespace MediaPortal.Core.PluginManager
   /// Its external interface provides methods to access items by their registration location and id.
   /// Plugin items will be lazily built. At the time an item is requested, it will be built if it was not
   /// built yet.
+  /// TODO: Document multithreading.
+  /// We need to make all methods able to be called while holding locks, e.g. requesting/revoking plugin items.
+  /// So if we let all methods be called while other locks are held, we mustn't call other components in a synchronous
+  /// way (e.g. callbacks for removing plugin items), so we must make them asynchronous.
+  /// So, methods like start/stop plugin must be made asynchronous.
   /// </remarks>
   public interface IPluginManager
   {

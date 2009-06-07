@@ -363,8 +363,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     protected void SkinResourcesWereChanged()
     {
       ReloadSkins();
-      if (SkinResourcesChanged != null)
-        SkinResourcesChanged();
+      SkinResourcesMessaging.SendSkinResourcesMessage(SkinResourcesMessaging.MessageType.SkinResourcesChanged);
     }
 
     /// <summary>
@@ -388,8 +387,6 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       get { return SkinContext.SkinResources; }
     }
-
-    public event SkinResourceCollectionChangedDlgt SkinResourcesChanged;
 
     #endregion
   }

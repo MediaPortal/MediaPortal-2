@@ -134,7 +134,7 @@ namespace MediaPortal.Services.Players
           }
         }
         CheckCurrentPlayerSlot();
-        CheckMediaWorkflowStates();
+        CheckMediaWorkflowStates_NoLock();
       }
     }
 
@@ -206,10 +206,10 @@ namespace MediaPortal.Services.Players
     /// changed, the workflow state will be adapted to match the new current player context's "currently playing" state.
     /// The same check will happen for the primary player context and the "fullscreen content" state.
     /// </summary>
-    protected void CheckMediaWorkflowStates()
+    protected void CheckMediaWorkflowStates_NoLock()
     {
-      Guid? newCPStateId = new Guid?();
-      Guid? newFSCStateId = new Guid?();
+      Guid? newCPStateId = null;
+      Guid? newFSCStateId = null;
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
@@ -224,6 +224,7 @@ namespace MediaPortal.Services.Players
           newFSCStateId = primaryPC == null ? new Guid?() : primaryPC.FullscreenContentWorkflowStateId;
         }
       }
+      // Don't hold the lock while doing the workflow navigation below - see threading policy
       ILogger log = ServiceScope.Get<ILogger>();
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       if (_inCurrentlyPlayingState.HasValue && (!newCPStateId.HasValue || newCPStateId.Value != _inCurrentlyPlayingState.Value))
@@ -349,8 +350,8 @@ namespace MediaPortal.Services.Players
           if (newCurrent == null || !newCurrent.IsValid)
             return;
           _currentPlayerIndex = value;
-          CheckMediaWorkflowStates();
         }
+        CheckMediaWorkflowStates_NoLock();
         PlayerContextManagerMessaging.SendPlayerContextManagerMessage(PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
       }
     }
