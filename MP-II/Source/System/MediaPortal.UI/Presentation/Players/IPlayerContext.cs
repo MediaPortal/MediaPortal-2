@@ -198,8 +198,10 @@ namespace MediaPortal.Presentation.Players
     /// set before.</returns>
     object GetContextVariable(string key);
 
-    // Fullscreen content workflow state can only be shown by the PlayerContextManager, because the FSC screen can only
-    // be shown for the primary player
+    /// <summary>
+    /// Closes this player context.
+    /// </summary>
+    void Close();
 
     /// <summary>
     /// Stops playback of the current player.

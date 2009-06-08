@@ -63,47 +63,45 @@ namespace MediaPortal.Services.Players
     /// <summary>
     /// Creates a new player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
     /// </summary>
-    /// <remarks>
-    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s lock
-    /// and this instance's lock.
-    /// </remarks>
     /// <param name="locator">Media item locator of the media item to be played.</param>
     /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
     /// <returns><c>true</c>, if the player could be created, else <c>false</c>.</returns>
-    internal bool CreatePlayer_NeedLock(IMediaItemLocator locator, string mimeType)
+    internal bool CreatePlayer(IMediaItemLocator locator, string mimeType)
     {
-      ReleasePlayer_NeedLock();
-      _playerManager.BuildPlayer_NeedLock(locator, mimeType, this);
-      if (_player != null)
+      lock (_playerManager.SyncObj)
       {
-        // Initialize new player
-        CheckAudio();
-        RegisterPlayerEvents();
-        return true;
+        ReleasePlayer();
+        _playerManager.BuildPlayer(locator, mimeType, this);
+        if (_player != null)
+        {
+          // Initialize new player
+          CheckAudio();
+          RegisterPlayerEvents();
+          return true;
+        }
+        return false;
       }
-      return false;
     }
 
     /// <summary>
     /// Releases the current player.
     /// </summary>
-    /// <remarks>
-    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s lock
-    /// and this instance's lock.
-    /// </remarks>
-    internal void ReleasePlayer_NeedLock()
+    internal void ReleasePlayer()
     {
-      if (_player != null)
+      lock (_playerManager.SyncObj)
       {
-        ResetPlayerEvents();
-        SetSlotState(PlayerSlotState.Stopped);
-        if (_player.State != PlayerState.Stopped)
-          _player.Stop();
-        if (_player is IDisposable)
-          ((IDisposable) _player).Dispose();
-        _player = null;
+        if (_player != null)
+        {
+          ResetPlayerEvents();
+          SetSlotState(PlayerSlotState.Stopped);
+          if (_player.State != PlayerState.Stopped)
+            _player.Stop();
+          if (_player is IDisposable)
+            ((IDisposable) _player).Dispose();
+          _player = null;
+        }
+        _playerManager.RevokePlayer(this);
       }
-      _playerManager.RevokePlayer_NeedLock(this);
     }
 
     /// <summary>
@@ -121,34 +119,32 @@ namespace MediaPortal.Services.Players
     /// <summary>
     /// Assigns both the current player and the builder registration.
     /// </summary>
-    /// <remarks>
-    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s
-    /// and this instance's lock objects.
-    /// </remarks>
     /// <param name="player">The player to be assigned to the <see cref="CurrentPlayer"/> property.</param>
     /// <param name="builderRegistration">The builder registration to be assigned to the <see cref="BuilderRegistration"/>
     /// property.</param>
     internal void AssignPlayerAndBuilderRegistration(IPlayer player, PlayerBuilderRegistration builderRegistration)
     {
-      _player = player;
-      _builderRegistration = builderRegistration;
-      _builderRegistration.UsingSlotControllers.Add(this);
+      lock (_playerManager.SyncObj)
+      {
+        _player = player;
+        _builderRegistration = builderRegistration;
+        _builderRegistration.UsingSlotControllers.Add(this);
+      }
     }
 
     /// <summary>
     /// Releases both the current player and the builder registration.
     /// </summary>
-    /// <remarks>
-    /// This method may only be called if the current thread occupies both the <see cref="_playerManager"/>'s
-    /// and this instance's lock objects.
-    /// </remarks>
     internal void ResetPlayerAndBuilderRegistration()
     {
-      _player = null;
-      if (_builderRegistration != null)
+      lock (_playerManager.SyncObj)
       {
-        _builderRegistration.UsingSlotControllers.Remove(this);
-        _builderRegistration = null;
+        _player = null;
+        if (_builderRegistration != null)
+        {
+          _builderRegistration.UsingSlotControllers.Remove(this);
+          _builderRegistration = null;
+        }
       }
     }
 
@@ -173,8 +169,9 @@ namespace MediaPortal.Services.Players
 
     protected void CheckActive()
     {
-      if (_slotState == PlayerSlotState.Inactive)
-        throw new IllegalCallException("PlayerSlotController: PSC is not active");
+      lock (_playerManager.SyncObj)
+        if (_slotState == PlayerSlotState.Inactive)
+          throw new IllegalCallException("PlayerSlotController: PSC is not active");
     }
 
     protected void RegisterPlayerEvents()
@@ -390,7 +387,7 @@ namespace MediaPortal.Services.Players
           IReusablePlayer rp = _player as IReusablePlayer;
           if (rp != null)
             return result = rp.NextItem(locator, mimeType);
-          if (CreatePlayer_NeedLock(locator, mimeType))
+          if (CreatePlayer(locator, mimeType))
           {
             OnPlayerStarted(_player);
             IMediaPlaybackControl mpc = _player as IMediaPlaybackControl;
@@ -415,9 +412,9 @@ namespace MediaPortal.Services.Players
       {
         CheckActive();
         SetSlotState(PlayerSlotState.Stopped);
-        // We need to simulate the PlayerStopped event, as the ReleasePlayer_NeedLock() method discards all further player events
+        // We need to simulate the PlayerStopped event, as the ReleasePlayer() method discards all further player events
         PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
-        ReleasePlayer_NeedLock();
+        ReleasePlayer();
       }
     }
 

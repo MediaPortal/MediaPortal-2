@@ -264,12 +264,6 @@ namespace MediaPortal.Presentation.Players
     void ShowFullscreenContent();
 
     /// <summary>
-    /// Closes the player context with the specified player slot index.
-    /// </summary>
-    /// <param name="slotIndex">Index of the slot to be closed.</param>
-    void ClosePlayerContext(int slotIndex);
-
-    /// <summary>
     /// Returns the player context type of the specified media <paramref name="item"/>. The player context type of a media
     /// item determines if a player context of audio type (<see cref="PlayerContextType.Audio"/>) or of video type
     /// (<see cref="PlayerContextType.Video"/>) is needed to play the given <paramref name="item"/>.

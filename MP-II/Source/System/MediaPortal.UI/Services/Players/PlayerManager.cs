@@ -249,31 +249,29 @@ namespace MediaPortal.Services.Players
 
     protected void RequestPlayerBuilder(string playerBuilderId)
     {
+      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+      PlayerBuilderRegistration registration = new PlayerBuilderRegistration(
+          pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
+              playerBuilderId, _playerBuilderPluginItemStateTracker));
       lock (_syncObj)
-      {
-        IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-        PlayerBuilderRegistration registration = new PlayerBuilderRegistration(
-            pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
-                playerBuilderId, _playerBuilderPluginItemStateTracker));
         _playerBuilders.Add(playerBuilderId, registration);
-      }
     }
 
     internal void RevokePlayerBuilder(string playerBuilderId)
     {
       PlayerBuilderRegistration registration;
+      registration = GetPlayerBuilderRegistration(playerBuilderId);
+      if (registration == null)
+        return;
       lock (_syncObj)
       {
-        registration = GetPlayerBuilderRegistration(playerBuilderId);
-        if (registration == null)
-          return;
         // Unregister player builder from internal player builder collection
         _playerBuilders.Remove(playerBuilderId);
         // Release slots with players built by the to-be-removed player builder
         ForEachInternal(psc =>
         {
           if (registration.UsingSlotControllers.Contains(psc))
-            psc.ReleasePlayer_NeedLock();
+            psc.ReleasePlayer();
         });
       }
     }
@@ -305,50 +303,46 @@ namespace MediaPortal.Services.Players
     /// <summary>
     /// Will build the player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
     /// </summary>
-    /// <remarks>
-    /// This method will be called from the <see cref="PlayerSlotController"/> methods, so this class' lock needs
-    /// to be aquired from the <see cref="PlayerSlotController"/> class before calling this method (We always need
-    /// to aquire the lock on this class first).
-    /// </remarks>
     /// <param name="locator">Media item locator to access the to-be-played media item.</param>
     /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
     /// <param name="psc">Player slot controller which calls this method and which wants its
     /// <see cref="PlayerSlotController.CurrentPlayer"/> property built.</param>
     /// <returns><c>true</c>, if the player could successfully be played, else <c>false</c>.</returns>
-    internal bool BuildPlayer_NeedLock(IMediaItemLocator locator, string mimeType, PlayerSlotController psc)
+    internal bool BuildPlayer(IMediaItemLocator locator, string mimeType, PlayerSlotController psc)
     {
-      if (psc.CurrentPlayer != null || psc.BuilderRegistration != null)
-        throw new IllegalCallException("Player slot controller has already a player assigned");
-      foreach (PlayerBuilderRegistration builderRegistration in _playerBuilders.Values)
+      lock (_syncObj)
       {
-        if (builderRegistration.Suspended)
-          continue;
-        // Build player
-        IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(locator, mimeType);
-        if (player != null)
+        if (psc.CurrentPlayer != null || psc.BuilderRegistration != null)
+          throw new IllegalCallException("Player slot controller has already a player assigned");
+        foreach (PlayerBuilderRegistration builderRegistration in _playerBuilders.Values)
         {
-          psc.AssignPlayerAndBuilderRegistration(player, builderRegistration);
-          return true;
+          if (builderRegistration.Suspended)
+            continue;
+          // Build player
+          IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(locator, mimeType);
+          if (player != null)
+          {
+            psc.AssignPlayerAndBuilderRegistration(player, builderRegistration);
+            return true;
+          }
         }
+        return false;
       }
-      return false;
     }
 
     /// <summary>
     /// Will revoke the current player of the specified <paramref name="psc"/>.
     /// </summary>
-    /// <remarks>
-    /// This method will be called from the <see cref="PlayerSlotController"/> methods, so this class' lock needs
-    /// to be aquired from the <see cref="PlayerSlotController"/> class before calling this method (We always need
-    /// to aquire the lock on this class first).
-    /// </remarks>
     /// <param name="psc">Player slot controller which calls this method and which wants its
     /// <see cref="PlayerSlotController.CurrentPlayer"/> released.</param>
-    internal void RevokePlayer_NeedLock(PlayerSlotController psc)
+    internal void RevokePlayer(PlayerSlotController psc)
     {
-      if (psc.BuilderRegistration != null)
-        psc.BuilderRegistration.UsingSlotControllers.Remove(psc);
-      psc.ResetPlayerAndBuilderRegistration();
+      lock (_syncObj)
+      {
+        if (psc.BuilderRegistration != null)
+          psc.BuilderRegistration.UsingSlotControllers.Remove(psc);
+        psc.ResetPlayerAndBuilderRegistration();
+      }
     }
 
     internal PlayerSlotController GetPlayerSlotControllerInternal(int slotIndex)
@@ -424,6 +418,7 @@ namespace MediaPortal.Services.Players
           if (!newAudioSlot.IsActive)
             // Don't move the audio slot to an inactive player slot
             return;
+          // Message will be sent by the next command
           newAudioSlot.IsAudioSlot = true;
         }
       }
@@ -500,11 +495,16 @@ namespace MediaPortal.Services.Players
 
     public void CloseSlot(int slotIndex)
     {
+      CloseSlot(GetPlayerSlotControllerInternal(slotIndex));
+    }
+
+    public void CloseSlot(IPlayerSlotController playerSlotController)
+    {
+      PlayerSlotController psc = playerSlotController as PlayerSlotController;
+      if (psc == null)
+        return;
       lock (_syncObj)
       {
-        PlayerSlotController psc = GetPlayerSlotControllerInternal(slotIndex);
-        if (psc == null)
-          return;
         bool isAudio = psc.IsActive && psc.IsAudioSlot;
         psc.IsActive = false;
         CleanupSlotOrder();

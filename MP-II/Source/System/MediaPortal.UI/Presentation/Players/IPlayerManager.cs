@@ -104,12 +104,21 @@ namespace MediaPortal.Presentation.Players
     /// Releases the player of the specified <paramref name="slotIndex"/> and closes the slot.
     /// </summary>
     /// <remarks>
-    /// If the specified <paramref name="slotIndex"/> provides the audio signal, the audio flag will go to
-    /// the remaining slot, if present. If the specified <paramref name="slotIndex"/> is the first/primary player
-    /// slot, then after closing it the secondary slot will become the primary slot.
+    /// See <see cref="CloseSlot(MediaPortal.Presentation.Players.IPlayerSlotController)"/>.
     /// </remarks>
     /// <param name="slotIndex">Index of the slot to close.</param>
     void CloseSlot(int slotIndex);
+
+    /// <summary>
+    /// Releases the player of the specified <paramref name="playerSlotController"/> and closes the slot.
+    /// </summary>
+    /// <remarks>
+    /// If the specified <paramref name="playerSlotController"/> provides the audio signal, the audio flag will go to
+    /// the remaining slot, if present. If the specified slot is the first/primary player slot, then after closing it
+    /// the secondary slot will become the primary slot.
+    /// </remarks>
+    /// <param name="playerSlotController">The controller of the slot to close.</param>
+    void CloseSlot(IPlayerSlotController playerSlotController);
 
     /// <summary>
     /// Stops and releases all active players and closes their slots.

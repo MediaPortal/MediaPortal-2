@@ -292,6 +292,12 @@ namespace MediaPortal.Services.Players
       return null;
     }
 
+    public void Close()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      playerManager.CloseSlot(_slotController);
+    }
+
     public void Stop()
     {
       IPlayerSlotController psc = _slotController;

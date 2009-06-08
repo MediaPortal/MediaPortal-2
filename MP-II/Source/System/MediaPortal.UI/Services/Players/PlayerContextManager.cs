@@ -105,33 +105,30 @@ namespace MediaPortal.Services.Players
             (PlayerManagerMessaging.MessageType) message.MessageType;
         PlayerContext pc;
         IPlayerSlotController psc;
-        lock (SyncObj)
+        switch (messageType)
         {
-          switch (messageType)
-          {
-            case PlayerManagerMessaging.MessageType.PlayerEnded:
-              psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
-              pc = GetPlayerContext(psc);
-              if (pc == null)
-                return;
-              if (!pc.NextItem())
-                if (pc.CloseWhenFinished)
-                  ClosePlayerContext(psc.SlotIndex);
-              break;
-            case PlayerManagerMessaging.MessageType.PlayerStopped:
-              psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
-              pc = GetPlayerContext(psc);
-              if (pc == null)
-                return;
-              // We get the player message asynchronously, so we have to check the state of the slot again to ensure
-              // we close the correct one
-              if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
-                ClosePlayerContext(psc.SlotIndex);
-              break;
-            case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
-              _currentPlayerIndex = 1 - _currentPlayerIndex;
-              break;
-          }
+          case PlayerManagerMessaging.MessageType.PlayerEnded:
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+            pc = GetPlayerContext(psc);
+            if (pc == null)
+              return;
+            if (!pc.NextItem())
+              if (pc.CloseWhenFinished)
+                pc.Close();
+            break;
+          case PlayerManagerMessaging.MessageType.PlayerStopped:
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+            pc = GetPlayerContext(psc);
+            if (pc == null)
+              return;
+            // We get the player message asynchronously, so we have to check the state of the slot again to ensure
+            // we close the correct one
+            if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
+              pc.Close();
+            break;
+          case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
+            _currentPlayerIndex = 1 - _currentPlayerIndex;
+            break;
         }
         CheckCurrentPlayerSlot();
         CheckMediaWorkflowStates_NoLock();
@@ -196,8 +193,7 @@ namespace MediaPortal.Services.Players
           if (primaryPlayerActive)
             currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
       }
-      // Must e done outside because we'll send a message in the setter of the property
-      CurrentPlayerIndex = currentPlayerSlot;
+      SetCurrentPlayerIndex_NoLock(currentPlayerSlot);
     }
 
     /// <summary>
@@ -208,50 +204,50 @@ namespace MediaPortal.Services.Players
     /// </summary>
     protected void CheckMediaWorkflowStates_NoLock()
     {
+      Guid? oldCPStateId = _inCurrentlyPlayingState;
+      Guid? oldFSCStateId = _inFullscreenContentState;
       Guid? newCPStateId = null;
       Guid? newFSCStateId = null;
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      if (oldCPStateId.HasValue)
       {
-        if (_inCurrentlyPlayingState.HasValue)
-        {
-          IPlayerContext currentPC = CurrentPlayerContext;
-          newCPStateId = currentPC == null ? new Guid?() : currentPC.CurrentlyPlayingWorkflowStateId;
-        }
-        if (_inFullscreenContentState.HasValue)
-        {
-          IPlayerContext primaryPC = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-          newFSCStateId = primaryPC == null ? new Guid?() : primaryPC.FullscreenContentWorkflowStateId;
-        }
+        IPlayerContext currentPC = CurrentPlayerContext;
+        newCPStateId = currentPC == null ? new Guid?() : currentPC.CurrentlyPlayingWorkflowStateId;
+      }
+      if (oldFSCStateId.HasValue)
+      {
+        IPlayerContext primaryPC = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+        newFSCStateId = primaryPC == null ? new Guid?() : primaryPC.FullscreenContentWorkflowStateId;
       }
       // Don't hold the lock while doing the workflow navigation below - see threading policy
       ILogger log = ServiceScope.Get<ILogger>();
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      if (_inCurrentlyPlayingState.HasValue && (!newCPStateId.HasValue || newCPStateId.Value != _inCurrentlyPlayingState.Value))
+      if (oldCPStateId.HasValue && (!newCPStateId.HasValue || newCPStateId.Value != oldCPStateId.Value))
       {
         log.Debug("PlayerContextManager: Currently Playing Workflow State '{0}' doesn't fit any more to the current situation. Leaving workflow state...",
-            _inCurrentlyPlayingState.Value);
-        workflowManager.NavigatePopToState(_inCurrentlyPlayingState.Value, true);
+            oldCPStateId.Value);
+        _inCurrentlyPlayingState = null;
+        workflowManager.NavigatePopToState(oldCPStateId.Value, true);
       }
-      if (_inFullscreenContentState.HasValue && (!newFSCStateId.HasValue || newFSCStateId.Value != _inFullscreenContentState.Value))
+      if (oldFSCStateId.HasValue && (!newFSCStateId.HasValue || newFSCStateId.Value != oldFSCStateId.Value))
       {
         log.Debug("PlayerContextManager: Fullscreen Content Workflow State '{0}' doesn't fit any more to the current situation. Leaving workflow state...",
-            _inFullscreenContentState.Value);
-        workflowManager.NavigatePopToState(_inFullscreenContentState.Value, true);
+            oldFSCStateId.Value);
+        _inFullscreenContentState = null;
+        workflowManager.NavigatePopToState(oldFSCStateId.Value, true);
       }
-      if (newCPStateId.HasValue && newCPStateId.Value != _inCurrentlyPlayingState.Value)
+      if (newCPStateId.HasValue && newCPStateId.Value != oldCPStateId.Value)
       {
         _inCurrentlyPlayingState = newCPStateId;
         log.Debug("PlayerContextManager: ... Auto-switching to new 'Currently Playing' Workflow State '{0}'",
-            _inCurrentlyPlayingState.Value);
-        workflowManager.NavigatePush(_inCurrentlyPlayingState.Value);
+            newCPStateId.Value);
+        workflowManager.NavigatePush(newCPStateId.Value);
       }
-      if (newFSCStateId.HasValue && newFSCStateId.Value != _inFullscreenContentState.Value)
+      if (newFSCStateId.HasValue && newFSCStateId.Value != oldFSCStateId.Value)
       {
         _inFullscreenContentState = newFSCStateId;
         log.Debug("PlayerContextManager: ... Auto-switching to new 'Fullscreen Content' Workflow State '{0}'",
-            _inFullscreenContentState.Value);
-        workflowManager.NavigatePush(_inFullscreenContentState.Value);
+            newFSCStateId.Value);
+        workflowManager.NavigatePush(newFSCStateId.Value);
       }
     }
 
@@ -275,6 +271,22 @@ namespace MediaPortal.Services.Players
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       return GetPlayerContext(playerManager.GetPlayerSlotController(slotIndex));
+    }
+
+    protected void SetCurrentPlayerIndex_NoLock(int value)
+    {
+      lock (SyncObj)
+      {
+        if (_currentPlayerIndex == value)
+          return;
+        PlayerContext newCurrent = GetPlayerContextInternal(value);
+        if (newCurrent == null || !newCurrent.IsValid)
+          return;
+        _currentPlayerIndex = value;
+      }
+      CheckMediaWorkflowStates_NoLock();
+      PlayerContextManagerMessaging.SendPlayerContextManagerMessage(
+          PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
     }
 
     #region IDisposable implementation
@@ -340,35 +352,22 @@ namespace MediaPortal.Services.Players
         lock (SyncObj)
           return _currentPlayerIndex;
       }
-      set
-      {
-        lock (SyncObj)
-        {
-          if (_currentPlayerIndex == value)
-            return;
-          PlayerContext newCurrent = GetPlayerContextInternal(value);
-          if (newCurrent == null || !newCurrent.IsValid)
-            return;
-          _currentPlayerIndex = value;
-        }
-        CheckMediaWorkflowStates_NoLock();
-        PlayerContextManagerMessaging.SendPlayerContextManagerMessage(PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
-      }
+      set { SetCurrentPlayerIndex_NoLock(value); }
     }
 
     public int NumActivePlayerContexts
     {
       get
       {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
-      {
-        int result = 0;
-        for (int i = 0; i < 2; i++)
-          if (GetPlayerContext(i) != null)
-            result++;
-        return result;
-      }
+        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+        lock (playerManager.SyncObj)
+        {
+          int result = 0;
+          for (int i = 0; i < 2; i++)
+            if (GetPlayerContext(i) != null)
+              result++;
+          return result;
+        }
       }
     }
 
@@ -534,12 +533,6 @@ namespace MediaPortal.Services.Players
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.NavigatePush(_inFullscreenContentState.Value);
-    }
-
-    public void ClosePlayerContext(int slotIndex)
-    {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.CloseSlot(slotIndex);
     }
 
     public PlayerContextType GetTypeOfMediaItem(MediaItem item)
