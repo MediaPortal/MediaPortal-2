@@ -65,12 +65,20 @@ namespace MediaPortal.Presentation.Views
     }
 
     /// <summary>
-    /// Returns the information if this view can be built (i.e. if all of its providers are present).
+    /// Returns the information whether this view can be built (i.e. if all of its providers are present).
     /// An invalid view might become valid later and vice-versa.
     /// </summary>
     public bool IsValid
     {
       get { return _viewSpecification.CanBeBuilt; }
+    }
+
+    /// <summary>
+    /// Returns the information whether this view is empty, i.e. doesn't contain any contents.
+    /// </summary>
+    public bool IsEmpty
+    {
+      get { return MediaItems.Count == 0 && SubViews.Count == 0; }
     }
 
     /// <summary>

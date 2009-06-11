@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Language>
   <Section Name="Media">
-    <String Name="Name" Text="Media"/>
+    <String Name="LocalMedia" Text="Local media"/>
     <String Name="ViewInvalid" Text="This view is invalid"/>
+    <String Name="ViewEmpty" Text="&lt;No contents in this view&gt;"/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
     <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>

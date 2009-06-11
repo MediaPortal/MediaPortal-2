@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.Name]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.LocalMedia]"/>
 
     <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
 
@@ -21,7 +21,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Grid Grid.Row="0">
+        <Grid Grid.Column="0" Grid.Row="0">
           <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
           </Grid.RowDefinitions>
@@ -33,13 +33,13 @@
               Content="{Binding CurrentView.DisplayName}"/>
           <Button Grid.Row="0" Grid.Column="1" Width="60" Margin="0,0,20,0"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{StaticResource ButtonStyle}"
+              Style="{ThemeResource ButtonStyle}"
               Content=".."
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
               IsVisible="{Binding HasParentDirectory}"/>
         </Grid>
-        <ListView Grid.Row="1"
-            Style="{StaticResource ContentsMenuListViewStyle}"
+        <ListView Grid.Column="0" Grid.Row="1"
+            Style="{ThemeResource ContentsMenuListViewStyle}"
             ItemsSource="{Binding MediaItems}" IsVisible="{Binding CurrentView.IsValid}">
           <ListView.Resources>
             <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
@@ -48,7 +48,10 @@
         </ListView>
         <Label Grid.Row="1" IsVisible="{Binding !CurrentView.IsValid}"
             HorizontalAlignment="Center" VerticalAlignment="Center"
-            Content="[Media.ViewInvalid]" Color="{StaticResource ErrorTextColor}"/>
+            Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
+        <Label Grid.Row="1" IsVisible="{Binding CurrentView.IsEmpty}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
       </Grid>
     </ResourceWrapper>
 
