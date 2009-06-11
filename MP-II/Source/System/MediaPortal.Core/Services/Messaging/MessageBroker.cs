@@ -64,7 +64,7 @@ namespace MediaPortal.Core.Services.Messaging
       ICollection<IMessageReceiver> queues;
       if (_registeredQueues.TryGetValue(channelName, out queues))
         foreach (IMessageReceiver queue in queues)
-          queue.Enqueue(msg);
+          queue.Receive(msg);
     }
   }
 }

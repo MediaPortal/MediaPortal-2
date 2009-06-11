@@ -41,6 +41,37 @@ namespace MediaPortal.Core.Messaging
 
     #endregion
 
+    #region Classes
+
+    protected class ShutdownWatcher : IMessageReceiver
+    {
+      protected AsynchronousMessageQueue _owner;
+
+      protected ShutdownWatcher(AsynchronousMessageQueue owner)
+      {
+        _owner = owner;
+      }
+
+      public static void Create(AsynchronousMessageQueue owner)
+      {
+        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+        broker.RegisterMessageQueue(SystemMessaging.CHANNEL, new ShutdownWatcher(owner));
+      }
+
+      public void Receive(QueueMessage message)
+      {
+        if (message.ChannelName == SystemMessaging.CHANNEL)
+        {
+          SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+          ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+          if (messageType == SystemMessaging.MessageType.SystemStateChanged && sss.CurrentState == SystemState.ShuttingDown)
+            _owner.Terminate();
+        }
+      }
+    }
+
+    #endregion
+
     #region Ctor & Dispose
 
     /// <summary>
@@ -51,6 +82,7 @@ namespace MediaPortal.Core.Messaging
     public AsynchronousMessageQueue(object owner, string[] messageChannels) : base(messageChannels)
     {
       _queueName = string.Format("Async message queue '{0}'", owner == null ? "Unknown" : owner.GetType().Name);
+      ShutdownWatcher.Create(this);
     }
 
     public override void Dispose()

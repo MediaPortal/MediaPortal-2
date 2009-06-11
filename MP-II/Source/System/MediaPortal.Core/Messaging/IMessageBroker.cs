@@ -26,7 +26,7 @@ namespace MediaPortal.Core.Messaging
 {
   public interface IMessageReceiver
   {
-    void Enqueue(QueueMessage message);
+    void Receive(QueueMessage message);
   }
 
   /// <summary>

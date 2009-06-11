@@ -118,7 +118,7 @@ namespace MediaPortal.Core.Messaging
     /// by the <see cref="IMessageBroker"/> service.
     /// </summary>
     /// <param name="message">Message to be enqueued in this message queue.</param>
-    public void Enqueue(QueueMessage message)
+    public void Receive(QueueMessage message)
     {
       lock (_syncObj)
       {
