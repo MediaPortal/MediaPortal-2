@@ -366,15 +366,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           _prepare = false;
     }
 
-    public void SetFocusOnFirstItem()
-    {
-      if (_itemsHostPanel == null || Screen == null)
-        return;
-      FrameworkElement focusable = ScreenManagement.Screen.FindFirstFocusableElement(_itemsHostPanel);
-      if (focusable != null)
-        focusable.HasFocus = true;
-    }
-
     public void SetFocusOnItem(object dataItem)
     {
       if (_itemsHostPanel == null || Screen == null)

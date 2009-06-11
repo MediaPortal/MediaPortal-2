@@ -32,7 +32,6 @@ using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Fonts;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
@@ -473,10 +472,25 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// Checks if this element is focusable. This is the case if the element is visible, enabled and
     /// focusable. If this is the case, this method will set the focus to this element.
     /// </summary>
-    public void TrySetFocus()
+    public bool TrySetFocus(bool checkChildren)
     {
       if (IsVisible && IsEnabled && Focusable)
+      {
         HasFocus = true;
+        return true;
+      }
+      else if (checkChildren)
+      {
+        foreach (UIElement child in GetChildren())
+        {
+          FrameworkElement fe = child as FrameworkElement;
+          if (fe == null || !fe.IsVisible || !fe.IsEnabled)
+            continue;
+          if (fe.TrySetFocus(true))
+            return true;
+        }
+      }
+      return false;
     }
 
     /// <summary>
@@ -621,7 +635,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
           IsMouseOver = true;
           FireEvent(MOUSEENTER_EVENT);
           if (!HasFocus && IsInVisibleArea(x, y))
-            TrySetFocus();
+            TrySetFocus(false);
         }
       }
       else
@@ -683,8 +697,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return false;
       FrameworkElement nextElement = PredictFocus(currentElement.ActualBounds, direction);
       if (nextElement == null) return false;
-      nextElement.TrySetFocus();
-      return true;
+      return nextElement.TrySetFocus(true);
     }
 
     /// <summary>
@@ -702,8 +715,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       FrameworkElement nextElement;
       while ((nextElement = PredictFocus(currentElement.ActualBounds, direction)) != null)
         currentElement = nextElement;
-      currentElement.TrySetFocus();
-      return true;
+      return currentElement.TrySetFocus(true);
     }
 
     #endregion

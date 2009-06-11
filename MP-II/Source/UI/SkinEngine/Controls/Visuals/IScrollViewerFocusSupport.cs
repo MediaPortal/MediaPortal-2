@@ -46,51 +46,61 @@ namespace MediaPortal.SkinEngine.Controls
     /// <summary>
     /// Moves the focus down to the next control.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusDown();
 
     /// <summary>
     /// Moves the focus left to the next control.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusLeft();
 
     /// <summary>
     /// Moves the focus right to the next control.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusRight();
 
     /// <summary>
     /// Moves the focus up to the next control.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusUp();
 
     /// <summary>
     /// Moves the focus down by one page.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusPageDown();
 
     /// <summary>
     /// Moves the focus up by one page.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusPageUp();
 
     /// <summary>
     /// Moves the focus left by one page.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusPageLeft();
 
     /// <summary>
     /// Moves the focus right by one page.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusPageRight();
 
     /// <summary>
     /// Moves the focus to the home position.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusHome();
 
     /// <summary>
     /// Moves the focus to the end position.
     /// </summary>
+    /// <returns><c>true</c>, if the focus could be moved, else <c>false</c>.</returns>
     bool FocusEnd();
   }
 }

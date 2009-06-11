@@ -550,7 +550,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
             (nextElement.ActualPosition.Y > limitPosition))
           currentElement = nextElement;
-        currentElement.TrySetFocus();
+        return currentElement.TrySetFocus(true);
       }
       return false;
     }
@@ -580,7 +580,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
             (nextElement.ActualBounds.Bottom < limitPosition))
           currentElement = nextElement;
-        currentElement.TrySetFocus();
+        return currentElement.TrySetFocus(true);
       }
       return false;
     }
@@ -610,7 +610,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
             (nextElement.ActualPosition.X > limitPosition))
           currentElement = nextElement;
-        currentElement.TrySetFocus();
+        return currentElement.TrySetFocus(true);
       }
       return false;
     }
@@ -640,7 +640,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
             (nextElement.ActualBounds.Right < limitPosition))
           currentElement = nextElement;
-        currentElement.TrySetFocus();
+        return currentElement.TrySetFocus(true);
       }
       return false;
     }

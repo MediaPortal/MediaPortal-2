@@ -261,8 +261,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return true;
       }
       else
-        currentElement.TrySetFocus();
-      return true;
+        return currentElement.TrySetFocus(true);
     }
 
     public bool FocusPageDown()
@@ -281,8 +280,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return true;
       }
       else
-        currentElement.TrySetFocus();
-      return true;
+        return currentElement.TrySetFocus(true);
     }
 
     public bool FocusPageLeft()
@@ -301,8 +299,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return true;
       }
       else
-        currentElement.TrySetFocus();
-      return true;
+        return currentElement.TrySetFocus(true);
     }
 
     public bool FocusPageRight()
@@ -321,8 +318,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         return true;
       }
       else
-        currentElement.TrySetFocus();
-      return true;
+        return currentElement.TrySetFocus(true);
     }
 
     public bool FocusHome()

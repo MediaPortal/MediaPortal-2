@@ -218,10 +218,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (_setFocusedElement)
       {
         if (_visual.FocusedElement != null)
+          _visual.FocusedElement.TrySetFocus(true);
+        else
         {
-          _visual.FocusedElement.HasFocus = true;
-          _setFocusedElement = !_visual.FocusedElement.HasFocus;
+          FrameworkElement fe = _visual as FrameworkElement;
+          if (fe != null)
+            fe.TrySetFocus(true);
         }
+        _setFocusedElement = false;
       }
     }
 
@@ -371,10 +375,23 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (_focusedElement != focusedElement)
       {
         RemoveCurrentFocus();
+        if (!HasExtends(focusedElement.ActualBounds))
+          return;
         _focusedElement = focusedElement;
         _lastFocusRect = focusedElement.ActualBounds;
         _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
       }
+    }
+
+    /// <summary>
+    /// Tests whether any of the rect's bounds is <see cref="float.NaN"/>.
+    /// </summary>
+    /// <param name="rect">The rect to test.</param>
+    /// <returns><c>true</c> if none of the rect's bounds is <see cref="float.NaN"/>. <c>false</c>, if any
+    /// of its bounds is <see cref="float.NaN"/>.</returns>
+    private static bool HasExtends(RectangleF rect)
+    {
+      return !float.IsNaN(rect.Top) && !float.IsNaN(rect.Bottom) && !float.IsNaN(rect.Left) && !float.IsNaN(rect.Right);
     }
 
     /// <summary>
