@@ -28,13 +28,14 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Media.ClientMediaManager;
-using MediaPortal.Media.ClientMediaManager.Views;
+using MediaPortal.Core.Settings;
+using MediaPortal.Presentation.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
+using UiComponents.Media.Settings;
 
 namespace UiComponents.Media
 {
@@ -78,6 +79,8 @@ namespace UiComponents.Media
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
     public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
 
+    public const string LOCAL_MEDIA_VIEW_NAME_RESOURCE = "[Media.LocalMediaViewName]";
+
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
 
     public static Guid MUSIC_MODULE_ID = new Guid(MUSIC_MODULE_ID_STR);
@@ -91,6 +94,8 @@ namespace UiComponents.Media
 
     #region Protected fields
 
+    protected ViewSpecification _rootViewSpecification;
+
     // Media screen
     protected ItemsList _mediaItems = null;
     protected View _currentView;
@@ -103,7 +108,11 @@ namespace UiComponents.Media
 
     public MediaModel()
     {
-      _currentView = RootView;
+      _rootViewSpecification = new LocalSharesViewSpecification(LOCAL_MEDIA_VIEW_NAME_RESOURCE, new Guid[]
+        {
+          ProviderResourceAspect.ASPECT_ID,
+          MediaAspect.ASPECT_ID,
+        });
       _hasParentDirectory = false;
     }
 
@@ -133,11 +142,6 @@ namespace UiComponents.Media
     {
       get { return _currentView; }
       set { _currentView = value; }
-    }
-
-    public View RootView
-    {
-      get { return ServiceScope.Get<MediaManager>().RootView; }
     }
 
     /// <summary>
@@ -418,7 +422,7 @@ namespace UiComponents.Media
     protected View GetViewFromContext(NavigationContext context)
     {
       View view = context.GetContextVariable(VIEW_KEY, true) as View;
-      return view ?? RootView;
+      return view ?? _rootViewSpecification.BuildRootView();
     }
 
     #endregion

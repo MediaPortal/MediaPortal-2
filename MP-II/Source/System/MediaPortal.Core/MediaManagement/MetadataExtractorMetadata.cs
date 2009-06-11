@@ -40,7 +40,7 @@ namespace MediaPortal.Core.MediaManagement
     protected Guid _metadataExtractorId;
     protected string _name;
     protected ICollection<string> _shareCategories;
-    protected ICollection<MediaItemAspectMetadata> _extractedAspectTypes;
+    protected IDictionary<Guid, MediaItemAspectMetadata> _extractedAspectTypes;
 
     #endregion
 
@@ -50,7 +50,9 @@ namespace MediaPortal.Core.MediaManagement
       _metadataExtractorId = metadataExtractorId;
       _name = name;
       _shareCategories = new List<string>(shareCategories);
-      _extractedAspectTypes = new List<MediaItemAspectMetadata>(extractedAspectTypes);
+      _extractedAspectTypes = new Dictionary<Guid, MediaItemAspectMetadata>();
+      foreach (MediaItemAspectMetadata aspectMetadata in extractedAspectTypes)
+        _extractedAspectTypes.Add(aspectMetadata.AspectId, aspectMetadata);
     }
 
     /// <summary>
@@ -85,12 +87,12 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Returns the format of the metadata which is provided by the extractor.
+    /// Returns the media item aspects which are provided by the extractor.
     /// Every media item aspect whose attributes might be equipped by the metadata extractor
     /// should be defined here. If the ME writes metadata for aspects whose metadata descriptors
     /// aren't returned here, these attributes can be discarded by the system.
     /// </summary>
-    public ICollection<MediaItemAspectMetadata> ExtractedAspectTypes
+    public IDictionary<Guid, MediaItemAspectMetadata> ExtractedAspectTypes
     {
       get { return _extractedAspectTypes; }
     }

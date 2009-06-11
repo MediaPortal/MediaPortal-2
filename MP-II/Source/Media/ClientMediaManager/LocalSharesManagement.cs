@@ -41,6 +41,16 @@ namespace MediaPortal.Media.ClientMediaManager
   /// </summary>
   public class LocalSharesManagement : ISharesManagement
   {
+    #region Consts
+
+    // Localization resources will be provided by the SkinBase plugin
+    public const string MY_MUSIC_SHARE_NAME_RESOURE = "[Media.MyMusic]";
+    public const string MY_VIDEOS_SHARE_NAME_RESOURCE = "[Media.MyVideos]";
+    public const string MY_PICTURES_SHARE_NAME_RESOURCE = "[Media.MyPictures]";
+
+    #endregion
+
+
     #region Protected fields
 
     /// <summary>
@@ -84,8 +94,6 @@ namespace MediaPortal.Media.ClientMediaManager
       Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
       if (mediaManager.LocalMediaProviders.ContainsKey(localFsMediaProviderId))
       {
-        // Hint: Localization resources for [Media.MyMusic], [Media.MyVideos] and [Media.MyPictures]
-        // will be provided by the Media model
         string folderPath;
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
         {
@@ -97,7 +105,7 @@ namespace MediaPortal.Media.ClientMediaManager
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, "[Media.MyMusic]",
+              folderPath, MY_MUSIC_SHARE_NAME_RESOURE,
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
         }
@@ -112,7 +120,7 @@ namespace MediaPortal.Media.ClientMediaManager
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, "[Media.MyVideos]",
+              folderPath, MY_VIDEOS_SHARE_NAME_RESOURCE,
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
         }
@@ -127,7 +135,7 @@ namespace MediaPortal.Media.ClientMediaManager
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           ShareDescriptor sd = new ShareDescriptor(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, "[Media.MyPictures]",
+              folderPath, MY_PICTURES_SHARE_NAME_RESOURCE,
               mediaCategories, metadataExtractorIds);
           _shares.Add(shareId, sd);
         }

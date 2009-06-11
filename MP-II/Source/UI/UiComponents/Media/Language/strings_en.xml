@@ -2,10 +2,6 @@
 <Language>
   <Section Name="Media">
     <String Name="Name" Text="Media"/>
-    <String Name="RootViewName" Text="Media"/>
-    <String Name="MyMusic" Text="Music"/>
-    <String Name="MyVideos" Text="Videos"/>
-    <String Name="MyPictures" Text="Pictures"/>
     <String Name="ViewInvalid" Text="This view is invalid"/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
@@ -23,6 +19,8 @@
     <String Name="AudioPlayerContextName" Text="Audio"/>
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
+
+    <String Name="LocalMediaViewName" Text="Local media"/>
   </Section>
   <Section Name="Settings">
     <String Name="Shares" Text="Shares"/>

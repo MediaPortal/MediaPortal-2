@@ -26,8 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.Utilities;
 
-namespace MediaPortal.Media.ClientMediaManager.Views
+namespace MediaPortal.Presentation.Views
 {
   /// <summary>
   /// View which is based on a media library query.
@@ -38,63 +40,54 @@ namespace MediaPortal.Media.ClientMediaManager.Views
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class MediaLibraryView : View
+  public class MediaLibraryViewSpecification : ViewSpecification
   {
     #region Protected fields
 
-    protected MediaLibraryQueryHierarchyNode _queryHierarchyNode;
+    protected IQuery _query;
+    protected List<MediaLibraryViewSpecification> _subViews;
 
     #endregion
 
     #region Ctor
 
-    internal MediaLibraryView(MediaLibraryQueryHierarchyNode queryHierarchyNode,
-        View parentView) :
-      base(parentView, queryHierarchyNode.MediaItemAspectIds)
+    public MediaLibraryViewSpecification(string viewDisplayName, IQuery query, IEnumerable<Guid> mediaItemAspectIds) :
+        base(viewDisplayName, mediaItemAspectIds)
     {
-      _queryHierarchyNode = queryHierarchyNode;
+      _query = query;
     }
 
     #endregion
 
-    public override string DisplayName
+    /// <summary>
+    /// Returns a list of all sub query view specifications of this view specification.
+    /// </summary>
+    [XmlIgnore]
+    public IList<MediaLibraryViewSpecification> SubViewSpecifications
     {
-      get { return _queryHierarchyNode.DisplayName; }
+      get { return _subViews; }
     }
 
     [XmlIgnore]
-    public override bool IsValid
+    public override bool CanBeBuilt
     {
       get
       {
-        // TODO (Albert 2009-01-10): Return if the media library is present
+        // TODO (Albert 2009-01-10): Return true if the media library is present
         return false;
       }
     }
 
-    [XmlIgnore]
-    public override ICollection<Guid> MediaItemAspectIds
-    {
-      get { return _queryHierarchyNode.MediaItemAspectIds; }
-    }
-
-    public override bool IsBasedOnShare(Guid shareId)
-    {
-        // TODO (Albert 2009-01-10): Maybe check the query if it is based on the specified view
-      return false;
-    }
-
-    protected override IList<MediaItem> ReLoadItems()
+    internal override IEnumerable<MediaItem> ReLoadItems()
     {
       // TODO (Albert, 2008-11-15): Load view contents from the media library, if connected
-      return new List<MediaItem>();
+      yield break;
     }
 
-    protected override IList<View> ReLoadSubViews()
+    internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
-      IList<View> result = new List<View>();
-      foreach (MediaLibraryQueryHierarchyNode node in _queryHierarchyNode.SubQueryNodes)
-        result.Add(new MediaLibraryView(node, this));
+      IList<ViewSpecification> result = new List<ViewSpecification>(_subViews.Count);
+      CollectionUtils.AddAll(result, _subViews);
       return result;
     }
 
@@ -104,16 +97,30 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     // The top media library view serializes the query hierarchy. The sub views are
     // rebuilt dynamically.
 
-    internal MediaLibraryView() { }
+    internal MediaLibraryViewSpecification() { }
 
     /// <summary>
-    /// Returns the media library query this view is based on.
+    /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlIgnore]
-    public MediaLibraryQueryHierarchyNode QueryHierarchyNode
+    [XmlElement("QueryString", IsNullable = false)]
+    public string XML_QueryString
     {
-      get { return _queryHierarchyNode; }
-      set { _queryHierarchyNode = value; }
+      // TODO: Implement
+      get { return "Not implemented yet"; }
+      set
+      {
+        // TODO: Rebuild query from query string
+      }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("SubViews", IsNullable = false)]
+    public List<MediaLibraryViewSpecification> XML_SubViews
+    {
+      get { return _subViews; }
+      set { _subViews = value; }
     }
 
     #endregion

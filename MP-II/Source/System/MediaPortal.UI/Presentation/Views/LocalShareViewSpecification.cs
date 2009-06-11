@@ -33,38 +33,40 @@ using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Media.ClientMediaManager.Views
+namespace MediaPortal.Presentation.Views
 {
   /// <summary>
   /// View implementation which is based on a local provider path.
   /// </summary>
-  public class LocalShareView : View
+  public class LocalShareViewSpecification : ViewSpecification
   {
+    #region Consts
+
+    public const string INVALID_SHARE_NAME_RESOURCE = "[Media.InvalidShareName]";
+
+    #endregion
+
     #region Protected fields
 
     protected Guid _shareId;
     protected string _overrideName;
-    protected string _displayName; // We'll cache display name, so we don't need to query the path name from the MP each time
     protected string _relativePath;
-    protected HashSet<Guid> _mediaItemAspectIds = new HashSet<Guid>();
 
     #endregion
 
     #region Ctor
 
     /// <summary>
-    /// Creates a new <see cref="LocalShareView"/> instance.
+    /// Creates a new <see cref="LocalShareViewSpecification"/> instance.
     /// </summary>
     /// <param name="shareId">The id of the share this view is based on.</param>
-    /// <param name="overrideName">Overridden name for this view. If not set, the media provider's resource name
-    /// for the specified <paramref name="relativePath"/> will be used as <see cref="DisplayName"/>.</param>
+    /// <param name="overrideName">Overridden name for the view. If not set, the media provider's resource name
+    /// for the specified <paramref name="relativePath"/> will be used as <see cref="ViewDisplayName"/>.</param>
     /// <param name="relativePath">Path relative to the base share's path, this view is based on.</param>
-    /// <param name="parentView">Reference to the parent view.</param>
     /// <param name="mediaItemAspectIds">Ids of the media item aspects which should be extracted for all items and
     /// sub views of this view.</param>
-    internal LocalShareView(Guid shareId, string overrideName, string relativePath,
-        View parentView, IEnumerable<Guid> mediaItemAspectIds) :
-        base(parentView, mediaItemAspectIds)
+    internal LocalShareViewSpecification(Guid shareId, string overrideName, string relativePath,
+        IEnumerable<Guid> mediaItemAspectIds) : base(null, mediaItemAspectIds)
     {
       _shareId = shareId;
       _overrideName = overrideName;
@@ -110,27 +112,21 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       }
     }
 
-    [XmlIgnore]
-    public override ICollection<Guid> MediaItemAspectIds
-    {
-      get { return _mediaItemAspectIds; }
-    }
-
     #region Base overrides
 
     [XmlIgnore]
-    public override string DisplayName
+    public override string ViewDisplayName
     {
       get
       {
-        if (string.IsNullOrEmpty(_displayName))
+        if (string.IsNullOrEmpty(_viewDisplayName))
           UpdateDisplayName();
-        return _displayName;
+        return _viewDisplayName;
       }
     }
 
     [XmlIgnore]
-    public override bool IsValid
+    public override bool CanBeBuilt
     {
       get
       {
@@ -143,108 +139,122 @@ namespace MediaPortal.Media.ClientMediaManager.Views
       }
     }
 
-    public override bool IsBasedOnShare(Guid shareId)
+    internal override IEnumerable<MediaItem> ReLoadItems()
     {
-      return _shareId == shareId;
-    }
-
-    protected override IList<MediaItem> ReLoadItems()
-    {
-      ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
-      if (share == null)
-        return null;
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      Guid providerId = share.MediaProviderId;
+      ShareDescriptor share;
       IMediaProvider provider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
-        return null;
-      IList<MediaItem> result = new List<MediaItem>();
+      if (!GetShareAndMediaProvider(out share, out provider))
+        yield break;
       string path = Path.Combine(share.Path, _relativePath);
-      IEnumerable<Guid> metadataExtractorIds = share.MetadataExtractorIds;
+      ICollection<Guid> metadataExtractorIds = new List<Guid>();
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaManager.LocalMetadataExtractors)
+        // Collect all metadata extractors which fill our desired media item aspects
+        if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, _mediaItemAspectIds))
+          metadataExtractorIds.Add(extractor.Key);
+      Guid providerId = provider.Metadata.MediaProviderId;
       if (provider is IFileSystemMediaProvider)
       { // Add all items at the specified path
         IFileSystemMediaProvider fsmp = (IFileSystemMediaProvider) provider;
         ICollection<string> files = fsmp.GetFiles(path);
         if (files != null)
           foreach (string mediaItemPath in files)
-            AddMetadata(mediaManager, providerId, mediaItemPath, metadataExtractorIds, result);
+          {
+            MediaItem result = GetMetadata(mediaManager, providerId, mediaItemPath, metadataExtractorIds);
+            if (result != null)
+              yield return result;
+          }
       }
       else
+      {
         // Add the path itself (Could be a single-item share)
-        AddMetadata(mediaManager, providerId, path, metadataExtractorIds, result);
-      return result;
+        MediaItem result = GetMetadata(mediaManager, providerId, path, metadataExtractorIds);
+        if (result != null)
+          yield return result;
+      }
     }
 
-    protected override IList<View> ReLoadSubViews()
+    internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
-      ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
-      if (share == null)
-        return null;
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      Guid providerId = share.MediaProviderId;
+      ShareDescriptor share;
       IMediaProvider provider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
-        return null;
-      IList<View> result = new List<View>();
+      if (!GetShareAndMediaProvider(out share, out provider))
+        yield break;
       string path = Path.Combine(share.Path, _relativePath);
       if (provider is IFileSystemMediaProvider)
-      { // Add all items at the specified path
+      { // Add all directories at the specified path
         IFileSystemMediaProvider fsmp = (IFileSystemMediaProvider) provider;
         ICollection<string> directories = fsmp.GetChildDirectories(path);
         if (directories != null)
           foreach (string childDirectory in directories)
-            result.Add(new LocalShareView(_shareId, null, fsmp.GetResourceName(childDirectory), this, _mediaItemAspectIds));
+            yield return new LocalShareViewSpecification(_shareId, null, childDirectory.Substring(path.Length),
+                _mediaItemAspectIds);
       }
-      return result;
     }
 
     #endregion
 
+    protected bool GetShareAndMediaProvider(out ShareDescriptor share, out IMediaProvider provider)
+    {
+      provider = null;
+      share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
+      if (share == null)
+        return false;
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      Guid providerId = share.MediaProviderId;
+      return mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider);
+    }
+
     protected void UpdateDisplayName()
     {
-      _displayName = Path.GetFileName(_relativePath); // Fallback
+      _viewDisplayName = Path.GetFileName(_relativePath); // Fallback
       ShareDescriptor share = ServiceScope.Get<ISharesManagement>().GetShare(_shareId);
       if (share == null)
+      {
+        _viewDisplayName = INVALID_SHARE_NAME_RESOURCE;
         return;
+      }
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider;
       if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
-        return;
-      string path = Path.Combine(share.Path, _relativePath);
-      _displayName = provider.GetResourceName(path);
+        _viewDisplayName = _relativePath;
+      else
+      {
+        string path = Path.Combine(share.Path, _relativePath);
+        _viewDisplayName = provider.GetResourceName(path);
+      }
     }
 
     /// <summary>
-    /// Adds a media item with metadata extracted by the metadata extractors specified by the
+    /// Returns a media item with metadata extracted by the metadata extractors specified by the
     /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="providerId"/> and
-    /// <paramref name="path"/> to the <paramref name="result"/>.
+    /// <paramref name="path"/>.
     /// </summary>
     /// <param name="mediaManager">Media manager instance. This parameter is for performance to avoid
     /// iterated calls to the <see cref="ServiceScope"/>.</param>
     /// <param name="providerId">Id of the media provider which provides the media item to analyse.</param>
     /// <param name="path">Path of the media item to analyse.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
-    /// <param name="result">Collection to add the resulting <see cref="MediaItem"/> to.</param>
-    protected static void AddMetadata(IMediaManager mediaManager, Guid providerId, string path,
-        IEnumerable<Guid> metadataExtractorIds, ICollection<MediaItem> result)
+    /// <returns>Media item with the specified metadata </returns>
+    protected static MediaItem GetMetadata(IMediaManager mediaManager, Guid providerId, string path,
+        IEnumerable<Guid> metadataExtractorIds)
     {
       IDictionary<Guid, MediaItemAspect> aspects = mediaManager.ExtractMetadata(providerId, path, metadataExtractorIds);
-      if (aspects != null)
-      {
-        MediaItemAspect providerResourceAspect;
-        if (aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-          providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID];
-        else
-          providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
-              ProviderResourceAspect.Metadata);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SOURCE_COMPUTER, SystemName.LocalHostName);
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PROVIDER_ID, providerId.ToString());
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PATH, path);
-        providerResourceAspect.SetCollectionAttribute(ProviderResourceAspect.ATTR_PARENTPROVIDERS, new string[] {});
-        providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_DATEADDED, DateTime.Now);
-        result.Add(new MediaItem(aspects));
-      }
+      if (aspects == null)
+        return null;
+      MediaItemAspect providerResourceAspect;
+      if (aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
+        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID];
+      else
+        providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
+            ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SOURCE_COMPUTER, SystemName.LocalHostName);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PROVIDER_ID, providerId.ToString());
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_PATH, path);
+      providerResourceAspect.SetCollectionAttribute(ProviderResourceAspect.ATTR_PARENTPROVIDERS, new string[] {});
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_DATEADDED, DateTime.Now);
+      return new MediaItem(aspects);
     }
 
     #region Additional members for the XML serialization
@@ -254,7 +264,7 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     // The deeper views won't be serialized as they are re-created dynamically the next time
     // the system starts.
 
-    internal LocalShareView() { }
+    internal LocalShareViewSpecification() { }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
@@ -274,16 +284,6 @@ namespace MediaPortal.Media.ClientMediaManager.Views
     {
       get { return _relativePath; }
       set { _relativePath = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlArray("MediaItemAspectIds")]
-    public HashSet<Guid> XML_MediaItemAspectIds
-    {
-      get { return _mediaItemAspectIds; }
-      set { _mediaItemAspectIds = value; }
     }
 
     #endregion

@@ -28,9 +28,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.Settings;
-using MediaPortal.Media.ClientMediaManager.Views;
 
 namespace MediaPortal.Media.ClientMediaManager
 {
@@ -41,8 +38,6 @@ namespace MediaPortal.Media.ClientMediaManager
   public class MediaManager : MediaManagerBase, IImporter, ISharesManagement
   {
     #region Protected fields
-
-    protected ViewCollectionView _rootView;
 
     protected LocalSharesManagement _localLocalSharesManagement;
 
@@ -63,100 +58,6 @@ namespace MediaPortal.Media.ClientMediaManager
       base.Initialize();
       ServiceScope.Get<ILogger>().Info("MediaManager: Startup");
       _localLocalSharesManagement.LoadSharesFromSettings();
-      LoadViews();
-    }
-
-    #endregion
-
-    #region Protected methods
-
-    protected void InitializeDefaultViews()
-    {
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
-      // Create root view
-      // Hint: Localization resource for [Media.RootViewName] will be provided by the Media model
-      ViewCollectionView vcv = new ViewCollectionView("[Media.RootViewName]", null);
-      _rootView = vcv;
-
-      // Create a local view for each share
-      ICollection<ShareDescriptor> shares = sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values;
-      foreach (ShareDescriptor share in shares)
-      {
-        ICollection<Guid> mediaItemAspectIds = new HashSet<Guid>();
-        foreach (Guid metadataExtractorId in share.MetadataExtractorIds)
-        {
-          MetadataExtractorMetadata metadata = LocalMetadataExtractors[metadataExtractorId].Metadata;
-          foreach (MediaItemAspectMetadata aspectMetadata in metadata.ExtractedAspectTypes)
-            mediaItemAspectIds.Add(aspectMetadata.AspectId);
-        }
-        mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
-        mediaItemAspectIds.Add(MediaAspect.ASPECT_ID);
-        LocalShareView lsvm = new LocalShareView(share.ShareId, share.Name, string.Empty, _rootView, mediaItemAspectIds);
-        vcv.AddSubView(lsvm);
-      }
-      // TODO: Create default database views
-    }
-
-    #endregion
-
-    #region View access & management
-
-    protected void LoadViews()
-    {
-      ViewsSettings settings = ServiceScope.Get<ISettingsManager>().Load<ViewsSettings>();
-      _rootView = settings.RootView;
-      if (_rootView == null)
-      {
-        // The views are still uninitialized - use defaults
-        InitializeDefaultViews();
-        SaveViews();
-      }
-      else
-        _rootView.Loaded(null);
-    }
-
-    protected void SaveViews()
-    {
-      ViewsSettings settings = new ViewsSettings();
-      settings.RootView = _rootView;
-      ServiceScope.Get<ISettingsManager>().Save(settings);
-    }
-
-    /// <summary>
-    /// Checks the provided <paramref name="view"/> recursively for <see cref="ViewCollectionView"/>s
-    /// containing <see cref="LocalShareView"/>s based on the deleted share with the specified
-    /// <paramref name="shareId"/>.
-    /// </summary>
-    /// <param name="view">View to check recursively.</param>
-    /// <param name="shareId">Id of the deleted share.</param>
-    protected void PropagateShareRemoval(View view, Guid shareId)
-    {
-      if (view == null || view.SubViews == null)
-        return;
-      ICollection<View> invalidViews = new List<View>();
-      foreach (View subView in view.SubViews)
-      {
-        if (subView.IsBasedOnShare(shareId))
-          invalidViews.Add(subView);
-        else
-          PropagateShareRemoval(subView, shareId);
-      }
-      ViewCollectionView vcv = view as ViewCollectionView;
-      if (vcv != null && invalidViews.Count > 0)
-      {
-        vcv.Invalidate();
-        foreach (View invalidView in invalidViews)
-          vcv.RemoveSubView(invalidView);
-        SaveViews();
-      }
-    }
-
-    /// <summary>
-    /// Returns the root view. The root view is the entrance point into the navigation hierarchy of media items.
-    /// </summary>
-    public View RootView
-    {
-      get { return _rootView; }
     }
 
     #endregion
@@ -182,6 +83,7 @@ namespace MediaPortal.Media.ClientMediaManager
       if (nativeSystem.IsLocalSystem())
         result = _localLocalSharesManagement.RegisterShare(nativeSystem, providerId, path,
             shareName, mediaCategories, metadataExtractorIds);
+      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareAdded, result.ShareId);
       return result;
     }
 
@@ -189,7 +91,7 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
       _localLocalSharesManagement.RemoveShare(shareId);
-      PropagateShareRemoval(_rootView, shareId);
+      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareRemoved, shareId);
     }
 
     public ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
@@ -199,6 +101,7 @@ namespace MediaPortal.Media.ClientMediaManager
       ShareDescriptor sd = _localLocalSharesManagement.UpdateShare(shareId, nativeSystem, providerId, path,
           shareName, mediaCategories, metadataExtractorIds, relocateMediaItems);
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
+      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareChanged, shareId);
       return sd;
     }
 

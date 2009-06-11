@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
@@ -275,7 +274,7 @@ namespace MediaPortal.Core.MediaManagement
         if (!LocalMetadataExtractors.ContainsKey(extractorId))
           continue;
         IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
-        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes)
+        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes.Values)
           if (!result.ContainsKey(miaMetadata.AspectId))
             result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
         if (extractor.TryExtractMetadata(provider, path, result))

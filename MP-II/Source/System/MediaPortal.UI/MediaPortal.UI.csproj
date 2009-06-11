@@ -144,6 +144,12 @@
     <Compile Include="Presentation\Models\BaseTimerControlledUIModel.cs" />
     <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
     <Compile Include="Presentation\SkinResources\SkinResourcesMessaging.cs" />
+    <Compile Include="Presentation\Views\LocalSharesViewSpecification.cs" />
+    <Compile Include="Presentation\Views\LocalShareViewSpecification.cs" />
+    <Compile Include="Presentation\Views\MediaLibraryViewSpecification.cs" />
+    <Compile Include="Presentation\Views\View.cs" />
+    <Compile Include="Presentation\Views\ViewCollectionViewSpecification.cs" />
+    <Compile Include="Presentation\Views\ViewSpecification.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowContributor.cs" />
     <Compile Include="Presentation\Workflow\IWorkflowManager.cs" />
     <Compile Include="Presentation\Workflow\NavigationContext.cs" />
