@@ -31,8 +31,8 @@ namespace MediaPortal.Core.Messaging
   {
     #region Protected fields
 
-    protected string _queueName;
     protected string[] _registeredChannels;
+    protected string _queueName = null;
     protected Queue<QueueMessage> _messages = new Queue<QueueMessage>();
     protected object _syncObj = new object();
 
@@ -40,9 +40,8 @@ namespace MediaPortal.Core.Messaging
 
     #region Ctor, dtor & Dispose
 
-    protected MessageQueueBase(string queueName, string[] messageChannels)
+    protected MessageQueueBase(string[] messageChannels)
     {
-      _queueName = queueName;
       _registeredChannels = messageChannels;
       foreach (string channel in messageChannels)
         SubscribeToMessageChannel(channel);
@@ -64,8 +63,26 @@ namespace MediaPortal.Core.Messaging
 
     #endregion
 
+    #region Protected members
+
     protected abstract void HandleMessageAvailable(QueueMessage message);
 
+    #endregion
+
+    #region Public members
+
+    /// <summary>
+    /// Gets or sets the name of this queue.
+    /// </summary>
+    public string QueueName
+    {
+      get { return _queueName; }
+      set { _queueName = value; }
+    }
+
+    /// <summary>
+    /// Returns the number of messages in the queue.
+    /// </summary>
     public int NumMessages
     {
       get
@@ -75,6 +92,9 @@ namespace MediaPortal.Core.Messaging
       }
     }
 
+    /// <summary>
+    /// Returns the information if messages are awaiting to be fetched.
+    /// </summary>
     public bool IsMessagesAvailable
     {
       get { return NumMessages > 0; }
@@ -127,5 +147,7 @@ namespace MediaPortal.Core.Messaging
       lock (_syncObj)
         _messages.Clear();
     }
+
+    #endregion
   }
 }

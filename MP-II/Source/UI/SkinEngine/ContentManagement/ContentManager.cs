@@ -51,7 +51,7 @@ namespace MediaPortal.SkinEngine.ContentManagement
 
     public static void Initialize()
     {
-      _messageQueue = new AsynchronousMessageQueue("ContentManager message listener queue", new string[] {"contentmanager"});
+      _messageQueue = new AsynchronousMessageQueue(typeof(ContentManager), new string[] {"contentmanager"});
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }

@@ -34,15 +34,34 @@ namespace MediaPortal.Core.Messaging
   /// </summary>
   public class AsynchronousMessageQueue : MessageQueueBase
   {
+    #region Protected fields
+
     protected Thread _messageDeliveryThread = null;
     protected bool _terminated = false;
+
+    #endregion
+
+    #region Ctor & Dispose
 
     /// <summary>
     /// Creates a new asynchronous message queue.
     /// </summary>
-    /// <param name="queueName">Name of this message queue.<param>
+    /// <param name="owner">Owner of this queue. Used for setting the queue's default name.<param>
     /// <param name="messageChannels">Message channels this message queue will be registered at the message broker.</param>
-    public AsynchronousMessageQueue(string queueName, string[] messageChannels) : base(queueName, messageChannels) { }
+    public AsynchronousMessageQueue(object owner, string[] messageChannels) : base(messageChannels)
+    {
+      _queueName = string.Format("Async message queue '{0}'", owner == null ? "Unknown" : owner.GetType().Name);
+    }
+
+    public override void Dispose()
+    {
+      Terminate();
+      base.Dispose();
+    }
+
+    #endregion
+
+    #region Protected methods
 
     protected void DoWork()
     {
@@ -64,9 +83,9 @@ namespace MediaPortal.Core.Messaging
           if (_terminated)
             // We have to check this in the synchronized block, else we could miss the PulseAll event
             break;
+          // We need to check this in a synchronized block. If we wouldn't prevent other threads from
+          // enqueuing data in this moment, we could miss the PulseAll event
           else if (!IsMessagesAvailable)
-            // We need to check this here again in a synchronized block. If we wouldn't prevent other threads from
-            // enqueuing data in this moment, we could miss the PulseAll event
             Monitor.Wait(_syncObj);
         }
       }
@@ -81,6 +100,10 @@ namespace MediaPortal.Core.Messaging
         handler(this, message);
     }
 
+    #endregion
+
+    #region Public members
+
     /// <summary>
     /// Handler event which will be raised when a new message can be received. This event handler will be called
     /// synchronously. It is not allowed to request any multithreading locks in handlers of this event because the system
@@ -94,10 +117,9 @@ namespace MediaPortal.Core.Messaging
     /// </summary>
     public event MessageReceivedHandler MessageReceived;
 
-    public override void Dispose()
+    public string Name
     {
-      Terminate();
-      base.Dispose();
+      get { return _queueName; }
     }
 
     public void Start()
@@ -106,9 +128,10 @@ namespace MediaPortal.Core.Messaging
       {
         if (_messageDeliveryThread != null)
           return;
+        _terminated = false;
         _messageDeliveryThread = new Thread(DoWork)
           {
-              Name = string.Format("Message queue '{0}': Async message delivery thread", _queueName)
+              Name = string.Format("'{0}' - message delivery thread", _queueName)
           };
         _messageDeliveryThread.Start();
       }
@@ -168,5 +191,12 @@ namespace MediaPortal.Core.Messaging
           return _terminated;
       }
     }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
+    #endregion
   }
 }

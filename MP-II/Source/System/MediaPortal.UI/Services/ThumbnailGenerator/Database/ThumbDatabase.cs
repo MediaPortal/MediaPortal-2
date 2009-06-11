@@ -69,7 +69,7 @@ namespace MediaPortal.Services.ThumbnailGenerator.Database
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
           // FIXME: Don't observe the contentmanager queue here
           "contentmanager"

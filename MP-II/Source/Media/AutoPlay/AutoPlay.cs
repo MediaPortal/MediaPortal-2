@@ -389,7 +389,7 @@ namespace Components.Services.AutoPlay
 
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            PluginManagerMessaging.CHANNEL
         });

@@ -49,7 +49,7 @@ namespace UiComponents.SkinBase
       UpdateBackground();
 
       // Install message queue
-      _messageQueue = new AsynchronousMessageQueue(string.Format("Message queue of class '{0}'", GetType().Name), new string[]
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
            PlayerManagerMessaging.CHANNEL,
            PlayerContextManagerMessaging.CHANNEL,

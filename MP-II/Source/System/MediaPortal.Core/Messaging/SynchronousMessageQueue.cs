@@ -33,22 +33,21 @@ namespace MediaPortal.Core.Messaging
   /// </summary>
   public class SynchronousMessageQueue : MessageQueueBase
   {
+    #region Ctor
+
     /// <summary>
     /// Creates a new synchronous message queue.
     /// </summary>
-    /// <param name="queueName">Name of this message queue.<param>
+    /// <param name="owner">Owner of this queue. Used for setting the queue's default name.<param>
     /// <param name="messageChannels">Message channels this message queue will be registered at the message broker.</param>
-    public SynchronousMessageQueue(string queueName, string[] messageChannels) : base(queueName, messageChannels) { }
+    public SynchronousMessageQueue(object owner, string[] messageChannels) : base(messageChannels)
+    {
+      _queueName = string.Format("Synchronous message queue '{0}'", owner == null ? "Unknown" : owner.GetType().Name);
+    }
 
-    /// <summary>
-    /// Handler which will be called synchronously in the message sender when a new message was received for one of the
-    /// registered message types of this queue.
-    /// </summary>
-    /// <remarks>
-    /// Handlers of this event mustn't aquire any multithreading locks in the system synchronously, as this could lead
-    /// to deadlocks.
-    /// </remarks>
-    public event MessagesAvailableHandler MessagesAvailable;
+    #endregion
+
+    #region Protected methods
 
     protected override void HandleMessageAvailable(QueueMessage message)
     {
@@ -62,5 +61,21 @@ namespace MediaPortal.Core.Messaging
       }
       handler(this);
     }
+
+    #endregion
+
+    #region Public members
+
+    /// <summary>
+    /// Handler which will be called synchronously in the message sender when a new message was received for one of the
+    /// registered message types of this queue.
+    /// </summary>
+    /// <remarks>
+    /// Handlers of this event mustn't aquire any multithreading locks in the system synchronously, as this could lead
+    /// to deadlocks.
+    /// </remarks>
+    public event MessagesAvailableHandler MessagesAvailable;
+
+    #endregion
   }
 }
