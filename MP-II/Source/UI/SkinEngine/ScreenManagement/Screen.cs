@@ -56,7 +56,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
     protected string _name;
     protected State _state = State.Running;
-    protected RectangleF _lastFocusRect = new RectangleF();
+    protected RectangleF? _lastFocusRect = null;
 
     /// <summary>
     /// Holds the information if our input handlers are currently attached at
@@ -430,7 +430,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// </summary>
     /// <param name="currentFocusRect">The borders of the currently focused control.</param>
     /// <param name="key">The key to evaluate.</param>
-    /// <returns>Framework element whcih gets focus when the specified <paramref name="key"/> was
+    /// <returns>Framework element which gets focus when the specified <paramref name="key"/> was
     /// pressed, or <c>null</c>, if no focus change should take place.</returns>
     public FrameworkElement PredictFocus(RectangleF? currentFocusRect, Key key)
     {
