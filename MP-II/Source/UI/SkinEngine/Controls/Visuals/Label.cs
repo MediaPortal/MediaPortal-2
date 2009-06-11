@@ -43,14 +43,15 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _contentProperty;
-    Property _colorProperty;
-    Property _scrollProperty;
-    Property _wrapProperty;
-    Property _textAlignProperty;
-    FontBufferAsset _asset;
-    FontRender _renderer;
-    IResourceString _resourceString;
+    protected Property _contentProperty;
+    protected Property _colorProperty;
+    protected Property _scrollProperty;
+    protected Property _wrapProperty;
+    protected Property _textAlignProperty;
+    protected Property _maxDesiredWidthProperty;
+    protected FontBufferAsset _asset;
+    protected FontRender _renderer;
+    protected IResourceString _resourceString;
     private int _fontSizeCache;
 
     #endregion
@@ -70,6 +71,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _scrollProperty = new Property(typeof(bool), false);
       _wrapProperty = new Property(typeof(bool), false);
       _textAlignProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
+      _maxDesiredWidthProperty = new Property(typeof(double), double.NaN);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
     }
@@ -77,19 +79,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     void Attach()
     {
       _contentProperty.Attach(OnContentChanged);
-      _scrollProperty.Attach(OnScrollChanged);
-      _wrapProperty.Attach(OnWrapChanged);
-      _colorProperty.Attach(OnColorChanged);
-      _textAlignProperty.Attach(OnTextAlignChanged);
+      _scrollProperty.Attach(OnRenderAttributeChanged);
+      _wrapProperty.Attach(OnLayoutPropertyChanged);
+      _colorProperty.Attach(OnRenderAttributeChanged);
+      _textAlignProperty.Attach(OnRenderAttributeChanged);
+      _maxDesiredWidthProperty.Attach(OnLayoutPropertyChanged);
     }
 
     void Detach()
     {
       _contentProperty.Detach(OnContentChanged);
-      _scrollProperty.Detach(OnScrollChanged);
-      _wrapProperty.Detach(OnWrapChanged);
-      _colorProperty.Detach(OnColorChanged);
-      _textAlignProperty.Detach(OnTextAlignChanged);
+      _scrollProperty.Detach(OnRenderAttributeChanged);
+      _wrapProperty.Detach(OnLayoutPropertyChanged);
+      _colorProperty.Detach(OnRenderAttributeChanged);
+      _textAlignProperty.Detach(OnRenderAttributeChanged);
+      _maxDesiredWidthProperty.Detach(OnLayoutPropertyChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -101,6 +105,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       Color = copyManager.GetCopy(l.Color);
       Scroll = copyManager.GetCopy(l.Scroll);
       Wrap = copyManager.GetCopy(l.Wrap);
+      MaxDesiredWidth = copyManager.GetCopy(l.MaxDesiredWidth);
 
       _resourceString = LocalizationHelper.CreateResourceString(Content);
       Attach();
@@ -108,33 +113,21 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnColorChanged(Property prop, object oldValue)
-    {
-      if (Screen != null) 
-        Screen.Invalidate(this);
-    }
-
     void OnContentChanged(Property prop, object oldValue)
     {
       _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
       Invalidate();
     }
 
-    void OnScrollChanged(Property prop, object oldValue)
-    {
-      if (Screen != null) 
-        Screen.Invalidate(this);
-    }
-
-    void OnWrapChanged(Property prop, object oldValue)
-    {
-      Invalidate();
-    }
-
-    void OnTextAlignChanged(Property prop, object oldValue)
+    void OnRenderAttributeChanged(Property prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
+    }
+
+    void OnLayoutPropertyChanged(Property prop, object oldValue)
+    {
+      Invalidate();
     }
 
     protected override void OnFontChanged(Property prop, object oldValue)
@@ -191,6 +184,22 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     {
       get { return (bool) _wrapProperty.GetValue(); }
       set { _wrapProperty.SetValue(value); }
+    }
+
+    public Property MaxDesiredWidthProperty
+    {
+      get { return _maxDesiredWidthProperty; }
+    }
+
+    /// <summary>
+    /// Will be evaluated if <see cref="Scroll"/> or <see cref="Wrap"/> is set to give a maximum width of this label.
+    /// This property differs from the <see cref="FrameworkElement.Width"/> property, as this label doesn't always occupy
+    /// the whole maximum width.
+    /// </summary>
+    public double MaxDesiredWidth
+    {
+      get { return (double) _maxDesiredWidthProperty.GetValue(); }
+      set { _maxDesiredWidthProperty.SetValue(value); }
     }
 
     public Property TextAlignProperty
@@ -270,10 +279,18 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       {
         float height = _asset.Font.LineHeight(_fontSizeCache);
         float width;
-        float totalWidth = double.IsNaN(Width) ? totalSize.Width / SkinContext.Zoom.Width : (float) Width;
-        if (float.IsNaN(totalWidth) || !Wrap)
-          width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
+        float totalWidth; // Attention: totalWidth is cleaned up by SkinContext.Zoom
+        if (double.IsNaN(Width))
+          if ((Scroll || Wrap) && !double.IsNaN(MaxDesiredWidth))
+            // MaxDesiredWidth will only be evaluated if either Scroll or Wrap is set
+            totalWidth = (float) MaxDesiredWidth;
+          else
+            // No size constraints
+            totalWidth = totalSize.Width / SkinContext.Zoom.Width;
         else
+          // Width: highest priority
+          totalWidth = (float) Width;
+        if (Wrap)
         { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
           string[] lines = WrapText(totalWidth, true);
           width = 0;
@@ -281,6 +298,11 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
             width = Math.Max(width, _asset.Font.Width(line, _fontSizeCache));
           height *= lines.Length;
         }
+        else if (float.IsNaN(totalWidth) || !Scroll)
+          width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
+        else
+          width = totalWidth;
+
         childSize = new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
       }
       else

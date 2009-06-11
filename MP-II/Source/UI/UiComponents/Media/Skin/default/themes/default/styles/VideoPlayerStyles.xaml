@@ -92,7 +92,6 @@
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
@@ -100,8 +99,8 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}"/>
-                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="2" Margin="10,0,0,0" HorizontalAlignment="Right"
+                    Content="{Binding PlayerStateText}" Scroll="true"/>
+                <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
                     IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}"/>
                   <Label Content="/" Margin="4,0,4,0"/>
@@ -143,7 +142,7 @@
   </Style>
 
   <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
-    <Setter Property="FixedVideoHeight" Value="108"/>
+    <Setter Property="FixedVideoHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
@@ -190,7 +189,7 @@
                         Command="{Command AudioButtonPressed}"/>
                   </Grid>
                 </Grid>
-                <Grid DockPanel.Dock="Center">
+                <Grid DockPanel.Dock="Center"> <!-- Has to be last control in DockPanel, LastChildFill! -->
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
@@ -198,7 +197,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                      HorizontalAlignment="Left" VerticalAlignment="Center" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel> <!-- PiPHeaderPanel -->
               <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
@@ -221,7 +220,7 @@
                 </Button.Triggers>
               </Button> <!-- PIPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
-                  Content="{Binding PlayerStateText}"/>
+                  Content="{Binding PlayerStateText}" Scroll="true" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
                   VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"

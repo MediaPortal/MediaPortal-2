@@ -36,7 +36,8 @@
     </Rectangle> <!-- PIP -->
   </Grid> <!-- PipLayoutGrid -->
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false">
-    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="768" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
+    <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+        IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
       <mp_special:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource PrimaryVideoOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
