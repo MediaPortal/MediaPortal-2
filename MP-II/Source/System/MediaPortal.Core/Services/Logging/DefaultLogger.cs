@@ -249,16 +249,11 @@ namespace MediaPortal.Core.Services.Logging
     /// delay the writing of its buffer.</param>
     protected void Write(string message, bool flush)
     {
-      Monitor.Enter(_syncObject);
-      try
+      lock (_syncObject)
       {
         _writer.WriteLine(message);
         if (flush)
           _writer.Flush();
-      }
-      finally
-      {
-        Monitor.Exit(_syncObject);
       }
     }
   }

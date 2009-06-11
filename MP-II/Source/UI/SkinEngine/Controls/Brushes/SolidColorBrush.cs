@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
@@ -37,17 +35,13 @@ using MediaPortal.SkinEngine.SkinManagement;
 
 namespace MediaPortal.SkinEngine.Controls.Brushes
 {
-  public class SolidColorBrush : Brush//, IAsset
+  public class SolidColorBrush : Brush
   {
     #region Private properties
 
     Property _colorProperty;
-    //Texture _texture;
-    double _height;
-    double _width;
     EffectAsset _effect;
     EffectHandleAsset _effectHandleColor;
-    DateTime _lastTimeUsed;
 
     #endregion
 
@@ -62,7 +56,6 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
     void Init()
     {
       _colorProperty = new Property(typeof(Color), Color.White);
-      //ContentManager.Add(this);
     }
 
     void Attach()
@@ -104,37 +97,22 @@ namespace MediaPortal.SkinEngine.Controls.Brushes
 
     public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
-      //Trace.WriteLine("SolidColorBrush.SetupBrush()");
-      //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
-      {
-        UpdateBounds(bounds, layoutTransform, ref verts);
-        base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
-        _effect = ContentManager.GetEffect("solidbrush");
-        _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
-        Color4 color = ColorConverter.FromColor(Color);
-        color.Alpha *= (float) Opacity;
-        for (int i = 0; i < verts.Length; ++i)
-          verts[i].Color = color.ToArgb();
-        _height = bounds.Height;
-        _width = bounds.Width;
-        //if (_texture == null)
-        //{
-        //  _texture = new Texture(GraphicsDevice.Device, 2, 2, 0, Usage.None, Format.A8R8G8B8, Pool.Managed);
-        //}
-      }
+      UpdateBounds(bounds, layoutTransform, ref verts);
+      base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
+      _effect = ContentManager.GetEffect("solidbrush");
+      _effectHandleColor = _effect.GetParameterHandle("g_solidColor");
+      Color4 color = ColorConverter.FromColor(Color);
+      color.Alpha *= (float) Opacity;
+      for (int i = 0; i < verts.Length; ++i)
+        verts[i].Color = color.ToArgb();
     }
 
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
-      //if (_texture == null) return;
-
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       Color4 v = ColorConverter.FromColor(Color);
       v.Alpha *= (float) SkinContext.Opacity;
       _effectHandleColor.SetParameter(v);
       _effect.StartRender(null);
-      //GraphicsDevice.Device.SetTexture(0, null);
-      _lastTimeUsed = SkinContext.Now;
       return true;
     }
 

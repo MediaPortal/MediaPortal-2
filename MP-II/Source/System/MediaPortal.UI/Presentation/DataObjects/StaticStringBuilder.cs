@@ -37,7 +37,7 @@ namespace MediaPortal.Presentation.DataObjects
 
     public StaticStringBuilder(string stringValue)
     {
-      _stringValue = stringValue;
+      _stringValue = stringValue ?? string.Empty;
     }
 
     #region IResourceString implementation

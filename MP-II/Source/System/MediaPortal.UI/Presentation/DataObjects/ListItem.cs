@@ -184,6 +184,8 @@ namespace MediaPortal.Presentation.DataObjects
     /// it is a localized string.</param>
     public void SetLabel(string name, string value, bool testLocalized)
     {
+      if (value == null)
+        value = string.Empty;
       if (testLocalized)
         SetLabel(name, value);
       else
