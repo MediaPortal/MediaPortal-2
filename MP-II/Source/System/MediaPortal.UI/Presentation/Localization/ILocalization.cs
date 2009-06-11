@@ -42,11 +42,13 @@ namespace MediaPortal.Presentation.Localization
   public interface ILocalization
   {
     #region events
+
     /// <summary>
     /// Will be called if the language changes, which makes all former returned localized
     /// strings invalid.
     /// </summary>
     event LanguageChangeHandler LanguageChange;
+
     #endregion
 
     #region Properties
