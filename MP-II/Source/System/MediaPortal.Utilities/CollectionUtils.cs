@@ -106,6 +106,27 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
+    /// Returns the information whether the intersection of <paramref name="c1"/> and <paramref name="c2"/> is not empty.
+    /// If the type parameters of the collections differ, the collection with the more general element type
+    /// must be used at the second position.
+    /// </summary>
+    /// <typeparam name="S">Element type of the first source collection. May be more specific than
+    /// the type parameter of the second collection.</typeparam>
+    /// <typeparam name="T">Element type of the second source collection and the result collection.
+    /// May be more general than the type parameter of the first collection <see cref="S"/>.</typeparam>
+    /// <param name="c1">First source collection.</param>
+    /// <param name="c2">Second source collection</param>
+    /// <returns><c>true</c>, if the intersection of <paramref name="c1"/> and <paramref name="c2"/> is not empty.
+    /// Else <c>false</c>.</returns>
+    public static bool HasIntersection<S, T>(ICollection<S> c1, ICollection<T> c2) where S: T
+    {
+      foreach (S s in c1)
+        if (c2.Contains(s))
+          return true;
+      return false;
+    }
+
+    /// <summary>
     /// Compares two sets of elements with a reference type given by the two enumerations
     /// <paramref name="e1"/> and <paramref name="e2"/>. If the sets differ in size or in at least one
     /// element, the return value will be <c>false</c>, else it will be <c>true</c>.
