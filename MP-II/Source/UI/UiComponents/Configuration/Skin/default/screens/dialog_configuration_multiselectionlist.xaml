@@ -11,7 +11,7 @@
 
     <ResourceWrapper x:Key="Config_Contents_Element">
       <ListView x:Name="MultiSelectionListBox"
-          Style="{StaticResource MultiMarkableListViewStyle}"
+          Style="{ThemeResource MultiMarkableListViewStyle}"
           ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items,Mode=OneTime}"/>
     </ResourceWrapper>
   </Include.Resources>

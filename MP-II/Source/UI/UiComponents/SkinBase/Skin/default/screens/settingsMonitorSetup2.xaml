@@ -14,18 +14,18 @@
       <DockPanel>
         <Label Margin="60,0,0,0" Font="font13" Content="[settings.monitorarsetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
         <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
-          <CheckBox  x:Name="mainMenu" Style="{StaticResource RadioButtonLeftStyle}" Height="32" >
+          <CheckBox  x:Name="mainMenu" Style="{ThemeResource RadioButtonLeftStyle}" Height="32" >
             <Label Font="font13" Content="[settings.monitornormal]" />
           </CheckBox>
-          <CheckBox  Style="{StaticResource RadioButtonLeftStyle}" Height="32" >
+          <CheckBox  Style="{ThemeResource RadioButtonLeftStyle}" Height="32" >
             <Label Font="font13"   Content="[settings.monitorwide]"  />
           </CheckBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-          <Button Style="{StaticResource ButtonWideStyle}" Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=settingsMonitorSetup}">
+          <Button Style="{ThemeResource ButtonWideStyle}" Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=settingsMonitorSetup}">
             <Label Font="font13" Content="[settings.back]" Height="32" />
           </Button>
-          <Button Style="{StaticResource ButtonWideStyle}" Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters="ettingsSkin}">
+          <Button Style="{ThemeResource ButtonWideStyle}" Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters="ettingsSkin}">
             <Label Font="font13" Content="[settings.finish]" Height="32" />
           </Button>
         </StackPanel>

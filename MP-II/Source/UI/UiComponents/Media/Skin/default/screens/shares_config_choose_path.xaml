@@ -28,7 +28,7 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.ChooseMediaProviderPathForShare]" Wrap="True"/>
-        <TreeView Grid.Row="1" Style="{StaticResource DefaultSingleMarkableTreeViewStyle}"
+        <TreeView Grid.Row="1" Style="{ThemeResource DefaultSingleMarkableTreeViewStyle}"
             ItemsSource="{Binding Path=MediaProviderPathsTree,Mode=OneTime}">
           <TreeView.Resources>
             <!-- Expander_Binding isn't necessary here - the TreeView won't synchronize its opening-state to the underlaying data directly. We use a dummy. -->
@@ -60,10 +60,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding IsMediaProviderPathValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>

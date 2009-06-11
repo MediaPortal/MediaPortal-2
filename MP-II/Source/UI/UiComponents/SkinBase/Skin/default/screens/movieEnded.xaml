@@ -5,7 +5,7 @@
     DataContext="{Binding Source={Model RegistrationLocation=Movies,Id=Model}}"
     FocusedElement="{Binding ElementName=mainMenu}">
 
-  <Canvas Background="{StaticResource BackgroundBrush}" Width="720" Height="576"/>
+  <Canvas Background="{ThemeResource BackgroundBrush}" Width="720" Height="576"/>
   <Canvas Width="720" Height="576">
     <Canvas.Background>
       <VideoBrush/>
@@ -23,7 +23,7 @@
   <Image Canvas.Left="170" Canvas.Top="90" Source="logo_stop.png" />
   <Label Canvas.Left="240" Canvas.Top="100" Font="font26" Content="[playback.38]" Width="500" Height="50" Color="#7FFFFFFF"/>
   <Canvas Canvas.Left="240" Canvas.Top="170">
-    <ListView x:Name="mainMenu" Height="300" Width="200" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding MovieEndedMenu}">
+    <ListView x:Name="mainMenu" Height="300" Width="200" Style="{ThemeResource MenuListViewStyle}" ItemsSource="{Binding MovieEndedMenu}">
       <ListView.Resources>
         <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
       </ListView.Resources>

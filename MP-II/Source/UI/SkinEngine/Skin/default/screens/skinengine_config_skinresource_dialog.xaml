@@ -11,7 +11,7 @@
 
     <ResourceWrapper x:Key="Config_Contents_Element">
       <StackPanel Orientation="Vertical">
-        <ListView x:Name="Menu" Style="{StaticResource ImageDialogListViewStyle}" ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items}"
+        <ListView x:Name="Menu" Style="{ThemeResource ImageDialogListViewStyle}" ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CurrentItem="{Binding Source={StaticResource Model},Path=CurrentConfigController.ChoosenItem,Mode=TwoWay}">
           <ListView.Resources>
             <CommandList x:Key="Menu_Command">

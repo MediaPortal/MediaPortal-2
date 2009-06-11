@@ -29,14 +29,14 @@
         </Grid.RowDefinitions>
         <ListView x:Name="ConfigItemsList"
             Grid.Row="0" Grid.Column="0"
-            Style="{StaticResource ContentsMenuListViewStyle}"
+            Style="{ThemeResource ContentsMenuListViewStyle}"
             DataContext="{Binding Source={StaticResource Model}}"
             ItemsSource="{Binding ConfigSettings}">
           <ListView.Resources>
             <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Command}"/>
           </ListView.Resources>
         </ListView>
-        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{StaticResource HintTextColor}"
+        <Label Grid.Row="1" Grid.Column="0" Margin="20,0,20,20" Color="{ThemeResource HintTextColor}"
             DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"
             Content="{Binding [Help]}" Wrap="True"
             IsVisible="{Binding Converter={StaticResource RefToBoolConverter}}"/>

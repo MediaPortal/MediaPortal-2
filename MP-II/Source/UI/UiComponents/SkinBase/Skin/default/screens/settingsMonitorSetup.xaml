@@ -18,20 +18,20 @@
         <Label Margin="60,0,0,0" Font="font13" Content="[settings.monitorsetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
         <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left">
           <!-- TODO: Bind controls to model? -->
-          <CheckBox   Style="{StaticResource RadioButtonLeftStyle}" Height="32">
+          <CheckBox   Style="{ThemeResource RadioButtonLeftStyle}" Height="32">
             <Label Font="font13" Content="[settings.monitorbuildin]"/>
           </CheckBox>
-          <CheckBox  x:Name="mainMenu" Style="{StaticResource RadioButtonLeftStyle}" Height="32">
+          <CheckBox  x:Name="mainMenu" Style="{ThemeResource RadioButtonLeftStyle}" Height="32">
             <Label Font="font13" Content="[settings.monitorcrt]"/>
           </CheckBox>
-          <CheckBox  Style="{StaticResource RadioButtonLeftStyle}" Height="32">
+          <CheckBox  Style="{ThemeResource RadioButtonLeftStyle}" Height="32">
             <Label Font="font13" Content="[settings.monitorlcd]"/>
           </CheckBox>
-          <CheckBox  Style="{StaticResource RadioButtonLeftStyle}" Height="32">
+          <CheckBox  Style="{ThemeResource RadioButtonLeftStyle}" Height="32">
             <Label Font="font13" Content="[settings.monitorprojector]"/>
           </CheckBox>
         </StackPanel>
-        <Button Style="{StaticResource ButtonWideStyle}" Width="160" Height="32"
+        <Button Style="{ThemeResource ButtonWideStyle}" Width="160" Height="32"
             Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=settingsMonitorSetup2}">
           <Label Font="font13" Content="[settings.next]" Height="32"/>
         </Button>

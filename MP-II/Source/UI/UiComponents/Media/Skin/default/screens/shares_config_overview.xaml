@@ -16,7 +16,7 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView Margin="10"
-          Style="{StaticResource SharesListViewStyle}"
+          Style="{ThemeResource SharesListViewStyle}"
           DataContext="{Binding Source={StaticResource Model}}"
           ItemsSource="{Binding Path=Shares,Mode=OneTime}"/>
     </ResourceWrapper>

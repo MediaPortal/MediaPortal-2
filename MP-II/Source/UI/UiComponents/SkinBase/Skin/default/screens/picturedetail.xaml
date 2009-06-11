@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model RegistrationLocation=Pictures,Id=PictureModel}}">
 
-  <Canvas x:Name="tst" Loaded="{Command Path=SlideShow.UpdateCurrentPicture}" Background="{StaticResource BackgroundBrush}" Width="720" Height="576">
+  <Canvas x:Name="tst" Loaded="{Command Path=SlideShow.UpdateCurrentPicture}" Background="{ThemeResource BackgroundBrush}" Width="720" Height="576">
 
     <Image x:Name="picture" Stretch="UniformToFill"  Source="{Binding Path=SlideShow.CurrentPicture}" Canvas.Left="0" Canvas.Top="0" Width="720" Height="576" Thumbnail="False" IsEnabled="{Binding Path=SlideShow.CurrentPictureVisibile}">
       <Image.RenderTransform>

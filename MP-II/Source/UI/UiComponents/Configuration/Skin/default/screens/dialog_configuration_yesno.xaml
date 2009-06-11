@@ -22,7 +22,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
-          <RadioButton x:Name="YesButton" Style="{StaticResource RadioButtonStyle}" Content="[System.Yes]" GroupName="DialogButtons"
+          <RadioButton x:Name="YesButton" Style="{ThemeResource RadioButtonStyle}" Content="[System.Yes]" GroupName="DialogButtons"
               IsChecked="{Binding Source={StaticResource Model},Path=CurrentConfigController.Yes,Mode=TwoWay}">
             <RadioButton.Command>
               <CommandList>
@@ -31,7 +31,7 @@
               </CommandList>
             </RadioButton.Command>
           </RadioButton>
-          <RadioButton x:Name="NoButton" Style="{StaticResource RadioButtonStyle}" Content="[System.No]" GroupName="DialogButtons"
+          <RadioButton x:Name="NoButton" Style="{ThemeResource RadioButtonStyle}" Content="[System.No]" GroupName="DialogButtons"
               IsChecked="{Binding Source={StaticResource Model},Path=!CurrentConfigController.Yes,Mode=TwoWay}">
             <RadioButton.Command>
               <CommandList>

@@ -56,11 +56,11 @@
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource SquareButtonZoomCoefficient}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource SquareButtonZoomCoefficient}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -70,11 +70,11 @@
     <StaticResource ResourceKey="FocusedButtonStoryboard_Base"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource WideButtonZoomCoefficientX}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource WideButtonZoomCoefficientX}"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="GrowControl" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{StaticResource WideButtonZoomCoefficientY}"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource WideButtonZoomCoefficientY}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -221,7 +221,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -229,7 +229,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -238,7 +238,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -272,7 +272,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonWideStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -280,7 +280,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonWideStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -289,7 +289,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -337,7 +337,7 @@
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -345,7 +345,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -354,7 +354,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -395,7 +395,7 @@
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -403,7 +403,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -412,7 +412,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -456,7 +456,7 @@
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -464,7 +464,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -473,7 +473,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -530,7 +530,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -585,7 +585,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -593,7 +593,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -602,7 +602,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -630,7 +630,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -638,7 +638,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -647,7 +647,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -675,7 +675,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -683,7 +683,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -692,7 +692,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -720,7 +720,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -728,7 +728,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -737,7 +737,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -773,7 +773,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -781,7 +781,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -790,7 +790,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -824,7 +824,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -832,7 +832,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -841,7 +841,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -875,7 +875,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -883,7 +883,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -892,7 +892,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -926,7 +926,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -934,7 +934,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -943,7 +943,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -977,7 +977,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -985,7 +985,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -994,7 +994,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -1028,7 +1028,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1036,7 +1036,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -1045,7 +1045,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -1079,7 +1079,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1087,7 +1087,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -1096,7 +1096,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -1132,7 +1132,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1140,7 +1140,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -1149,7 +1149,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -1183,7 +1183,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1191,7 +1191,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -1200,7 +1200,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryboard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryboard"/>
@@ -1236,7 +1236,7 @@
             </Trigger>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1244,7 +1244,7 @@
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{StaticResource PressedButtonStoryboard}"
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
                     HandoffBehavior="TemporaryReplace"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
@@ -1253,7 +1253,7 @@
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{StaticResource DisabledButtonStoryboard}"/>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
@@ -1289,7 +1289,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedZoomButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedZoomButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1317,7 +1317,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedZoomButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedZoomButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1352,7 +1352,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedRotateButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedRotateButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
@@ -1380,7 +1380,7 @@
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{StaticResource FocusedRotateButtonStoryBoard}"/>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedRotateButtonStoryBoard}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>

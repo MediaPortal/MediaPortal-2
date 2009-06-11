@@ -55,7 +55,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.Resources>
 
           <Label Grid.Column="0" Grid.Row="0" Content="{DynamicResource Menu_Header_Text}" Margin="25,0,0,0" DockPanel.Dock="Top"/>
-          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Style="{StaticResource MenuListViewStyle}"
+          <ListView x:Name="MainMenu" Grid.Column="0" Grid.Row="1" Style="{ThemeResource MenuListViewStyle}"
               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>
               <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>

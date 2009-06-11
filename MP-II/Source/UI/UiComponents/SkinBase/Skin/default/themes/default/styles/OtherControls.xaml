@@ -183,7 +183,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource ButtonWideStyle}"
+          <Button Style="{ThemeResource ButtonWideStyle}"
               Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
               IsEnabled="{Binding Enabled}">
             <Button.Triggers>
@@ -213,7 +213,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{StaticResource ButtonStyle}" Margin="5,0,5,0" Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
+          <Button Style="{ThemeResource ButtonStyle}" Margin="5,0,5,0" Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
@@ -283,7 +283,7 @@
           <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
-              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+              <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
             </Setter.Value>
           </Setter>
         </Trigger>
@@ -301,7 +301,7 @@
         <ColumnDefinition Width="200"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <CheckBox x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+      <CheckBox x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource CheckBoxStyle}" VerticalAlignment="Center"
           IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
       <Grid.Triggers>
@@ -309,7 +309,7 @@
           <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
-              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+              <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
             </Setter.Value>
           </Setter>
         </Trigger>
@@ -327,7 +327,7 @@
         <ColumnDefinition Width="200"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <RadioButton x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+      <RadioButton x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center"
           IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
       <Grid.Triggers>
@@ -335,7 +335,7 @@
           <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
-              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+              <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
             </Setter.Value>
           </Setter>
         </Trigger>
@@ -352,13 +352,13 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <CheckBox x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+      <CheckBox x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource CheckBoxStyle}" VerticalAlignment="Center"
           IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
       <Grid.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
-              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+              <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
             </Setter.Value>
           </Setter>
         </Trigger>
@@ -376,7 +376,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <RadioButton x:Name="Marker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+      <RadioButton x:Name="Marker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center"
           IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
           Content="{Binding [Name]}"/>
       <Grid.Triggers>
@@ -384,7 +384,7 @@
           <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
           <Setter TargetName="ParentPanel" Property="Background">
             <Setter.Value>
-              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+              <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
             </Setter.Value>
           </Setter>
         </Trigger>
@@ -399,7 +399,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}" CanContentScroll="true">
+          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true">
             <ItemsPresenter VerticalAlignment="Top"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -415,56 +415,56 @@
   </Style>
 
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
-  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used in the content area of the screens -->
-  <Style x:Key="ContentsMenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  <Style x:Key="ContentsMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ContentsMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="SharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ShareItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+  <Style x:Key="SharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource MultiMarkableShareItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource MultiMarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource SingleMarkableShareItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+  <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource SingleMarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMultiMarkableItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMultiMarkableItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for the shares list -->
-  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultSingleMarkableItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultSingleMarkableItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
-  <Style x:Key="ImageDialogListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource ImageDialogItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  <Style x:Key="ImageDialogListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ImageDialogItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
   <!-- *************************** TreeView item data templates ****************************** -->
@@ -473,7 +473,7 @@
   <HierarchicalDataTemplate x:Key="DefaultSingleMarkableTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
       ItemsSource="{Binding SubItems}" DataString="{Binding [Name]}">
     <RadioButton x:Name="Checker" GroupName="RadioButtonGroup"
-        Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+        Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center"
         Content="{Binding [Name]}"
         IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
         Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
@@ -482,7 +482,7 @@
   <!-- A data template for a TreeItem with a check box -->
   <HierarchicalDataTemplate x:Key="DefaultMultiMarkableTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
       ItemsSource="{Binding SubItems}" DataString="{Binding [Name]}">
-    <CheckBox x:Name="Checker" Style="{StaticResource CheckBoxStyle}"
+    <CheckBox x:Name="Checker" Style="{ThemeResource CheckBoxStyle}"
         Content="{Binding [Name]}"
         IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
         Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
@@ -504,7 +504,7 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}"
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{ThemeResource PlusMinusButtonStyle}"
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
                 VerticalAlignment="Top"/>
@@ -526,7 +526,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}" CanContentScroll="false">
+          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false">
             <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
           </ScrollViewer>
         </ControlTemplate>
@@ -539,16 +539,16 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultTreeItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultTreeItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
-  <Style x:Key="DefaultMultiMarkableTreeViewStyle" BasedOn="{StaticResource DefaultTreeViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMultiMarkableTreeItemDataTemplate}"/>
+  <Style x:Key="DefaultMultiMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMultiMarkableTreeItemDataTemplate}"/>
   </Style>
 
-  <Style x:Key="DefaultSingleMarkableTreeViewStyle" BasedOn="{StaticResource DefaultTreeViewStyle}">
-    <Setter Property="ItemTemplate" Value="{StaticResource DefaultSingleMarkableTreeItemDataTemplate}"/>
+  <Style x:Key="DefaultSingleMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultSingleMarkableTreeItemDataTemplate}"/>
     <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
   </Style>
 
@@ -583,14 +583,14 @@
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemTemplate" Value="{StaticResource KeyBindingItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{StaticResource KeyBindingContainerStyle}"/>
-    <Setter Property="Background" Value="{StaticResource KeyBindingsPanelBackgroundBrush}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource KeyBindingItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource KeyBindingContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource KeyBindingsPanelBackgroundBrush}"/>
   </Style>
 
   <!-- ****************************** PlayerControl ********************************** -->
 
-  <Style x:Key="PlayerControlGroupBoxStyle" BasedOn="{StaticResource GroupBoxStyle}">
+  <Style x:Key="PlayerControlGroupBoxStyle" BasedOn="{ThemeResource GroupBoxStyle}">
     <Setter Property="BorderBrush">
       <Setter.Value>
         <SolidColorBrush Color="{ThemeResource DefaultPlayerControlBorderColor}"/>
@@ -676,19 +676,19 @@
                 </Grid>
               </Grid>
               <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowMouseControls}" Margin="0,10,0,5">
-                <Button x:Name="SkipBackButton" Style="{StaticResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
+                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
                     Command="{Command Previous}"/>
-                <Button x:Name="RewindButton" Style="{StaticResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
+                <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
                     Command="{Command SeekBackward}"/>
-                <Button x:Name="PlayButton" Style="{StaticResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
+                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
                     Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{StaticResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
+                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
                     Command="{Command Pause}"/>
-                <Button x:Name="StopButton" Style="{StaticResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
+                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
                     Command="{Command Stop}"/>
-                <Button x:Name="ForwardButton" Style="{StaticResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
+                <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
                     Command="{Command SeekForward}"/>
-                <Button x:Name="SkipForwardButton" Style="{StaticResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
               </StackPanel>
             </StackPanel>

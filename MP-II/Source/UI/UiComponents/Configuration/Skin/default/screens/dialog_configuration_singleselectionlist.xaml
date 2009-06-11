@@ -11,7 +11,7 @@
 
     <ResourceWrapper x:Key="Config_Contents_Element">
       <ListView x:Name="SingleSelectionListBox"
-          Style="{StaticResource SingleMarkableListViewStyle}"
+          Style="{ThemeResource SingleMarkableListViewStyle}"
           ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items,Mode=OneTime}"/>
     </ResourceWrapper>
   </Include.Resources>

@@ -10,34 +10,34 @@
     <Label Font="font13" Canvas.Left="230" Canvas.Top="100" Width="500" Height="30" Content="{Binding SlideShow.Info.ImgTitle}"/>
     <Image x:Name="picture" Source="{Binding Path=Editor.CurrentPicture}"  Canvas.Left="230" Canvas.Top="130" Width="400" Height="300" Thumbnail="False" Stretch="Uniform"/>
 
-    <Button Style="{StaticResource ArrowButtonLeftStyle}" Width="32" Height="32"   Canvas.Left="230" Canvas.Top="435" Command="{Command Path=Editor.MoveLeft}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
-    <Button Style="{StaticResource ArrowButtonRightStyle}" Width="32" Height="32" Canvas.Left="264" Canvas.Top="435" Command="{Command Path=Editor.MoveRight}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+    <Button Style="{ThemeResource ArrowButtonLeftStyle}" Width="32" Height="32"   Canvas.Left="230" Canvas.Top="435" Command="{Command Path=Editor.MoveLeft}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+    <Button Style="{ThemeResource ArrowButtonRightStyle}" Width="32" Height="32" Canvas.Left="264" Canvas.Top="435" Command="{Command Path=Editor.MoveRight}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
 
-    <Button Style="{StaticResource ArrowButtonUpStyle}" Width="32" Height="32" Canvas.Left="304" Canvas.Top="435" Command="{Command Path=Editor.MoveUp}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
-    <Button Style="{StaticResource ArrowButtonDownStyle}" Width="32" Height="32" Canvas.Left="338" Canvas.Top="435" Command="{Command Path=Editor.MoveDown}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+    <Button Style="{ThemeResource ArrowButtonUpStyle}" Width="32" Height="32" Canvas.Left="304" Canvas.Top="435" Command="{Command Path=Editor.MoveUp}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+    <Button Style="{ThemeResource ArrowButtonDownStyle}" Width="32" Height="32" Canvas.Left="338" Canvas.Top="435" Command="{Command Path=Editor.MoveDown}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
 
-    <Button Style="{StaticResource ZoomOutButtonStyle}" Width="32" Height="32" Canvas.Left="378" Canvas.Top="435" Command="{Command Path=Editor.ZoomOut}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
-    <Button Style="{StaticResource ZoomInButtonStyle}" Width="32" Height="32" Canvas.Left="412" Canvas.Top="435" Command="{Command Path=Editor.ZoomIn}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+    <Button Style="{ThemeResource ZoomOutButtonStyle}" Width="32" Height="32" Canvas.Left="378" Canvas.Top="435" Command="{Command Path=Editor.ZoomOut}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
+    <Button Style="{ThemeResource ZoomInButtonStyle}" Width="32" Height="32" Canvas.Left="412" Canvas.Top="435" Command="{Command Path=Editor.ZoomIn}" IsVisible="{Binding Path=Editor.CroppingEnabled}"/>
 
-    <Button Style="{StaticResource RotateLeftButtonStyle}" Width="32" Height="32" Canvas.Left="454" Canvas.Top="435" Command="{Command Path=Editor.RotateLeft}"/>
-    <Button Style="{StaticResource RotateRightButtonStyle}" Width="32" Height="32" Canvas.Left="488" Canvas.Top="435" Command="{Command Path=Editor.RotateRight}"/>
+    <Button Style="{ThemeResource RotateLeftButtonStyle}" Width="32" Height="32" Canvas.Left="454" Canvas.Top="435" Command="{Command Path=Editor.RotateLeft}"/>
+    <Button Style="{ThemeResource RotateRightButtonStyle}" Width="32" Height="32" Canvas.Left="488" Canvas.Top="435" Command="{Command Path=Editor.RotateRight}"/>
     <StackPanel x:Name="menuPanel" Canvas.Left="30" Canvas.Top="120" Width="180" Margin="0,0,20,0">
-      <Button Style="{StaticResource ButtonWideStyle}" Height="32"  Command="{Command Path=Editor.SaveImage}">
+      <Button Style="{ThemeResource ButtonWideStyle}" Height="32"  Command="{Command Path=Editor.SaveImage}">
         <Label Font="font13" Content="[pictures.save]"/>
       </Button>
-      <Button Style="{StaticResource ButtonWideStyle}" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}">
+      <Button Style="{ThemeResource ButtonWideStyle}" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowPreviousScreen}">
         <Label Font="font13" Content="[pictures.cancel]"/>
       </Button>
-      <CheckBox x:Name="cropButton" Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
+      <CheckBox x:Name="cropButton" Style="{ThemeResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableCropping}" Unchecked="{Binding Path=Editor.DisableCropping}">
         <Label Font="font13" Content="[pictures.crop]"/>
       </CheckBox>
-      <CheckBox Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
+      <CheckBox Style="{ThemeResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableRedEye}" Unchecked="{Binding Path=Editor.DisableRedEye}">
         <Label Font="font13" Content="[pictures.redeye]"/>
       </CheckBox>
-      <CheckBox Style="{StaticResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
+      <CheckBox Style="{ThemeResource RadioButtonStyle}" Height="32" Command="{Command Path=Editor.TransformImage}" Checked="{Binding Path=Editor.EnableContrast}" Unchecked="{Binding Path=Editor.DisableContrast}">
         <Label Font="font13" Content="[pictures.contrast]"/>
       </CheckBox>
-      <Button Style="{StaticResource ButtonWideStyle}" Height="32" >
+      <Button Style="{ThemeResource ButtonWideStyle}" Height="32" >
         <!-- TODO: Button.Command -->
         <Label Font="font13" Content="[pictures.print]"/>
       </Button>

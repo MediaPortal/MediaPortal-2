@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
       <ListView DataContext="{Binding Source={StaticResource DataContext}}"
-          Margin="10,0,10,0" Style="{StaticResource ContentsMenuListViewStyle}" ItemsSource="{Binding Songs}"
+          Margin="10,0,10,0" Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Songs}"
           SelectionChanged="{CommandStencil Path=OnSelectionChange}">
         <ListView.Resources>
           <Command x:Key="Menu_Command" Source="{StaticResource DataContext}" Path="Select" Parameters="{LateBoundValue Value={Binding}}"/>

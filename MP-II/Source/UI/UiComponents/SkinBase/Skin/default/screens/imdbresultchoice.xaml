@@ -17,7 +17,7 @@
       <DockPanel DataContext="{Binding Source={StaticResource DataContext}}"
           Margin="10,0,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
         <Label Margin="60,0,0,0" DockPanel.Dock="Top" Font="font13" Content="{Binding ImdbMovietile}" Height="50"/>
-        <ListView x:Name="MovieMenu" Height="300" Width="600" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding ImdbResultMovies}">
+        <ListView x:Name="MovieMenu" Height="300" Width="600" Style="{ThemeResource MenuListViewStyle}" ItemsSource="{Binding ImdbResultMovies}">
           <ListView.Resources>
             <ResourceWrapper x:Key="Menu_Command" Resource="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>

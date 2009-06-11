@@ -17,19 +17,19 @@
       <StackPanel Margin="10,0,0,0" Width="500" VerticalAlignment="Top" HorizontalAlignment="Left"
           DataContext="{Binding Source={StaticResource DataContext}}">
 		  
-		<ListView Name="mainMenu"  Height="300" Width="400" Style="{StaticResource MenuListViewStyle}" ItemsSource="{Binding SetupLocations}" >
+		<ListView Name="mainMenu"  Height="300" Width="400" Style="{ThemeResource MenuListViewStyle}" ItemsSource="{Binding SetupLocations}" >
         </ListView>
 		
         <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-		  <Button  Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.add]"
+		  <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.add]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherSearch}"/>
-    	  <Button Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.remove]"
+    	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.remove]"
               Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogWeatherRemoveCity}"/>
         </StackPanel>
 		<StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-    	  <Button Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.cancel]"
+    	  <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.cancel]"
               Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
-		   <Button Margin="5" Style="{StaticResource ButtonWideStyle}" Content="[system.done]">
+		   <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.done]">
 		     <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings"/>

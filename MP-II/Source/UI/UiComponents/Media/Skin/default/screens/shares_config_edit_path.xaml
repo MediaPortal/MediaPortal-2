@@ -30,9 +30,9 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.EditMediaProviderPathForShare]" Wrap="True"/>
-        <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{StaticResource TextBoxStyle}"
+        <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{ThemeResource TextBoxStyle}"
             Text="{Binding Path=MediaProviderPath,Mode=TwoWay}" PreferredTextLength="40"/>
-        <Label Grid.Row="3" Content="[SharesConfig.MediaProviderPathIsNotValid]" Color="{StaticResource ErrorTextColor}" Wrap="True"
+        <Label Grid.Row="3" Content="[SharesConfig.MediaProviderPathIsNotValid]" Color="{ThemeResource ErrorTextColor}" Wrap="True"
             IsVisible="{Binding !IsMediaProviderPathValid}"/>
         <Grid Grid.Row="5" Margin="10,10,10,0">
           <Grid.RowDefinitions>
@@ -43,10 +43,10 @@
             <ColumnDefinition Width="10"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="BackButton" Grid.Column="0" Style="{StaticResource WizardButtonStyle}"
+          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Style="{StaticResource WizardButtonStyle}"
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding IsMediaProviderPathValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>

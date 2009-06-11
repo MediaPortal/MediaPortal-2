@@ -17,17 +17,17 @@
       <DockPanel DataContext="{Binding Source={StaticResource DataContext}}">
         <Label Margin="60,0,0,0" Font="font13" Content="[settings.speakersetup]" Width="500" Height="32" DockPanel.Dock="Top"/>
         <StackPanel Margin="60,0,0,0" Width="280" DockPanel.Dock="Left"  VerticalAlignment="Top" HorizontalAlignment="Left" >
-          <CheckBox  x:Name="mainMenu" Style="{StaticResource RadioButtonLeftStyle}" Height="32" IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsAnalog}">
+          <CheckBox  x:Name="mainMenu" Style="{ThemeResource RadioButtonLeftStyle}" Height="32" IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsAnalog}">
             <Label Font="font13" Content="[settings.analog]" />
           </CheckBox>
-          <CheckBox  Style="{StaticResource RadioButtonLeftStyle}" Height="32" IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsDigital}">
+          <CheckBox  Style="{ThemeResource RadioButtonLeftStyle}" Height="32" IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsDigital}">
             <Label Font="font13" Content="[settings.digital]"  />
           </CheckBox>
-          <CheckBox  Style="{StaticResource RadioButtonLeftStyle}" Height="32" IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsBuildIn}">
+          <CheckBox  Style="{ThemeResource RadioButtonLeftStyle}" Height="32" IsChecked="{Binding Mode=TwoWay,Path=Players.Settings.IsBuildIn}">
             <Label Font="font13" Content="[settings.buildin]"  />
           </CheckBox>
         </StackPanel>
-        <Button Style="{StaticResource ButtonWideStyle}"  Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=settingsAudioSetup2}">
+        <Button Style="{ThemeResource ButtonWideStyle}"  Width="160" Height="32" Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=settingsAudioSetup2}">
           <Label Font="font13" Content="[settings.next]" Height="32" />
         </Button>
       </DockPanel>
