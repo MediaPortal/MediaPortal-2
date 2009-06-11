@@ -588,6 +588,7 @@ namespace Ui.Players.Video
           _evr = null;
 
           if (_allocatorKey >= 0)
+            // FIXME: From time to time, our DShowHelper crashes here
             EvrDeinit(_allocatorKey);
 
           _allocatorKey = -1;
