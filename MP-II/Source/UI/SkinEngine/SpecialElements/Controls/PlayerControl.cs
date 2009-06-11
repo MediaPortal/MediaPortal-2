@@ -237,6 +237,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
         {
            PlayerManagerMessaging.CHANNEL,
            PlayerContextManagerMessaging.CHANNEL,
+           SystemMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -262,6 +263,16 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       }
       else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
         UpdateProperties();
+      else if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+          if (sss.CurrentState == SystemState.ShuttingDown)
+            UnsubscribeFromMessages();
+        }
+      }
     }
 
     protected IPlayerContext GetPlayerContext()
