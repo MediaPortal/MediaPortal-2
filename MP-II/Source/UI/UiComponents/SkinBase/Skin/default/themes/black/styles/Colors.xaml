@@ -124,8 +124,8 @@
   <!-- Black -->
   <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF484848"/>
 
-  <!-- Dark red -->
-  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FFA50029"/>
+  <!-- Light blue with some green -->
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
 
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FFA0A0A0"/>
 
@@ -203,10 +203,12 @@
   <!-- Transparent white -->
   <ResourceWrapper x:Key="PipStrokeColor" Resource="#66FFFFFF"/>
 
-  <ResourceWrapper x:Key="DefaultPlayControlBorderColor" Resource="#FFFFFFFF"/>
-  <ResourceWrapper x:Key="DefaultPlayControlTitleColor" Resource="#FF999999"/>
-  <ResourceWrapper x:Key="DefaultPlayControlMediaItemColor" Resource="Yellow"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlBorderColor" Resource="#FF999999"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlTitleColor" Resource="#FF999999"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlMediaItemColor" Resource="Yellow"/>
   <ResourceWrapper x:Key="DefaultPlayerControlBackgroundColor" Resource="#60000000"/>
+  <ResourceWrapper x:Key="DefaultCurrentPlayerControlBorderColor" Resource="#FFDDDDDD"/>
+  <ResourceWrapper x:Key="DefaultCurrentPlayerControlTitleColor" Resource="#FFDDDDDD"/>
   <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor1" Resource="#60608020"/>
   <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor2" Resource="#6099CC33"/>
   <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor3" Resource="#60608020"/>

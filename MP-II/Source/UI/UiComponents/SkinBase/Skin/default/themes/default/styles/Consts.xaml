@@ -14,8 +14,8 @@
   <ResourceWrapper x:Key="GroupBoxBorderThickness" Resource="4"/>
   <ResourceWrapper x:Key="GroupBoxCornerRadius" Resource="8"/>
 
-  <ResourceWrapper x:Key="DefaultPlayControlBorderThickness" Resource="1"/>
-  <ResourceWrapper x:Key="DefaultPlayControlCornerRadius" Resource="4"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
+  <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
   <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="8"/>
   <ResourceWrapper x:Key="OSDPipStrokeThickness" Resource="1"/>

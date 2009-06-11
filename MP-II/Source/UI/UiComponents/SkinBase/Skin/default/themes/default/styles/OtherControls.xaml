@@ -591,13 +591,24 @@
   <!-- ****************************** PlayerControl ********************************** -->
 
   <Style x:Key="PlayerControlGroupBoxStyle" BasedOn="{StaticResource GroupBoxStyle}">
-    <Setter Property="BorderBrush" Value="{ThemeResource DefaultPlayControlBorderColor}"/>
-    <Setter Property="BorderThickness" Value="{ThemeResource DefaultPlayControlBorderThickness}"/>
-    <Setter Property="CornerRadius" Value="{ThemeResource DefaultPlayControlCornerRadius}"/>
+    <Setter Property="BorderBrush">
+      <Setter.Value>
+        <SolidColorBrush Color="{ThemeResource DefaultPlayerControlBorderColor}"/>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="BorderThickness" Value="{ThemeResource DefaultPlayerControlBorderThickness}"/>
+    <Setter Property="CornerRadius" Value="{ThemeResource DefaultPlayerControlCornerRadius}"/>
+    <Setter Property="HeaderColor" Value="{ThemeResource DefaultPlayerControlTitleColor}"/>
   </Style>
 
   <Storyboard x:Key="DefaultCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="BorderBrush.Color">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBorderColor}"/>
+    </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="HeaderColor">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlTitleColor}"/>
+    </ColorAnimationUsingKeyFrames>
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="Shine" Storyboard.TargetProperty="Background.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource DefaultCurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
@@ -615,7 +626,7 @@
         <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
           <GroupBox x:Name="Shine" Style="{ThemeResource PlayerControlGroupBoxStyle}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Header="{Binding Title}" HeaderColor="{ThemeResource DefaultPlayControlTitleColor}">
+              Header="{Binding Title}">
             <GroupBox.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="{ThemeResource DefaultPlayerControlBackgroundColor}" Offset="0"/>
@@ -629,19 +640,19 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="*"/>
                   <ColumnDefinition Width="Auto"/>
-                  <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="0" Color="{ThemeResource DefaultPlayControlMediaItemColor}"
-                    Content="{Binding MediaItemTitle}"/>
-                <Grid Grid.Row="0" Grid.Column="1">
+                <Grid Grid.Row="0" Grid.Column="0">
                   <Control x:Name="StatePlay" IsVisible="{Binding IsPlaying}" Template="{ThemeResource PlayControlTemplate}"/>
                   <Control x:Name="StatePause" IsVisible="{Binding IsPaused}" Template="{ThemeResource PauseControlTemplate}"/>
                   <Control x:Name="StateForward" IsVisible="{Binding IsSeekingForward}" Template="{ThemeResource ForwardControlTemplate}"/>
                   <Control x:Name="StateRewind" IsVisible="{Binding IsSeekingBackward}" Template="{ThemeResource RewindControlTemplate}"/>
                   <Label x:Name="SeekHint" FontSize="10" Content="{Binding SeekHint}"/>
                 </Grid>
+                <Label x:Name="MediaItemTitle" Grid.Row="0" Grid.Column="1" Color="{ThemeResource DefaultPlayerControlMediaItemColor}"
+                    Content="{Binding MediaItemTitle}"/>
                 <Grid x:Name="AudioPanel" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center">
                   <Grid IsVisible="{Binding !ShowMouseControls}">
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"
