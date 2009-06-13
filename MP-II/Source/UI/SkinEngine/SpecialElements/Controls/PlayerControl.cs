@@ -204,7 +204,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     {
       base.Dispose();
       UnsubscribeFromMessages();
-      _timer.Enabled = false;
+      StopTimer();
     }
 
     #endregion
@@ -251,6 +251,16 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _messageQueue = null;
     }
 
+    protected void StartTimer()
+    {
+      _timer.Enabled = true;
+    }
+
+    protected void StopTimer()
+    {
+      _timer.Enabled = false;
+    }
+
     protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
@@ -271,6 +281,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
           ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
           if (sss.CurrentState == SystemState.ShuttingDown)
             UnsubscribeFromMessages();
+          StopTimer();
         }
       }
     }
@@ -486,13 +497,13 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
     public override void Allocate()
     {
       base.Allocate();
-      _timer.Enabled = true;
+      StartTimer();
     }
 
     public override void Deallocate()
     {
       base.Deallocate();
-      _timer.Enabled = false;
+      StopTimer();
     }
 
     #region Public menbers, to be accessed via the GUI
