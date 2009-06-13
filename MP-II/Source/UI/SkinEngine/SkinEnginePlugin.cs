@@ -143,11 +143,13 @@ namespace MediaPortal.SkinEngine
       logger.Debug("SkinEnginePlugin: Unregistering default key bindings");
       UnregisterGlobalKeyBindings();
 
-      logger.Debug("SkinEnginePlugin: Closing all open screens");
-      _screenManager.InternalCloseCurrentScreenAndDialogs(true);
-
       logger.Debug("SkinEnginePlugin: Uninstalling background manager");
       _screenManager.UninstallBackgroundManager();
+
+      _mainForm.StopRenderThread();
+      _screenManager.Shutdown();
+
+      ContentManager.Uninitialize();
 
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");
       ServiceScope.Remove<ISkinResourceManager>();
@@ -160,11 +162,6 @@ namespace MediaPortal.SkinEngine
 
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing IGeometryManager service");
       ServiceScope.Remove<IGeometryManager>();
-
-      _mainForm.StopRenderThread();
-      _screenManager.Shutdown();
-
-      ContentManager.Uninitialize();
     }
 
     public void Dispose()

@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Presentation.Localization;
 using MediaPortal.Presentation.Screens;
@@ -191,11 +193,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     protected readonly BackgroundData _backgroundData;
     protected readonly Stack<Screen> _dialogStack = new Stack<Screen>();
     protected Screen _currentScreen = null;
+    protected ICollection<Screen> _screensToHide = new List<Screen>();
 
     protected bool _backgroundDisabled = false;
 
     protected Skin _skin = null;
     protected Theme _theme = null;
+
+    protected AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
@@ -212,10 +217,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         skinName = SkinManager.DEFAULT_SKIN;
         themeName = null;
       }
+      SubscribeToMessages();
 
       // Prepare the skin and theme - the theme will be activated in method MainForm_Load
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Loading skin '{0}', theme '{1}'", skinName, themeName);
-      PrepareSkinAndTheme_NeedLock(skinName, themeName);
+      PrepareSkinAndTheme_NeedLocks(skinName, themeName);
 
       // Update the settings with our current skin/theme values
       if (screenSettings.Skin != SkinName || screenSettings.Theme != ThemeName)
@@ -226,23 +232,32 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       }
     }
 
-    /// <summary>
-    /// Disposes all resources which were allocated by the screen manager.
-    /// </summary>
-    public void Shutdown()
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      InternalCloseCurrentScreenAndDialogs(true);
-      _skinManager.Dispose();
+      if (message.ChannelName == ScreenManagerMessaging.CHANNEL)
+      {
+        ScreenManagerMessaging.MessageType messageType = (ScreenManagerMessaging.MessageType) message.MessageType;
+        if (messageType == ScreenManagerMessaging.MessageType.InternalHideScreens)
+          InternalHidePendingScreens_NoLock();
+      }
     }
 
-    public ISkinResourceManager SkinResourceManager
+    void SubscribeToMessages()
     {
-      get { return _skinManager; }
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+          ScreenManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
-    public object SyncRoot
+    void UnsubscribeFromMessages()
     {
-      get { return _syncData; }
+      if (_messageQueue == null)
+        return;
+      _messageQueue.Shutdown();
+      _messageQueue = null;
     }
 
     /// <summary>
@@ -251,10 +266,14 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     /// After calling this method, the <see cref="SkinContext.SkinResources"/>
     /// contents can be requested.
     /// </summary>
+    /// <remarks>
+    /// Both the <see cref="_syncRender"/> and the <see cref="_syncData"/> locks need to be held when
+    /// this method is called.
+    /// </remarks>
     /// <param name="skinName">The name of the skin to be prepared.</param>
     /// <param name="themeName">The name of the theme for the specified skin to be prepared,
     /// or <c>null</c> for the default theme of the skin.</param>
-    protected void PrepareSkinAndTheme_NeedLock(string skinName, string themeName)
+    protected void PrepareSkinAndTheme_NeedLocks(string skinName, string themeName)
     {
       // Release old resources
       _skinManager.ReleaseSkinResources();
@@ -297,7 +316,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _theme = theme;
     }
 
-    protected internal bool InternalShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
+    protected internal bool InternalShowDialog_NoLock(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       Screen newDialog = GetScreen(dialogName);
       if (newDialog == null)
@@ -350,8 +369,20 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         else
           _dialogStack.Peek().AttachInput();
       }
-      // Don't hold the lock while hiding the dialog
-      oldDialog.Hide();
+      InternalAsyncHideScreen(oldDialog);
+    }
+
+    protected internal void InternalCloseDialogs()
+    {
+      while (true)
+      {
+        lock (_syncData)
+        {
+          if (_dialogStack.Count == 0)
+            break;
+          InternalCloseDialog();
+        }
+      }
     }
 
     protected internal void InternalCloseScreen()
@@ -367,32 +398,69 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         screen.ScreenState = Screen.State.Closing;
         screen.DetachInput();
       }
-      // Don't hold the lock while hiding the screen
-      screen.Hide();
+      InternalAsyncHideScreen(screen);
     }
 
     protected internal void InternalCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)
     {
       if (closeBackgroundLayer)
         _backgroundData.Unload();
-      while (true)
-      {
-        lock (_syncData)
-          if (_dialogStack.Count == 0)
-            break;
-        InternalCloseDialog();
-      }
+      InternalCloseDialogs();
       InternalCloseScreen();
     }
 
-    protected internal void InternalShowScreen(Screen screen)
+    protected internal void InternalExchangeScreen(Screen screen)
     {
       screen.Prepare();
       lock (_syncData)
+      {
+        InternalCloseScreen();
         _currentScreen = screen;
+      }
       screen.ScreenState = Screen.State.Running;
       screen.AttachInput();
       screen.Show();
+    }
+
+    /// <summary>
+    /// Hides all screens which are pending to be hidden.
+    /// </summary>
+    protected internal void InternalHidePendingScreens_NoLock()
+    {
+      ICollection<Screen> hideScreens;
+      lock (_syncData)
+      {
+        hideScreens = _screensToHide;
+        _screensToHide = new List<Screen>();
+      }
+      // Don't hold any lock here as this might deadlock with actions in the Screen.Hide() method
+      foreach (Screen screen in hideScreens)
+        screen.Hide();
+      lock (_syncData)
+        Monitor.PulseAll(_syncData);
+    }
+
+    /// <summary>
+    /// Decouples hiding of the specified <see cref="screen"/> from the current thread.
+    /// This method can be called while holding locks.
+    /// </summary>
+    /// <param name="screen">Screen to hide asynchronously.</param>
+    protected internal void InternalAsyncHideScreen(Screen screen)
+    {
+      lock (_syncData)
+        _screensToHide.Add(screen);
+      ScreenManagerMessaging.InternalSendHideScreensMessage();
+    }
+
+    /// <summary>
+    /// Waits until all screens pending to be hidden are hidden.
+    /// </summary>
+    protected internal void WaitForScreensToHide()
+    {
+      lock (_syncData)
+        if (_screensToHide.Count > 0)
+          // Wait until all outstanding screens have been hidden asynchronously
+          Monitor.Wait(_syncData);
     }
 
     protected IList<Screen> GetAllScreens()
@@ -445,6 +513,30 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Disposes all resources which were allocated by the screen manager.
+    /// </summary>
+    public void Shutdown()
+    {
+      lock (_syncData)
+      {
+        UnsubscribeFromMessages();
+        InternalCloseCurrentScreenAndDialogs(true);
+        InternalHidePendingScreens_NoLock(); // We'll do that synchronously here, because the message queue is already shut down and its safe to do it here
+      }
+      _skinManager.Dispose();
+    }
+
+    public ISkinResourceManager SkinResourceManager
+    {
+      get { return _skinManager; }
+    }
+
+    public object SyncRoot
+    {
+      get { return _syncData; }
+    }
+
+    /// <summary>
     /// Renders the current screens (background, main and dialogs).
     /// </summary>
     public void Render()
@@ -494,14 +586,16 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           // FIXME Albert78: Find a better way to make ContentManager observe the current skin
           ContentManager.Clear();
 
-          PrepareSkinAndTheme_NeedLock(newSkinName, newThemeName);
+          WaitForScreensToHide();
+
+          PrepareSkinAndTheme_NeedLocks(newSkinName, newThemeName);
           PlayersHelper.ReallocGUIResources();
 
           if (!InstallBackgroundManager())
             _backgroundData.Load(currentBackgroundName);
 
           Screen screen = GetScreen(currentScreenName);
-          InternalShowScreen(screen);
+          InternalExchangeScreen(screen);
         }
       SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
       settings.Skin = SkinName;
@@ -709,9 +803,12 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           // Error message was shown in GetScreen()
         return false;
 
-      InternalCloseCurrentScreenAndDialogs(false);
-
-      InternalShowScreen(newScreen);
+      InternalCloseDialog();
+      lock (_syncRender)
+      {
+        InternalCloseDialogs();
+        InternalExchangeScreen(newScreen);
+      }
       return true;
     }
 
@@ -723,7 +820,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public bool ShowDialog(string dialogName, DialogCloseCallbackDlgt dialogCloseCallback)
     {
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Showing dialog '{0}'...", dialogName);
-      return InternalShowDialog(dialogName, dialogCloseCallback);
+      return InternalShowDialog_NoLock(dialogName, dialogCloseCallback);
     }
 
     public bool SetBackgroundLayer(string backgroundName)
@@ -773,11 +870,11 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       if (screen == null)
           // Error message was shown in GetScreen()
         return;
-      InternalShowScreen(screen);
+      InternalExchangeScreen(screen);
 
       // Reload dialogs
       foreach (string dialogName in dialogNamesReverse)
-        InternalShowDialog(dialogName, null);
+        InternalShowDialog_NoLock(dialogName, null);
     }
 
     #endregion
