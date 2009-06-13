@@ -25,14 +25,13 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 

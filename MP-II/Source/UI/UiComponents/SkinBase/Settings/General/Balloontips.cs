@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.SystemAPI;

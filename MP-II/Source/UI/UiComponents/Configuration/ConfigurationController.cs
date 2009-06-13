@@ -23,8 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.Configuration;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.Configuration;
+using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
 
 namespace UiComponents.Configuration
 {

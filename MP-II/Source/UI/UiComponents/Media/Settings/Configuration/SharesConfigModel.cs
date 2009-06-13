@@ -31,7 +31,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;

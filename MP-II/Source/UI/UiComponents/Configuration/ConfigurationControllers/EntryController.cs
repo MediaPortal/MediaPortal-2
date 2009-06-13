@@ -23,8 +23,8 @@
 #endregion
 
 using System;
-using MediaPortal.Configuration.ConfigurationClasses;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
+using MediaPortal.Core.General;
 
 namespace UiComponents.Configuration.ConfigurationControllers
 {

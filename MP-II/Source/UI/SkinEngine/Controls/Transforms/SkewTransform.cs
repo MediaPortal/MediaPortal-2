@@ -21,8 +21,9 @@
 */
 
 #endregion
+
 using System;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 

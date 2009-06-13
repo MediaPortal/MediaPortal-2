@@ -24,9 +24,7 @@
 
 using System;
 using System.Drawing;
-using System.Diagnostics;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;

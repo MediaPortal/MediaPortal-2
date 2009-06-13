@@ -24,20 +24,18 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Configuration;
+using MediaPortal.Core.Localization;
 
 namespace MediaPortal.Configuration.ConfigurationManagement
 {
-
   /// <summary>
   /// Matches <see cref="ConfigBase"/> instances with a text value. This can be used to find a
   /// configuration object by a given search text.
   /// </summary>
   public class ConfigObjectSearchMatcher
   {
-
     #region Protected fields
 
     protected readonly string _searchText;

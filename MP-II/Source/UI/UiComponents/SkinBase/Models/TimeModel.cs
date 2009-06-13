@@ -25,10 +25,10 @@
 using System;
 using System.Globalization;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Models;
 using UiComponents.SkinBase.Settings;
 

@@ -23,8 +23,7 @@
 #endregion
 
 using System.Collections;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;

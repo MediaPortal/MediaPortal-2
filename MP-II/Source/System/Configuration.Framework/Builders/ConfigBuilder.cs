@@ -24,8 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Configuration;
 
 namespace MediaPortal.Configuration.Builders
 {
@@ -37,7 +37,7 @@ namespace MediaPortal.Configuration.Builders
     #region Protected methods
 
     protected static ConfigSectionMetadata BuildSection(
-        PluginItemMetadata itemData, PluginRuntime plugin)
+      PluginItemMetadata itemData, PluginRuntime plugin)
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
@@ -63,12 +63,12 @@ namespace MediaPortal.Configuration.Builders
       if (text == null)
         throw new ArgumentException("'ConfigSection' item needs an attribute 'Text'");
       return new ConfigSectionMetadata(location, text,
-          plugin.Metadata.GetAbsolutePath(iconSmallPath),
-          plugin.Metadata.GetAbsolutePath(iconLargePath));
+                                       plugin.Metadata.GetAbsolutePath(iconSmallPath),
+                                       plugin.Metadata.GetAbsolutePath(iconLargePath));
     }
 
     protected static ConfigGroupMetadata BuildGroup(
-        PluginItemMetadata itemData, PluginRuntime plugin)
+      PluginItemMetadata itemData, PluginRuntime plugin)
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
@@ -89,7 +89,7 @@ namespace MediaPortal.Configuration.Builders
     }
 
     protected static ConfigSettingMetadata BuildSetting(
-        PluginItemMetadata itemData, PluginRuntime plugin)
+      PluginItemMetadata itemData, PluginRuntime plugin)
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
@@ -122,7 +122,7 @@ namespace MediaPortal.Configuration.Builders
     }
 
     protected static ConfigSettingMetadata BuildCustomSetting(
-        PluginItemMetadata itemData, PluginRuntime plugin)
+      PluginItemMetadata itemData, PluginRuntime plugin)
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
@@ -168,7 +168,7 @@ namespace MediaPortal.Configuration.Builders
     protected static ICollection<string> ParseListenTo(string listenTo)
     {
       return listenTo == null ? null : new List<string>(
-        listenTo.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+                                         listenTo.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
     }
 
     protected static IDictionary<string, string> ParseAdditionalData(string additionalData)
@@ -227,7 +227,7 @@ namespace MediaPortal.Configuration.Builders
           return BuildCustomSetting(itemData, plugin);
       }
       throw new ArgumentException(string.Format("{0} builder cannot build setting of type '{1}'",
-          typeof(ConfigBuilder).Name, itemData.BuilderName));
+                                                typeof(ConfigBuilder).Name, itemData.BuilderName));
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)

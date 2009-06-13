@@ -24,8 +24,7 @@
 
 using System;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.DirectX.Triangulate;

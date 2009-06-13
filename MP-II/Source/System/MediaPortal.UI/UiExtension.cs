@@ -25,7 +25,7 @@
 using MediaPortal.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.Services.Localization;

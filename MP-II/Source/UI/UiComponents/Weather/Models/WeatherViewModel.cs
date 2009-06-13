@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.DataObjects;

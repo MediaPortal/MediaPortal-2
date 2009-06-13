@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 
 namespace MediaPortal.SkinEngine.Controls.Panels
 {

@@ -24,12 +24,11 @@
 
 using System.Drawing;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Geometries;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine;
 using MediaPortal.SkinEngine.DirectX;
 using MediaPortal.SkinEngine.Players;
 using SlimDX.Direct3D9;

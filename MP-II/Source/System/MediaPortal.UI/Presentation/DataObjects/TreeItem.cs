@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Presentation.DataObjects

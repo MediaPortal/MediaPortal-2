@@ -30,7 +30,7 @@ using System.Net;
 using System.Text;
 using System.Xml;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 

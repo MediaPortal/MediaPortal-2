@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.DirectX.Triangulate;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;

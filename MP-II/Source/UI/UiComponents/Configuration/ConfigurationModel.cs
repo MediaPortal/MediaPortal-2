@@ -24,13 +24,14 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Configuration;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
+using MediaPortal.Core.General;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Workflow;
 using UiComponents.Configuration.ConfigurationControllers;

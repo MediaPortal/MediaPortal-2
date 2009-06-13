@@ -24,7 +24,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.SkinResources;

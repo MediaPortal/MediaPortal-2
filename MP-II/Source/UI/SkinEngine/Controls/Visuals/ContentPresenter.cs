@@ -24,10 +24,10 @@
 
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.SkinEngine.SkinManagement;
 

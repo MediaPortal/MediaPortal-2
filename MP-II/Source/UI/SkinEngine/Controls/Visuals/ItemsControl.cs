@@ -26,7 +26,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.SkinEngine.Controls.Panels;

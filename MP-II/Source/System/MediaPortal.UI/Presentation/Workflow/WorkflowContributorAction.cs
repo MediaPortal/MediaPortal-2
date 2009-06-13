@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.Localization;
 
 namespace MediaPortal.Presentation.Workflow
 {

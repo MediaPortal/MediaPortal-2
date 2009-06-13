@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Registry;
 using MediaPortal.Utilities;
-
 
 namespace MediaPortal.Configuration.ConfigurationManagement
 {
@@ -110,7 +110,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
       foreach (PluginItemMetadata item in items)
       {
         ConfigBaseMetadata metadata = pluginManager.RequestPluginItem<ConfigBaseMetadata>(
-            item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
+          item.RegistrationLocation, item.Id, _childPluginItemStateTracker);
         ConfigBase childObj = Instantiate(metadata, item.PluginRuntime);
         if (childObj == null)
           continue;
@@ -124,7 +124,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
         if (childSet.ContainsKey(childId))
           continue;
         logger.Warn("Configuration: Configuration section '{0}' was found in the tree but not explicitly registered as section (config items in this section are registered by those plugins: {1})",
-            childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
+                    childLocation, StringUtils.Join(", ", FindPluginRegistrations(childLocation)));
         ConfigSectionMetadata dummyMetadata = new ConfigSectionMetadata(childLocation, Constants.INVALID_SECTION_TEXT, null, null);
         ConfigSection dummySection = new ConfigSection();
         dummySection.SetMetadata(dummyMetadata);
@@ -182,7 +182,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
                   cs.ListenTo((ConfigSetting) node.ConfigObj);
                 else
                   ServiceScope.Get<ILogger>().Warn("ConfigurationNode '{0}': Trying to listen to setting, but location '{1}' references a {2}",
-                    Location, listenToLocation, node.ConfigObj.GetType().Name);
+                                                   Location, listenToLocation, node.ConfigObj.GetType().Name);
             }
           result = cs;
         }

@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.Utilities;
 using SlimDX;
 using MediaPortal.SkinEngine.Controls.Visuals;

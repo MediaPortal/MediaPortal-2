@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Settings;
 
@@ -67,7 +68,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     /// <param name="bestScore">Score of the best match.</param>
     /// <returns>Enumeration of matching configuration nodes.</returns>
     protected static ICollection<IConfigurationNode> Search(IConfigurationNode startNode, ConfigObjectSearchMatcher searchMatcher,
-        out IConfigurationNode bestMatch, out float bestScore)
+                                                            out IConfigurationNode bestMatch, out float bestScore)
     {
       bestMatch = null;
       List<IConfigurationNode> result = new List<IConfigurationNode>();

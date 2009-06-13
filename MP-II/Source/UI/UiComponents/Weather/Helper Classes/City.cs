@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 
 namespace UiComponents.Weather
 {

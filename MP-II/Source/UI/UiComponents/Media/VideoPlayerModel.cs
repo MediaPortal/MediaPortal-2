@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;

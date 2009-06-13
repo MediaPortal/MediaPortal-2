@@ -28,7 +28,7 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace UiComponents.SkinBase.Settings.General

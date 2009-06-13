@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 using DirectShowLib;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.SkinEngine.Effects;
 using Ui.Players.Video.Subtitles;
 

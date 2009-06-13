@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.UserManagement;
 

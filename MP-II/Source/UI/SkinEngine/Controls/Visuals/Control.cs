@@ -23,9 +23,8 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.SkinEngine;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.SkinEngine.Controls.Brushes;

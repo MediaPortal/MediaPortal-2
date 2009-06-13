@@ -23,12 +23,10 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.MpfElements;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
-using MediaPortal.SkinEngine;
 
 namespace MediaPortal.SkinEngine.Controls.Transforms
 {

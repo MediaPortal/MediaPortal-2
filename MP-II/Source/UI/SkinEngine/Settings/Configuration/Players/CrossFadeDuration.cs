@@ -23,7 +23,7 @@
 
 #endregion
 
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Services.Players.Settings;
 
 namespace MediaPortal.SkinEngine.Settings.Configuration.Players

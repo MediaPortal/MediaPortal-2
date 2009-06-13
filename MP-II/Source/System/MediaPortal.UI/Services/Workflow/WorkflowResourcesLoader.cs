@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.Utilities;

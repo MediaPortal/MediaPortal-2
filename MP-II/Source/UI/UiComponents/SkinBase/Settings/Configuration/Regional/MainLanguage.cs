@@ -26,9 +26,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localization;
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Localization;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 
 namespace UiComponents.SkinBase.Settings.Configuration.Regional
 {

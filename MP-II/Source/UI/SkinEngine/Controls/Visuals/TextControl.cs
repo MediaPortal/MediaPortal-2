@@ -23,10 +23,9 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.Control.InputManager;
 using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Brushes;
 using SlimDX;
 using Font = MediaPortal.SkinEngine.Fonts.Font;
 using FontRender = MediaPortal.SkinEngine.ContentManagement.FontRender;

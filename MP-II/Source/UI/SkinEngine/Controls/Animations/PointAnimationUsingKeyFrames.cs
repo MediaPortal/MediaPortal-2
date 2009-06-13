@@ -23,7 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.SkinEngine.Xaml.Interfaces;

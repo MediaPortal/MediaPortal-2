@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Core.General;
 using MediaPortal.Presentation.DataObjects;
 using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;

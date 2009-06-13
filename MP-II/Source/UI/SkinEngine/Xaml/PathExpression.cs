@@ -28,8 +28,8 @@ using System.Collections;
 using System.Text;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
 using MediaPortal.SkinEngine.Xaml.Interfaces;
 

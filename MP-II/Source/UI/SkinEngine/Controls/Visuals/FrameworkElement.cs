@@ -26,7 +26,7 @@ using System;
 using System.Drawing;
 using System.Collections.Generic;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Fonts;

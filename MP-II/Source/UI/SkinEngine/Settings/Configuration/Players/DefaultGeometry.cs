@@ -25,10 +25,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Geometries;
-using MediaPortal.Presentation.Localization;
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Localization;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 
 namespace MediaPortal.SkinEngine.Settings.Configuration.Players
 {

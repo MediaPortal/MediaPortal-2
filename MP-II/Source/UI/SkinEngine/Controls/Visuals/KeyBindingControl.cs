@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 

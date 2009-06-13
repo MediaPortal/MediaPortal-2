@@ -23,7 +23,7 @@
 
 #endregion
 
-using MediaPortal.Configuration;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.SkinEngine.SkinManagement;
 using UiComponents.Configuration.ConfigurationControllers;

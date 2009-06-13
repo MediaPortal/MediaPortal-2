@@ -23,8 +23,7 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.SkinEngine.Controls.Brushes;
+using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.SkinEngine.Controls.Visuals

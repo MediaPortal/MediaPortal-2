@@ -25,8 +25,8 @@
 using System;
 using System.Drawing;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 

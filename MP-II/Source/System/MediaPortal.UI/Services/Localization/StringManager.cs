@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Services.PluginManager;
-using MediaPortal.Presentation.Localization;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;

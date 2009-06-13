@@ -28,7 +28,7 @@ using System.ComponentModel;
 using System.Globalization;
 using MediaPortal.Control.InputManager;
 using MediaPortal.Core.Commands;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.Localization;
 using MediaPortal.SkinEngine.Commands;
 using MediaPortal.SkinEngine.Controls.Animations;
 using MediaPortal.SkinEngine.Controls.Brushes;

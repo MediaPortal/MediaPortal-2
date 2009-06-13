@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Configuration;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Core;
 using MediaPortal.Presentation.Screens;
 

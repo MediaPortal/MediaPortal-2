@@ -24,7 +24,7 @@
 
 using System;
 using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 

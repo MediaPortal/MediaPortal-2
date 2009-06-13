@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Configuration.ConfigurationClasses;
+using MediaPortal.Core.Configuration.ConfigurationClasses;
 
 namespace UiComponents.SkinBase.Settings.Configuration.Appearance.Skin
 {

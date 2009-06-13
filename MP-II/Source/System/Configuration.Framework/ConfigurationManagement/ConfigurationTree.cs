@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Core.Configuration;
 using MediaPortal.Core.Registry;
 
 namespace MediaPortal.Configuration.ConfigurationManagement
