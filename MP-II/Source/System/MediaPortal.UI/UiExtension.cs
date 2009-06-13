@@ -98,8 +98,7 @@ namespace MediaPortal
     }
 
     /// <summary>
-    /// Registers default command shortcuts at the workflow manager. This must be done AFTER the workflow manager
-    /// switched to its initial state.
+    /// Registers default command shortcuts at the input manager.
     /// </summary>
     public static void RegisterDefaultCommandShortcuts()
     {

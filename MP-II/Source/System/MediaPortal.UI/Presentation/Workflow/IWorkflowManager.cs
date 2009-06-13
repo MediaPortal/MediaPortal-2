@@ -161,7 +161,5 @@ namespace MediaPortal.Presentation.Workflow
     /// states.
     /// </summary>
     void FlushModelCache();
-
-    // TODO: State and model context listeners
   }
 }

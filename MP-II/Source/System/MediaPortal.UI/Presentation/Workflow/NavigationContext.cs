@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Presentation.Models;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Presentation.Workflow
 {
