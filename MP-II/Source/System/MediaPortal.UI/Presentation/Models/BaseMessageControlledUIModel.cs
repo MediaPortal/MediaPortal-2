@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Presentation.Models
@@ -32,7 +31,7 @@ namespace MediaPortal.Presentation.Models
   /// Base class for UI models which are registered to messages from the system.
   /// This class provides virtual initialization and disposal methods for system message queue registrations.
   /// </summary>
-  public abstract class BaseMessageControlledUIModel : IDisposable
+  public abstract class BaseMessageControlledUIModel
   {
     protected AsynchronousMessageQueue _messageQueue;
 
@@ -45,53 +44,12 @@ namespace MediaPortal.Presentation.Models
     }
 
     /// <summary>
-    /// Stops the timer and unsubscribes from messages.
-    /// </summary>
-    public virtual void Dispose()
-    {
-      UnsubscribeFromMessages();
-    }
-
-    /// <summary>
     /// Initializes message queue registrations.
     /// </summary>
     void SubscribeToMessages()
     {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           SystemMessaging.CHANNEL
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue = new AsynchronousMessageQueue(this, new string[] {});
       _messageQueue.Start();
-    }
-
-    /// <summary>
-    /// Removes message queue registrations.
-    /// </summary>
-    void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
-    {
-      if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
-        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-          switch (state)
-          {
-            case SystemState.ShuttingDown:
-              Dispose();
-              break;
-          }
-        }
-      }
     }
 
     /// <summary>

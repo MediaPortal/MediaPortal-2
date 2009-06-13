@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Timers;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
@@ -33,7 +34,7 @@ namespace MediaPortal.Presentation.Models
   /// virtual <see cref="Update"/> method which will be called automatically in a configurable interval.
   /// This class provides initialization and virtual disposal methods for the timer and for system message queue registrations.
   /// </summary>
-  public abstract class BaseTimerControlledUIModel : BaseMessageControlledUIModel
+  public abstract class BaseTimerControlledUIModel : BaseMessageControlledUIModel, IDisposable
   {
     protected Timer _timer = null;
 
@@ -70,10 +71,9 @@ namespace MediaPortal.Presentation.Models
     /// <summary>
     /// Stops the timer and unsubscribes from messages.
     /// </summary>
-    public override void Dispose()
+    public virtual void Dispose()
     {
       StopTimer();
-      base.Dispose();
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ namespace MediaPortal.Presentation.Models
     /// <summary>
     /// Disables the timer.
     /// </summary>
-    protected virtual void StopTimer()
+    protected void StopTimer()
     {
       if (!_timer.Enabled)
         return;
@@ -111,6 +111,9 @@ namespace MediaPortal.Presentation.Models
           {
             case SystemState.Started:
               StartTimer();
+              break;
+            case SystemState.ShuttingDown:
+              StopTimer();
               break;
           }
         }
