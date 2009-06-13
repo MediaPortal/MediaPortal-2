@@ -29,7 +29,6 @@ using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
 
 namespace UiComponents.SkinBase.Models
 {
@@ -59,6 +58,7 @@ namespace UiComponents.SkinBase.Models
       _isMutedProperty = new Property(typeof(bool), false);
 
       SubscribeToMessages();
+      Update();
     }
 
     void SubscribeToMessages()

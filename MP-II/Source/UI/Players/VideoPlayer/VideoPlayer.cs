@@ -1126,6 +1126,7 @@ namespace Ui.Players.Video
           else
             mc.Run();
         }
+        _evrCallback.VideoSizePresent += OnVideoSizePresent;
         _initialized = true;
       }
     }
