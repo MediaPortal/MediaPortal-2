@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
