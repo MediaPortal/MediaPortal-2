@@ -145,10 +145,10 @@ namespace MediaPortal.SkinEngine.MpfElements
       objectClassRegistrations.Add("Style", typeof(SkinEngine.Controls.Visuals.Styles.Style));
       objectClassRegistrations.Add("Setter", typeof(SkinEngine.Controls.Visuals.Styles.Setter));
       objectClassRegistrations.Add("BindingSetter", typeof(SkinEngine.Controls.Visuals.Styles.BindingSetter));
-      objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.DataTemplate));
-      objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.HierarchicalDataTemplate));
       objectClassRegistrations.Add("ControlTemplate", typeof(SkinEngine.Controls.Visuals.Templates.ControlTemplate));
       objectClassRegistrations.Add("ItemsPanelTemplate", typeof(SkinEngine.Controls.Visuals.ItemsPanelTemplate));
+      objectClassRegistrations.Add("DataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.DataTemplate));
+      objectClassRegistrations.Add("HierarchicalDataTemplate", typeof(SkinEngine.Controls.Visuals.Templates.HierarchicalDataTemplate));
 
       // Resources/wrapper classes
       objectClassRegistrations.Add("ResourceDictionary", typeof(SkinEngine.MpfElements.Resources.ResourceDictionary));

@@ -182,7 +182,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public ItemsPanelTemplate ItemsPanel
     {
-      get { return _itemsPanelProperty.GetValue() as ItemsPanelTemplate; }
+      get { return (ItemsPanelTemplate) _itemsPanelProperty.GetValue(); }
       set { _itemsPanelProperty.SetValue(value); }
     }
 
@@ -210,7 +210,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public Style ItemContainerStyle
     {
-      get { return _itemContainerStyleProperty.GetValue() as Style; }
+      get { return (Style) _itemContainerStyleProperty.GetValue(); }
       set { _itemContainerStyleProperty.SetValue(value); }
     }
 
@@ -225,7 +225,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     /// </summary>
     public DataTemplate ItemTemplate
     {
-      get { return _itemTemplateProperty.GetValue() as DataTemplate; }
+      get { return (DataTemplate) _itemTemplateProperty.GetValue(); }
       set { _itemTemplateProperty.SetValue(value); }
     }
 
@@ -337,7 +337,6 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
         UIElement container = PrepareItemContainer(enumer.Current);
         children.Add(container);
       }
-      children.SetParent(_itemsHostPanel);
       _itemsHostPanel.SetChildren(children);
       _itemsHostPanel.Invalidate();
 

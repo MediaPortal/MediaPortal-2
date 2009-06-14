@@ -177,14 +177,14 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       get
       {
-        return _childrenProperty == null ? null :
-          _childrenProperty.GetValue() as UIElementCollection;
+        return (UIElementCollection) _childrenProperty.GetValue();
       }
     }
 
     public void SetChildren(UIElementCollection children)
     {
       _childrenProperty.SetValue(children);
+      children.SetParent(this);
       SetScreen(Screen);
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
