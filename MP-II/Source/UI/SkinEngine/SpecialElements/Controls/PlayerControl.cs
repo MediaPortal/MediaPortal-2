@@ -227,6 +227,10 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
+      lock (_timer)
+        if (!_timer.Enabled)
+          // Avoid calls after timer was stopped
+          return;
       CheckShowMouseControls();
       UpdateProperties();
     }
@@ -253,12 +257,14 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
 
     protected void StartTimer()
     {
-      _timer.Enabled = true;
+      lock (_timer)
+        _timer.Enabled = true;
     }
 
     protected void StopTimer()
     {
-      _timer.Enabled = false;
+      lock (_timer)
+        _timer.Enabled = false;
     }
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)

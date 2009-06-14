@@ -65,6 +65,10 @@ namespace MediaPortal.Presentation.Models
 
     protected void OnTimerElapsed(object sender, ElapsedEventArgs e)
     {
+      lock (_timer)
+        if (!_timer.Enabled)
+          // Avoid calls after timer was stopped
+          return;
       Update();
     }
 
@@ -81,11 +85,14 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     protected void StartTimer()
     {
-      if (_timer.Enabled)
-        return;
-      // Setup timer to update the properties
-      _timer.Elapsed += OnTimerElapsed;
-      _timer.Enabled = true;
+      lock (_timer)
+      {
+        if (_timer.Enabled)
+          return;
+        // Setup timer to update the properties
+        _timer.Elapsed += OnTimerElapsed;
+        _timer.Enabled = true;
+      }
     }
 
     /// <summary>
@@ -93,10 +100,13 @@ namespace MediaPortal.Presentation.Models
     /// </summary>
     protected void StopTimer()
     {
-      if (!_timer.Enabled)
-        return;
-      _timer.Enabled = false;
-      _timer.Elapsed -= OnTimerElapsed;
+      lock (_timer)
+      {
+        if (!_timer.Enabled)
+          return;
+        _timer.Enabled = false;
+        _timer.Elapsed -= OnTimerElapsed;
+      }
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
