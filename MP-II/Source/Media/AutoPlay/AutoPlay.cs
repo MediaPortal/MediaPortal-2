@@ -37,6 +37,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Media.MediaManagement;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Utilities;
+using MediaPortal.Media.BassLibraries;
 
 namespace Components.Services.AutoPlay
 {
@@ -294,7 +295,7 @@ namespace Components.Services.AutoPlay
         if (Directory.Exists(strDrive + "\\VIDEO_TS"))
           return MediaType.DVD;
 
-        if (CdUtils.isARedBookCD(strDrive))
+        if (BassUtils.isARedBookCD(strDrive))
           return MediaType.AUDIO_CD;
 
         List<string> allfiles = new List<string>();

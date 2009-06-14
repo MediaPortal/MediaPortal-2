@@ -28,7 +28,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.SkinEngine.ContentManagement;
 using MediaPortal.SkinEngine.Players;

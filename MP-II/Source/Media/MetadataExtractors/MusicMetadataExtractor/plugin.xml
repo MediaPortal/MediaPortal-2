@@ -9,6 +9,7 @@
 
   <DependsOn>
     <PluginReference PluginId="{9EBD5979-7BDF-4eb5-9010-ED77CC748BE7}"/> <!-- TagLibPlugin -->
+    <PluginReference PluginId="{2BA6F93C-B2A9-4795-A99C-BA19126B1359}"/> <!-- BassLibraries -->
   </DependsOn>
 
   <Runtime>

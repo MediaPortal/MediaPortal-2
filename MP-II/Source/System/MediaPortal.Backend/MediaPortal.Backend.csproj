@@ -4,13 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}</ProjectGuid>
+    <ProjectGuid>{5B27EB95-B829-40F4-B445-0225CA206F85}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor</RootNamespace>
-    <AssemblyName>MusicMetadataExtractor</AssemblyName>
-    <StartupObject>
-    </StartupObject>
+    <RootNamespace>MediaPortal</RootNamespace>
+    <AssemblyName>MediaPortal.UI</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -35,50 +33,46 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bass.Net, Version=2.4.2.0, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BassLibraries\References\Bass.Net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=x86" />
+    <Reference Include="System.Management" />
+    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FreeDB\CDInfo.cs" />
-    <Compile Include="FreeDB\CDInfoDetail.cs" />
-    <Compile Include="FreeDB\CDTrackDetail.cs" />
-    <Compile Include="FreeDB\FreeDBQuery.cs" />
-    <Compile Include="FreeDB\FreeDBSite.cs" />
-    <Compile Include="FreeDB\XMCDParser.cs" />
-    <Compile Include="MusicMetadataExtractor.cs" />
+    <Compile Include="BackendServer\IBackendServer.cs" />
+    <Compile Include="Database\DatabaseProvider\IDatabaseBuilder.cs" />
+    <Compile Include="Database\DatabaseProvider\IDatabaseCommand.cs" />
+    <Compile Include="Database\DatabaseProvider\IDatabaseConnection.cs" />
+    <Compile Include="Database\IDatabaseBuilderFactory.cs" />
+    <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="Database\IDatabaseFactory.cs" />
+    <Compile Include="Database\IDatabaseNotification.cs" />
+    <Compile Include="Database\IDatabaseNotifier.cs" />
+    <Compile Include="Database\IDatabases.cs" />
+    <Compile Include="Database\IDbAttribute.cs" />
+    <Compile Include="Database\IDbItem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="BackendExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
+    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\BassLibraries\BassLibraries.csproj">
-      <Project>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</Project>
-      <Name>BassLibraries</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TagLibPlugin\TagLibPlugin.csproj">
-      <Project>{6DECC1E8-9F06-4CAD-9059-6C523C8D322A}</Project>
-      <Name>TagLibPlugin</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="plugin.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -89,9 +83,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)"
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)MusicMetadataExtractor.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

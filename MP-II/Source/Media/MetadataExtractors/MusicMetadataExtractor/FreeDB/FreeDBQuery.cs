@@ -29,6 +29,7 @@ using System.Text;
 using System.Collections;
 using MediaPortal.Utilities;
 using Un4seen.Bass.AddOn.Cd;
+using MediaPortal.Media.BassLibraries;
 
 namespace Media.Importers.MusicImporter.Freedb
 {
@@ -364,7 +365,7 @@ namespace Media.Importers.MusicImporter.Freedb
     public string GetCDDBDiscIDInfo(char driveLetter, char separator)
     {
       string retval = null;
-      int drive = CdUtils.Drive2BassID(driveLetter);
+      int drive = BassUtils.Drive2BassID(driveLetter);
       if (drive > -1)
       {
         string id = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_CDDB);
@@ -377,7 +378,7 @@ namespace Media.Importers.MusicImporter.Freedb
     public string GetCDDBDiscID(char driveLetter)
     {
       string retval = null;
-      int drive = CdUtils.Drive2BassID(driveLetter);
+      int drive = BassUtils.Drive2BassID(driveLetter);
       if (drive > -1)
       {
         string id = BassCd.BASS_CD_GetID(drive, BASSCDId.BASS_CDID_CDDB);

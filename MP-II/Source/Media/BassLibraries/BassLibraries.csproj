@@ -4,19 +4,19 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}</ProjectGuid>
+    <ProjectGuid>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor</RootNamespace>
-    <AssemblyName>MusicMetadataExtractor</AssemblyName>
-    <StartupObject>
-    </StartupObject>
+    <RootNamespace>MediaPortal.Media.BassLibraries</RootNamespace>
+    <AssemblyName>BassLibraries</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,48 +37,24 @@
   <ItemGroup>
     <Reference Include="Bass.Net, Version=2.4.2.0, Culture=neutral, PublicKeyToken=b7566c273e6ef480, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\BassLibraries\References\Bass.Net.dll</HintPath>
+      <HintPath>References\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>References\BassRegistration.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FreeDB\CDInfo.cs" />
-    <Compile Include="FreeDB\CDInfoDetail.cs" />
-    <Compile Include="FreeDB\CDTrackDetail.cs" />
-    <Compile Include="FreeDB\FreeDBQuery.cs" />
-    <Compile Include="FreeDB\FreeDBSite.cs" />
-    <Compile Include="FreeDB\XMCDParser.cs" />
-    <Compile Include="MusicMetadataExtractor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
-      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\BassLibraries\BassLibraries.csproj">
-      <Project>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</Project>
-      <Name>BassLibraries</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TagLibPlugin\TagLibPlugin.csproj">
-      <Project>{6DECC1E8-9F06-4CAD-9059-6C523C8D322A}</Project>
-      <Name>TagLibPlugin</Name>
-    </ProjectReference>
+    <Compile Include="BassUtils.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -89,9 +65,12 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)"
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)MusicMetadataExtractor.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)BassRegistration.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(TargetDir)Bass.Net.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)References\bass.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+xcopy /Y "$(ProjectDir)References\bassmix.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

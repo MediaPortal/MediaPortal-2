@@ -23,48 +23,53 @@
 #endregion
 
 using System;
-using MediaPortal.Utilities.Win32;
+using Un4seen.Bass.AddOn.Cd;
 
-namespace MediaPortal.Utilities
+namespace MediaPortal.Media.BassLibraries
 {
-  public class CdUtils
+  public class BassUtils
   {
     /// <summary>
-    /// Eject the given CD Drive
+    /// Checks, if the given Drive Letter is a Red Book (Audio) CD
     /// </summary>
-    /// <param name="strDrive"></param>
+    /// <param name="driveLetter"></param>
     /// <returns></returns>
-    public static bool EjectCDROM(string strDrive)
+    public static bool isARedBookCD(string drive)
     {
-      bool result = false;
-      strDrive = @"\\.\" + strDrive;
-
       try
       {
-        IntPtr fHandle = Win32API.CreateFile(strDrive, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite, 0, System.IO.FileMode.Open, 0x80, IntPtr.Zero);
-        if (fHandle.ToInt64() != -1) //INVALID_HANDLE_VALUE)
-        {
-          uint Result;
-          if (Win32API.DeviceIoControl(fHandle, 0x002d4808, IntPtr.Zero, 0, IntPtr.Zero, 0, out Result, IntPtr.Zero) == true)
-          {
-            result = true;
-          }
-          Win32API.CloseHandle(fHandle);
-        }
+        if (drive.Length < 1) return false;
+        char driveLetter = System.IO.Path.GetFullPath(drive).ToCharArray()[0];
+        int cddaTracks = BassCd.BASS_CD_GetTracks(Drive2BassID(driveLetter));
+
+        if (cddaTracks > 0)
+          return true;
+        else
+          return false;
       }
       catch (Exception)
       {
+        return false;
       }
-
-      return result;
     }
 
     /// <summary>
-    /// Ejects the CD Drive
+    /// Converts the given CD/DVD Drive Letter to a number suiteable for BASS
     /// </summary>
-    public static void EjectCDROM()
+    /// <param name="driveLetter"></param>
+    /// <returns></returns>
+    public static int Drive2BassID(char driveLetter)
     {
-      Win32API.mciSendString("set cdaudio door open", null, 0, IntPtr.Zero);
+      BASS_CD_INFO cdinfo = new BASS_CD_INFO();
+      for (int i = 0; i < 25; i++)
+      {
+        if (BassCd.BASS_CD_GetInfo(i, cdinfo))
+        {
+          if (cdinfo.DriveLetter == driveLetter)
+            return i;
+        }
+      }
+      return -1;
     }
   }
 }
