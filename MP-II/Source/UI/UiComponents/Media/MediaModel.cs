@@ -28,14 +28,12 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Views;
+using MediaPortal.Core.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
-using UiComponents.Media.Settings;
 
 namespace UiComponents.Media
 {

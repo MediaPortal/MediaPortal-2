@@ -189,6 +189,7 @@ namespace MediaPortal.Media.ClientMediaManager
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
+      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareAdded, sd.ShareId);
       return sd;
     }
 
@@ -196,6 +197,7 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       _shares.Remove(shareId);
       SaveSharesToSettings();
+      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareRemoved, shareId);
     }
 
     public ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
@@ -214,6 +216,7 @@ namespace MediaPortal.Media.ClientMediaManager
       result.MetadataExtractorIds.Clear();
       CollectionUtils.AddAll(result.MetadataExtractorIds, metadataExtractorIds);
       SaveSharesToSettings();
+      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareChanged, shareId);
       // TODO: Trigger re-import and relocate media items (if relocateMediaItems is set)
       return result;
     }

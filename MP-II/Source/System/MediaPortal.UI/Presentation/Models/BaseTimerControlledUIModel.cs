@@ -26,6 +26,7 @@ using System;
 using System.Timers;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Runtime;
 
 namespace MediaPortal.Presentation.Models
 {

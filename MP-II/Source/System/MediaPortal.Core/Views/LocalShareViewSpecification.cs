@@ -26,14 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
-using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Presentation.Views
+namespace MediaPortal.Core.Views
 {
   /// <summary>
   /// View implementation which is based on a local provider path.

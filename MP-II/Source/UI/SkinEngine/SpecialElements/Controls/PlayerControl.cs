@@ -37,6 +37,7 @@ using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
+using MediaPortal.Core.Runtime;
 
 namespace MediaPortal.SkinEngine.SpecialElements.Controls
 {

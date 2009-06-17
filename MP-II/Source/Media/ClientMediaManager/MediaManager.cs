@@ -83,7 +83,6 @@ namespace MediaPortal.Media.ClientMediaManager
       if (nativeSystem.IsLocalSystem())
         result = _localLocalSharesManagement.RegisterShare(nativeSystem, providerId, path,
             shareName, mediaCategories, metadataExtractorIds);
-      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareAdded, result.ShareId);
       return result;
     }
 
@@ -91,7 +90,6 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
       _localLocalSharesManagement.RemoveShare(shareId);
-      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareRemoved, shareId);
     }
 
     public ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
@@ -101,7 +99,6 @@ namespace MediaPortal.Media.ClientMediaManager
       ShareDescriptor sd = _localLocalSharesManagement.UpdateShare(shareId, nativeSystem, providerId, path,
           shareName, mediaCategories, metadataExtractorIds, relocateMediaItems);
       // TODO: When connected, also call the method at the MP server's ISharesManagement interface
-      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareChanged, shareId);
       return sd;
     }
 

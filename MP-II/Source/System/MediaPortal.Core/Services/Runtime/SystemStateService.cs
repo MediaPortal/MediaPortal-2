@@ -22,19 +22,28 @@
 
 #endregion
 
-namespace MediaPortal.Core
-{
-  public enum SystemState
-  {
-    None,
-    Initializing,
-    Started,
-    ShuttingDown,
-    Ending,
-  }
+using MediaPortal.Core.Runtime;
 
-  public interface ISystemStateService
+namespace MediaPortal.Core.Services.Runtime
+{
+  public class SystemStateService : ISystemStateService
   {
-    SystemState CurrentState { get; }
+    protected SystemState _state = SystemState.None;
+
+    public void SwitchSystemState(SystemState newState, bool sendMessage)
+    {
+      _state = newState;
+      if (sendMessage)
+        SystemMessaging.SendSystemStateChangeMessage(_state);
+    }
+
+    #region ISystemStateService implementation
+
+    public SystemState CurrentState
+    {
+      get { return _state; }
+    }
+
+    #endregion
   }
 }

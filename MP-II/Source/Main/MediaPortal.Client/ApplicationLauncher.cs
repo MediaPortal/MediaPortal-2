@@ -26,49 +26,32 @@ using System;
 using System.Windows.Forms;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Runtime;
 using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
 using MediaPortal.Presentation.Workflow;
-using MediaPortal.Services.Logging; // Needed for Release build configuration
+#if !DEBUG
+using MediaPortal.Services.Logging;
+#endif
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Core.Services.Runtime;
 using MediaPortal.Core.Logging;
 
 [assembly: CLSCompliant(true)]
 
 namespace MediaPortal
 {
-  internal class SystemStateService : ISystemStateService
-  {
-    protected SystemState _state = SystemState.None;
-
-    internal void SwitchSystemState(SystemState newState, bool sendMessage)
-    {
-      _state = newState;
-      if (sendMessage)
-        SystemMessaging.SendSystemStateChangeMessage(_state);
-    }
-
-    #region ISystemStateService implementation
-
-    public SystemState CurrentState
-    {
-      get { return _state; }
-    }
-
-    #endregion
-  }
-
   internal static class ApplicationLauncher
   {
     /// <summary>
-    /// The main entry point for the application.
+    /// The main entry point for the MP-II client application.
     /// </summary>
-    //[STAThread]
+    [STAThread]
     private static void Main(params string[] args)
     {
-      System.Threading.Thread.CurrentThread.Name = "MediaPortal Client Main Thread";
+      System.Threading.Thread.CurrentThread.Name = "Main Thread";
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
 
@@ -84,8 +67,15 @@ namespace MediaPortal
         return;
       }
 
-      using (new ServiceScope(true)) //This is the first servicescope
+      using (new ServiceScope(true)) // Create the servicescope
       {
+#if !DEBUG
+        // In release mode, catch all Exceptions.
+        // In Debug mode these will be left unhandled.
+        try
+        {
+#endif
+
         SystemStateService systemStateService = new SystemStateService();
         ServiceScope.Add<ISystemStateService>(systemStateService);
         systemStateService.SwitchSystemState(SystemState.Initializing, false);
@@ -95,7 +85,7 @@ namespace MediaPortal
         bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
         LogLevel level = LogLevel.All;
         if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
-          level = (LogLevel)mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
+          level = (LogLevel) mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
 
         ApplicationCore.RegisterCoreServices(level, logMethods);
         ILogger logger = ServiceScope.Get<ILogger>();
@@ -104,25 +94,17 @@ namespace MediaPortal
 
         // Check if user wants to override the default Application Data location.
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
-          pathManager.ReplacePath("DATA", (string)mpArgs.GetOption(CommandLineOptions.Option.Data));
+          pathManager.ReplacePath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
 
         logger.Debug("ApplicationLauncher: Create MediaManager service");
         MediaManager mediaManager = new MediaManager();
         // Register the media manager for multiple interfaces in the client - in the server, those interfaces
         // will be provided by different classes.
-        ServiceScope.Add<MediaManager>(mediaManager);
         ServiceScope.Add<IMediaManager>(mediaManager);
         ServiceScope.Add<ISharesManagement>(mediaManager);
         ServiceScope.Add<IImporter>(mediaManager);
 
         UiExtension.RegisterUiServices();
-
-#if !DEBUG
-        // Not in Debug mode (ie Release) then catch all Exceptions
-        // In Debug mode these will be left unhandled.
-      try
-      {
-#endif
 
         // Start the core
         logger.Debug("ApplicationLauncher: Starting core");
@@ -171,61 +153,9 @@ namespace MediaPortal
         {
           CrashLogger crash = new CrashLogger(pathManager.GetPath("<LOG>"));
           crash.CreateLog(ex);
-          //Form frm =
-          //  new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
-          //                        "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
-          //                        BaseScreen.Image.bug);
-          //restart = frm.ShowDialog() == DialogResult.Yes;
         }
 #endif
       }
-
-      //TODO Albert: cleanup this
-      // Running in a new AppDomain didn't bring any extra protection for catching exceptions
-      // reverting code.
-      //// MP2 is now started in a new AppDomain.
-      //// if this AppDomain crashes or stops unexpectedly, a notification is shown to the user
-      //// and the user is asked whether he wants to restart MP2
-      //AppDomain mpDomain = null;
-      //bool restart = true;
-      //while (restart) //while restart is wanted
-      //{
-      //  try
-      //  {
-      //    //Create the AppDomain
-      //    mpDomain = AppDomain.CreateDomain("MPApplication");  
-      //    //Create the MP2 application instance
-      //    mpDomain.CreateInstanceAndUnwrap(Assembly.GetExecutingAssembly().FullName, "MPApplication");
-
-      //    //Run the application
-      //    restart = MPApplication.Run(mpArgs);
-      //  }
-      //    // Catch and log all exceptions - optionally restart
-      //  catch (Exception ex)
-      //  {
-      //    //TODO: log exception
-      //    FileLogger logger = new FileLogger(@"log\MediaPortal.log", LogLevel.All, false);
-      //    logger.Error(ex);
-      //  }
-      //  if (mpDomain != null)
-      //  {
-      //    try
-      //    {
-      //      AppDomain.Unload(mpDomain);  //unload the AppDomain.  All assemblies that were loaded will be unloaded...
-      //    }
-      //    catch {}
-      //    mpDomain = null;
-      //    GC.Collect();  //causes the garbage collector to release all unneeded objects
-      //  }
-      //  if (restart) //do not ask to restart if the program terminated normally (i.e. restart = false)
-      //  {
-      //    Form frm =
-      //      new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
-      //                            "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
-      //                            BaseScreen.Image.bug);
-      //    restart = frm.ShowDialog() == DialogResult.Yes;
-      //  }
-      //}
     }
   }
 }

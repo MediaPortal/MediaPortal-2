@@ -29,7 +29,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Presentation.Views
+namespace MediaPortal.Core.Views
 {
   /// <summary>
   /// View which is based on a media library query.

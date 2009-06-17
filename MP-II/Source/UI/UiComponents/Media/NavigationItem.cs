@@ -22,7 +22,7 @@
 
 #endregion
 
-using MediaPortal.Presentation.Views;
+using MediaPortal.Core.Views;
 using MediaPortal.Presentation.DataObjects;
 
 namespace UiComponents.Media

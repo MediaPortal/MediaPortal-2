@@ -24,6 +24,7 @@
 
 using System.Threading;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.Runtime;
 
 namespace MediaPortal.Core.Messaging
 {

@@ -23,30 +23,35 @@
 #endregion
 
 using System;
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// This class provides an interface for the messages sent by the media manager, which includes all routed
-  /// messages from the server.
+  /// This class provides an interface for all shares related messages.
   /// </summary>
   public class MediaManagerMessaging
   {
     // Message channel name
-    public const string CHANNEL = "MediaManager";
+    public const string CHANNEL = "Shares";
 
     /// <summary>
     /// Messages of this type are sent by the media manager and its components.
     /// </summary>
     public enum MessageType
     {
-      // Messages concerning a share. The parameter will denote the share id.
-
+      // Share related messages. The param will contain the id of the share.
       ShareAdded,
       ShareRemoved,
       ShareChanged,
+
+      // Media provider related messages. The param will contain the id of the media provider.
+      MediaProviderAdded,
+      MediaProviderRemoved,
+
+      // Metadata extractor related messages. The param will contain the id of the metadata extractor.
+      MetadataExtractorAdded,
+      MetadataExtractorRemoved,
     }
 
     // Message data
@@ -61,6 +66,30 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       QueueMessage msg = new QueueMessage(messageType);
       msg.MessageData[PARAM] = shareId;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message concerning a media provider.
+    /// </summary>
+    /// <param name="messageType">Type of the message to send.</param>
+    /// <param name="mediaProviderId">Media provider which is affected.</param>
+    public static void SendMediaProviderMessage(MessageType messageType, Guid mediaProviderId)
+    {
+      QueueMessage msg = new QueueMessage(messageType);
+      msg.MessageData[PARAM] = mediaProviderId;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message concerning a metadata extractor.
+    /// </summary>
+    /// <param name="messageType">Type of the message to send.</param>
+    /// <param name="metadataExtractorId">Metadata extractor which is affected.</param>
+    public static void SendMetadataExtractorMessage(MessageType messageType, Guid metadataExtractorId)
+    {
+      QueueMessage msg = new QueueMessage(messageType);
+      msg.MessageData[PARAM] = metadataExtractorId;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

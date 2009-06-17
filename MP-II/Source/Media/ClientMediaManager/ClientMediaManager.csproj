@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="LocalSharesManagement.cs" />
     <Compile Include="MediaManager.cs" />
-    <Compile Include="MediaManagerMessaging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\SharesSettings.cs" />
   </ItemGroup>

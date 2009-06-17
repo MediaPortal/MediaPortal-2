@@ -38,6 +38,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -115,6 +116,7 @@
     <Compile Include="MediaManagement\MediaItemLocalFsAccessor.cs" />
     <Compile Include="MediaManagement\MediaItemLocator.cs" />
     <Compile Include="MediaManagement\MediaManagerBase.cs" />
+    <Compile Include="MediaManagement\MediaManagerMessaging.cs" />
     <Compile Include="MediaManagement\MediaProviders\IFileSystemMediaProvider.cs" />
     <Compile Include="MediaManagement\MediaProviders\IMediaProvider.cs" />
     <Compile Include="MediaManagement\MediaProviders\IMediaSourceChangeNotifier.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="Services\FileEventNotification\PathStateChangedEvent.cs" />
     <Compile Include="Services\FileEventNotification\WatchedPath.cs" />
     <Compile Include="Services\Logging\ConsoleLogger.cs" />
+    <Compile Include="Services\Logging\CrashLoggerBase.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />
     <Compile Include="Services\Logging\FileLogger.cs" />
     <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />
@@ -145,15 +148,11 @@
     <Compile Include="Services\PluginManager\PluginBuilderRegistration.cs" />
     <Compile Include="PluginManager\PluginItemRegistration.cs" />
     <Compile Include="PluginManager\IPluginItemStateTracker.cs" />
-    <Compile Include="Services\PluginManager\PluginItemStateTrackerToNameTransformer.cs" />
-    <Compile Include="Services\PluginManager\PluginManagerSettings.cs" />
     <Compile Include="PluginManager\PluginRuntime.cs" />
     <Compile Include="PluginManager\IPluginItemBuilder.cs" />
     <Compile Include="PluginManager\IPluginManager.cs" />
     <Compile Include="PluginManager\PluginItemMetadata.cs" />
-    <Compile Include="Services\PluginManager\PluginDirectoryDescriptor.cs" />
     <Compile Include="PluginManager\PluginManagerMessaging.cs" />
-    <Compile Include="Services\PluginManager\PluginResource.cs" />
     <Compile Include="PluginManager\PluginState.cs" />
     <Compile Include="ServiceCreatorCallback.cs" />
     <Compile Include="ServiceNotFoundException.cs" />
@@ -165,8 +164,9 @@
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\NoSettingsManager.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
-    <Compile Include="SystemMessaging.cs" />
-    <Compile Include="ISystemStateService.cs" />
+    <Compile Include="Runtime\SystemMessaging.cs" />
+    <Compile Include="Runtime\ISystemStateService.cs" />
+    <Compile Include="Services\Runtime\SystemStateService.cs" />
     <Compile Include="TaskScheduler\ITaskScheduler.cs" />
     <Compile Include="TaskScheduler\Task.cs" />
     <Compile Include="TaskScheduler\TaskSchedulerMessaging.cs" />
@@ -183,6 +183,10 @@
     <Compile Include="Services\PluginManager\Builders\InstanceBuilder.cs" />
     <Compile Include="Services\PluginManager\Builders\ResourceBuilder.cs" />
     <Compile Include="Services\PluginManager\PluginManager.cs" />
+    <Compile Include="Services\PluginManager\PluginItemStateTrackerToNameTransformer.cs" />
+    <Compile Include="Services\PluginManager\PluginManagerSettings.cs" />
+    <Compile Include="Services\PluginManager\PluginDirectoryDescriptor.cs" />
+    <Compile Include="Services\PluginManager\PluginResource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Registry\RegistryNode.cs" />
     <Compile Include="Services\Registry\Registry.cs" />
@@ -199,6 +203,12 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="Views\LocalSharesViewSpecification.cs" />
+    <Compile Include="Views\LocalShareViewSpecification.cs" />
+    <Compile Include="Views\MediaLibraryViewSpecification.cs" />
+    <Compile Include="Views\View.cs" />
+    <Compile Include="Views\ViewCollectionViewSpecification.cs" />
+    <Compile Include="Views\ViewSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">

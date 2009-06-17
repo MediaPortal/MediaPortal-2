@@ -122,66 +122,18 @@ namespace MediaPortal.Core.MediaManagement
 
     #endregion
 
-    #region Public events
-
-    /// <summary>
-    /// Will be raised when a media provider was added to the system.
-    /// </summary>
-    public event NotifyMediaProviderChangeDelegate MediaProviderAdded;
-
-    /// <summary>
-    /// Will be raised when a media provider was removed from the system.
-    /// </summary>
-    public event NotifyMediaProviderChangeDelegate MediaProviderRemoved;
-
-    /// <summary>
-    /// Will be raised when a metadata extractor was added to the system.
-    /// </summary>
-    public event NotifyMetadataExtractorChangeDelegate MetadataExtractorAdded;
-
-    /// <summary>
-    /// Will be raised when a metadata extractor was removed from the system.
-    /// </summary>
-    public event NotifyMetadataExtractorChangeDelegate MetadataExtractorRemoved;
-
-    #endregion
-
     #region Protected methods
-
-    protected void InvokeMediaProviderAdded(IMediaProvider mediaProvider)
-    {
-      NotifyMediaProviderChangeDelegate Delegate = MediaProviderAdded;
-      if (Delegate != null) Delegate(mediaProvider);
-    }
-
-    protected void InvokeMediaProviderRemoved(IMediaProvider mediaProvider)
-    {
-      NotifyMediaProviderChangeDelegate Delegate = MediaProviderRemoved;
-      if (Delegate != null) Delegate(mediaProvider);
-    }
-
-    protected void InvokeMetadataExtractorAdded(IMetadataExtractor metadataExtractor)
-    {
-      NotifyMetadataExtractorChangeDelegate Delegate = MetadataExtractorAdded;
-      if (Delegate != null) Delegate(metadataExtractor);
-    }
-
-    protected void InvokeMetadataExtractorRemoved(IMetadataExtractor metadataExtractor)
-    {
-      NotifyMetadataExtractorChangeDelegate Delegate = MetadataExtractorRemoved;
-      if (Delegate != null) Delegate(metadataExtractor);
-    }
 
     protected void RegisterProvider(IMediaProvider provider)
     {
       _providers.Add(provider.Metadata.MediaProviderId, provider);
-      InvokeMediaProviderAdded(provider);
+      MediaManagerMessaging.SendMediaProviderMessage(MediaManagerMessaging.MessageType.MediaProviderAdded, provider.Metadata.MediaProviderId);
     }
 
     protected void RegisterMetadataExtractor(IMetadataExtractor metadataExtractor)
     {
       _metadataExtractors.Add(metadataExtractor.Metadata.MetadataExtractorId, metadataExtractor);
-      InvokeMetadataExtractorAdded(metadataExtractor);
+      MediaManagerMessaging.SendMediaProviderMessage(MediaManagerMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
     }
 
     /// <summary>

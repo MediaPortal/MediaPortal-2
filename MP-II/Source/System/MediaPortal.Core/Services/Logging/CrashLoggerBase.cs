@@ -23,35 +23,23 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using System.Management;
-using MediaPortal.Core;
 using Microsoft.Win32;
 
-namespace MediaPortal.Services.Logging
+namespace MediaPortal.Core.Services.Logging
 {
   /// <summary>
-  /// Logs as much information about crash as possible.
-  /// Creates a directory where it copies all application logs.
-  /// Creates new crash log with system information.
-  /// TODO:
-  /// log status of all Services
+  /// Base class for crash loggers.
   /// </summary>
-  public class CrashLogger
+  public class CrashLoggerBase
   {
-    private string _filename;
-    private DateTime _crashTime;
-    /// <summary>
-    /// Creates a new <see cref="CrashLogger"/> instance which will copy all
-    /// log files found in the specified <paramref name="logFilesPath"/>.
-    /// </summary>
-    /// <param name="logFilesPath">Path of the application's log files to be copied to the
-    /// created crash directory.</param>
-    public CrashLogger(string logFilesPath)
+    protected string _filename;
+    protected DateTime _crashTime;
+
+    public CrashLoggerBase(string logFilesPath)
     {
       _crashTime = DateTime.Now;
 
@@ -60,47 +48,11 @@ namespace MediaPortal.Services.Logging
         Directory.CreateDirectory(crashLogPath);
 
       CopyLogFiles(logFilesPath, crashLogPath);
-      //CreateDxDiagLog(logPath.FullName); -- Too slow
 
       _filename = Path.Combine(crashLogPath, "Crash.log");
     }
 
-    public void CreateLog(Exception ex)
-    {
-      try
-      {
-        using (TextWriter writer = new StreamWriter(_filename, false))
-        {
-          writer.WriteLine("Crash Log: {0}", _crashTime.ToString());
-
-          writer.WriteLine("= System Information");
-          writer.Write(SystemInfo());
-          writer.WriteLine();
-
-          writer.WriteLine("= Disk Information");
-          writer.Write(DriveInfo());
-          writer.WriteLine();
-
-          writer.WriteLine("= Exception Information");
-          writer.Write(ExceptionInfo(ex));
-					writer.WriteLine();
-					writer.WriteLine();
-
-					writer.WriteLine("= MediaPortal Information");
-					writer.WriteLine();
-        	IList<string> statusList = ServiceScope.Current.GetStatus();
-        	foreach (string status in statusList)
-        		writer.WriteLine(status);
-        }
-      }
-      catch (Exception e)
-      {
-        Console.WriteLine("CrashLogger crashed:");
-        Console.WriteLine(e.ToString());
-      }
-    }
-
-    private string ExceptionInfo(Exception ex)
+    protected string ExceptionInfo(Exception ex)
     {
       StringBuilder exceptionInfo = new StringBuilder();
       exceptionInfo.AppendLine("== Exception: " + ex);
@@ -121,8 +73,8 @@ namespace MediaPortal.Services.Logging
     /// <summary>
     /// Writes any existing inner exceptions to the file.
     /// </summary>
-    /// <param name="exception"></param>
-    private string WriteInnerException(Exception exception)
+    /// <param name="exception">Exception to log.</param>
+    protected static string WriteInnerException(Exception exception)
     {
       StringBuilder exceptionInfo = new StringBuilder();
       if (exception != null)
@@ -136,23 +88,22 @@ namespace MediaPortal.Services.Logging
       return exceptionInfo.ToString();
     }
 
-    private static string SystemInfo()
+    protected static string SystemInfo()
     {
       StringBuilder systemInfo = new StringBuilder();
       systemInfo.AppendLine("== Software");
-      systemInfo.AppendLine("  OS Version:\t\t" + System.Environment.OSVersion.ToString());
+      systemInfo.AppendLine("  OS Version:\t\t" + Environment.OSVersion);
       systemInfo.AppendLine("  Hostname:\t\t" + Environment.MachineName);
-      systemInfo.AppendLine("  Network attached?\t" + SystemInformation.Network.ToString());
+      systemInfo.AppendLine("  Network attached?\t" + SystemInformation.Network);
 
       systemInfo.AppendLine();
       systemInfo.AppendLine("== Hardware");
       systemInfo.AppendLine("  CPU details:\t" + GetCPUInfos());
-      systemInfo.AppendLine("  Screen Resolution:\t" + SystemInformation.PrimaryMonitorSize.ToString());
 
       return systemInfo.ToString();
     }
 
-    private static string DriveInfo()
+    protected static string DriveInfo()
     {
       StringBuilder driveInfo = new StringBuilder();
       ManagementClass mc = new ManagementClass("Win32_LogicalDisk");
@@ -198,7 +149,7 @@ namespace MediaPortal.Services.Logging
       return driveInfo.ToString();
     }
 
-    private static string GetSizeString(object size)
+    protected static string GetSizeString(object size)
     {
       string stringSize = "-";
       if (size != null)
@@ -232,16 +183,20 @@ namespace MediaPortal.Services.Logging
       return stringSize;
     }
 
-    private static string GetCPUInfos()
+    protected static string GetCPUInfos()
     {
-      RegistryKey mainKey = Registry.LocalMachine.OpenSubKey("HARDWARE\\DESCRIPTION\\System\\CentralProcessor");
+      RegistryKey mainKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("HARDWARE\\DESCRIPTION\\System\\CentralProcessor");
+      if (mainKey == null)
+        return string.Empty;
       string[] subKeys = mainKey.GetSubKeyNames();
       string cpuInfos = "";
       for (int i = 0; i < subKeys.Length; i++)
       {
         RegistryKey key = mainKey.OpenSubKey(subKeys[i]);
-        string cpuType = (string)key.GetValue("ProcessorNameString", "<unknown>");
-        int cpuSpeed = (int)key.GetValue("~MHz", 0);
+        if (key == null)
+          continue;
+        string cpuType = (string) key.GetValue("ProcessorNameString", "<unknown>");
+        int cpuSpeed = (int) key.GetValue("~MHz", 0);
         cpuInfos += cpuType + " running at ~" + cpuSpeed + " MHz.";
         key.Close();
       }
@@ -249,7 +204,7 @@ namespace MediaPortal.Services.Logging
       return cpuInfos;
     }
 
-    private static void CopyLogFiles(string logPath, string crashLogPath)
+    protected static void CopyLogFiles(string logPath, string crashLogPath)
     {
       foreach (string logFilePath in Directory.GetFiles(logPath, "*.log"))
       {
@@ -257,23 +212,6 @@ namespace MediaPortal.Services.Logging
         File.Delete(destPath);
         File.Copy(logFilePath, destPath);
       }
-    }
-
-    private static void CreateDxDiagLog(string destinationFolder)
-    {
-      string dstFile = Path.Combine(destinationFolder,  "DxDiag_Info.txt");
-
-      string executable = Environment.GetEnvironmentVariable("windir") + @"\system32\dxdiag.exe";
-      string arguments = "/whql:off /t \"" + dstFile+"\"";
-
-      Process pr = new Process();
-      pr.StartInfo.FileName = executable;
-      pr.StartInfo.Arguments = arguments;
-      pr.StartInfo.CreateNoWindow = true;
-      pr.StartInfo.WindowStyle = ProcessWindowStyle.Minimized;
-      pr.Start();
-      pr.WaitForExit();
-      //lastExitCode = pr.ExitCode;
     }
   }
 }

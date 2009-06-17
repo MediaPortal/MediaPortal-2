@@ -27,7 +27,7 @@ using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 using System;
 
-namespace MediaPortal.Presentation.Views
+namespace MediaPortal.Core.Views
 {
   /// <summary>
   /// View specification which defining a view which only contains a configurable list of subviews and no media items.

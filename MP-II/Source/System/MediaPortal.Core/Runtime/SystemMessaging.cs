@@ -22,10 +22,9 @@
 
 #endregion
 
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Core
+namespace MediaPortal.Core.Runtime
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the system.
