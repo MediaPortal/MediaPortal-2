@@ -36,8 +36,8 @@ namespace MediaPortal.Core.Services.FileEventNotification
 {
 
   /// <summary>
-  /// Represents a path that's being watched by a FileWatcher.
-  /// WatchedPath performs periodic checks (polling) on a path's availability,
+  /// Represents a path that's being watched by a <see cref="FileWatcher"/>.
+  /// <see cref="WatchedPath"/> performs periodic checks (polling) on a path's availability,
   /// and raises an event when the path's state changes.
   /// </summary>
   class WatchedPath : IDisposable
@@ -105,6 +105,10 @@ namespace MediaPortal.Core.Services.FileEventNotification
       get { return _available; }
     }
 
+    #endregion
+
+    #region Events
+
     /// <summary>
     /// Raised when the path's state changes.
     /// </summary>
@@ -165,6 +169,15 @@ namespace MediaPortal.Core.Services.FileEventNotification
       return _available;
     }
 
+    /// <summary>
+    /// Retursn a <see cref="string"/> representation of the current <see cref="WatchedPath"/>.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString()
+    {
+      return _path.FullName;
+    }
+
     #endregion
 
     #region Private Methods
@@ -186,12 +199,16 @@ namespace MediaPortal.Core.Services.FileEventNotification
         return false;
       try
       {
-        return _path.Exists;
+        /// _path.Exists doesn't auto-refresh,
+        /// and calling Refresh() introduces too much overhead.
+        return Directory.Exists(_path.FullName);
       }
       catch (Exception e)
       {
-        // Directory.Exists() might throw undocumented exceptions in .NET 2.0 (and maybe also later versions)
-        ServiceScope.Get<ILogger>().Warn("FileEventNotifier encountered an exception for path \"{0}\"", e, _path.FullName);
+        // Directory.Exists() might throw undocumented exception in .NET 2.0 (and maybe also later versions)
+        ServiceScope.Get<ILogger>().Warn(
+          "FileEventNotifier encountered an exception for path \"{0}\" while checking it's availability.",
+          e, _path.FullName);
         return false;
       }
     }

@@ -25,20 +25,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security;
-using System.Text.RegularExpressions;
-using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
-using MediaPortal.Core.Logging;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.FileEventNotification
 {
 
   /// <summary>
   /// Represents all data regarding a watched file,
-  /// FileWatchInfo is needed to subscribe and unsubscribe a watch.
+  /// <see cref="FileWatchInfo"/> is needed to subscribe and unsubscribe a watch
+  /// to a <see cref="IFileEventNotifier"/>.
   /// </summary>
-  public class FileWatchInfo
+  public class FileWatchInfo : IEquatable<FileWatchInfo>
   {
 
     #region Constants
@@ -65,7 +63,7 @@ namespace MediaPortal.Core.FileEventNotification
     /// </summary>
     protected ICollection<FileWatchChangeType> _changeTypes;
     /// <summary>
-    /// The string to filter events on.
+    /// The strings to filter events on, using the wildcards.
     /// </summary>
     protected ICollection<string> _filter;
     /// <summary>
@@ -75,14 +73,14 @@ namespace MediaPortal.Core.FileEventNotification
     /// <summary>
     /// Reference to the method handling events.
     /// </summary>
-    protected FileEventHandlerDelegate _eventHandler;
+    protected FileEventHandler _eventHandler;
 
     #endregion
 
     #region Properties
 
     /// <summary>
-    /// Gets the path to the directory to watch.
+    /// Gets the path to the directory to watch, in lower casing.
     /// </summary>
     public string Path
     {
@@ -96,28 +94,6 @@ namespace MediaPortal.Core.FileEventNotification
     {
       get { return _changeTypes; }
     }
-
-    /// <summary>
-    /// Gets the collection of strings to filter events on,
-    /// the filter strings are matched against the filename of the file causing the event.
-    /// Filter strings contain of characters and wildcards ('*').
-    /// A filter string like "*.mkv" will match all filenames ending with the .mkv extension.
-    /// </summary>
-    /// <remarks>
-    /// FileWatchInfo.Filter behaves the same as <see cref="FileSystemWatcher.Filter"/>,
-    /// see it's documentation for more information.
-    /// 
-    /// Filter strings matching all filenames:
-    /// <ul>
-    ///   <li>null</li>
-    ///   <li>""</li>
-    ///   <li>"*"</li>
-    /// </ul>
-    /// </remarks>
-    public ICollection<string> Filter
-    {
-      get { return _filter; }
-    }
     
     /// <summary>
     /// Gets whether subdirectories are watched too.
@@ -130,7 +106,7 @@ namespace MediaPortal.Core.FileEventNotification
     /// <summary>
     /// Gets or sets the reference to the method handling all events.
     /// </summary>
-    public FileEventHandlerDelegate EventHandler
+    public FileEventHandler EventHandler
     {
       get { return _eventHandler; }
       set { _eventHandler = value; }
@@ -149,30 +125,16 @@ namespace MediaPortal.Core.FileEventNotification
     }
 
     /// <summary>
-    /// Initializes a new instance of the FileWatchInfo class,
-    /// which can be used to subscribe to watch the specified path.
+    /// Copies all variables specified in <paramref cref="fileWatchInfo"/> to the new instance.
     /// </summary>
-    /// <param name="path">The path to watch. Must end with '\' for directories.</param>
-    /// <param name="includeSubDirectories">Specifies whether to also report changes in subdirectories.</param>
-    /// <param name="eventHandler">Reference to the method handling all events.</param>
-    public FileWatchInfo(string path, bool includeSubDirectories, FileEventHandlerDelegate eventHandler)
-      : this(path, includeSubDirectories, eventHandler, new List<string>(), new List<FileWatchChangeType>())
+    /// <param name="fileWatchInfo"></param>
+    protected FileWatchInfo(FileWatchInfo fileWatchInfo)
     {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the FileWatchInfo class,
-    /// which can be used to subscribe to watch the specified path.
-    /// Events will be filtered by the given strings.
-    /// </summary>
-    /// <param name="path">The path to watch. Must end with '\' for directories.</param>
-    /// <param name="includeSubDirectories">Specifies whether to also report changes in subdirectories.</param>
-    /// <param name="eventHandler">Reference to the method handling all events.</param>
-    /// <param name="filter">Filter strings.</param>
-    public FileWatchInfo(string path, bool includeSubDirectories, FileEventHandlerDelegate eventHandler,
-        IEnumerable<string> filter) :
-        this(path, includeSubDirectories, eventHandler, filter, new List<FileWatchChangeType>())
-    {
+      _changeTypes = new List<FileWatchChangeType>(fileWatchInfo.ChangeTypes);
+      _filter = new List<string>(fileWatchInfo._filter);
+      _eventHandler = fileWatchInfo.EventHandler;
+      _path = fileWatchInfo.Path.ToLowerInvariant();
+      _includeSubdirectories = fileWatchInfo.IncludeSubdirectories;
     }
 
     /// <summary>
@@ -185,7 +147,7 @@ namespace MediaPortal.Core.FileEventNotification
     /// <param name="eventHandler">Reference to the method handling all events.</param>
     /// <param name="filter">Filter strings.</param>
     /// <param name="changeTypes">Changetypes to report events for.</param>
-    public FileWatchInfo(string path, bool includeSubDirectories, FileEventHandlerDelegate eventHandler,
+    protected FileWatchInfo(string path, bool includeSubDirectories, FileEventHandler eventHandler,
         IEnumerable<string> filter, IEnumerable<FileWatchChangeType> changeTypes)
     {
       if (path == null)
@@ -206,110 +168,56 @@ namespace MediaPortal.Core.FileEventNotification
     #region Public Methods
 
     /// <summary>
-    /// Returns whether an event may be raised for the given path and changetype.
+    /// Adds a new string to filter events on,
+    /// the filter strings are matched against the filename of the file causing the event.
+    /// Filter strings contain of characters and wildcards ('*').
+    /// A filter string like "*.mkv" will match all filenames ending with the .mkv extension.
     /// </summary>
-    /// <param name="args">EventArgs to compare to the filter.</param>
-    /// <returns></returns>
-    public virtual bool MayRaiseEventFor(IFileWatchEventArgs args)
+    /// <remarks>
+    /// The filterstrings behave the same as in <see cref="FileSystemWatcher.Filter"/>,
+    /// see it's documentation for more information.
+    /// 
+    /// Filter strings matching all filenames:
+    /// <ul>
+    ///   <li>null</li>
+    ///   <li>""</li>
+    ///   <li>"*"</li>
+    /// </ul>
+    /// </remarks>
+    public void AddFilterString(string filterString)
     {
-      // May never raise an event if no EventHandler is specified
-      if (_eventHandler == null)
-        return false;
-      FileInfo fileInfo = new FileInfo(args.Path);
-      // First test if we have sufficient access to the FileInfo.
-      bool fileAccess = false;
-      try
+      lock (_filter)
       {
-        fileAccess = fileInfo.Directory != null;
+        if (!_filter.Contains(filterString))
+          _filter.Add(filterString);
       }
-      catch (SecurityException e)
-      {
-        ServiceScope.Get<ILogger>().Error("SecurityException when trying to access \"{0}\" - {1}", args.Path, e.Message);
-      }
-      catch (DirectoryNotFoundException)
-      {
-      }
-      if (fileAccess)
-      {
-        // If we don't watch subdirectories,
-        // and if the path's directory does not start with the one we want to watch.
-        // --> Doesn't comply.
-        if (!_includeSubdirectories
-            && fileInfo.DirectoryName + "\\" != _path)
-          return false;
-        // If we watch subdirectories,
-        // and the path doesn't start with the one we want to watch.
-        // --> Doesn't comply.
-        if (_includeSubdirectories
-            && !(fileInfo.DirectoryName + "\\").StartsWith(_path))
-          return false;
-      }
-      // Now lets check the changetype.
-      if (!CompliesToChangeType(args.ChangeType))
-        return false;
-      // And lets check if the old path matches the filter.
-      if (!CompliesToFilter(args.OldPath))
-      {
-        // No need to check the new path if it's the same as the old path.
-        if (args.Path == args.OldPath
-            // Check the new path, maybe this one matches.
-            || !CompliesToFilter(args.Path))
-          return false;
-      }
-      return true;
+    }
+
+    /// <summary>
+    /// Removes a string from the filterstring collection.
+    /// </summary>
+    /// <param name="filterString"></param>
+    /// <returns></returns>
+    public bool RemoveFilterString(string filterString)
+    {
+      lock (_filter)
+        return _filter.Remove(filterString);
+    }
+
+    /// <summary>
+    /// Returns whether the specified string is used to filter events on.
+    /// </summary>
+    /// <param name="filterString"></param>
+    /// <returns></returns>
+    public bool IsFilterString(string filterString)
+    {
+      lock (_filter)
+        return _filter.Contains(filterString);
     }
 
     #endregion
 
     #region Private Methods
-
-    /// <summary>
-    /// Returns whether events may be raised for the given FileInfo.
-    /// </summary>
-    /// <param name="path">Path to compare to filter.</param>
-    /// <returns></returns>
-    private bool CompliesToFilter(string path)
-    {
-      if (path == _path || _filter.Count == 0)
-        return true;
-      string filename = System.IO.Path.GetFileName(path);
-      lock (_filter)
-      {
-        foreach (string filterString in _filter)
-        {
-          if (filterString == null || filterString == "*" || filterString == "")
-            return true;
-          // Match the pattern to the filename.
-          if (Regex.Match(filename, WildcardToRegex(filterString)).Success)
-            return true;
-        }
-      }
-      return false;
-    }
-
-    /// <summary>
-    /// Returns the provided wildcard string as a regular expression.
-    /// </summary>
-    /// <param name="pattern"></param>
-    /// <returns></returns>
-    private static string WildcardToRegex(string pattern)
-    {
-      return "^" + Regex.Escape(pattern).
-      Replace("\\*", ".*").
-      Replace("\\?", ".") + "$";
-    }
-
-    /// <summary>
-    /// Returns whether events may be raised for the given FileWatchChangType.
-    /// </summary>
-    /// <param name="changeType">FileWatchChangeType to test.</param>
-    /// <returns></returns>
-    private bool CompliesToChangeType(FileWatchChangeType changeType)
-    {
-      if (_changeTypes.Count == 0)
-        return true;
-      return (_changeTypes.Contains(changeType));
-    }
 
     /// <summary>
     /// Sets the directory from the given path to the _path variable.
@@ -333,13 +241,33 @@ namespace MediaPortal.Core.FileEventNotification
         int index = path.LastIndexOf('\\');
         _filter.Clear();
         _filter.Add(path.Substring(index));
-        path = path.Substring(0, index);
+        path = path.Substring(0, index + 1);
       }
       else if (!path.EndsWith(@"\"))
       {
         path = path + @"\";
       }
-      _path = path;
+      _path = path.ToLowerInvariant();
+    }
+
+    #endregion
+
+    #region IEquatable<FileWatchInfo> Members
+
+    /// <summary>
+    /// Returns whether the current <see cref="FileWatchInfo"/> is equal
+    /// to another object of type <see cref="FileWatchInfo"/>.
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    public virtual bool Equals(FileWatchInfo other)
+    {
+      return _path == other._path
+             && _includeSubdirectories == other._includeSubdirectories
+             && _eventHandler == other._eventHandler
+             && CollectionUtils.CompareObjectCollections(_filter, other._filter)
+             && CollectionUtils.CompareCollections(_changeTypes, other._changeTypes,
+                                                   (ct1, ct2) => ct1.ToString().CompareTo(ct2.ToString()));
     }
 
     #endregion

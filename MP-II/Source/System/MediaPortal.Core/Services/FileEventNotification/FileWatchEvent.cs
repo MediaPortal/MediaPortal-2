@@ -31,7 +31,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
 
   /// <summary>
   /// FileWatchEvent represents an event caused by a watched file.
-  /// This class is able to detect duplicate events by calling the IsDuplicate() method.
+  /// This class is able to detect duplicate events by calling the <see cref="IsDuplicate"/> method.
   /// </summary>
   public class FileWatchEvent
   {
@@ -127,7 +127,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
         case WatcherChangeTypes.Changed:
           _type = FileWatchChangeType.Changed;
           break;
-        case WatcherChangeTypes.Created :
+        case WatcherChangeTypes.Created:
           _type = FileWatchChangeType.Created;
           break;
         case WatcherChangeTypes.Deleted:
@@ -231,8 +231,8 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// <returns></returns>
     public override string ToString()
     {
-       return String.Format("{0} - {1}", _type,
-         (_type != FileWatchChangeType.Renamed ? _path : _oldPath + " -> " + _path));
+      return String.Format("{0} - {1}", _type,
+        (_type != FileWatchChangeType.Renamed ? _path : _oldPath + " -> " + _path));
     }
 
     #endregion
@@ -244,18 +244,17 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    private long GetFileSize(string path)
+    private static long GetFileSize(string path)
     {
       long fileSize;
       try
       {
-        if ((File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory)
-          fileSize = 0;
-        else
-          fileSize = new FileInfo(path).Length;      
+        fileSize = (File.GetAttributes(path) & FileAttributes.Directory) == FileAttributes.Directory
+                     ? 0  // Don't try to get the size of a directory.
+                     : new FileInfo(path).Length;
       }
       // Catch all exceptions.
-      catch (Exception)
+      catch
       {
         return 0;
       }

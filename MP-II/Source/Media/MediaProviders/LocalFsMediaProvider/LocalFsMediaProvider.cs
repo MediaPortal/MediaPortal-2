@@ -291,9 +291,9 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         string path, IEnumerable<string> fileNameFilters, IEnumerable<MediaSourceChangeType> changeTypes)
     {
       ICollection<FileWatchChangeType> fwiChangeTypes = TranslateChangeTypes(changeTypes);
-      FileWatchInfo fwi = new FileWatchInfo(path, true, FileEventHandler, fileNameFilters, fwiChangeTypes);
       ChangeTrackerRegistrationKey ctrk = new ChangeTrackerRegistrationKey(path, changeDelegate);
-      _changeTrackers[ctrk] = ServiceScope.Get<IFileEventNotifier>().Subscribe(fwi);
+      _changeTrackers[ctrk] = ServiceScope.Get<IFileEventNotifier>().Subscribe(path, true, FileEventHandler,
+                                                                               fileNameFilters, fwiChangeTypes);
     }
 
     public void UnregisterChangeTracker(PathChangeDelegate changeDelegate, string path)

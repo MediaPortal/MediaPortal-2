@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{ECF060E7-CAA1-4466-851F-F80B857641EA}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -70,7 +70,7 @@
     <Compile Include="Configuration\IConfigurationNode.cs" />
     <Compile Include="Configuration\NodeNotFoundException.cs" />
     <Compile Include="Configuration\SearchResult.cs" />
-    <Compile Include="FileEventNotification\FileEventHandlerDelegate.cs" />
+    <Compile Include="FileEventNotification\FileEventHandler.cs" />
     <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
     <Compile Include="FileEventNotification\FileWatchInfo.cs" />
     <Compile Include="FileEventNotification\IFileEventNotifier.cs" />

@@ -58,10 +58,9 @@ namespace MediaPortal.Core.Services.FileEventNotification
     #region Constants
 
     /// <summary>
-    /// Time to wait between different checks for events.
-    /// (milliseconds)
+    /// Time to wait between different checks for events, in milliseconds.
     /// </summary>
-    private const int ConsolidationInterval = 1000;
+    private const int EventsConsolidationInterval = 1000;
 
     #endregion
 
@@ -72,23 +71,23 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// </summary>
     private readonly WatchedPath _watchedPath;
     /// <summary>
-    /// The FileSystemWatcher used to watch the path.
+    /// The <see cref="FileSystemWatcher"/> used to watch the path.
     /// </summary>
     private FileSystemWatcher _watcher;
     /// <summary>
-    /// Indicates whether we're watching the path.
+    /// Indicates whether the current <see cref="FileWatcher"/> is active.
     /// </summary>
     private bool _watching;
     /// <summary>
-    /// Indicates whether the current FileWatcher is disposed.
+    /// Indicates whether the current <see cref="FileWatcher"/> is disposed.
     /// </summary>
     private bool _isDisposed;
     /// <summary>
-    /// All subscriptions for events comming from the current watcher.
+    /// All subscriptions for events comming from the current <see cref="FileWatcher"/>.
     /// </summary>
     private readonly IList<FileWatcherInfo> _subscriptions;
     /// <summary>
-    /// All events received within one _serverTimer interval.
+    /// All events received and waiting to be filtered and raised.
     /// </summary>
     private readonly IList<FileWatchEvent> _events;
     /// <summary>
@@ -96,7 +95,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// </summary>
     private SystemTimer _notifyTimer;
     /// <summary>
-    /// Object used for synchronization of the _notifyTimer.
+    /// Object used for synchronization of the <see cref="_notifyTimer"/>.
     /// </summary>
     private readonly object _syncNotify;
 
@@ -105,7 +104,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
     #region Properties
 
     /// <summary>
-    /// Gets whether the current FileWatcher is disposed.
+    /// Gets whether the current <see cref="FileWatcher"/> is disposed.
     /// </summary>
     public bool IsDisposed
     {
@@ -113,11 +112,28 @@ namespace MediaPortal.Core.Services.FileEventNotification
     }
 
     /// <summary>
-    /// Gets the subscriptions of the current FileWatcher.
+    /// Gets the subscriptions of the current <see cref="FileWatcher"/>.
     /// </summary>
-    public IList<FileWatcherInfo> Subscriptions
+    public IEnumerable<FileWatcherInfo> Subscriptions
     {
       get { return _subscriptions; }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the current <see cref="FileWatcher"/> is watching.
+    /// </summary>
+    public bool Watching
+    {
+      get { return _watching; }
+      set
+      {
+        if (_watching == value)
+          return;
+        if (value)
+          EnableWatch();
+        else
+          DisableWatch();
+      }
     }
 
     #endregion
@@ -171,27 +187,28 @@ namespace MediaPortal.Core.Services.FileEventNotification
     #region Public Methods
 
     /// <summary>
-    /// Adds a new FileWatcherInfo to the current watch.
-    /// The eventhandler in the specified FileWatcherInfo will be called on a change in the current watch.
+    /// Adds a new <see cref="FileWatcherInfo"/> to the current <see cref="FileWatcher"/>.
+    /// The <see cref="FileEventHandler"/> in the specified <see cref="fileWatcherInfo"/> will be called on a change in the current watch.
     /// </summary>
-    /// <exception cref="ArgumentException">
-    /// The given fileWatchInfo contains a different path than the one being watched.
+    /// <exception cref="InvalidFileWatchInfoException">
+    /// The given <see cref="fileWatcherInfo"/> contains a different path than the one being watched.
     /// </exception>
-    /// <param name="fileWatcherInfo">The FileWatcherInfo to add.</param>
-    public void Add(FileWatcherInfo fileWatcherInfo)
+    /// <param name="fileWatcherInfo">The <see cref="fileWatcherInfo"/> to add.</param>
+    public void AddSubscription(FileWatcherInfo fileWatcherInfo)
     {
       if (fileWatcherInfo.Path != _watchedPath.Path.FullName)
         throw new InvalidFileWatchInfoException("The specified path does not equal the watched path.");
       lock (_subscriptions)
       {
         if (_subscriptions.Contains(fileWatcherInfo))
-          return; // The given subscription already exists
+          return; /// The given subscription already exists
         _subscriptions.Add(fileWatcherInfo);
         if (fileWatcherInfo.EventHandler == null)
-          return; // No event to call
-        FileWatchEventArgs eventArgs =
-          new FileWatchEventArgs(_watching ? FileWatchChangeType.Enabled : FileWatchChangeType.Disabled,
-                                 fileWatcherInfo.Path);
+          return; /// No event to call
+        var eventArgs = new FileWatchEventArgs(_watching
+                                                 ? FileWatchChangeType.Enabled
+                                                 : FileWatchChangeType.Disabled,
+                                               fileWatcherInfo.Path);
         RaiseEvent(new EventData(fileWatcherInfo, eventArgs));
       }
     }
@@ -202,7 +219,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// </summary>
     /// <param name="fileWatcherInfo">The FileWatcherInfo to remove.</param>
     /// <returns>True if the FileWatcherInfo is found and removed.</returns>
-    public bool Remove(FileWatcherInfo fileWatcherInfo)
+    public bool RemoveSubscription(FileWatcherInfo fileWatcherInfo)
     {
       lock (_subscriptions)
         return _subscriptions.Remove(fileWatcherInfo);
@@ -238,62 +255,6 @@ namespace MediaPortal.Core.Services.FileEventNotification
     #endregion
 
     #region Private Methods
-
-    /// <summary>
-    /// Returns an initialized FileSystemWatcher for the specified path.
-    /// </summary>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    /// <param name="path">Path to initialize FileSystemWatcher for.</param>
-    /// <returns></returns>
-    private FileSystemWatcher InitializeFileSystemWatcher(string path)
-    {
-      FileSystemWatcher watcher = new FileSystemWatcher(path);
-      watcher.Changed += FileSystemEventHandler;
-      watcher.Created += FileSystemEventHandler;
-      watcher.Deleted += FileSystemEventHandler;
-      watcher.Renamed += FileSystemEventHandler;
-      watcher.Error += ErrorEventHandler;
-      watcher.Disposed += FileSystemWatcher_Disposed;
-      return watcher;
-    }
-
-    /// <summary>
-    /// Tries to initialize the service.
-    /// </summary>
-    /// <returns></returns>
-    private void TryInitializeService()
-    {
-      if (_watching || !_watchedPath.Available)
-        return;
-      try
-      {
-        _watcher = InitializeFileSystemWatcher(_watchedPath.Path.FullName);
-        _watcher.IncludeSubdirectories = true;
-        _watcher.EnableRaisingEvents = true;
-        _watching = true;
-        _notifyTimer = new SystemTimer(ConsolidationInterval);
-        _notifyTimer.Elapsed += NotifyTimer_Elapsed;
-        _notifyTimer.Enabled = true;
-      }
-      catch (Exception)
-      {
-        // If something went wrong: dispose both the watcher and the notifytimer.
-        _watching = false;
-        if (_watcher != null)
-        {
-          _watcher.Dispose();
-          _watcher = null;
-        }
-        if (_notifyTimer != null)
-        {
-          _notifyTimer.Dispose();
-          _notifyTimer = null;
-        }
-      }
-      if (_watcher != null)
-        RaiseSingleEvent(_watchedPath.Path.FullName, FileWatchChangeType.Enabled);
-    }
 
     /// <summary>
     /// Enables the watch service.
@@ -335,13 +296,69 @@ namespace MediaPortal.Core.Services.FileEventNotification
     }
 
     /// <summary>
+    /// Tries to initialize the service.
+    /// </summary>
+    /// <returns></returns>
+    private void TryInitializeService()
+    {
+      if (_watching || !_watchedPath.Available)
+        return;
+      try
+      {
+        _watcher = InitializeFileSystemWatcher(_watchedPath.Path.FullName);
+        _watcher.IncludeSubdirectories = true;
+        _watcher.EnableRaisingEvents = true;
+        _watching = true;
+        _notifyTimer = new SystemTimer(EventsConsolidationInterval);
+        _notifyTimer.Elapsed += NotifyTimer_Elapsed;
+        _notifyTimer.Enabled = true;
+      }
+      catch (Exception)
+      {
+        // If something went wrong: dispose both the watcher and the notifytimer.
+        _watching = false;
+        if (_watcher != null)
+        {
+          _watcher.Dispose();
+          _watcher = null;
+        }
+        if (_notifyTimer != null)
+        {
+          _notifyTimer.Dispose();
+          _notifyTimer = null;
+        }
+      }
+      RaiseSingleEvent(_watchedPath.Path.FullName, _watcher != null ? FileWatchChangeType.Enabled : FileWatchChangeType.Disabled);
+    }
+
+    /// <summary>
+    /// Returns an initialized FileSystemWatcher for the specified path.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="ArgumentException"></exception>
+    /// <param name="path">Path to initialize FileSystemWatcher for.</param>
+    /// <returns></returns>
+    private FileSystemWatcher InitializeFileSystemWatcher(string path)
+    {
+      var watcher = new FileSystemWatcher(path);
+      watcher.IncludeSubdirectories = true;
+      watcher.Changed += FileSystemEventHandler;
+      watcher.Created += FileSystemEventHandler;
+      watcher.Deleted += FileSystemEventHandler;
+      watcher.Renamed += FileSystemEventHandler;
+      watcher.Error += ErrorEventHandler;
+      watcher.Disposed += FileSystemWatcher_Disposed;
+      return watcher;
+    }
+
+    /// <summary>
     /// Notifies all subscriptions about the given change.
     /// </summary>
     /// <param name="changeType"></param>
     /// <param name="path"></param>
     private void RaiseSingleEvent(string path, FileWatchChangeType changeType)
     {
-      Queue<FileWatchEvent> _report = new Queue<FileWatchEvent>(1);
+      var _report = new Queue<FileWatchEvent>(1);
       _report.Enqueue(new FileWatchEvent(changeType, path));
       RaiseEvents(_report);
     }
@@ -359,11 +376,11 @@ namespace MediaPortal.Core.Services.FileEventNotification
         throw new ArgumentNullException("eventQueue", "The parameter \"eventQueue\" is a null reference.");
       while (eventQueue.Count > 0)
       {
-        FileWatchEvent watchEvent = eventQueue.Dequeue();
+        var watchEvent = eventQueue.Dequeue();
         IFileWatchEventArgs args = new FileWatchEventArgs(watchEvent);
         lock (_subscriptions)
         {
-          foreach (FileWatcherInfo info in _subscriptions)
+          foreach (var info in _subscriptions)
           {
             if (info.MayRaiseEventFor(args))
               new Thread(RaiseEvent).Start(new EventData(info, args));
@@ -390,7 +407,7 @@ namespace MediaPortal.Core.Services.FileEventNotification
         Thread.CurrentThread.Name = "FileEventNotifier";
       // Only one thread at a time is processing the events.
       // We don't fire the events inside the lock. We will queue them here until the code exits the lock.
-      Queue<FileWatchEvent> eventsToBeFired = new Queue<FileWatchEvent>();
+      var eventsToBeFired = new Queue<FileWatchEvent>();
       try
       {
         // Lock the collection while processing the events
@@ -458,44 +475,24 @@ namespace MediaPortal.Core.Services.FileEventNotification
     /// <param name="e"></param>
     private void FileSystemEventHandler(object sender, FileSystemEventArgs e)
     {
-      FileSystemWatcher fileSystemWatcher = (FileSystemWatcher)sender;
-      // Received an event for the watched path?
-      if (fileSystemWatcher.Path == _watchedPath.Path.FullName && _watching)
-      {
-        lock (_events)
-          _events.Add(new FileWatchEvent(e));
-      }
-      // Received an event for the parent path, regarding the watched path?
-      else if (e.FullPath + "\\" == _watchedPath.Path.FullName)
-      {
-        if ((e.ChangeType & WatcherChangeTypes.Deleted) == WatcherChangeTypes.Deleted)
-        {
-          DisableWatch();
-          lock (_events)
-            _events.Clear();
-        }
-        else if ((e.ChangeType & WatcherChangeTypes.Created) == WatcherChangeTypes.Created
-            || (e.ChangeType & WatcherChangeTypes.Renamed) == WatcherChangeTypes.Renamed)
-        {
-          EnableWatch();
-        }
-      }
-      // Else: discart the event
+      lock (_events)
+        _events.Add(new FileWatchEvent(e));
     }
 
     /// <summary>
-    /// Handles errors from the FileSystemWatchers.
+    /// Handles errors from <see cref="FileSystemWatcher"/>.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void ErrorEventHandler(object sender, ErrorEventArgs e)
     {
+      /// An error occured, disable the watch.
       if (sender == _watcher)
         DisableWatch();
     }
 
     /// <summary>
-    /// Handles the Disposed event for the FileSystemWatchers.
+    /// Handles the Disposed event for <see cref="FileSystemWatcher"/>.
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -514,10 +511,10 @@ namespace MediaPortal.Core.Services.FileEventNotification
 
     /// <summary>
     /// Returns whether the drive's type is valid.
-    /// A valid drive type should be watchable by the FileSystemWatcher.
+    /// A valid drive type should be watchable by the <see cref="FileSystemWatcher"/>.
     /// </summary>
-    /// <param name="path"></param>
-    /// <returns></returns>
+    /// <param name="path">Path to verify the drive type for.</param>
+    /// <returns>Whether the drive type associated with the specified <paramref name="path"/> can be watched.</returns>
     private static bool IsValidDriveType(string path)
     {
       if (path.StartsWith(@"\\"))
@@ -537,25 +534,22 @@ namespace MediaPortal.Core.Services.FileEventNotification
     }
 
     /// <summary>
-    /// Raises an event for the given EventData.
+    /// Raises an event for the given <see cref="EventData"/>.
     /// </summary>
-    /// <param name="eventData">An instance of EventData.</param>
+    /// <param name="eventData">An instance of <see cref="EventData"/>.</param>
     private static void RaiseEvent(object eventData)
     {
-      // Should we give the current Thread a name?
-      EventData data = (EventData)eventData;
-      if (data.Info.EventHandler != null)
+      var data = (EventData)eventData;
+      if (data.Info.EventHandler == null)
+        return; // No eventhandlers to call.
+      try
       {
-        try
-        {
-          data.Info.EventHandler(data.Info, data.Args);
-        }
-        // Suppress exceptions,
-        // else the whole core could crash if a plugin throws unhandled exceptions from within the eventhandler.
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Error("Unhandled FileWatchEvent for path \"{0}\".", e, data.Args.Path);
-        }
+        data.Info.EventHandler(data.Info, data.Args);
+      }
+      // Suppress all exceptions.
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Unhandled FileWatchEvent for path \"{0}\".", e, data.Args.Path);
       }
     }
 

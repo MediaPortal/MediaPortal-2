@@ -22,12 +22,14 @@
 
 #endregion
 
+using MediaPortal.Core.Services.FileEventNotification;
+
 namespace MediaPortal.Core.FileEventNotification
 {
   /// <summary>
-  /// Represents the method that will handle the events of a FileWatcher class.
+  /// Represents the method that will handle the events of a <see cref="FileWatcher"/> class.
   /// </summary>
   /// <param name="sender">The source of the event.</param>
-  /// <param name="args">The FileWatchEventArgs that contains the event data.</param>
-  public delegate void FileEventHandlerDelegate(FileWatchInfo sender, IFileWatchEventArgs args);
+  /// <param name="args">The <see cref="IFileWatchEventArgs"/> that contains the event data.</param>
+  public delegate void FileEventHandler(FileWatchInfo sender, IFileWatchEventArgs args);
 }
