@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
@@ -269,8 +270,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         DriveInfo di = new DriveInfo(path);
         return di.IsReady ? string.Format("{0} [{1}]", di.VolumeLabel, path) : path;
       }
-      if (path.EndsWith("/"))
-        path = path.Substring(0, path.Length-1);
+      path = StringUtils.RemoveSuffixIfPresent(path, "/");
       return Path.GetFileName(path);
     }
 

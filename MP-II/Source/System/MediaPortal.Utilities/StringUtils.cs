@@ -103,5 +103,61 @@ namespace MediaPortal.Utilities
     {
       return string.IsNullOrEmpty(s) ? string.Empty : s;
     }
+
+    /// <summary>
+    /// Checks if the specified <paramref name="source"/> string contains the given <paramref name="suffix"/> and removes it,
+    /// if present.
+    /// </summary>
+    /// <param name="source">String to examine.</param>
+    /// <param name="suffix">Suffix to be removed.</param>
+    /// <returns>String with removed suffix or <c>null</c> if <paramref name="source"/> is null.</returns>
+    public static string RemoveSuffixIfPresent(string source, string suffix)
+    {
+      if (string.IsNullOrEmpty(source))
+        return source;
+      return source.EndsWith(suffix) ? source.Substring(0, source.Length - suffix.Length) : source;
+    }
+
+    /// <summary>
+    /// Checks if the specified <paramref name="source"/> string contains the given <paramref name="suffix"/> and adds it if
+    /// it isn't present.
+    /// </summary>
+    /// <param name="source">String to examine.</param>
+    /// <param name="suffix">Suffix which must be available.</param>
+    /// <returns>String with suffix or <c>null</c> if <paramref name="source"/> is null.</returns>
+    public static string CheckSuffix(string source, string suffix)
+    {
+      if (source == null)
+        return null;
+      return source.EndsWith(suffix) ? source : source + suffix;
+    }
+
+    /// <summary>
+    /// Checks if the specified <paramref name="source"/> string contains the given <paramref name="prefix"/> and removes it,
+    /// if present.
+    /// </summary>
+    /// <param name="source">String to examine.</param>
+    /// <param name="prefix">Prefix to be removed.</param>
+    /// <returns>String with removed prefix or <c>null</c> if <paramref name="source"/> is null.</returns>
+    public static string RemovePrefixIfPresent(string source, string prefix)
+    {
+      if (string.IsNullOrEmpty(source))
+        return source;
+      return source.StartsWith(prefix) ? source.Substring(prefix.Length) : source;
+    }
+
+    /// <summary>
+    /// Checks if the specified <paramref name="source"/> string contains the given <paramref name="prefix"/> and adds it if
+    /// it isn't present.
+    /// </summary>
+    /// <param name="source">String to examine.</param>
+    /// <param name="prefix">Prefix which must be available.</param>
+    /// <returns>String with prefix or <c>null</c> if <paramref name="source"/> is null.</returns>
+    public static string CheckPrefix(string source, string prefix)
+    {
+      if (source == null)
+        return null;
+      return source.StartsWith(prefix) ? source : prefix + source;
+    }
   }
 }

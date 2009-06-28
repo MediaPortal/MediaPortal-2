@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.Registry
 {
@@ -53,8 +54,7 @@ namespace MediaPortal.Core.Registry
     /// <returns>Path without a trailing slash or <c>null</c>, if <paramref name="path"/> is null.</returns>
     public static string RemoveTrailingSlash(string path)
     {
-      return (string.IsNullOrEmpty(path) || !path.EndsWith("/")) ?
-          path : path.Substring(0, path.Length - 1);
+      return StringUtils.RemoveSuffixIfPresent(path, "/");
     }
 
     public static bool IsAbsolutePath(string path)

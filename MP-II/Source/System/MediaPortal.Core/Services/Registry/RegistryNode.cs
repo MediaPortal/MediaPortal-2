@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Registry;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.Services.Registry
 {
@@ -83,8 +84,7 @@ namespace MediaPortal.Core.Services.Registry
         return null;
       if (path.StartsWith("/"))
         throw new ArgumentException("Registry path expression has to be a relative path (no '/' character at the beginning)");
-      if (path.EndsWith("/"))
-        path = path.Substring(0, path.Length - 1);
+      path = StringUtils.RemoveSuffixIfPresent(path, "/");
       int i = path.IndexOf('/');
       string nodeName = i == -1 ? path : path.Substring(0, i);
       CheckSubNodeCollectionPresent();

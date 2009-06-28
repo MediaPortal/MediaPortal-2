@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -50,8 +51,7 @@ namespace MediaPortal.Core.MediaManagement
     protected static ICollection<string> ConcatPaths(string rootPath,
         IEnumerable<string> namesWithPathPrefix, bool isDirectory)
     {
-      if (!rootPath.EndsWith("/"))
-        rootPath = rootPath + "/";
+      rootPath = StringUtils.CheckSuffix(rootPath, "/");
       ICollection<string> result = new List<string>();
       foreach (string file in namesWithPathPrefix)
         result.Add(rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty));

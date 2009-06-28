@@ -28,6 +28,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using MediaPortal.Core.PathManager;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.Services.PathManager
 {
@@ -71,10 +72,7 @@ namespace MediaPortal.Core.Services.PathManager
     public void SetPath(string label, string pathPattern)
     {
       label = CheckFormat(label);
-
-      if (pathPattern.EndsWith("\\"))
-        pathPattern = pathPattern.Substring(0, pathPattern.Length - 1);
-
+      pathPattern = StringUtils.RemoveSuffixIfPresent(pathPattern, "\\");
       _paths.Add(label, pathPattern);
     }
 
