@@ -328,7 +328,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <RadioButton x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center"
-          IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}" GroupName="RadioButtonGroup"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
       <Grid.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
