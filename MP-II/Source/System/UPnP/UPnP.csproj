@@ -1,0 +1,188 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UPnP</RootNamespace>
+    <AssemblyName>UPnP</AssemblyName>
+    <StartupObject>
+    </StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\UPnP.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\UPnP.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Test\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DocumentationFile>bin\Debug\HttpServer.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\Release\UPnP.xml</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Test\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DocumentationFile>bin\Debug\HttpServer.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Infrastructure\Common\HTTPVersion.cs" />
+    <Compile Include="Infrastructure\Common\UPnPVersion.cs" />
+    <Compile Include="Infrastructure\CP\CPData.cs" />
+    <Compile Include="Infrastructure\CP\DeviceConnection.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpAllowedValueRange.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpDataType.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpExtendedDataType.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpStandardDataType.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpExtendedDataTypeDummy.cs" />
+    <Compile Include="Infrastructure\CP\EndpointConfiguration.cs" />
+    <Compile Include="Infrastructure\CP\GENA\GENAHandler.cs" />
+    <Compile Include="Infrastructure\CP\RootDescriptor.cs" />
+    <Compile Include="Infrastructure\CP\ServiceDescriptor.cs" />
+    <Compile Include="Infrastructure\CP\SOAP\SOAPHandler.cs" />
+    <Compile Include="Infrastructure\CP\SSDP\DeviceEntry.cs" />
+    <Compile Include="Infrastructure\CP\SSDP\RootEntry.cs" />
+    <Compile Include="Infrastructure\CP\SSDP\SSDPClientController.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\Delegates.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\ILocalizedDeviceInformation.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\IconDescriptor.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvAllowedValueRange.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvStateVariable.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvAction.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvArgument.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvService.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvDevice.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvDataType.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvExtendedDataType.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTree\DvStandardDataType.cs" />
+    <Compile Include="Infrastructure\Dv\GENA\EventingState.cs" />
+    <Compile Include="Infrastructure\Dv\GENA\GENAMessageBuilder.cs" />
+    <Compile Include="Infrastructure\Dv\GENA\GENAServerController.cs" />
+    <Compile Include="Infrastructure\Dv\GENA\EventSubscription.cs" />
+    <Compile Include="Infrastructure\Dv\SOAP\SOAPHandler.cs" />
+    <Compile Include="Infrastructure\Dv\HTTP\HTTPResponseCode.cs" />
+    <Compile Include="Infrastructure\Dv\ServerData.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\AliveMessageSender.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\ByeByeMessageSender.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\DeviceTreeNotificationProducer.cs" />
+    <Compile Include="Infrastructure\Dv\DeviceTreeURLGenerator.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\UpdateMessageSender.cs" />
+    <Compile Include="Infrastructure\Dv\HTTP\SimpleHTTPRequest.cs" />
+    <Compile Include="Infrastructure\Dv\EndpointConfiguration.cs" />
+    <Compile Include="Infrastructure\Dv\HTTP\SimpleHTTPMessage.cs" />
+    <Compile Include="Infrastructure\Dv\HTTP\SimpleHTTPResponse.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\ISSDPDiscoveryMessageSender.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\SearchResultMessageSender.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\PendingSearchRequest.cs" />
+    <Compile Include="Infrastructure\Dv\SSDP\SSDPServerController.cs" />
+    <Compile Include="Infrastructure\Dv\UPnPServer.cs" />
+    <Compile Include="Infrastructure\CP\UPnPControlPoint.cs" />
+    <Compile Include="Infrastructure\CP\UPnPNetworkTracker.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpDevice.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpService.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpStateVariable.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpAction.cs" />
+    <Compile Include="Infrastructure\CP\DeviceTree\CpArgument.cs" />
+    <Compile Include="Infrastructure\Common\UPnPStandardDataType.cs" />
+    <Compile Include="Infrastructure\Common\UPnPError.cs" />
+    <Compile Include="Infrastructure\Utils\EncodingUtils.cs" />
+    <Compile Include="Infrastructure\Utils\NetworkHelper.cs" />
+    <Compile Include="Infrastructure\Utils\ParserHelper.cs" />
+    <Compile Include="Infrastructure\Exceptions.cs" />
+    <Compile Include="Infrastructure\Consts.cs" />
+    <Compile Include="Infrastructure\Configuration.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HttpServer\HttpServer.csproj">
+      <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
+      <Name>HttpServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

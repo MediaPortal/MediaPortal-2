@@ -1,0 +1,113 @@
+using System;
+using System.Collections.Generic;
+using HttpServer;
+using UPnP.Infrastructure.Dv.DeviceTree;
+using UPnP.Infrastructure.Dv.GENA;
+using UPnP.Infrastructure.Dv.SSDP;
+
+namespace UPnP.Infrastructure.Dv
+{
+  /// <summary>
+  /// Runtime configuration data for the UPnP subsystem.
+  /// </summary>
+  public class ServerData
+  {
+    /// <summary>
+    /// HTTP listening port for description and control requests.
+    /// </summary>
+    public static uint DEFAULT_HTTP_PORT = 8081;
+
+    /// <summary>
+    /// State of the UPnP subsystem.
+    /// </summary>
+    public bool IsActive = false;
+
+    /// <summary>
+    /// Synchronization object for the UPnP server system.
+    /// </summary>
+    public object SyncObj = new object();
+
+    /// <summary>
+    /// Collection of UPnP endpoints, the UPnP system is bound to.
+    /// </summary>
+    public ICollection<EndpointConfiguration> UPnPEndPoints = new List<EndpointConfiguration>();
+
+    /// <summary>
+    /// The handler instance which attends the SSDP subsystem.
+    /// </summary>
+    public SSDPServerController SSDPController;
+
+    /// <summary>
+    /// The controller instance which attends the GENA subsystem.
+    /// </summary>
+    public GENAServerController GENAController;
+
+    /// <summary>
+    /// HTTP listener to answer description, control and eventing requests.
+    /// </summary>
+    public HttpListener HTTPListener;
+
+    /// <summary>
+    /// Port where the HTTP server is listening.
+    /// </summary>
+    public uint HTTP_PORT = DEFAULT_HTTP_PORT;
+
+    /// <summary>
+    /// The UPnP server which is handled by the UPnP subsystem.
+    /// </summary>
+    public UPnPServer Server;
+
+    /// <summary>
+    /// Time in seconds after that a UPnP advertisment expires.
+    /// </summary>
+    public int AdvertisementExpirationTime = 1800;
+
+    /// <summary>
+    /// UPnP BOOTID. Contains a value that is increased at every startup of the UPnP subsystem.
+    /// </summary>
+    public int BootId = NextBootId();
+
+    /// <summary>
+    /// UPnP CONFIGID. Contains a value indicating the current UPnP server configuration. Must be increased when the configuration
+    /// changes.
+    /// </summary>
+    public int ConfigId = 0;
+
+    /// <summary>
+    /// Collection of pending searches which will be answered some milliseconds later, as specified in the UPnP device
+    /// architecture.
+    /// </summary>
+    public ICollection<PendingSearchRequest> PendingSearches = new List<PendingSearchRequest>();
+
+    /// <summary>
+    /// Stores the sequence numbers per service for multicast events. The entries in the dictionary will be lazily initialized.
+    /// </summary>
+    public IDictionary<DvService, EventingState> ServiceMulticastEventingState = new Dictionary<DvService, EventingState>();
+
+    /// <summary>
+    /// Returns the next integer which can be used as BOOTID value at the current time.
+    /// The return value depends on the current system time.
+    /// </summary>
+    /// <returns>Integer for BOOTID field which can be used at the current time.</returns>
+    public static int NextBootId()
+    {
+      // As proposed in (1), 1.2.2
+      return (int) (DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
+    }
+
+    /// <summary>
+    /// Returns the next event key for a multicast event for the given <paramref name="service"/>.
+    /// </summary>
+    /// <param name="service">Service for that the new multicast event key should be created.</param>
+    /// <returns>New multicast event key.</returns>
+    public uint GetNextMulticastEventKey(DvService service)
+    {
+      EventingState state;
+      if (!ServiceMulticastEventingState.TryGetValue(service, out state))
+        ServiceMulticastEventingState[service] = state = new EventingState();
+      uint result = state.EventKey;
+      state.IncEventKey();
+      return result;
+    }
+  }
+}
