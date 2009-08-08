@@ -57,6 +57,16 @@ namespace MediaPortal.Utilities.SystemAPI
     }
 
     /// <summary>
+    /// Returns a string which contains the name and version of the operating system.
+    /// </summary>
+    /// <returns>Operating system name and version.</returns>
+    public static string GetOsVersionString()
+    {
+      OperatingSystem os = Environment.OSVersion;
+      return os.Platform + "/" + os.Version;
+    }
+
+    /// <summary>
     /// Returns the path of the given system's special folder.
     /// </summary>
     /// <param name="folder">Folder to retrieve.</param>

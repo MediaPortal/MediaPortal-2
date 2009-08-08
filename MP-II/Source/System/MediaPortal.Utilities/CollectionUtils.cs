@@ -60,6 +60,20 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
+    /// Removes all elements in the <paramref name="source"/> enumeration from the <paramref name="target"/> collection.
+    /// </summary>
+    /// <typeparam name="S">Type of the source elements. Needs to be equal to <see cref="T"/> or to be a
+    /// sub type.</typeparam>
+    /// <typeparam name="T">Target type.</typeparam>
+    /// <param name="target">Target collection where all elements from <paramref name="source"/> will be removed.</param>
+    /// <param name="source">Source enumeration whose elements will be removed from <paramref name="target"/>.</param>
+    public static void RemoveAll<S, T>(ICollection<T> target, IEnumerable<S> source) where S: T
+    {
+      foreach (S s in source)
+        target.Remove(s);
+    }
+
+    /// <summary>
     /// Adds all elements in the <paramref name="source"/> enumeration to the <paramref name="target"/> collection.
     /// </summary>
     /// <typeparam name="S">Type of the source elements. Needs to be equal to <see cref="T"/> or to be a
@@ -173,7 +187,7 @@ namespace MediaPortal.Utilities
 
     private class ComparisonEqualityComparer<T> : IEqualityComparer<T>
     {
-      protected readonly Comparison<T> _comparison;
+      private readonly Comparison<T> _comparison;
 
       public ComparisonEqualityComparer(Comparison<T> comparison)
       {
@@ -243,8 +257,7 @@ namespace MediaPortal.Utilities
     /// <returns><c>true</c>, if the size and all elements of the enumerations are the same,
     /// else <c>false</c>. The order of elements doesn't matter in the enumerations.</returns>
     public static bool CompareCollections<T>(IEnumerable<T> e1, IEnumerable<T> e2,
-        Comparison<T> comparison)
-        where T : struct
+        Comparison<T> comparison) where T : struct
     {
       List<T> l1 = new List<T>(e1);
       List<T> l2 = new List<T>(e2);
@@ -271,6 +284,24 @@ namespace MediaPortal.Utilities
       T tmp = list[index1];
       list[index1] = list[index2];
       list[index2] = tmp;
+    }
+
+    /// <summary>
+    /// Clusters the given enumeration into clusters of the given <paramref name="clusterSize"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the elements in the enumeration to cluster.</typeparam>
+    /// <param name="enumeration">Elements to cluster.</param>
+    /// <param name="clusterSize">Size of the clusters which should be created.</param>
+    /// <returns>Collection of lists, each of size <paramref name="clusterSize"/> except the last one, which contains the
+    /// rest of the elements.</returns>
+    public static ICollection<IList<T>> Cluster<T>(IEnumerable<T> enumeration, int clusterSize)
+    {
+      List<T> elements = new List<T>(enumeration);
+      int clusterCount = (elements.Count - 1) / clusterSize + 1;
+      ICollection<IList<T>> result = new List<IList<T>>(clusterCount);
+      for (int i = 0; i < clusterCount; i++)
+        result.Add(elements.GetRange(i * clusterSize, clusterSize));
+      return result;
     }
   }
 }

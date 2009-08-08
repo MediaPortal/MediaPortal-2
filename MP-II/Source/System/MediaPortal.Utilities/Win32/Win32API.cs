@@ -107,13 +107,6 @@ namespace MediaPortal.Utilities.Win32
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern bool CloseHandle(IntPtr hObject);
 
-    /// <summary>
-    /// Gets Operating System Information
-    /// </summary>
-    /// <param name="osVersionInfo"></param>
-    /// <returns></returns>
-    [DllImport("kernel32.dll")]
-    public static extern bool GetVersionEx(ref OSVERSIONINFOEX osVersionInfo);
     #endregion
 
     #region User32
