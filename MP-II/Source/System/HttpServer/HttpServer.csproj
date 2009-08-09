@@ -1,0 +1,177 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HttpServer</RootNamespace>
+    <AssemblyName>HttpServer</AssemblyName>
+    <StartupObject>
+    </StartupObject>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>test.snk</AssemblyOriginatorKeyFile>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\HttpServer.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\HttpServer.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Test\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DocumentationFile>bin\Debug\HttpServer.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\HttpServer.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\Release\HttpServer.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Test\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
+    <DocumentationFile>bin\Debug\HttpServer.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Authentication\AuthenticationModule.cs" />
+    <Compile Include="Authentication\BasicAuthentication.cs" />
+    <Compile Include="Authentication\DigestAuthentication.cs" />
+    <Compile Include="Check.cs" />
+    <Compile Include="ClientAcceptedEventArgs.cs" />
+    <Compile Include="ComponentProvider.cs" />
+    <Compile Include="ContentTypes.cs" />
+    <Compile Include="ExceptionHandler.cs" />
+    <Compile Include="Exceptions\BadRequestException.cs" />
+    <Compile Include="Exceptions\ForbiddenException.cs" />
+    <Compile Include="Exceptions\HttpException.cs" />
+    <Compile Include="Exceptions\InternalServerException.cs" />
+    <Compile Include="Exceptions\NotFoundException.cs" />
+    <Compile Include="Exceptions\UnauthorizedException.cs" />
+    <Compile Include="FormDecoders\FormDecoderProvider.cs" />
+    <Compile Include="FormDecoders\HttpMultipart.cs" />
+    <Compile Include="FormDecoders\IFormDecoder.cs" />
+    <Compile Include="FormDecoders\MultipartDecoder.cs" />
+    <Compile Include="FormDecoders\UrlDecoder.cs" />
+    <Compile Include="FormDecoders\XmlDecoder.cs" />
+    <Compile Include="Helpers\FormHelper.cs" />
+    <Compile Include="Helpers\GetIdTitle.cs" />
+    <Compile Include="Helpers\Implementations\PrototypeImp.cs" />
+    <Compile Include="Helpers\JSHelper.cs" />
+    <Compile Include="Helpers\ObjectForm.cs" />
+    <Compile Include="Helpers\ResourceInfo.cs" />
+    <Compile Include="Helpers\ResourceManager.cs" />
+    <Compile Include="Helpers\WebHelper.cs" />
+    <Compile Include="Helpers\XmlHelper.cs" />
+    <Compile Include="HttpClientContext.cs" />
+    <Compile Include="HttpContextFactory.cs" />
+    <Compile Include="HttpFile.cs" />
+    <Compile Include="HttpForm.cs" />
+    <Compile Include="HttpHelper.cs" />
+    <Compile Include="HttpInput.cs" />
+    <Compile Include="HttpInputItem.cs" />
+    <Compile Include="HttpListener.cs" />
+    <Compile Include="HttpListenerBase.cs" />
+    <Compile Include="HttpModules\FileModule.cs" />
+    <Compile Include="HttpModules\HttpModule.cs" />
+    <Compile Include="HttpModules\HttpModuleExceptionEventArgs.cs" />
+    <Compile Include="HttpModules\ResourceFileModule.cs" />
+    <Compile Include="HttpModules\ReverseProxyModule.cs" />
+    <Compile Include="HttpModules\WebSiteModule.cs" />
+    <Compile Include="HttpParam.cs" />
+    <Compile Include="HttpRequest.cs" />
+    <Compile Include="HttpResponse.cs" />
+    <Compile Include="HttpServer.cs" />
+    <Compile Include="IComponentProvider.cs" />
+    <Compile Include="IHttpClientContext.cs" />
+    <Compile Include="IHttpContextHandler.cs" />
+    <Compile Include="IHttpRequest.cs" />
+    <Compile Include="IHttpRequestParser.cs" />
+    <Compile Include="IHttpResponse.cs" />
+    <Compile Include="ILogWriter.cs" />
+    <Compile Include="Method.cs" />
+    <Compile Include="Parser\BodyEventArgs.cs" />
+    <Compile Include="Parser\HeaderEventArgs.cs" />
+    <Compile Include="Parser\HttpRequestParser.cs" />
+    <Compile Include="Parser\RequestLineEventArgs.cs" />
+    <Compile Include="Parser\RequestParserFactory.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestCookie.cs" />
+    <Compile Include="RequestCookies.cs" />
+    <Compile Include="RequestQueue.cs" />
+    <Compile Include="ResponseCookie.cs" />
+    <Compile Include="ResponseCookies.cs" />
+    <Compile Include="Rules\IRule.cs" />
+    <Compile Include="Rules\RedirectRule.cs" />
+    <Compile Include="Rules\RegexRedirectRule.cs" />
+    <Compile Include="Sessions\IHttpSession.cs" />
+    <Compile Include="Sessions\IHttpSessionStore.cs" />
+    <Compile Include="Sessions\MemorySession.cs" />
+    <Compile Include="Sessions\MemorySessionStore.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="httpserver.pfx" />
+    <None Include="test.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

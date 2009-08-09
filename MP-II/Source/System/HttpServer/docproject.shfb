@@ -1,0 +1,71 @@
+﻿<project schemaVersion="1.6.0.7">
+    <assemblies>
+        <assembly assemblyPath=".\bin\Debug\HttpServer.dll" xmlCommentsPath=".\bin\Debug\HttpServer.xml" commentsOnly="False" />
+    </assemblies>
+    <namespaceSummaries>
+        <namespaceSummaryItem name="" isDocumented="False" />
+        <namespaceSummaryItem name="HttpServer" isDocumented="True">You ca either use the &lt;see cref="HttpListener" /&gt; directly or build a more complete webserver by using &lt;see cref="HttpServer" /&gt;.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Authentication" isDocumented="True">This namespace contains the authentication modules used for HTTP Authentication.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Controllers" isDocumented="True">Classes used for C in the MVC pattern. The &lt;see cref="RequestController" /&gt; gives you most power, while the &lt;see cref="ViewController" /&gt; makes it easier to use templates.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Exceptions" isDocumented="True">All exceptions thrown by the framework.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.FormDecoders" isDocumented="True">Form decoders are used to convert content posted by the client/webbrowser. The decoders convert the data into &lt;see cref="HttpInput" /&gt; objects.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Helpers" isDocumented="True">General helpers to make the weblife easier.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Helpers.Implementations" isDocumented="True">Javascript library implementations</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.HttpModules" isDocumented="True">HttpModules are used to extend the functionality of the webserver. Take a look at &lt;see cref="HttpModule" /&gt; if you want to create your own.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Rendering" isDocumented="True">This namespace contains all template implementations. Templates (also called "views") are used to generate HTML.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Rendering.Haml" isDocumented="True">HAML templates, see the original &lt;a href="http://haml.hamptoncatlin.com/"&gt;implementation&lt;/a&gt; for more infomration.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Rendering.Haml.Nodes" isDocumented="True">HAML node elements</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Rendering.Haml.Rules" isDocumented="True">Rules while pre processing HAML.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Rendering.Tiny" isDocumented="True">Tiny templates uses ASP style tags.</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Rules" isDocumented="True">Rules are processed by the webserver before any of the modules are invoked. That makes them ideal for pre processing, like redirecting or modifying the Request url</namespaceSummaryItem>
+        <namespaceSummaryItem name="HttpServer.Sessions" isDocumented="True">Sessions are used to keep track of information between requests. The webserver currently have a Memory session store implemented.</namespaceSummaryItem>
+    </namespaceSummaries>
+    <dependencies>
+        <dependencyItem depPath=".\bin\Debug\Fadd.Globalization.Yaml.dll" />
+        <dependencyItem depPath=".\bin\Debug\Fadd.dll" />
+    </dependencies>
+    <componentConfigurations>
+        <component id="Code Block Component" enabled="True" configuration="&lt;component id=&quot;Code Block Component&quot; type=&quot;SandcastleBuilder.Components.CodeBlockComponent&quot; assembly=&quot;{@SHFBFolder}SandcastleBuilder.Components.dll&quot;&gt;&#xD;&#xA;&lt;!-- Base path for relative filenames in source attributes&#xD;&#xA;                 (optional) --&gt;&#xD;&#xA;&lt;basePath value=&quot;{@ProjectFolder}&quot; /&gt;&#xD;&#xA;&lt;!-- Connect to language filter (optional).  If omitted,&#xD;&#xA;                 language filtering is enabled by default. --&gt;&#xD;&#xA;&lt;languageFilter value=&quot;true&quot; /&gt;&#xD;&#xA;&lt;!-- Code colorizer options (required).&#xD;&#xA;                 Attributes:&#xD;&#xA;                    Language syntax configuration file (required)&#xD;&#xA;                    XSLT style file (required)&#xD;&#xA;                    &quot;Copy&quot; image file URL (required)&#xD;&#xA;                    Default language (optional)&#xD;&#xA;                    Enable line numbering (optional)&#xD;&#xA;                    Enable outlining (optional)&#xD;&#xA;                    Keep XML comment &quot;see&quot; tags within the code (optional)&#xD;&#xA;                    Tab size override (optional, 0 = Use syntax file setting)&#xD;&#xA;                    Use language name as default title (optional) --&gt;&#xD;&#xA;&lt;colorizer syntaxFile=&quot;{@SHFBFolder}Colorizer\highlight.xml&quot; styleFile=&quot;{@SHFBFolder}Colorizer\highlight.xsl&quot; copyImageUrl=&quot;../icons/CopyCode.gif&quot; language=&quot;cs&quot; numberLines=&quot;false&quot; outlining=&quot;false&quot; keepSeeTags=&quot;false&quot; tabSize=&quot;0&quot; defaultTitle=&quot;true&quot; /&gt;&#xD;&#xA;&lt;/component&gt;" />
+    </componentConfigurations>
+    <ProjectSummary>C# WebServer is an webserver which runs in the current appdomain. It's module based, which means that you can either use a minimal fast webserver designed after your needs, or add built in modules to get a fully blown MVC webserver.</ProjectSummary>
+    <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
+    <HtmlHelp1xCompilerPath path="" />
+    <HtmlHelp2xCompilerPath path="" />
+    <OutputPath>Help\</OutputPath>
+    <SandcastlePath path="" />
+    <WorkingPath path=".\Working\" />
+    <CleanIntermediates>True</CleanIntermediates>
+    <KeepLogFile>True</KeepLogFile>
+    <BuildLogFile path="" />
+    <HelpFileFormat>Help1xAndWebsite</HelpFileFormat>
+    <CppCommentsFixup>False</CppCommentsFixup>
+    <FrameworkVersion>2.0.50727</FrameworkVersion>
+    <IndentHtml>False</IndentHtml>
+    <Preliminary>False</Preliminary>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <RootNamespaceTitle />
+    <HelpTitle>C# Webserver</HelpTitle>
+    <HtmlHelpName>webserver</HtmlHelpName>
+    <Language>en-US</Language>
+    <CopyrightHref>http://www.gauffin.com</CopyrightHref>
+    <CopyrightText>(c) 2008 Gauffin Telecom AB</CopyrightText>
+    <FeedbackEMailAddress />
+    <FeedbackEMailLinkText />
+    <HeaderText />
+    <FooterText>http://www.codeplex.com/webserver | LGPL Licensed.</FooterText>
+    <ProjectLinkType>Local</ProjectLinkType>
+    <SdkLinkType>Msdn</SdkLinkType>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <PresentationStyle>vs2005</PresentationStyle>
+    <NamingMethod>MemberName</NamingMethod>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <ShowFeedbackControl>False</ShowFeedbackControl>
+    <BinaryTOC>True</BinaryTOC>
+    <IncludeFavorites>False</IncludeFavorites>
+    <CollectionTocStyle>Hierarchical</CollectionTocStyle>
+    <IncludeStopWordList>True</IncludeStopWordList>
+    <PlugInNamespaces>ms.vsipcc+, ms.vsexpresscc+</PlugInNamespaces>
+    <HelpFileVersion>1.0.0.0</HelpFileVersion>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
+</project>
