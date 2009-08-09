@@ -204,7 +204,7 @@ namespace UPnP.Infrastructure.CP
     {
       lock (_cpData.SyncObj)
       {
-        Disconnect();
+        Disconnect(false);
         _subscriptionRenewalTimer.Dispose();
         foreach (AsyncRequestState state in _pendingCalls)
           state.Request.Abort();
@@ -232,13 +232,16 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Disconnects this device connection.
     /// </summary>
-    public void Disconnect()
+    /// <param name="unsubscribeEvents">If set to <c>true</c>, unsubscription messages are sent for all subscribed services.</param>
+    public void Disconnect(bool unsubscribeEvents)
     {
       lock (_cpData.SyncObj)
       {
         foreach (EventSubscription subscription in _subscriptions.Values)
           UnsubscribeEvents(subscription);
-        _device.Disconnect();
+        _subscriptions.Clear();
+        if (_device.IsConnected)
+          _device.Disconnect();
       }
     }
 
@@ -259,6 +262,11 @@ namespace UPnP.Infrastructure.CP
       if (subscription == null)
         throw new IllegalCallException("Service '{0}' is not subscribed to receive events", service.FullQualifiedName);
       UnsubscribeEvents(subscription);
+    }
+
+    internal void OnDeviceRebooted()
+    {
+      RenewAllEventSubscriptions();
     }
 
     internal void OnActionCalled(CpAction action, IList<object> inParams, object clientState)
@@ -349,6 +357,12 @@ namespace UPnP.Infrastructure.CP
         IAsyncResult result = state.Request.BeginGetResponse(OnSubscribeOrRenewSubscriptionResponseReceived, state);
         NetworkHelper.AddTimeout(request, result, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000);
       }
+    }
+
+    protected void RenewAllEventSubscriptions()
+    {
+      foreach (EventSubscription subscription in _subscriptions.Values)
+        RenewEventSubscription(subscription);
     }
 
     private void OnSubscribeOrRenewSubscriptionResponseReceived(IAsyncResult ar)

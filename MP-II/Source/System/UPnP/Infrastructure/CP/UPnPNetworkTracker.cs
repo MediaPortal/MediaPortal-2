@@ -23,6 +23,12 @@ namespace UPnP.Infrastructure.CP
   public delegate void DeviceRemovedDlgt(RootDescriptor rootDescriptor);
 
   /// <summary>
+  /// Delegate to be called when a reboot of a network device was detected.
+  /// </summary>
+  /// <param name="rootDescriptor">Descriptor of the UPnP device which was rebooted.</param>
+  public delegate void DeviceRebootedDlgt(RootDescriptor rootDescriptor);
+
+  /// <summary>
   /// Tracks UPnP devices which are available in the network. Provides materialized descriptions for each available
   /// device and service. Provides an event <see cref="RootDeviceAdded"/> which gets fired when all description documents
   /// were fetched from the device's server. Provides an event <see cref="RootDeviceRemoved"/> which gets fired when
@@ -75,7 +81,6 @@ namespace UPnP.Infrastructure.CP
     protected const string KEY_ROOT_DESCRIPTOR = "ROOT-DESCRIPTOR";
 
     protected ICollection<DescriptionRequestState> _pendingRequests = new List<DescriptionRequestState>();
-    protected SSDPClientController _ssdpClientController = null;
     protected bool _active = false;
     protected CPData _cpData;
 
@@ -111,6 +116,11 @@ namespace UPnP.Infrastructure.CP
     public event DeviceRemovedDlgt RootDeviceRemoved;
 
     /// <summary>
+    /// Gets called when the SSDP subsystem detects a reboot of one of our known devices.
+    /// </summary>
+    public event DeviceRebootedDlgt DeviceRebooted;
+
+    /// <summary>
     /// Returns the information whether this UPnP network tracker is active, i.e. the network listener is active and this
     /// instance is tracking network devices.
     /// </summary>
@@ -121,7 +131,7 @@ namespace UPnP.Infrastructure.CP
 
     /// <summary>
     /// Returns a mapping of root device UUIDs to descriptors containing the information about that device for all known
-    /// UPnP network devices.
+    /// UPnP network devices. Returns <c>null</c> if this network tracker isn't active.
     /// </summary>
     public IDictionary<string, RootDescriptor> KnownRootDevices
     {
@@ -129,8 +139,10 @@ namespace UPnP.Infrastructure.CP
       {
         lock (_cpData.SyncObj)
         {
+          if (!_active)
+            return null;
           IDictionary<string, RootDescriptor> result = new Dictionary<string, RootDescriptor>();
-          foreach (RootEntry entry in _ssdpClientController.RootEntries)
+          foreach (RootEntry entry in _cpData.SSDPController.RootEntries)
           {
             RootDescriptor rd = GetRootDescriptor(entry);
             if (rd == null)
@@ -143,11 +155,11 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Returns the controller instance which is responsible for the SSDP communication.
+    /// Data which is shared among all components of the control point system.
     /// </summary>
-    public SSDPClientController SSDPClientController
+    public CPData SharedControlPointData
     {
-      get { return _ssdpClientController; }
+      get { return _cpData; }
     }
 
     /// <summary>
@@ -162,10 +174,12 @@ namespace UPnP.Infrastructure.CP
         if (_active)
           throw new IllegalCallException("UPnPNetworkTracker is already active");
         _active = true;
-        _ssdpClientController = new SSDPClientController(_cpData);
-        _ssdpClientController.RootDeviceAdded += OnSSDPRootDeviceAdded;
-        _ssdpClientController.RootDeviceRemoved += OnSSDPRootDeviceRemoved;
-        _ssdpClientController.Start();
+        SSDPClientController ssdpController = new SSDPClientController(_cpData);
+        ssdpController.RootDeviceAdded += OnSSDPRootDeviceAdded;
+        ssdpController.RootDeviceRemoved += OnSSDPRootDeviceRemoved;
+        ssdpController.DeviceRebooted += OnSSDPDeviceRebooted;
+        _cpData.SSDPController = ssdpController;
+        ssdpController.Start();
       }
     }
 
@@ -180,17 +194,19 @@ namespace UPnP.Infrastructure.CP
         if (!_active)
           return;
         _active = false;
-        foreach (RootEntry entry in _ssdpClientController.RootEntries)
+        foreach (RootEntry entry in _cpData.SSDPController.RootEntries)
         {
           RootDescriptor rd = GetRootDescriptor(entry);
           if (rd == null)
             continue;
           InvalidateDescriptor(rd);
         }
-        _ssdpClientController.Close();
-        _ssdpClientController.RootDeviceAdded -= OnSSDPRootDeviceAdded;
-        _ssdpClientController.RootDeviceRemoved -= OnSSDPRootDeviceRemoved;
-        _ssdpClientController = null;
+        SSDPClientController ssdpController = _cpData.SSDPController;
+        ssdpController.Close();
+        ssdpController.RootDeviceAdded -= OnSSDPRootDeviceAdded;
+        ssdpController.RootDeviceRemoved -= OnSSDPRootDeviceRemoved;
+        ssdpController.DeviceRebooted -= OnSSDPDeviceRebooted;
+        _cpData.SSDPController = null;
         foreach (DescriptionRequestState state in _pendingRequests)
           state.Request.Abort();
         _pendingRequests.Clear();
@@ -201,18 +217,25 @@ namespace UPnP.Infrastructure.CP
 
     #region Private/protected members
 
-    protected void InvokeRootDeviceAdded(RootDescriptor dd)
+    protected void InvokeRootDeviceAdded(RootDescriptor rd)
     {
       DeviceAddedDlgt dlgt = RootDeviceAdded;
       if (dlgt != null)
-        dlgt(dd);
+        dlgt(rd);
     }
 
-    protected void InvokeRootDeviceRemoved(RootDescriptor dd)
+    protected void InvokeRootDeviceRemoved(RootDescriptor rd)
     {
       DeviceRemovedDlgt dlgt = RootDeviceRemoved;
       if (dlgt != null)
-        dlgt(dd);
+        dlgt(rd);
+    }
+
+    protected void InvokeDeviceRebooted(RootDescriptor rd)
+    {
+      DeviceRebootedDlgt dlgt = DeviceRebooted;
+      if (dlgt != null)
+        dlgt(rd);
     }
 
     private void OnSSDPRootDeviceAdded(RootEntry rootEntry)
@@ -359,6 +382,14 @@ namespace UPnP.Infrastructure.CP
       lock (_cpData.SyncObj)
         InvalidateDescriptor(rd);
       InvokeRootDeviceRemoved(rd);
+    }
+
+    private void OnSSDPDeviceRebooted(RootEntry rootEntry)
+    {
+      RootDescriptor rd = GetRootDescriptor(rootEntry);
+      if (rd == null)
+        return;
+      InvokeDeviceRebooted(rd);
     }
 
     /// <summary>

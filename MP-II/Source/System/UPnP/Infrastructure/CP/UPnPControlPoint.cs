@@ -22,13 +22,17 @@ namespace UPnP.Infrastructure.CP
     protected bool _isActive = false;
     protected IDictionary<string, DeviceConnection> _connectedDevices = new Dictionary<string, DeviceConnection>();
     protected CPData _cpData;
+    protected UPnPNetworkTracker _networkTracker;
 
     /// <summary>
     /// Creates a new instance of <see cref="UPnPControlPoint"/>.
     /// </summary>
-    public UPnPControlPoint()
+    /// <param name="networkTracker">Network tracker instance used to collect UPnP network device descriptions.</param>
+    /// <param name="cpData">Shared control point data instance.</param>
+    public UPnPControlPoint(UPnPNetworkTracker networkTracker, CPData cpData)
     {
-      _cpData = new CPData();
+      _cpData = cpData;
+      _networkTracker = networkTracker;
     }
 
     /// <summary>
@@ -52,6 +56,18 @@ namespace UPnP.Infrastructure.CP
       }
     }
 
+    private void OnDeviceRebooted(RootDescriptor rootdescriptor)
+    {
+      foreach (DeviceConnection connection in _connectedDevices.Values)
+        if (connection.RootDescriptor == rootdescriptor)
+          connection.OnDeviceRebooted();
+    }
+
+    private void OnRootDeviceRemoved(RootDescriptor rootdescriptor)
+    {
+      DoDisconnect(rootdescriptor.SSDPRootEntry.RootDeviceID, false);
+    }
+
     #endregion
 
     /// <summary>
@@ -60,6 +76,14 @@ namespace UPnP.Infrastructure.CP
     public CPData SharedControlPointData
     {
       get { return _cpData; }
+    }
+
+    /// <summary>
+    /// Returns the network tracker used for this control point.
+    /// </summary>
+    public UPnPNetworkTracker NetworkTracker
+    {
+      get { return _networkTracker; }
     }
 
     /// <summary>
@@ -85,6 +109,8 @@ namespace UPnP.Infrastructure.CP
         _httpListener.RequestReceived += OnHttpListenerRequestReceived;
         _httpListener.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
         _cpData.HttpPort = (uint) _httpListener.LocalEndpoint.Port;
+        _networkTracker.RootDeviceRemoved += OnRootDeviceRemoved;
+        _networkTracker.DeviceRebooted += OnDeviceRebooted;
 
         _isActive = true;
       }
@@ -105,6 +131,8 @@ namespace UPnP.Infrastructure.CP
         DisconnectAll();
         _httpListener.Stop();
         _httpListener = null;
+        _networkTracker.RootDeviceRemoved -= OnRootDeviceRemoved;
+        _networkTracker.DeviceRebooted -= OnDeviceRebooted;
       }
     }
 
@@ -164,7 +192,8 @@ namespace UPnP.Infrastructure.CP
       {
         DeviceConnection connection;
         if (!_connectedDevices.TryGetValue(deviceUUID, out connection))
-          throw new ArgumentException(string.Format("No device connection with device UUID '{0}' is present", deviceUUID));
+          return;
+        connection.Disconnect(unsubscribeEvents);
         connection.Dispose();
         _connectedDevices.Remove(deviceUUID);
       }

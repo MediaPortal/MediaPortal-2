@@ -1,3 +1,5 @@
+using UPnP.Infrastructure.CP.SSDP;
+
 namespace UPnP.Infrastructure.CP
 {
   /// <summary>
@@ -7,6 +9,7 @@ namespace UPnP.Infrastructure.CP
   {
     protected object _syncObj = new object();
     protected uint _httpPort = 0;
+    protected SSDPClientController _ssdpClientController = null;
 
     /// <summary>
     /// Synchronization object for the UPnP control point system.
@@ -17,12 +20,21 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// HTTP listening port for used for event messages.
+    /// Gets or sets the HTTP listening port for used for event messages.
     /// </summary>
     public uint HttpPort
     {
       get { return _httpPort; }
-      set { _httpPort = value; }
+      internal set { _httpPort = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the SSDP controller of the UPnP client.
+    /// </summary>
+    public SSDPClientController SSDPController
+    {
+      get { return _ssdpClientController; }
+      internal set { _ssdpClientController = value; }
     }
   }
 }
