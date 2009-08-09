@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Threading;
 using System.Xml;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.SSDP;
@@ -229,8 +228,7 @@ namespace UPnP.Infrastructure.CP
       lock (_cpData.SyncObj)
         _pendingRequests.Add(state);
       IAsyncResult result = request.BeginGetResponse(OnDeviceDescriptionReceived, state);
-      ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnPendingRequestTimeout,
-          request, PENDING_REQUEST_TIMEOUT * 1000, true);
+      NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
     }
 
     private void OnDeviceDescriptionReceived(IAsyncResult asyncResult)
@@ -300,8 +298,7 @@ namespace UPnP.Infrastructure.CP
         HttpWebRequest request = CreateHttpGetRequest(url);
         state.Request = request;
         IAsyncResult result = request.BeginGetResponse(OnServiceDescriptionReceived, state);
-        ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnPendingRequestTimeout,
-            request, PENDING_REQUEST_TIMEOUT * 1000, true);
+        NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
       }
     }
 
@@ -362,14 +359,6 @@ namespace UPnP.Infrastructure.CP
       lock (_cpData.SyncObj)
         InvalidateDescriptor(rd);
       InvokeRootDeviceRemoved(rd);
-    }
-
-    private static void OnPendingRequestTimeout(object state, bool timedOut) {
-      if (timedOut) {
-        HttpWebRequest request = (HttpWebRequest) state;
-        if (request != null)
-          request.Abort();
-      }
     }
 
     /// <summary>

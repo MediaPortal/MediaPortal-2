@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using UPnP.Infrastructure.Dv.DeviceTree;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.GENA
 {
@@ -142,8 +143,7 @@ namespace UPnP.Infrastructure.Dv.GENA
 
       // First get the request stream...
       IAsyncResult result = state.Request.BeginGetRequestStream(OnGetRequestStream, state);
-      ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnRequestTimeout,
-          request, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000, true);
+      NetworkHelper.AddTimeout(request, result, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000);
     }
 
     private void OnGetRequestStream(IAsyncResult ar)
@@ -157,8 +157,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         requestStream.Close();
         // ... and get the response
         IAsyncResult result = state.Request.BeginGetResponse(OnEventResponseReceived, state);
-        ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnRequestTimeout,
-            state.Request, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000, true);
+        NetworkHelper.AddTimeout(state.Request, result, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000);
       }
       catch (WebException) { }
       ContinueEventNotification(state);
@@ -181,14 +180,6 @@ namespace UPnP.Infrastructure.Dv.GENA
       catch (WebException) { }
       // Try next callback URL
       ContinueEventNotification(state);
-    }
-
-    private static void OnRequestTimeout(object state, bool timedOut) {
-      if (timedOut) {
-        HttpWebRequest request = (HttpWebRequest) state;
-        if (request != null)
-          request.Abort();
-      }
     }
 
     public bool IsDisposed

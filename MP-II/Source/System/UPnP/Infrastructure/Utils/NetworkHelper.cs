@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using MediaPortal.Utilities;
 
 namespace UPnP.Infrastructure.Utils
@@ -69,6 +71,29 @@ namespace UPnP.Infrastructure.Utils
       const int BUFF_SIZE = 1024;
       byte[] data = new byte[BUFF_SIZE];
       while (stream.Read(data, 0, BUFF_SIZE) == BUFF_SIZE) { }
+    }
+
+    private static void OnPendingRequestTimeout(object state, bool timedOut) {
+      if (timedOut) {
+        HttpWebRequest request = (HttpWebRequest) state;
+        if (request != null)
+          request.Abort();
+      }
+    }
+
+    /// <summary>
+    /// Aborts the given web <paramref name="request"/> if the given asynch <paramref name="result"/> doesn't return
+    /// in <paramref name="timeoutMsecs"/> milli seconds.
+    /// </summary>
+    /// <param name="request">Request to track. Will be aborted (see <see cref="HttpWebRequest.Abort"/>) if the given
+    /// asynchronous <paramref name="result"/> handle doen't return in the given time.</param>
+    /// <param name="result">Asynchronous result handle to track. Should have been returned by a BeginXXX method of
+    /// the given <paramref name="request"/>.</param>
+    /// <param name="timeoutMsecs">Timeout in milliseconds, after that the request will be aborted.</param>
+    public static void AddTimeout(HttpWebRequest request, IAsyncResult result, uint timeoutMsecs)
+    {
+      ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnPendingRequestTimeout,
+          request, timeoutMsecs, true);
     }
   }
 }

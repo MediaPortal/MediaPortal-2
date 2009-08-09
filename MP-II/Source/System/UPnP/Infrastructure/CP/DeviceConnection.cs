@@ -275,8 +275,7 @@ namespace UPnP.Infrastructure.CP
       lock (_cpData.SyncObj)
         _pendingCalls.Add(state);
       IAsyncResult result = state.Request.BeginGetResponse(OnCallResponseReceived, state);
-      ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnRequestTimeout,
-          request, PENDING_ACTION_CALL_TIMEOUT * 1000, true);
+      NetworkHelper.AddTimeout(request, result, PENDING_ACTION_CALL_TIMEOUT * 1000);
     }
 
     private void OnCallResponseReceived(IAsyncResult ar)
@@ -333,8 +332,7 @@ namespace UPnP.Infrastructure.CP
         ChangeEventSubscriptionState state = new ChangeEventSubscriptionState(service, request);
         _pendingCalls.Add(state);
         IAsyncResult result = state.Request.BeginGetResponse(OnSubscribeOrRenewSubscriptionResponseReceived, state);
-        ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnRequestTimeout,
-            request, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000, true);
+        NetworkHelper.AddTimeout(request, result, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000);
       }
     }
 
@@ -349,8 +347,7 @@ namespace UPnP.Infrastructure.CP
         ChangeEventSubscriptionState state = new ChangeEventSubscriptionState(subscription.Service, request);
         _pendingCalls.Add(state);
         IAsyncResult result = state.Request.BeginGetResponse(OnSubscribeOrRenewSubscriptionResponseReceived, state);
-        ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnRequestTimeout,
-            request, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000, true);
+        NetworkHelper.AddTimeout(request, result, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000);
       }
     }
 
@@ -412,8 +409,7 @@ namespace UPnP.Infrastructure.CP
         ChangeEventSubscriptionState state = new ChangeEventSubscriptionState(subscription.Service, request);
         _pendingCalls.Add(state);
         IAsyncResult result = state.Request.BeginGetResponse(OnUnsubscribeResponseReceived, state);
-        ThreadPool.RegisterWaitForSingleObject(result.AsyncWaitHandle, OnRequestTimeout,
-            request, EVENT_UNSUBSCRIPTION_CALL_TIMEOUT * 1000, true);
+        NetworkHelper.AddTimeout(request, result, EVENT_UNSUBSCRIPTION_CALL_TIMEOUT * 1000);
       }
     }
 
@@ -451,14 +447,6 @@ namespace UPnP.Infrastructure.CP
           else
             remainingEventSubscriptions.Add(subscription);
         CheckSubscriptionRenewalTimer(remainingEventSubscriptions);
-      }
-    }
-
-    private static void OnRequestTimeout(object state, bool timedOut) {
-      if (timedOut) {
-        HttpWebRequest request = (HttpWebRequest) state;
-        if (request != null)
-          request.Abort();
       }
     }
 
