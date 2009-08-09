@@ -40,8 +40,7 @@ using MediaPortal.Utilities;
 namespace UiComponents.Media.Settings.Configuration
 {
   /// <summary>
-  /// Provides a model to attend the complex shares configuration process in the MP-II configuration.
-  /// This model is the workflow model for this process.
+  /// Provides a workflow model to attend the complex configuration process for local shares in the MP-II configuration.
   /// </summary>
   public class SharesConfigModel : IWorkflowModel, IDisposable
   {
@@ -131,7 +130,6 @@ namespace UiComponents.Media.Settings.Configuration
 
     public SharesConfigModel()
     {
-      // TODO Albert: break the event handler reference from the lists to the Skin's controls
       _sharesList = new ItemsList();
       _allMediaProvidersList = new ItemsList();
       _isSharesSelectedProperty = new Property(typeof(bool), false);
@@ -365,7 +363,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void RemoveSelectedSharesAndFinish()
     {
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       foreach (ListItem shareItem in _sharesList)
         if (shareItem.Selected)
         {
@@ -419,10 +417,10 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void FinishShareConfiguration()
     {
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       if (_editMode == ShareEditMode.AddShare)
       {
-        sharesManagement.RegisterShare(SystemName.GetLocalSystemName(), MediaProvider.Metadata.MediaProviderId,
+        sharesManagement.RegisterShare(MediaProvider.Metadata.MediaProviderId,
             MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds);
         ClearAllConfiguredProperties();
         NavigateBackToOverview();
@@ -617,15 +615,11 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected void UpdateSharesList()
     {
-      // TODO: Re-validate this when we have implemented the communication with the MP-II server
-      // Perhaps we should show the server's shares too? In this case, we also have to re-validate
-      // the way of building the list of media providers and metadata extractors
       _sharesList.Clear();
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       bool selected = false;
-      List<ShareDescriptor> shareDescriptors =
-          new List<ShareDescriptor>(sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values);
+      List<ShareDescriptor> shareDescriptors = new List<ShareDescriptor>(sharesManagement.Shares.Values);
       shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
       foreach (ShareDescriptor share in shareDescriptors)
       {
@@ -768,7 +762,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected bool InitializePropertiesWithShare(Guid shareId)
     {
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId);
       if (shareDescriptor == null)
         return false;
@@ -815,9 +809,8 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected void UpdateShareAndFinish(bool relocateItems)
     {
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
-      ShareDescriptor share = sharesManagement.GetShare(CurrentShareId);
-      sharesManagement.UpdateShare(CurrentShareId, share.NativeSystem, MediaProvider.Metadata.MediaProviderId,
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      sharesManagement.UpdateShare(CurrentShareId, MediaProvider.Metadata.MediaProviderId,
           MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, relocateItems);
       ClearAllConfiguredProperties();
       NavigateBackToOverview();

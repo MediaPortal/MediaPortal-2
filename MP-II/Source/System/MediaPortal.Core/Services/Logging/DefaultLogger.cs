@@ -142,10 +142,8 @@ namespace MediaPortal.Core.Services.Logging
     /// <param name="messageLevel">The <see cref="LogLevel"/> of the message to write.</param>
     protected void Write(string message, LogLevel messageLevel)
     {
-      if (messageLevel > _level)
-      {
+      if (messageLevel > _level) // Levels are in reversed order
         return;
-      }
       StringBuilder messageBuilder = new StringBuilder();
       messageBuilder.Append(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.ffffff"));
       string levelShort;

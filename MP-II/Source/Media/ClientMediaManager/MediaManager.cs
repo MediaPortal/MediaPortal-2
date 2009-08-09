@@ -35,7 +35,7 @@ namespace MediaPortal.Media.ClientMediaManager
   /// The client's media manager class. It holds all media providers and metadata extractors and
   /// provides the concept of "views".
   /// </summary>
-  public class MediaManager : MediaManagerBase, IImporter, ISharesManagement
+  public class MediaManager : MediaManagerBase, IImporter, ILocalSharesManagement
   {
     #region Protected fields
 
@@ -50,7 +50,7 @@ namespace MediaPortal.Media.ClientMediaManager
       _localLocalSharesManagement = new LocalSharesManagement();
 
       ServiceScope.Get<ILogger>().Debug("MediaManager: Registering global SharesManagement service");
-      ServiceScope.Add<ISharesManagement>(this);
+      ServiceScope.Add<ILocalSharesManagement>(this);
     }
 
     public override void Initialize()
@@ -72,73 +72,40 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #endregion
 
-    #region ISharesManagement implementation
+    #region ILocalSharesManagement implementation
 
-    public ShareDescriptor RegisterShare(SystemName nativeSystem, Guid providerId, string path,
-        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public IDictionary<Guid, ShareDescriptor> Shares
     {
-      // TODO: When connected, assign result from the call of the method at the MP server's
-      // ISharesManagement interface
-      ShareDescriptor result = null;
-      if (nativeSystem.IsLocalSystem())
-        result = _localLocalSharesManagement.RegisterShare(nativeSystem, providerId, path,
-            shareName, mediaCategories, metadataExtractorIds);
-      return result;
-    }
-
-    public void RemoveShare(Guid shareId)
-    {
-      // TODO: When connected, also call the method at the MP server's ISharesManagement interface
-      _localLocalSharesManagement.RemoveShare(shareId);
-    }
-
-    public ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
-        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds,
-        bool relocateMediaItems)
-    {
-      ShareDescriptor sd = _localLocalSharesManagement.UpdateShare(shareId, nativeSystem, providerId, path,
-          shareName, mediaCategories, metadataExtractorIds, relocateMediaItems);
-      // TODO: When connected, also call the method at the MP server's ISharesManagement interface
-      return sd;
-    }
-
-    public IDictionary<Guid, ShareDescriptor> GetShares()
-    {
-      // TODO: When connected, call the method at the MP server's ISharesManagement interface instead of
-      // calling it on the local shares management
-      return _localLocalSharesManagement.GetShares();
+      get { return _localLocalSharesManagement.Shares; }
     }
 
     public ShareDescriptor GetShare(Guid shareId)
     {
       ShareDescriptor result = _localLocalSharesManagement.GetShare(shareId);
-      // TODO: When connected and result == null, call method at the MP server's ISharesManagement interface
+      // TODO: When connected and result == null, call method at the MP server's ILocalSharesManagement interface
       return result;
     }
 
-    public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
+    public ShareDescriptor RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
-      if (systemName.IsLocalSystem())
-        return _localLocalSharesManagement.GetSharesBySystem(systemName);
-      else
-        // TODO: When connected, call the method at the MP server's ISharesManagement interface and return
-        // its results
-        return new Dictionary<Guid, ShareDescriptor>();
+      ShareDescriptor result = _localLocalSharesManagement.RegisterShare(providerId, path,
+          shareName, mediaCategories, metadataExtractorIds);
+      // TODO: When connected, add share to the media library
+      return result;
     }
 
-    public ICollection<SystemName> GetManagedClients()
+    public void RemoveShare(Guid shareId)
     {
-      // TODO: When connected, call the method at the MP server's ISharesManagement interface
-      return _localLocalSharesManagement.GetManagedClients();
+      // TODO: When connected, also remove the share from the media library
+      _localLocalSharesManagement.RemoveShare(shareId);
     }
 
-    public IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName)
+    public ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems)
     {
-      if (systemName.IsLocalSystem())
-        return _localLocalSharesManagement.GetMetadataExtractorsBySystem(SystemName.GetLocalSystemName());
-      else
-        // TODO: When connected, call the method at the MP server's ISharesManagement interface
-        return new Dictionary<Guid, MetadataExtractorMetadata>();
+      ShareDescriptor sd = _localLocalSharesManagement.UpdateShare(shareId, providerId, path,
+          shareName, mediaCategories, metadataExtractorIds, relocateMediaItems);
+      // TODO: When connected, also update the share at the media library
+      return sd;
     }
 
     #endregion

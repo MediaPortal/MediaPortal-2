@@ -39,7 +39,7 @@ namespace MediaPortal.Media.ClientMediaManager
   /// Shares management class for client-local shares. All shares are managed redundantly at
   /// the client's media manager via this class and at the MediaPortal server's MediaLibrary.
   /// </summary>
-  public class LocalSharesManagement : ISharesManagement
+  public class LocalSharesManagement : ILocalSharesManagement
   {
     #region Consts
 
@@ -178,14 +178,21 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #endregion
 
-    #region ISharesManagement implementation
+    #region ILocalSharesManagement implementation
 
-    public ShareDescriptor RegisterShare(SystemName nativeSystem, Guid providerId, string path,
-        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public IDictionary<Guid, ShareDescriptor> Shares
     {
-      if (!nativeSystem.IsLocalSystem())
-        return null;
-      ShareDescriptor sd = ShareDescriptor.CreateNewShare(nativeSystem, providerId, path,
+      get { return _shares; }
+    }
+
+    public ShareDescriptor GetShare(Guid shareId)
+    {
+      return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
+    }
+
+    public ShareDescriptor RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    {
+      ShareDescriptor sd = ShareDescriptor.CreateNewShare(SystemName.GetLocalSystemName(), providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
@@ -200,14 +207,11 @@ namespace MediaPortal.Media.ClientMediaManager
       MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareRemoved, shareId);
     }
 
-    public ShareDescriptor UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path,
-        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds,
-        bool relocateMediaItems)
+    public ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems)
     {
       ShareDescriptor result = GetShare(shareId);
       if (result == null)
         return null;
-      result.NativeSystem = nativeSystem;
       result.MediaProviderId = providerId;
       result.Path = path;
       result.Name = shareName;
@@ -218,38 +222,6 @@ namespace MediaPortal.Media.ClientMediaManager
       SaveSharesToSettings();
       MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareChanged, shareId);
       // TODO: Trigger re-import and relocate media items (if relocateMediaItems is set)
-      return result;
-    }
-
-    public IDictionary<Guid, ShareDescriptor> GetShares()
-    {
-      return _shares;
-    }
-
-    public ShareDescriptor GetShare(Guid shareId)
-    {
-      return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
-    }
-
-    public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
-    {
-      if (!systemName.IsLocalSystem())
-        return new Dictionary<Guid, ShareDescriptor>();;
-      return _shares;
-    }
-
-    public ICollection<SystemName> GetManagedClients()
-    {
-      return new List<SystemName>(new[] {SystemName.GetLocalSystemName()});
-    }
-
-    public IDictionary<Guid, MetadataExtractorMetadata> GetMetadataExtractorsBySystem(SystemName systemName)
-    {
-      if (!systemName.IsLocalSystem())
-        return new Dictionary<Guid, MetadataExtractorMetadata>();
-      IDictionary<Guid, MetadataExtractorMetadata> result = new Dictionary<Guid, MetadataExtractorMetadata>();
-      foreach (MetadataExtractorMetadata metadata in ServiceScope.Get<IMediaManager>().LocalMetadataExtractors.Values)
-        result.Add(metadata.MetadataExtractorId, metadata);
       return result;
     }
 

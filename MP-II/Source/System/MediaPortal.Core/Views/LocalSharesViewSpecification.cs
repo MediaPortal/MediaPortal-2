@@ -57,9 +57,8 @@ namespace MediaPortal.Core.Views
 
     internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
-      ISharesManagement sharesManagement = ServiceScope.Get<ISharesManagement>();
-      ICollection<ShareDescriptor> shares = sharesManagement.GetSharesBySystem(SystemName.GetLocalSystemName()).Values;
-      foreach (ShareDescriptor share in shares)
+      ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+      foreach (ShareDescriptor share in sharesManagement.Shares.Values)
         yield return new LocalShareViewSpecification(share.ShareId, share.Name, string.Empty, _mediaItemAspectIds);
     }
 

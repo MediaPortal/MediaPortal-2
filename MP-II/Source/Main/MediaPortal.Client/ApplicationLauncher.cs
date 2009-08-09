@@ -101,7 +101,7 @@ namespace MediaPortal
         // Register the media manager for multiple interfaces in the client - in the server, those interfaces
         // will be provided by different classes.
         ServiceScope.Add<IMediaManager>(mediaManager);
-        ServiceScope.Add<ISharesManagement>(mediaManager);
+        ServiceScope.Add<ILocalSharesManagement>(mediaManager);
         ServiceScope.Add<IImporter>(mediaManager);
 
         UiExtension.RegisterUiServices();
