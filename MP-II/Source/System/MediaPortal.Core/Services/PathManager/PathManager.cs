@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Utilities;
 
@@ -51,7 +52,10 @@ namespace MediaPortal.Core.Services.PathManager
     public PathManager()
     {
       _paths = new Dictionary<string, string>();
-      SetPath("APPLICATION_ROOT", AppDomain.CurrentDomain.BaseDirectory);
+      string applicationPath = Environment.GetCommandLineArgs()[0];
+
+      SetPath("APPLICATION_PATH", applicationPath);
+      SetPath("APPLICATION_ROOT", Path.GetDirectoryName(applicationPath));
       SetPath("LOCAL_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
       SetPath("COMMON_APPLICATION_DATA", Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
       SetPath("MY_DOCUMENTS", Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
@@ -143,20 +147,11 @@ namespace MediaPortal.Core.Services.PathManager
         PathListFile defaults = (PathListFile)s.Deserialize(r);
 
         foreach (PathDefinition path in defaults.Paths)
-        {
           SetPath(path.Name, path.Value);
-        }
       }
-      catch (Exception)
+      catch (Exception e)
       {
-        // FIXME Albert78, 30.2.08: Do a log output here?
-        // If something is wrong with the defaults file use the following defaults
-        if (!Exists("USER_DATA"))
-          SetPath("USER_DATA", @"<COMMON_APPLICATION_DATA>\MediaPortal");
-        if (!Exists("CONFIG"))
-          SetPath("CONFIG", @"<USER_DATA>\Config");
-        if (!Exists("LOG"))
-          SetPath("LOG", @"<USER_DATA>\Log");
+        ServiceScope.Get<ILogger>().Error("Error reading default paths file", e);
       }
     }
 

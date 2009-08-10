@@ -45,6 +45,11 @@ namespace MediaPortal.Core
   {
     public static void RegisterCoreServices(LogLevel logLevel, bool logMethodNames)
     {
+      // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
+      // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
+      // output from the path manager only to prevent the dependency. Maybe we have a better solution in the future.
+      ServiceScope.Add<ILogger>(new NoLogger());
+
       IPathManager pathManager = new Services.PathManager.PathManager();
       ServiceScope.Add<IPathManager>(pathManager);
 
