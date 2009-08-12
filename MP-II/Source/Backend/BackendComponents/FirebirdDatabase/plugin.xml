@@ -1,0 +1,22 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="FirebirdDatabase"
+    PluginId="{1D623278-473E-4ffb-AFB0-48487E4DC606}"
+    Author="Albert"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Provides database access to an embedded Firebird database"
+    PluginVersion="1.0">
+
+<!-- TODO: add 'Feature name="Database" exclusive="true"' element to prevent other database plugins from
+     being loaded at the same time -->
+
+  <Runtime>
+    <Assembly FileName="FirebirdDatabase.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Database.Firebird.FirebirdPlugin"/>
+  </Runtime>
+
+  <Register Location="/Services">
+    <Instance Id="IDatabase" ClassName="MediaPortal.Database.Firebird.FirebirdSQLDatabase"/>
+  </Register>
+</Plugin>

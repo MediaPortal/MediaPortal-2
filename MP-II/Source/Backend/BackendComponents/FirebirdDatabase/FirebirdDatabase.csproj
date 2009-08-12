@@ -7,13 +7,14 @@
     <ProjectGuid>{6759DACE-15CD-4EB1-8337-8096F35EAEA3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Database</RootNamespace>
+    <RootNamespace>MediaPortal.Database.Firebird</RootNamespace>
     <AssemblyName>Database</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,43 +44,26 @@
       <HintPath>References\FirebirdSql.Data.FirebirdClient.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.48.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>References\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DatabasePlugin.cs" />
-    <Compile Include="DatabaseBuilderFactory.cs" />
-    <Compile Include="Database.cs" />
-    <Compile Include="DatabaseFactory.cs" />
-    <Compile Include="Databases.cs" />
-    <Compile Include="DbAttribute.cs" />
-    <Compile Include="DbItem.cs" />
-    <Compile Include="FireBird\FireBirdDatabaseBuilder.cs" />
-    <Compile Include="FireBird\FireBirdDatabaseCommand.cs" />
-    <Compile Include="FireBird\FireBirdDatabaseConnection.cs" />
-    <Compile Include="Notifies\DatabaseNotifier.cs" />
-    <Compile Include="SqlCache.cs" />
-    <Compile Include="SqlLite\SqlLiteDatabaseBuilder.cs" />
-    <Compile Include="SqlLite\SqlLiteDatabaseCommand.cs" />
-    <Compile Include="SqlLite\SqlLiteDatabaseConnection.cs" />
-    <Compile Include="SqlTableCache.cs" />
-    <Compile Include="Sql\SqlDatabaseBuilder.cs" />
-    <Compile Include="Sql\SqlDatabaseCommand.cs" />
-    <Compile Include="Sql\SqlDatabaseConnection.cs" />
+    <Compile Include="FirebirdSQLDatabase.cs" />
+    <Compile Include="FirebirdPlugin.cs" />
+    <Compile Include="Settings\FirebirdSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\System\MediaPortal.Backend\MediaPortal.Backend.csproj">
+      <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
+      <Name>MediaPortal.Backend</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\System\MediaPortal.Interfaces\MediaPortal.Interfaces.csproj">
-      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +81,6 @@
     <PostBuildEvent>
 xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
 xcopy /Y "$(TargetDir)$(ProjectName).dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y /E "$(ProjectDir)References\*.*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-copy "$(ProjectDir)References\firebird.conf" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)"</PostBuildEvent>
+xcopy /Y /E "$(ProjectDir)References\*.*" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,28 +22,42 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System.Data;
 
-namespace Components.Database
+namespace MediaPortal.Database.FirebirdDatabase
 {
-  public class SqlCache
+TODO: Rename to FirebirdSQLDatabase
+  public class FirebirdDatabase : ISQLDatabase
   {
-    private Dictionary<string, SqlTableCache> _cache;
+    protected FbConnection _connection;
 
-    public SqlCache()
+    public FirebirdDSQLDatabase(FbConnection connection)
     {
-      _cache = new Dictionary<string, SqlTableCache>();
+      _connection = connection;
     }
 
-    public bool Contains(string key)
+    public void Dispose()
     {
-      return _cache.ContainsKey(key);
+      _connection.Rollback();
     }
 
-    public SqlTableCache this[string key]
+    #region ISQLDatabase implementation
+
+    public void DDLStatement(string statement)
     {
-      get { return _cache[key]; }
-      set { _cache[key] = value; }
+      asdf
     }
+
+    public void UpdateStatement(string statement)
+    {
+      asdf
+    }
+
+    public IDataReader SelectStatement(string statement)
+    {
+      asdf
+    }
+
+    #endregion
   }
 }
