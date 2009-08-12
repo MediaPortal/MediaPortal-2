@@ -46,14 +46,21 @@ namespace MediaPortal.Core.Logging
     }
 
     public void Debug(string format, params object[] args) { }
+    public void Debug(string format, Exception ex, params object[] args) { }
+
     public void Info(string format, params object[] args) { }
-    public void Warn(string format, Exception ex, params object[] args) { }
+    public void Info(string format, Exception ex, params object[] args) { }
+
     public void Warn(string format, params object[] args) { }
+    public void Warn(string format, Exception ex, params object[] args) { }
+
     public void Error(string format, params object[] args) { }
     public void Error(string format, Exception ex, params object[] args) { }
     public void Error(Exception ex) { }
-    public void Critical(Exception ex) { }
+
     public void Critical(string format, params object[] args) {}
+    public void Critical(string format, Exception ex, params object[] args) { }
+    public void Critical(Exception ex) { }
 
     #endregion
   }

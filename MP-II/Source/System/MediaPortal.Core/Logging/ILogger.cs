@@ -46,11 +46,34 @@ namespace MediaPortal.Core.Logging
     LogLevel Level { get; set; }
 
     /// <summary>
+    /// Writes a debug message to the log.
+    /// </summary>
+    /// <param name="format">A composite format string.</param>
+    /// <param name="args">An array of objects to write using format.</param>
+    void Debug(string format, params object[] args);
+
+    /// <summary>
+    /// Writes a debug message to the log.
+    /// </summary>
+    /// <param name="format">A composite format string.</param>
+    /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
+    /// <param name="args">An array of objects to write using format.</param>
+    void Debug(string format, Exception ex, params object[] args);
+
+    /// <summary>
     /// Writes an informational message to the log.
     /// </summary>
     /// <param name="format">A composite format string.</param>
     /// <param name="args">An array of objects to write using format.</param>
     void Info(string format, params object[] args);
+
+    /// <summary>
+    /// Writes an informational message to the log.
+    /// </summary>
+    /// <param name="format">A composite format string.</param>
+    /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
+    /// <param name="args">An array of objects to write using format.</param>
+    void Info(string format, Exception ex, params object[] args);
 
     /// <summary>
     /// Writes a warning to the log.
@@ -66,13 +89,6 @@ namespace MediaPortal.Core.Logging
     /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
     /// <param name="args">An array of objects to write using format.</param>
     void Warn(string format, Exception ex, params object[] args);
-
-    /// <summary>
-    /// Writes a debug message to the log.
-    /// </summary>
-    /// <param name="format">A composite format string.</param>
-    /// <param name="args">An array of objects to write using format.</param>
-    void Debug(string format, params object[] args);
 
     /// <summary>
     /// Writes an error message to the log.
@@ -99,8 +115,9 @@ namespace MediaPortal.Core.Logging
     /// Writes a critical error system message to the log.
     /// </summary>
     /// <param name="format">A composite format string.</param>
+    /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
     /// <param name="args">An array of objects to write using format.</param>
-    void Critical(string format, params object[] args);
+    void Critical(string format, Exception ex, params object[] args);
 
     /// <summary>
     /// Writes an Critical error <see cref="Exception"/> to the log.

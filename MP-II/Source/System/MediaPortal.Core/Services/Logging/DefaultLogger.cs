@@ -78,9 +78,26 @@ namespace MediaPortal.Core.Services.Logging
       set { _level = value; }
     }
 
+    public void Debug(string format, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Debug);
+    }
+
+    public void Debug(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Debug);
+      WriteException(ex, LogLevel.Debug);
+    }
+
     public void Info(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Information);
+    }
+
+    public void Info(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Information);
+      WriteException(ex, LogLevel.Information);
     }
 
     public void Warn(string format, params object[] args)
@@ -91,12 +108,7 @@ namespace MediaPortal.Core.Services.Logging
     public void Warn(string format, Exception ex, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Warning);
-      Error(ex);
-    }
-
-    public void Debug(string format, params object[] args)
-    {
-      Write(string.Format(format, args), LogLevel.Debug);
+      WriteException(ex, LogLevel.Warning);
     }
 
     public void Error(string format, params object[] args)
@@ -107,29 +119,37 @@ namespace MediaPortal.Core.Services.Logging
     public void Error(string format, Exception ex, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Error);
-      Error(ex);
+      WriteException(ex, LogLevel.Error);
     }
 
     public void Error(Exception ex)
     {
-      if (_level >= LogLevel.Error)
-      {
-        WriteException(ex);
-      }
+      WriteException(ex, LogLevel.Error);
     }
 
     public void Critical(string format, params object[] args)
     {
       Write(string.Format(format, args), LogLevel.Critical);
+      // Force a flush, otherwise the exception will not get logged 
+      // if the next thing we do is terminate MP.
+      Flush();
+    }
 
+    public void Critical(string format, Exception ex, params object[] args)
+    {
+      Write(string.Format(format, args), LogLevel.Critical);
+      WriteException(ex, LogLevel.Critical);
+      // Force a flush, otherwise the exception will not get logged 
+      // if the next thing we do is terminate MP.
+      Flush();
     }
 
     public void Critical(Exception ex)
     {
-      WriteException(ex);
+      WriteException(ex, LogLevel.Error);
       // Force a flush, otherwise the exception will not get logged 
       // if the next thing we do is terminate MP.
-      Write("", true);
+      Flush();
     }
 
     #endregion
@@ -206,8 +226,11 @@ namespace MediaPortal.Core.Services.Logging
     /// Writes an <see cref="Exception"/> instance.
     /// </summary>
     /// <param name="ex">The <see cref="Exception"/> to write.</param>
-    protected void WriteException(Exception ex)
+    /// <param name="messageLevel">Level of the exception to write.</param>
+    protected void WriteException(Exception ex, LogLevel messageLevel)
     {
+      if (_level < messageLevel)
+        return;
       Write("Exception: " + ex);
       Write("  Message: " + ex.Message);
       Write("  Site   : " + ex.TargetSite);
@@ -253,6 +276,12 @@ namespace MediaPortal.Core.Services.Logging
         if (flush)
           _writer.Flush();
       }
+    }
+
+    protected void Flush()
+    {
+      lock (_syncObject)
+        _writer.Flush();
     }
   }
 }
