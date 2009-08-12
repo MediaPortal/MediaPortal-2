@@ -22,34 +22,45 @@
 
 #endregion
 
-namespace MediaPortal.Database.Provider
+using System.Collections.Generic;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.MediaManagement;
+
+namespace MediaPortal.MediaLibrary
 {
-  public interface IDatabaseBuilder
+  public interface IMediaLibrary : IGlobalSharesManagement
   {
-    /// <summary>
-    /// Stores the database Connection String
-    /// </summary>
-    string ConnectionString
-    {
-      set;
-    }
+    #region Startup & shutdown
 
-    /// <summary>
-    /// Creates a new connection.
-    /// </summary>
-    /// <returns></returns>
-    IDatabaseConnection CreateConnection();
+    void Startup();
 
-    IDatabaseConnection CreateConnection(bool systemDatabase);
+    void Shutdown();
 
-    /// <summary>
-    /// Creates a new command.
-    /// </summary>
-    /// <returns></returns>
-    IDatabaseCommand CreateCommand();
+    #endregion
 
-    string DatabaseName { get; }
+    #region Media query
 
-    IDatabaseBuilder CreateNew();
+    ICollection<MediaItem> Search(string query);
+
+    ICollection<MediaItem> Browse(MediaItem parent);
+
+    #endregion
+
+    #region Media import
+
+    //TODO
+    void Import();
+
+    #endregion
+
+    #region Media item aspect management
+
+    bool MediaItemAspectStorageExists(MediaItemAspectMetadata miam);
+
+    void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
+
+    void RemoveMediaItemAspectStorage(MediaItemAspectMetadata miam);
+
+    #endregion
   }
 }

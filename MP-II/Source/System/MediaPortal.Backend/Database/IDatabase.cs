@@ -24,89 +24,52 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Database.Provider;
 
 namespace MediaPortal.Database
 {
+  /// <summary>
+  /// Provides database schema management functions. The guidelines for database setup and access must be observed.
+  /// 
+  /// TODO: Describe concept for database updates
+  /// </summary>
   public interface IDatabase
   {
     /// <summary>
-    /// Gets the name.
+    /// Gets a list of all named sub schemas which are currently active in the database.
     /// </summary>
-    /// <value>The name.</value>
-    string Name { get; }
+    /// <returns>Collection of sub schema names.</returns>
+    ICollection<string> GetDatabaseSubSchemas();
 
     /// <summary>
-    /// Deletes the database.
+    /// Gets the managed version number for the sub module's database schema which was created previously by method
+    /// <see cref="UpdateSubSchema"/> for the <paramref name="subSchemaName"/>'s ID.
     /// </summary>
-    void Delete();
+    /// <param name="subSchemaName">Identificator for the sub schema whose version is requested.</param>
+    /// <param name="versionMajor">Current major version number of the sub schema of the given
+    /// <paramref name="subSchemaName"/>.</param>
+    /// <param name="versionMinor">Current minor version number of the sub schema of the given
+    /// <paramref name="subSchemaName"/>.</param>
+    /// <returns><c>true</c>, if the sub schema with the given <paramref name="subSchemaName"/> has a version entry in
+    /// this database, i.e. if it ran a schema setup script before.</returns>
+    bool GetSubSchemaVersion(string subSchemaName, out int versionMajor, out int versionMinor);
 
     /// <summary>
-    /// Gets the attributes for this database
+    /// Creates or updates the sub schema of the given <paramref name="subSchemaName"/> and sets its major and minor version
+    /// number.
+    /// The caller should first call <see cref="GetSubSchemaVersion"/> and decide which creation or update script to use.
     /// </summary>
-    /// <value>The attributes.</value>
-    IList<IDbAttribute> Attributes { get; }
-
-    /// <summary>
-    /// Adds the specified attribute to the database
-    /// </summary>
-    /// <param name="attribute">The attribute.</param>
-    void Add(IDbAttribute attribute);
-
-    /// <summary>
-    /// Adds a new attribute to the database
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="type">The type.</param>
-    /// <param name="size">The size.</param>
-    void Add(string name, Type type, int size);
-
-    /// <summary>
-    /// Adds a new attribute to the database
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="type">The type.</param>
-    void Add(string name, Type type);
-
-    /// <summary>
-    /// Adds a new Index on the given table and column
-    /// </summary>
-    /// <param name="table"></param>
-    /// <param name="column"></param>
-    /// <param name="order"></param>
-    void AddIndex(string table, string column, string order);
-
-    /// <summary>
-    /// Creates a new item
-    /// </summary>
-    /// <returns></returns>
-    IDbItem CreateNew();
-
-    /// <summary>
-    /// Gets the database builder.
-    /// </summary>
-    /// <value>The builder.</value>
-    IDatabaseBuilder Builder { get; }
-
-    /// <summary>
-    /// Exectues the query and returns all items matching the query.
-    /// </summary>
-    /// <param name="query">The query.</param>
-    /// <returns></returns>
-    IList<IDbItem> Query(IQuery query);
-
-    /// <summary>
-    /// checks if the database can execute this query
-    /// </summary>
-    /// <param name="query"></param>
-    /// <returns></returns>
-    bool CanQuery(IQuery query);
-
-    /// <summary>
-    /// Saves the a list of items to the database
-    /// </summary>
-    /// <param name="items">The items.</param>
-    void Save(IList<IDbItem> items);
+    /// <param name="subSchemaName">Identificator for the sub schema which will be created/updated.</param>
+    /// <param name="currentVersionMajor">Current major version number of the schema to update by the
+    /// <paramref name="updateScript"/>.</param>
+    /// <param name="currentVersionMinor">Current minor version number of the schema to update by the
+    /// <paramref name="updateScript"/>.</param>
+    /// <param name="updateScript">Script to create or update the sub schema with the given <paramref name="subSchemaName"/>
+    /// to its current version [<paramref name="newVersionMajor"/>].[<paramref name="newVersionMinor"/>].</param>
+    /// <param name="newVersionMajor">Major version number of the new schema.</param>
+    /// <param name="newVersionMinor">Minor version number of the new schema.</param>
+    /// <exception cref="ArgumentException">If the specified <paramref name="currentVersionMajor"/> and
+    /// <paramref name="currentVersionMinor"/> don't match the current sub schema's version.</exception>
+    void UpdateSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor,
+        string updateScript, int newVersionMajor, int newVersionMinor);
   }
 }

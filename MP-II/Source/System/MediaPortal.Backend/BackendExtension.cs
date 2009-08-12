@@ -22,34 +22,22 @@
 
 #endregion
 
-using System;
+using MediaPortal.BackendServer;
+using MediaPortal.Core;
 
-namespace MediaPortal.Database.Provider
+namespace MediaPortal
 {
-  public interface IDatabaseConnection : IDisposable
+  public class BackendExtension
   {
-    /// <summary>
-    /// Opens the database
-    /// </summary>
-    /// <param name="connectionString">The connection string.</param>
-    void Open(string connectionString);
+    public static void RegisterBackendServices()
+    {
+      Services.BackendServer.BackendServer backendServer = new Services.BackendServer.BackendServer();
+      ServiceScope.Add<IBackendServer>(backendServer);
+    }
 
-    /// <summary>
-    /// Opens the specified connection string.
-    /// </summary>
-    /// <param name="connectionString">The connection string.</param>
-    /// <param name="systemDatabase">if set to <c>true</c> [system database].</param>
-    void Open(string connectionString, bool systemDatabase);
-
-    /// <summary>
-    /// Closes the database.
-    /// </summary>
-    void Close();
-
-    /// <summary>
-    /// Gets the underlying connection.
-    /// </summary>
-    /// <value>The underlying connection.</value>
-    object UnderlyingConnection { get; }
+    public static void DisposeBackendServices()
+    {
+      ServiceScope.RemoveAndDispose<IBackendServer>();
+    }
   }
 }

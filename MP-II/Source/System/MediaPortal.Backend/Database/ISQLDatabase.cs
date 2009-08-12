@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,28 +22,18 @@
 
 #endregion
 
+using System.Data;
+
 namespace MediaPortal.Database
 {
-  public interface IDatabaseNotifier
+  /// <summary>
+  /// Provides access to the system's database.
+  /// </summary>
+  public interface ISQLDatabase
   {
-    /// <summary>
-    /// Register for database notifications.
-    /// </summary>
-    /// <param name="notification">The callback.</param>
-    void Register(IDatabaseNotification notification);
-
-    /// <summary>
-    /// UnRegister for database notifications.
-    /// </summary>
-    /// <param name="notification">The callback.</param>
-    void UnRegister(IDatabaseNotification notification);
-
-    /// <summary>
-    /// send a notify to all registered clienst
-    /// </summary>
-    /// <param name="database">The database.</param>
-    /// <param name="notificationType">Type of the notification.</param>
-    /// <param name="item">The item.</param>
-    void Notify(IDatabase database, DatabaseNotificationType notificationType, IDbItem item);
+    IDbTransaction BeginTransaction(IsolationLevel level);
+    IDbTransaction BeginTransaction(IsolationLevel level, string transactionName);
+    IDbTransaction BeginTransaction(string transactionName);
+    IDbCommand CreateCommand();
   }
 }

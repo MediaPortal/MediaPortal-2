@@ -25,11 +25,18 @@
 namespace MediaPortal.BackendServer
 {
   /// <summary>
-  /// Interface for the backend's server.
+  /// Control interface for the backend's server components - HTTP, UPnP, ...
   /// </summary>
   public interface IBackendServer
   {
+    /// <summary>
+    /// Starts all system servers of the MediaPortal backend.
+    /// </summary>
     void Startup();
+
+    /// <summary>
+    /// Shuts all system servers down.
+    /// </summary>
     void Shutdown();
   }
 }

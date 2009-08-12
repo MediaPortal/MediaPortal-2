@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,27 +22,28 @@
 
 #endregion
 
-namespace MediaPortal.Database
+namespace MediaPortal.Services.DatabaseSchemaVersionManager
 {
-  public enum DatabaseNotificationType
+  public class Database : IDatabase
   {
-    ItemDeleted,
-    ItemAdded,
-    ItemModified,
-    AttributeAdded,
-    AttributeDeleted,
-    DatabaseCreated,
-    DatabaseDeleted
-  } ;
+    # IDatabase implementation
 
-  public interface IDatabaseNotification
-  {
-    /// <summary>
-    /// This method gets called when something changes in the database
-    /// </summary>
-    /// <param name="database">The database.</param>
-    /// <param name="notificationType">Type of the notification.</param>
-    /// <param name="item">The item.</param>
-    void OnNotify(IDatabase database, DatabaseNotificationType notificationType, IDbItem item);
+    ICollection<string> GetDatabaseSubSchemas()
+    {
+      asdf
+    }
+
+    bool GetSubSchemaVersion(string subSchemaName, out int versionMajor, out int versionMinor)
+    {
+      asdf
+    }
+
+    void UpdateSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor,
+        string updateScript, int newVersionMajor, int newVersionMinor)
+    {
+      asdf
+    }
+
+    #endregion
   }
 }

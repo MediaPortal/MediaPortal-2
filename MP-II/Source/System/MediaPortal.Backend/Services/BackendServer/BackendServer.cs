@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,21 +22,20 @@
 
 #endregion
 
-using System;
+using MediaPortal.BackendServer;
 
-namespace MediaPortal.Database
+namespace MediaPortal.Services.BackendServer
 {
-  public interface IDatabaseBuilderFactory
+  public class BackendServer : IBackendServer
   {
-    /// <summary>
-    /// Creates a new database factory based for the connection string
-    /// </summary>
-    [Obsolete("Use CreateFromId(string databaseId) instead.")]
-    IDatabaseFactory Create(string connectionString);
+    public void Startup()
+    {
+      TODO: Start HTTP server and UPnP server
+    }
 
-    ///// <summary>
-    ///// Creates a new database factory based from database Id
-    ///// </summary>
-    IDatabaseFactory CreateFromId(string databaseId);
+    public void Shutdown()
+    {
+      TODO: Shutdown HTTP server and UPnP server
+    }
   }
 }
