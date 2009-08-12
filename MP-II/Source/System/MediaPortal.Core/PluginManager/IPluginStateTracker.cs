@@ -76,7 +76,8 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// Will be called before the plugin manager shuts down. The plugin can perform finalization
-    /// tasks here.
+    /// tasks here. This method will called independently from the plugin state, i.e. it will also be called when the plugin
+    /// was disabled or not started at all.
     /// </summary>
     void Shutdown();
   }
