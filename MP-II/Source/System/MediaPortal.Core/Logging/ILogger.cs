@@ -115,6 +115,13 @@ namespace MediaPortal.Core.Logging
     /// Writes a critical error system message to the log.
     /// </summary>
     /// <param name="format">A composite format string.</param>
+    /// <param name="args">An array of objects to write using format.</param>
+    void Critical(string format, params object[] args);
+
+    /// <summary>
+    /// Writes a critical error system message to the log, passing the original <see cref="Exception"/>.
+    /// </summary>
+    /// <param name="format">A composite format string.</param>
     /// <param name="ex">The <see cref="Exception"/> that caused the message.</param>
     /// <param name="args">An array of objects to write using format.</param>
     void Critical(string format, Exception ex, params object[] args);
