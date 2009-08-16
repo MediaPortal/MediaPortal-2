@@ -29,10 +29,8 @@ namespace MediaPortal.Database
 {
   /// <summary>
   /// Provides database schema management functions. The guidelines for database setup and access must be observed.
-  /// 
-  /// TODO: Describe concept for database updates
   /// </summary>
-  public interface IDatabase
+  public interface IDatabaseManager
   {
     /// <summary>
     /// Gets a list of all named sub schemas which are currently active in the database.
@@ -60,16 +58,19 @@ namespace MediaPortal.Database
     /// </summary>
     /// <param name="subSchemaName">Identificator for the sub schema which will be created/updated.</param>
     /// <param name="currentVersionMajor">Current major version number of the schema to update by the
-    /// <paramref name="updateScript"/>.</param>
+    /// <paramref name="updateScript"/>. If the sub schema isn't present yet, <c>null</c> should be used for this parameter.</param>
     /// <param name="currentVersionMinor">Current minor version number of the schema to update by the
-    /// <paramref name="updateScript"/>.</param>
+    /// <paramref name="updateScript"/>. If the sub schema isn't present yet, <c>null</c> should be used for this parameter.</param>
     /// <param name="updateScript">Script to create or update the sub schema with the given <paramref name="subSchemaName"/>
     /// to its current version [<paramref name="newVersionMajor"/>].[<paramref name="newVersionMinor"/>].</param>
     /// <param name="newVersionMajor">Major version number of the new schema.</param>
     /// <param name="newVersionMinor">Minor version number of the new schema.</param>
     /// <exception cref="ArgumentException">If the specified <paramref name="currentVersionMajor"/> and
     /// <paramref name="currentVersionMinor"/> don't match the current sub schema's version.</exception>
-    void UpdateSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor,
+    /// <returns><c>true</c>, if the sub schema of the given <paramref name="subSchemaName"/> existed in the given
+    /// version and if it could correctly be updated, else <c>false</c>.</returns>
+    /// TODO: Document exceptions
+    bool UpdateSubSchema(string subSchemaName, int? currentVersionMajor, int? currentVersionMinor,
         string updateScript, int newVersionMajor, int newVersionMinor);
   }
 }

@@ -24,6 +24,8 @@
 
 using MediaPortal.BackendServer;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+using MediaPortal.MediaLibrary;
 
 namespace MediaPortal
 {
@@ -31,13 +33,19 @@ namespace MediaPortal
   {
     public static void RegisterBackendServices()
     {
-      Services.BackendServer.BackendServer backendServer = new Services.BackendServer.BackendServer();
-      ServiceScope.Add<IBackendServer>(backendServer);
+      ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("BackendExtension: Registering MediaLibrary");
+      ServiceScope.Add<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
+
+      logger.Debug("BackendExtension: Registering BackendServer");
+      ServiceScope.Add<IBackendServer>(new Services.BackendServer.BackendServer());
     }
 
     public static void DisposeBackendServices()
     {
       ServiceScope.RemoveAndDispose<IBackendServer>();
+      ServiceScope.RemoveAndDispose<IMediaLibrary>();
     }
   }
 }

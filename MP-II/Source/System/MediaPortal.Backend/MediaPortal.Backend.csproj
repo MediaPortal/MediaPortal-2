@@ -49,13 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackendServer\IBackendServer.cs" />
-    <Compile Include="Database\IDatabase.cs" />
+    <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
     <Compile Include="MediaLibrary\IMediaLibrary.cs" />
     <Compile Include="MediaManagement\IGlobalSharesManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
+    <Compile Include="Services\Database\DatabaseManager.cs" />
+    <Compile Include="Database\DatabaseSubSchemaUpdater.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
   </ItemGroup>
@@ -72,9 +74,6 @@
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Database\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -22,20 +22,73 @@
 
 #endregion
 
+using System;
+using HttpServer;
+using HttpServer.HttpModules;
 using MediaPortal.BackendServer;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 
 namespace MediaPortal.Services.BackendServer
 {
-  public class BackendServer : IBackendServer
+  public class BackendServer : IBackendServer, IDisposable
   {
-    public void Startup()
+    protected readonly HttpServer.HttpServer _server;
+
+    internal class HttpLogWriter : ILogWriter
     {
-      TODO: Start HTTP server and UPnP server
+      public void Write(object source, LogPrio priority, string message)
+      {
+        string msg = source + ": " + message;
+        ILogger logger = ServiceScope.Get<ILogger>();
+        switch (priority)
+        {
+          case LogPrio.Trace:
+            // Don't write trace messages (we don't support a trace level in MP - would have to map it to debug level)
+            break;
+          case LogPrio.Debug:
+            logger.Debug(msg);
+            break;
+          case LogPrio.Info:
+            logger.Info(msg);
+            break;
+          case LogPrio.Warning:
+            logger.Warn(msg);
+            break;
+          case LogPrio.Error:
+            logger.Error(msg);
+            break;
+          case LogPrio.Fatal:
+            logger.Critical(msg);
+            break;
+        }
+      }
     }
 
-    public void Shutdown()
+    public BackendServer()
     {
-      TODO: Shutdown HTTP server and UPnP server
+      _server = new HttpServer.HttpServer(new HttpLogWriter());
+      // TODO: Start UPnP server
     }
+
+    public void Dispose()
+    {
+      _server.Stop();
+      // TODO: Shutdown UPnP server
+    }
+
+    #region IBackendServer implementation
+
+    public void AddHttpModule(HttpModule module)
+    {
+      _server.Add(module);
+    }
+
+    public void RemoveHttpModule(HttpModule module)
+    {
+      _server.Remove(module);
+    }
+
+    #endregion
   }
 }

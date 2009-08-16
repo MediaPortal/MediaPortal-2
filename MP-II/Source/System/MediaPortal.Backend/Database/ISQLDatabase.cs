@@ -22,18 +22,83 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
 
 namespace MediaPortal.Database
 {
+  public interface ITransaction : IDisposable
+  {
+    IDbConnection Connection { get; }
+    void Commit();
+    void Rollback();
+
+    /// <summary>
+    /// Creates a database command for this transaction.
+    /// </summary>
+    /// <remarks>
+    /// The returned command can be reused multiple times during the runtime of this transaction, i.e. before the transaction
+    /// was closed using <see cref="Commit"/> or <see cref="Rollback"/>.
+    /// </remarks>
+    /// <returns>Database command instance.</returns>
+    IDbCommand CreateCommand();
+  }
+
   /// <summary>
   /// Provides access to the system's database.
   /// </summary>
   public interface ISQLDatabase
   {
-    IDbTransaction BeginTransaction(IsolationLevel level);
-    IDbTransaction BeginTransaction(IsolationLevel level, string transactionName);
-    IDbTransaction BeginTransaction(string transactionName);
-    IDbCommand CreateCommand();
+    /// <summary>
+    /// Returns a string which identifies the type of database to use. For some SQL constructs, it might depend on the
+    /// database system if they are supported.
+    /// </summary>
+    string DatabaseType { get; }
+
+    /// <summary>
+    /// Returns the version of the underlaying database implementation.
+    /// </summary>
+    string DatabaseVersion { get; }
+
+    /// <summary>
+    /// Gets a database connection from the connection pool and starts a new transaction on that connection
+    /// with the specified isolation level.
+    /// </summary>
+    /// <remarks>
+    /// The returned transaction instance has to be closed with using of the methods <see cref="ITransaction.Commit"/>,
+    /// <see cref="ITransaction.Rollback"/> or <see cref="ITransaction.Dispose"/>, because this is needed for maintaining
+    /// the connection pool management in the background.
+    /// </remarks>
+    /// <param name="level">Transaction level to use.</param>
+    /// <returns>Transaction instance.</returns>
+    ITransaction BeginTransaction(IsolationLevel level);
+
+    /// <summary>
+    /// Gets a database connection from the connection pool and starts a new transaction on that connection
+    /// with the isolation level <see cref="IsolationLevel.ReadCommitted"/>.
+    /// </summary>
+    /// <remarks>
+    /// The returned transaction instance has to be closed with using of the methods <see cref="ITransaction.Commit"/>,
+    /// <see cref="ITransaction.Rollback"/> or <see cref="ITransaction.Dispose"/>, because this is needed for maintaining
+    /// the connection pool management in the background.
+    /// </remarks>
+    /// <returns>Transaction instance.</returns>
+    ITransaction BeginTransaction();
+
+    /// <summary>
+    /// Returns the information if a table with the given <paramref name="tableName"/> exists in the database.
+    /// </summary>
+    /// <param name="tableName">Name of the table to check.</param>
+    /// <param name="caseSensitiveName">If set to <c>true</c>, the given <paramref name="tableName"/> will be checked
+    /// case-sensitive, i.e. the table must have been created case-sensitive. If the table was not explicitly created
+    /// case-sensitive, leave this parameter <c>false</c>.</param>
+    /// <returns><c>true</c>, if a table with the given name exists, else <c>false</c>.</returns>
+    bool TableExists(string tableName, bool caseSensitiveName);
+
+    void ExecuteBatch(IList<string> sqlStatements, bool autoCommit);
+    void ExecuteBatch(string sqlScriptFilePath, bool autoCommit);
+    void ExecuteBatch(TextReader reader, bool autoCommit);
   }
 }
