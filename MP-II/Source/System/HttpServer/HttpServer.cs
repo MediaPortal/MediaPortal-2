@@ -295,10 +295,20 @@ namespace HttpServer
     /// <summary>
     /// Add a <see cref="HttpModule"/> to the server.
     /// </summary>
-    /// <param name="module">mode to add</param>
+    /// <param name="module">Module to add.</param>
     public void Add(HttpModule module)
     {
       _modules.Add(module);
+    }
+
+    /// <summary>
+    /// Removes a <see cref="HttpModule"/> from the server.
+    /// </summary>
+    /// <param name="module">Module to remove.</param>
+    // Added by Albert, Team-MediaPortal: It must be possible to remove modules at runtime.
+    public void Remove(HttpModule module)
+    {
+      _modules.Remove(module);
     }
 
     /// <summary>
