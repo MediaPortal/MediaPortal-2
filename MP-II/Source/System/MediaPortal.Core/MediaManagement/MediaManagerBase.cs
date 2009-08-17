@@ -28,6 +28,8 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -41,6 +43,16 @@ namespace MediaPortal.Core.MediaManagement
   public class MediaManagerBase : IMediaManager
   {
     #region Constants
+
+    /// <summary>
+    /// Contains the id of the LocalFsMediaProvider.
+    /// </summary>
+    protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
+
+    // Localization resources will be provided by the client's SkinBase plugin
+    public const string MY_MUSIC_SHARE_NAME_RESOURE = "[Media.MyMusic]";
+    public const string MY_VIDEOS_SHARE_NAME_RESOURCE = "[Media.MyVideos]";
+    public const string MY_PICTURES_SHARE_NAME_RESOURCE = "[Media.MyPictures]";
 
     // Constants will be moved to some constants class
     protected const string MEDIA_PROVIDERS_PLUGIN_LOCATION = "/Media/MediaProviders";
@@ -179,6 +191,93 @@ namespace MediaPortal.Core.MediaManagement
           _mediaProvidersPluginItemChangeListener);
       pluginManager.RemoveItemRegistrationChangeListener(METADATA_EXTRACTORS_PLUGIN_LOCATION,
           _metadataExtractorsPluginItemChangeListener);
+    }
+
+    /// <summary>
+    /// Returns an enumeration of default metadata extractors which can cope with the specified
+    /// <paramref name="mediaCategory"/>.
+    /// </summary>
+    /// <param name="mediaCategory">The category to find all default metadata extractors for. If
+    /// this parameter is <c>null</c>, the ids of all default metadata extractors are returned,
+    /// independent of their category.</param>
+    /// <returns>Enumeration of metadata extractors which can be asigned to shares of the
+    /// specified <paramref name="mediaCategory"/> by default.</returns>
+    protected static IEnumerable<Guid> GetDefaultMetadataExtractorsForCategory(string mediaCategory)
+    {
+      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      foreach (IMetadataExtractor metadataExtractor in mediaManager.LocalMetadataExtractors.Values)
+      {
+        MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
+        if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
+          yield return metadataExtractor.Metadata.MetadataExtractorId;
+      }
+    }
+
+    protected ICollection<ShareDescriptor> CreateDefaultShares()
+    {
+      ICollection<ShareDescriptor> result = new List<ShareDescriptor>();
+      Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
+      if (LocalMediaProviders.ContainsKey(localFsMediaProviderId))
+      {
+        string folderPath;
+        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
+        {
+          folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
+          Guid shareId = Guid.NewGuid();
+          string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
+          ICollection<Guid> metadataExtractorIds = new List<Guid>();
+          foreach (string mediaCategory in mediaCategories)
+            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          ShareDescriptor sd = new ShareDescriptor(
+              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
+              folderPath, MY_MUSIC_SHARE_NAME_RESOURE,
+              mediaCategories, metadataExtractorIds);
+          result.Add(sd);
+        }
+
+        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyVideos, out folderPath))
+        {
+          folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
+          Guid shareId = Guid.NewGuid();
+          string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
+          ICollection<Guid> metadataExtractorIds = new List<Guid>();
+          foreach (string mediaCategory in mediaCategories)
+            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          ShareDescriptor sd = new ShareDescriptor(
+              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
+              folderPath, MY_VIDEOS_SHARE_NAME_RESOURCE,
+              mediaCategories, metadataExtractorIds);
+          result.Add(sd);
+        }
+
+        if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyPictures, out folderPath))
+        {
+          folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
+          Guid shareId = Guid.NewGuid();
+          string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
+          ICollection<Guid> metadataExtractorIds = new List<Guid>();
+          foreach (string mediaCategory in mediaCategories)
+            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
+          ShareDescriptor sd = new ShareDescriptor(
+              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
+              folderPath, MY_PICTURES_SHARE_NAME_RESOURCE,
+              mediaCategories, metadataExtractorIds);
+          result.Add(sd);
+        }
+      }
+      if (result.Count > 0)
+        return result;
+      // Fallback: If no share was added for the defaults above, use the provider's root folders
+      foreach (IMediaProvider mediaProvider in LocalMediaProviders.Values)
+      {
+        MediaProviderMetadata metadata = mediaProvider.Metadata;
+        Guid shareId = Guid.NewGuid();
+        ShareDescriptor sd = new ShareDescriptor(
+            shareId, SystemName.GetLocalSystemName(), metadata.MediaProviderId,
+            "/", metadata.Name, null, GetDefaultMetadataExtractorsForCategory(null));
+        result.Add(sd);
+      }
+      return result;
     }
 
     #endregion

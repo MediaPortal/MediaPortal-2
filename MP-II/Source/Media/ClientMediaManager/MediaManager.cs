@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 
@@ -56,8 +55,14 @@ namespace MediaPortal.Media.ClientMediaManager
     public override void Initialize()
     {
       base.Initialize();
-      ServiceScope.Get<ILogger>().Info("MediaManager: Startup");
+      ServiceScope.Get<ILogger>().Info("MediaManager: Initialize");
       _localLocalSharesManagement.LoadSharesFromSettings();
+      if (_localLocalSharesManagement.Shares.Count == 0)
+      { // The shares are still uninitialized - use defaults
+        foreach (ShareDescriptor share in CreateDefaultShares())
+          _localLocalSharesManagement.Shares.Add(share.ShareId, share);
+        _localLocalSharesManagement.SaveSharesToSettings();
+      }
     }
 
     #endregion
@@ -100,10 +105,12 @@ namespace MediaPortal.Media.ClientMediaManager
       _localLocalSharesManagement.RemoveShare(shareId);
     }
 
-    public ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems)
+    public ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems)
     {
       ShareDescriptor sd = _localLocalSharesManagement.UpdateShare(shareId, providerId, path,
-          shareName, mediaCategories, metadataExtractorIds, relocateMediaItems);
+          shareName, mediaCategories, metadataExtractorIds);
+      // TODO: Trigger re-import and relocate media items (if relocateMediaItems is set)
       // TODO: When connected, also update the share at the media library
       return sd;
     }
