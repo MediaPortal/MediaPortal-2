@@ -22,24 +22,32 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using MediaPortal.Core;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Database;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Services.Database
 {
-  public class DatabaseManager : IDatabaseManager
+  public class DatabaseManager : IDatabaseManager, IDisposable
   {
-    public const string SUBSCHEMAS_TABLE = "MEDIAPORTAL_BASIS";
-    public const string SUBSCHEMAS_SUBSCHEMA_NAME = "SUBSCHEMA_NAME";
-    public const string SUBSCHEMAS_VERSION_MAJOR = "VERSION_MAJOR";
-    public const string SUBSCHEMAS_VERSION_MINOR = "VERSION_MINOR";
+    public void Dispose()
+    {
+    }
 
-    public const string SUBSCHEMA_SCRIPT_NAME = "MediaPortal-Basis-create-1.0.sql";
+    protected string ExplicitVersionToString(int? versionMajor, int? versionMinor)
+    {
+      if (!versionMajor.HasValue)
+        return "-";
+      else if (!versionMinor.HasValue)
+        return versionMajor.Value + ".-";
+      else
+        return versionMajor.Value + "." + versionMinor.Value;
+    }
+
+    #region IDatabaseManager implementation
 
     public void Startup()
     {
@@ -47,19 +55,10 @@ namespace MediaPortal.Services.Database
       if (database == null)
         throw new IllegalCallException("There is no database present in the system");
       // Prepare schema
-      if (!database.TableExists(SUBSCHEMAS_TABLE, false))
-      {
-        IPathManager pathManager = ServiceScope.Get<IPathManager>();
-        string scriptPath = Path.Combine(pathManager.GetPath(@"<APPLICATION_ROOT>\Base\Scripts\"), SUBSCHEMA_SCRIPT_NAME);
-        database.ExecuteBatch(scriptPath, true);
-      }
+      if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
+        database.ExecuteBatch(MediaPortal_Basis_Schema.SubSchemaScriptPath, true);
+      // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
     }
-
-    public void Shutdown()
-    {
-    }
-
-    #region IDatabaseManager implementation
 
     public ICollection<string> GetDatabaseSubSchemas()
     {
@@ -67,14 +66,14 @@ namespace MediaPortal.Services.Database
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = transaction.CreateCommand();
-        command.CommandText = "SELECT " + SUBSCHEMAS_SUBSCHEMA_NAME + " FROM " + SUBSCHEMAS_TABLE;
+        int nameIndex;
+        IDbCommand command = MediaPortal_Basis_Schema.SelectAllSubSchemaNames(transaction, out nameIndex);
         IDataReader reader = command.ExecuteReader();
         try
         {
           ICollection<string> result = new List<string>();
           while (reader.Read())
-            result.Add(reader.GetString(0));
+            result.Add(reader.GetString(nameIndex));
           return result;
         }
         finally
@@ -96,16 +95,16 @@ namespace MediaPortal.Services.Database
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = transaction.CreateCommand();
-        command.CommandText = "SELECT " + SUBSCHEMAS_VERSION_MAJOR + ", " + SUBSCHEMAS_VERSION_MINOR + " FROM " + SUBSCHEMAS_TABLE +
-            " WHERE " + SUBSCHEMAS_SUBSCHEMA_NAME + "='" + subSchemaName + "'";
+        int versionMajorParameterIndex;
+        int versionMinorParameterIndex;
+        IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName, out versionMajorParameterIndex, out versionMinorParameterIndex);
         IDataReader reader = command.ExecuteReader();
         try
         {
           if (reader.Read())
           {
-            versionMajor = reader.GetInt32(0);
-            versionMajor = reader.GetInt32(1);
+            versionMajor = reader.GetInt32(versionMajorParameterIndex);
+            versionMajor = reader.GetInt32(versionMinorParameterIndex);
             return true;
           }
           return false;
@@ -128,28 +127,56 @@ namespace MediaPortal.Services.Database
       int versionMajor;
       int versionMinor;
       bool schemaPresent = GetSubSchemaVersion(subSchemaName, out versionMajor, out versionMinor);
-      if (schemaPresent &&
-          currentVersionMajor.HasValue && currentVersionMajor.Value == versionMajor &&
-          currentVersionMinor.HasValue && currentVersionMinor.Value == versionMinor ||
-          !schemaPresent && !currentVersionMajor.HasValue && !currentVersionMinor.HasValue)
-        database.ExecuteBatch(updateScript, true);
-      else
-        return false;
+      if (schemaPresent)
+        if (currentVersionMajor.HasValue && currentVersionMajor.Value == versionMajor &&
+            currentVersionMinor.HasValue && currentVersionMinor.Value == versionMinor)
+          database.ExecuteBatch(updateScript, true);
+        else
+          throw new ArgumentException(string.Format("The current version of sub schema '{0}' is {1}.{2}, but the schema update script is given for version {3}",
+              subSchemaName, versionMajor, versionMinor, ExplicitVersionToString(currentVersionMajor, currentVersionMinor)));
+      else // !schemaPresent
+        if (!currentVersionMajor.HasValue && !currentVersionMinor.HasValue)
+          database.ExecuteBatch(updateScript, true);
+        else
+          throw new ArgumentException(string.Format("The sub schema '{0}' is not present yet, but the schema update script is given for version {1}",
+              subSchemaName, ExplicitVersionToString(currentVersionMajor, currentVersionMinor)));
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = transaction.CreateCommand();
+        IDbCommand command;
         if (schemaPresent)
-          command.CommandText = "UPDATE " + SUBSCHEMAS_TABLE + " SET " +
-              SUBSCHEMAS_VERSION_MAJOR + "=" + newVersionMajor + ", " +
-              SUBSCHEMAS_VERSION_MINOR + "=" + newVersionMinor +
-              " WHERE " + SUBSCHEMAS_SUBSCHEMA_NAME + "='" + subSchemaName + "'";
+          command = MediaPortal_Basis_Schema.UpdateSubSchemaCommand(
+              transaction, subSchemaName, newVersionMajor, newVersionMinor);
         else
-          command.CommandText = "INSERT INTO " + SUBSCHEMAS_TABLE + " (" +
-              SUBSCHEMAS_SUBSCHEMA_NAME + ", " + SUBSCHEMAS_VERSION_MAJOR + "," + SUBSCHEMAS_VERSION_MINOR + ") VALUES (" +
-              subSchemaName + ", " + newVersionMajor + ", " + newVersionMinor + ")";
+          command = MediaPortal_Basis_Schema.InsertSubSchemaCommand(
+              transaction, subSchemaName, newVersionMajor, newVersionMinor);
         command.ExecuteNonQuery();
         return true;
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    public void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScript)
+    {
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
+      int versionMajor;
+      int versionMinor;
+      bool schemaPresent = GetSubSchemaVersion(subSchemaName, out versionMajor, out versionMinor);
+      if (!schemaPresent)
+        return;
+      if (currentVersionMajor == versionMajor && currentVersionMinor == versionMinor)
+        database.ExecuteBatch(deleteScript, true);
+      else
+        throw new ArgumentException(string.Format("The current version of sub schema '{0}' is {1}.{2}, but the schema deletion script works for version {3}.{4}",
+            subSchemaName, versionMajor, versionMinor, currentVersionMajor, currentVersionMajor));
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        IDbCommand command = MediaPortal_Basis_Schema.DeleteSubSchemaCommand(transaction, subSchemaName);
+        command.ExecuteNonQuery();
       }
       finally
       {

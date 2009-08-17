@@ -49,17 +49,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackendServer\IBackendServer.cs" />
+    <Compile Include="Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
+    <Compile Include="Exceptions\Exceptions.cs" />
     <Compile Include="MediaLibrary\IMediaLibrary.cs" />
     <Compile Include="MediaManagement\IGlobalSharesManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
     <Compile Include="Services\Database\DatabaseManager.cs" />
-    <Compile Include="Database\DatabaseSubSchemaUpdater.cs" />
+    <Compile Include="Services\Database\MediaPortal_Basis_SubSchema.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
+    <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">
@@ -73,6 +76,10 @@
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UPnP\UPnP.csproj">
+      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
+      <Name>UPnP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

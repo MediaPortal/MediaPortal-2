@@ -33,6 +33,12 @@ namespace MediaPortal.Database
   public interface IDatabaseManager
   {
     /// <summary>
+    /// Starts the database manager. This must be done after the database service is verfügbar (i.e. after the database plugin
+    /// was loaded).
+    /// </summary>
+    void Startup();
+
+    /// <summary>
     /// Gets a list of all named sub schemas which are currently active in the database.
     /// </summary>
     /// <returns>Collection of sub schema names.</returns>
@@ -69,8 +75,25 @@ namespace MediaPortal.Database
     /// <paramref name="currentVersionMinor"/> don't match the current sub schema's version.</exception>
     /// <returns><c>true</c>, if the sub schema of the given <paramref name="subSchemaName"/> existed in the given
     /// version and if it could correctly be updated, else <c>false</c>.</returns>
-    /// TODO: Document exceptions
+    /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
+    /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
     bool UpdateSubSchema(string subSchemaName, int? currentVersionMajor, int? currentVersionMinor,
         string updateScript, int newVersionMajor, int newVersionMinor);
+
+    /// <summary>
+    /// Deletes the sub schema of the given <paramref name="subSchemaName"/> with the given <paramref name="deleteScript"/>.
+    /// The caller should first call <see cref="GetSubSchemaVersion"/> and decide which deletion script to use.
+    /// </summary>
+    /// <param name="subSchemaName">Identificator for the sub schema which will be deleted.</param>
+    /// <param name="currentVersionMajor">Current major version number of the schema to delete by the
+    /// <paramref name="deleteScript"/>.</param>
+    /// <param name="currentVersionMinor">Current minor version number of the schema to delete by the
+    /// <paramref name="deleteScript"/>.</param>
+    /// <param name="deleteScript">Script to delete the sub schema with the given <paramref name="subSchemaName"/>.</param>
+    /// <exception cref="ArgumentException">If the specified <paramref name="currentVersionMajor"/> and
+    /// <paramref name="currentVersionMinor"/> don't match the current sub schema's version.</exception>
+    /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
+    /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
+    void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScript);
   }
 }
