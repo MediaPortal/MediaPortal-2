@@ -94,11 +94,12 @@ namespace MediaPortal
         ILogger logger = ServiceScope.Get<ILogger>();
 
         IPathManager pathManager = ServiceScope.Get<IPathManager>();
-        logPath = pathManager.GetPath("<LOG>");
 
         // Check if user wants to override the default Application Data location.
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
           pathManager.ReplacePath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
+
+        logPath = pathManager.GetPath("<LOG>");
 
         logger.Debug("ApplicationLauncher: Create MediaManager service");
         MediaManager mediaManager = new MediaManager();
