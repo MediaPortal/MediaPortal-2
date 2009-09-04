@@ -5,5 +5,5 @@ set solution_dir=%~f1.
 set target_dir=%~f2.
 
 echo Solution directory = %solution_dir%, target directory = %target_dir%
-robocopy "%solution_dir%\Base\Client" "%target_dir%" /XD .svn
+robocopy "%solution_dir%\Base\Client" "%target_dir%" /E /XD .svn
 copy "%solution_dir%\Ui\Players\DShowHelper\release\DShowHelper.dll" "%target_dir%"
