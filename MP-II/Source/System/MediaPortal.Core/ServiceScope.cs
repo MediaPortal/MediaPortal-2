@@ -309,14 +309,18 @@ namespace MediaPortal.Core
       {
         if (!IsShuttingDown)
         {
-          if (type != typeof(ILogger))
-            Get<ILogger>().Info("ServiceScope.GetService<{0}>: Try to load service from plugin manager at /Services/{0}", type.Name);
-          object newService = Get<IPluginManager>().RequestPluginItem<T>("/Services", type.Name,
-            new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
-          if (newService != null)
+          IPluginManager pluginManager;
+          if (type != typeof(IPluginManager) && (pluginManager = Get<IPluginManager>(false)) != null)
           {
-            Add<T>((T) newService);
-            return (T) newService;
+            if (type != typeof(ILogger))
+              Get<ILogger>().Info("ServiceScope.GetService<{0}>: Try to load service from plugin manager at /Services/{0}", type.Name);
+            object newService = pluginManager.RequestPluginItem<T>("/Services", type.Name,
+              new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
+            if (newService != null)
+            {
+              Add<T>((T) newService);
+              return (T) newService;
+            }
           }
         }
 
