@@ -1,6 +1,9 @@
-REM %1 = Solution directory
-REM %2 = Target directory
+@REM Parameter 1: Solution source directory, needs to have a trailing \
+@REM Parameter 2: Target build directory, needs to have a trailing \
 
-echo Solution directory = %1, target directory = %2
-xcopy %1\Base\Client\*.* %2 /E /Y /D
-copy %1\Ui\Players\DShowHelper\release\DShowHelper.dll %2
+set solution_dir=%~f1.
+set target_dir=%~f2.
+
+echo Solution directory = %solution_dir%, target directory = %target_dir%
+robocopy "%solution_dir%\Base\Client" "%target_dir%" /XD .svn
+copy "%solution_dir%\Ui\Players\DShowHelper\release\DShowHelper.dll" "%target_dir%"

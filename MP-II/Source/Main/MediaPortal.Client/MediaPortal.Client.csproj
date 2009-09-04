@@ -82,8 +82,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)"
-if $(ConfigurationName)==Release xcopy /y "$(TargetPath)" "$(SolutionDir)\..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)"</PostBuildEvent>
+    <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"
+if $(ConfigurationName)==Release xcopy /y "$(TargetPath)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)"</PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
