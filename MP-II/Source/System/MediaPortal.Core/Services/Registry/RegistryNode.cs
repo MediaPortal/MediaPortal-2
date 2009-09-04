@@ -140,9 +140,10 @@ namespace MediaPortal.Core.Services.Registry
     {
       List<string> result = new List<string>();
       result.Add("[" + _name + "]");
-      foreach (RegistryNode child in _subNodes.Values)
-        foreach (string line in child.GetStatus())
-          result.Add("  " + line);
+      if (_subNodes != null)
+        foreach (RegistryNode child in _subNodes.Values)
+          foreach (string line in child.GetStatus())
+            result.Add("  " + line);
       return result;
     }
 
