@@ -162,7 +162,7 @@ namespace MediaPortal.Core.Services.PathManager
     /// <param name="label">The original label to be formatted.</param>
     /// <returns>Formattet label. This label will be in upper case and will have
     /// a leading <c>&lt;</c> and an ending <c>&gt;</c></returns>
-    private string CheckFormat(string label)
+    private static string CheckFormat(string label)
     {
       label = label.ToUpper();
       if (!label.StartsWith("<"))
