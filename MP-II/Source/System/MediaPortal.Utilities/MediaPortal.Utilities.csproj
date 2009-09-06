@@ -110,6 +110,7 @@
     <Compile Include="Versions.cs" />
     <Compile Include="Win32\Win32API.cs" />
     <Compile Include="Win32\Window.cs" />
+    <Compile Include="Xml\XmlInnerElementWriter.cs" />
     <Compile Include="Xml\XmlNoNamespaceWriter.cs" />
   </ItemGroup>
   <ItemGroup>

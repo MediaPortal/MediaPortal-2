@@ -28,6 +28,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Core.Services.Settings
 {

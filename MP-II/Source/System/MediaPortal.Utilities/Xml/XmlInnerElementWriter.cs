@@ -26,7 +26,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 
-namespace MediaPortal.Core.Services.Settings
+namespace MediaPortal.Utilities.Xml
 {
   /// <summary>
   /// Xml Writer that doesn't write the XML header.
