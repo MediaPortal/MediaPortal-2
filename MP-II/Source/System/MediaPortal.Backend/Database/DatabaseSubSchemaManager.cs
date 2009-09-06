@@ -335,11 +335,8 @@ namespace MediaPortal.Database
               (nextOperation.ToVersionMajor == curVersionMajor && nextOperation.ToVersionMinor < curVersionMinor))
             throw new ArgumentException(string.Format("Update script '{0}' seems to decrease the schema version",
                 nextOperation.UpdateScriptFilePath));
-          string updateScript;
-          using (TextReader reader = new StreamReader(nextOperation.UpdateScriptFilePath)) // We should define an encoding here
-            updateScript = reader.ReadToEnd();
           databaseManager.UpdateSubSchema(_subSchemaName, curVersionMajor, curVersionMinor,
-              updateScript, nextOperation.ToVersionMajor, nextOperation.ToVersionMinor);
+              nextOperation.UpdateScriptFilePath, nextOperation.ToVersionMajor, nextOperation.ToVersionMinor);
           curVersionMajor = nextOperation.ToVersionMajor;
           curVersionMinor = nextOperation.ToVersionMinor;
           nextOperation = GetUpdateOperation(curVersionMajor, curVersionMinor);
@@ -366,10 +363,7 @@ namespace MediaPortal.Database
       if (!databaseManager.GetSubSchemaVersion(_subSchemaName, out curVersionMajor, out curVersionMinor))
         return true;
       DeleteOperation operation = GetDeleteOperation(curVersionMajor, curVersionMinor);
-      string deleteScript;
-      using (TextReader reader = new StreamReader(operation.DeleteScriptFilePath)) // We should define an encoding here
-        deleteScript = reader.ReadToEnd();
-      databaseManager.DeleteSubSchema(_subSchemaName, curVersionMajor, curVersionMinor, deleteScript);
+      databaseManager.DeleteSubSchema(_subSchemaName, curVersionMajor, curVersionMinor, operation.DeleteScriptFilePath);
       return true;
     }
   }

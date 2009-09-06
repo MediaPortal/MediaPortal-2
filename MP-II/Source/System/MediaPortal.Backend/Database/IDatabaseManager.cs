@@ -34,12 +34,12 @@ namespace MediaPortal.Database
   {
     /// <summary>
     /// Starts the database manager. This must be done after the database service is verfügbar (i.e. after the database plugin
-    /// was loaded).
+    /// was started).
     /// </summary>
     void Startup();
 
     /// <summary>
-    /// Gets a list of all named sub schemas which are currently active in the database.
+    /// Gets a list of all named sub schemas which are currently deployed in the database.
     /// </summary>
     /// <returns>Collection of sub schema names.</returns>
     ICollection<string> GetDatabaseSubSchemas();
@@ -63,11 +63,12 @@ namespace MediaPortal.Database
     /// The caller should first call <see cref="GetSubSchemaVersion"/> and decide which creation or update script to use.
     /// </summary>
     /// <param name="subSchemaName">Identificator for the sub schema which will be created/updated.</param>
-    /// <param name="currentVersionMajor">Current major version number of the schema to update by the
-    /// <paramref name="updateScript"/>. If the sub schema isn't present yet, <c>null</c> should be used for this parameter.</param>
-    /// <param name="currentVersionMinor">Current minor version number of the schema to update by the
-    /// <paramref name="updateScript"/>. If the sub schema isn't present yet, <c>null</c> should be used for this parameter.</param>
-    /// <param name="updateScript">Script to create or update the sub schema with the given <paramref name="subSchemaName"/>
+    /// <param name="currentVersionMajor">Current major version number of the schema to be updated by the update script.
+    /// If the sub schema isn't present yet, <c>null</c> should be used for this parameter.</param>
+    /// <param name="currentVersionMinor">Current minor version number of the schema to be updated by the update script.
+    /// If the sub schema isn't present yet, <c>null</c> should be used for this parameter.</param>
+    /// <param name="updateScriptFilePath">Path to a file containing the script to create or update the sub schema with the given
+    /// <paramref name="subSchemaName"/>
     /// to its current version [<paramref name="newVersionMajor"/>].[<paramref name="newVersionMinor"/>].</param>
     /// <param name="newVersionMajor">Major version number of the new schema.</param>
     /// <param name="newVersionMinor">Minor version number of the new schema.</param>
@@ -78,22 +79,21 @@ namespace MediaPortal.Database
     /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
     /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
     bool UpdateSubSchema(string subSchemaName, int? currentVersionMajor, int? currentVersionMinor,
-        string updateScript, int newVersionMajor, int newVersionMinor);
+        string updateScriptFilePath, int newVersionMajor, int newVersionMinor);
 
     /// <summary>
-    /// Deletes the sub schema of the given <paramref name="subSchemaName"/> with the given <paramref name="deleteScript"/>.
+    /// Deletes the sub schema of the given <paramref name="subSchemaName"/>.
     /// The caller should first call <see cref="GetSubSchemaVersion"/> and decide which deletion script to use.
     /// </summary>
     /// <param name="subSchemaName">Identificator for the sub schema which will be deleted.</param>
-    /// <param name="currentVersionMajor">Current major version number of the schema to delete by the
-    /// <paramref name="deleteScript"/>.</param>
-    /// <param name="currentVersionMinor">Current minor version number of the schema to delete by the
-    /// <paramref name="deleteScript"/>.</param>
-    /// <param name="deleteScript">Script to delete the sub schema with the given <paramref name="subSchemaName"/>.</param>
+    /// <param name="currentVersionMajor">Current major version number of the schema to be deleted by the delete script.</param>
+    /// <param name="currentVersionMinor">Current minor version number of the schema to be deleted by the delete script.</param>
+    /// <param name="deleteScriptFilePath">Path to a file containing the script to delete the sub schema with the given
+    /// <paramref name="subSchemaName"/>.</param>
     /// <exception cref="ArgumentException">If the specified <paramref name="currentVersionMajor"/> and
     /// <paramref name="currentVersionMinor"/> don't match the current sub schema's version.</exception>
     /// <exception cref="Exception">All exceptions in lower DB layers, which are caused by problems in the
     /// DB connection or malformed scripts, will be re-thrown by this method.</exception>
-    void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScript);
+    void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScriptFilePath);
   }
 }

@@ -60,6 +60,7 @@
     <Compile Include="Services\BackendServer\BackendServer.cs" />
     <Compile Include="Services\Database\DatabaseManager.cs" />
     <Compile Include="Services\Database\MediaPortal_Basis_SubSchema.cs" />
+    <Compile Include="Services\Database\SQLUtils.cs" />
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />

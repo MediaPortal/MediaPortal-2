@@ -56,7 +56,7 @@ namespace MediaPortal.Services.Database
         throw new IllegalCallException("There is no database present in the system");
       // Prepare schema
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
-        database.ExecuteBatch(MediaPortal_Basis_Schema.SubSchemaScriptPath, true);
+        database.ExecuteBatch(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath, true);
       // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
     }
 
@@ -97,7 +97,8 @@ namespace MediaPortal.Services.Database
       {
         int versionMajorParameterIndex;
         int versionMinorParameterIndex;
-        IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName, out versionMajorParameterIndex, out versionMinorParameterIndex);
+        IDbCommand command = MediaPortal_Basis_Schema.SelectVersionBySubschemaCommand(transaction, subSchemaName,
+            out versionMajorParameterIndex, out versionMinorParameterIndex);
         IDataReader reader = command.ExecuteReader();
         try
         {
@@ -121,7 +122,7 @@ namespace MediaPortal.Services.Database
     }
 
     public bool UpdateSubSchema(string subSchemaName, int? currentVersionMajor, int? currentVersionMinor,
-        string updateScript, int newVersionMajor, int newVersionMinor)
+        string updateScriptFilePath, int newVersionMajor, int newVersionMinor)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
       int versionMajor;
@@ -130,15 +131,17 @@ namespace MediaPortal.Services.Database
       if (schemaPresent)
         if (currentVersionMajor.HasValue && currentVersionMajor.Value == versionMajor &&
             currentVersionMinor.HasValue && currentVersionMinor.Value == versionMinor)
-          database.ExecuteBatch(updateScript, true);
+          database.ExecuteBatch(updateScriptFilePath, true);
         else
-          throw new ArgumentException(string.Format("The current version of sub schema '{0}' is {1}.{2}, but the schema update script is given for version {3}",
+          throw new ArgumentException(string.Format(
+              "The current version of sub schema '{0}' is {1}.{2}, but the schema update script is given for version {3}",
               subSchemaName, versionMajor, versionMinor, ExplicitVersionToString(currentVersionMajor, currentVersionMinor)));
       else // !schemaPresent
         if (!currentVersionMajor.HasValue && !currentVersionMinor.HasValue)
-          database.ExecuteBatch(updateScript, true);
+          database.ExecuteBatch(updateScriptFilePath, true);
         else
-          throw new ArgumentException(string.Format("The sub schema '{0}' is not present yet, but the schema update script is given for version {1}",
+          throw new ArgumentException(string.Format(
+              "The sub schema '{0}' is not present yet, but the schema update script is given for version {1}",
               subSchemaName, ExplicitVersionToString(currentVersionMajor, currentVersionMinor)));
       ITransaction transaction = database.BeginTransaction();
       try
@@ -159,7 +162,7 @@ namespace MediaPortal.Services.Database
       }
     }
 
-    public void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScript)
+    public void DeleteSubSchema(string subSchemaName, int currentVersionMajor, int currentVersionMinor, string deleteScriptFilePath)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>(false);
       int versionMajor;
@@ -168,7 +171,7 @@ namespace MediaPortal.Services.Database
       if (!schemaPresent)
         return;
       if (currentVersionMajor == versionMajor && currentVersionMinor == versionMinor)
-        database.ExecuteBatch(deleteScript, true);
+        database.ExecuteBatch(deleteScriptFilePath, true);
       else
         throw new ArgumentException(string.Format("The current version of sub schema '{0}' is {1}.{2}, but the schema deletion script works for version {3}.{4}",
             subSchemaName, versionMajor, versionMinor, currentVersionMajor, currentVersionMajor));

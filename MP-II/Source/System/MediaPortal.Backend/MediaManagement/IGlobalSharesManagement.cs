@@ -35,7 +35,7 @@ namespace MediaPortal.MediaManagement
   /// <remarks>
   /// The media library knows each share of all managed MP-II clients in the system.
   /// Shares are managed redundantly at MediaPortal clients and at the MediaPortal server's media library.
-  /// So it is possible to access local shares while the client is not connected to the server.
+  /// So it is possible to access local shares from the client while it is not connected to the server.
   /// Shares, which have been reconfigured by the client in disconnected mode, are synchronized with the
   /// server when the next server connection is made.
   /// <br/>
@@ -55,8 +55,8 @@ namespace MediaPortal.MediaManagement
     /// categories.</param>
     /// <param name="metadataExtractorIds">Ids of metadata extractors to attach to the new share.
     /// The system will automatically import the desired metadata on all of the share's media items.</param>
-    /// <returns>Descriptor of the new share.</returns>
-    ShareDescriptor RegisterShare(SystemName nativeSystem, Guid providerId, string path,
+    /// <returns>ID of the new share.</returns>
+    Guid RegisterShare(SystemName nativeSystem, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds);
 
     /// <summary>
@@ -110,11 +110,5 @@ namespace MediaPortal.MediaManagement
     /// <param name="systemName">System whose shares should be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
     IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName);
-
-    /// <summary>
-    /// Returns a collection of all known managed MediaPortal clients in the system.
-    /// </summary>
-    /// <returns>Collection of client system names.</returns>
-    ICollection<SystemName> GetManagedClients();
   }
 }

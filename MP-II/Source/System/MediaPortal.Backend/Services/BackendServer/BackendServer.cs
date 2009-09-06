@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Net;
 using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.BackendServer;
@@ -68,16 +69,26 @@ namespace MediaPortal.Services.BackendServer
     public BackendServer()
     {
       _server = new HttpServer.HttpServer(new HttpLogWriter());
-      // TODO: Start UPnP server
+      // TODO: Create UPnP server
     }
 
     public void Dispose()
     {
-      _server.Stop();
-      // TODO: Shutdown UPnP server
     }
 
     #region IBackendServer implementation
+
+    public void Startup()
+    {
+      _server.Start(IPAddress.Any, 80);
+      // TODO: Start UPnP server
+    }
+
+    public void Shutdown()
+    {
+      _server.Stop();
+      // TODO: Stop UPnP server
+    }
 
     public void AddHttpModule(HttpModule module)
     {

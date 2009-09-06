@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.MediaLibrary
 {
@@ -44,7 +45,7 @@ namespace MediaPortal.MediaLibrary
 
     #region Media query
 
-    ICollection<MediaItem> Search(string query);
+    ICollection<MediaItem> Search(IQuery query);
 
     ICollection<MediaItem> Browse(MediaItem parent);
 
@@ -64,6 +65,10 @@ namespace MediaPortal.MediaLibrary
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
 
     void RemoveMediaItemAspectStorage(MediaItemAspectMetadata miam);
+
+    ICollection<MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata();
+
+    MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId);
 
     #endregion
 
@@ -108,8 +113,9 @@ namespace MediaPortal.MediaLibrary
     /// <param name="metadataExtractorIds">Ids of metadata extractors to be attached to the share.</param>
     /// <param name="relocateMediaItems">If set to <c>true</c>, the paths of all media items from the
     /// specified share will be adapted to the new base path.</param>
-    /// <returns>Changed share descriptor.</returns>
-    void UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems);
+    /// <returns>Number of relocated media items.</returns>
+    int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems);
 
     /// <summary>
     /// Returns all shares which are registered in the MediaPortal server's media library.
@@ -132,16 +138,6 @@ namespace MediaPortal.MediaLibrary
     /// <param name="systemName">System whose shares should be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
     IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName);
-
-    #endregion
-
-    #region Client management
-
-    /// <summary>
-    /// Returns a collection of all known managed MediaPortal clients in the system.
-    /// </summary>
-    /// <returns>Collection of client system names.</returns>
-    ICollection<SystemName> GetManagedClients();
 
     #endregion
   }

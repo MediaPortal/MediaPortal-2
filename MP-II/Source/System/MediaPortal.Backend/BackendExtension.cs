@@ -25,7 +25,9 @@
 using MediaPortal.BackendServer;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Database;
 using MediaPortal.MediaLibrary;
+using MediaPortal.Services.Database;
 
 namespace MediaPortal
 {
@@ -35,11 +37,30 @@ namespace MediaPortal
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
+      logger.Debug("BackendExtension: Registering DatabaseManager");
+      ServiceScope.Add<IDatabaseManager>(new DatabaseManager());
+
       logger.Debug("BackendExtension: Registering MediaLibrary");
       ServiceScope.Add<IMediaLibrary>(new Services.MediaLibrary.MediaLibrary());
 
       logger.Debug("BackendExtension: Registering BackendServer");
       ServiceScope.Add<IBackendServer>(new Services.BackendServer.BackendServer());
+    }
+
+    /// <summary>
+    /// To be called when the database service is present.
+    /// </summary>
+    public static void StartupBackendServices()
+    {
+      ServiceScope.Get<IDatabaseManager>().Startup();
+      ServiceScope.Get<IMediaLibrary>().Startup();
+      ServiceScope.Get<IBackendServer>().Startup();
+    }
+
+    public static void ShutdownBackendServices()
+    {
+      ServiceScope.Get<IMediaLibrary>().Shutdown();
+      ServiceScope.Get<IBackendServer>().Shutdown();
     }
 
     public static void DisposeBackendServices()

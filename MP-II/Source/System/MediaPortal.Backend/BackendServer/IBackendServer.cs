@@ -31,6 +31,9 @@ namespace MediaPortal.BackendServer
   /// </summary>
   public interface IBackendServer
   {
+    void Startup();
+    void Shutdown();
+
     /// <summary>
     /// Adds a new HTTP module to the backend HTTP server.
     /// </summary>

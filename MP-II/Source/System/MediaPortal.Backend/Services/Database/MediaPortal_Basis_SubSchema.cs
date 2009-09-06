@@ -31,19 +31,21 @@ using MediaPortal.Core.PathManager;
 namespace MediaPortal.Services.Database
 {
   /// <summary>
-  /// Creates SQL commands for the communication with the MEDIAPORTAL_BASIS table.
+  /// Creates SQL commands for the communication with the MEDIAPORTAL_BASIS sub schema.
   /// </summary>
   public class MediaPortal_Basis_Schema
   {
-    public const string MEDIAPORTAL_BASIS_TABLE_NAME = "MEDIAPORTAL_BASIS";
-    public const string SUBSCHEMA_SCRIPT_NAME = "MediaPortal-Basis-create-1.0.sql";
+    public const string SUBSCHEMA_NAME = "MediaPortal-Basis";
 
-    public static string SubSchemaScriptPath
+    public const string MEDIAPORTAL_BASIS_TABLE_NAME = "MEDIAPORTAL_BASIS";
+    public const string SUBSCHEMA_CREATE_SCRIPT_NAME = "MediaPortal-Basis-create-1.0.sql";
+
+    public static string SubSchemaCreateScriptPath
     {
       get
       {
         IPathManager pathManager = ServiceScope.Get<IPathManager>();
-        return Path.Combine(pathManager.GetPath(@"<APPLICATION_ROOT>\Base\Scripts\"), SUBSCHEMA_SCRIPT_NAME);
+        return Path.Combine(pathManager.GetPath(@"<APPLICATION_ROOT>\Base\Scripts\"), SUBSCHEMA_CREATE_SCRIPT_NAME);
       }
     }
 

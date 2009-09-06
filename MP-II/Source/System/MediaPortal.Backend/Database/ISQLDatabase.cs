@@ -97,8 +97,39 @@ namespace MediaPortal.Database
     /// <returns><c>true</c>, if a table with the given name exists, else <c>false</c>.</returns>
     bool TableExists(string tableName, bool caseSensitiveName);
 
+    /// <summary>
+    /// Executes an SQL batch script given in the <paramref name="sqlScript"/> parameter.
+    /// </summary>
+    /// <remarks>
+    /// Statement terminator char is ';'.
+    /// </remarks>
+    /// <param name="sqlScript">String containing the sequence of SQL commands.</param>
+    /// <param name="autoCommit">If set to <c>true</c>, the engine will automatically commit the transaction after each
+    /// DDL command.</param>
+    void ExecuteScript(string sqlScript, bool autoCommit);
+
+    /// <summary>
+    /// Executes a sequence of <paramref name="sqlStatements"/>.
+    /// </summary>
+    /// <param name="sqlStatements">Sequence of SQL commands.</param>
+    /// <param name="autoCommit">If set to <c>true</c>, the engine will automatically commit the transaction after each
+    /// DDL command.</param>
     void ExecuteBatch(IList<string> sqlStatements, bool autoCommit);
+
+    /// <summary>
+    /// Executes an SQL script file located at the given <paramref name="sqlScriptFilePath"/>.
+    /// </summary>
+    /// <param name="sqlScriptFilePath">File system path to the SQL script.</param>
+    /// <param name="autoCommit">If set to <c>true</c>, the engine will automatically commit the transaction after each
+    /// DDL command.</param>
     void ExecuteBatch(string sqlScriptFilePath, bool autoCommit);
+    
+    /// <summary>
+    /// Executes an SQL script provided by the given <paramref name="reader"/>.
+    /// </summary>
+    /// <param name="reader">Reader which provides the script contents.</param>
+    /// <param name="autoCommit">If set to <c>true</c>, the engine will automatically commit the transaction after each
+    /// DDL command.</param>
     void ExecuteBatch(TextReader reader, bool autoCommit);
   }
 }
