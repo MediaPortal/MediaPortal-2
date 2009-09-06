@@ -94,9 +94,13 @@ namespace HttpServer
       // shut down worker thread.
       _canRun = false;
       _event.Set();
-      if (!_workerThread.Join(5000))
-        _workerThread.Abort();
-      _workerThread = null;
+      // Check added by Albert, Team MediaPortal
+      if (_workerThread != null)
+      {
+        if (!_workerThread.Join(5000))
+          _workerThread.Abort();
+        _workerThread = null;
+      }
     }
 
 
