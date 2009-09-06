@@ -41,25 +41,25 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Contains the source computer where the media item is located.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_SOURCE_COMPUTER =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Source-Computer", typeof(string), Cardinality.ManyToOne);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Source-Computer", 100, Cardinality.ManyToOne);
 
     /// <summary>
     /// Contains the id of the provider which provides the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_PROVIDER_ID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Provider-ID", typeof(string), Cardinality.ManyToOne);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Provider-ID", 36, Cardinality.ManyToOne);
 
     /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_PATH =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Path", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline);
 
     /// <summary>
-    /// Contains a collection of providers the media items depends on.
+    /// Contains a collection of IDs of providers the media items depends on.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_PARENTPROVIDERS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("ParentProviders", typeof(string), Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("ParentProviders", 36, Cardinality.ManyToMany);
 
     /// <summary>
     /// Contains the date when the media item was added to the media library.

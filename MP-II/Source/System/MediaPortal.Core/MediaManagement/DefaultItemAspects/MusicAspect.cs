@@ -37,11 +37,11 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
 
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ARTISTS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Artists", typeof(string), Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUM =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Album", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Album", 100, Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Genres", typeof(string), Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_TRACK =
@@ -51,11 +51,11 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_PLAYCOUNT =
         MediaItemAspectMetadata.CreateAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUMARTISTS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("AlbumArtists", typeof(string), Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMPOSERS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Composers", typeof(string), Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ENCODING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Encoding", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Encoding", 50, Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_BITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("BitRate", typeof(int), Cardinality.ManyToOne);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DISCID =

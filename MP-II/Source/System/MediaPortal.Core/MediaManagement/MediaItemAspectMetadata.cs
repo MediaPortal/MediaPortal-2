@@ -24,6 +24,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -69,7 +74,10 @@ namespace MediaPortal.Core.MediaManagement
   }
 
   /// <summary>
-  /// Holds the metadata descriptor for a <see cref="MediaItemAspect"/>.
+  /// Metadata descriptor for a <see cref="MediaItemAspect"/>.
+  /// Once a <see cref="MediaItemAspectMetadata"/> is released with a given <see cref="AspectId"/>, it must not
+  /// be changed any more. Updating a <see cref="MediaItemAspectMetadata"/> must lead to a change of the
+  /// <see cref="AspectId"/>.
   /// </summary>
   public class MediaItemAspectMetadata
   {
@@ -83,6 +91,7 @@ namespace MediaPortal.Core.MediaManagement
       protected string _attributeName;
       protected Type _attributeType;
       protected Cardinality _cardinality;
+      protected int _maxNumChars;
 
       #endregion
 
@@ -97,6 +106,7 @@ namespace MediaPortal.Core.MediaManagement
       /// Name of the defined attribute. The name is unique among all attributes of the same
       /// media item aspect.
       /// </summary>
+      [XmlIgnore]
       public string AttributeName
       {
         get { return _attributeName; }
@@ -105,6 +115,7 @@ namespace MediaPortal.Core.MediaManagement
       /// <summary>
       /// Runtime value type for the attribute instances.
       /// </summary>
+      [XmlIgnore]
       public Type AttributeType
       {
         get { return _attributeType; }
@@ -114,6 +125,7 @@ namespace MediaPortal.Core.MediaManagement
       /// Gets the cardinality of this attribute. See the docs for the
       /// <see cref="Cardinality"/> class and its members.
       /// </summary>
+      [XmlIgnore]
       public Cardinality Cardinality
       {
         get { return _cardinality; }
@@ -123,10 +135,68 @@ namespace MediaPortal.Core.MediaManagement
       /// Returns the information if this attribute is a collection attribute, i.e. supports multi-value
       /// entries.
       /// </summary>
+      [XmlIgnore]
       public bool IsCollectionAttribute
       {
         get { return _cardinality == Cardinality.ManyToMany || _cardinality == Cardinality.OneToMany; }
       }
+
+      /// <summary>
+      /// If this is a string attribute type, this property gets or sets the maximum number of characters which can be
+      /// stored in an attribute instance of this type.
+      /// </summary>
+      [XmlIgnore]
+      public int MaxNumChars
+      {
+        get { return _maxNumChars; }
+        set { _maxNumChars = value; }
+      }
+
+      #region Additional members for the XML serialization
+
+      internal AttributeSpecification() { }
+
+      /// <summary>
+      /// For internal use of the XML serialization system only.
+      /// </summary>
+      [XmlElement("AttributeName")]
+      public string XML_AttributeName
+      {
+        get { return _attributeName; }
+        set { _attributeName = value; }
+      }
+
+      /// <summary>
+      /// For internal use of the XML serialization system only.
+      /// </summary>
+      [XmlElement("AttributeType")]
+      public Type XML_AttributeType
+      {
+        get { return _attributeType; }
+        set { _attributeType = value; }
+      }
+
+      /// <summary>
+      /// For internal use of the XML serialization system only.
+      /// </summary>
+      [XmlElement("Cardinality")]
+      public Cardinality XML_Cardinality
+      {
+        get { return _cardinality; }
+        set { _cardinality = value; }
+      }
+
+      /// <summary>
+      /// For internal use of the XML serialization system only.
+      /// </summary>
+      [XmlElement("MaxNumChars")]
+      public int XML_MaxNumChars
+      {
+        get { return _maxNumChars; }
+        set { _maxNumChars = value; }
+      }
+
+      #endregion
     }
 
     #region Protected fields
@@ -135,6 +205,9 @@ namespace MediaPortal.Core.MediaManagement
     protected Guid _aspectId;
     protected bool _isSystemAspect;
     protected ICollection<AttributeSpecification> _attributeSpecifications;
+
+    // We could use some cache for this instance, if we would have one...
+    protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
 
@@ -160,6 +233,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns the globally unique ID of this aspect.
     /// </summary>
+    [XmlIgnore]
     public Guid AspectId
     {
       get { return _aspectId; }
@@ -169,6 +243,7 @@ namespace MediaPortal.Core.MediaManagement
     /// Name of this aspect. Can be shown in the gui, for example. The returned string may be
     /// a localized string label (i.e. "[section.name]").
     /// </summary>
+    [XmlIgnore]
     public string Name
     {
       get { return _aspectName; }
@@ -178,6 +253,7 @@ namespace MediaPortal.Core.MediaManagement
     /// Gets or sets the information if this aspect is a system aspect. System aspects must not be deleted.
     /// This property can only be set internal.
     /// </summary>
+    [XmlIgnore]
     public bool IsSystemAspect
     {
       get { return _isSystemAspect; }
@@ -187,9 +263,22 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns a read-only collection of available attributes of this media item aspect.
     /// </summary>
+    [XmlIgnore]
     public ICollection<AttributeSpecification> AttributeSpecifications
     {
       get { return _attributeSpecifications; }
+    }
+
+    /// <summary>
+    /// Creates a specification for a new string attribute which can be used in a new
+    /// <see cref="MediaItemAspectMetadata"/> instance.
+    /// </summary>
+    public static AttributeSpecification CreateStringAttributeSpecification(string attributeName,
+        int maxNumChars, Cardinality cardinality)
+    {
+      AttributeSpecification result = new AttributeSpecification(attributeName, typeof(string), cardinality);
+      result.MaxNumChars = maxNumChars;
+      return result;
     }
 
     /// <summary>
@@ -202,5 +291,105 @@ namespace MediaPortal.Core.MediaManagement
       // TODO: check if attributeType is a supported database type
       return new AttributeSpecification(attributeName, attributeType, cardinality);
     }
+
+    /// <summary>
+    /// Serializes this MediaItem aspect metadata instance to XML.
+    /// </summary>
+    /// <returns>String containing an XML fragment with this instance's data.</returns>
+    public string Serialize()
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+      {
+        StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
+        using (XmlWriter writer = new XmlInnerElementWriter(sb))
+          xs.Serialize(writer, this);
+        return sb.ToString();
+      }
+    }
+
+    /// <summary>
+    /// Deserializes a MediaItem aspect metadata instance from a given XML fragment.
+    /// </summary>
+    /// <param name="str">XML fragment containing a serialized MediaItem aspect metadata instance.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static MediaItemAspectMetadata Deserialize(string str)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        using (StringReader reader = new StringReader(str))
+          return xs.Deserialize(reader) as MediaItemAspectMetadata;
+    }
+
+    public override bool Equals(object obj)
+    {
+      MediaItemAspectMetadata other = obj as MediaItemAspectMetadata;
+      if (other == null)
+        return false;
+      return other.AspectId == _aspectId;
+    }
+
+    public override int GetHashCode()
+    {
+      return _aspectId.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return "MIAM '" + _aspectName + "' (Id='" + _aspectId + "')";
+    }
+
+    #region Additional members for the XML serialization
+
+    internal MediaItemAspectMetadata() { }
+
+    protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      if (_xmlSerializer == null)
+        _xmlSerializer = new XmlSerializer(typeof(MediaItemAspectMetadata));
+      return _xmlSerializer;
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("Id")]
+    public string XML_AspectId
+    {
+      get { return _aspectId.ToString(); }
+      set { _aspectId = new Guid(value); }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("IsSystemAspect")]
+    public bool XML_IsSystemAspect
+    {
+      get { return _isSystemAspect; }
+      set { _isSystemAspect = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("Name")]
+    public string XML_Name
+    {
+      get { return _aspectName; }
+      set { _aspectName = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("AttributeSpecifications")]
+    public List<AttributeSpecification> XML_AttributeSpecifications
+    {
+      get { return new List<AttributeSpecification>(_attributeSpecifications); }
+      set { _attributeSpecifications = value.AsReadOnly(); }
+    }
+
+    #endregion
   }
 }

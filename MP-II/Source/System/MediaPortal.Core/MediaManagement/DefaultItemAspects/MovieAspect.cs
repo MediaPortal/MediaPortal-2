@@ -37,19 +37,19 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static Guid ASPECT_ID = new Guid("8F8B7A4F-767C-4180-B58E-7C8999C52067");
 
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_GENRE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Genre", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genre", 100, Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
         MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIRECTOR =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Director", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Director", 100, Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOSTREAMCOUNT =
         MediaItemAspectMetadata.CreateAttributeSpecification("AudioStreamCount", typeof(int), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOENCODING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("AudioEncoding", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioEncoding", 50, Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOBITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_VIDEOENCODING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("VideoEncoding", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("VideoEncoding", 50, Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_VIDEOBITRATE =
         MediaItemAspectMetadata.CreateAttributeSpecification("VideoBitRate", typeof(long), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
@@ -61,7 +61,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_FPS =
         MediaItemAspectMetadata.CreateAttributeSpecification("FPS", typeof(int), Cardinality.Inline);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ACTORS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Actors", typeof(string), Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISDVD =
         MediaItemAspectMetadata.CreateAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline);
 

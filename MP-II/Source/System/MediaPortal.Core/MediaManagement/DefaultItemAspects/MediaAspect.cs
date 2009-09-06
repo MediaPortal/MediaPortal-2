@@ -40,20 +40,20 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Contains a human readable title of the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Title", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Title", 1000, Cardinality.Inline);
 
     /// <summary>
     /// Contains the mime type of the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_MIME_TYPE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("MimeType", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline);
 
     /// <summary>
     /// Contains a rectified form of the provider resource path. This might be the DVD folder name, while
     /// the underlaying provider resource path of the media item points to the 'video_ts.ifo' file.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECTIFIED_PATH =
-        MediaItemAspectMetadata.CreateAttributeSpecification("RectifiedPath", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("RectifiedPath", 1000, Cardinality.Inline);
 
     /// <summary>
     /// Contains the recording time date of the media item.
@@ -71,7 +71,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Contains a textual comment to this media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Comment", typeof(string), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Comment", 1000, Cardinality.Inline);
 
     /// <summary>
     /// Contains the date when the media item was last played.
