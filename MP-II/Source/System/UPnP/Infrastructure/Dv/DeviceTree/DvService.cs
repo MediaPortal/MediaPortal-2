@@ -16,17 +16,16 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// </summary>
   public class DvService
   {
-    protected DvDevice _parentDevice;
     protected string _serviceType;
     protected int _serviceTypeVersion;
     protected string _serviceId;
-    protected IDictionary<string, DvAction> _actions;
-    protected IDictionary<string, DvStateVariable> _stateVariables;
+    protected DvDevice _parentDevice = null;
+    protected IDictionary<string, DvAction> _actions = new Dictionary<string, DvAction>();
+    protected IDictionary<string, DvStateVariable> _stateVariables = new Dictionary<string, DvStateVariable>();
     
     /// <summary>
     /// Creates a new UPnP service instance at the server (device) side.
     /// </summary>
-    /// <param name="parentDevice">Instance of the device which contains the new service.</param>
     /// <param name="serviceType">Type of the new service instance, in the format "schemas-upnp-org:service:[service-type]" or
     /// "vendor-domain:service:[service-type]". Note that in vendor-defined types, all dots in the vendors domain must
     /// be replaced by hyphens.</param>
@@ -34,9 +33,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <param name="serviceId">Service id in the format "urn:upnp-org:serviceId:[service-id]" (for standard services) or
     /// "urn:domain-name:serviceId:[service-id]" (for vendor-defined service types). The service id is defined by a
     /// UPnP Forum working committee (for standard services) or specified by UPnP vendors.</param>
-    public DvService(DvDevice parentDevice, string serviceType, int serviceTypeVersion, string serviceId)
+    public DvService(string serviceType, int serviceTypeVersion, string serviceId)
     {
-      _parentDevice = parentDevice;
       _serviceType = serviceType;
       _serviceTypeVersion = serviceTypeVersion;
       _serviceId = serviceId;
@@ -48,11 +46,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public event StateVariableChangedDlgt StateVariableChanged;
 
     /// <summary>
-    /// Returns the device which contains this service.
+    /// Gets or sets the device which contains this service.
     /// </summary>
     public DvDevice ParentDevice
     {
       get { return _parentDevice; }
+      internal set { _parentDevice = value; }
     }
 
     /// <summary>

@@ -23,7 +23,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// </summary>
   public class DvDevice
   {
-    protected DvDevice _parentDevice;
+    protected DvDevice _parentDevice = null;
     protected IList<DvDevice> _embeddedDevices = new List<DvDevice>();
     protected IList<DvService> _services = new List<DvService>();
     protected string _deviceType;
@@ -56,11 +56,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public GetURLForEndpointDlgt GetPresentationURLDelegate { get; set; }
 
     /// <summary>
-    /// Returns the device which contains this device. If this is the root device, returns <c>null</c>.
+    /// Gets or sets the device which contains this device. If this is the root device, the parent device is <c>null</c>.
     /// </summary>
     public DvDevice ParentDevice
     {
       get { return _parentDevice; }
+      internal set { _parentDevice = value; }
     }
 
     /// <summary>
@@ -154,6 +155,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <param name="device">Device to add to the embedded devices.</param>
     public void AddEmbeddedDevice(DvDevice device)
     {
+      device.ParentDevice = this;
       _embeddedDevices.Add(device);
     }
 
@@ -168,6 +170,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <param name="service">Service to add to this device.</param>
     public void AddService(DvService service)
     {
+      service.ParentDevice = this;
       _services.Add(service);
     }
 

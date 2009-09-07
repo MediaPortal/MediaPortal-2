@@ -64,7 +64,7 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// Disposes this <see cref="UPnPServer"/>, i.e. revokes UPnP network advertisements and closes all receiving servers.
     /// </summary>
-    public void Dispose()
+    public virtual void Dispose()
     {
       Close();
     }
