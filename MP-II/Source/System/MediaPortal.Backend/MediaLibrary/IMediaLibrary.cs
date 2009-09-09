@@ -60,7 +60,7 @@ namespace MediaPortal.MediaLibrary
 
     #region Media item aspect management
 
-    bool MediaItemAspectStorageExists(MediaItemAspectMetadata miam);
+    bool MediaItemAspectStorageExists(Guid aspectId);
 
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
 
@@ -138,6 +138,9 @@ namespace MediaPortal.MediaLibrary
     /// <param name="systemName">System whose shares should be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
     IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName);
+
+    void ConnectShares(ICollection<Guid> shareIds);
+    void DisconnectShares(ICollection<Guid> shareIds);
 
     #endregion
   }

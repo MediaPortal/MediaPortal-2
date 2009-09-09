@@ -274,11 +274,11 @@ namespace MediaPortal.Services.MediaLibrary
       TODO: Implementation of import methods after media access system is ready
     }
 
-    public bool MediaItemAspectStorageExists(MediaItemAspectMetadata miam)
+    public bool MediaItemAspectStorageExists(Guid aspectId)
     {
       string name;
       string serialization;
-      return GetMIAM_Metadata(miam.AspectId, out name, out serialization);
+      return GetMIAM_Metadata(aspectId, out name, out serialization);
     }
 
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
