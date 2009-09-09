@@ -29,12 +29,14 @@ using HttpServer.HttpModules;
 using MediaPortal.BackendServer;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Services.UPnP;
 
 namespace MediaPortal.Services.BackendServer
 {
   public class BackendServer : IBackendServer, IDisposable
   {
-    protected readonly HttpServer.HttpServer _server;
+    protected readonly HttpServer.HttpServer _httpServer;
+    protected readonly UPnPMediaServer _upnpServer;
 
     internal class HttpLogWriter : ILogWriter
     {
@@ -68,36 +70,37 @@ namespace MediaPortal.Services.BackendServer
 
     public BackendServer()
     {
-      _server = new HttpServer.HttpServer(new HttpLogWriter());
-      // TODO: Create UPnP server
+      _httpServer = new HttpServer.HttpServer(new HttpLogWriter());
+      _upnpServer = new UPnPMediaServer();
     }
 
     public void Dispose()
     {
+      _upnpServer.Dispose();
     }
 
     #region IBackendServer implementation
 
     public void Startup()
     {
-      _server.Start(IPAddress.Any, 80);
-      // TODO: Start UPnP server
+      _httpServer.Start(IPAddress.Any, 80);
+      _upnpServer.Start();
     }
 
     public void Shutdown()
     {
-      _server.Stop();
-      // TODO: Stop UPnP server
+      _httpServer.Stop();
+      _upnpServer.Stop();
     }
 
     public void AddHttpModule(HttpModule module)
     {
-      _server.Add(module);
+      _httpServer.Add(module);
     }
 
     public void RemoveHttpModule(HttpModule module)
     {
-      _server.Remove(module);
+      _httpServer.Remove(module);
     }
 
     #endregion

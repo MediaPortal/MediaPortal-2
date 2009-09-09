@@ -28,15 +28,14 @@ using System.Text;
 using System.Xml.Serialization;
 using System.IO;
 using System.Globalization;
-using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.Localization.StringsFile;
 
-namespace MediaPortal.Services.Localization
+namespace MediaPortal.Core.Services.Localization
 {
   /// <summary>
-  /// Management class for localization resources distributed among different directories.
+  /// Loads localization strings for a given language from localization resources distributed among different
+  /// language directories.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -45,48 +44,31 @@ namespace MediaPortal.Services.Localization
   /// region code (like "en-US"), for example "strings_en.xml" or "strings_en-US.xml".<br/>
   /// For a list of valid culture names, see the Microsoft docs in MSDN for class <see cref="CultureInfo"/>.
   /// </para>
-  /// <para>
-  /// This class maintains a "current" culture state. All strings, whose localization is requested by calling
-  /// the appropriate methods, are translated into the "current" language.
-  /// </para>
   /// </remarks>
   public class LocalizationStrings
   {
     #region Variables
 
-    readonly Dictionary<string, Dictionary<string, StringLocalised>> _languageStrings =
-        new Dictionary<string, Dictionary<string, StringLocalised>>(
-            StringComparer.Create(CultureInfo.InvariantCulture, true));
-    readonly ICollection<CultureInfo> _availableLanguages =
-        new HashSet<CultureInfo>();
-    readonly ICollection<string> _languageDirectories = new List<string>();
-    CultureInfo _currentLanguage;
+    protected readonly IDictionary<string, IDictionary<string, StringLocalised>> _languageStrings =
+        new Dictionary<string, IDictionary<string, StringLocalised>>(
+            StringComparer.Create(CultureInfo.InvariantCulture, true)); // Map: Sections to Map: Resource name to resource
+    protected CultureInfo _culture;
     
     #endregion
 
     #region Constructors/Destructors
     
     /// <summary>
-    /// Initializes a new instance of <see cref="LocalizationStrings"/> with the specified culture used
-    /// as current culture.
+    /// Initializes a new instance of <see cref="LocalizationStrings"/> which collects language resources from the
+    /// given <paramref name="languageDirectories"/> for the specified culture.
     /// </summary>
-    /// <param name="cultureName">Sets the "current" culture to the culture provided in this parameter. The
-    /// format of this parameter is either the language code or language code plus region code, for example
-    /// "en" or "en-US".</param>
-    public LocalizationStrings(string cultureName)
+    /// <param name="languageDirectories">Collection of directory paths containing all language files to be used.</param>
+    /// <param name="culture">Culture whose language resources will be loaded.</param>
+    public LocalizationStrings(IEnumerable<string> languageDirectories, CultureInfo culture)
     {
-      if (string.IsNullOrEmpty(cultureName))
-        cultureName = "en";
-
-      _currentLanguage = CultureInfo.GetCultureInfo(cultureName);
-    }
-
-    /// <summary>
-    /// Disposes all resources which have been allocated by this instance.
-    /// </summary>
-    public void Dispose()
-    {
-      Clear();
+      _culture = culture;
+      foreach (string directory in languageDirectories)
+        TryAddLanguageFile(directory, _culture);
     }
 
     #endregion
@@ -94,56 +76,16 @@ namespace MediaPortal.Services.Localization
     #region Public properties
 
     /// <summary>
-    /// Returns the culture whose language is currently used for translating strings.
+    /// Returns the culture whose language is loaded.
     /// </summary>
-    public CultureInfo CurrentCulture
+    public CultureInfo Culture
     {
-      get { return _currentLanguage; }
+      get { return _culture; }
     }
 
     #endregion
 
     #region Public methods
-
-    /// <summary>
-    /// Adds a directory containing localization resources to the pool of language directories.
-    /// The strings for the current language will be automatically loaded.
-    /// </summary>
-    /// <param name="directory">Directory which potentially contains localization resources.</param>
-    public void AddDirectory(string directory)
-    {
-      // Add directory to list, to enable reloading/changing language
-      _languageDirectories.Add(directory);
-
-      Load(directory);
-    }
-
-    /// <summary>
-    /// Removes a directory of localization resources from the pool of language directories.
-    /// </summary>
-    /// <param name="directory">Directory of localization resources which maybe was added before by
-    /// <see cref="AddDirectory"/>.</param>
-    public void RemoveDirectory(string directory)
-    {
-      _languageDirectories.Remove(directory);
-      ReloadAll();
-    }
-
-    /// <summary>
-    /// Sets the language to that all strings should be translated to the language of specified
-    /// <see cref="culture"/>.
-    /// </summary>
-    /// <remarks>
-    /// This will reload all language files for the new language from all files contained in the pool of
-    /// language directories.
-    /// </remarks>
-    /// <param name="culture">The new culture.</param>
-    public void ChangeLanguage(CultureInfo culture)
-    {
-      _currentLanguage = culture;
-
-      ReloadAll();
-    }
 
     /// <summary>
     /// Returns the localized string specified by its <paramref name="section"/> and <paramref name="name"/>.
@@ -163,9 +105,12 @@ namespace MediaPortal.Services.Localization
     /// Returns a collection of cultures for that language resources are available in our language
     /// directories pool.
     /// </summary>
-    public ICollection<CultureInfo> AvailableLanguages
+    public static ICollection<CultureInfo> FindAvailableLanguages(ICollection<string> languageDirectories)
     {
-      get { return _availableLanguages; }
+      ICollection<CultureInfo> result = new HashSet<CultureInfo>();
+      foreach (string directory in languageDirectories)
+        AddAvailableLanguages(directory, result);
+      return result;
     }
 
     /// <summary>
@@ -174,11 +119,11 @@ namespace MediaPortal.Services.Localization
     /// </summary>
     /// <param name="directory">Directory to look through. Only the given directory will be searched,
     /// the search won't lookup recursively into sub directories.</param>
+    /// <param name="result">Result collection to add all languages which are found in the given <paramref name="directory"/>.</param>
     /// <returns>Collection of cultures for that language resources are available in the given
     /// <paramref name="directory"/>.</returns>
-    public static ICollection<CultureInfo> FindAvailableLanguages(string directory)
+    public static void AddAvailableLanguages(string directory, ICollection<CultureInfo> result)
     {
-      ICollection<CultureInfo> result = new List<CultureInfo>();
       foreach (string filePath in Directory.GetFiles(directory, "strings_*.xml"))
       {
         int pos = filePath.IndexOf('_') + 1;
@@ -186,47 +131,11 @@ namespace MediaPortal.Services.Localization
 
         result.Add(CultureInfo.GetCultureInfo(cultName));
       }
-      return result;
     }
 
     #endregion
 
     #region Protected Methods
-
-    /// <summary>
-    /// Rebuilds all internal cached information by re-reading all language directories again.
-    /// </summary>
-    protected void ReloadAll()
-    {
-      Clear();
-
-      foreach (string directory in _languageDirectories)
-        Load(directory);
-    }
-
-    /// <summary>
-    /// Clears the internal caches of all language resources. After calling this method, this instance is in the
-    /// same state as after its creation.
-    /// </summary>
-    protected void Clear()
-    {
-      _availableLanguages.Clear();
-      if (_languageStrings != null)
-        _languageStrings.Clear();
-    }
-
-    /// <summary>
-    /// Extracts all needed information from the specified language <paramref name="directory"/> and adds
-    /// it to the internal cache.
-    /// </summary>
-    /// <param name="directory">Directory containing language resources to check.</param>
-    protected void Load(string directory)
-    {
-      // Remember all languages found
-      CollectionUtils.AddAll(_availableLanguages, FindAvailableLanguages(directory));
-      // Add language resouces for current language to internal dictionaries
-      TryAddLanguageFile(directory, _currentLanguage);
-    }
 
     /// <summary>
     /// Tries to load all language files for the <paramref name="culture2Load"/> in the specified
@@ -259,18 +168,10 @@ namespace MediaPortal.Services.Localization
           Encoding encoding = Encoding.UTF8;
           TextReader r = new StreamReader(filePath, encoding);
           strings = (StringFile) s.Deserialize(r);
-        }
-        catch (Exception ex)
-        {
-          ServiceScope.Get<ILogger>().Error("Failed to load language resource file '{0}'", ex, filePath);
-          return;
-        }
 
-        try
-        {
           foreach (StringSection section in strings.sections)
           {
-            Dictionary<string, StringLocalised> sectionContents = _languageStrings.ContainsKey(section.name) ?
+            IDictionary<string, StringLocalised> sectionContents = _languageStrings.ContainsKey(section.name) ?
                 _languageStrings[section.name] : new Dictionary<string, StringLocalised>(
                     StringComparer.Create(CultureInfo.InvariantCulture, true));
             foreach (StringLocalised languageString in section.localisedStrings)
@@ -281,7 +182,7 @@ namespace MediaPortal.Services.Localization
         }
         catch (Exception ex)
         {
-          ServiceScope.Get<ILogger>().Error("Failed to load language resource file '{0}'", ex, filePath);
+          ServiceScope.Get<ILogger>().Warn("Failed to load language resource file '{0}'", ex, filePath);
           return;
         }
       }

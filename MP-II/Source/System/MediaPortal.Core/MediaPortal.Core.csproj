@@ -136,6 +136,9 @@
     <Compile Include="Services\FileEventNotification\EventData.cs" />
     <Compile Include="Services\FileEventNotification\PathStateChangedEvent.cs" />
     <Compile Include="Services\FileEventNotification\WatchedPath.cs" />
+    <Compile Include="Services\Localization\LocalizationStrings.cs" />
+    <Compile Include="Services\Localization\StringManager.cs" />
+    <Compile Include="Services\Localization\StringManagerBase.cs" />
     <Compile Include="Services\Logging\ConsoleLogger.cs" />
     <Compile Include="Services\Logging\CrashLoggerBase.cs" />
     <Compile Include="Services\Logging\DefaultLogger.cs" />

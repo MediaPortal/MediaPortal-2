@@ -30,14 +30,18 @@ namespace MediaPortal.Core.Localization
   public delegate void LanguageChangeHandler(ILocalization localization, CultureInfo newCulture);
 
   /// <summary>
-  /// Interface for accessing the localization module. The localization module is responsible
-  /// for managing culture data supported by the application, holding a current culture and
-  /// providing localised strings for that culture.
+  /// Interface for accessing the client side localization module. The localization module is responsible
+  /// for managing all available localized strings supported by the application and by plugins
+  /// and for providing localized strings for a configured current culture.
   /// </summary>
   /// <remarks>
-  /// Localized strings are referenced from the application by instances of <see cref="StringId"/>.
-  /// Generally, the implementing instance of this interface should not be used directly,
-  /// instances of <c>StringId</c> should be used instead for resolving localized strings.
+  /// Localized strings are referenced at the MP-II client side from the application via the interface
+  /// <see cref="IResourceString"/>.
+  /// When a localized string is to be requested and stored in memory, instances of <c>StringId</c>, which
+  /// implements <see cref="IResourceString"/>, should be used. Do not store localized <see cref="string"/> instances
+  /// for the reuse in an application module directly. The reason is, the localization system supports the change of
+  /// the current language at runtime and all instances of <see cref="StringId"/> change their cached localized string
+  /// instance automatically when the language changes.
   /// </remarks>
   public interface ILocalization
   {

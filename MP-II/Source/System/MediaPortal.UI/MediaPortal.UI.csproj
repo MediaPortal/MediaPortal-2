@@ -7,7 +7,7 @@
     <ProjectGuid>{52E587D0-A274-44DA-8846-8EEAF5414923}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal</RootNamespace>
+    <RootNamespace>MediaPortal.UI</RootNamespace>
     <AssemblyName>MediaPortal.UI</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -108,8 +108,6 @@
     <Compile Include="Presentation\Workflow\PushNavigationTransition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
-    <Compile Include="Services\Localization\LocalizationStrings.cs" />
-    <Compile Include="Services\Localization\StringManager.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PlayerBuilderRegistration.cs" />

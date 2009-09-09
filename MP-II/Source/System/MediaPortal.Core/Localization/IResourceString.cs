@@ -37,7 +37,7 @@ namespace MediaPortal.Core.Localization
   public interface IResourceString : IComparable<IResourceString>
   {
     /// <summary>
-    /// Returns a string representing this instance, which can be used in the GUI, for example.
+    /// Returns a string representing the string resource, which can be used in the GUI, for example.
     /// The returned string might be localised to the user's culture and regional settings.
     /// </summary>
     /// <param name="args">Additional params to be filled into the resource string. The resource needs

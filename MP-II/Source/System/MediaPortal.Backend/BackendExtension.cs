@@ -67,6 +67,7 @@ namespace MediaPortal
     {
       ServiceScope.RemoveAndDispose<IBackendServer>();
       ServiceScope.RemoveAndDispose<IMediaLibrary>();
+      ServiceScope.RemoveAndDispose<IDatabaseManager>();
     }
   }
 }

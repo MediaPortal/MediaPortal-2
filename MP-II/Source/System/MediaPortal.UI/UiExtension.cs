@@ -25,10 +25,8 @@
 using MediaPortal.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
-using MediaPortal.Services.Localization;
 using MediaPortal.Services.Players;
 using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.Services.UserManagement;
@@ -55,9 +53,6 @@ namespace MediaPortal
 
       logger.Debug("UiExtension: Registering UserService service");
       ServiceScope.Add<IUserService>(new UserService());
-
-      logger.Debug("UiExtension: Registering StringManager");
-      ServiceScope.Add<ILocalization>(new StringManager());
 
       logger.Debug("UiExtension: Registering ThumbnailGenerator");
       ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
@@ -89,9 +84,6 @@ namespace MediaPortal
 
       logger.Debug("UiExtension: Removing UserService service");
       ServiceScope.RemoveAndDispose<IUserService>();
-
-      logger.Debug("UiExtension: Removing StringManager");
-      ServiceScope.RemoveAndDispose<ILocalization>();
 
       logger.Debug("UiExtension: Removing ThumbnailGenerator");
       ServiceScope.RemoveAndDispose<IAsyncThumbnailGenerator>();
