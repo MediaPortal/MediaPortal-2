@@ -127,7 +127,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
     /// are revoked by the plugin manager, the <see cref="SkinManager.ReloadSkins()"/> method
     /// will be called from the <see cref="SkinResourcesPluginItemStateTracker.Stop"/> method.
     /// </summary>
-    protected class SkinResourcesPluginItemStateTracker: IPluginItemStateTracker
+    protected class SkinResourcesPluginItemStateTracker : IPluginItemStateTracker
     {
       protected SkinManager _skinManager;
 
@@ -154,7 +154,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
       public void Continue(PluginItemRegistration itemRegistration) { }
     }
 
-    protected class SkinResourcesRegistrationChangeListener: IItemRegistrationChangeListener
+    protected class SkinResourcesRegistrationChangeListener : IItemRegistrationChangeListener
     {
       protected SkinManager _skinManager;
 
@@ -172,7 +172,7 @@ namespace MediaPortal.SkinEngine.SkinManagement
 
       public void ItemsWereRemoved(string location, ICollection<PluginItemMetadata> items)
       {
-        // Item removals are handeled by the SkinResourcesPluginItemStateTracker
+        // Item removals are handled by the SkinResourcesPluginItemStateTracker
       }
 
       #endregion
