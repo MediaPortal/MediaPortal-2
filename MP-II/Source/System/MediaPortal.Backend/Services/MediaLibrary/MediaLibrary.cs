@@ -281,6 +281,15 @@ namespace MediaPortal.Services.MediaLibrary
       return GetMIAM_Metadata(aspectId, out name, out serialization);
     }
 
+    public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId)
+    {
+      string name;
+      string serialization;
+      if (!GetMIAM_Metadata(aspectId, out name, out serialization))
+        throw new InvalidDataException("The requested MediaItemAspectMetadata of id '{0}' is unknown", aspectId);
+      return MediaItemAspectMetadata.Deserialize(serialization);
+    }
+
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
@@ -331,8 +340,9 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    public void RemoveMediaItemAspectStorage(MediaItemAspectMetadata miam)
+    public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
+      MediaItemAspectMetadata miam = GetMediaItemAspectMetadata(aspectId);
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
@@ -354,11 +364,11 @@ namespace MediaPortal.Services.MediaLibrary
               break;
             default:
               throw new NotImplementedException(string.Format("Attribute '{0}.{1}': Cardinality '{2}' is not implemented",
-                  miam.AspectId, spec.AttributeName, spec.Cardinality));
+                  aspectId, spec.AttributeName, spec.Cardinality));
           }
         }
         // Unregister metadata
-        command = MediaLibrary_SubSchema.DeleteMIAM_MetadataCommand(transaction, miam.AspectId);
+        command = MediaLibrary_SubSchema.DeleteMIAM_MetadataCommand(transaction, aspectId);
         command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -454,7 +464,7 @@ namespace MediaPortal.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        ShareDescriptor originalShare = relocateMediaItems ? GetShare(shareId) : null;
+        Share originalShare = relocateMediaItems ? GetShare(shareId) : null;
 
         IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, nativeSystem, providerId, path, shareName);
         command.ExecuteNonQuery();
@@ -506,7 +516,7 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    public IDictionary<Guid, ShareDescriptor> GetShares(bool onlyConnectedShares)
+    public IDictionary<Guid, Share> GetShares(bool onlyConnectedShares)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -520,7 +530,7 @@ namespace MediaPortal.Services.MediaLibrary
         IDbCommand command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex, out nativeSystemIndex,
             out providerIdIndex, out pathIndex, out shareNameIndex);
         IDataReader reader = command.ExecuteReader();
-        IDictionary<Guid, ShareDescriptor> result = new Dictionary<Guid, ShareDescriptor>();
+        IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
         {
           while (reader.Read())
@@ -528,7 +538,8 @@ namespace MediaPortal.Services.MediaLibrary
             Guid shareId = new Guid(reader.GetString(shareIdIndex));
             ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
             ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
-            result.Add(shareId, new ShareDescriptor(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
+TODO: Filter connected shares if onlyConnectedShares is set to true
+            result.Add(shareId, new Share(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
                 new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
                 mediaCategories, metadataExtractors));
           }
@@ -545,7 +556,7 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    public ShareDescriptor GetShare(Guid shareId)
+    public Share GetShare(Guid shareId)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -564,7 +575,7 @@ namespace MediaPortal.Services.MediaLibrary
             return null;
           ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
           ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
-          return new ShareDescriptor(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
+          return new Share(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
               new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
               mediaCategories, metadataExtractors);
         }
@@ -579,7 +590,7 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    public IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName)
+    public IDictionary<Guid, Share> GetSharesBySystem(SystemName systemName)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -592,7 +603,7 @@ namespace MediaPortal.Services.MediaLibrary
         IDbCommand command = MediaLibrary_SubSchema.SelectSharesByNativeSystemCommand(transaction, systemName, out shareIdIndex,
             out providerIdIndex, out pathIndex, out shareNameIndex);
         IDataReader reader = command.ExecuteReader();
-        IDictionary<Guid, ShareDescriptor> result = new Dictionary<Guid, ShareDescriptor>();
+        IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
         {
           while (reader.Read())
@@ -600,7 +611,7 @@ namespace MediaPortal.Services.MediaLibrary
             Guid shareId = new Guid(reader.GetString(shareIdIndex));
             ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
             ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
-            result.Add(shareId, new ShareDescriptor(shareId, systemName,
+            result.Add(shareId, new Share(shareId, systemName,
                 new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
                 mediaCategories, metadataExtractors));
           }
@@ -615,6 +626,16 @@ namespace MediaPortal.Services.MediaLibrary
       {
         transaction.Dispose();
       }
+    }
+
+    public void ConnectShares(ICollection<Guid> shareIds)
+    {
+      TODO: Set connection state of given shares to connected
+    }
+
+    public void DisconnectShares(ICollection<Guid> shareIds)
+    {
+      TODO: Set connection state of given shares to disconnected
     }
 
     #endregion

@@ -79,6 +79,12 @@ namespace MediaPortal.Core.MediaManagement
   /// be changed any more. Updating a <see cref="MediaItemAspectMetadata"/> must lead to a change of the
   /// <see cref="AspectId"/>.
   /// </summary>
+  /// <remarks>
+  /// <para>
+  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
+  /// If changed, this has to be taken into consideration.
+  /// </para>
+  /// </remarks>
   public class MediaItemAspectMetadata
   {
     /// <summary>
@@ -207,6 +213,7 @@ namespace MediaPortal.Core.MediaManagement
     protected ICollection<AttributeSpecification> _attributeSpecifications;
 
     // We could use some cache for this instance, if we would have one...
+    [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion

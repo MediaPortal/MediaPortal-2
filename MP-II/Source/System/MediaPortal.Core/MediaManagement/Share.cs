@@ -24,8 +24,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Core.General;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -53,7 +57,7 @@ namespace MediaPortal.Core.MediaManagement
   /// If changed, this has to be taken into consideration.
   /// </para>
   /// </remarks>
-  public class ShareDescriptor
+  public class Share
   {
     #region Protected fields
 
@@ -64,6 +68,10 @@ namespace MediaPortal.Core.MediaManagement
     protected string _name;
     protected HashSet<string> _mediaCategories;
     protected HashSet<Guid> _metadataExtractorIds;
+
+    // We could use some cache for this instance, if we would have one...
+    [ThreadStatic]
+    protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
     #endregion
 
@@ -86,7 +94,7 @@ namespace MediaPortal.Core.MediaManagement
     /// i.e. it is a general share.</param>
     /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors which should be used
     /// for the automatic import.</param>
-    public ShareDescriptor(Guid shareId, SystemName systemName,
+    public Share(Guid shareId, SystemName systemName,
         Guid mediaProviderId, string path, string name,
         IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
@@ -115,12 +123,12 @@ namespace MediaPortal.Core.MediaManagement
     /// media categories, i.e. it is a general share.</param>
     /// <param name="metadataExtractors">Enumeration of metadata extractors which should be used for the
     /// automatic import.</param>
-    /// <returns>Created <see cref="ShareDescriptor"/> with a new share id.</returns>
-    public static ShareDescriptor CreateNewShare(SystemName systemName,
+    /// <returns>Created <see cref="Share"/> with a new share id.</returns>
+    public static Share CreateNewShare(SystemName systemName,
         Guid mediaProviderId, string path, string name,
         IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractors)
     {
-      return new ShareDescriptor(Guid.NewGuid(), systemName, mediaProviderId, path,
+      return new Share(Guid.NewGuid(), systemName, mediaProviderId, path,
           name, mediaCategories, metadataExtractors);
     }
 
@@ -192,11 +200,40 @@ namespace MediaPortal.Core.MediaManagement
       get { return _metadataExtractorIds; }
     }
 
+    /// <summary>
+    /// Serializes this share descriptor instance to XML.
+    /// </summary>
+    /// <returns>String containing an XML fragment with this instance's data.</returns>
+    public string Serialize()
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+      {
+        StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
+        using (XmlWriter writer = new XmlInnerElementWriter(sb))
+          xs.Serialize(writer, this);
+        return sb.ToString();
+      }
+    }
+
+    /// <summary>
+    /// Deserializes a share descriptor instance from a given XML fragment.
+    /// </summary>
+    /// <param name="str">XML fragment containing a serialized share descriptor instance.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static Share Deserialize(string str)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        using (StringReader reader = new StringReader(str))
+          return xs.Deserialize(reader) as Share;
+    }
+
     public override bool Equals(object obj)
     {
-      if (!(obj is ShareDescriptor))
+      if (!(obj is Share))
         return false;
-      ShareDescriptor other = (ShareDescriptor) obj;
+      Share other = (Share) obj;
       return ShareId == other.ShareId;
     }
 
@@ -207,13 +244,20 @@ namespace MediaPortal.Core.MediaManagement
 
     #region Additional members for the XML serialization
 
-    internal ShareDescriptor() { }
+    internal Share() { }
+
+    protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      if (_xmlSerializer == null)
+        _xmlSerializer = new XmlSerializer(typeof(MediaItemAspectMetadata));
+      return _xmlSerializer;
+    }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("ShareId")]
-    public Guid XML_ShareId
+    [XmlAttribute("Id")]
+    public Guid XML_Id
     {
       get { return _shareId; }
       set { _shareId = value; }

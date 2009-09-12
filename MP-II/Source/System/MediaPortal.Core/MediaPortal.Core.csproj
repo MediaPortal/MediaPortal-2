@@ -124,7 +124,7 @@
     <Compile Include="MediaManagement\MediaProviders\MediaSourceChangeType.cs" />
     <Compile Include="MediaManagement\MetadataExtractorMetadata.cs" />
     <Compile Include="MediaManagement\MLQueries\IQuery.cs" />
-    <Compile Include="MediaManagement\ShareDescriptor.cs" />
+    <Compile Include="MediaManagement\Share.cs" />
     <Compile Include="Messaging\AsynchronousMessageQueue.cs" />
     <Compile Include="Messaging\IMessageBroker.cs" />
     <Compile Include="Messaging\MessageQueueBase.cs" />
@@ -205,17 +205,23 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
     <Compile Include="Views\LocalShareViewSpecification.cs" />
     <Compile Include="Views\MediaLibraryViewSpecification.cs" />
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />
     <Compile Include="Views\ViewSpecification.cs" />
+    <Compile Include="UPnP\UPnPDtShare.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UPnP\UPnP.csproj">
+      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
+      <Name>UPnP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

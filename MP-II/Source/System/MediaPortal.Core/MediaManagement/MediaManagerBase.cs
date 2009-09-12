@@ -213,9 +213,9 @@ namespace MediaPortal.Core.MediaManagement
       }
     }
 
-    protected ICollection<ShareDescriptor> CreateDefaultShares()
+    protected ICollection<Share> CreateDefaultShares()
     {
-      ICollection<ShareDescriptor> result = new List<ShareDescriptor>();
+      ICollection<Share> result = new List<Share>();
       Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
       if (LocalMediaProviders.ContainsKey(localFsMediaProviderId))
       {
@@ -228,7 +228,7 @@ namespace MediaPortal.Core.MediaManagement
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-          ShareDescriptor sd = new ShareDescriptor(
+          Share sd = new Share(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, MY_MUSIC_SHARE_NAME_RESOURE,
               mediaCategories, metadataExtractorIds);
@@ -243,7 +243,7 @@ namespace MediaPortal.Core.MediaManagement
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-          ShareDescriptor sd = new ShareDescriptor(
+          Share sd = new Share(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, MY_VIDEOS_SHARE_NAME_RESOURCE,
               mediaCategories, metadataExtractorIds);
@@ -258,7 +258,7 @@ namespace MediaPortal.Core.MediaManagement
           ICollection<Guid> metadataExtractorIds = new List<Guid>();
           foreach (string mediaCategory in mediaCategories)
             CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
-          ShareDescriptor sd = new ShareDescriptor(
+          Share sd = new Share(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
               folderPath, MY_PICTURES_SHARE_NAME_RESOURCE,
               mediaCategories, metadataExtractorIds);
@@ -272,7 +272,7 @@ namespace MediaPortal.Core.MediaManagement
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         Guid shareId = Guid.NewGuid();
-        ShareDescriptor sd = new ShareDescriptor(
+        Share sd = new Share(
             shareId, SystemName.GetLocalSystemName(), metadata.MediaProviderId,
             "/", metadata.Name, null, GetDefaultMetadataExtractorsForCategory(null));
         result.Add(sd);

@@ -129,7 +129,7 @@ namespace MediaPortal.Core.Views
     {
       get
       {
-        ShareDescriptor share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
+        Share share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
         if (share == null)
           return false;
         IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
@@ -140,7 +140,7 @@ namespace MediaPortal.Core.Views
 
     internal override IEnumerable<MediaItem> ReLoadItems()
     {
-      ShareDescriptor share;
+      Share share;
       IMediaProvider provider;
       if (!GetShareAndMediaProvider(out share, out provider))
         yield break;
@@ -175,7 +175,7 @@ namespace MediaPortal.Core.Views
 
     internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
-      ShareDescriptor share;
+      Share share;
       IMediaProvider provider;
       if (!GetShareAndMediaProvider(out share, out provider))
         yield break;
@@ -193,7 +193,7 @@ namespace MediaPortal.Core.Views
 
     #endregion
 
-    protected bool GetShareAndMediaProvider(out ShareDescriptor share, out IMediaProvider provider)
+    protected bool GetShareAndMediaProvider(out Share share, out IMediaProvider provider)
     {
       provider = null;
       share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
@@ -207,7 +207,7 @@ namespace MediaPortal.Core.Views
     protected void UpdateDisplayName()
     {
       _viewDisplayName = Path.GetFileName(_relativePath); // Fallback
-      ShareDescriptor share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
+      Share share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
       if (share == null)
       {
         _viewDisplayName = INVALID_SHARE_NAME_RESOURCE;

@@ -31,8 +31,8 @@ using MediaPortal.Core.MediaManagement;
 namespace MediaPortal.Media.ClientMediaManager
 {
   /// <summary>
-  /// The client's media manager class. It holds all media providers and metadata extractors and
-  /// provides the concept of "views".
+  /// The client's media manager class. It holds all media providers and metadata extractors, provides the interface to manage
+  /// local shares and the interface for imports.
   /// </summary>
   public class MediaManager : MediaManagerBase, IImporter, ILocalSharesManagement
   {
@@ -59,7 +59,7 @@ namespace MediaPortal.Media.ClientMediaManager
       _localLocalSharesManagement.LoadSharesFromSettings();
       if (_localLocalSharesManagement.Shares.Count == 0)
       { // The shares are still uninitialized - use defaults
-        foreach (ShareDescriptor share in CreateDefaultShares())
+        foreach (Share share in CreateDefaultShares())
           _localLocalSharesManagement.Shares.Add(share.ShareId, share);
         _localLocalSharesManagement.SaveSharesToSettings();
       }
@@ -79,21 +79,21 @@ namespace MediaPortal.Media.ClientMediaManager
 
     #region ILocalSharesManagement implementation
 
-    public IDictionary<Guid, ShareDescriptor> Shares
+    public IDictionary<Guid, Share> Shares
     {
       get { return _localLocalSharesManagement.Shares; }
     }
 
-    public ShareDescriptor GetShare(Guid shareId)
+    public Share GetShare(Guid shareId)
     {
-      ShareDescriptor result = _localLocalSharesManagement.GetShare(shareId);
+      Share result = _localLocalSharesManagement.GetShare(shareId);
       // TODO: When connected and result == null, call method at the MP server's ILocalSharesManagement interface
       return result;
     }
 
-    public ShareDescriptor RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
-      ShareDescriptor result = _localLocalSharesManagement.RegisterShare(providerId, path,
+      Share result = _localLocalSharesManagement.RegisterShare(providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       // TODO: When connected, add share to the media library
       return result;
@@ -105,10 +105,10 @@ namespace MediaPortal.Media.ClientMediaManager
       _localLocalSharesManagement.RemoveShare(shareId);
     }
 
-    public ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+    public Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
         IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems)
     {
-      ShareDescriptor sd = _localLocalSharesManagement.UpdateShare(shareId, providerId, path,
+      Share sd = _localLocalSharesManagement.UpdateShare(shareId, providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       // TODO: Trigger re-import and relocate media items (if relocateMediaItems is set)
       // TODO: When connected, also update the share at the media library

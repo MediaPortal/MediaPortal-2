@@ -427,7 +427,7 @@ namespace UiComponents.Media.Settings.Configuration
       }
       else if (_editMode == ShareEditMode.EditShare)
       {
-        ShareDescriptor share = sharesManagement.GetShare(CurrentShareId);
+        Share share = sharesManagement.GetShare(CurrentShareId);
         if (share != null)
         {
           if (share.MediaProviderId != MediaProvider.Metadata.MediaProviderId ||
@@ -619,9 +619,9 @@ namespace UiComponents.Media.Settings.Configuration
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       bool selected = false;
-      List<ShareDescriptor> shareDescriptors = new List<ShareDescriptor>(sharesManagement.Shares.Values);
+      List<Share> shareDescriptors = new List<Share>(sharesManagement.Shares.Values);
       shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
-      foreach (ShareDescriptor share in shareDescriptors)
+      foreach (Share share in shareDescriptors)
       {
         ListItem shareItem = new ListItem(NAME_KEY, share.Name);
         shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
@@ -763,19 +763,19 @@ namespace UiComponents.Media.Settings.Configuration
     {
       IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
-      ShareDescriptor shareDescriptor = sharesManagement.GetShare(shareId);
-      if (shareDescriptor == null)
+      Share share = sharesManagement.GetShare(shareId);
+      if (share == null)
         return false;
       IMediaProvider mediaProvider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(shareDescriptor.MediaProviderId, out mediaProvider))
+      if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
         return false;
       MediaProvider = mediaProvider;
-      MediaProviderPath = shareDescriptor.Path;
-      ShareName = shareDescriptor.Name;
+      MediaProviderPath = share.Path;
+      ShareName = share.Name;
       MediaCategories.Clear();
-      CollectionUtils.AddAll(MediaCategories, shareDescriptor.MediaCategories);
+      CollectionUtils.AddAll(MediaCategories, share.MediaCategories);
       MetadataExtractorIds.Clear();
-      CollectionUtils.AddAll(MetadataExtractorIds, shareDescriptor.MetadataExtractorIds);
+      CollectionUtils.AddAll(MetadataExtractorIds, share.MetadataExtractorIds);
       // IsMetadataExtractorsSelected has always to be set also because it is derived from
       // MediaCategories and MetadataExtractors
       IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;

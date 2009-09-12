@@ -62,9 +62,11 @@ namespace MediaPortal.MediaLibrary
 
     bool MediaItemAspectStorageExists(Guid aspectId);
 
+    MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId);
+
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
 
-    void RemoveMediaItemAspectStorage(MediaItemAspectMetadata miam);
+    void RemoveMediaItemAspectStorage(Guid aspectId);
 
     ICollection<MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata();
 
@@ -93,7 +95,7 @@ namespace MediaPortal.MediaLibrary
     /// Removes the share with the specified id.
     /// </summary>
     /// <param name="shareId">The id of the share to be removed. The share id is part of the
-    /// <see cref="ShareDescriptor"/> which was returned by the <see cref="RegisterShare"/> method.</param>
+    /// <see cref="Share"/> which was returned by the <see cref="RegisterShare"/> method.</param>
     void RemoveShare(Guid shareId);
 
     /// <summary>
@@ -122,7 +124,7 @@ namespace MediaPortal.MediaLibrary
     /// </summary>
     /// <param name="onlyConnectedShares">If set to <c>true</c>, only shares of connected clients will be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, ShareDescriptor> GetShares(bool onlyConnectedShares);
+    IDictionary<Guid, Share> GetShares(bool onlyConnectedShares);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
@@ -130,14 +132,14 @@ namespace MediaPortal.MediaLibrary
     /// <param name="shareId">Id of the share to return.</param>
     /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
     /// share doesn't exist, the method returns <c>null</c>.</returns>
-    ShareDescriptor GetShare(Guid shareId);
+    Share GetShare(Guid shareId);
 
     /// <summary>
     /// Returns a collection of shares for the specified <paramref name="systemName"/>.
     /// </summary>
     /// <param name="systemName">System whose shares should be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName);
+    IDictionary<Guid, Share> GetSharesBySystem(SystemName systemName);
 
     void ConnectShares(ICollection<Guid> shareIds);
     void DisconnectShares(ICollection<Guid> shareIds);

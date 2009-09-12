@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -45,7 +44,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Returns all local shares. Mapping of share's GUIDs to shares.
     /// </summary>
-    IDictionary<Guid, ShareDescriptor> Shares { get; }
+    IDictionary<Guid, Share> Shares { get; }
 
     /// <summary>
     /// Returns the share descriptor for the local share with the specified <paramref name="shareId"/>.
@@ -53,7 +52,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="shareId">Id of the share to return.</param>
     /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
     /// share doesn't exist, the method returns <c>null</c>.</returns>
-    ShareDescriptor GetShare(Guid shareId);
+    Share GetShare(Guid shareId);
 
     /// <summary>
     /// Adds a local share and adds it to the media library's collection of registered shares as soon as possible.
@@ -67,7 +66,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="metadataExtractorIds">Ids of metadata extractors to attach to the new share.
     /// The system will automatically import the desired metadata on all of the share's media items.</param>
     /// <returns>Descriptor of the new share.</returns>
-    ShareDescriptor RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories,
+    Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories,
         IEnumerable<Guid> metadataExtractorIds);
 
     /// <summary>
@@ -75,7 +74,7 @@ namespace MediaPortal.Core.MediaManagement
     /// can no longer be accessed. The share will be removed from the media library as soon as possible.
     /// </summary>
     /// <param name="shareId">The id of the share to be removed. The share id is part of the
-    /// <see cref="ShareDescriptor"/> which was returned by the <see cref="RegisterShare"/> method.</param>
+    /// <see cref="Share"/> which was returned by the <see cref="RegisterShare"/> method.</param>
     void RemoveShare(Guid shareId);
 
     /// <summary>
@@ -93,8 +92,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="relocateMediaItems">If set to <c>true</c>, the paths of all media items from the
     /// specified share will be adapted to the new base path.</param>
     /// <returns>Changed share descriptor.</returns>
-    /// TODO: Do the MEs need to be currently registered?</param>
-    ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+    Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
         IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems);
   }
 }

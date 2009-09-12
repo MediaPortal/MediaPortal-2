@@ -55,7 +55,7 @@ namespace MediaPortal.Media.ClientMediaManager
     /// </summary>
     protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
 
-    protected IDictionary<Guid, ShareDescriptor> _shares = new Dictionary<Guid, ShareDescriptor>();
+    protected IDictionary<Guid, Share> _shares = new Dictionary<Guid, Share>();
 
     #endregion
 
@@ -70,7 +70,7 @@ namespace MediaPortal.Media.ClientMediaManager
     public void LoadSharesFromSettings()
     {
       SharesSettings sharesSettings = ServiceScope.Get<ISettingsManager>().Load<SharesSettings>();
-      foreach (ShareDescriptor share in sharesSettings.LocalShares)
+      foreach (Share share in sharesSettings.LocalShares)
         _shares.Add(share.ShareId, share);
     }
 
@@ -81,19 +81,19 @@ namespace MediaPortal.Media.ClientMediaManager
       ServiceScope.Get<ISettingsManager>().Save(settings);
     }
 
-    public IDictionary<Guid, ShareDescriptor> Shares
+    public IDictionary<Guid, Share> Shares
     {
       get { return _shares; }
     }
 
-    public ShareDescriptor GetShare(Guid shareId)
+    public Share GetShare(Guid shareId)
     {
       return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
     }
 
-    public ShareDescriptor RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
-      ShareDescriptor sd = ShareDescriptor.CreateNewShare(SystemName.GetLocalSystemName(), providerId, path,
+      Share sd = Share.CreateNewShare(SystemName.GetLocalSystemName(), providerId, path,
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
@@ -108,10 +108,10 @@ namespace MediaPortal.Media.ClientMediaManager
       MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareRemoved, shareId);
     }
 
-    public ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+    public Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
         IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
     {
-      ShareDescriptor result = GetShare(shareId);
+      Share result = GetShare(shareId);
       if (result == null)
         return null;
       result.MediaProviderId = providerId;

@@ -64,7 +64,7 @@ namespace MediaPortal.MediaManagement
     /// can no longer be accessed over the server's share management.
     /// </summary>
     /// <param name="shareId">The id of the share to be removed. The share id is part of the
-    /// <see cref="ShareDescriptor"/> which was returned by the <see cref="RegisterShare"/> method.</param>
+    /// <see cref="Share"/> which was returned by the <see cref="RegisterShare"/> method.</param>
     void RemoveShare(Guid shareId);
 
     /// <summary>
@@ -85,7 +85,7 @@ namespace MediaPortal.MediaManagement
     /// <param name="relocateMediaItems">If set to <c>true</c>, the paths of all media items from the
     /// specified share will be adapted to the new base path.</param>
     /// <returns>Changed share descriptor.</returns>
-    ShareDescriptor UpdateShare(Guid shareId, Guid providerId, string path,
+    Share UpdateShare(Guid shareId, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds,
         bool relocateMediaItems);
 
@@ -94,7 +94,7 @@ namespace MediaPortal.MediaManagement
     /// </summary>
     /// <param name="onlyConnectedShares">If set to <c>true</c>, only shares of connected clients will be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, ShareDescriptor> GetShares(bool onlyConnectedShares);
+    IDictionary<Guid, Share> GetShares(bool onlyConnectedShares);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
@@ -102,13 +102,13 @@ namespace MediaPortal.MediaManagement
     /// <param name="shareId">Id of the share to return.</param>
     /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
     /// share doesn't exist, the method returns <c>null</c>.</returns>
-    ShareDescriptor GetShare(Guid shareId);
+    Share GetShare(Guid shareId);
 
     /// <summary>
     /// Returns a collection of shares for the specified <paramref name="systemName"/>.
     /// </summary>
     /// <param name="systemName">System whose shares should be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, ShareDescriptor> GetSharesBySystem(SystemName systemName);
+    IDictionary<Guid, Share> GetSharesBySystem(SystemName systemName);
   }
 }

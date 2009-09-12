@@ -36,7 +36,7 @@ namespace MediaPortal.Media.ClientMediaManager.Settings
   {
     #region Protected fields
 
-    protected HashSet<ShareDescriptor> _shares = new HashSet<ShareDescriptor>();
+    protected HashSet<Share> _shares = new HashSet<Share>();
 
     #endregion
 
@@ -46,7 +46,7 @@ namespace MediaPortal.Media.ClientMediaManager.Settings
     /// Gets the collection of local shares. Change the returned collection to modify the setting.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public HashSet<ShareDescriptor> LocalShares
+    public HashSet<Share> LocalShares
     {
       get { return _shares; }
       internal set { _shares = value; }
