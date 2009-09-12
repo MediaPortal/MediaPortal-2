@@ -34,6 +34,11 @@ namespace UPnP.Infrastructure
     /// </summary>
     public static string PRODUCT_VERSION = "UPnP_server/0.1";
 
+    /// <summary>
+    /// Logger instance used in all future calls of the UPnP system. Must not be <c>null</c>!
+    /// </summary>
+    public static ILogger LOGGER = new ConsoleLogger();
+
     #endregion
 
     protected static string _serverOsVersion = null; // Lazily initialized

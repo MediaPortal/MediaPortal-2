@@ -35,14 +35,17 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected CpStateVariable _relatedStateVariable; // References the related state variable in our parent action's parent service
 
     public CpArgument(CpAction parentAction, string name, CpStateVariable relatedStateVariable, ArgumentDirection direction,
-        bool isRetVal)
+        bool isReturnValue)
     {
       _parentAction = parentAction;
       _name = name;
       _relatedStateVariable = relatedStateVariable;
       _direction = direction;
-      _isReturnValue = isRetVal;
+      _isReturnValue = isReturnValue;
     }
+
+    public CpArgument(CpAction parentAction, string name, CpStateVariable relatedStateVariable, ArgumentDirection direction) :
+        this(parentAction, name, relatedStateVariable, direction, false) { }
 
     public string Name
     {
@@ -101,7 +104,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         case "out":
           return ArgumentDirection.Out;
         default:
-          throw new ArgumentException("Argument direction '{0}' not known");
+          throw new ArgumentException(string.Format("Argument direction '{0}' not known", direction));
       }
     }
 

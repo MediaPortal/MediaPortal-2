@@ -4,8 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.HTTP;
 using UPnP.Infrastructure.Utils;
@@ -132,7 +130,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Debug("SSDPServerController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
+          Configuration.LOGGER.Debug("SSDPServerController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
           NetworkHelper.DiscardInput(stream);
         }
         StartReceive(state);
@@ -381,7 +379,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
           int version;
           if (!ParserHelper.TryParseTypeVersion_URN(ps.ST, out type, out version))
           {
-            ServiceScope.Get<ILogger>().Debug("SSDPServerController: Problem parsing incoming packet, UPnP device or service search query '{0}'", ps.ST);
+            Configuration.LOGGER.Debug("SSDPServerController: Problem parsing incoming packet, UPnP device or service search query '{0}'", ps.ST);
             return;
           }
           if (type.IndexOf(":device:") > -1)

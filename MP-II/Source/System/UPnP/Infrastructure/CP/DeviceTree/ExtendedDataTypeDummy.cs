@@ -1,6 +1,7 @@
 using System;
 using System.Xml;
 using MediaPortal.Utilities.Exceptions;
+using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
 {
@@ -8,15 +9,12 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   /// Placeholder for all extended data types at control point side, for which the application didn't provide an
   /// implementation.
   /// </summary>
-  public class CpExtendedDataTypeDummy : CpExtendedDataType
+  public class ExtendedDataTypeDummy : UPnPExtendedDataType
   {
     protected XmlElement _value;
 
-    public CpExtendedDataTypeDummy(string schemaURI, string dataTypeName) : base(schemaURI, dataTypeName) { }
+    public ExtendedDataTypeDummy(string schemaURI, string dataTypeName) : base(schemaURI, dataTypeName) { }
 
-    /// <summary>
-    /// Returns <c>true</c> if this extended data can serialize to and deserialize from the "string-equivalent" form of values.
-    /// </summary>
     public override bool SupportsStringEquivalent
     {
       get { return false; }

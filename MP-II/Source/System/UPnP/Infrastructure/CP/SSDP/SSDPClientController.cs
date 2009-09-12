@@ -4,8 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.HTTP;
@@ -121,7 +119,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Debug("SSDPClientController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
+          Configuration.LOGGER.Debug("SSDPClientController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
           NetworkHelper.DiscardInput(stream);
         }
         StartMulticastReceive(state);
@@ -148,7 +146,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Debug("SSDPClientController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
+          Configuration.LOGGER.Debug("SSDPClientController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
           NetworkHelper.DiscardInput(stream);
         }
         StartUnicastReceive(state);
@@ -359,7 +357,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       }
       catch (IOException e)
       {
-        ServiceScope.Get<ILogger>().Error("SSDPClientController: Problem receiving SSDP packets: '{0}'", e.Message);
+        Configuration.LOGGER.Error("SSDPClientController: Problem receiving SSDP packets: '{0}'", e.Message);
       }
     }
 
@@ -372,7 +370,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       }
       catch (IOException e)
       {
-        ServiceScope.Get<ILogger>().Error("SSDPClientController: Problem receiving SSDP packets: '{0}'", e.Message);
+        Configuration.LOGGER.Error("SSDPClientController: Problem receiving SSDP packets: '{0}'", e.Message);
       }
     }
 

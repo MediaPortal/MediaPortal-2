@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.Utils;
@@ -134,7 +132,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
+        Configuration.LOGGER.Warn("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
       }
     }
 

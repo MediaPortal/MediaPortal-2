@@ -28,7 +28,30 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     protected ActionInvokeDlgt _actionInvoked;
     protected IList<DvArgument> _inArguments;
     protected IList<DvArgument> _outArguments;
-    
+
+    /// <summary>
+    /// Creates a new action in a device's service.
+    /// </summary>
+    /// <param name="name">Name of the action. MUST NOT contain a hyphen character ("-") nor
+    /// a hash character ("#"). Case sensitive. First character MUST be a USASCII
+    /// letter ("A"-"Z", "a"-"z"), USASCII digit ("0"-"9"), an underscore ("_"), or a non-experimental
+    /// Unicode letter or digit greater than U+007F. Succeeding characters MUST be a USASCII letter
+    /// ("A"-"Z", "a"-"z"), USASCII digit ("0"-"9"), an underscore ("_"), a period ("."), a Unicode
+    /// combiningchar, an extender, or a non-experimental Unicode letter or digit greater than
+    /// U+007F. The first three letters MUST NOT be "XML" in any combination of case.
+    /// <list type="bullet">
+    /// <item>For standard actions defined by a UPnP Forum working committee, MUST NOT begin with
+    /// "X_" nor "A_".</item>
+    /// <item>For non-standard actions specified by a UPnP vendor and added to a standard service,
+    /// MUST begin with "X_", followed by a Vendor Domain Name, followed by the underscore
+    /// character ("_"), followed by the vendor-assigned action name. The vendor-assigned
+    /// action name must comply with the syntax rules defined above.</item>
+    /// </list>
+    /// Case sensitive. SHOULD be < 32 characters.
+    /// </param>
+    /// <param name="onInvoke">Delegate which gets called when this action is invoked.</param>
+    /// <param name="inArguments">Enumeration of formal input arguments for this action.</param>
+    /// <param name="outArguments">Enumeration of formal output arguments for this action.</param>
     public DvAction(string name, ActionInvokeDlgt onInvoke,
         IEnumerable<DvArgument> inArguments, IEnumerable<DvArgument> outArguments)
     {

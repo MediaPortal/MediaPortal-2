@@ -1,20 +1,21 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
+using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
   /// <summary>
-  /// Device descriptor class for all UPnP extended data types. Must be derived to create concrete extended data types.
+  /// Device descriptor class for all UPnP extended data types.
   /// </summary>
-  public abstract class DvExtendedDataType : DvDataType
+  public class DvExtendedDataType : DvDataType
   {
-    protected string _schemaURI;
-    protected string _dataTypeName;
+    protected UPnPExtendedDataType _dataType;
 
-    protected DvExtendedDataType(string schemaURI, string dataTypeName)
+    public DvExtendedDataType(UPnPExtendedDataType dataType)
     {
-      _schemaURI = schemaURI;
-      _dataTypeName = dataTypeName;
+      _dataType = dataType;
     }
 
     /// <summary>
@@ -22,7 +23,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// </summary>
     public string SchemaURI
     {
-      get { return _schemaURI; }
+      get { return _dataType.SchemaURI; }
     }
 
     /// <summary>
@@ -30,22 +31,45 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// </summary>
     public string DataTypeName
     {
-      get { return _dataTypeName; }
+      get { return _dataType.DataTypeName; }
     }
 
     /// <summary>
-    /// Returns <c>true</c> if this extended data can serialize to and deserialize from the "string-equivalent" form of values.
+    /// Returns <c>true</c> if this extended data type can serialize to and deserialize from the "string-equivalent"
+    /// form of values.
     /// </summary>
-    public abstract bool SupportsStringEquivalent { get; }
+    public bool SupportsStringEquivalent
+    {
+      get { return _dataType.SupportsStringEquivalent; }
+    }
+
+    #region Base overrides
+
+    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    {
+      return _dataType.SoapSerializeValue(value, forceSimpleValue);
+    }
+
+    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    {
+      return _dataType.SoapDeserializeValue(enclosingElement, isSimpleValue);
+    }
+
+    public override bool IsAssignableFrom(Type type)
+    {
+      return _dataType.IsAssignableFrom(type);
+    }
 
     internal override void AddSCDPDescriptionForStandardDataType(StringBuilder result,
         IDictionary<string, string> dataTypeSchemas2NSPrefix)
     {
       result.Append(
           "<dataType type=\"");
-      result.Append(dataTypeSchemas2NSPrefix[_schemaURI]);
-      result.Append(_dataTypeName);
+      result.Append(dataTypeSchemas2NSPrefix[_dataType.SchemaURI]);
+      result.Append(_dataType.DataTypeName);
       result.Append("\">string</dataType>");
     }
+
+    #endregion
   }
 }

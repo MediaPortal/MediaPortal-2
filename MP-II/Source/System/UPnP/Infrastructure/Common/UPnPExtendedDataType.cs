@@ -1,16 +1,44 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 
-namespace UPnP.Infrastructure.Dv.DeviceTree
+namespace UPnP.Infrastructure.Common
 {
   /// <summary>
-  /// Abstract device descriptor class for a data type, will be inherited for standard data types (<see cref="DvStandardDataType"/>) and
-  /// extended data types (<see cref="DvExtendedDataType"/>).
+  /// Base class for all UPnP extended data types. Must be derived to create concrete extended data types.
   /// </summary>
-  public abstract class DvDataType
+  public abstract class UPnPExtendedDataType
   {
+    protected string _schemaURI;
+    protected string _dataTypeName;
+
+    protected UPnPExtendedDataType(string schemaURI, string dataTypeName)
+    {
+      _schemaURI = schemaURI;
+      _dataTypeName = dataTypeName;
+    }
+
+    /// <summary>
+    /// Returns the URI which denotes the XML schema containing a description of this extended data type.
+    /// </summary>
+    public string SchemaURI
+    {
+      get { return _schemaURI; }
+    }
+
+    /// <summary>
+    /// The extended data type name in the schema of the specified <see cref="SchemaURI"/>.
+    /// </summary>
+    public string DataTypeName
+    {
+      get { return _dataTypeName; }
+    }
+
+    /// <summary>
+    /// Returns <c>true</c> if this extended data type can serialize to and deserialize from the "string-equivalent"
+    /// form of values.
+    /// </summary>
+    public abstract bool SupportsStringEquivalent { get; }
+
     /// <summary>
     /// Serializes the given <paramref name="value"/> in the serialization strategy specified by this UPnP data type. The
     /// serialized value will be an XML string.
@@ -22,8 +50,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// of this data type for extended UPnP 1.1 data types.
     /// </remarks>
     /// <param name="value">Value to be serialized.</param>
-    /// <param name="forceSimpleValue">If set to <c>true</c>, also extended datatypes will be serialized using their
-    /// "string equivalent".</param>
+    /// <param name="forceSimpleValue">If set to <c>true</c>, the resulting value mustn't be an XML element but must
+    /// be encoded in its "string equivalent".</param>
     /// <returns>SOAP serialization for the given <paramref name="value"/>.</returns>
     public abstract string SoapSerializeValue(object value, bool forceSimpleValue);
 
@@ -45,30 +73,5 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <returns><c>true</c>, if an object of the specified <paramref name="type"/> can be assigned to a variable of this
     /// UPnP data type.</returns>
     public abstract bool IsAssignableFrom(Type type);
-
-    /// <summary>
-    /// Checks  if the given <paramref name="value"/> is of a type that is assignable to this type.
-    /// </summary>
-    /// <param name="value">Value to check.</param>
-    /// <returns><c>true</c>, if the given <paramref name="value"/> is of a type that is assignable to this
-    /// data type, else <c>false</c>.</returns>
-    public bool IsValueAssignable(object value)
-    {
-      Type actualType = value == null ? null : value.GetType();
-      return actualType == null || IsAssignableFrom(actualType);
-    }
-
-    #region Description generation
-
-    /// <summary>
-    /// Generates the (UPnP 1.0) SCDP description which will be written in the state variable description as child into the
-    /// element &lt;dataType/&gt;.
-    /// </summary>
-    /// <param name="result">String builder to add the datatype string to.</param>
-    /// <param name="dataTypeSchemas2NSPrefix">Dictionary with datatype schema URIs mapped to their XML namespace prefix
-    /// to use.</param>
-    internal abstract void AddSCDPDescriptionForStandardDataType(StringBuilder result, IDictionary<string, string> dataTypeSchemas2NSPrefix);
-
-    #endregion
   }
 }

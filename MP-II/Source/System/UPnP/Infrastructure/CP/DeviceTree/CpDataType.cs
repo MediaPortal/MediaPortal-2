@@ -16,7 +16,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   {
     /// <summary>
     /// Serializes the given <paramref name="value"/> in the serialization strategy specified by this UPnP data type. The
-    /// serialized value will be XML text.
+    /// serialized value will be an XML string.
     /// </summary>
     /// <remarks>
     /// The returned string is a serialized XML node which contains either the serialized value directly, encoded as
@@ -31,11 +31,11 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public abstract string SoapSerializeValue(object value, bool forceSimpleValue);
 
     /// <summary>
-    /// Deserializes the given SOAP <paramref name="enclosingElement"/> to an object of this UPnP data type.
+    /// Deserializes the contents of the given SOAP <paramref name="enclosingElement"/> to an object of this UPnP data type.
     /// </summary>
     /// <param name="enclosingElement">SOAP representation of an object of this UPnP data type.</param>
     /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized from its
-    /// string-equivalent, i.e. the XML text content of the <paramref name="enclosingElement"/> should be used,
+    /// string-equivalent, i.e. the XML text content of the <paramref name="enclosingElement"/> should be expected,
     /// else the value should be deserialized from the extended representation of this data type.</param>
     /// <returns>Value which was deserialized.</returns>
     public abstract object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue);
@@ -83,7 +83,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         CpExtendedDataType result;
         if (dataTypeResolver != null && dataTypeResolver(schemaURI + ":" + dataTypeName, out result))
           return result;
-        return new CpExtendedDataTypeDummy(schemaURI, dataTypeName);
+        return new CpExtendedDataType(new ExtendedDataTypeDummy(schemaURI, dataTypeName));
       }
     }
   }
