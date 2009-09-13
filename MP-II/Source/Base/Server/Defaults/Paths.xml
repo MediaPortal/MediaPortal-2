@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Paths>
+  <!-- Default paths can be overridden here -->
+ <Path name="DATA" value="&lt;COMMON_APPLICATION_DATA&gt;\Team MediaPortal\MP-II-Server" />
+ <Path name="CONFIG" value="&lt;DATA&gt;\Config" />
+ <Path name="LOG" value="&lt;DATA&gt;\Log" />
+ <Path name="DATABASE" value="&lt;DATA&gt;\Database" />
+ <Path name="PLUGINS" value="&lt;APPLICATION_ROOT&gt;\Plugins" />
+ <Path name="APPLICATION_PATH" value="&lt;APPLICATION_ROOT&gt;\MP-II-Backend.exe" />
+</Paths>
