@@ -25,10 +25,11 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
-using MediaPortal.Core.General;
+using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Shares;
 
-namespace MediaPortal.Core.Views
+namespace MediaPortal.Views
 {
   /// <summary>
   /// View implementation which presents a list of of all local shares, one sub view for each share.

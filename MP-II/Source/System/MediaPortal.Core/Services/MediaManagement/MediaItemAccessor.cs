@@ -24,12 +24,11 @@
 
 using System;
 using System.IO;
-using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement
 {
   /// <summary>
   /// Temporary local accessor instance for a media item which might located anywhere in an MP-II system.
@@ -47,7 +46,7 @@ namespace MediaPortal.Core.MediaManagement
 
     internal MediaItemAccessor(MediaItemLocator locator,
         Guid localMediaProviderId, string localMediaProviderPath, ITidyUpExecutor tidyUpExecutor) :
-        base(locator, tidyUpExecutor)
+            base(locator, tidyUpExecutor)
     {
       _localMediaProviderId = localMediaProviderId;
       _localMediaProviderPath = localMediaProviderPath;
@@ -70,9 +69,9 @@ namespace MediaPortal.Core.MediaManagement
     /// <returns>Stream with the media item contents which was opened for read operations.</returns>
     public Stream OpenRead()
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       IMediaProvider mediaProvider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(_localMediaProviderId, out mediaProvider))
+      if (!mediaAccessor.LocalMediaProviders.TryGetValue(_localMediaProviderId, out mediaProvider))
         throw new IllegalCallException("The media provider with Id '{0}' is not accessible in the current system", _localMediaProviderId);
       return mediaProvider.OpenRead(LocalMediaProviderPath);
     }
@@ -84,9 +83,9 @@ namespace MediaPortal.Core.MediaManagement
     /// <returns>Stream with the media item contents which was opened for write operations.</returns>
     public Stream OpenWrite()
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       IMediaProvider mediaProvider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(_localMediaProviderId, out mediaProvider))
+      if (!mediaAccessor.LocalMediaProviders.TryGetValue(_localMediaProviderId, out mediaProvider))
         throw new IllegalCallException("The media provider with Id '{0}' is not accessible in the current system", _localMediaProviderId);
       return mediaProvider.OpenWrite(LocalMediaProviderPath);
     }

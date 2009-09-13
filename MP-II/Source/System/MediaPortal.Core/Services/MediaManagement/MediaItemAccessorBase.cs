@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement
 {
   internal interface ITidyUpExecutor
   {

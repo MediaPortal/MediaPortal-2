@@ -28,9 +28,11 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.Services.Players;
+using MediaPortal.Services.Shares;
 using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.Services.UserManagement;
 using MediaPortal.Services.Workflow;
+using MediaPortal.Shares;
 using MediaPortal.Thumbnails;
 using MediaPortal.UserManagement;
 
@@ -51,11 +53,14 @@ namespace MediaPortal
       logger.Debug("UiExtension: Registering IPlayerContextManager service");
       ServiceScope.Add<IPlayerContextManager>(new PlayerContextManager());
 
-      logger.Debug("UiExtension: Registering UserService service");
+      logger.Debug("UiExtension: Registering IUserService service");
       ServiceScope.Add<IUserService>(new UserService());
 
-      logger.Debug("UiExtension: Registering ThumbnailGenerator");
+      logger.Debug("UiExtension: Registering IAsyncThumbnailGenerator service");
       ServiceScope.Add<IAsyncThumbnailGenerator>(new ThumbnailGenerator());
+
+      logger.Debug("UiExtension: Registering ILocalSharesManagement service");
+      ServiceScope.Add<ILocalSharesManagement>(new LocalSharesManagement());
 
       AdditionalUiBuilders.Register();
     }
@@ -73,8 +78,14 @@ namespace MediaPortal
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
-      logger.Debug("UiExtension: Removing IWorkflowManager service");
-      ServiceScope.RemoveAndDispose<IWorkflowManager>();
+      logger.Debug("UiExtension: Removing ILocalSharesManagement service");
+      ServiceScope.RemoveAndDispose<ILocalSharesManagement>();
+
+      logger.Debug("UiExtension: Removing IAsyncThumbnailGenerator service");
+      ServiceScope.RemoveAndDispose<IAsyncThumbnailGenerator>();
+
+      logger.Debug("UiExtension: Removing UserService service");
+      ServiceScope.RemoveAndDispose<IUserService>();
 
       logger.Debug("UiExtension: Removing IPlayerContextManager service");
       ServiceScope.RemoveAndDispose<IPlayerContextManager>();
@@ -82,11 +93,8 @@ namespace MediaPortal
       logger.Debug("UiExtension: Removing IPlayerManager service");
       ServiceScope.RemoveAndDispose<IPlayerManager>();
 
-      logger.Debug("UiExtension: Removing UserService service");
-      ServiceScope.RemoveAndDispose<IUserService>();
-
-      logger.Debug("UiExtension: Removing ThumbnailGenerator");
-      ServiceScope.RemoveAndDispose<IAsyncThumbnailGenerator>();
+      logger.Debug("UiExtension: Removing IWorkflowManager service");
+      ServiceScope.RemoveAndDispose<IWorkflowManager>();
     }
 
     /// <summary>

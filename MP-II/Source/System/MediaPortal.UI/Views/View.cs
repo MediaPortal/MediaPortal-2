@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Core.Views
+namespace MediaPortal.Views
 {
   /// <summary>
   /// A view is a named collection of media items and sub views. It stores the materialized elements which

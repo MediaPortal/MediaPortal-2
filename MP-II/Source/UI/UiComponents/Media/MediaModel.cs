@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.Views;
+using MediaPortal.Views;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Players;

@@ -92,8 +92,8 @@ namespace MediaPortal.Services.Players
       mediaItemTitle = null;
       if (item == null)
         return false;
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      locator = mediaManager.GetMediaItemLocator(item);
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      locator = mediaAccessor.GetMediaItemLocator(item);
       MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
       mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
       mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];

@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement
 {
   public class MediaItemLocalFsAccessor : MediaItemAccessorBase, IMediaItemLocalFsAccessor
   {
@@ -32,7 +32,7 @@ namespace MediaPortal.Core.MediaManagement
 
     internal MediaItemLocalFsAccessor(MediaItemLocator locator,
         string localFileSystemPath, ITidyUpExecutor tidyUpExecutor) :
-        base(locator, tidyUpExecutor)
+            base(locator, tidyUpExecutor)
     {
       _localFileSystemPath = localFileSystemPath;
     }

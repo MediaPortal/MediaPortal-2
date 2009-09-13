@@ -25,26 +25,21 @@
 using System;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement
 {
   /// <summary>
-  /// This class provides an interface for all shares related messages.
+  /// This class provides an interface for all messages of the media accessor.
   /// </summary>
-  public class MediaManagerMessaging
+  public class MediaAccessorMessaging
   {
     // Message channel name
-    public const string CHANNEL = "Shares";
+    public const string CHANNEL = "MediaAccessor";
 
     /// <summary>
     /// Messages of this type are sent by the media manager and its components.
     /// </summary>
     public enum MessageType
     {
-      // Share related messages. The param will contain the id of the share.
-      ShareAdded,
-      ShareRemoved,
-      ShareChanged,
-
       // Media provider related messages. The param will contain the id of the media provider.
       MediaProviderAdded,
       MediaProviderRemoved,
@@ -56,18 +51,6 @@ namespace MediaPortal.Core.MediaManagement
 
     // Message data
     public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
-
-    /// <summary>
-    /// Sends a message concerning a share.
-    /// </summary>
-    /// <param name="messageType">Type of the message to send.</param>
-    /// <param name="shareId">Share which is affected.</param>
-    public static void SendShareMessage(MessageType messageType, Guid shareId)
-    {
-      QueueMessage msg = new QueueMessage(messageType);
-      msg.MessageData[PARAM] = shareId;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
-    }
 
     /// <summary>
     /// Sends a message concerning a media provider.

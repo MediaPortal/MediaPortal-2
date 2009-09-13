@@ -27,12 +27,12 @@ using System.Windows.Forms;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Runtime;
-using MediaPortal.Media.ClientMediaManager;
 using MediaPortal.Presentation;
 using MediaPortal.Presentation.Workflow;
 #if !DEBUG
 using MediaPortal.Services.Logging;
 #endif
+using MediaPortal.Shares;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
@@ -99,20 +99,14 @@ namespace MediaPortal
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
           pathManager.ReplacePath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
 
+#if !DEBUG
         logPath = pathManager.GetPath("<LOG>");
-
-        logger.Debug("ApplicationLauncher: Create MediaManager service");
-        MediaManager mediaManager = new MediaManager();
-        // Register the media manager for multiple interfaces in the client - in the server, those interfaces
-        // will be provided by different classes.
-        ServiceScope.Add<IMediaManager>(mediaManager);
-        ServiceScope.Add<ILocalSharesManagement>(mediaManager);
-        ServiceScope.Add<IImporter>(mediaManager);
+#endif
 
         UiExtension.RegisterUiServices();
 
         // Start the core
-        logger.Debug("ApplicationLauncher: Starting core");
+        logger.Debug("ApplicationLauncher: Starting application");
 
         try
         {
@@ -121,13 +115,16 @@ namespace MediaPortal
           pluginManager.Startup(false);
           ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
           IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+          IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+          ILocalSharesManagement localSharesManagement = ServiceScope.Get<ILocalSharesManagement>();
 
           // We have to handle some dependencies here in the start order:
           // 1) After all plugins are loaded, the SkinEngine can initialize (=load all skin resources)
           // 2) After the skin resources are loaded, the workflow manager can initialize (=load its states and actions)
           // 3) After the workflow states and actions are loaded, the startup screen can be shown
           // 4) After the skinengine triggers the first workflow state/startup screen, the default shortcuts can be registered
-          mediaManager.Initialize(); // Independent from skin engine/skin resources
+          mediaAccessor.Initialize(); // Independent from other services
+          localSharesManagement.Initialize(); // After media accessor was initialized
           skinEngine.Initialize(); // 1)
           workflowManager.Initialize(); // 2)
           skinEngine.Startup(); // 3)
@@ -149,6 +146,8 @@ namespace MediaPortal
           skinEngine.Shutdown();
           workflowManager.Shutdown();
           pluginManager.Shutdown();
+          mediaAccessor.Shutdown();
+          localSharesManagement.Shutdown();
         }
         catch (Exception)
         {

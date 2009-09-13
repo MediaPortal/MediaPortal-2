@@ -117,6 +117,9 @@
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
     <Compile Include="Services\Players\Settings\FadingSettings.cs" />
+    <Compile Include="Services\Shares\LocalSharesManagement.cs" />
+    <Compile Include="Services\Shares\SharesMessaging.cs" />
+    <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
@@ -130,6 +133,7 @@
     <Compile Include="Services\Workflow\ModelBuilder.cs" />
     <Compile Include="Services\Workflow\WorkflowManager.cs" />
     <Compile Include="Services\Workflow\WorkflowResourcesLoader.cs" />
+    <Compile Include="Shares\ILocalSharesManagement.cs" />
     <Compile Include="Thumbnails\IAsyncThumbnailGenerator.cs" />
     <Compile Include="UiExtension.cs" />
     <Compile Include="UserManagement\IPermission.cs" />
@@ -137,6 +141,12 @@
     <Compile Include="UserManagement\IRole.cs" />
     <Compile Include="UserManagement\IUser.cs" />
     <Compile Include="UserManagement\IUserService.cs" />
+    <Compile Include="Views\LocalSharesViewSpecification.cs" />
+    <Compile Include="Views\LocalShareViewSpecification.cs" />
+    <Compile Include="Views\MediaLibraryViewSpecification.cs" />
+    <Compile Include="Views\View.cs" />
+    <Compile Include="Views\ViewCollectionViewSpecification.cs" />
+    <Compile Include="Views\ViewSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

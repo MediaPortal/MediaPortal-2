@@ -104,19 +104,18 @@
     <Compile Include="MediaManagement\IMediaItemAccessor.cs" />
     <Compile Include="MediaManagement\IMediaItemLocalFsAccessor.cs" />
     <Compile Include="MediaManagement\IMediaItemLocator.cs" />
-    <Compile Include="MediaManagement\IMediaManager.cs" />
+    <Compile Include="MediaManagement\IMediaAccessor.cs" />
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
-    <Compile Include="MediaManagement\ILocalSharesManagement.cs" />
     <Compile Include="MediaManagement\LocalFsMediaProviderBase.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />
-    <Compile Include="MediaManagement\MediaItemAccessor.cs" />
-    <Compile Include="MediaManagement\MediaItemAccessorBase.cs" />
+    <Compile Include="Services\MediaManagement\MediaItemAccessor.cs" />
+    <Compile Include="Services\MediaManagement\MediaItemAccessorBase.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
     <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />
-    <Compile Include="MediaManagement\MediaItemLocalFsAccessor.cs" />
-    <Compile Include="MediaManagement\MediaItemLocator.cs" />
-    <Compile Include="MediaManagement\MediaManagerBase.cs" />
-    <Compile Include="MediaManagement\MediaManagerMessaging.cs" />
+    <Compile Include="Services\MediaManagement\MediaItemLocalFsAccessor.cs" />
+    <Compile Include="Services\MediaManagement\MediaItemLocator.cs" />
+    <Compile Include="Services\MediaManagement\MediaAccessor.cs" />
+    <Compile Include="Services\MediaManagement\MediaAccessorMessaging.cs" />
     <Compile Include="MediaManagement\MediaProviders\IFileSystemMediaProvider.cs" />
     <Compile Include="MediaManagement\MediaProviders\IMediaProvider.cs" />
     <Compile Include="MediaManagement\MediaProviders\IMediaSourceChangeNotifier.cs" />
@@ -208,12 +207,6 @@
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAspectMetadata.cs" />
-    <Compile Include="Views\LocalSharesViewSpecification.cs" />
-    <Compile Include="Views\LocalShareViewSpecification.cs" />
-    <Compile Include="Views\MediaLibraryViewSpecification.cs" />
-    <Compile Include="Views\View.cs" />
-    <Compile Include="Views\ViewCollectionViewSpecification.cs" />
-    <Compile Include="Views\ViewSpecification.cs" />
     <Compile Include="UPnP\UPnPDtShare.cs" />
   </ItemGroup>
   <ItemGroup>

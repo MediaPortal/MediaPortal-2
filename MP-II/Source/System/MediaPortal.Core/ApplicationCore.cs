@@ -26,6 +26,7 @@ using System;
 using System.Windows.Forms;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
@@ -63,13 +64,13 @@ namespace MediaPortal.Core
 #endif
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
-      logger.Debug("ApplicationCore: Registering ILogger");
+      logger.Debug("ApplicationCore: Registering ILogger service");
       ServiceScope.Add<ILogger>(logger);
 
-      logger.Debug("ApplicationCore: Registering IRegistry");
+      logger.Debug("ApplicationCore: Registering IRegistry service");
       ServiceScope.Add<IRegistry>(new Services.Registry.Registry());
 
-      logger.Debug("ApplicationCore: Registering IThreadPool");
+      logger.Debug("ApplicationCore: Registering IThreadPool service");
       Services.Threading.ThreadPool pool = new Services.Threading.ThreadPool();
       pool.ErrorLog += ServiceScope.Get<ILogger>().Error;
       pool.WarnLog += ServiceScope.Get<ILogger>().Warn;
@@ -77,60 +78,57 @@ namespace MediaPortal.Core
       pool.DebugLog += ServiceScope.Get<ILogger>().Debug;
       ServiceScope.Add<Threading.IThreadPool>(pool);
 
-      logger.Debug("ApplicationCore: Registering IMessageBroker");
+      logger.Debug("ApplicationCore: Registering IMessageBroker service");
       ServiceScope.Add<IMessageBroker>(new MessageBroker());
 
-      logger.Debug("ApplicationCore: Registering IPluginManager");
+      logger.Debug("ApplicationCore: Registering IPluginManager service");
       ServiceScope.Add<IPluginManager>(new Services.PluginManager.PluginManager());
 
-      logger.Debug("ApplicationCore: Registering ISettingsManager");
+      logger.Debug("ApplicationCore: Registering ISettingsManager service");
       ServiceScope.Add<ISettingsManager>(new SettingsManager());
 
-      logger.Debug("UiExtension: Registering StringManager");
+      logger.Debug("UiExtension: Registering ILocalization service");
       ServiceScope.Add<ILocalization>(new StringManager());
 
-      logger.Debug("ApplicationCore: Registering ITaskScheduler");
+      logger.Debug("ApplicationCore: Registering ITaskScheduler service");
       ServiceScope.Add<ITaskScheduler>(new Services.TaskScheduler.TaskScheduler());
-    }
 
-    public void Start()
-    {
-      IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      pluginManager.Initialize();
-      pluginManager.Startup(false);
-      Application.Run();
-      pluginManager.Shutdown();
+      logger.Debug("ApplicationCore: Registering IMediaAccessor service");
+      ServiceScope.Add<IMediaAccessor>(new Services.MediaManagement.MediaAccessor());
     }
 
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
-      logger.Debug("ApplicationCore: Removing ITaskScheduler");
+      logger.Debug("ApplicationCore: Removing IMediaAccessor service");
+      ServiceScope.RemoveAndDispose<IMediaAccessor>();
+
+      logger.Debug("ApplicationCore: Removing ITaskScheduler service");
       ServiceScope.RemoveAndDispose<ITaskScheduler>();
 
-      logger.Debug("UiExtension: Removing StringManager");
+      logger.Debug("UiExtension: Removing ILocalization service");
       ServiceScope.RemoveAndDispose<ILocalization>();
 
-      logger.Debug("ApplicationCore: Removing ISettingsManager");
+      logger.Debug("ApplicationCore: Removing ISettingsManager service");
       ServiceScope.RemoveAndDispose<ISettingsManager>();
 
-      logger.Debug("ApplicationCore: Removing IPluginManager");
+      logger.Debug("ApplicationCore: Removing IPluginManager service");
       ServiceScope.RemoveAndDispose<IPluginManager>();
 
-      logger.Debug("ApplicationCore: Removing IMessageBroker");
+      logger.Debug("ApplicationCore: Removing IMessageBroker service");
       ServiceScope.RemoveAndDispose<IMessageBroker>();
 
-      logger.Debug("ApplicationCore: Removing IThreadPool");
+      logger.Debug("ApplicationCore: Removing IThreadPool service");
       ServiceScope.RemoveAndDispose<Threading.IThreadPool>();
 
-      logger.Debug("ApplicationCore: Removing IRegistry");
+      logger.Debug("ApplicationCore: Removing IRegistry service");
       ServiceScope.RemoveAndDispose<IRegistry>();
 
-      logger.Debug("ApplicationCore: Removing ILogger");
+      logger.Debug("ApplicationCore: Removing ILogger service");
       ServiceScope.RemoveAndDispose<ILogger>();
 
-      logger.Debug("ApplicationCore: Removing IPathManager");
+      logger.Debug("ApplicationCore: Removing IPathManager service");
       ServiceScope.RemoveAndDispose<IPathManager>();
     }
   }

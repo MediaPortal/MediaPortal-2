@@ -26,18 +26,21 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Core.Settings;
-using MediaPortal.Media.ClientMediaManager.Settings;
+using MediaPortal.Services.Shares.Settings;
+using MediaPortal.Shares;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Media.ClientMediaManager
+namespace MediaPortal.Services.Shares
 {
   /// <summary>
   /// Shares management class for client-local shares. All shares are managed redundantly at
   /// the client's media manager via this class and at the MediaPortal server's MediaLibrary.
   /// </summary>
-  public class LocalSharesManagement
+  public class LocalSharesManagement : ILocalSharesManagement
   {
     #region Consts
 
@@ -86,6 +89,23 @@ namespace MediaPortal.Media.ClientMediaManager
       get { return _shares; }
     }
 
+    public void Initialize()
+    {
+      ServiceScope.Get<ILogger>().Info("LocalSharesManagement: Initialize");
+      LoadSharesFromSettings();
+      if (_shares.Count == 0)
+      { // The shares are still uninitialized - use defaults
+        IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+        foreach (Share share in mediaAccessor.CreateDefaultShares())
+          _shares.Add(share.ShareId, share);
+        SaveSharesToSettings();
+      }
+    }
+
+    public void Shutdown()
+    {
+    }
+
     public Share GetShare(Guid shareId)
     {
       return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
@@ -97,7 +117,7 @@ namespace MediaPortal.Media.ClientMediaManager
           shareName, mediaCategories, metadataExtractorIds);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
-      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareAdded, sd.ShareId);
+      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareAdded, sd.ShareId);
       return sd;
     }
 
@@ -105,11 +125,11 @@ namespace MediaPortal.Media.ClientMediaManager
     {
       _shares.Remove(shareId);
       SaveSharesToSettings();
-      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareRemoved, shareId);
+      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareRemoved, shareId);
     }
 
     public Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode)
     {
       Share result = GetShare(shareId);
       if (result == null)
@@ -122,7 +142,7 @@ namespace MediaPortal.Media.ClientMediaManager
       result.MetadataExtractorIds.Clear();
       CollectionUtils.AddAll(result.MetadataExtractorIds, metadataExtractorIds);
       SaveSharesToSettings();
-      MediaManagerMessaging.SendShareMessage(MediaManagerMessaging.MessageType.ShareChanged, shareId);
+      SharesMessaging.SendShareChangedMessage(shareId, relocationMode);
       return result;
     }
 

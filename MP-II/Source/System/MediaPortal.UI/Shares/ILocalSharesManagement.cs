@@ -24,9 +24,16 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Shares
 {
+  public enum RelocationMode
+  {
+    Relocate,
+    Remove
+  }
+
   /// <summary>
   /// Exposes methods to manage local shares.
   /// </summary>
@@ -45,6 +52,9 @@ namespace MediaPortal.Core.MediaManagement
     /// Returns all local shares. Mapping of share's GUIDs to shares.
     /// </summary>
     IDictionary<Guid, Share> Shares { get; }
+
+    void Initialize();
+    void Shutdown();
 
     /// <summary>
     /// Returns the share descriptor for the local share with the specified <paramref name="shareId"/>.
@@ -89,10 +99,11 @@ namespace MediaPortal.Core.MediaManagement
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <param name="metadataExtractorIds">Ids of metadata extractors to be attached to the share.</param>
-    /// <param name="relocateMediaItems">If set to <c>true</c>, the paths of all media items from the
-    /// specified share will be adapted to the new base path.</param>
+    /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
+    /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
+    /// all media items from the specified share will be removed from the media library or the local media items cache.</param>
     /// <returns>Changed share descriptor.</returns>
     Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems);
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode);
   }
 }

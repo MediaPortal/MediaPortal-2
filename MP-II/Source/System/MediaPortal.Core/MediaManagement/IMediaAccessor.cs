@@ -29,9 +29,9 @@ using MediaPortal.Core.MediaManagement.MediaProviders;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Public general interface for the media manager.
+  /// Public general interface for the media accessor.
   /// </summary>
-  public interface IMediaManager
+  public interface IMediaAccessor
   {
     /// <summary>
     /// Collection of all registered local media providers, organized as a dictionary of
@@ -53,9 +53,11 @@ namespace MediaPortal.Core.MediaManagement
     void Initialize();
 
     /// <summary>
-    /// Cleans up the runtime data of the media manager.
+    /// Cleans up the runtime data of the media accessor.
     /// </summary>
-    void Dispose();
+    void Shutdown();
+
+    ICollection<Share> CreateDefaultShares();
 
     /// <summary>
     /// Synchronous metadata extraction method for an extraction of the specified metadata

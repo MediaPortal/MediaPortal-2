@@ -25,22 +25,24 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement
 {
   public delegate void NotifyMediaProviderChangeDelegate(IMediaProvider mediaProvider);
+
   public delegate void NotifyMetadataExtractorChangeDelegate(IMetadataExtractor metadataExtractor);
 
   /// <summary>
   /// This is the base class for client and server media managers.
   /// It contains the functionality to load media providers and metadata extractors.
   /// </summary>
-  public class MediaManagerBase : IMediaManager
+  public class MediaAccessor : IMediaAccessor
   {
     #region Constants
 
@@ -58,16 +60,16 @@ namespace MediaPortal.Core.MediaManagement
     protected const string MEDIA_PROVIDERS_PLUGIN_LOCATION = "/Media/MediaProviders";
     protected const string METADATA_EXTRACTORS_PLUGIN_LOCATION = "/Media/MetadataExtractors";
 
-    protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaManagerBase: MetadataExtractors";
-    protected const string MEDIA_PROVIDERS_USE_COMPONENT_NAME = "MediaManagerBase: MediaProviders";
+    protected const string METADATA_EXTRACTORS_USE_COMPONENT_NAME = "MediaAccessor: MetadataExtractors";
+    protected const string MEDIA_PROVIDERS_USE_COMPONENT_NAME = "MediaAccessor: MediaProviders";
 
     #endregion
 
     protected class MetadataExtractorPluginItemChangeListener : IItemRegistrationChangeListener
     {
-      protected MediaManagerBase _parent;
+      protected MediaAccessor _parent;
 
-      internal MetadataExtractorPluginItemChangeListener(MediaManagerBase parent)
+      internal MetadataExtractorPluginItemChangeListener(MediaAccessor parent)
       {
         _parent = parent;
       }
@@ -91,9 +93,9 @@ namespace MediaPortal.Core.MediaManagement
 
     protected class MediaProviderPluginItemChangeListener : IItemRegistrationChangeListener
     {
-      protected MediaManagerBase _parent;
+      protected MediaAccessor _parent;
 
-      internal MediaProviderPluginItemChangeListener(MediaManagerBase parent)
+      internal MediaProviderPluginItemChangeListener(MediaAccessor parent)
       {
         _parent = parent;
       }
@@ -126,7 +128,7 @@ namespace MediaPortal.Core.MediaManagement
 
     #region Ctor
 
-    public MediaManagerBase()
+    public MediaAccessor()
     {
       _mediaProvidersPluginItemChangeListener = new MediaProviderPluginItemChangeListener(this);
       _metadataExtractorsPluginItemChangeListener = new MetadataExtractorPluginItemChangeListener(this);
@@ -139,13 +141,13 @@ namespace MediaPortal.Core.MediaManagement
     protected void RegisterProvider(IMediaProvider provider)
     {
       _providers.Add(provider.Metadata.MediaProviderId, provider);
-      MediaManagerMessaging.SendMediaProviderMessage(MediaManagerMessaging.MessageType.MediaProviderAdded, provider.Metadata.MediaProviderId);
+      MediaAccessorMessaging.SendMediaProviderMessage(MediaAccessorMessaging.MessageType.MediaProviderAdded, provider.Metadata.MediaProviderId);
     }
 
     protected void RegisterMetadataExtractor(IMetadataExtractor metadataExtractor)
     {
       _metadataExtractors.Add(metadataExtractor.Metadata.MetadataExtractorId, metadataExtractor);
-      MediaManagerMessaging.SendMediaProviderMessage(MediaManagerMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
+      MediaAccessorMessaging.SendMediaProviderMessage(MediaAccessorMessaging.MessageType.MetadataExtractorAdded, metadataExtractor.Metadata.MetadataExtractorId);
     }
 
     /// <summary>
@@ -204,8 +206,8 @@ namespace MediaPortal.Core.MediaManagement
     /// specified <paramref name="mediaCategory"/> by default.</returns>
     protected static IEnumerable<Guid> GetDefaultMetadataExtractorsForCategory(string mediaCategory)
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      foreach (IMetadataExtractor metadataExtractor in mediaManager.LocalMetadataExtractors.Values)
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      foreach (IMetadataExtractor metadataExtractor in mediaAccessor.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
         if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
@@ -213,7 +215,39 @@ namespace MediaPortal.Core.MediaManagement
       }
     }
 
-    protected ICollection<Share> CreateDefaultShares()
+    #endregion
+
+    #region IMediaAccessor implementation
+
+    public IDictionary<Guid, IMediaProvider> LocalMediaProviders
+    {
+      get
+      {
+        CheckProviderPluginsLoaded();
+        return _providers;
+      }
+    }
+
+    public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
+    {
+      get
+      {
+        CheckMetadataExtractorPluginsLoaded();
+        return _metadataExtractors;
+      }
+    }
+
+    public virtual void Initialize()
+    {
+      RegisterPluginItemListeners();
+    }
+
+    public virtual void Shutdown()
+    {
+      UnregisterPluginItemListeners();
+    }
+
+    public ICollection<Share> CreateDefaultShares()
     {
       ICollection<Share> result = new List<Share>();
       Guid localFsMediaProviderId = new Guid(LOCAL_FS_MEDIAPROVIDER_ID);
@@ -280,40 +314,8 @@ namespace MediaPortal.Core.MediaManagement
       return result;
     }
 
-    #endregion
-
-    #region IMediaManager implementation
-
-    public IDictionary<Guid, IMediaProvider> LocalMediaProviders
-    {
-      get
-      {
-        CheckProviderPluginsLoaded();
-        return _providers;
-      }
-    }
-
-    public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
-    {
-      get
-      {
-        CheckMetadataExtractorPluginsLoaded();
-        return _metadataExtractors;
-      }
-    }
-
-    public virtual void Initialize()
-    {
-      RegisterPluginItemListeners();
-    }
-
-    public virtual void Dispose()
-    {
-      UnregisterPluginItemListeners();
-    }
-
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
-      IEnumerable<Guid> metadataExtractorIds)
+        IEnumerable<Guid> metadataExtractorIds)
     {
       if (!LocalMediaProviders.ContainsKey(providerId))
         return null;

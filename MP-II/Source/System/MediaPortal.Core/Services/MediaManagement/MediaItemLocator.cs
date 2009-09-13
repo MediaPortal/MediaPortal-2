@@ -27,7 +27,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MediaProviders;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.Services.MediaManagement
 {
   /// <summary>
   /// Encapsulates the data needed to locate a specific media item.
@@ -88,19 +88,19 @@ namespace MediaPortal.Core.MediaManagement
       if (_system.IsLocalSystem())
         return new MediaItemAccessor(this, _mediaProviderId, _path, null);
       else
-        // TODO: Media item accessor for remote systems: return a media accessor with a provider and a path for it
-        // pointing to the remote media
+          // TODO: Media item accessor for remote systems: return a media accessor with a provider and a path for it
+          // pointing to the remote media
         throw new NotImplementedException("MediaItemLocator.CreateAccessor for remote media items is not implemented yet");
     }
 
     public IMediaItemLocalFsAccessor CreateLocalFsAccessor()
     {
       if (_system.IsLocalSystem() && MediaProviderId == LOCAL_FS_MEDIA_PROVIDER_ID)
-        // Simple case: The media item is located in the local file system - we don't have to do anything
+          // Simple case: The media item is located in the local file system - we don't have to do anything
         return new MediaItemLocalFsAccessor(this, LocalFsMediaProviderBase.ToDosPath(_path), null);
       else
-        // TODO: Media item accessor for remote systems: create temporary SMB connection and return an accessor to the
-        // media provider for that SMB connection
+          // TODO: Media item accessor for remote systems: create temporary SMB connection and return an accessor to the
+          // media provider for that SMB connection
         throw new NotImplementedException("MediaItemLocator.CreateAccessor for remote media items is not implemented yet");
     }
   }

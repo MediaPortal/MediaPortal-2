@@ -26,13 +26,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MediaProviders;
+using MediaPortal.Shares;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Core.Views
+namespace MediaPortal.Views
 {
   /// <summary>
   /// View implementation which is based on a local provider path.
@@ -132,9 +134,9 @@ namespace MediaPortal.Core.Views
         Share share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
         if (share == null)
           return false;
-        IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+        IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
         Guid providerId = share.MediaProviderId;
-        return mediaManager.LocalMediaProviders.ContainsKey(providerId);
+        return mediaAccessor.LocalMediaProviders.ContainsKey(providerId);
       }
     }
 
@@ -146,8 +148,8 @@ namespace MediaPortal.Core.Views
         yield break;
       string path = Path.Combine(share.Path, _relativePath);
       ICollection<Guid> metadataExtractorIds = new List<Guid>();
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaManager.LocalMetadataExtractors)
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
         // Collect all metadata extractors which fill our desired media item aspects
         if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, _mediaItemAspectIds))
           metadataExtractorIds.Add(extractor.Key);
@@ -159,7 +161,7 @@ namespace MediaPortal.Core.Views
         if (files != null)
           foreach (string mediaItemPath in files)
           {
-            MediaItem result = GetMetadata(mediaManager, providerId, mediaItemPath, metadataExtractorIds);
+            MediaItem result = GetMetadata(mediaAccessor, providerId, mediaItemPath, metadataExtractorIds);
             if (result != null)
               yield return result;
           }
@@ -167,7 +169,7 @@ namespace MediaPortal.Core.Views
       else
       {
         // Add the path itself (Could be a single-item share)
-        MediaItem result = GetMetadata(mediaManager, providerId, path, metadataExtractorIds);
+        MediaItem result = GetMetadata(mediaAccessor, providerId, path, metadataExtractorIds);
         if (result != null)
           yield return result;
       }
@@ -199,9 +201,9 @@ namespace MediaPortal.Core.Views
       share = ServiceScope.Get<ILocalSharesManagement>().GetShare(_shareId);
       if (share == null)
         return false;
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       Guid providerId = share.MediaProviderId;
-      return mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider);
+      return mediaAccessor.LocalMediaProviders.TryGetValue(providerId, out provider);
     }
 
     protected void UpdateDisplayName()
@@ -213,10 +215,10 @@ namespace MediaPortal.Core.Views
         _viewDisplayName = INVALID_SHARE_NAME_RESOURCE;
         return;
       }
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       Guid providerId = share.MediaProviderId;
       IMediaProvider provider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(providerId, out provider))
+      if (!mediaAccessor.LocalMediaProviders.TryGetValue(providerId, out provider))
         _viewDisplayName = _relativePath;
       else
       {
@@ -230,16 +232,16 @@ namespace MediaPortal.Core.Views
     /// <paramref name="metadataExtractorIds"/> from the specified <paramref name="providerId"/> and
     /// <paramref name="path"/>.
     /// </summary>
-    /// <param name="mediaManager">Media manager instance. This parameter is for performance to avoid
+    /// <param name="mediaAccessor">Media manager instance. This parameter is for performance to avoid
     /// iterated calls to the <see cref="ServiceScope"/>.</param>
     /// <param name="providerId">Id of the media provider which provides the media item to analyse.</param>
     /// <param name="path">Path of the media item to analyse.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <returns>Media item with the specified metadata </returns>
-    protected static MediaItem GetMetadata(IMediaManager mediaManager, Guid providerId, string path,
+    protected static MediaItem GetMetadata(IMediaAccessor mediaAccessor, Guid providerId, string path,
         IEnumerable<Guid> metadataExtractorIds)
     {
-      IDictionary<Guid, MediaItemAspect> aspects = mediaManager.ExtractMetadata(providerId, path, metadataExtractorIds);
+      IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(providerId, path, metadataExtractorIds);
       if (aspects == null)
         return null;
       MediaItemAspect providerResourceAspect;

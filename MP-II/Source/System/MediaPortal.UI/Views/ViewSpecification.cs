@@ -28,7 +28,7 @@ using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
-namespace MediaPortal.Core.Views
+namespace MediaPortal.Views
 {
   /// <summary>
   /// Holds the building instructions for creating a collection of media items and sub views.
@@ -42,7 +42,6 @@ namespace MediaPortal.Core.Views
   /// The view contents may be ordered or not.<br/>
   /// </para>
   /// <para>
-  /// Neither <see cref="View"/>s nor <see cref="ViewSpecification"/>s are persisted in the <see cref="MediaManager"/>.
   /// Views are built on demand from a <see cref="ViewSpecification"/> which comes from a media module. Some media
   /// modules might persist their configured <see cref="ViewSpecification"/> structure by their own.
   /// </para>

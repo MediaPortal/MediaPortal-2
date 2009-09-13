@@ -35,6 +35,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Screens;
 using MediaPortal.Presentation.Workflow;
+using MediaPortal.Shares;
 using MediaPortal.Utilities;
 
 namespace UiComponents.Media.Settings.Configuration
@@ -376,14 +377,14 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void SelectMediaProviderAndContinue()
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       IMediaProvider mediaProvider = null;
       foreach (ListItem mediaProviderItem in _allMediaProvidersList)
       {
         if (mediaProviderItem.Selected)
         {
           Guid mediaProviderId = new Guid(mediaProviderItem[ID_KEY]);
-          if (mediaManager.LocalMediaProviders.TryGetValue(mediaProviderId, out mediaProvider))
+          if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mediaProvider))
             break;
         }
       }
@@ -603,8 +604,8 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMetadataExtractorsFromMediaCategories()
     {
       _metadataExtractorIds.Clear();
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
-      foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
         if (CollectionUtils.Intersection(metadata.ShareCategories, MediaCategories).Count > 0)
@@ -616,7 +617,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateSharesList()
     {
       _sharesList.Clear();
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       bool selected = false;
       List<Share> shareDescriptors = new List<Share>(sharesManagement.Shares.Values);
@@ -626,7 +627,7 @@ namespace UiComponents.Media.Settings.Configuration
         ListItem shareItem = new ListItem(NAME_KEY, share.Name);
         shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
         IMediaProvider mediaProvider;
-        if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
+        if (!mediaAccessor.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
           mediaProvider = null;
         shareItem.SetLabel(MP_PATH_KEY, share.Path);
         shareItem.SetLabel(PATH_KEY, mediaProvider == null ? share.Path : mediaProvider.GetResourcePath(share.Path));
@@ -647,9 +648,9 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMediaProvidersList()
     {
       _allMediaProvidersList.Clear();
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       bool selected = false;
-      List<IMediaProvider> mediaProviders = new List<IMediaProvider>(mediaManager.LocalMediaProviders.Values);
+      List<IMediaProvider> mediaProviders = new List<IMediaProvider>(mediaAccessor.LocalMediaProviders.Values);
       mediaProviders.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
       foreach (IMediaProvider mediaProvider in mediaProviders)
       {
@@ -703,9 +704,9 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected static ICollection<string> GetAllAvailableCategories()
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ICollection<string> result = new HashSet<string>();
-      foreach (IMetadataExtractor me in mediaManager.LocalMetadataExtractors.Values)
+      foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
       {
         MetadataExtractorMetadata metadata = me.Metadata;
         CollectionUtils.AddAll(result, metadata.ShareCategories);
@@ -731,9 +732,9 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateMetadataExtractorsList()
     {
       _allMetadataExtractorsList.Clear();
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       List<IMetadataExtractor> metadataExtractors = new List<IMetadataExtractor>(
-          mediaManager.LocalMetadataExtractors.Values);
+          mediaAccessor.LocalMetadataExtractors.Values);
       metadataExtractors.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
       foreach (IMetadataExtractor me in metadataExtractors)
       {
@@ -761,13 +762,13 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected bool InitializePropertiesWithShare(Guid shareId)
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       Share share = sharesManagement.GetShare(shareId);
       if (share == null)
         return false;
       IMediaProvider mediaProvider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
+      if (!mediaAccessor.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
         return false;
       MediaProvider = mediaProvider;
       MediaProviderPath = share.Path;
@@ -811,7 +812,7 @@ namespace UiComponents.Media.Settings.Configuration
     {
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       sharesManagement.UpdateShare(CurrentShareId, MediaProvider.Metadata.MediaProviderId,
-          MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, relocateItems);
+        MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, relocateItems ? RelocationMode.Relocate : RelocationMode.Remove);
       ClearAllConfiguredProperties();
       NavigateBackToOverview();
     }

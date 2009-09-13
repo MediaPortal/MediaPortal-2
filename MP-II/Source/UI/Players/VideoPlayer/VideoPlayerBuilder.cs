@@ -51,9 +51,10 @@ namespace Ui.Players.Video
 
     protected static Type GetPlayerTypeForMediaItem(IMediaItemLocator locator, string mimeType)
     {
-      IMediaManager mediaManager = ServiceScope.Get<IMediaManager>();
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       IMediaProvider mediaProvider;
-      if (!mediaManager.LocalMediaProviders.TryGetValue(locator.MediaProviderId, out mediaProvider))
+      // TODO: Use media item accessor built by locator instead of local media providers
+      if (!mediaAccessor.LocalMediaProviders.TryGetValue(locator.MediaProviderId, out mediaProvider))
         return null;
       string path = mediaProvider.GetResourcePath(locator.Path);
       string extension = Path.GetExtension(path).ToLowerInvariant();
