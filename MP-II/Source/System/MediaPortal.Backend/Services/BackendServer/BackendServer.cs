@@ -28,13 +28,80 @@ using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.BackendServer;
 using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using MediaPortal.Services.UPnP;
+using UPnP.Infrastructure;
+using ILogger=MediaPortal.Core.Logging.ILogger;
+using UPnPLogger = UPnP.Infrastructure.ILogger;
 
 namespace MediaPortal.Services.BackendServer
 {
   public class BackendServer : IBackendServer, IDisposable
   {
+    public const string MP2SERVER_DEVICEVERSION = "MediaPortal-II/1.0";
+
+    public class UPnPLoggerDelegate : UPnPLogger
+    {
+      public void Debug(string format, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Debug(format, args);
+      }
+
+      public void Debug(string format, Exception ex, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Debug(format, ex, args);
+      }
+
+      public void Info(string format, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Info(format, args);
+      }
+
+      public void Info(string format, Exception ex, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Info(format, ex, args);
+      }
+
+      public void Warn(string format, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Warn(format, args);
+      }
+
+      public void Warn(string format, Exception ex, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Warn(format, ex, args);
+      }
+
+      public void Error(string format, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Error(format, args);
+      }
+
+      public void Error(string format, Exception ex, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Error(format, ex, args);
+      }
+
+      public void Error(Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Error(ex);
+      }
+
+      public void Critical(string format, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Critical(format, args);
+      }
+
+      public void Critical(string format, Exception ex, params object[] args)
+      {
+        ServiceScope.Get<ILogger>().Critical(format, ex, args);
+      }
+
+      public void Critical(Exception ex)
+      {
+        ServiceScope.Get<ILogger>().Critical(ex);
+      }
+    }
+
     protected readonly HttpServer.HttpServer _httpServer;
     protected readonly UPnPMediaServer _upnpServer;
 
@@ -71,6 +138,8 @@ namespace MediaPortal.Services.BackendServer
     public BackendServer()
     {
       _httpServer = new HttpServer.HttpServer(new HttpLogWriter());
+      Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
+      Configuration.LOGGER = new UPnPLoggerDelegate();
       _upnpServer = new UPnPMediaServer();
     }
 
