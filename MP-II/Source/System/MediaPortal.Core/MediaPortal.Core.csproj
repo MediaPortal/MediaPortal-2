@@ -205,14 +205,12 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
-    <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
     <Compile Include="Views\LocalShareViewSpecification.cs" />
     <Compile Include="Views\MediaLibraryViewSpecification.cs" />
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />
     <Compile Include="Views\ViewSpecification.cs" />
-    <Compile Include="UPnP\UPnPDtShare.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
