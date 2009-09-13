@@ -8,15 +8,11 @@
     Description="Provides database access to an embedded Firebird database"
     PluginVersion="1.0">
 
-<!-- TODO: add 'Feature name="Database" exclusive="true"' element to prevent other database plugins from
-     being loaded at the same time -->
-
   <Runtime>
     <Assembly FileName="FirebirdDatabase.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.Database.Firebird.FirebirdPlugin"/>
   </Runtime>
 
   <Register Location="/Services">
-    <Instance Id="IDatabase" ClassName="MediaPortal.Database.Firebird.FirebirdSQLDatabase"/>
+    <Instance Id="ISQLDatabase" ClassName="MediaPortal.Database.Firebird.FirebirdSQLDatabase"/>
   </Register>
 </Plugin>

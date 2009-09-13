@@ -37,6 +37,7 @@ namespace MediaPortal.Database.Firebird.Settings
     public const string DEFAULT_DATABASE_FILE = "Datastore.fdb";
     public const string DEFAULT_USER_ID = "MediaPortal";
     public const string DEFAULT_PASSWORD = "Firebird";
+    public const int DEFAULT_NUM_CONNECTIONS = 5;
 
     #endregion
 
@@ -46,6 +47,7 @@ namespace MediaPortal.Database.Firebird.Settings
     protected string _databaseFile;
     protected string _userID = DEFAULT_USER_ID;
     protected string _password = DEFAULT_PASSWORD;
+    protected int _numConnections = DEFAULT_NUM_CONNECTIONS;
 
     #endregion
 
@@ -82,6 +84,13 @@ namespace MediaPortal.Database.Firebird.Settings
     {
       get { return _password; }
       set { _password = value; }
+    }
+
+    [Setting(SettingScope.Global, DEFAULT_NUM_CONNECTIONS)]
+    public int NumConnections
+    {
+      get { return _numConnections; }
+      set { _numConnections = value; }
     }
   }
 }

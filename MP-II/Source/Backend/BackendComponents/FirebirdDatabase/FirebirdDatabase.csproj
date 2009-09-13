@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FirebirdSQLDatabase.cs" />
-    <Compile Include="FirebirdPlugin.cs" />
+    <Compile Include="FirebirdTransaction.cs" />
     <Compile Include="Settings\FirebirdSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -64,6 +64,10 @@
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
