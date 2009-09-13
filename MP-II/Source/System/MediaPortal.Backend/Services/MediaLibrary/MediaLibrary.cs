@@ -269,11 +269,6 @@ namespace MediaPortal.Services.MediaLibrary
       TODO: When query language is ready
     }
 
-    public void Import()
-    {
-      TODO: Implementation of import methods after media access system is ready
-    }
-
     public bool MediaItemAspectStorageExists(Guid aspectId)
     {
       string name;
@@ -420,7 +415,7 @@ namespace MediaPortal.Services.MediaLibrary
           reader.Close();
         }
         Guid shareId = Guid.NewGuid();
-        command = MediaLibrary_SubSchema.InsertShareCommand(transaction, shareId, nativeSystem, providerId, path, shareName);
+        command = MediaLibrary_SubSchema.InsertShareCommand(transaction, shareId, nativeSystem, providerId, path, shareName, true);
         command.ExecuteNonQuery();
 
         foreach (string mediaCategory in mediaCategories)
@@ -458,13 +453,13 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems)
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        Share originalShare = relocateMediaItems ? GetShare(shareId) : null;
+        Share originalShare = relocationMode == RelocationMode.Relocate ? GetShare(shareId) : null;
 
         IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, nativeSystem, providerId, path, shareName);
         command.ExecuteNonQuery();
@@ -501,11 +496,19 @@ namespace MediaPortal.Services.MediaLibrary
 
         // Relocate media items
         int numRelocated = 0;
-        if (relocateMediaItems)
-          numRelocated = RelocateMediaItems(transaction,
-              originalShare.NativeSystem, originalShare.MediaProviderId, originalShare.Path,
-              nativeSystem, providerId, path);
- 
+        switch (relocationMode)
+        {
+          case RelocationMode.Relocate:
+            numRelocated = RelocateMediaItems(transaction,
+                originalShare.NativeSystem, originalShare.MediaProviderId, originalShare.Path,
+                nativeSystem, providerId, path);
+            break;
+          case RelocationMode.Remove:
+            TODO: Remove media items in the original share
+            break;
+          default:
+            throw new NotImplementedException(string.Format("RelocationMode {0} is not implemented", relocationMode));
+        }
         transaction.Commit();
         return numRelocated;
       }
@@ -527,8 +530,9 @@ namespace MediaPortal.Services.MediaLibrary
         int providerIdIndex;
         int pathIndex;
         int shareNameIndex;
+        int isOnlineIndex;
         IDbCommand command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex, out nativeSystemIndex,
-            out providerIdIndex, out pathIndex, out shareNameIndex);
+            out providerIdIndex, out pathIndex, out shareNameIndex, out isOnlineIndex);
         IDataReader reader = command.ExecuteReader();
         IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
@@ -538,7 +542,8 @@ namespace MediaPortal.Services.MediaLibrary
             Guid shareId = new Guid(reader.GetString(shareIdIndex));
             ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
             ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
-TODO: Filter connected shares if onlyConnectedShares is set to true
+            if (onlyConnectedShares && !reader.GetBoolean(isOnlineIndex))
+              continue;
             result.Add(shareId, new Share(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
                 new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
                 mediaCategories, metadataExtractors));
@@ -630,12 +635,36 @@ TODO: Filter connected shares if onlyConnectedShares is set to true
 
     public void ConnectShares(ICollection<Guid> shareIds)
     {
-      TODO: Set connection state of given shares to connected
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        IDbCommand command = MediaLibrary_SubSchema.SetSharesConnectionStateCommand(transaction, shareIds, true);
+        command.ExecuteNonQuery();
+        transaction.Commit();
+      }
+      catch (Exception)
+      {
+        transaction.Rollback();
+        throw;
+      }
     }
 
     public void DisconnectShares(ICollection<Guid> shareIds)
     {
-      TODO: Set connection state of given shares to disconnected
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        IDbCommand command = MediaLibrary_SubSchema.SetSharesConnectionStateCommand(transaction, shareIds, false);
+        command.ExecuteNonQuery();
+        transaction.Commit();
+      }
+      catch (Exception)
+      {
+        transaction.Rollback();
+        throw;
+      }
     }
 
     #endregion

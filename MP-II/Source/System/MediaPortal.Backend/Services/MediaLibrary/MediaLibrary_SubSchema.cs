@@ -23,11 +23,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Database;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Services.MediaLibrary
 {
@@ -136,16 +138,17 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public static IDbCommand SelectSharesCommand(ITransaction transaction, out int shareIdIndex, out int nativeSystemIndex,
-        out int providerIdIndex, out int pathIndex, out int shareNameIndex)
+        out int providerIdIndex, out int pathIndex, out int shareNameIndex, out int isOnlineIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT (SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME) FROM SHARES";
+      result.CommandText = "SELECT (SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE) FROM SHARES";
 
       shareIdIndex = 0;
       nativeSystemIndex = 1;
       providerIdIndex = 2;
       pathIndex = 3;
       shareNameIndex = 4;
+      isOnlineIndex = 5;
       return result;
     }
 
@@ -184,7 +187,7 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public static IDbCommand InsertShareCommand(ITransaction transaction, Guid shareId, SystemName nativeSystem,
-        Guid providerId, string path, string shareName)
+        Guid providerId, string path, string shareName, bool isOnline)
     {
       IDbCommand result = transaction.CreateCommand();
       result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, IS_ONLINE) VALUES (?, ?, ?, ?, ?, ?)";
@@ -210,7 +213,7 @@ namespace MediaPortal.Services.MediaLibrary
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
-      param.Value = 0;
+      param.Value = isOnline;
       result.Parameters.Add(param);
 
       return result;
@@ -347,5 +350,29 @@ namespace MediaPortal.Services.MediaLibrary
 
       return result;
     }
+
+    public static IDbCommand SetSharesConnectionStateCommand(ITransaction transaction, IEnumerable<Guid> shareIds,
+        bool connectionState)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      IDbDataParameter param = result.CreateParameter();
+      param.Value = connectionState;
+      result.Parameters.Add(param);
+
+      ICollection<string> placeholders = new List<string>();
+      foreach (Guid shareId in shareIds)
+      {
+        param = result.CreateParameter();
+        param.Value = shareId.ToString();
+        result.Parameters.Add(param);
+
+        placeholders.Add("?");
+      }
+      result.CommandText = "UPDATE SHARES SET IS_ONLINE = ? WHERE SHARE_ID IN (" + StringUtils.Join(",", placeholders) + ")";
+
+      return result;
+    }
+
   }
 }

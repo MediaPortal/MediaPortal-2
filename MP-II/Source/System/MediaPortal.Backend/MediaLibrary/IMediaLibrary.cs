@@ -30,6 +30,12 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.MediaLibrary
 {
+  public enum RelocationMode
+  {
+    Relocate,
+    Remove
+  }
+
   /// <summary>
   /// The media library is a "dumb" data store. It provides search/update methods for all kinds of content stored.
   /// All media-related management functions (re-imports triggered by a special situation etc.) are handled by the media manager.
@@ -53,12 +59,11 @@ namespace MediaPortal.MediaLibrary
 
     #region Media import
 
-    //TODO
-    void Import();
+    //TODO: Add/Update/Remove media items
 
     #endregion
 
-    #region Media item aspect management
+    #region Media item aspect schema management
 
     bool MediaItemAspectStorageExists(Guid aspectId);
 
@@ -113,11 +118,12 @@ namespace MediaPortal.MediaLibrary
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <param name="metadataExtractorIds">Ids of metadata extractors to be attached to the share.</param>
-    /// <param name="relocateMediaItems">If set to <c>true</c>, the paths of all media items from the
-    /// specified share will be adapted to the new base path.</param>
+    /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
+    /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
+    /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated media items.</returns>
     int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, bool relocateMediaItems);
+        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode);
 
     /// <summary>
     /// Returns all shares which are registered in the MediaPortal server's media library.
