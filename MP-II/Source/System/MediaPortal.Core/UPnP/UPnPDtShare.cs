@@ -38,7 +38,7 @@ namespace MediaPortal.Core.UPnP
   {
     public const string DATATYPE_NAME = "DtShare";
 
-    public UPnPDtShare() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtShare() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 

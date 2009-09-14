@@ -208,6 +208,7 @@
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAspectMetadata.cs" />
     <Compile Include="UPnP\UPnPDtShare.cs" />
+    <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">

@@ -38,7 +38,7 @@ namespace MediaPortal.Core.UPnP
   {
     public const string DATATYPE_NAME = "DtMediaItemAspectMetadata";
 
-    public UPnPDtMediaItemAspectMetadata() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtMediaItemAspectMetadata() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 
