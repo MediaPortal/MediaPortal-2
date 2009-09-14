@@ -80,9 +80,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         string dataTypeName;
         if (!ParserHelper.TryParseDataTypeReference(extendedDataType, dataTypeElement, out schemaURI, out dataTypeName))
           throw new ArgumentException(string.Format("Unable to parse namespace URI of extended data type '{0}'", extendedDataType));
-        CpExtendedDataType result;
+        UPnPExtendedDataType result;
         if (dataTypeResolver != null && dataTypeResolver(schemaURI + ":" + dataTypeName, out result))
-          return result;
+          return new CpExtendedDataType(result);
         return new CpExtendedDataType(new ExtendedDataTypeDummy(schemaURI, dataTypeName));
       }
     }

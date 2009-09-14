@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using UPnP.Infrastructure.CP.SSDP;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP
 {
@@ -73,8 +74,8 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Returns the XML device description document of this root descriptor or <c>null</c>, if the description wasn't fetched
-    /// yet.
+    /// Returns the XML device description document of this root descriptor or <c>null</c>, if the description wasn't
+    /// fetched yet.
     /// </summary>
     /// <remarks>
     /// The description is present when the root descriptor is in the <see cref="State"/>s
@@ -108,6 +109,69 @@ namespace UPnP.Infrastructure.CP
     {
       get { return _rootEntry; }
       internal set { _rootEntry = value; }
+    }
+
+    /// <summary>
+    /// Searches through the <see cref="DeviceDescription"/> XML document and finds all device entries with the given
+    /// <paramref name="deviceType"/> and at least the given <paramref name="minDeviceVersion"/>.
+    /// </summary>
+    /// <param name="deviceType">Device type to search. Only devices will be returned with exactly the specified type.</param>
+    /// <param name="minDeviceVersion">Minimum device version to search. All device elements will be returned with the
+    /// specified version or with a higher version.</param>
+    /// <returns>Enumeration of XML &lt;device&gt; elements of the specified device type and version.</returns>
+    public IEnumerable<XmlElement> FindDeviceElements(string deviceType, int minDeviceVersion)
+    {
+      foreach (XmlElement deviceElement in _deviceDescription.SelectNodes("descendant::device"))
+      {
+        string type;
+        int version;
+        if (ParserHelper.TryParseTypeVersion_URN(((XmlText) deviceElement.SelectSingleNode("deviceType/text()")).Data,
+            out type, out version) && type == deviceType && version >= minDeviceVersion)
+          yield return deviceElement;
+      }
+      yield break;
+    }
+
+    /// <summary>
+    /// Searches through the <see cref="DeviceDescription"/> XML document and finds the first device entry with the given
+    /// <paramref name="deviceType"/> and at least the given <paramref name="minDeviceVersion"/>.
+    /// </summary>
+    /// <param name="deviceType">Device type to search. A device will only be returned if its type equals the
+    /// specified type.</param>
+    /// <param name="minDeviceVersion">Minimum device version to search. A device element will be returned if its version
+    /// is exactly the specified version or higher.</param>
+    /// <returns>First device which was found with the specified type and version. The search order depends on the
+    /// XPath processor which is used by the framework.</returns>
+    public XmlElement FindFirstDeviceElement(string deviceType, int minDeviceVersion)
+    {
+      foreach (XmlElement deviceElement in FindDeviceElements(deviceType, minDeviceVersion))
+        return deviceElement;
+      return null;
+    }
+
+    /// <summary>
+    /// Reads the UDN of the device with the given device's description XML element.
+    /// </summary>
+    /// <param name="deviceElement">&lt;device&gt; element of a device's description</param>
+    /// <returns>UDN of the device or <c>null</c> if the given <paramref name="deviceElement"/> doesn't contain
+    /// an UDN entry. The UDN is specifically of the form "uuid:[Device-ID]".</returns>
+    public static string GetDeviceUDN(XmlElement deviceElement)
+    {
+      return ((XmlText) deviceElement.SelectSingleNode("UDN/text()")).Data;
+    }
+
+    /// <summary>
+    /// Reads the UUID of the device with the given device's description XML element.
+    /// </summary>
+    /// <param name="deviceElement">&lt;device&gt; element of a device's description</param>
+    /// <returns>UUID of the device or <c>null</c> if the given <paramref name="deviceElement"/> doesn't contain
+    /// an UDN entry. The returned UUID is the part of the device's UDN after the "uuid:" prefix.</returns>
+    public static string GetDeviceUUID(XmlElement deviceElement)
+    {
+      string udn = GetDeviceUDN(deviceElement);
+      if (udn == null || !udn.StartsWith("uuid:"))
+        return null;
+      return udn.Substring("uuid:".Length);
     }
   }
 }

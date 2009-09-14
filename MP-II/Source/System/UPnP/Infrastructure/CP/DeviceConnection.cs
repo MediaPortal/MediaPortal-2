@@ -19,12 +19,12 @@ namespace UPnP.Infrastructure.CP
   /// <summary>
   /// Delegate which is used to retrieve unknown extended data type instances.
   /// </summary>
-  /// <param name="datatypeName">Name of the data type to retrieve, in the form
+  /// <param name="dataTypeName">Name of the data type to retrieve, in the form
   /// "urn:domain-name:schema-name:datatype-name".</param>
   /// <param name="dataType">If the return value is <c>true</c>, this parameter will contain the resolved data type instance.
   /// Else, this paramter is undefined.</param>
   /// <returns><c>true</c>, if the data type could be resolved, else <c>false</c>.</returns>
-  public delegate bool DataTypeResolverDlgt(string datatypeName, out CpExtendedDataType dataType);
+  public delegate bool DataTypeResolverDlgt(string dataTypeName, out UPnPExtendedDataType dataType);
 
   /// <summary>
   /// Contains the control point connection data of a device template to a network UPnP device.

@@ -11,6 +11,39 @@ namespace UPnP.Infrastructure.CP
   /// <summary>
   /// UPnP control point managing connected <see cref="CpDevice"/>s.
   /// </summary>
+  /// <remarks>
+  /// To create a UPnP control point, the following sequence should be executed:
+  /// <example>
+  /// <code>
+  /// CPData cpData = new CPData();
+  /// UPnPNetworkTracker networkTracker = new UPnPNetworkTracker(cpData);
+  /// UPnPControlPoint controlPoint = new UPnPControlPoint(networkTracker);
+  /// networkTracker.RootDeviceAdded += OnUPnPRootDeviceAdded;
+  /// controlPoint.Start(); // Start the control point before the network tracker to catch all device appearances
+  /// networkTracker.Start();
+  /// [... run the application ...]
+  /// networkTracker.Close();
+  /// controlPoint.Close();
+  /// </code>
+  /// </example>
+  /// To react to an upcoming availability of a new UPnP device in the network, in the example method
+  /// <c>OnUPnPRootDeviceAdded</c> is attached to the <see cref="NetworkTracker.RootDeviceAdded"/> event.
+  /// Here is an example of an event handler for the event <see cref="NetworkTracker.RootDeviceAdded"/>:
+  /// <example>
+  /// <code>
+  /// void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
+  /// {
+  ///   // TODO: Check if the given root descriptor contains a device which should be connected by this
+  ///   // control point. If not, ignore the event by simply returning from this method. Else determine
+  ///   // the device UUID and connect to that device:
+  ///   DeviceConnection connection = controlPoint.Connect(rootDescriptor, deviceUuid, OnResolveDataType);
+  ///   // TODO: Now configure the connected device which is available via connection.Device.
+  ///   // Set the ActionResult and ActionErrorResult delegates for each service which contains actions to be
+  ///   // called. Add event handlers for StateVariableChanged in services where necessary.
+  /// }
+  /// </code>
+  /// </example>
+  /// </remarks>
   public class UPnPControlPoint : IDisposable
   {
     /// <summary>
@@ -27,11 +60,14 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Creates a new instance of <see cref="UPnPControlPoint"/>.
     /// </summary>
+    /// <remarks>
+    /// The specified <paramref name="networkTracker"/> must be controlled independently from this control point, i.e.
+    /// it must be explicitly started and stopped. See the docs of this class for an example code sequence.
+    /// </remarks>
     /// <param name="networkTracker">Network tracker instance used to collect UPnP network device descriptions.</param>
-    /// <param name="cpData">Shared control point data instance.</param>
-    public UPnPControlPoint(UPnPNetworkTracker networkTracker, CPData cpData)
+    public UPnPControlPoint(UPnPNetworkTracker networkTracker)
     {
-      _cpData = cpData;
+      _cpData = networkTracker.SharedControlPointData;
       _networkTracker = networkTracker;
     }
 
@@ -152,9 +188,9 @@ namespace UPnP.Infrastructure.CP
     /// service descriptions</item>
     /// </list>
     /// </exception>
-    public void Connect(RootDescriptor rootDescriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver)
+    public DeviceConnection Connect(RootDescriptor rootDescriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver)
     {
-      DoConnect(rootDescriptor, deviceUuid, dataTypeResolver);
+      return DoConnect(rootDescriptor, deviceUuid, dataTypeResolver);
     }
 
     /// <summary>
@@ -177,12 +213,13 @@ namespace UPnP.Infrastructure.CP
 
     #region Private/protected methods
 
-    protected void DoConnect(RootDescriptor descriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver)
+    protected DeviceConnection DoConnect(RootDescriptor descriptor, string deviceUuid, DataTypeResolverDlgt dataTypeResolver)
     {
       lock (_cpData.SyncObj)
       {
         DeviceConnection connection = new DeviceConnection(descriptor, deviceUuid, _cpData, dataTypeResolver);
         _connectedDevices.Add(deviceUuid, connection);
+        return connection;
       }
     }
 

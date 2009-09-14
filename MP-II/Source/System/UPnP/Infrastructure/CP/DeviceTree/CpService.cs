@@ -69,9 +69,6 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected IDictionary<string, CpStateVariable> _stateVariables = new Dictionary<string, CpStateVariable>();
     protected bool _isOptional = true;
     protected DeviceConnection _connection = null;
-    protected ActionCalledDlgt _actionCalled = null;
-    protected ChangeStateVariablesSubscribtionDlgt _stateVariablesSubscribed = null;
-    protected ChangeStateVariablesSubscribtionDlgt _stateVariablesUnsubscribed = null;
     
     /// <summary>
     /// Creates a new UPnP service instance at the client (control point) side.
@@ -94,7 +91,28 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
-    /// Gets invoked when one of the state variables of this service has changed.
+    /// Gets or sets the delegate function which will be called when an action result is available.
+    /// Has to be set for concrete service implementations.
+    /// </summary>
+    public ActionResultDlgt ActionResult
+    {
+      get { return _actionResult; }
+      set { _actionResult = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the delegate function which will be called when an action error result is available.
+    /// Has to be set for concrete service implementations.
+    /// </summary>
+    public ActionErrorResultDlgt ActionErrorResult
+    {
+      get { return _actionErrorResult; }
+      set { _actionErrorResult = value; }
+    }
+
+    /// <summary>
+    /// Gets invoked when one of the state variables of this service has changed. Can be set for concrete service
+    /// implementations.
     /// </summary>
     public event StateVariableChangedDlgt StateVariableChanged;
 
@@ -239,11 +257,12 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// (see <see cref="IsStateVariablesSubscribed"/>).</exception>
     public void SubscribeStateVariables()
     {
-      if (IsStateVariablesSubscribed)
+      DeviceConnection connection = _connection;
+      if (connection == null)
+        throw new IllegalCallException("UPnP service is not connected to a UPnP network service");
+      if (connection.IsServiceSubscribedForEvents(this))
         throw new IllegalCallException("State variables are already subscribed");
-      ChangeStateVariablesSubscribtionDlgt dlgt = _stateVariablesSubscribed;
-      if (dlgt != null)
-        dlgt(this);
+      connection.OnSubscribeEvents(this);
     }
 
     /// <summary>
@@ -253,19 +272,20 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// (see <see cref="IsStateVariablesSubscribed"/>).</exception>
     public void UnsubscribeStateVariables()
     {
-      if (!IsStateVariablesSubscribed)
+      DeviceConnection connection = _connection;
+      if (connection == null)
+        throw new IllegalCallException("UPnP service is not connected to a UPnP network service");
+      if (!connection.IsServiceSubscribedForEvents(this))
         throw new IllegalCallException("State variables are not subscribed");
-      ChangeStateVariablesSubscribtionDlgt dlgt = _stateVariablesUnsubscribed;
-      if (dlgt != null)
-        dlgt(this);
+      connection.OnUnsubscribeEvents(this);
     }
 
     internal void InvokeAction_Async(CpAction action, IList<object> inParameters, object state)
     {
-      ActionCalledDlgt dlgt = _actionCalled;
-      if (_connection == null || dlgt == null)
+      DeviceConnection connection = _connection;
+      if (connection == null)
         throw new IllegalCallException("UPnP service is not connected to a UPnP network service");
-      dlgt(action, inParameters, state);
+      connection.OnActionCalled(action, inParameters, state);
     }
 
     internal void InvokeActionResult(CpAction action, IList<object> outParams, object handle)
@@ -335,12 +355,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       if (connection == null)
         return;
       lock (connection.CPData.SyncObj)
-      {
         _connection = null;
-        _actionCalled = null;
-        _stateVariablesSubscribed = null;
-        _stateVariablesUnsubscribed = null;
-      }
     }
 
     #endregion
