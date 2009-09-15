@@ -1,0 +1,23 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ServerBase"
+    PluginId="{AC442F92-02F6-44be-8434-094B84A1892A}"
+    Author="Albert"
+    Copyright="GPL"
+    Description="Base services and language resources for the MP-II server"
+    PluginVersion="1.0">
+
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="ServerBase.dll"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="ServerBaseLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- TODO: General settings -->
+</Plugin>

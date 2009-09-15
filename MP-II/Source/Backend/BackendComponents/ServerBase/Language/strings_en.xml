@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="UPnPServer">
+    <String Name="FriendlyName" Text="MediaPortal-II server"/>
+    <String Name="Manufacturer" Text="Team Mediaportal"/>
+    <String Name="ManufacturerUrl" Text="www.team-mediaportal.com"/>
+    <String Name="ModelDescription" Text="MediaPortal-II server - hosts music, videos, pictures and accesses multiple multimedia resources via the internet"/>
+    <String Name="ModelName" Text="MediaPortal-II server"/>
+    <String Name="ModelNumber" Text="1"/>
+<!--    <String Name="ModelUrl" Text="..."/> -->
+  </Section>
+</Language>
