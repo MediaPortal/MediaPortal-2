@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Windows.Forms;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
@@ -41,8 +40,7 @@ using MediaPortal.Core.TaskScheduler;
 namespace MediaPortal.Core
 {
   /// <summary>
-  /// Starter class for the MediaPortal system. Before calling the <see cref="Start"/> method,
-  /// the <see cref="ServiceScope"/> has to be configured with all needed services.
+  /// Core services registration class.
   /// </summary>
   public class ApplicationCore
   {
@@ -130,6 +128,9 @@ namespace MediaPortal.Core
 
       logger.Debug("ApplicationCore: Removing IPathManager service");
       ServiceScope.RemoveAndDispose<IPathManager>();
+
+      logger.Debug("ApplicationCore: Removing ILogger service");
+      ServiceScope.RemoveAndDispose<ILogger>();
     }
   }
 }

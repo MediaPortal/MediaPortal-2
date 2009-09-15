@@ -56,7 +56,9 @@ namespace MediaPortal.Core.Runtime
     {
       QueueMessage msg = new QueueMessage(MessageType.SystemStateChanged);
       msg.MessageData[PARAM] = newState;
-      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+      IMessageBroker messageBroker = ServiceScope.Get<IMessageBroker>();
+      if (messageBroker != null)
+        messageBroker.Send(CHANNEL, msg);
     }
   }
 }

@@ -59,11 +59,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
-    <Compile Include="Services\Localization\StringManager.cs" />
+    <Compile Include="Services\Localization\MultipleLocalizationStringManager.cs" />
     <Compile Include="Services\UPnP\MP2ServerDevice.cs" />
     <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
     <Compile Include="Services\UPnP\UPnPMediaServer.cs" />
-    <Compile Include="Services\UPnP\LocalizedMediaPortalServerDeviceInformation.cs" />
+    <Compile Include="Services\UPnP\LocalizedUPnPDeviceInformation.cs" />
     <Compile Include="Services\Database\DatabaseManager.cs" />
     <Compile Include="Services\Database\MediaPortal_Basis_SubSchema.cs" />
     <Compile Include="Services\Database\SQLUtils.cs" />

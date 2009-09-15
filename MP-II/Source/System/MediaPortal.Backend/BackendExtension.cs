@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Backend.Localization;
+using MediaPortal.Backend.Services.Localization;
 using MediaPortal.BackendServer;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -36,6 +38,9 @@ namespace MediaPortal
     public static void RegisterBackendServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("BackendExtension: Registering IMultipleLocalization service");
+      ServiceScope.Add<IMultipleLocalization>(new MultipleLocalizationStringManager());
 
       logger.Debug("BackendExtension: Registering DatabaseManager");
       ServiceScope.Add<IDatabaseManager>(new DatabaseManager());
@@ -65,9 +70,19 @@ namespace MediaPortal
 
     public static void DisposeBackendServices()
     {
+      ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("BackendExtension: Removing IBackendServer service");
       ServiceScope.RemoveAndDispose<IBackendServer>();
+
+      logger.Debug("BackendExtension: Removing IMediaLibrary service");
       ServiceScope.RemoveAndDispose<IMediaLibrary>();
+
+      logger.Debug("BackendExtension: Removing IDatabaseManager service");
       ServiceScope.RemoveAndDispose<IDatabaseManager>();
+
+      logger.Debug("BackendExtension: Removing IMultipleLocalization service");
+      ServiceScope.Remove<IMultipleLocalization>();
     }
   }
 }

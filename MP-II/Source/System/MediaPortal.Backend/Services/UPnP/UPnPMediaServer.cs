@@ -27,7 +27,7 @@ using UPnP.Infrastructure.Dv;
 namespace MediaPortal.Services.UPnP
 {
   /// <summary>
-  /// Encapsulates the MediaPortal-II UPnP system with its MediaServer device.
+  /// Encapsulates the MediaPortal-II UPnP server device.
   /// </summary>
   public class UPnPMediaServer : UPnPServer
   {
@@ -35,7 +35,19 @@ namespace MediaPortal.Services.UPnP
 
     public UPnPMediaServer()
     {
-      AddRootDevice(new MP2ServerDevice());
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      MediaServerSettings settings = settingsManager.Load<MediaServerSettings>();
+      Guid deviceId;
+      if (settings.MediaServerDeviceId.HasValue)
+        deviceId = settings.MediaServerDeviceId;
+      else
+      {
+        // Create a new id for our new mediacenter device
+        deviceId = Guid.NewGuid();
+        settings.MediaServerDeviceId = deviceId;
+        settingsManager.Save(settings);
+      }
+      AddRootDevice(new MP2ServerDevice(deviceId));
       // TODO: add UPnP standard MediaServer device: it's not implemented yet
       //AddRootDevice(new UPnPMediaServerDevice(...));
     }

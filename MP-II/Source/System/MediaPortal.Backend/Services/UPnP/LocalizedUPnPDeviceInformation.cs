@@ -24,16 +24,16 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Backend.Localization;
+using MediaPortal.Core;
+using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Services.UPnP
 {
-Rename to LocalizedUPnPDeviceInformation
-  public class LocalizedMediaPortalServerDeviceInformation : ILocalizedDeviceInformation
+  public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {
-weiter:
- - Language-Ressourcen-Plugin für Server erstellen
- - Folgende Language-Ressourcen aufnehmen
+    public const string RES_UPNPSERVER_SECTION = "UPnPServer";
     public const string RES_FRIENDLY_NAME = "FriendlyName";
     public const string RES_MANUFACTURER = "Manufacturer";
     public const string RES_MANUFACTURER_URL = "ManufacturerUrl";
@@ -41,56 +41,62 @@ weiter:
     public const string RES_MODEL_NAME = "ModelName";
     public const string RES_MODEL_NUMBER = "ModelNumber";
     public const string RES_MODEL_URL = "ModelUrl";
-    public const string RES_UPC = "UPC";
     
     public string GetFriendlyName(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_FRIENDLY_NAME);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_FRIENDLY_NAME));
     }
 
     public string GetManufacturer(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_MANUFACTURER);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_MANUFACTURER));
     }
 
     public string GetManufacturerURL(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_MANUFACTURER_URL);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_MANUFACTURER_URL));
     }
 
     public string GetModelDescription(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_MODEL_DESCRIPTION);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_MODEL_DESCRIPTION));
     }
 
     public string GetModelName(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_MODEL_NAME);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_MODEL_NAME));
     }
 
     public string GetModelNumber(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_MODEL_NUMBER);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_MODEL_NUMBER));
     }
 
     public string GetModelURL(CultureInfo culture)
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_MODEL_URL);
+      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
+          culture, RES_UPNPSERVER_SECTION, RES_MODEL_URL));
     }
 
     public string GetSerialNumber(CultureInfo culture)
     {
-      TODO: Where do we get a serial number for an MP-II-Installation?
+      return null; // No serial number available
     }
 
     public string GetUPC()
     {
-      return ServiceScope.Get<ILocalization>.ToString(culture, UPNPSERVER_SECTION, RES_UPC);
+      return null; // No UPC available
     }
 
     public ICollection<IconDescriptor> GetIcons(CultureInfo culture)
     {
-      TODO: Register icon(s) at web service, create icon descriptor
+      return new List<IconDescriptor>();
     }
   }
 }

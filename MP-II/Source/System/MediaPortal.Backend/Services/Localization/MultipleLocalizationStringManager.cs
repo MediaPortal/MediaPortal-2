@@ -35,7 +35,7 @@ namespace MediaPortal.Backend.Services.Localization
   /// <summary>
   /// This class manages localization strings at the MP-II server side.
   /// </summary>
-  public class StringManager : StringManagerBase, IMultipleLocalization
+  public class MultipleLocalizationStringManager : StringManagerBase, IMultipleLocalization
   {
     #region Protected fields
 
@@ -77,7 +77,7 @@ namespace MediaPortal.Backend.Services.Localization
       }
       catch (FormatException e)
       {
-        ServiceScope.Get<ILogger>().Error("StringManager: Error formatting localized string '{0}' (Section='{1}', Name='{2}')", e, translation, section, name);
+        ServiceScope.Get<ILogger>().Error("MultipleLocalizationStringManager: Error formatting localized string '{0}' (Section='{1}', Name='{2}')", e, translation, section, name);
         return translation;
       }
     }

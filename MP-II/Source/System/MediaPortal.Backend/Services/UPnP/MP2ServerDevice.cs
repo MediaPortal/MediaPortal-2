@@ -30,10 +30,9 @@ namespace MediaPortal.Services.UPnP
   {
     public const string DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
     public const int DEVICE_TYPE_VERSION = 1;
-    public const string DEVICE_UUID = "{BF34C35E-119F-4879-9B12-4B3E9B03F41C}";
 
-    public MP2ServerDevice() : base(DEVICE_TYPE, DEVICE_TYPE_VERSION, DEVICE_UUID,
-        new LocalizedMediaPortalServerDeviceInformation())
+    public MP2ServerDevice(string deviceUuid) : base(DEVICE_TYPE, DEVICE_TYPE_VERSION, deviceUuid,
+        new LocalizedUPnPDeviceInformation())
     {
       AddService(new UPnPContentDirectoryService());
       // TODO: Connection manager (is our notion of a connection manager compatible with that of the UPnP standard MediaServer?)
