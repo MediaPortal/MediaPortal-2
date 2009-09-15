@@ -15,8 +15,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   public class CpDevice
   {
     protected CpDevice _parentDevice;
-    protected IList<CpDevice> _embeddedDevices = new List<CpDevice>();
-    protected IList<CpService> _services = new List<CpService>();
+    protected IDictionary<string, CpDevice> _embeddedDevices = new Dictionary<string, CpDevice>();
+    protected IDictionary<string, CpService> _services = new Dictionary<string, CpService>();
     protected string _deviceType;
     protected int _deviceTypeVersion;
     protected bool _isOptional = true;
@@ -95,17 +95,17 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
-    /// Returns a read-only collection of embedded devices of this device.
+    /// Returns a mapping of device UUIDs to embedded devices of this device.
     /// </summary>
-    public ICollection<CpDevice> EmbeddedDevices
+    public IDictionary<string, CpDevice> EmbeddedDevices
     {
       get { return _embeddedDevices; }
     }
 
     /// <summary>
-    /// Returns a read-only collection of services of this device.
+    /// Returns a mapping of service ids to services of this device.
     /// </summary>
-    public ICollection<CpService> Services
+    public IDictionary<string, CpService> Services
     {
       get { return _services; }
     }
@@ -159,7 +159,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public ICollection<string> GetServiceTypeVURNs()
     {
       ICollection<string> result = new List<string>();
-      foreach (CpService service in _services)
+      foreach (CpService service in _services.Values)
       {
         string stuv = service.ServiceTypeVersion_URN;
         if (!result.Contains(stuv))
@@ -178,7 +178,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       if (UDN == deviceUDN)
         return this;
-      foreach (CpDevice embeddedDevice in _embeddedDevices)
+      foreach (CpDevice embeddedDevice in _embeddedDevices.Values)
       {
         CpDevice result = embeddedDevice.FindDeviceByUDN(deviceUDN);
         if (result != null)
@@ -199,7 +199,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       if (_deviceType == type && (_deviceTypeVersion == version || (searchCompatible && _deviceTypeVersion > version)))
         yield return this;
-      foreach (CpDevice embeddedDevice in _embeddedDevices)
+      foreach (CpDevice embeddedDevice in _embeddedDevices.Values)
         foreach (CpDevice matchingDevice in embeddedDevice.FindDevicesByDeviceTypeAndVersion(type, version, searchCompatible))
           yield return matchingDevice;
     }
@@ -212,15 +212,30 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// <param name="version">Version number of the service type to search.</param>
     /// <param name="searchCompatible">If set to <c>true</c>, this method also searches compatible services,
     /// i.e. services with a higher version number than requested.</param>
+    /// <returns>Enumeration of services with the given type and version (and compatible services, if
+    /// <paramref name="searchCompatible"/> is <c>true</c>.</returns>
     public IEnumerable<CpService> FindServicesByServiceTypeAndVersion(string type, int version, bool searchCompatible)
     {
-      foreach (CpService service in _services)
+      foreach (CpService service in _services.Values)
         if (service.ServiceType == type && service.ServiceTypeVersion == version ||
             searchCompatible && service.IsCompatible(type, version))
           yield return service;
-      foreach (CpDevice embeddedDevice in _embeddedDevices)
+      foreach (CpDevice embeddedDevice in _embeddedDevices.Values)
         foreach (CpService matchingService in embeddedDevice.FindServicesByServiceTypeAndVersion(type, version, searchCompatible))
           yield return matchingService;
+    }
+
+    /// <summary>
+    /// Finds the service with the given <paramref name="serviceId"/> in this device.
+    /// </summary>
+    /// <param name="serviceId">Id of the service to search.</param>
+    /// <returns>Service with the given <paramref name="serviceId"/> or <c>null</c>, if there is no such service.</returns>
+    public CpService FindServiceByServiceId(string serviceId)
+    {
+      CpService result;
+      if (_services.TryGetValue(serviceId, out result))
+        return result;
+      return null;
     }
 
     #region Connection
@@ -231,7 +246,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// <param name="device">Device to add to the embedded devices.</param>
     internal void AddEmbeddedDevice(CpDevice device)
     {
-      _embeddedDevices.Add(device);
+      _embeddedDevices.Add(device.UUID, device);
     }
 
     /// <summary>
@@ -240,7 +255,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// <param name="service">Service to add to this device.</param>
     internal void AddService(CpService service)
     {
-      _services.Add(service);
+      _services.Add(service.ServiceId, service);
     }
 
     internal static CpDevice ConnectDevice(DeviceConnection connection, RootDescriptor rootDescriptor, XmlElement deviceElement,
@@ -257,7 +272,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
           throw new ArgumentException(string.Format("Invalid device type/version URN '{0}'", typeVersion_URN));
         CpDevice result = new CpDevice(connection, type, version, deviceUUID);
         foreach (XmlElement embeddedDeviceElement in deviceElement.SelectNodes("deviceList/device"))
-          result.AddEmbeddedDevice(CpDevice.ConnectDevice(connection, rootDescriptor, embeddedDeviceElement, dataTypeResolver));
+          result.AddEmbeddedDevice(ConnectDevice(connection, rootDescriptor, embeddedDeviceElement, dataTypeResolver));
         IDictionary<string, ServiceDescriptor> sds;
         if (!rootDescriptor.ServiceDescriptors.TryGetValue(deviceUUID, out sds))
           return result;
@@ -275,9 +290,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       lock (connection.CPData.SyncObj)
       {
         _connection = null;
-        foreach (CpDevice embeddedDevice in _embeddedDevices)
+        foreach (CpDevice embeddedDevice in _embeddedDevices.Values)
           embeddedDevice.Disconnect();
-        foreach (CpService service in _services)
+        foreach (CpService service in _services.Values)
           service.Disconnect();
       }
     }
