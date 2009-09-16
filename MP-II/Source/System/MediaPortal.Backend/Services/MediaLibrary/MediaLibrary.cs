@@ -519,7 +519,7 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    public IDictionary<Guid, Share> GetShares(bool onlyConnectedShares)
+    public IDictionary<Guid, Share> GetShares(SystemName system, bool onlyConnectedShares)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -531,8 +531,13 @@ namespace MediaPortal.Services.MediaLibrary
         int pathIndex;
         int shareNameIndex;
         int isOnlineIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex, out nativeSystemIndex,
-            out providerIdIndex, out pathIndex, out shareNameIndex, out isOnlineIndex);
+        IDbCommand command;
+        if (system == null)
+          command = MediaLibrary_SubSchema.SelectSharesCommand(transaction, out shareIdIndex,
+              out nativeSystemIndex, out providerIdIndex, out pathIndex, out shareNameIndex, out isOnlineIndex);
+        else
+          command = MediaLibrary_SubSchema.SelectSharesByNativeSystemCommand(transaction, system, out shareIdIndex,
+              out nativeSystemIndex, out providerIdIndex, out pathIndex, out shareNameIndex, out isOnlineIndex);
         IDataReader reader = command.ExecuteReader();
         IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
         try
@@ -588,44 +593,6 @@ namespace MediaPortal.Services.MediaLibrary
         {
           reader.Close();
         }
-      }
-      finally
-      {
-        transaction.Dispose();
-      }
-    }
-
-    public IDictionary<Guid, Share> GetSharesBySystem(SystemName systemName)
-    {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
-      {
-        int shareIdIndex;
-        int providerIdIndex;
-        int pathIndex;
-        int shareNameIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectSharesByNativeSystemCommand(transaction, systemName, out shareIdIndex,
-            out providerIdIndex, out pathIndex, out shareNameIndex);
-        IDataReader reader = command.ExecuteReader();
-        IDictionary<Guid, Share> result = new Dictionary<Guid, Share>();
-        try
-        {
-          while (reader.Read())
-          {
-            Guid shareId = new Guid(reader.GetString(shareIdIndex));
-            ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-            ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
-            result.Add(shareId, new Share(shareId, systemName,
-                new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
-                mediaCategories, metadataExtractors));
-          }
-        }
-        finally
-        {
-          reader.Close();
-        }
-        return result;
       }
       finally
       {

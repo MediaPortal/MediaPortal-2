@@ -60,6 +60,7 @@
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
     <Compile Include="Services\Localization\MultipleLocalizationStringManager.cs" />
+    <Compile Include="Services\UPnP\Settings\MediaServerSettings.cs" />
     <Compile Include="Services\UPnP\MP2ServerDevice.cs" />
     <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
     <Compile Include="Services\UPnP\UPnPMediaServer.cs" />

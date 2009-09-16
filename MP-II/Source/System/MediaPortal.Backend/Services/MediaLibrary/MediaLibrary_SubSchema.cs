@@ -170,19 +170,22 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public static IDbCommand SelectSharesByNativeSystemCommand(ITransaction transaction, SystemName nativeSystem,
-        out int shareIdIndex, out int providerIdIndex, out int pathIndex, out int shareNameIndex)
+        out int shareIdIndex, out int nativeSystemIndex, out int providerIdIndex, out int pathIndex,
+        out int shareNameIndex, out int isOnlineIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT (SHARE_ID, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME) FROM SHARES WHERE SYSTEM_NAME=?";
+      result.CommandText = "SELECT (SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE) FROM SHARES WHERE SYSTEM_NAME=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = nativeSystem.HostName;
       result.Parameters.Add(param);
 
       shareIdIndex = 0;
-      providerIdIndex = 1;
-      pathIndex = 2;
-      shareNameIndex = 3;
+      nativeSystemIndex = 1;
+      providerIdIndex = 2;
+      pathIndex = 3;
+      shareNameIndex = 4;
+      isOnlineIndex = 5;
       return result;
     }
 

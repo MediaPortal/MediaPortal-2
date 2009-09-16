@@ -22,6 +22,10 @@
 
 #endregion
 
+using System;
+using MediaPortal.Core;
+using MediaPortal.Core.Settings;
+using MediaPortal.Services.UPnP.Settings;
 using UPnP.Infrastructure.Dv;
 
 namespace MediaPortal.Services.UPnP
@@ -39,7 +43,7 @@ namespace MediaPortal.Services.UPnP
       MediaServerSettings settings = settingsManager.Load<MediaServerSettings>();
       Guid deviceId;
       if (settings.MediaServerDeviceId.HasValue)
-        deviceId = settings.MediaServerDeviceId;
+        deviceId = settings.MediaServerDeviceId.Value;
       else
       {
         // Create a new id for our new mediacenter device
@@ -47,7 +51,7 @@ namespace MediaPortal.Services.UPnP
         settings.MediaServerDeviceId = deviceId;
         settingsManager.Save(settings);
       }
-      AddRootDevice(new MP2ServerDevice(deviceId));
+      AddRootDevice(new MP2ServerDevice(deviceId.ToString("B")));
       // TODO: add UPnP standard MediaServer device: it's not implemented yet
       //AddRootDevice(new UPnPMediaServerDevice(...));
     }

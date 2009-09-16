@@ -128,9 +128,11 @@ namespace MediaPortal.MediaLibrary
     /// <summary>
     /// Returns all shares which are registered in the MediaPortal server's media library.
     /// </summary>
+    /// <param name="system">Filters the returned shares by system. If <c>null</c>, the returned set isn't filtered
+    /// by system.</param>
     /// <param name="onlyConnectedShares">If set to <c>true</c>, only shares of connected clients will be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, Share> GetShares(bool onlyConnectedShares);
+    IDictionary<Guid, Share> GetShares(SystemName system, bool onlyConnectedShares);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
@@ -139,13 +141,6 @@ namespace MediaPortal.MediaLibrary
     /// <returns>Descriptor of the share with the specified <paramref name="shareId"/>. If the specified
     /// share doesn't exist, the method returns <c>null</c>.</returns>
     Share GetShare(Guid shareId);
-
-    /// <summary>
-    /// Returns a collection of shares for the specified <paramref name="systemName"/>.
-    /// </summary>
-    /// <param name="systemName">System whose shares should be returned.</param>
-    /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, Share> GetSharesBySystem(SystemName systemName);
 
     void ConnectShares(ICollection<Guid> shareIds);
     void DisconnectShares(ICollection<Guid> shareIds);

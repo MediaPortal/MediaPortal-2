@@ -22,22 +22,18 @@
 
 #endregion
 
-using MediaPortal.Backend.Services.UPnP;
-using UPnP.Infrastructure.Dv.DeviceTree;
+using System;
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.Services.UPnP.Settings
 {
-  public class MP2ServerDevice : DvDevice
+  public class MediaServerSettings
   {
-    public const string DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
-    public const int DEVICE_TYPE_VERSION = 1;
+    protected Guid? _mediaServerDeviceId = null;
 
-    public MP2ServerDevice(string deviceUuid) : base(DEVICE_TYPE, DEVICE_TYPE_VERSION, deviceUuid,
-        new LocalizedUPnPDeviceInformation())
+    public Guid? MediaServerDeviceId
     {
-      AddService(new UPnPContentDirectoryService());
-      // TODO: Connection manager (is our notion of a connection manager compatible with that of the UPnP standard MediaServer?)
-      // TODO: Recording service (dito)
+      get { return _mediaServerDeviceId; }
+      set { _mediaServerDeviceId = value; }
     }
   }
 }

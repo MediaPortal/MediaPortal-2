@@ -140,6 +140,7 @@ namespace MediaPortal.Backend.Services.UPnP
 
       DvAction getSharesAction = new DvAction("GetShares", OnGetShares,
           new DvArgument[] {
+            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
             new DvArgument("SharesFilter", A_ARG_TYPE_SharesFilter, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -274,6 +275,7 @@ namespace MediaPortal.Backend.Services.UPnP
     static UPnPError OnGetShares(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
       string sharesFilterStr = (string) inParams[0];
+      SystemName system = (SystemName) inParams[0];
       bool onlyConnected;
       switch (sharesFilterStr)
       {
@@ -287,8 +289,8 @@ namespace MediaPortal.Backend.Services.UPnP
           outParams = null;
           return new UPnPError(600, "Argument 'SharesFilter' must be of value 'All' or 'ConnectedShares'");
       }
-      IDictionary<Guid, Share> shares = ServiceScope.Get<IMediaLibrary>().GetShares(onlyConnected);
-      outParams = new List<object>() {shares.Values};
+      IDictionary<Guid, Share> shares = ServiceScope.Get<IMediaLibrary>().GetShares(system, onlyConnected);
+      outParams = new List<object> {shares.Values};
       return null;
     }
 
@@ -296,7 +298,7 @@ namespace MediaPortal.Backend.Services.UPnP
     {
       Guid shareId = new Guid((string) inParams[0]);
       Share result = ServiceScope.Get<IMediaLibrary>().GetShare(shareId);
-      outParams = new List<object>() {result};
+      outParams = new List<object> {result};
       return null;
     }
 
@@ -337,7 +339,7 @@ namespace MediaPortal.Backend.Services.UPnP
       ICollection<Guid> result = new List<Guid>();
       foreach (MediaItemAspectMetadata miam in ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata())
         result.Add(miam.AspectId);
-      outParams = new List<object>() {result};
+      outParams = new List<object> {result};
       return null;
     }
 
@@ -345,7 +347,7 @@ namespace MediaPortal.Backend.Services.UPnP
     {
       Guid aspectId = new Guid((string) inParams[0]);
       MediaItemAspectMetadata miam = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
-      outParams = new List<object>() {miam};
+      outParams = new List<object> {miam};
       return null;
     }
   }
