@@ -19,7 +19,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   {
     #region Inner classes
 
-    public class AsyncActionCallResult : IAsyncResult
+    public class AsyncActionCallResult : IAsyncResult, IDisposable
     {
       protected object _syncObj = new object();
       protected EventWaitHandle _waitHandle = null;
@@ -32,6 +32,21 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       {
         _callback = callback;
         _asyncState = asyncState;
+      }
+
+      public ~AsyncActionCallResult()
+      {
+        Dispose();
+      }
+      
+      public void Dispose()
+      {
+        lock (_syncObj)
+          if (_waitHandle != null)
+          {
+            _waitHandle.Close();
+            _waitHandle = null;
+          }
       }
 
       internal void ActionResultPresent(IList<object> outParams)
@@ -52,11 +67,18 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       {
         lock (_syncObj)
         {
-          if (!IsCompleted)
-            AsyncWaitHandle.WaitOne();
-          if (_error != null)
-            throw new UPnPRemoteException(_error);
-          return _outParams;
+          try
+          {
+            if (!IsCompleted)
+              AsyncWaitHandle.WaitOne();
+            if (_error != null)
+              throw new UPnPRemoteException(_error);
+            return _outParams;
+          }
+          finally
+          {
+            Dispose();
+          }
         }
       }
 
