@@ -77,6 +77,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
 
     #endregion
 
+    private void InvokeScrolled()
+    {
+      ScrolledDlgt dlgt = Scrolled;
+      if (dlgt != null) dlgt(this);
+    }
+
     public void SetScrollOffset(float scrollOffsetX, float scrollOffsetY)
     {
       if (_scrollOffsetX == scrollOffsetX && _scrollOffsetY == scrollOffsetY)
@@ -92,6 +98,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       _scrollOffsetX = scrollOffsetX;
       _scrollOffsetY = scrollOffsetY;
       Invalidate();
+      InvokeScrolled();
     }
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
