@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Xml;
 using MediaPortal.Utilities.Exceptions;
+using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
@@ -14,6 +17,100 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   /// </remarks>
   public class CpAction
   {
+    #region Inner classes
+
+    public class AsyncActionCallResult : IAsyncResult
+    {
+      protected object _syncObj = new object();
+      protected EventWaitHandle _waitHandle = null;
+      protected IList<object> _outParams = null;
+      protected UPnPError _error = null;
+      protected AsyncCallback _callback;
+      protected object _asyncState;
+
+      public AsyncActionCallResult(AsyncCallback callback, object asyncState)
+      {
+        _callback = callback;
+        _asyncState = asyncState;
+      }
+
+      internal void ActionResultPresent(IList<object> outParams)
+      {
+        lock (_syncObj)
+          _outParams = outParams;
+        ActionFinished();
+      }
+
+      internal void ActionErrorResultPresent(UPnPError error)
+      {
+        lock (_syncObj)
+          _error = error;
+        ActionFinished();
+      }
+
+      internal IList<object> GetOutParams()
+      {
+        lock (_syncObj)
+        {
+          if (!IsCompleted)
+            AsyncWaitHandle.WaitOne();
+          if (_error != null)
+            throw new UPnPRemoteException(_error);
+          return _outParams;
+        }
+      }
+
+      protected void ActionFinished()
+      {
+        lock (_syncObj)
+          if (_waitHandle != null)
+            _waitHandle.Set();
+        if (_callback != null)
+          _callback(this);
+      }
+
+      public object SyncObj
+      {
+        get { return _syncObj; }
+      }
+
+      #region IAsyncResult implementation
+
+      public object AsyncState
+      {
+        get { return _asyncState; }
+      }
+
+      public WaitHandle AsyncWaitHandle
+      {
+        get
+        {
+          lock (_syncObj)
+            if (_waitHandle == null)
+              _waitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
+          return _waitHandle;
+        }
+      }
+
+      public bool CompletedSynchronously
+      {
+        get { return false; }
+      }
+
+      public bool IsCompleted
+      {
+        get
+        {
+          lock (_syncObj)
+            return _outParams != null || _error != null;
+        }
+      }
+
+      #endregion
+    }
+
+    #endregion
+
     protected string _name;
     protected CpService _parentService;
     protected IList<CpArgument> _inArguments = new List<CpArgument>();
@@ -105,27 +202,11 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
-    /// Invokes this action with the given <paramref name="inParameters"/>.
-    /// </summary>
-    /// <param name="inParameters">Input parameters for the action invocation. Must match the formal input arguments.</param>
-    /// <param name="state">State which will can be used to match the async result or error to this invocation.</param>
-    public void InvokeAction_Async(IList<object> inParameters, object state)
-    {
-      if (!IsConnected)
-        throw new IllegalCallException("This UPnP action isn't connected to a UPnP network action");
-      if (!MatchesSignature(inParameters))
-        throw new IllegalCallException("The given parameters don't match this action's formal input arguments");
-      if (_parentService == null)
-        throw new IllegalCallException("This UPnP action isn't assigned to a service");
-      _parentService.InvokeAction_Async(this, inParameters, state);
-    }
-
-    /// <summary>
     /// Returns the information whether the given <paramref name="inParameters"/> match the call signature of this action.
     /// </summary>
     /// <param name="inParameters">List of parameters containing the .net object instances to be used as parameter values.</param>
-    /// <returns><c>true</c>, if the given parameters can be used to call this action (via method <see cref="InvokeAction_Async"/>),
-    /// else <c>false</c>.</returns>
+    /// <returns><c>true</c>, if the given parameters can be used to call this action (via method <see cref="BeginInvokeAction"/>
+    /// or <see cref="InvokeAction"/>), else <c>false</c>.</returns>
     public bool MatchesSignature(IList<object> inParameters)
     {
       for (int i=0; i<_inArguments.Count; i++)
@@ -134,10 +215,78 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       return _inArguments.Count == inParameters.Count;
     }
 
+    /// <summary>
+    /// Invokes this action with the given <paramref name="inParameters"/> asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// This method will start the action call request asynchronously and will return immediately.
+    /// The UPnP system invokes the provided <paramref name="callback"/> when the action result (or error message)
+    /// returns. The call structure corresponds to the asynchronous call pattern used in the .net library.
+    /// </remarks>
+    /// <param name="inParameters">Input parameters for the action invocation. Must match the formal input arguments.</param>
+    /// <param name="callback">Callback delegate to be invoked when the action result is present.</param>
+    /// <param name="state">This object can be used to pass state information for the asynchronous operation.</param>
+    /// <returns>Async result object which should be used as parameter for the <see cref="EndInvokeAction"/> method.</returns>
+    public IAsyncResult BeginInvokeAction(IList<object> inParameters, AsyncCallback callback, object state)
+    {
+      if (_parentService == null)
+        throw new IllegalCallException("This UPnP action isn't assigned to a service");
+      if (!MatchesSignature(inParameters))
+        throw new IllegalCallException("The given parameters don't match this action's formal input arguments");
+      if (!IsConnected)
+        throw new IllegalCallException("This UPnP action isn't connected to a UPnP network action");
+      AsyncActionCallResult ar = new AsyncActionCallResult(callback, state);
+      _connection.OnActionCalled(this, inParameters, ar);
+      return ar;
+    }
+
+    /// <summary>
+    /// Gets the output parameters of an formerly invoked action call.
+    /// </summary>
+    /// <remarks>
+    /// If the action invocation isn't completed yet, this method blocks the calling thread until the action invocation
+    /// either completes successfully or with an error.
+    /// </remarks>
+    /// <param name="result">Return value from the former <see cref="BeginInvokeAction"/> call.</param>
+    /// <returns>List of output arguments of the called action.</returns>
+    /// <exception cref="UPnPException">If an error occured during the action call.</exception>
+    public IList<object> EndInvokeAction(IAsyncResult result)
+    {
+      AsyncActionCallResult ar = result as AsyncActionCallResult;
+      if (ar == null)
+        throw new IllegalCallException("Provided 'result' parameter doesn't belong to a 'BeginInvokeAction' call");
+      return ar.GetOutParams();
+    }
+
+    /// <summary>
+    /// Invokes this action with the given <paramref name="inParameters"/> synchronously.
+    /// </summary>
+    /// <param name="inParameters">Input parameters for the action invocation. Must match the formal input arguments.</param>
+    /// <returns>List of output arguments of the called action.</returns>
+    /// <exception cref="UPnPException">If an error occured during the action call.</exception>
+    public IList<object> InvokeAction(IList<object> inParameters)
+    {
+      AsyncActionCallResult ar = (AsyncActionCallResult) BeginInvokeAction(inParameters, null, null);
+      ar.AsyncWaitHandle.WaitOne();
+      return ar.GetOutParams();
+    }
+
+    internal void ActionResultPresent(IList<object> outParams, object handle)
+    {
+      AsyncActionCallResult asyncResult = (AsyncActionCallResult) handle;
+      asyncResult.ActionResultPresent(outParams);
+    }
+
+    internal void ActionErrorResultPresent(UPnPError error, object handle)
+    {
+      AsyncActionCallResult asyncResult = (AsyncActionCallResult) handle;
+      asyncResult.ActionErrorResultPresent(error);
+    }
+
     #region Connection
 
     /// <summary>
-    /// Adds another input argument to this action.
+    /// Adds a new formal input argument to this action.
     /// </summary>
     /// <exception cref="UPnPAlreadyConnectedException">If the action is already connected to an action in a device.</exception>
     /// <param name="argument">Argument to add.</param>
@@ -147,7 +296,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
-    /// Adds another output argument to this action.
+    /// Adds a new formal output argument to this action.
     /// </summary>
     /// <exception cref="UPnPAlreadyConnectedException">If the action is already connected to an action in a device.</exception>
     /// <param name="argument">Argument to add.</param>

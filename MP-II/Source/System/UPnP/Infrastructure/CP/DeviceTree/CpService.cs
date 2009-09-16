@@ -6,37 +6,6 @@ using UPnP.Infrastructure.Common;
 namespace UPnP.Infrastructure.CP.DeviceTree
 {
   /// <summary>
-  /// Delegate which gets called when an action is invoked.
-  /// </summary>
-  /// <param name="action">Action instance which was invoked.</param>
-  /// <param name="inParams">Parameters of the action invocation.</param>
-  /// <param name="state">State which will can be used to match the async result or error to this invocation.</param>
-  public delegate void ActionCalledDlgt(CpAction action, IList<object> inParams, object state);
-
-  /// <summary>
-  /// Delegate which gets called when an action result is available from a device.
-  /// </summary>
-  /// <param name="action">Action instance which was invoked.</param>
-  /// <param name="outParams">Output parameters from the actions. The output parameters will match the data types described in
-  /// <see cref="CpAction.OutArguments"/>.</param>
-  /// <param name="handle">Call handle which was provided in the action invocation.</param>
-  public delegate void ActionResultDlgt(CpAction action, IList<object> outParams, object handle);
-
-  /// <summary>
-  /// Delegate which gets called when an action invocation returned with an error.
-  /// </summary>
-  /// <param name="action">Action instance which was invoked.</param>
-  /// <param name="error">Returned UPnP error.</param>
-  /// <param name="handle">Call handle which was provided in the action invocation.</param>
-  public delegate void ActionErrorResultDlgt(CpAction action, UPnPError error, object handle);
-
-  /// <summary>
-  /// Delegate which gets called when the service wants to subscribe to or unsubscribe from state variable changes.
-  /// </summary>
-  /// <param name="service">UPnP service which wants to subscribe to or unsubscribe from state variable changes.</param>
-  public delegate void ChangeStateVariablesSubscribtionDlgt(CpService service);
-
-  /// <summary>
   /// Delegate which gets called when an event subscription to a service wasn't successful.
   /// </summary>
   /// <param name="service">The service for that the event subscription didn't succeed.</param>
@@ -62,8 +31,6 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected string _serviceType;
     protected int _serviceTypeVersion;
     protected string _serviceId;
-    protected ActionResultDlgt _actionResult;
-    protected ActionErrorResultDlgt _actionErrorResult;
     protected EventSubscriptionFailedDlgt _eventSubscriptionFailed;
     protected IDictionary<string, CpAction> _actions = new Dictionary<string, CpAction>();
     protected IDictionary<string, CpStateVariable> _stateVariables = new Dictionary<string, CpStateVariable>();
@@ -91,30 +58,16 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     }
 
     /// <summary>
-    /// Gets or sets the delegate function which will be called when an action result is available.
-    /// Has to be set for concrete service implementations.
-    /// </summary>
-    public ActionResultDlgt ActionResult
-    {
-      get { return _actionResult; }
-      set { _actionResult = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the delegate function which will be called when an action error result is available.
-    /// Has to be set for concrete service implementations.
-    /// </summary>
-    public ActionErrorResultDlgt ActionErrorResult
-    {
-      get { return _actionErrorResult; }
-      set { _actionErrorResult = value; }
-    }
-
-    /// <summary>
     /// Gets invoked when one of the state variables of this service has changed. Can be set for concrete service
     /// implementations.
     /// </summary>
     public event StateVariableChangedDlgt StateVariableChanged;
+
+    public EventSubscriptionFailedDlgt EventSubscriptionFailed
+    {
+      get { return _eventSubscriptionFailed; }
+      set { _eventSubscriptionFailed = value; }
+    }
 
     /// <summary>
     /// Gets or sets a flag which controls the control point's matching behaviour.
@@ -253,6 +206,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// <summary>
     /// Subscribes for change events for all state variables of this service.
     /// </summary>
+    /// <remarks>
+    /// If the event subscription fails, the delegate <see cref="EventSubscriptionFailed"/> will be called.
+    /// </remarks>
     /// <exception cref="IllegalCallException">If the state variables are already subscribed
     /// (see <see cref="IsStateVariablesSubscribed"/>).</exception>
     public void SubscribeStateVariables()
@@ -278,26 +234,6 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       if (!connection.IsServiceSubscribedForEvents(this))
         throw new IllegalCallException("State variables are not subscribed");
       connection.OnUnsubscribeEvents(this);
-    }
-
-    internal void InvokeAction_Async(CpAction action, IList<object> inParameters, object state)
-    {
-      DeviceConnection connection = _connection;
-      if (connection == null)
-        throw new IllegalCallException("UPnP service is not connected to a UPnP network service");
-      connection.OnActionCalled(action, inParameters, state);
-    }
-
-    internal void InvokeActionResult(CpAction action, IList<object> outParams, object handle)
-    {
-      if (_actionResult != null)
-        _actionResult(action, outParams, handle);
-    }
-
-    internal void InvokeActionErrorResult(CpAction action, UPnPError error, object handle)
-    {
-      if (_actionErrorResult != null)
-        _actionErrorResult(action, error, handle);
     }
 
     internal void InvokeStateVariableChanged(CpStateVariable variable)

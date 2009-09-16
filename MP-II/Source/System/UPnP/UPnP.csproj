@@ -97,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\ConsoleLogger.cs" />
+    <Compile Include="Infrastructure\CP\Exceptions.cs" />
     <Compile Include="Infrastructure\ILogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\Common\HTTPVersion.cs" />

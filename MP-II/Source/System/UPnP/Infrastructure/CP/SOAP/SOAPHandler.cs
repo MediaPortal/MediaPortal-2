@@ -123,12 +123,12 @@ namespace UPnP.Infrastructure.CP.SOAP
       {
         // TODO Albert: In the current state of the (DevArch) document, the UPnP action error codes 613-699
         // are TBD. I guess we should use one of them instead of 501 (Action failed) here.
-        service.InvokeActionErrorResult(action, new UPnPError(501, "Invalid action result"), clientState);
+        action.ActionErrorResultPresent(new UPnPError(501, "Invalid action result"), clientState);
       }
       try
       {
         // Invoke action result
-        service.InvokeActionResult(action, outParameterValues, clientState);
+        action.ActionResultPresent(outParameterValues, clientState);
       }
       catch (Exception e)
       {

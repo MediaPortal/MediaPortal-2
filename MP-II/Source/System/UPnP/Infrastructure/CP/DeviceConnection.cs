@@ -249,6 +249,8 @@ namespace UPnP.Infrastructure.CP
     {
       if (!service.IsConnected)
         throw new IllegalCallException("Service '{0}' is not connected to a UPnP network service", service.FullQualifiedName);
+      if (IsServiceSubscribedForEvents(service))
+        throw new IllegalCallException("Service '{0}' is already subscribed to receive state variable change events", service.FullQualifiedName);
 
       SubscribeEvents(service);
     }
@@ -291,7 +293,6 @@ namespace UPnP.Infrastructure.CP
       ActionCallState state = (ActionCallState) ar.AsyncState;
       lock (_cpData.SyncObj)
         _pendingCalls.Remove(state);
-      CpService service = state.Action.ParentService;
       Stream body;
       Encoding contentEncoding;
       try
@@ -301,7 +302,7 @@ namespace UPnP.Infrastructure.CP
         {
           if (response.StatusCode != HttpStatusCode.OK)
           {
-            service.InvokeActionErrorResult(state.Action, new UPnPError(501, response.StatusDescription), state.ClientState);
+            state.Action.ActionErrorResultPresent(new UPnPError(501, response.StatusDescription), state.ClientState);
             return;
           }
           body = response.GetResponseStream();
@@ -309,9 +310,8 @@ namespace UPnP.Infrastructure.CP
           if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
               mediaType != "text/xml")
           {
-            // TODO Albert: In the current state of the (DevArch) document, the UPnP action error codes 613-699
-            // are TBD. I guess we should use one of them instead of 501 (Action failed) here.
-            service.InvokeActionErrorResult(state.Action, new UPnPError(501, "Invalid content type"), state.ClientState);
+            // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
+            state.Action.ActionErrorResultPresent(new UPnPError(501, "Invalid content type"), state.ClientState);
             return;
           }
         }
@@ -322,9 +322,8 @@ namespace UPnP.Infrastructure.CP
       }
       catch (WebException)
       {
-        // TODO Albert: In the current state of the (DevArch) document, the UPnP action error codes 613-699
-        // are TBD. I guess we should use one of them instead of 501 (Action failed) here.
-        service.InvokeActionErrorResult(state.Action, new UPnPError(501, "Network error invoking the action"), state.ClientState);
+            // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
+        state.Action.ActionErrorResultPresent(new UPnPError(501, "Network error invoking the action"), state.ClientState);
         return;
       }
       lock (_cpData.SyncObj)
