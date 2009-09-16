@@ -126,6 +126,7 @@
     <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
+    <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
     <Compile Include="Services\UserManagement\Permission.cs" />
     <Compile Include="Services\UserManagement\Role.cs" />
     <Compile Include="Services\UserManagement\User.cs" />
@@ -147,6 +148,7 @@
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />
     <Compile Include="Views\ViewSpecification.cs" />
+    <Compile Include="Services\UPnP\UPnPClientControlPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
@@ -156,6 +158,10 @@
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UPnP\UPnP.csproj">
+      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
+      <Name>UPnP</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
