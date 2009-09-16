@@ -29,12 +29,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly : AssemblyTitle("Menu")]
+[assembly: AssemblyTitle("SkinBase")]
 [assembly : AssemblyDescription("")]
 [assembly : AssemblyConfiguration("")]
-[assembly : AssemblyCompany("")]
-[assembly : AssemblyProduct("Menu")]
-[assembly : AssemblyCopyright("Copyright ©  2007")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("MediaPortal-II")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2009")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
 
