@@ -26,6 +26,7 @@
 using System;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -51,13 +52,16 @@ namespace MediaPortal.Core.UPnP
     {
       if (value != null && !(value is MediaItemAspectMetadata))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtMediaItemAspectMetadata).Name, value.GetType().Name);
+      if (value == null)
+        return string.Empty;
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
       return miam.Serialize();
     }
 
     public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
     {
-      return MediaItemAspectMetadata.Deserialize(enclosingElement.InnerXml);
+      string serialization = StringUtils.TrimToEmpty(enclosingElement.InnerXml);
+      return string.IsNullOrEmpty(serialization) ? null : MediaItemAspectMetadata.Deserialize(serialization);
     }
 
     public override bool IsAssignableFrom(Type type)

@@ -26,6 +26,7 @@
 using System;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -51,13 +52,16 @@ namespace MediaPortal.Core.UPnP
     {
       if (value != null && !(value is Share))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShare).Name, value.GetType().Name);
+      if (value == null)
+        return string.Empty;
       Share share = (Share) value;
       return share.Serialize();
     }
 
     public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
     {
-      return Share.Deserialize(enclosingElement.InnerXml);
+      string serialization = StringUtils.TrimToEmpty(enclosingElement.InnerXml);
+      return string.IsNullOrEmpty(serialization) ? null : Share.Deserialize(serialization);
     }
 
     public override bool IsAssignableFrom(Type type)
