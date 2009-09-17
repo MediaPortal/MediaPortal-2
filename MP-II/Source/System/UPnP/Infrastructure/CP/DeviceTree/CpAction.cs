@@ -34,7 +34,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         _asyncState = asyncState;
       }
 
-      public ~AsyncActionCallResult()
+      ~AsyncActionCallResult()
       {
         Dispose();
       }

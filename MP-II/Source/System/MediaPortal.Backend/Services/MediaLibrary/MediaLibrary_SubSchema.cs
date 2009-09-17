@@ -45,6 +45,9 @@ namespace MediaPortal.Services.MediaLibrary
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
     public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
 
+    public const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
+    public const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
+
     #endregion
 
     public static string SubSchemaScriptDirectory
@@ -56,11 +59,11 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    public static IDbCommand SelectMIAM_MetadataByIdCommand(ITransaction transaction, Guid miamId,
+    public static IDbCommand SelectMediaItemAspectMetadataByIdCommand(ITransaction transaction, Guid miamId,
         out int nameIndex, out int serializationIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT NAME, MIAM_SERIALIZATION FROM MIAM_METADATA WHERE MIAMM_ID=?";
+      result.CommandText = "SELECT NAME, MIAM_SERIALIZATION FROM MEDIA_ITEM_ASPECT_METADATA WHERE MIAM_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = miamId.ToString();
@@ -71,22 +74,22 @@ namespace MediaPortal.Services.MediaLibrary
       return result;
     }
 
-    public static IDbCommand SelectAllMIAM_MetadataCommand(ITransaction transaction,
+    public static IDbCommand SelectAllMediaItemAspectMetadataCommand(ITransaction transaction,
         out int miamIdIndex, out int serializationsIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT MIAMM_ID, MIAM_SERIALIZATION FROM MIAM_METADATA";
+      result.CommandText = "SELECT MIAM_ID, MIAM_SERIALIZATION FROM MEDIA_ITEM_ASPECT_METADATA";
 
       miamIdIndex = 0;
       serializationsIndex = 1;
       return result;
     }
 
-    public static IDbCommand CreateMIAM_MetadataCommand(ITransaction transaction, Guid id,
+    public static IDbCommand CreateMediaItemAspectMetadataCommand(ITransaction transaction, Guid id,
         string name, string serialization)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO MIAM_METADATA (MIAMM_ID, NAME, MIAM_SERIALIZATION) VALUES (?, ?, ?)";
+      result.CommandText = "INSERT INTO MEDIA_ITEM_ASPECT_METADATA (MIAM_ID, NAME, MIAM_SERIALIZATION) VALUES (?, ?, ?)";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = id.ToString();
@@ -103,10 +106,10 @@ namespace MediaPortal.Services.MediaLibrary
       return result;
     }
 
-    public static IDbCommand DeleteMIAM_MetadataCommand(ITransaction transaction, Guid miamId)
+    public static IDbCommand DeleteMediaItemAspectMetadataCommand(ITransaction transaction, Guid miamId)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM MIAM_METADATA WHERE MIAMM_ID=?";
+      result.CommandText = "DELETE FROM MEDIA_ITEM_ASPECT_METADATA WHERE MIAM_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = miamId.ToString();
@@ -376,6 +379,5 @@ namespace MediaPortal.Services.MediaLibrary
 
       return result;
     }
-
   }
 }

@@ -75,5 +75,12 @@ namespace MediaPortal.Services.Database
     {
       return "VARCHAR(" + maxNumChars + ")";
     }
+
+    public static string LikeEscape(string str, char escapeChar)
+    {
+      return str.Replace(escapeChar.ToString(), escapeChar.ToString() + escapeChar).
+          Replace("%", escapeChar + "%").
+          Replace("_", escapeChar + "_");
+    }
   }
 }

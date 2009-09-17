@@ -121,7 +121,7 @@ namespace MediaPortal.MediaLibrary
     /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
-    /// <returns>Number of relocated media items.</returns>
+    /// <returns>Number of relocated or removed media items.</returns>
     int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
         IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode);
 

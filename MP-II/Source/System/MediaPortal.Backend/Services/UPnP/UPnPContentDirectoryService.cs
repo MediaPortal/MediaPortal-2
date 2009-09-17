@@ -134,7 +134,7 @@ namespace MediaPortal.Backend.Services.UPnP
             new DvArgument("RelocateMediaItems", A_ARG_TYPE_MediaItemRelocationMode, ArgumentDirection.In),
           },
           new DvArgument[] {
-            new DvArgument("NumRelocatedMediaItems", A_ARG_TYPE_Count, ArgumentDirection.Out, true)
+            new DvArgument("NumAffectedMediaItems", A_ARG_TYPE_Count, ArgumentDirection.Out, true)
           });
       AddAction(updateShareAction);
 
@@ -263,12 +263,12 @@ namespace MediaPortal.Backend.Services.UPnP
         metadataExtractorIds.Add(new Guid(extractorIdString));
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
       Share oldShare = mediaLibrary.GetShare(shareId);
-      int numRelocated = mediaLibrary.UpdateShare(
+      int numAffected = mediaLibrary.UpdateShare(
           shareId, oldShare.NativeSystem, providerId, path, shareName, mediaCategories, metadataExtractorIds, relocationMode);
       // TODO
       //if (relocationMode == RelocationMode.Remove)
-      //  ... schedule reimport ...
-      outParams = new List<object> {numRelocated};
+      //  ... schedule reimport of new diretory ...
+      outParams = new List<object> {numAffected};
       return null;
     }
 

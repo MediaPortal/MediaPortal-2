@@ -45,11 +45,13 @@ namespace MediaPortal.Services.MediaLibrary
   // on the fly and holds up to N prepared commands.
   public class MediaLibrary : IMediaLibrary, IDisposable
   {
+    internal const string MIAM_MEDIA_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
+
     public void Dispose()
     {
     }
 
-    protected static bool GetMIAM_Metadata(Guid aspectId, out string name, out string serialization)
+    protected static bool GetMediaItemAspectMetadata(Guid aspectId, out string name, out string serialization)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -57,7 +59,7 @@ namespace MediaPortal.Services.MediaLibrary
       {
         int nameIndex;
         int serializationIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectMIAM_MetadataByIdCommand(transaction, aspectId,
+        IDbCommand command = MediaLibrary_SubSchema.SelectMediaItemAspectMetadataByIdCommand(transaction, aspectId,
             out nameIndex, out serializationIndex);
         IDataReader reader = command.ExecuteReader();
         try
@@ -83,7 +85,7 @@ namespace MediaPortal.Services.MediaLibrary
       }
     }
 
-    protected static ICollection<string> GetAllMIAM_Metadata()
+    protected static IDictionary<Guid, string> GetAllMediaItemAspectMetadata()
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -91,13 +93,13 @@ namespace MediaPortal.Services.MediaLibrary
       {
         int miamIdIndex;
         int serializationsIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectAllMIAM_MetadataCommand(transaction, out miamIdIndex, out serializationsIndex);
+        IDbCommand command = MediaLibrary_SubSchema.SelectAllMediaItemAspectMetadataCommand(transaction, out miamIdIndex, out serializationsIndex);
         IDataReader reader = command.ExecuteReader();
         try
         {
-          ICollection<string> result = new List<string>();
+          IDictionary<Guid, string> result = new Dictionary<Guid, string>();
           while (reader.Read())
-            result.Add(reader.GetString(serializationsIndex));
+            result.Add(new Guid(reader.GetString(miamIdIndex)), reader.GetString(serializationsIndex));
           return result;
         }
         finally
@@ -125,6 +127,38 @@ namespace MediaPortal.Services.MediaLibrary
         MediaItemAspectMetadata.AttributeSpecification spec)
     {
       return GetMIAMTableName(miam) + "_" + SqlUtils.ToSQLIdentifier(spec.AttributeName);
+    }
+
+    public static int DeleteAllMediaItemsUnderPath(ITransaction transaction,
+        SystemName nativeSystem, Guid mediaProviderId, string path)
+    {
+      MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
+      string providerAspectTableName = GetMIAMTableName(providerAspectMetadata);
+      string providerAspectSourceComputerColName = GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_SOURCE_COMPUTER.AttributeName);
+      string providerAspectProviderIdColName = GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PROVIDER_ID.AttributeName);
+      string providerAspectPathColName = GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PATH.AttributeName);
+      IDbCommand command = transaction.CreateCommand();
+      command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
+          " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
+              // TODO: Replace this inner select statement by a select statement generated from an appropriate item query
+              "SELECT " + MIAM_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTableName +
+              " WHERE " + providerAspectSourceComputerColName + " = ? AND " +
+              providerAspectProviderIdColName + " = ? AND " +
+              providerAspectPathColName + " LIKE ? ESCAPE '\\'";
+
+      IDbDataParameter param = command.CreateParameter();
+      param.Value = nativeSystem.HostName;
+      command.Parameters.Add(param);
+
+      param = command.CreateParameter();
+      param.Value = mediaProviderId.ToString();
+      command.Parameters.Add(param);
+
+      param = command.CreateParameter();
+      param.Value = SqlUtils.LikeEscape(StringUtils.CheckSuffix(path, "/"), '\\') + "%";
+      command.Parameters.Add(param);
+
+      return command.ExecuteNonQuery();
     }
 
     protected static int RelocateMediaItems(ITransaction transaction,
@@ -273,14 +307,14 @@ namespace MediaPortal.Services.MediaLibrary
     {
       string name;
       string serialization;
-      return GetMIAM_Metadata(aspectId, out name, out serialization);
+      return GetMediaItemAspectMetadata(aspectId, out name, out serialization);
     }
 
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId)
     {
       string name;
       string serialization;
-      if (!GetMIAM_Metadata(aspectId, out name, out serialization))
+      if (!GetMediaItemAspectMetadata(aspectId, out name, out serialization))
         throw new InvalidDataException("The requested MediaItemAspectMetadata of id '{0}' is unknown", aspectId);
       return MediaItemAspectMetadata.Deserialize(serialization);
     }
@@ -292,7 +326,8 @@ namespace MediaPortal.Services.MediaLibrary
       try
       {
         IDbCommand command = transaction.CreateCommand();
-        StringBuilder sb = new StringBuilder("CREATE TABLE " + GetMIAMTableName(miam) + " (");
+        StringBuilder sb = new StringBuilder("CREATE TABLE " + GetMIAMTableName(miam) + " (" +
+            MIAM_MEDIA_ITEM_ID_COL_NAME + " " + SqlUtils.GetSQLType(typeof(Int64)) + ",");
         IList<string> terms = new List<string>();
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in miam.AttributeSpecifications)
         {
@@ -308,8 +343,12 @@ namespace MediaPortal.Services.MediaLibrary
             case Cardinality.ManyToOne:
             case Cardinality.ManyToMany:
               command.CommandText = "CREATE TABLE " + GetMIAMCollectionAttributeTableName(miam, spec) + " (" +
-                  "MIA_ID " + SqlUtils.GetSQLType(typeof(Int64)) + "," +
+                  MIAM_MEDIA_ITEM_ID_COL_NAME + " " + SqlUtils.GetSQLType(typeof(Int64)) +
                   "VALUE " + sqlType +
+                  "CONSTRAINT " + GetMIAMCollectionAttributeTableName(miam, spec) + "_PK PRIMARY KEY (" + MIAM_MEDIA_ITEM_ID_COL_NAME + ")," +
+                  "CONSTRAINT " + GetMIAMCollectionAttributeTableName(miam, spec) + "_MEDIA_ITEM_FK" +
+                  " FOREIGN KEY (" + MIAM_MEDIA_ITEM_ID_COL_NAME + ")" +
+                  " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE" +
                   ")";
               command.ExecuteNonQuery();
               break;
@@ -318,13 +357,17 @@ namespace MediaPortal.Services.MediaLibrary
                   spec.Cardinality, miam.AspectId, spec.AttributeName));
           }
         }
+        sb.Append(
+            "CONSTRAINT " + GetMIAMTableName(miam) + "_PK PRIMARY KEY (" + MIAM_MEDIA_ITEM_ID_COL_NAME + ")," +
+            "CONSTRAINT " + GetMIAMTableName(miam) + "_MEDIA_ITEMS_FK" +
+            " FOREIGN KEY (" + MIAM_MEDIA_ITEM_ID_COL_NAME + ") REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE");
         sb.Append(StringUtils.Join(", ", terms));
         sb.Append(")");
         command.CommandText = sb.ToString();
         command.ExecuteNonQuery();
 
         // Register metadata
-        command = MediaLibrary_SubSchema.CreateMIAM_MetadataCommand(transaction, miam.AspectId, miam.Name, miam.Serialize());
+        command = MediaLibrary_SubSchema.CreateMediaItemAspectMetadataCommand(transaction, miam.AspectId, miam.Name, miam.Serialize());
         command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -363,7 +406,7 @@ namespace MediaPortal.Services.MediaLibrary
           }
         }
         // Unregister metadata
-        command = MediaLibrary_SubSchema.DeleteMIAM_MetadataCommand(transaction, aspectId);
+        command = MediaLibrary_SubSchema.DeleteMediaItemAspectMetadataCommand(transaction, aspectId);
         command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -376,7 +419,7 @@ namespace MediaPortal.Services.MediaLibrary
 
     public ICollection<MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata()
     {
-      ICollection<string> miamSerializations = GetAllMIAM_Metadata();
+      ICollection<string> miamSerializations = GetAllMediaItemAspectMetadata().Values;
       IList<MediaItemAspectMetadata> result = new List<MediaItemAspectMetadata>(miamSerializations.Count);
       foreach (string serialization in miamSerializations)
         result.Add(MediaItemAspectMetadata.Deserialize(serialization));
@@ -387,7 +430,7 @@ namespace MediaPortal.Services.MediaLibrary
     {
       string name;
       string serialization;
-      if (GetMIAM_Metadata(aspectId, out name, out serialization))
+      if (GetMediaItemAspectMetadata(aspectId, out name, out serialization))
         return MediaItemAspectMetadata.Deserialize(serialization);
       else
         return null;
@@ -495,22 +538,22 @@ namespace MediaPortal.Services.MediaLibrary
             RemoveMetadataExtractorFromShare(transaction, shareId, metadataExtractorId);
 
         // Relocate media items
-        int numRelocated = 0;
+        int numAffected;
         switch (relocationMode)
         {
           case RelocationMode.Relocate:
-            numRelocated = RelocateMediaItems(transaction,
+            numAffected = RelocateMediaItems(transaction,
                 originalShare.NativeSystem, originalShare.MediaProviderId, originalShare.Path,
                 nativeSystem, providerId, path);
             break;
           case RelocationMode.Remove:
-            TODO: Remove media items in the original share
+            numAffected = DeleteAllMediaItemsUnderPath(transaction, originalShare.NativeSystem, originalShare.MediaProviderId, originalShare.Path);
             break;
           default:
             throw new NotImplementedException(string.Format("RelocationMode {0} is not implemented", relocationMode));
         }
         transaction.Commit();
-        return numRelocated;
+        return numAffected;
       }
       catch (Exception)
       {

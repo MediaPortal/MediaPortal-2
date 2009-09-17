@@ -51,7 +51,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   {
     int ClipSize { get; set; }
 
-    IList<SortInformation> SortInformation { get;set; }
+    IList<SortInformation> SortInformation { get; set; }
 
     // TODO: Getters/setters/accessors for query data and result data
     // This query class will be formulated with means of media item aspects, their metadata and operators
