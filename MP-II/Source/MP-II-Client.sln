@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PictureMetadataExtractor", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaProviders", "MediaProviders", "{985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "System\Configuration.Framework\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "System\ConfigurationManager\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Core", "System\MediaPortal.Core\MediaPortal.Core.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject

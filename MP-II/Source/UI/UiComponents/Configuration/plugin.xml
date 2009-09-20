@@ -2,7 +2,7 @@
     DescriptorVersion="1.0" 
     Name="Configuration Model"
     PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"
-    Author="Team MediaPortal"
+    Author="Albert"
     Copyright="GPL"
     Description="Shows settings to be edited in the MediaPortal-II GUI"
     PluginVersion="1.0">
