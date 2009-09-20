@@ -640,7 +640,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
           ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT).Evaluate(screenName),
-              DialogType.OkDialog, false);
+              DialogType.OkDialog, false, null);
           return null;
         }
         result.Visual = root;
@@ -653,7 +653,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         {
           ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
-              DialogType.OkDialog, false);
+              DialogType.OkDialog, false, null);
         }
         catch (Exception)
         {
@@ -681,7 +681,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load background screen '{0}'", screenName);
           ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT).Evaluate(screenName),
-              DialogType.OkDialog, false);
+              DialogType.OkDialog, false, null);
           return null;
         }
         result.Visual = root;
@@ -694,7 +694,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
         {
           ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
               LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT).Evaluate(screenName),
-              DialogType.OkDialog, false);
+              DialogType.OkDialog, false, null);
         }
         catch (Exception)
         {

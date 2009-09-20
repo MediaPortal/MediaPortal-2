@@ -270,7 +270,8 @@ namespace UiComponents.Media
       else
       {
         IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-        dialogManager.ShowDialog(SYSTEM_INFORMATION_RESOURCE, CANNOT_PLAY_ITEM_RESOURCE, DialogType.OkDialog, false);
+        dialogManager.ShowDialog(SYSTEM_INFORMATION_RESOURCE, CANNOT_PLAY_ITEM_RESOURCE, DialogType.OkDialog, false,
+            DialogButtonType.Ok);
       }
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       screenManager.ShowDialog(PLAY_MENU_DIALOG_SCREEN);

@@ -32,6 +32,14 @@ namespace MediaPortal.Presentation.Screens
     YesNoDialog
   }
 
+  public enum DialogButtonType
+  {
+    Ok,
+    Yes,
+    No,
+    Cancel
+  }
+
   /// <summary>
   /// Dialog management API.
   /// </summary>
@@ -46,7 +54,9 @@ namespace MediaPortal.Presentation.Screens
     /// will be shown.</param>
     /// <param name="showCancelButton">If set to <c>true</c>, an additional cancel button will be
     /// shown.</param>
+    /// <param name="focusedButton">Used to set the button which should get the focus. Leave <c>null</c> to not set the
+    /// focus.</param>
     /// <returns>Dialog handle. The dialog handle will be used in the dialog result message.</returns>
-    Guid ShowDialog(string headerText, string text, DialogType type, bool showCancelButton);
+    Guid ShowDialog(string headerText, string text, DialogType type, bool showCancelButton, DialogButtonType? focusedButton);
   }
 }

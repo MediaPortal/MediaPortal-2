@@ -436,7 +436,7 @@ namespace UiComponents.Media.Settings.Configuration
           {
             IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
             _relocateSharesQueryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
-                "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, false);
+                "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, false, DialogButtonType.Yes);
           }
           else
             UpdateShareAndFinish(false);

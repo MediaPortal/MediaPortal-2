@@ -38,8 +38,8 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     {
       #region Protected fields
 
-      protected readonly Guid _dialogHandle;
-      protected readonly DialogResult _dialogResult;
+      private readonly Guid _dialogHandle;
+      private readonly DialogResult _dialogResult;
 
       #endregion
 
@@ -177,24 +177,24 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     #region IDialogManager implementation
 
     public Guid ShowDialog(string headerText, string text, DialogType type,
-        bool showCancelButton)
+        bool showCancelButton, DialogButtonType? focusedButton)
     {
       Guid dialogHandle = Guid.NewGuid();
       ItemsList buttons = new ItemsList();
       switch (type)
       {
         case DialogType.OkDialog:
-          buttons.Add(CreateButtonListItem(OK_BUTTON_TEXT, dialogHandle, DialogResult.Ok, true));
+          buttons.Add(CreateButtonListItem(OK_BUTTON_TEXT, dialogHandle, DialogResult.Ok, focusedButton == DialogButtonType.Ok || !showCancelButton));
           break;
         case DialogType.YesNoDialog:
-          buttons.Add(CreateButtonListItem(YES_BUTTON_TEXT, dialogHandle, DialogResult.Yes, false));
-          buttons.Add(CreateButtonListItem(NO_BUTTON_TEXT, dialogHandle, DialogResult.No, false));
+          buttons.Add(CreateButtonListItem(YES_BUTTON_TEXT, dialogHandle, DialogResult.Yes, focusedButton == DialogButtonType.Yes));
+          buttons.Add(CreateButtonListItem(NO_BUTTON_TEXT, dialogHandle, DialogResult.No, focusedButton == DialogButtonType.No));
           break;
         default:
           throw new NotImplementedException(string.Format("DialogManager: DialogType {0} is not implemented yet", type));
       }
       if (showCancelButton)
-        buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel, false));
+        buttons.Add(CreateButtonListItem(CANCEL_BUTTON_TEXT, dialogHandle, DialogResult.Cancel, focusedButton == DialogButtonType.Cancel));
 
       CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
