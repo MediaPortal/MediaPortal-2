@@ -27,6 +27,7 @@ using System;
 using System.Reflection;
 using MediaPortal.Core.General;
 using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.SkinEngine.Xaml
 {
@@ -264,7 +265,7 @@ namespace MediaPortal.SkinEngine.Xaml
       get
       {
         PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
-        return itemPi.CanRead;
+        return itemPi == null ? false : itemPi.CanRead;
       }
     }
 
@@ -273,7 +274,7 @@ namespace MediaPortal.SkinEngine.Xaml
       get
       {
         PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
-        return itemPi.CanWrite;
+        return itemPi == null ? false : itemPi.CanWrite;
       }
     }
 
@@ -292,12 +293,29 @@ namespace MediaPortal.SkinEngine.Xaml
       get
       {
         PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
-        return itemPi.GetValue(_target, _indices);
+        try
+        {
+          return itemPi == null ? null : itemPi.GetValue(_target, _indices);
+        }
+        catch (Exception e)
+        {
+          throw new XamlBindingException("Unable to evaluate index expression '{0}' on object '{1}'", e, StringUtils.Join(", ", _indices), _target);
+        }
+
       }
       set
       {
-        PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
-        itemPi.SetValue(_target, value, _indices);
+        try
+        {
+          PropertyInfo itemPi = GetIndexerPropertyInfo(_target.GetType());
+          if (itemPi == null)
+            return;
+          itemPi.SetValue(_target, value, _indices);
+        }
+        catch (Exception e)
+        {
+          throw new XamlBindingException("Unable to set value '{0}' on object '{1}' with index expression '{2}'", e, value, _target, StringUtils.Join(", ", _indices));
+        }
       }
     }
 
@@ -345,9 +363,11 @@ namespace MediaPortal.SkinEngine.Xaml
       int i = 0;
       for (; i < pis.Length; i++)
       {
-        if (indices.Length <= i && pis[i].IsOptional)
+        object index = indices[i];
+        ParameterInfo pi = pis[i];
+        if (indices.Length <= i && pi.IsOptional)
           break;
-        if (!pis[i].ParameterType.IsAssignableFrom(indices[i].GetType()))
+        if (!pi.ParameterType.IsAssignableFrom(index == null ? null :index.GetType()))
           return false;
       }
       if (i < indices.Length)
@@ -423,6 +443,10 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public SimplePropertyDataDescriptor(object obj, PropertyInfo prop)
     {
+      if (obj == null)
+        throw new ArgumentNullException("obj", "Target object for property access cannot be null");
+      if (prop == null)
+        throw new ArgumentNullException("prop", "Property type cannot be null");
       _obj = obj;
       _prop = prop;
     }
@@ -472,8 +496,28 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public object Value
     {
-      get { return _prop.GetValue(_obj, _indices); }
-      set { _prop.SetValue(_obj, value, _indices); }
+      get
+      {
+        try
+        {
+          return _prop.GetValue(_obj, _indices);
+        }
+        catch (Exception e)
+        {
+          throw new XamlBindingException("Unable to get property '{0}' on object '{1}' (Indices: '{2}')", e, _prop, _obj, StringUtils.Join(", ", _indices));
+        }
+      }
+      set
+      {
+        try
+        {
+          _prop.SetValue(_obj, value, _indices);
+        }
+        catch (Exception e)
+        {
+          throw new XamlBindingException("Unable to set value '{0}' on object '{1}', property '{2}' (Indices: '{3}')", e, value, _obj, _prop, StringUtils.Join(", ", _indices));
+        }
+      }
     }
 
     public Type DataType
@@ -576,6 +620,10 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public FieldDataDescriptor(object obj, FieldInfo fld)
     {
+      if (obj == null)
+        throw new ArgumentNullException("obj", "Target object for field access cannot be null");
+      if (fld == null)
+        throw new ArgumentNullException("fld", "Field type cannot be null");
       _obj = obj;
       _fld = fld;
     }
@@ -625,8 +673,28 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public object Value
     {
-      get { return _fld.GetValue(_obj); }
-      set { _fld.SetValue(_obj, value); }
+      get
+      {
+        try
+        {
+          return _fld.GetValue(_obj);
+        }
+        catch (Exception e)
+        {
+          throw new XamlBindingException("Unable to get field '{0}' on object '{1}'", e, _fld, _obj);
+        }
+      }
+      set
+      {
+        try
+        {
+          _fld.SetValue(_obj, value);
+        }
+        catch (Exception e)
+        {
+          throw new XamlBindingException("Unable to get field '{0}' on object '{1}'", e, _fld, _obj);
+        }
+      }
     }
 
     public Type DataType
@@ -708,6 +776,10 @@ namespace MediaPortal.SkinEngine.Xaml
 
     public DependencyPropertyDataDescriptor(object obj, string propertyName, Property prop)
     {
+      if (obj == null)
+        throw new ArgumentNullException("obj", "Target object for dependency property access cannot be null");
+      if (propertyName == null)
+        throw new ArgumentNullException("propertyName", "Property name cannot be null");
       _obj = obj;
       _propertyName = propertyName;
       _prop = prop;

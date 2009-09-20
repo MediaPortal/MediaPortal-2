@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CdUtils.cs" />
+    <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="CommandLine\CommandLine.cs" />
     <Compile Include="CommandLine\ICommandLineOptions.cs" />

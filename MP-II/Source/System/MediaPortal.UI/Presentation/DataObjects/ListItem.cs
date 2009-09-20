@@ -27,6 +27,7 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Presentation.DataObjects
 {
@@ -57,8 +58,8 @@ namespace MediaPortal.Presentation.DataObjects
     #region Protected fields
 
     protected Property _commandProperty = new Property(typeof(ICommand), null);
-    protected IDictionary<string, IResourceString> _labels = new Dictionary<string, IResourceString>();
-    protected IDictionary<string, object> _additionalProperties = new Dictionary<string, object>();
+    protected IDictionary<string, IResourceString> _labels = new SafeDictionary<string, IResourceString>();
+    protected IDictionary<string, object> _additionalProperties = new SafeDictionary<string, object>();
     protected Property _selectedProperty = new Property(typeof(bool), false);
     protected Property _enabledProperty = new Property(typeof(bool), true);
     protected Property _isVisibleProperty = new Property(typeof(bool), true);
