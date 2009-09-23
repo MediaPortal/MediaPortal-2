@@ -54,7 +54,13 @@ namespace MediaPortal.Core.MediaManagement
 
     public object this[MediaItemAspectMetadata.AttributeSpecification attributeSpecification]
     {
-      get { return _aspectData.ContainsKey(attributeSpecification) ? _aspectData[attributeSpecification] : null; }
+      get
+      {
+        object result;
+        if (_aspectData.TryGetValue(attributeSpecification, out result)
+          return result;
+        return null;
+      }
     }
 
     /// <summary>
