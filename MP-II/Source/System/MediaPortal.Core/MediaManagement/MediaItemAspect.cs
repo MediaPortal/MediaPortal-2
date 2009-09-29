@@ -57,7 +57,7 @@ namespace MediaPortal.Core.MediaManagement
       get
       {
         object result;
-        if (_aspectData.TryGetValue(attributeSpecification, out result)
+        if (_aspectData.TryGetValue(attributeSpecification, out result))
           return result;
         return null;
       }
