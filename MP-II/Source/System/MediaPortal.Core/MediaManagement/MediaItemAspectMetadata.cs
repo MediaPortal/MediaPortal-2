@@ -94,6 +94,7 @@ namespace MediaPortal.Core.MediaManagement
     {
       #region Protected fields
 
+      protected MediaItemAspectMetadata _parentMIAM = null;
       protected string _attributeName;
       protected Type _attributeType;
       protected Cardinality _cardinality;
@@ -106,6 +107,16 @@ namespace MediaPortal.Core.MediaManagement
         _attributeName = name;
         _attributeType = type;
         _cardinality = cardinality;
+      }
+
+      /// <summary>
+      /// Gets or sets the media item aspect metadata instance, this attribute type belongs to.
+      /// </summary>
+      [XmlIgnore]
+      public MediaItemAspectMetadata ParentMIAM
+      {
+        get { return _parentMIAM; }
+        internal set { _parentMIAM = value; }
       }
 
       /// <summary>
@@ -235,6 +246,13 @@ namespace MediaPortal.Core.MediaManagement
       _aspectId = aspectId;
       _aspectName = aspectName;
       _attributeSpecifications = new List<AttributeSpecification>(attributeSpecifications).AsReadOnly();
+      CorrectParentsInAttributeTypes();
+    }
+
+    protected void CorrectParentsInAttributeTypes()
+    {
+      foreach (AttributeSpecification attributeType in _attributeSpecifications)
+        attributeType.ParentMIAM = this;
     }
 
     /// <summary>
@@ -394,7 +412,11 @@ namespace MediaPortal.Core.MediaManagement
     public List<AttributeSpecification> XML_AttributeSpecifications
     {
       get { return new List<AttributeSpecification>(_attributeSpecifications); }
-      set { _attributeSpecifications = value.AsReadOnly(); }
+      set
+      {
+        _attributeSpecifications = value.AsReadOnly();
+        CorrectParentsInAttributeTypes();
+      }
     }
 
     #endregion
