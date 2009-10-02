@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -70,8 +70,8 @@
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
     <Compile Include="Settings\SkinBaseSettings.cs" />
-    <Compile Include="Settings\General\Autostart.cs" />
-    <Compile Include="Settings\General\Balloontips.cs" />
+    <Compile Include="Settings\Configuration\General\Autostart.cs" />
+    <Compile Include="Settings\Configuration\General\Balloontips.cs" />
     <Compile Include="SkinMessaging.cs" />
     <Compile Include="Models\TimeModel.cs" />
   </ItemGroup>

@@ -31,7 +31,7 @@ using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace UiComponents.SkinBase.Settings.General
+namespace UiComponents.SkinBase.Settings.Configuration.General
 {
   public class Autostart : YesNo
   {

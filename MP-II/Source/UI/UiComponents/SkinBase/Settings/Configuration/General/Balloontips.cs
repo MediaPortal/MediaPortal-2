@@ -29,7 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.SystemAPI;
 
-namespace UiComponents.SkinBase.Settings.General
+namespace UiComponents.SkinBase.Settings.Configuration.General
 {
   public class Balloontips : YesNo
   {
