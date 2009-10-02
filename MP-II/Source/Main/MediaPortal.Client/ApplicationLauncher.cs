@@ -31,6 +31,7 @@ using MediaPortal.Presentation;
 using MediaPortal.Presentation.Workflow;
 #if !DEBUG
 using MediaPortal.Services.Logging;
+using System.IO;
 #endif
 using MediaPortal.Shares;
 using MediaPortal.Utilities.CommandLine;
@@ -38,7 +39,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Services.Runtime;
 using MediaPortal.Core.Logging;
-using System.IO;
 
 [assembly: CLSCompliant(true)]
 
@@ -68,7 +68,9 @@ namespace MediaPortal
         return;
       }
 
+#if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP-II-Client\Log");
+#endif
 
       using (new ServiceScope(true)) // Create the servicescope
       {
