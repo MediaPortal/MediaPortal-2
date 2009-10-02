@@ -27,6 +27,12 @@ namespace UPnP.Infrastructure.CP
   public delegate bool DataTypeResolverDlgt(string dataTypeName, out UPnPExtendedDataType dataType);
 
   /// <summary>
+  /// Delegate which is used to notify the disconnect event of a <see cref="DeviceConnection"/>.
+  /// </summary>
+  /// <param name="connection">Connection which was disconnected.</param>
+  public delegate void DeviceDisconnectedDlgt(DeviceConnection connection);
+
+  /// <summary>
   /// Contains the control point connection data of a device template to a network UPnP device.
   /// </summary>
   public class DeviceConnection : IDisposable
@@ -242,6 +248,7 @@ namespace UPnP.Infrastructure.CP
         _subscriptions.Clear();
         if (_device.IsConnected)
           _device.Disconnect();
+        InvokeDeviceDisconnected();
       }
     }
 
@@ -480,6 +487,18 @@ namespace UPnP.Infrastructure.CP
         }
       }
     }
+
+    protected void InvokeDeviceDisconnected()
+    {
+      DeviceDisconnectedDlgt dlgt = DeviceDisconnected;
+      if (dlgt != null)
+        dlgt(this);
+    }
+
+    /// <summary>
+    /// Gets raised when the device of this device connection was disconnected.
+    /// </summary>
+    public event DeviceDisconnectedDlgt DeviceDisconnected;
 
     /// <summary>
     /// Returns the shared control point data structure.
