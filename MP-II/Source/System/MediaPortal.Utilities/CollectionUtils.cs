@@ -99,10 +99,15 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
-    /// Calculates the union set of <paramref name="c1"/> and <paramref name="c2"/> and returns it.
+    /// Calculates the union list of <paramref name="c1"/> and <paramref name="c2"/> and returns it. The elements
+    /// of the two given enumerations of elements will all be added, first the elements of <paramref name="c1"/>,
+    /// then the elements of <paramref name="c2"/>.
     /// If the type parameters of the collections differ, the collection with the more general element type
     /// must be used at the second position.
     /// </summary>
+    /// <remarks>
+    /// This method executes in O(sizeof(c1) + sizeof(c2)).
+    /// </remarks>
     /// <typeparam name="S">Element type of the first source collection. May be more specific than
     /// the type parameter of the second collection.</typeparam>
     /// <typeparam name="T">Element type of the second source collection and the result collection.
@@ -110,15 +115,43 @@ namespace MediaPortal.Utilities
     /// <param name="c1">First source collection.</param>
     /// <param name="c2">Second source collection</param>
     /// <returns>Union set of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
-    public static ICollection<T> Union<S, T>(ICollection<S> c1, ICollection<T> c2) where S: T
+    public static ICollection<T> UnionList<S, T>(IEnumerable<S> c1, IEnumerable<T> c2) where S: T
     {
-      ICollection<T> result = new List<T>(c2);
+      ICollection<T> result = new List<T>();
       AddAll(result, c1);
+      AddAll(result, c2);
       return result;
     }
 
     /// <summary>
-    /// Calculates the intersection of <paramref name="c1"/> and <paramref name="c2"/> and returns it.
+    /// Calculates the union set of <paramref name="c1"/> and <paramref name="c2"/> and returns it. The result set
+    /// will contain all elements of <paramref name="c1"/> and those arguements of <paramref name="c2"/> which aren't
+    /// present in <paramref name="c1"/>.
+    /// If the type parameters of the collections differ, the collection with the more general element type
+    /// must be used at the second position.
+    /// </summary>
+    /// <remarks>
+    /// This method executes in O(sizeof(c1) * sizeof(c2)).
+    /// </remarks>
+    /// <typeparam name="S">Element type of the first source collection. May be more specific than
+    /// the type parameter of the second collection.</typeparam>
+    /// <typeparam name="T">Element type of the second source collection and the result collection.
+    /// May be more general than the type parameter of the first collection <see cref="S"/>.</typeparam>
+    /// <param name="c1">First source collection.</param>
+    /// <param name="c2">Second source collection</param>
+    /// <returns>Union set of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
+    public static ICollection<T> UnionSet<S, T>(IEnumerable<S> c1, IEnumerable<T> c2) where S: T
+    {
+      ICollection<T> result = new List<T>();
+      AddAll(result, c1);
+      foreach (T t in c2)
+        if (!result.Contains(t))
+          result.Add(t);
+      return result;
+    }
+
+    /// <summary>
+    /// Calculates the intersection set of <paramref name="c1"/> and <paramref name="c2"/> and returns it.
     /// If the type parameters of the collections differ, the collection with the more general element type
     /// must be used at the second position.
     /// </summary>
@@ -129,12 +162,23 @@ namespace MediaPortal.Utilities
     /// <param name="c1">First source collection.</param>
     /// <param name="c2">Second source collection</param>
     /// <returns>Intersection of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
-    public static ICollection<T> Intersection<S, T>(ICollection<S> c1, ICollection<T> c2) where S: T
+    public static ICollection<T> Intersection<S, T>(IEnumerable<S> c1, IEnumerable<T> c2) where S: T
     {
       ICollection<T> result = new List<T>();
-      foreach (S s in c1)
-        if (c2.Contains(s))
-          result.Add(s);
+      ICollection<S> x1 = c1 as ICollection<S>;
+      if (x1 != null)
+      { // First argument implements ICollection<S>
+        foreach (S s in c2)
+          if (x1.Contains(s))
+            result.Add(s);
+      }
+      else
+      {
+        ICollection<T> x2 = c2 as ICollection<T> ?? new List<T>(c2); // If second argument also doesn't implement ICollection<T>, create a new list
+        foreach (S s in c1)
+          if (x2.Contains(s))
+            result.Add(s);
+      }
       return result;
     }
 
