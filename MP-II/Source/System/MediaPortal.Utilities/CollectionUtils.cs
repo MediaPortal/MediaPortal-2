@@ -99,6 +99,25 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
+    /// Calculates the union set of <paramref name="c1"/> and <paramref name="c2"/> and returns it.
+    /// If the type parameters of the collections differ, the collection with the more general element type
+    /// must be used at the second position.
+    /// </summary>
+    /// <typeparam name="S">Element type of the first source collection. May be more specific than
+    /// the type parameter of the second collection.</typeparam>
+    /// <typeparam name="T">Element type of the second source collection and the result collection.
+    /// May be more general than the type parameter of the first collection <see cref="S"/>.</typeparam>
+    /// <param name="c1">First source collection.</param>
+    /// <param name="c2">Second source collection</param>
+    /// <returns>Union set of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
+    public static ICollection<T> Union<S, T>(ICollection<S> c1, ICollection<T> c2) where S: T
+    {
+      ICollection<T> result = new List<T>(c2);
+      AddAll(result, c1);
+      return result;
+    }
+
+    /// <summary>
     /// Calculates the intersection of <paramref name="c1"/> and <paramref name="c2"/> and returns it.
     /// If the type parameters of the collections differ, the collection with the more general element type
     /// must be used at the second position.
