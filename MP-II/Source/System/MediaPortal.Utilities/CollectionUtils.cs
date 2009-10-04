@@ -115,9 +115,9 @@ namespace MediaPortal.Utilities
     /// <param name="c1">First source collection.</param>
     /// <param name="c2">Second source collection</param>
     /// <returns>Union set of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
-    public static ICollection<T> UnionList<S, T>(IEnumerable<S> c1, IEnumerable<T> c2) where S: T
+    public static IList<T> UnionList<S, T>(IEnumerable<S> c1, IEnumerable<T> c2) where S: T
     {
-      ICollection<T> result = new List<T>();
+      IList<T> result = new List<T>();
       AddAll(result, c1);
       AddAll(result, c2);
       return result;
@@ -142,11 +142,9 @@ namespace MediaPortal.Utilities
     /// <returns>Union set of <paramref name="c1"/> and <paramref name="c2"/>.</returns>
     public static ICollection<T> UnionSet<S, T>(IEnumerable<S> c1, IEnumerable<T> c2) where S: T
     {
-      ICollection<T> result = new List<T>();
+      ICollection<T> result = new HashSet<T>();
       AddAll(result, c1);
-      foreach (T t in c2)
-        if (!result.Contains(t))
-          result.Add(t);
+      AddAll(result, c2);
       return result;
     }
 
