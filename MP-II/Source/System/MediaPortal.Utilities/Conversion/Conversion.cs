@@ -38,10 +38,9 @@ namespace MediaPortal.Utilities.Conversion
       int hh = lSeconds / 3600;
       lSeconds = lSeconds % 3600;
       int mm = lSeconds / 60;
-      int ss = lSeconds % 60;
+      //int ss = lSeconds % 60;
 
-      string strHMS = "";
-      strHMS = String.Format("{0}:{1:00}", hh, mm);
+      string strHMS = String.Format("{0}:{1:00}", hh, mm);
       return strHMS;
     }
 
@@ -58,11 +57,7 @@ namespace MediaPortal.Utilities.Conversion
       int mm = lSeconds / 60;
       int ss = lSeconds % 60;
 
-      string strHMS = "";
-      if (hh >= 1)
-        strHMS = String.Format("{0}:{1:00}:{2:00}", hh, mm, ss);
-      else
-        strHMS = String.Format("{0}:{1:00}", mm, ss);
+      string strHMS = hh >= 1 ? String.Format("{0}:{1:00}:{2:00}", hh, mm, ss) : String.Format("{0}:{1:00}", mm, ss);
       return strHMS;
     }
 
@@ -73,11 +68,7 @@ namespace MediaPortal.Utilities.Conversion
       lSeconds = lSeconds % 3600;
       int mm = lSeconds / 60;
 
-      string strHM = "";
-      if (hh >= 1)
-        strHM = String.Format("{0:00}:{1:00}", hh, mm);
-      else
-        strHM = String.Format("0:{0:00}", mm);
+      string strHM = hh >= 1 ? String.Format("{0:00}:{1:00}", hh, mm) : String.Format("0:{0:00}", mm);
       return strHM;
     }
 
@@ -93,34 +84,33 @@ namespace MediaPortal.Utilities.Conversion
       try
       {
         if (ldate < 0) return DateTime.MinValue;
-        int year, month, day, hour, minute, sec;
-        sec = (int)(ldate % 100L); ldate /= 100L;
-        minute = (int)(ldate % 100L); ldate /= 100L;
-        hour = (int)(ldate % 100L); ldate /= 100L;
-        day = (int)(ldate % 100L); ldate /= 100L;
-        month = (int)(ldate % 100L); ldate /= 100L;
-        year = (int)ldate;
-        DateTime dt = new DateTime(year, month, day, hour, minute, 0, 0);
+        int sec = (int)(ldate % 100L); ldate /= 100L;
+        int minute = (int)(ldate % 100L); ldate /= 100L;
+        int hour = (int)(ldate % 100L); ldate /= 100L;
+        int day = (int)(ldate % 100L); ldate /= 100L;
+        int month = (int)(ldate % 100L); ldate /= 100L;
+        int year = (int)ldate;
+        DateTime dt = new DateTime(year, month, day, hour, minute, sec, 0);
         return dt;
       }
       catch (Exception)
       {
+        return DateTime.MinValue;
       }
-      return DateTime.Now;
     }
 
     public static long DateToLong(DateTime dt)
     {
       try
       {
-        long iSec = 0;//(long)dt.Second;
-        long iMin = (long)dt.Minute;
-        long iHour = (long)dt.Hour;
-        long iDay = (long)dt.Day;
-        long iMonth = (long)dt.Month;
-        long iYear = (long)dt.Year;
+        long iSec = dt.Second;
+        long iMin = dt.Minute;
+        long iHour = dt.Hour;
+        long iDay = dt.Day;
+        long iMonth = dt.Month;
+        long iYear = dt.Year;
 
-        long lRet = (iYear);
+        long lRet = iYear;
         lRet = lRet * 100L + iMonth;
         lRet = lRet * 100L + iDay;
         lRet = lRet * 100L + iHour;
@@ -130,8 +120,8 @@ namespace MediaPortal.Utilities.Conversion
       }
       catch (Exception)
       {
+        return 0;
       }
-      return 0;
     }
     #endregion
 
@@ -149,28 +139,27 @@ namespace MediaPortal.Utilities.Conversion
       if (dwFileSize < 1024)
       {
         //  substract the integer part of the float value
-        float fRemainder = (((float)dwFileSize) / 1024.0f) - (((float)dwFileSize) / 1024.0f);
+        float fRemainder = (dwFileSize / 1024.0f) - (dwFileSize / 1024.0f);
         float fToAdd = 0.0f;
         if (fRemainder < 0.01f)
           fToAdd = 0.1f;
-        szTemp = String.Format("{0:f} KB", (((float)dwFileSize) / 1024.0f) + fToAdd);
+        szTemp = String.Format("{0:f} KB", (dwFileSize / 1024.0f) + fToAdd);
         return szTemp;
       }
-      long iOneMeg = 1024 * 1024;
+      const long iOneMeg = 1024 * 1024;
 
       // file < 1 megabyte?
       if (dwFileSize < iOneMeg)
       {
-        szTemp = String.Format("{0:f} KB", ((float)dwFileSize) / 1024.0f);
+        szTemp = String.Format("{0:f} KB", dwFileSize / 1024.0f);
         return szTemp;
       }
 
       // file < 1 GByte?
-      long iOneGigabyte = iOneMeg;
-      iOneGigabyte *= (long)1000;
+      const long iOneGigabyte = iOneMeg * 1000;
       if (dwFileSize < iOneGigabyte)
       {
-        szTemp = String.Format("{0:f} MB", ((float)dwFileSize) / ((float)iOneMeg));
+        szTemp = String.Format("{0:f} MB", dwFileSize / (float) iOneMeg);
         return szTemp;
       }
       //file > 1 GByte
@@ -180,7 +169,7 @@ namespace MediaPortal.Utilities.Conversion
         dwFileSize -= iOneGigabyte;
         iGigs++;
       }
-      float fMegs = ((float)dwFileSize) / ((float)iOneMeg);
+      float fMegs = dwFileSize / (float) iOneMeg;
       fMegs /= 1000.0f;
       fMegs += iGigs;
       szTemp = String.Format("{0:f} GB", fMegs);

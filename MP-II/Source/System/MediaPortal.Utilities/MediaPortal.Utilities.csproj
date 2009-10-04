@@ -71,11 +71,6 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Scraper\Scraper.cs" />
-    <Compile Include="Scraper\ScraperParser.cs" />
-    <Compile Include="Scraper\ScraperSearchResult.cs" />
-    <Compile Include="Scraper\ScraperSetting.cs" />
-    <Compile Include="Scraper\ScraperUrl .cs" />
     <Compile Include="Screens\BaseScreen.cs">
       <SubType>Form</SubType>
     </Compile>

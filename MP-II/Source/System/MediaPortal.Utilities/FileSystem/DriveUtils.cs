@@ -121,9 +121,8 @@ namespace MediaPortal.Utilities.FileSystem
       uint maxcomplen;//receives maximum component length
       uint sysflags;//receives file system flags
       StringBuilder sysname = new StringBuilder(256);//receives the file system name
-      bool retval;//return value
 
-      retval = Win32API.GetVolumeInformation(drive.Substring(0, 2), volname, 256, out sn, out maxcomplen, out sysflags, sysname, 256);
+      bool retval = Win32API.GetVolumeInformation(drive.Substring(0, 2), volname, 256, out sn, out maxcomplen, out sysflags, sysname, 256);
 
       if (retval)
       {
@@ -172,21 +171,19 @@ namespace MediaPortal.Utilities.FileSystem
     /// <returns></returns>
     public static long GetDiskSize(string drive)
     {
-      long diskSize = 0;
       try
       {
         string cmd = String.Format("win32_logicaldisk.deviceid=\"{0}:\"", drive[0]);
         using (ManagementObject disk = new ManagementObject(cmd))
         {
           disk.Get();
-          diskSize = Int64.Parse(disk["Size"].ToString());
+          return Int64.Parse(disk["Size"].ToString());
         }
       }
       catch (Exception)
       {
         return -1;
       }
-      return diskSize;
     }
 
     /// <summary>
@@ -214,9 +211,9 @@ namespace MediaPortal.Utilities.FileSystem
       else
       {
         // UNC path.
-        ulong freeBytesAvailable = 0;
-        ulong totalNumberOfBytes = 0;
-        ulong totalNumberOfFreeBytes = 0;
+        ulong freeBytesAvailable;
+        ulong totalNumberOfBytes;
+        ulong totalNumberOfFreeBytes;
         Win32API.GetDiskFreeSpaceEx(
             drive,
             out freeBytesAvailable,

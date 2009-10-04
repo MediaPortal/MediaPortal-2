@@ -226,7 +226,7 @@ namespace MediaPortal.Utilities
       l1.Sort();
       l2.Sort();
       for (int i=0; i<l1.Count; i++)
-        if (!ObjectUtils.ObjectsAreEqual(l1[i], l2[i]))
+        if (!Equals(l1[i], l2[i]))
           return false;
       return true;
     }
@@ -297,8 +297,9 @@ namespace MediaPortal.Utilities
         return false;
       l1.Sort(comparison);
       l2.Sort(comparison);
+      ComparisonEqualityComparer<S> cec = new ComparisonEqualityComparer<S>(comparison);
       for (int i = 0; i < l1.Count; i++)
-        if (!ObjectUtils.ObjectsAreEqual(l1[i], l2[i], new ComparisonEqualityComparer<S>(comparison)))
+        if (!ObjectUtils.ObjectsAreEqual(l1[i], l2[i], cec))
           return false;
       return true;
     }
