@@ -33,6 +33,7 @@ using MediaPortal.Utilities.Screens;
 
 namespace MediaPortal
 {
+  // TODO: Clean up
   [Serializable]
   public class CommandLineOptions : ICommandLineOptions
   {

@@ -108,6 +108,9 @@
     <Compile Include="Presentation\Workflow\PushNavigationTransition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
+    <Compile Include="ServerConnection\AvailableServer.cs" />
+    <Compile Include="ServerConnection\IServerConnectionManager.cs" />
+    <Compile Include="ServerConnection\ServerConnectionMessaging.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PlayerBuilderRegistration.cs" />
@@ -117,6 +120,8 @@
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
     <Compile Include="Services\Players\Settings\FadingSettings.cs" />
+    <Compile Include="Services\ServerConnection\ServerConnectionManager.cs" />
+    <Compile Include="Services\ServerConnection\Settings\ServerConnectionSettings.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Services\Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
@@ -127,6 +132,7 @@
     <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
     <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
+    <Compile Include="Services\UPnP\UPnPServerWatcher.cs" />
     <Compile Include="Services\UserManagement\Permission.cs" />
     <Compile Include="Services\UserManagement\Role.cs" />
     <Compile Include="Services\UserManagement\User.cs" />

@@ -33,25 +33,40 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Services.UPnP
 {
+  public delegate void MediaServerConnectedDlgt(DeviceConnection connection);
+  public delegate void MediaServerDisconnectedDlgt(DeviceConnection connection);
+
   /// <summary>
   /// Encapsulates the MediaPortal-II UPnP client control point.
   /// </summary>
   public class UPnPClientControlPoint
   {
-    public const string MEDIA_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
-    public const int MEDIA_SERVER_DEVICE_TYPE_VERSION = 1;
-    public const string CONTENT_DIRECTORY_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ContentDirectory";
-
+    protected string _homeServerUUID;
+    protected DeviceConnection _connection = null;
+    protected UPnPContentDirectoryService _contentDirectoryService = null;
     protected UPnPNetworkTracker _networkTracker;
     protected UPnPControlPoint _controlPoint;
-    protected UPnPContentDirectoryService _contentDirectoryService;
 
-    public UPnPClientControlPoint()
+    public UPnPClientControlPoint(string homeServerUUID)
     {
+      _homeServerUUID = homeServerUUID;
       CPData cpData = new CPData();
       _networkTracker = new UPnPNetworkTracker(cpData);
       _controlPoint = new UPnPControlPoint(_networkTracker);
       _networkTracker.RootDeviceAdded += OnUPnPRootDeviceAdded;
+    }
+
+    public event MediaServerConnectedDlgt MediaServerConnected;
+    public event MediaServerDisconnectedDlgt MediaServerDisconnected;
+
+    /// <summary>
+    /// Gets or sets the UUID of the MediaPortal-II server, which is this UPnP client's homeserver.
+    /// The control point automatically connects to the homeserver.
+    /// </summary>
+    public string HomeServerUUID
+    {
+      get { return _homeServerUUID; }
+      set { _homeServerUUID = value; }
     }
 
     public UPnPContentDirectoryService ContentDirectoryService
@@ -67,30 +82,63 @@ namespace MediaPortal.Services.UPnP
 
     public void Stop()
     {
+      _contentDirectoryService = null;
       _networkTracker.Close();
       _controlPoint.Close();
     }
 
     void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
     {
-      XmlElement mediaServerDeviceElement = rootDescriptor.FindFirstDeviceElement(MEDIA_SERVER_DEVICE_TYPE, MEDIA_SERVER_DEVICE_TYPE_VERSION);
-      if (mediaServerDeviceElement == null)
-        return;
-      string deviceUuid = RootDescriptor.GetDeviceUUID(mediaServerDeviceElement);
-      DeviceConnection connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
+      DeviceConnection connection;
+      string deviceUuid;
+      lock (_networkTracker.SharedControlPointData.SyncObj)
+      {
+        if (_connection != null)
+          return;
+        XmlElement mediaServerDeviceElement = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+        if (mediaServerDeviceElement == null)
+          return;
+        deviceUuid = RootDescriptor.GetDeviceUUID(mediaServerDeviceElement);
+        if (deviceUuid != _homeServerUUID)
+          return;
+        connection = _connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
+      }
+      connection.DeviceDisconnected += OnUPnPDeviceDisconnected;
       try
       {
-        CpService cdsStub = connection.Device.FindServiceByServiceId(CONTENT_DIRECTORY_SERVICE_ID);
+        CpService cdsStub = connection.Device.FindServiceByServiceId(Consts.CONTENT_DIRECTORY_SERVICE_ID);
         if (cdsStub == null)
-          throw new InvalidDataException("ContentDirectory service not found in device '{0}' of type '{1}:{2}'", deviceUuid, MEDIA_SERVER_DEVICE_TYPE, MEDIA_SERVER_DEVICE_TYPE_VERSION);
-        _contentDirectoryService = new UPnPContentDirectoryService(cdsStub);
+          throw new InvalidDataException("ContentDirectory service not found in device '{0}' of type '{1}:{2}'", deviceUuid, Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+        lock (_networkTracker.SharedControlPointData.SyncObj)
+          _contentDirectoryService = new UPnPContentDirectoryService(cdsStub);
         // TODO: other services
+        InvokeMediaServerDeviceConnected(connection);
       }
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn("Error attaching to UPnP MP-II content directory service", e);
         _controlPoint.Disconnect(deviceUuid);
       }
+    }
+
+    void OnUPnPDeviceDisconnected(DeviceConnection connection)
+    {
+      _contentDirectoryService = null;
+      InvokeMediaServerDeviceDisconnected(connection);
+    }
+
+    protected void InvokeMediaServerDeviceConnected(DeviceConnection connection)
+    {
+      MediaServerConnectedDlgt dlgt = MediaServerConnected;
+      if (dlgt != null)
+        dlgt(connection);
+    }
+
+    protected void InvokeMediaServerDeviceDisconnected(DeviceConnection connection)
+    {
+      MediaServerDisconnectedDlgt dlgt = MediaServerDisconnected;
+      if (dlgt != null)
+        dlgt(connection);
     }
   }
 }

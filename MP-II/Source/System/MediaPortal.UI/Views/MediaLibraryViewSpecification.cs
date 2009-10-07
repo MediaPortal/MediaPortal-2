@@ -44,14 +44,14 @@ namespace MediaPortal.Views
   {
     #region Protected fields
 
-    protected IQuery _query;
+    protected MediaItemQuery _query;
     protected List<MediaLibraryViewSpecification> _subViews;
 
     #endregion
 
     #region Ctor
 
-    public MediaLibraryViewSpecification(string viewDisplayName, IQuery query, IEnumerable<Guid> mediaItemAspectIds) :
+    public MediaLibraryViewSpecification(string viewDisplayName, MediaItemQuery query, IEnumerable<Guid> mediaItemAspectIds) :
         base(viewDisplayName, mediaItemAspectIds)
     {
       _query = query;
@@ -102,15 +102,11 @@ namespace MediaPortal.Views
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("QueryString", IsNullable = false)]
-    public string XML_QueryString
+    [XmlElement("Query", IsNullable = false)]
+    public MediaItemQuery XML_Query
     {
-      // TODO: Implement
-      get { return "Not implemented yet"; }
-      set
-      {
-        // TODO: Rebuild query from query string
-      }
+      get { return _query; }
+      set { _query = value; }
     }
 
     /// <summary>

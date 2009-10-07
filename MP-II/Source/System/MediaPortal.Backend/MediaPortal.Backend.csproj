@@ -60,6 +60,15 @@
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
     <Compile Include="Services\Localization\MultipleLocalizationStringManager.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledDistinctAttributeValueQuery.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledQueryAttribute.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\ComplexAttributeQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\Namespace.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\QueryAttribute.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />
     <Compile Include="Services\UPnP\Settings\MediaServerSettings.cs" />
     <Compile Include="Services\UPnP\MP2ServerDevice.cs" />
     <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
@@ -71,6 +80,7 @@
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
+    <Compile Include="Services\MediaLibrary\MIAM_Management.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">

@@ -51,17 +51,18 @@ namespace MediaPortal.Core.Services.Threading
     /// <summary>
     /// Holds all the necessary parameters for this ThreadPool
     /// </summary>
-    private ThreadPoolStartInfo _startInfo = new ThreadPoolStartInfo();
+    private readonly ThreadPoolStartInfo _startInfo = new ThreadPoolStartInfo();
 
     /// <summary>
     /// List of threads from this pool, with the Thread object being the key and the last activity time as value
     /// </summary>
-    private Hashtable _threads = Hashtable.Synchronized(new Hashtable());
+    /// TODO: switch to HashSet, synchronize with sync object
+    private readonly Hashtable _threads = Hashtable.Synchronized(new Hashtable());
 
     /// <summary>
     /// List of objects that want to perform work in a fixed interval, with IWorkInterval and the last runtime as value
     /// </summary>
-    private List<IWorkInterval> _intervalBasedWork = new List<IWorkInterval>();
+    private readonly List<IWorkInterval> _intervalBasedWork = new List<IWorkInterval>();
 
     /// <summary>
     /// Last time we checked whether interval based work should be run
@@ -71,12 +72,12 @@ namespace MediaPortal.Core.Services.Threading
     /// <summary>
     /// Priority-based queue which will hold all work when all threads are busy
     /// </summary>
-    private WorkQueue _workQueue = new WorkQueue();
+    private readonly WorkQueue _workQueue = new WorkQueue();
 
     /// <summary>
     /// WaitHandle which is set when the ThreadPool wants to cancel, so all idle threads stop waiting for work
     /// </summary>
-    private AutoResetEvent _cancelWaitHandle = new AutoResetEvent(false);
+    private readonly AutoResetEvent _cancelWaitHandle = new AutoResetEvent(false);
 
     /// <summary>
     /// Amount of work items processed by the queue (only work with FINISHED WorkState is counted)
@@ -98,14 +99,17 @@ namespace MediaPortal.Core.Services.Threading
     /// Logging delegate for information log messages
     /// </summary>
     public LoggerDelegate InfoLog;
+
     /// <summary>
     /// Logging delegate for warning log messages
     /// </summary>
     public LoggerDelegate WarnLog;
+    
     /// <summary>
     /// Logging delegate for error log messages
     /// </summary>
     public LoggerDelegate ErrorLog;
+    
     /// <summary>
     /// Logging delegate for debug log messages
     /// </summary>
@@ -184,7 +188,7 @@ namespace MediaPortal.Core.Services.Threading
     /// <param name="work">DoWorkHandler which contains the work to perform</param>
     /// <param name="threadPriority">System.Threading.ThreadPriority for this work</param>
     /// <returns>IWork reference to work object</returns>
-    public IWork Add(DoWorkHandler work, System.Threading.ThreadPriority threadPriority)
+    public IWork Add(DoWorkHandler work, ThreadPriority threadPriority)
     {
       IWork w = new Work(work, threadPriority);
       Add(w);
@@ -251,39 +255,6 @@ namespace MediaPortal.Core.Services.Threading
       IWork w = new Work(work, description, threadPriority, workCompletedHandler);
       Add(w, queuePriority);
       return w;
-    }
-
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">Work object to process</param>
-    public void Add(Work work)
-    {
-      if (work == null)
-        throw new ArgumentNullException("work", "cannot be null");
-      IWork w = work as IWork;
-      if (w != null)
-        Add(w);
-      else
-        throw new InvalidOperationException("Work does not implement IWork interface");
-    }
-
-    /// <summary>
-    /// Add work to be performed by the threadpool.
-    /// Can throw ArgumentNullException and InvalidOperationException.
-    /// </summary>
-    /// <param name="work">Work object to process</param>
-    /// <param name="queuePriority">QueuePriority for this work</param>
-    public void Add(Work work, QueuePriority queuePriority)
-    {
-      if (work == null)
-        throw new ArgumentNullException("work", "cannot be null");
-      IWork w = work as IWork;
-      if (w != null)
-        Add(w, queuePriority);
-      else
-        throw new InvalidOperationException("Work does not implement IWork interface");
     }
 
     /// <summary>
@@ -435,8 +406,7 @@ namespace MediaPortal.Core.Services.Threading
           if (_threads.Count >= _startInfo.MaximumThreads)
             return;
 
-          Thread t = new Thread(new ThreadStart(ProcessQueue));
-          t.IsBackground = true;
+          Thread t = new Thread(ProcessQueue) {IsBackground = true};
           t.Name = "PoolThread" + t.GetHashCode();
           t.Priority = _startInfo.DefaultThreadPriority;
           t.Start();
@@ -489,9 +459,8 @@ namespace MediaPortal.Core.Services.Threading
           CheckThreadIncrementRequired();
 
           // Wait until we receive a work item
-          IWork work;
 //          LogDebug("ThreadPool.ProcessQueue() {0} : entering work dequeue...", Thread.CurrentThread.Name);
-          work = _workQueue.Dequeue(_startInfo.ThreadIdleTimeout, _cancelWaitHandle);
+          IWork work = _workQueue.Dequeue(_startInfo.ThreadIdleTimeout, _cancelWaitHandle);
 
           // Update time this thread was last alive
           _threads[Thread.CurrentThread] = DateTime.Now;
@@ -551,7 +520,6 @@ namespace MediaPortal.Core.Services.Threading
 //              LogDebug("ThreadPool.ProcessQueue() : finished processing work {0}", work.Description);
             }
             Thread.CurrentThread.Priority = _startInfo.DefaultThreadPriority;
-            work = null;
           }
           CheckForIntervalBasedWork();
         }
@@ -682,18 +650,15 @@ namespace MediaPortal.Core.Services.Threading
       get { return _startInfo.MinimumThreads; }
       set
       {
-        ThreadPoolStartInfo tpsi = new ThreadPoolStartInfo();
-        tpsi.MinimumThreads = value;
-        tpsi.MaximumThreads = _startInfo.MaximumThreads;
-        try
-        {
-          ThreadPoolStartInfo.Validate(tpsi);
-          if (value > _startInfo.MinimumThreads)
-            StartThreads(value - _startInfo.MinimumThreads);
-          _startInfo.MinimumThreads = value;
-          tpsi = null;
-        }
-        catch { throw; }
+        ThreadPoolStartInfo tpsi = new ThreadPoolStartInfo
+          {
+              MinimumThreads = value,
+              MaximumThreads = _startInfo.MaximumThreads
+          };
+        ThreadPoolStartInfo.Validate(tpsi);
+        if (value > _startInfo.MinimumThreads)
+          StartThreads(value - _startInfo.MinimumThreads);
+        _startInfo.MinimumThreads = value;
       }
     }
 
@@ -706,17 +671,14 @@ namespace MediaPortal.Core.Services.Threading
       get { return _startInfo.MaximumThreads; }
       set
       {
-        ThreadPoolStartInfo tpsi = new ThreadPoolStartInfo();
-        tpsi.MinimumThreads = _startInfo.MinimumThreads;
-        tpsi.MaximumThreads = value;
-        try
-        {
-          ThreadPoolStartInfo.Validate(tpsi);
-          _startInfo.MaximumThreads = value;
-          CheckThreadIncrementRequired();
-          tpsi = null;
-        }
-        catch { throw; }
+        ThreadPoolStartInfo tpsi = new ThreadPoolStartInfo
+          {
+              MinimumThreads = _startInfo.MinimumThreads,
+              MaximumThreads = value
+          };
+        ThreadPoolStartInfo.Validate(tpsi);
+        _startInfo.MaximumThreads = value;
+        CheckThreadIncrementRequired();
       }
     }
 

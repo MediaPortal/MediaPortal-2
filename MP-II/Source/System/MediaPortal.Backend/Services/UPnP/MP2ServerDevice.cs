@@ -36,6 +36,8 @@ namespace MediaPortal.Services.UPnP
         new LocalizedUPnPDeviceInformation())
     {
       AddService(new UPnPContentDirectoryService());
+      // TODO: Client manager service with method to register the online state of a client - will communicate with the
+      //       system's client manager.
       // TODO: Connection manager (is our notion of a connection manager compatible with that of the UPnP standard MediaServer?)
       // TODO: Recording service (dito)
     }

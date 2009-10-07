@@ -60,26 +60,16 @@ namespace MediaPortal.Services.UPnP
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
 
     // Shares management
-    public Guid RegisterShare(SystemName nativeSystem, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public void RegisterShare(Share share)
     {
       CpAction action;
       if (!_serviceStub.Actions.TryGetValue("RegisterShare", out action))
         throw new FatalException("Method 'RegisterShare' is not present in the connected MP-II UPnP server");
       IList<object> inParameters = new List<object>
         {
-            nativeSystem.HostName,
-            providerId.ToString("B"),
-            path,
-            shareName,
-            StringUtils.Join(",", mediaCategories)
+            share
         };
-      ICollection<string> metadataExtractorIdStrings = new List<string>();
-      foreach (Guid metadataExtractorId in metadataExtractorIds)
-        metadataExtractorIdStrings.Add(metadataExtractorId.ToString("B"));
-      inParameters.Add(StringUtils.Join(",", metadataExtractorIdStrings));
-      IList<object> outParameters = action.InvokeAction(inParameters);
-      return new Guid((string) outParameters[0]);
+      action.InvokeAction(inParameters);
     }
 
     public void RemoveShare(Guid shareId)
@@ -157,25 +147,6 @@ namespace MediaPortal.Services.UPnP
       IList<object> inParameters = new List<object> {shareId.ToString("B")};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (Share) outParameters[0];
-    }
-
-    // Client management
-    public void ConnectClient()
-    {
-      CpAction action;
-      if (!_serviceStub.Actions.TryGetValue("ConnectClient", out action))
-        throw new FatalException("Method 'ConnectClient' is not present in the connected MP-II UPnP server");
-      IList<object> inParameters = new List<object> {SystemName.GetLocalSystemName()};
-      action.InvokeAction(inParameters);
-    }
-
-    public void DisconnectClient()
-    {
-      CpAction action;
-      if (!_serviceStub.Actions.TryGetValue("DisconnectClient", out action))
-        throw new FatalException("Method 'DisconnectClient' is not present in the connected MP-II UPnP server");
-      IList<object> inParameters = new List<object> {SystemName.GetLocalSystemName()};
-      action.InvokeAction(inParameters);
     }
 
     // Media item aspect storage management

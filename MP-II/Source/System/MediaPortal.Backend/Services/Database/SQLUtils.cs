@@ -73,7 +73,7 @@ namespace MediaPortal.Services.Database
 
     public static string GetSQLStringType(int maxNumChars)
     {
-      return "VARCHAR(" + maxNumChars + ")";
+      return "NVARCHAR(" + maxNumChars + ")";
     }
 
     public static string LikeEscape(string str, char escapeChar)

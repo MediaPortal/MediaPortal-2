@@ -51,9 +51,17 @@ namespace MediaPortal.MediaLibrary
 
     #region Media query
 
-    ICollection<MediaItem> Search(IQuery query);
+    IList<MediaItem> Search(MediaItemQuery query);
 
-    ICollection<MediaItem> Browse(MediaItem parent);
+    /// <summary>
+    /// Returns a set of attribute values of the given <paramref name="attributeType"/> for the media items specified
+    /// by the <paramref name="filter"/>.
+    /// </summary>
+    /// <param name="attributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
+    /// <returns>Distinct set of attribute values of the given <paramref name="attributeType"/>.</returns>
+    ICollection<object> GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IFilter filter);
 
     #endregion
 
@@ -73,7 +81,7 @@ namespace MediaPortal.MediaLibrary
 
     void RemoveMediaItemAspectStorage(Guid aspectId);
 
-    ICollection<MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata();
+    IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata();
 
     MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId);
 
@@ -82,7 +90,13 @@ namespace MediaPortal.MediaLibrary
     #region Shares management
 
     /// <summary>
-    /// Adds a share to the media library's collection of registered shares.
+    /// Adds an existing share to the media librarie's collection of registered shares.
+    /// </summary>
+    /// <param name="share">Share to be added.</param>
+    void RegisterShare(Share share);
+
+    /// <summary>
+    /// Creates a new share and adds it to the media library's collection of registered shares.
     /// </summary>
     /// <param name="nativeSystem">System where the media provider for the new share is located.</param>
     /// <param name="providerId">ID of the media provider of the specified <paramref name="nativeSystem"/>.</param>
@@ -93,7 +107,7 @@ namespace MediaPortal.MediaLibrary
     /// categories.</param>
     /// <param name="metadataExtractorIds">Ids of metadata extractors to attach to the new share.</param>
     /// <returns>ID of the new share.</returns>
-    Guid RegisterShare(SystemName nativeSystem, Guid providerId, string path,
+    Guid CreateShare(SystemName nativeSystem, Guid providerId, string path,
         string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds);
 
     /// <summary>

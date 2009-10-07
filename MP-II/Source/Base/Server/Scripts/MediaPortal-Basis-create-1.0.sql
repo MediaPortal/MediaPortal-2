@@ -3,7 +3,7 @@
 
 -- Basis-Table where all sub schemas are registered with their current version number.
 CREATE TABLE MEDIAPORTAL_BASIS (
-  SUBSCHEMA_NAME VARCHAR(500) NOT NULL,
+  SUBSCHEMA_NAME NVARCHAR(500) NOT NULL,
   VERSION_MAJOR INTEGER NOT NULL,
   VERSION_MINOR INTEGER NOT NULL,
 

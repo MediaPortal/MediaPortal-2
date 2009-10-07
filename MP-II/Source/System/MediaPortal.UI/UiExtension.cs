@@ -22,12 +22,15 @@
 
 #endregion
 
+using System;
 using MediaPortal.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
+using MediaPortal.ServerConnection;
 using MediaPortal.Services.Players;
+using MediaPortal.Services.ServerConnection;
 using MediaPortal.Services.Shares;
 using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.Services.UserManagement;
@@ -62,11 +65,17 @@ namespace MediaPortal
       logger.Debug("UiExtension: Registering ILocalSharesManagement service");
       ServiceScope.Add<ILocalSharesManagement>(new LocalSharesManagement());
 
+      logger.Debug("UiExtension: Registering IServerConnectionManager service");
+      ServiceScope.Add<IServerConnectionManager>(new ServerConnectionManager());
+
       AdditionalUiBuilders.Register();
     }
 
     public static void StopAll()
     {
+      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      serverConnectionManager.Shutdown();
+
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       playerContextManager.Shutdown();
 
@@ -77,6 +86,11 @@ namespace MediaPortal
     public static void DisposeUiServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+
+      // Reverse order than method RegisterUiServices()
+
+      logger.Debug("UiExtension: Removing IServerConnectionManager service");
+      ServiceScope.RemoveAndDispose<IServerConnectionManager>();
 
       logger.Debug("UiExtension: Removing ILocalSharesManagement service");
       ServiceScope.RemoveAndDispose<ILocalSharesManagement>();
@@ -100,9 +114,15 @@ namespace MediaPortal
     /// <summary>
     /// Registers default command shortcuts at the input manager.
     /// </summary>
-    public static void RegisterDefaultCommandShortcuts()
+    protected static void RegisterDefaultCommandShortcuts()
     {
       //TODO: Shortcut to handle the "Power" key, further shortcuts
+    }
+
+    public static void Startup()
+    {
+      RegisterDefaultCommandShortcuts();
+      ServiceScope.Get<IServerConnectionManager>().Startup();
     }
   }
 }

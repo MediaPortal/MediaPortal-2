@@ -130,7 +130,7 @@ namespace MediaPortal
           skinEngine.Initialize(); // 1)
           workflowManager.Initialize(); // 2)
           skinEngine.Startup(); // 3)
-          UiExtension.RegisterDefaultCommandShortcuts();
+          UiExtension.Startup();
 
           systemStateService.SwitchSystemState(SystemState.Started, true);
 

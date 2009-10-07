@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal</RootNamespace>
-    <AssemblyName>MediaPortal-II</AssemblyName>
+    <AssemblyName>MP-II-Client</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -79,7 +79,7 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)postbuild.bat" "$(SolutionDir)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\"
-if $(ConfigurationName)==Release xcopy /y "$(TargetPath)" "$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)"</PostBuildEvent>
+</PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>

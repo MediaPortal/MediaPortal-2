@@ -1,3 +1,5 @@
+@REM MediaPortal-II client postbuild batch file
+
 @REM Parameter 1: Solution source directory, needs to have a trailing \
 @REM Parameter 2: Target build directory, needs to have a trailing \
 

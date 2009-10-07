@@ -24,15 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
-using System.Windows.Forms;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.CommandLine;
-using MediaPortal.Utilities.Screens;
 
 namespace MediaPortal
 {
+  // TODO: Clean up
   [Serializable]
   public class CommandLineOptions : ICommandLineOptions
   {
@@ -74,14 +72,15 @@ namespace MediaPortal
     }
     #endregion
 
-    #region ICommandLineOptiosn Implementations
+    #region ICommandLineOptins implementation
+
     public void SetOption(string optionName, string argument)
     {
-      Option option = (Option)Enum.Parse(typeof(Option), optionName, true);
+      Option option = (Option) Enum.Parse(typeof(Option), optionName, true);
       object value = argument;
       if (option == Option.LogLevel)
       {
-        value = (LogLevel)Enum.Parse(typeof(LogLevel), argument, true);
+        value = (LogLevel) Enum.Parse(typeof(LogLevel), argument, true);
       }
       _options.Add(option, value);
     }
@@ -97,15 +96,13 @@ namespace MediaPortal
         logLevels.Append(level);
       }
 
-      string options = "Valid options:\r\n";
-      options += "/help\t\tShows this screen\r\n";
-      options += "/LogMethod\tInstructs the logger to also log the name of its calling method\r\n";
-      options += "/LogLevel=<level>\tSets the log level.  <level> should be one of the following values:\r\n\t\t" +
-        logLevels;
-      InfoScreen form = new InfoScreen("MediaPortal II", "Command Line Options", options, InfoScreen.Image.info);
-      form.Size = new Size(714, 326);
-      Application.Run(form);
+      string output = "Valid options:\r\n";
+      output += "/help\t\tShows this screen\r\n";
+      output += "/LogMethod\tInstructs the logger to also log the name of its calling method\r\n";
+      output += "/LogLevel=<level>\tSets the log level.  <level> should be one of the following values:\r\n\t\t" + logLevels;
+      Console.WriteLine(output);
     }
+
     #endregion
   }
 }

@@ -103,15 +103,9 @@ namespace MediaPortal.Backend.Services.UPnP
       // Shares management
       DvAction registerShareAction = new DvAction("RegisterShare", OnRegisterShare,
           new DvArgument[] {
-            new DvArgument("NativeSystem", A_ARG_TYPE_SystemName, ArgumentDirection.In),
-            new DvArgument("ProviderId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Path", A_ARG_TYPE_ProviderPath, ArgumentDirection.In),
-            new DvArgument("ShareName", A_ARG_TYPE_Name, ArgumentDirection.In),
-            new DvArgument("MediaCategories", A_ARG_TYPE_MediaCategoryEnumeration, ArgumentDirection.In),
-            new DvArgument("MetadataExtractorIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("Share", A_ARG_TYPE_Share, ArgumentDirection.In),
           },
           new DvArgument[] {
-            new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.Out, true)
           });
       AddAction(registerShareAction);
 
@@ -157,23 +151,6 @@ namespace MediaPortal.Backend.Services.UPnP
           });
       AddAction(getShareAction);
 
-      // Client management
-      DvAction connectClientAction = new DvAction("ConnectClient", OnConnectClient,
-          new DvArgument[] {
-            new DvArgument("SystemName", A_ARG_TYPE_SystemName, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-          });
-      AddAction(connectClientAction);
-
-      DvAction disconnectClientAction = new DvAction("DisconnectClient", OnDisconnectClient,
-          new DvArgument[] {
-            new DvArgument("SystemName", A_ARG_TYPE_SystemName, ArgumentDirection.In),
-          },
-          new DvArgument[] {
-          });
-      AddAction(disconnectClientAction);
-
       // Media item aspect storage management
       DvAction addMediaItemAspectStorageAction = new DvAction("AddMediaItemAspectStorage", OnAddMediaItemAspectStorage,
           new DvArgument[] {
@@ -213,18 +190,9 @@ namespace MediaPortal.Backend.Services.UPnP
 
     static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      SystemName nativeSystem = new SystemName((string) inParams[0]);
-      Guid providerId = new Guid((string) inParams[1]);
-      string path = (string) inParams[2];
-      string shareName = (string) inParams[3];
-      string[] mediaCategories = ((string) inParams[4]).Split(',');
-      string[] metadataExtractorIdStrings = ((string) inParams[5]).Split(',');
-      ICollection<Guid> metadataExtractorIds = new List<Guid>();
-      foreach (string extractorIdString in metadataExtractorIdStrings)
-        metadataExtractorIds.Add(new Guid(extractorIdString));
-      Guid shareId = ServiceScope.Get<IMediaLibrary>().RegisterShare(
-          nativeSystem, providerId, path, shareName, mediaCategories, metadataExtractorIds);
-      outParams = new List<object> {shareId.ToString("B")};
+      Share share = (Share) inParams[0];
+      ServiceScope.Get<IMediaLibrary>().RegisterShare(share);
+      outParams = null;
       return null;
     }
 
@@ -302,22 +270,6 @@ namespace MediaPortal.Backend.Services.UPnP
       return null;
     }
 
-    static UPnPError OnConnectClient(DvAction action, IList<object> inParams, out IList<object> outParams)
-    {
-      SystemName systemName = new SystemName((string) inParams[0]);
-      // TODO: call ClientManager.ClientConnected(systemName)
-      outParams = null;
-      return null;
-    }
-
-    static UPnPError OnDisconnectClient(DvAction action, IList<object> inParams, out IList<object> outParams)
-    {
-      SystemName systemName = new SystemName((string) inParams[0]);
-      // TODO: call ClientManager.ClientDisconnected(systemName)
-      outParams = null;
-      return null;
-    }
-
     static UPnPError OnAddMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) inParams[0];
@@ -337,8 +289,8 @@ namespace MediaPortal.Backend.Services.UPnP
     static UPnPError OnGetAllManagedMediaItemAspectMetadataIds(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
       ICollection<Guid> result = new List<Guid>();
-      foreach (MediaItemAspectMetadata miam in ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata())
-        result.Add(miam.AspectId);
+      foreach (Guid aspectId in ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys)
+        result.Add(aspectId);
       outParams = new List<object> {result};
       return null;
     }

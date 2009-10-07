@@ -22,39 +22,13 @@
 
 #endregion
 
-using System.Collections.Generic;
-
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
-  public enum SortOrder
-  {
-    None,
-    Ascending,
-    Descending
-  }
-
   /// <summary>
-  /// Holds the data for one (of possibly many) sort field. Stores the name of the field to be
-  /// sorted and the sort direction.
+  /// Filters comparing an attribute.
   /// </summary>
-  public struct SortInformation
+  public interface IAttributeFilter : IFilter
   {
-    public string FieldName;
-    public SortOrder SortOrder;
-  }
-
-  /// <summary>
-  /// Specifies a query to be evaluated on the media library database. The evaluation of this query
-  /// will return a set of media items.
-  /// </summary>
-  public interface IQuery
-  {
-    int ClipSize { get; set; }
-
-    IList<SortInformation> SortInformation { get; set; }
-
-    // TODO: Getters/setters/accessors for query data and result data
-    // This query class will be formulated with means of media item aspects, their metadata and operators
-    // between them
+    MediaItemAspectMetadata.AttributeSpecification AttributeType {get; }
   }
 }

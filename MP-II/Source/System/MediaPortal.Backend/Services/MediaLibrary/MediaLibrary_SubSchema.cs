@@ -45,8 +45,8 @@ namespace MediaPortal.Services.MediaLibrary
     public const int EXPECTED_SCHEMA_VERSION_MAJOR = 1;
     public const int EXPECTED_SCHEMA_VERSION_MINOR = 0;
 
-    public const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
-    public const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
+    internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
+    internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
 
     #endregion
 

@@ -120,6 +120,7 @@ namespace MediaPortal
 
           systemStateService.SwitchSystemState(SystemState.Started, true);
 
+          // TODO: Control of runtime
           Application.Run();
 
           systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
