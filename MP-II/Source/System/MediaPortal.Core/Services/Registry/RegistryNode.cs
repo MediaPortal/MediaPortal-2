@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Registry;
 using MediaPortal.Utilities;
 
@@ -67,6 +68,22 @@ namespace MediaPortal.Core.Services.Registry
     #endregion
 
     #region IRegistryNode implementation
+
+    public string Name
+    {
+      get { return _name; }
+    }
+
+    public string Path
+    {
+      get
+      {
+        if (_parent == null)
+          return "/" + _name;
+        else
+          return _parent.Path + "/" + _name;
+      }
+    }
 
     public IDictionary<string, IRegistryNode> SubNodes
     {
@@ -113,7 +130,14 @@ namespace MediaPortal.Core.Services.Registry
     public void AddItem(string name, object item)
     {
       CheckItemCollectionPresent();
-      _items.Add(name, item);
+      try
+      {
+        _items.Add(name, item);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Error adding plugin item '{0}' to plugin tree node '{1}'", name, Path);
+      }
     }
 
     public object RemoveItem(string name)

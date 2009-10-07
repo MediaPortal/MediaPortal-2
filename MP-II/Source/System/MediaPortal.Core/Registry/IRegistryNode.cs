@@ -37,6 +37,16 @@ namespace MediaPortal.Core.Registry
   public interface IRegistryNode
   {
     /// <summary>
+    /// Returns the name of this registry node.
+    /// </summary>
+    string Name { get; }
+
+    /// <summary>
+    /// Returns the absolute path of this registry node.
+    /// </summary>
+    string Path { get; }
+
+    /// <summary>
     /// Returns the names of all sub nodes of this node mapped to the node instances.
     /// This might be lazily initialized, hence it might be <c>null</c>.
     /// </summary>
