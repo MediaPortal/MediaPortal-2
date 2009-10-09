@@ -39,9 +39,17 @@ namespace MediaPortal.Core.Registry
   /// start with the '/' character, which denotes the root node when used as the first character.
   /// Path element separator is the '/' character.
   /// </para>
+  /// <para>
+  /// This service is thread-safe.
+  /// </para>
   /// </remarks>
   public interface IRegistry
   {
+    /// <summary>
+    /// Returns the multithreading synchronization object the registry uses for locking multithreaded access.
+    /// </summary>
+    object SyncObj { get; }
+
     /// <summary>
     /// Returns the root node of the registry tree.
     /// </summary>

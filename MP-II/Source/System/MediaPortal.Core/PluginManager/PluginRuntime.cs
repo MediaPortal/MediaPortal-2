@@ -395,8 +395,9 @@ namespace MediaPortal.Core.PluginManager
       IRegistryNode node = GetRegistryNode(location, createOnNotExist);
       if (node == null)
         return null;
-      if (node.Items != null && node.Items.ContainsKey(ITEMCHANGELISTENER_ID))
-        return (ICollection<IItemRegistrationChangeListener>) node.Items[ITEMCHANGELISTENER_ID];
+      object resultObj;
+      if (node.Items != null && node.Items.TryGetValue(ITEMCHANGELISTENER_ID, out resultObj))
+        return (ICollection<IItemRegistrationChangeListener>) resultObj;
       if (createOnNotExist)
       {
         ICollection<IItemRegistrationChangeListener> result = new List<IItemRegistrationChangeListener>();

@@ -36,6 +36,7 @@ namespace MediaPortal.Core.Services.Registry
 
     protected RegistryNode _parent;
     protected string _name;
+    protected object _syncObj;
     protected IDictionary<string, IRegistryNode> _subNodes = null; // lazy initialized
     protected IDictionary<string, object> _items = null; // lazy initialized
 
@@ -43,10 +44,11 @@ namespace MediaPortal.Core.Services.Registry
 
     #region Ctor
 
-    public RegistryNode(RegistryNode parent, string name)
+    public RegistryNode(RegistryNode parent, string name, object syncObj)
     {
       _parent = parent;
       _name = name;
+      _syncObj = syncObj;
     }
 
     #endregion
@@ -55,14 +57,16 @@ namespace MediaPortal.Core.Services.Registry
 
     protected void CheckSubNodeCollectionPresent()
     {
-      if (_subNodes == null)
-        _subNodes = new Dictionary<string, IRegistryNode>(StringComparer.InvariantCultureIgnoreCase);
+      lock (_syncObj)
+        if (_subNodes == null)
+          _subNodes = new Dictionary<string, IRegistryNode>(StringComparer.InvariantCultureIgnoreCase);
     }
 
     protected void CheckItemCollectionPresent()
     {
-      if (_items == null)
-        _items = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+      lock (_syncObj)
+        if (_items == null)
+          _items = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
     }
 
     #endregion
@@ -81,7 +85,8 @@ namespace MediaPortal.Core.Services.Registry
         if (_parent == null)
           return "/" + _name;
         else
-          return _parent.Path + "/" + _name;
+          lock (_syncObj)
+            return _parent.Path + "/" + _name;
       }
     }
 
@@ -97,24 +102,27 @@ namespace MediaPortal.Core.Services.Registry
 
     public IRegistryNode GetSubNodeByPath(string path, bool createOnNotExist)
     {
-      if (_subNodes == null && !createOnNotExist)
-        return null;
-      if (path.StartsWith("/"))
-        throw new ArgumentException("Registry path expression has to be a relative path (no '/' character at the beginning)");
-      path = StringUtils.RemoveSuffixIfPresent(path, "/");
-      int i = path.IndexOf('/');
-      string nodeName = i == -1 ? path : path.Substring(0, i);
-      CheckSubNodeCollectionPresent();
-      IRegistryNode node = _subNodes.ContainsKey(nodeName) ? _subNodes[nodeName] : null;
-      if (node == null)
-        if (createOnNotExist)
-        {
-          node = new RegistryNode(this, nodeName);
-          _subNodes.Add(nodeName, node);
-        }
-        else
+      lock (_syncObj)
+      {
+        if (_subNodes == null && !createOnNotExist)
           return null;
-      return i == -1 ? node : node.GetSubNodeByPath(RegistryHelper.RemoveRootFromAbsolutePath(path.Substring(i)), createOnNotExist);
+        if (path.StartsWith("/"))
+          throw new ArgumentException("Registry path expression has to be a relative path (no '/' character at the beginning)");
+        path = StringUtils.RemoveSuffixIfPresent(path, "/");
+        int i = path.IndexOf('/');
+        string nodeName = i == -1 ? path : path.Substring(0, i);
+        CheckSubNodeCollectionPresent();
+        IRegistryNode node = _subNodes.ContainsKey(nodeName) ? _subNodes[nodeName] : null;
+        if (node == null)
+          if (createOnNotExist)
+          {
+            node = new RegistryNode(this, nodeName, _syncObj);
+            _subNodes.Add(nodeName, node);
+          }
+          else
+            return null;
+        return i == -1 ? node : node.GetSubNodeByPath(RegistryHelper.RemoveRootFromAbsolutePath(path.Substring(i)), createOnNotExist);
+      }
     }
 
     public IRegistryNode GetSubNodeByPath(string path)
@@ -129,31 +137,43 @@ namespace MediaPortal.Core.Services.Registry
 
     public void AddItem(string name, object item)
     {
-      CheckItemCollectionPresent();
-      try
+      lock (_syncObj)
       {
-        _items.Add(name, item);
-      }
-      catch (Exception e)
-      {
-        ServiceScope.Get<ILogger>().Error("Error adding plugin item '{0}' to plugin tree node '{1}'", name, Path);
+        CheckItemCollectionPresent();
+        try
+        {
+          _items.Add(name, item);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Error("Error adding plugin item '{0}' to plugin tree node '{1}'", e, name, Path);
+        }
       }
     }
 
     public object RemoveItem(string name)
     {
-      object result = _items.ContainsKey(name) ? _items[name] : null;
-      _items.Remove(name);
+      object result;
+      lock (_syncObj)
+      {
+        if (!_items.TryGetValue(name, out result))
+          return null;
+        _items.Remove(name);
+      }
       return result;
     }
 
     public IList<T> GetItems<T>()
     {
       IList<T> result = new List<T>();
-      foreach (object item in _items.Values)
-        if (item is T)
-          result.Add((T) item);
+      lock (_syncObj)
+      {
+        foreach (object item in _items.Values)
+          if (item is T)
+            result.Add((T) item);
+      }
       return result;
+
     }
 
     #endregion
@@ -162,13 +182,15 @@ namespace MediaPortal.Core.Services.Registry
 
     public IList<string> GetStatus()
     {
-      List<string> result = new List<string>();
-      result.Add("[" + _name + "]");
-      if (_subNodes != null)
-        foreach (RegistryNode child in _subNodes.Values)
-          foreach (string line in child.GetStatus())
-            result.Add("  " + line);
-      return result;
+      lock (_syncObj)
+      {
+        List<string> result = new List<string> {"[" + _name + "]"};
+        if (_subNodes != null)
+          foreach (RegistryNode child in _subNodes.Values)
+            foreach (string line in child.GetStatus())
+              result.Add("  " + line);
+        return result;
+      }
     }
 
     #endregion

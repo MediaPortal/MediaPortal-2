@@ -98,7 +98,7 @@ namespace MediaPortal.Core.MediaManagement
       protected string _attributeName;
       protected Type _attributeType;
       protected Cardinality _cardinality;
-      protected int _maxNumChars;
+      protected uint _maxNumChars;
 
       #endregion
 
@@ -163,7 +163,7 @@ namespace MediaPortal.Core.MediaManagement
       /// stored in an attribute instance of this type.
       /// </summary>
       [XmlIgnore]
-      public int MaxNumChars
+      public uint MaxNumChars
       {
         get { return _maxNumChars; }
         set { _maxNumChars = value; }
@@ -207,7 +207,7 @@ namespace MediaPortal.Core.MediaManagement
       /// For internal use of the XML serialization system only.
       /// </summary>
       [XmlElement("MaxNumChars")]
-      public int XML_MaxNumChars
+      public uint XML_MaxNumChars
       {
         get { return _maxNumChars; }
         set { _maxNumChars = value; }
@@ -299,10 +299,10 @@ namespace MediaPortal.Core.MediaManagement
     /// <see cref="MediaItemAspectMetadata"/> instance.
     /// </summary>
     public static AttributeSpecification CreateStringAttributeSpecification(string attributeName,
-        int maxNumChars, Cardinality cardinality)
+        uint maxNumChars, Cardinality cardinality)
     {
-      AttributeSpecification result = new AttributeSpecification(attributeName, typeof(string), cardinality);
-      result.MaxNumChars = maxNumChars;
+      AttributeSpecification result = new AttributeSpecification(attributeName, typeof(string), cardinality)
+        {MaxNumChars = maxNumChars};
       return result;
     }
 

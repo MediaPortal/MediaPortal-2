@@ -54,10 +54,7 @@ namespace MediaPortal.Core.PathManager
 
     /// <summary>
     /// Registers the specified <paramref name="pathPattern"/> for the specified
-    /// <paramref name="label"/>. If the label is already registered, a
-    /// <see cref="System.ArgumentException"/> will be thrown. To set a path registration,
-    /// whether or not it is already registered, use method
-    /// <see cref="ReplacePath(string, string)"/>.
+    /// <paramref name="label"/>. If the label is already registered, it will be replaced.
     /// </summary>
     /// <param name="label">The lookup label for the new path.</param>
     /// <param name="pathPattern">The path pattern to be registered with the <paramref name="label"/>.
@@ -72,16 +69,6 @@ namespace MediaPortal.Core.PathManager
     /// <exception cref="ArgumentException">When the specified <paramref name="pathPattern"/>
     /// contains labels that are not registered.</exception>
     string GetPath(string pathPattern);
-
-    /// <summary>
-    /// Replaces an existing path registration. If the specified <paramref name="label"/> is
-    /// already registered, the registration will be changed to the new <paramref name="pathPattern"/>,
-    /// if it was not registered yet, the registration will be created.
-    /// </summary>
-    /// <param name="label">The label to be registered.</param>
-    /// <param name="pathPattern">The path pattern to be registered with the <paramref name="label"/>.
-    /// This pattern may contain references to other path registrations.</param>
-    void ReplacePath(string label, string pathPattern);
 
     /// <summary>
     /// Removes the path registration for the specified <paramref name="label"/>.

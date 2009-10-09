@@ -34,6 +34,7 @@ namespace MediaPortal.Core.Services.Registry
   {
     #region Protected fields
 
+    protected object _syncObj = new object();
     protected RegistryNode _rootNode;
 
     #endregion
@@ -42,12 +43,17 @@ namespace MediaPortal.Core.Services.Registry
 
     public Registry()
     {
-      _rootNode = new RegistryNode(null, string.Empty);
+      _rootNode = new RegistryNode(null, string.Empty, _syncObj);
     }
 
     #endregion
 
     #region IRegistry implementation
+
+    public object SyncObj
+    {
+      get { return _syncObj; }
+    }
 
     public IRegistryNode RootNode
     {
@@ -78,8 +84,7 @@ namespace MediaPortal.Core.Services.Registry
 
     public IList<string> GetStatus()
     {
-      IList<string> result = new List<string>();
-      result.Add("=== Registry");
+      IList<string> result = new List<string> {"=== Registry"};
       foreach (string line in _rootNode.GetStatus())
         result.Add("  " + line);
       return result;

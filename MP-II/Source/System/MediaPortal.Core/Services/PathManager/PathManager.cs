@@ -77,7 +77,7 @@ namespace MediaPortal.Core.Services.PathManager
     {
       label = CheckFormat(label);
       pathPattern = StringUtils.RemoveSuffixIfPresent(pathPattern, "\\");
-      _paths.Add(label, pathPattern);
+      _paths[label] = pathPattern;
     }
 
     public string GetPath(string pathPattern)
@@ -100,12 +100,6 @@ namespace MediaPortal.Core.Services.PathManager
       }
 
       return pathPattern;
-    }
-
-    public void ReplacePath(string label, string pathPattern)
-    {
-      RemovePath(label);
-      SetPath(label, pathPattern);
     }
 
     public void RemovePath(string label)
