@@ -64,6 +64,11 @@ namespace MediaPortal.Core.Localization
     #region Methods
 
     /// <summary>
+    /// Starts loading all language resources. Must be called after plugins were enabled by the plugin manager.
+    /// </summary>
+    void Startup();
+
+    /// <summary>
     /// Changes the current language, to that all strings should be translated.
     /// </summary>
     /// <param name="culture">The culture whose language should be used.</param>

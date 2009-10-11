@@ -95,6 +95,11 @@ namespace MediaPortal.Core
       ServiceScope.Add<IMediaAccessor>(new Services.MediaManagement.MediaAccessor());
     }
 
+    public static void StartCoreServices()
+    {
+      ServiceScope.Get<ILocalization>().Startup();
+    }
+
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();

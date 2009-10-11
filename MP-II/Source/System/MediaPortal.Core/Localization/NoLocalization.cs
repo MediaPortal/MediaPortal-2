@@ -40,6 +40,8 @@ namespace MediaPortal.Core.Localization
       get { return CultureInfo.CurrentUICulture; }
     }
 
+    public void Startup() { }
+
     public void ChangeLanguage(CultureInfo culture) {}
 
     public string ToString(string section, string name, params object[] parameters)

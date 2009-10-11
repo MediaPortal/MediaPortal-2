@@ -145,13 +145,13 @@ namespace MediaPortal.Services.MediaLibrary
         IDbCommand command = transaction.CreateCommand();
         string miamTableName = GetMIAMTableName(miam);
         StringBuilder sb = new StringBuilder("CREATE TABLE " + miamTableName + " (" +
-            MIAM_MEDIA_ITEM_ID_COL_NAME + " " + SqlUtils.GetSQLType(typeof(Int64)) + ",");
+            MIAM_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Int64)) + ",");
         IList<string> terms = new List<string>();
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in miam.AttributeSpecifications)
         {
           string attrName = GetMIAMAttributeColumnName(spec.AttributeName);
-          string sqlType = spec.AttributeType == typeof(string) ? SqlUtils.GetSQLStringType(spec.MaxNumChars) :
-              SqlUtils.GetSQLType(spec.AttributeType);
+          string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLUnicodeStringType(spec.MaxNumChars) :
+              database.GetSQLType(spec.AttributeType);
           switch (spec.Cardinality)
           {
             case Cardinality.Inline:
@@ -161,7 +161,7 @@ namespace MediaPortal.Services.MediaLibrary
             case Cardinality.ManyToOne:
             case Cardinality.ManyToMany:
               command.CommandText = "CREATE TABLE " + GetMIAMCollectionAttributeTableName(spec) + " (" +
-                  MIAM_MEDIA_ITEM_ID_COL_NAME + " " + SqlUtils.GetSQLType(typeof(Int64)) +
+                  MIAM_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Int64)) +
                   COLL_MIAM_VALUE_COL_NAME + " " + sqlType +
                   "CONSTRAINT " + GetMIAMCollectionAttributeTableName(spec) + "_PK PRIMARY KEY (" + MIAM_MEDIA_ITEM_ID_COL_NAME + ")," +
                   "CONSTRAINT " + GetMIAMCollectionAttributeTableName(spec) + "_MEDIA_ITEM_FK" +

@@ -24,12 +24,18 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Services.Database;
 
 namespace MediaPortal.Database
 {
   /// <summary>
   /// Provides database schema management functions. The guidelines for database setup and access must be observed.
   /// </summary>
+  /// <remarks>
+  /// The batch update methods provide a replacement function for datatypes. Datatype placeholders in the scripts in the form
+  /// %DATATYPE% will be replaced by the correct database datatypes of the current database.
+  /// For a list of replacements which will be applied to batch scripts, see the <see cref="SqlScriptPreprocessor"/> class.
+  /// </remarks>
   public interface IDatabaseManager
   {
     /// <summary>

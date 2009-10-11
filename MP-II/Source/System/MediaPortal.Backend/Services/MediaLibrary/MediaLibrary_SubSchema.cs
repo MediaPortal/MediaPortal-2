@@ -55,7 +55,7 @@ namespace MediaPortal.Services.MediaLibrary
       get
       {
         IPathManager pathManager = ServiceScope.Get<IPathManager>();
-        return pathManager.GetPath(@"<APPLICATION_ROOT>\Base\Scripts\");
+        return pathManager.GetPath(@"<APPLICATION_ROOT>\Scripts\");
       }
     }
 

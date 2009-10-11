@@ -53,16 +53,6 @@ namespace MediaPortal.Database.Firebird
     public FirebirdSQLDatabase()
     {
       FirebirdSettings settings = ServiceScope.Get<ISettingsManager>().Load<FirebirdSettings>();
-      try
-      {
-        if (!File.Exists(settings.DatabaseFile))
-          FbConnection.CreateDatabase(settings.DatabaseFile);
-      }
-      catch (Exception e)
-      {
-        ServiceScope.Get<ILogger>().Critical("Error establishing database connection", e);
-        throw;
-      }
       FbConnectionStringBuilder sb = new FbConnectionStringBuilder
         {
             ServerType = settings.ServerType,
@@ -73,6 +63,19 @@ namespace MediaPortal.Database.Firebird
             Pooling = false // We use our own pooling mechanism
         };
       _connectionString = sb.ConnectionString;
+      try
+      {
+        string dir = Path.GetDirectoryName(settings.DatabaseFile);
+        if (!Directory.Exists(dir))
+          Directory.CreateDirectory(dir);
+        if (!File.Exists(settings.DatabaseFile))
+          FbConnection.CreateDatabase(_connectionString);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Critical("Error establishing database connection", e);
+        throw;
+      }
     }
 
     ~FirebirdSQLDatabase()
@@ -108,7 +111,9 @@ namespace MediaPortal.Database.Firebird
 
     protected FbConnection CreateConnection()
     {
-      return new FbConnection(_connectionString);
+      FbConnection result = new FbConnection(_connectionString);
+      result.Open();
+      return result;
     }
 
     #endregion
@@ -123,6 +128,37 @@ namespace MediaPortal.Database.Firebird
     public string DatabaseVersion
     {
       get { return DATABASE_VERSION; }
+    }
+
+    public string GetSQLType(Type dotNetType)
+    {
+      if (dotNetType == typeof(DateTime))
+        return "TIMESTAMP";
+      if (dotNetType == typeof(Char))
+        return "CHAR(1)";
+      if (dotNetType == typeof(Boolean))
+        return "CHAR(1)";
+      if (dotNetType == typeof(Single))
+        return "FLOAT";
+      if (dotNetType == typeof(Double))
+        return "DOUBLE PRECISION";
+      if (dotNetType == typeof(SByte) || dotNetType == typeof(Byte) || dotNetType == typeof(Int16))
+        return "SMALLINT";
+      if (dotNetType == typeof(UInt16) || dotNetType == typeof(Int32))
+        return "INTEGER";
+      if (dotNetType == typeof(UInt32) || dotNetType == typeof(Int64))
+        return "BIGINT";
+      return null;
+    }
+
+    public string GetSQLUnicodeStringType(uint maxNumChars)
+    {
+      return "VARCHAR(" + maxNumChars + ") CHARACTER SET UNICODE_FSS";
+    }
+
+    public string GetSQLFixedStringType(uint maxNumChars)
+    {
+      return "CHAR(" + maxNumChars + ")";
     }
 
     public ITransaction BeginTransaction(IsolationLevel level)

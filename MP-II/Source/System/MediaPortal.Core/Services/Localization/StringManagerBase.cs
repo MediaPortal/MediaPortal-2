@@ -107,7 +107,6 @@ namespace MediaPortal.Core.Services.Localization
     protected IItemRegistrationChangeListener _languageResourcesRegistrationChangeListener;
     protected ICollection<CultureInfo> _availableLanguages = null;
     protected ICollection<string> _languageDirectories = null;
-    protected AsynchronousMessageQueue _messageQueue = null;
     protected object _syncObj = new object();
 
     #endregion
@@ -118,15 +117,12 @@ namespace MediaPortal.Core.Services.Localization
     {
       _languagePluginStateTracker = new LanguagePluginItemStateTracker(this);
       _languageResourcesRegistrationChangeListener = new LanguageResourcesRegistrationChangeListener(this);
-
-      SubscribeToMessages();
     }
 
     public virtual void Dispose()
     {
       ServiceScope.Get<IPluginManager>().RevokeAllPluginItems(LANGUAGE_RESOURCES_REGISTRATION_PATH,
           _languagePluginStateTracker);
-      UnsubscribeFromMessages();
     }
 
     #endregion
@@ -152,24 +148,6 @@ namespace MediaPortal.Core.Services.Localization
     #endregion
 
     #region Protected methods
-
-    void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           PluginManagerMessaging.CHANNEL
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
 
     protected void InitializeLanguageResources()
     {

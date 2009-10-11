@@ -99,7 +99,7 @@ namespace MediaPortal
 
         // Check if user wants to override the default Application Data location.
         if (mpArgs.IsOption(CommandLineOptions.Option.Data))
-          pathManager.ReplacePath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
+          pathManager.SetPath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
 
 #if !DEBUG
         logPath = pathManager.GetPath("<LOG>");
@@ -115,6 +115,8 @@ namespace MediaPortal
           IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
           pluginManager.Initialize();
           pluginManager.Startup(false);
+          ApplicationCore.StartCoreServices();
+
           ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
           IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
           IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
@@ -151,8 +153,9 @@ namespace MediaPortal
           mediaAccessor.Shutdown();
           localSharesManagement.Shutdown();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+          logger.Critical("Error executing application", e);
           systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
           ServiceScope.IsShuttingDown = true;
         }

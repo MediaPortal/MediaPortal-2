@@ -109,6 +109,11 @@ namespace MediaPortal.Core.Services.Localization
       get { return _currentCulture; }
     }
 
+    public void Startup()
+    {
+      InitializeLanguageResources();
+    }
+
     public void ChangeLanguage(CultureInfo culture)
     {
       lock (_syncObj)

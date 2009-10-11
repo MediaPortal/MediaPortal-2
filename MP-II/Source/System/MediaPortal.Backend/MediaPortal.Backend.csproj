@@ -53,13 +53,12 @@
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
     <Compile Include="Exceptions\Exceptions.cs" />
-    <Compile Include="Localization\IMultipleLocalization.cs" />
     <Compile Include="MediaLibrary\IMediaLibrary.cs" />
     <Compile Include="MediaManagement\IGlobalSharesManagement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BackendExtension.cs" />
     <Compile Include="Services\BackendServer\BackendServer.cs" />
-    <Compile Include="Services\Localization\MultipleLocalizationStringManager.cs" />
+    <Compile Include="Services\Database\SqlScriptPreprocessor.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledDistinctAttributeValueQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />

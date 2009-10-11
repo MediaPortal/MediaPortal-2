@@ -24,8 +24,8 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Backend.Localization;
 using MediaPortal.Core;
+using MediaPortal.Core.Localization;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -44,44 +44,44 @@ namespace MediaPortal.Services.UPnP
     
     public string GetFriendlyName(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_FRIENDLY_NAME));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_FRIENDLY_NAME));
     }
 
     public string GetManufacturer(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_MANUFACTURER));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_MANUFACTURER));
     }
 
     public string GetManufacturerURL(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_MANUFACTURER_URL));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_MANUFACTURER_URL));
     }
 
     public string GetModelDescription(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_MODEL_DESCRIPTION));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_MODEL_DESCRIPTION));
     }
 
     public string GetModelName(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_MODEL_NAME));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_MODEL_NAME));
     }
 
     public string GetModelNumber(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_MODEL_NUMBER));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_MODEL_NUMBER));
     }
 
     public string GetModelURL(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<IMultipleLocalization>().ToString(
-          culture, RES_UPNPSERVER_SECTION, RES_MODEL_URL));
+      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_MODEL_URL));
     }
 
     public string GetSerialNumber(CultureInfo culture)

@@ -19,7 +19,7 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Instance Id="IDialogManager" ClassName="MediaPortal.SkinEngine.ScreenManagement.DialogManager"/>
+    <Instance Id="MediaPortal.Presentation.Screens.IDialogManager" ClassName="MediaPortal.SkinEngine.ScreenManagement.DialogManager"/>
   </Register>
 
   <Register Location="/Resources/Language">

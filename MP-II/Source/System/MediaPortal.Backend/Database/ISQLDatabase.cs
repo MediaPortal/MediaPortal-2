@@ -63,6 +63,28 @@ namespace MediaPortal.Database
     string DatabaseVersion { get; }
 
     /// <summary>
+    /// Returns the SQL type name for the specified .net type.
+    /// </summary>
+    /// <param name="dotNetType">Type to get the SQL type pendant for.</param>
+    /// <returns>SQL type which can hold an object of the specified <paramref name="dotNetType"/>. The result value is
+    /// <c>null</c>, if the database doesn't support the given <paramref name="dotNetType"/>.</returns>
+    string GetSQLType(Type dotNetType);
+
+    /// <summary>
+    /// Returns the type for unicode strings of the specified maximum length in this database.
+    /// </summary>
+    /// <param name="maxNumChars">Maximum number of chars which should fit into the returned string type.</param>
+    /// <returns>SQL string type for a unicode string of the given length.</returns>
+    string GetSQLUnicodeStringType(uint maxNumChars);
+
+    /// <summary>
+    /// Returns the type for strings of the specified fixed length in this database.
+    /// </summary>
+    /// <param name="maxNumChars">Number of chars which should fit into the returned string type.</param>
+    /// <returns>SQL string type for a fixed-length string of the given length.</returns>
+    string GetSQLFixedStringType(uint maxNumChars);
+
+    /// <summary>
     /// Gets a database connection from the connection pool and starts a new transaction on that connection
     /// with the specified isolation level.
     /// </summary>

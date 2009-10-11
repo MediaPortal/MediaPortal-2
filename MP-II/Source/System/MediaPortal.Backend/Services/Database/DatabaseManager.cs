@@ -56,7 +56,7 @@ namespace MediaPortal.Services.Database
         throw new IllegalCallException("There is no database present in the system");
       // Prepare schema
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
-        database.ExecuteBatch(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath, true);
+        database.ExecuteBatch(new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath), true);
       // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
     }
 
@@ -131,14 +131,14 @@ namespace MediaPortal.Services.Database
       if (schemaPresent)
         if (currentVersionMajor.HasValue && currentVersionMajor.Value == versionMajor &&
             currentVersionMinor.HasValue && currentVersionMinor.Value == versionMinor)
-          database.ExecuteBatch(updateScriptFilePath, true);
+          database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
         else
           throw new ArgumentException(string.Format(
               "The current version of sub schema '{0}' is {1}.{2}, but the schema update script is given for version {3}",
               subSchemaName, versionMajor, versionMinor, ExplicitVersionToString(currentVersionMajor, currentVersionMinor)));
       else // !schemaPresent
         if (!currentVersionMajor.HasValue && !currentVersionMinor.HasValue)
-          database.ExecuteBatch(updateScriptFilePath, true);
+          database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
         else
           throw new ArgumentException(string.Format(
               "The sub schema '{0}' is not present yet, but the schema update script is given for version {1}",
@@ -171,7 +171,7 @@ namespace MediaPortal.Services.Database
       if (!schemaPresent)
         return;
       if (currentVersionMajor == versionMajor && currentVersionMinor == versionMinor)
-        database.ExecuteBatch(deleteScriptFilePath, true);
+        database.ExecuteBatch(new SqlScriptPreprocessor(deleteScriptFilePath), true);
       else
         throw new ArgumentException(string.Format("The current version of sub schema '{0}' is {1}.{2}, but the schema deletion script works for version {3}.{4}",
             subSchemaName, versionMajor, versionMinor, currentVersionMajor, currentVersionMajor));

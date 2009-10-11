@@ -50,32 +50,6 @@ namespace MediaPortal.Services.Database
       return result.ToString().ToUpperInvariant();
     }
 
-    public static string GetSQLType(Type dotNetType)
-    {
-      if (dotNetType == typeof(DateTime))
-        return "TIMESTAMP";
-      if (dotNetType == typeof(Char))
-        return "CHAR(1)";
-      if (dotNetType == typeof(Boolean))
-        return "CHAR(1)";
-      if (dotNetType == typeof(Single))
-        return "FLOAT";
-      if (dotNetType == typeof(Double))
-        return "DOUBLE PRECISION";
-      if (dotNetType == typeof(SByte) || dotNetType == typeof(Byte) || dotNetType == typeof(Int16))
-        return "SMALLINT";
-      if (dotNetType == typeof(UInt16) || dotNetType == typeof(Int32))
-        return "INTEGER";
-      if (dotNetType == typeof(UInt32) || dotNetType == typeof(Int64))
-        return "BIGINT";
-      return null;
-    }
-
-    public static string GetSQLStringType(int maxNumChars)
-    {
-      return "NVARCHAR(" + maxNumChars + ")";
-    }
-
     public static string LikeEscape(string str, char escapeChar)
     {
       return str.Replace(escapeChar.ToString(), escapeChar.ToString() + escapeChar).

@@ -99,7 +99,9 @@ namespace MediaPortal.Core
   /// </example>
   public sealed class ServiceScope : IDisposable, IStatus
   {
-    private static readonly object syncObject = new object();
+    public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
+
+    private static readonly object _syncObj = new object();
 
     /// <summary>
     /// Pointer to the current <see cref="ServiceScope"/>.
@@ -138,7 +140,7 @@ namespace MediaPortal.Core
 
     public ServiceScope(bool isFirst)
     {
-      lock (syncObject)
+      lock (_syncObj)
       {
         bool updateGlobal = global == current;
         oldInstance = current;
@@ -191,7 +193,12 @@ namespace MediaPortal.Core
       set { _isShuttingDown = value; }
     }
 
-    #region IDisposable Members
+    ~ServiceScope()
+    {
+      Dispose(false);
+    }
+
+    #region IDisposable implementation
 
     /// <summary>
     /// Restores the previous service context.
@@ -207,9 +214,20 @@ namespace MediaPortal.Core
 
     #endregion
 
-    ~ServiceScope()
+    private void Dispose(bool alsoManaged)
     {
-      Dispose(false);
+      if (isDisposed) // already disposed?
+        return;
+      if (alsoManaged)
+      {
+        bool updateGlobal = current == global;
+        current = oldInstance; //set current scope to previous one
+        if (updateGlobal)
+        {
+          global = current;
+        }
+      }
+      isDisposed = true;
     }
 
     /// <summary>
@@ -293,6 +311,26 @@ namespace MediaPortal.Core
       return services.ContainsKey(type);
     }
 
+    public static void LoadServicesFromPlugins()
+    {
+      IPluginManager pluginManager = Get<IPluginManager>();
+      ILogger logger = Get<ILogger>();
+      logger.Info("ServiceScope: Loading services from plugin manager at location '{0}'", PLUGIN_TREE_SERVICES_LOCATION);
+      ICollection<PluginItemMetadata> metadata = pluginManager.GetAllPluginItemMetadata(PLUGIN_TREE_SERVICES_LOCATION);
+      foreach (PluginItemMetadata itemMetadata in metadata)
+      {
+        Type typeKey = Type.GetType(itemMetadata.Id);
+        if (typeKey == null)
+        {
+          logger.Warn("Service item '{0}' cannot be built: Type '{1}' cannot be instantiated", itemMetadata.AbsolutePath, itemMetadata.Id);
+          continue;
+        }
+        object service = pluginManager.RequestPluginItem(PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, typeKey,
+            new FixedItemStateTracker(string.Format("System services")));
+        Current.services.Add(typeKey, service);
+      }
+    }
+
     private T GetService<T>(bool throwIfNotFound) where T : class
     {
       Type type = typeof(T);
@@ -300,60 +338,16 @@ namespace MediaPortal.Core
       {
         ServiceCreatorCallback<T> callback = services[type] as ServiceCreatorCallback<T>;
         if (callback != null)
-        {
           return callback(this);
-        }
         return (T) services[type];
       }
       if (oldInstance == null)
-      {
-        if (!IsShuttingDown)
-        {
-          IPluginManager pluginManager;
-          if (type != typeof(IPluginManager) && (pluginManager = Get<IPluginManager>(false)) != null)
-          {
-            if (type != typeof(ILogger))
-              Get<ILogger>().Info("ServiceScope.GetService<{0}>: Try to load service from plugin manager at /Services/{0}", type.Name);
-            object newService = pluginManager.RequestPluginItem<T>("/Services", type.Name,
-              new FixedItemStateTracker(string.Format("ServiceScope.GetService<{0}>()", type.Name)));
-            if (newService != null)
-            {
-              Add<T>((T) newService);
-              return (T) newService;
-            }
-          }
-        }
-
         if (throwIfNotFound)
-        {
           throw new ServiceNotFoundException(type);
-        }
-        return null;
-      }
+        else
+          return null;
       return oldInstance.GetService<T>(throwIfNotFound);
     }
-
-    #region IDisposable implementation
-
-    private void Dispose(bool alsoManaged)
-    {
-      if (isDisposed) //already disposed?
-      {
-        return;
-      }
-      if (alsoManaged)
-      {
-        bool updateGlobal = current == global;
-        current = oldInstance; //set current scope to previous one
-        if (updateGlobal)
-        {
-          global = current;
-        }
-      }
-      isDisposed = true;
-    }
-
-    #endregion
 
     private void ReplaceService<T>(T service) where T : class
     {
