@@ -52,6 +52,9 @@ namespace MediaPortal.Core.Messaging
     /// <summary>
     /// Sends the specified message in the message channel of the specified <paramref name="channelName"/>.
     /// </summary>
+    /// <remarks>
+    /// This method may be called while holding locks.
+    /// </remarks>
     /// <param name="channelName">Name of the message channel to be used for sending the message.</param>
     /// <param name="msg">Message to send.</param>
     void Send(string channelName, QueueMessage msg);

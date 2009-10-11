@@ -31,16 +31,24 @@ namespace MediaPortal.Core.Settings
   /// The settings manager provides methods to load and save module specific settings objects.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// The implementation of this interface defines where the setting object will be stored and
   /// how it will be serialized/deserialized.
+  /// </para>
+  /// <para>
   /// Every application part, which needs a setting, will define its own settings class to
-  /// contain the settings values. Those classes will use the <see cref="Setting"/> meta
+  /// contain the settings values. Those classes will use the <see cref="SettingAttribute"/> meta
   /// attribute to define if a settings entry will be stored as global or user setting.
   /// There must be at most one instance of every settings class for holding application settings;
   /// a settings class must not be reused for different application settings of a similar
   /// type. The settings system will use the class name to find a settings object in the settings
   /// store.
   /// TODO: Document settings structure: [Setting] meta attribute, supported types, etc.
+  /// </para>
+  /// <para>
+  /// Thread-safety:
+  /// This service is thread-safe. It is safe to call this service while holding locks.
+  /// </para>
   /// </remarks>
   public interface ISettingsManager
   {

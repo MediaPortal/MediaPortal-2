@@ -25,7 +25,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
@@ -67,7 +66,7 @@ namespace MediaPortal.Core.Services.Settings
       // Get the info stored in the SettingAttribute, if available
       object[] attributes = property.GetCustomAttributes(typeof(SettingAttribute), false);
       if (attributes.Length != 0)
-        return (SettingAttribute)attributes[0];
+        return (SettingAttribute) attributes[0];
       return null;
     }
 
