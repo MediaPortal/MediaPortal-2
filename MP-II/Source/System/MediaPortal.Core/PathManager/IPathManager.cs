@@ -30,10 +30,15 @@ namespace MediaPortal.Core.PathManager
   /// Registration for local file path locations.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// This class helps to resolve complete file paths for the local system by specifying
   /// a path string with placeholders for special registered path parts, like the path
   /// where the application was started (APPLICATION_ROOT), for example.
-  /// Its also possible to add/remove/replace path registrations manually.
+  /// </para>
+  /// <para>
+  /// It is possible to add/remove/replace path registrations manually.
+  /// </para>
+  /// <para>
   /// A path pattern to be resolved by the PathManager can contain any path labels to be replaced
   /// with the registered values. All labels in the form &lt;[LABLE]&gt; will be replaced
   /// by their corresponding registered path.
@@ -41,7 +46,13 @@ namespace MediaPortal.Core.PathManager
   /// <example>A path pattern will look like this:
   /// <c>&lt;LOG&gt;\MediaPortal.log</c>, where <c>&lt;LOG&gt;</c> is a reference to the path registered
   /// for the label <i>LOG</i>. If the label <i>LOG</i> was registered with the path
-  /// <i>C:\Temp</i> for example, the pattern would be resolved to <i>C:\Temp\MediaPortal.log</i>.</example>
+  /// <i>C:\Temp</i> for example, the pattern would be resolved to <i>C:\Temp\MediaPortal.log</i>.
+  /// </example>
+  /// </para>
+  /// <para>
+  /// Thread-safety:
+  /// It is safe to call this service while holding locks.
+  /// </para>
   /// </remarks>
   public interface IPathManager
   {

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.Core.PluginManager.Exceptions;
 using MediaPortal.Core.Registry;
 
 namespace MediaPortal.Core.PluginManager
@@ -84,8 +85,12 @@ namespace MediaPortal.Core.PluginManager
 
     protected const string ITEMCHANGELISTENER_ID = "PLUGIN_ITEM_CHANGE_LISTENERS";
 
+    protected object _syncObj;
     protected IPluginMetadata _pluginMetadata;
     protected PluginState _state;
+
+    protected bool _stateIsToBeChanged; // True if the plugin's state is currently to be changed
+    protected uint _numStateDependencies; // Number of concurrent readers which depend on the current plugin's state - no writer allowed if a reader is present and vice-versa
 
     protected IDictionary<PluginItemMetadata, PluginItemRegistration> _itemRegistrations =
         new Dictionary<PluginItemMetadata, PluginItemRegistration>();
@@ -104,8 +109,10 @@ namespace MediaPortal.Core.PluginManager
     /// instance.
     /// </summary>
     /// <param name="metaData">The metadata of the plugin to create this runtime structure for.</param>
-    internal PluginRuntime(IPluginMetadata metaData)
+    /// <param name="syncObj">The object to synchronize multithreading access.</param>
+    internal PluginRuntime(IPluginMetadata metaData, object syncObj)
     {
+      _syncObj = syncObj;
       _pluginMetadata = metaData;
       _state = PluginState.Available;
     }
@@ -128,7 +135,17 @@ namespace MediaPortal.Core.PluginManager
     public PluginState State
     {
       get { return _state; }
-      set { _state = value; }
+      internal set { _state = value; }
+    }
+
+    public bool IsStateToBeChanged
+    {
+      get { return _stateIsToBeChanged; }
+    }
+
+    public bool IsStateDependencyLocked
+    {
+      get { return _numStateDependencies > 0; }
     }
 
     /// <summary>
@@ -145,7 +162,7 @@ namespace MediaPortal.Core.PluginManager
     public IPluginStateTracker StateTracker
     {
       get { return _stateTracker; }
-      set { _stateTracker = value; }
+      internal set { _stateTracker = value; }
     }
 
     /// <summary>
@@ -168,12 +185,15 @@ namespace MediaPortal.Core.PluginManager
 
     public Type GetPluginType(string typeName)
     {
-      LoadAssemblies();
-      foreach (Assembly assembly in _loadedAssemblies)
+      lock (_syncObj)
       {
-        Type type = assembly.GetType(typeName, false);
-        if (type != null)
-          return type;
+        LoadAssemblies();
+        foreach (Assembly assembly in _loadedAssemblies)
+        {
+          Type type = assembly.GetType(typeName, false);
+          if (type != null)
+            return type;
+        }
       }
       return null;
     }
@@ -183,22 +203,25 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     public object InstanciatePluginObject(string typeName)
     {
-      LoadAssemblies();
-      if (_instantiatedObjects == null)
-        _instantiatedObjects = new Dictionary<string, ObjectReference>();
-      ObjectReference reference;
-      if (_instantiatedObjects.ContainsKey(typeName))
-        reference = _instantiatedObjects[typeName];
-      else
+      lock (_syncObj)
       {
-        Type type = GetPluginType(typeName);
-        if (type == null)
-          return null;
-        reference = _instantiatedObjects[typeName] = new ObjectReference();
-        reference.Object = Activator.CreateInstance(type);
+        LoadAssemblies();
+        if (_instantiatedObjects == null)
+          _instantiatedObjects = new Dictionary<string, ObjectReference>();
+        ObjectReference reference;
+        if (_instantiatedObjects.ContainsKey(typeName))
+          reference = _instantiatedObjects[typeName];
+        else
+        {
+          Type type = GetPluginType(typeName);
+          if (type == null)
+            return null;
+          reference = _instantiatedObjects[typeName] = new ObjectReference();
+          reference.Object = Activator.CreateInstance(type);
+        }
+        reference.RefCounter++;
+        return reference.Object;
       }
-      reference.RefCounter++;
-      return reference.Object;
     }
 
     /// <summary>
@@ -206,15 +229,18 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     public void RevokePluginObject(string typeName)
     {
-      ObjectReference reference;
-      if (!_instantiatedObjects.TryGetValue(typeName, out reference))
-        return;
-      if (--reference.RefCounter == 0)
+      lock (_syncObj)
       {
-        IDisposable d = reference.Object as IDisposable;
-        if (d != null)
-          d.Dispose();
-        _instantiatedObjects.Remove(typeName);
+        ObjectReference reference;
+        if (!_instantiatedObjects.TryGetValue(typeName, out reference))
+          return;
+        if (--reference.RefCounter == 0)
+        {
+          IDisposable d = reference.Object as IDisposable;
+          if (d != null)
+            d.Dispose();
+          _instantiatedObjects.Remove(typeName);
+        }
       }
     }
 
@@ -229,9 +255,12 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="plugin">The plugin which is dependent on this plugin.</param>
     internal void AddDependentPlugin(PluginRuntime plugin)
     {
-      if (_dependentPlugins == null)
-        _dependentPlugins = new List<PluginRuntime>();
-      _dependentPlugins.Add(plugin);
+      lock (_syncObj)
+      {
+        if (_dependentPlugins == null)
+          _dependentPlugins = new List<PluginRuntime>();
+        _dependentPlugins.Add(plugin);
+      }
     }
 
     /// <summary>
@@ -239,13 +268,16 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     internal void LoadAssemblies()
     {
-      if (_loadedAssemblies != null)
-        return;
-      _loadedAssemblies = new List<Assembly>();
-      foreach (string assemblyFilePath in _pluginMetadata.AssemblyFilePaths)
+      lock (_syncObj)
       {
-        Assembly assembly = Assembly.LoadFrom(assemblyFilePath);
-        _loadedAssemblies.Add(assembly);
+        if (_loadedAssemblies != null)
+          return;
+        _loadedAssemblies = new List<Assembly>();
+        foreach (string assemblyFilePath in _pluginMetadata.AssemblyFilePaths)
+        {
+          Assembly assembly = Assembly.LoadFrom(assemblyFilePath);
+          _loadedAssemblies.Add(assembly);
+        }
       }
     }
 
@@ -258,17 +290,20 @@ namespace MediaPortal.Core.PluginManager
     {
       IDictionary<string, ICollection<PluginItemMetadata>> changedLocations =
           new Dictionary<string, ICollection<PluginItemMetadata>>();
-      foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
+      lock (_syncObj)
       {
-        if (!RegisterItem(itemMetadata))
-          continue;
-        // Prepare data for change listener calls
-        ICollection<PluginItemMetadata> changedMetadataInLocation;
-        if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
-          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation];
-        else
-          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation] = new List<PluginItemMetadata>();
-        changedMetadataInLocation.Add(itemMetadata);
+        foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
+        {
+          if (!RegisterItem(itemMetadata))
+            continue;
+          // Prepare data for change listener calls
+          ICollection<PluginItemMetadata> changedMetadataInLocation;
+          if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
+            changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation];
+          else
+            changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation] = new List<PluginItemMetadata>();
+          changedMetadataInLocation.Add(itemMetadata);
+        }
       }
       // Call change listeners
       foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
@@ -290,18 +325,21 @@ namespace MediaPortal.Core.PluginManager
       // Collect data for listener calls
       IDictionary<string, ICollection<PluginItemMetadata>> changedLocations =
           new Dictionary<string, ICollection<PluginItemMetadata>>();
-      foreach (PluginItemMetadata itemMetadata in _itemRegistrations.Keys)
+      lock (_syncObj)
       {
-        ICollection<PluginItemMetadata> changedMetadataInLocation;
-        if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
-          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation];
-        else
-          changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation] = new List<PluginItemMetadata>();
-        changedMetadataInLocation.Add(itemMetadata);
+        foreach (PluginItemMetadata itemMetadata in _itemRegistrations.Keys)
+        {
+          ICollection<PluginItemMetadata> changedMetadataInLocation;
+          if (changedLocations.ContainsKey(itemMetadata.RegistrationLocation))
+            changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation];
+          else
+            changedMetadataInLocation = changedLocations[itemMetadata.RegistrationLocation] = new List<PluginItemMetadata>();
+          changedMetadataInLocation.Add(itemMetadata);
+        }
+        // Unregistration of items
+        foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
+          UnregisterItem(itemMetadata);
       }
-      // Unregistration of items
-      foreach (PluginItemMetadata itemMetadata in _pluginMetadata.PluginItemsMetadata)
-        UnregisterItem(itemMetadata);
       // Call change listeners
       foreach (KeyValuePair<string, ICollection<PluginItemMetadata>> changedLocation in changedLocations)
       {
@@ -317,6 +355,9 @@ namespace MediaPortal.Core.PluginManager
     /// Returns the item registration instance for the specified <paramref name="location"/> and the specified
     /// <paramref name="id"/>.
     /// </summary>
+    /// <remarks>
+    /// The plugin manager's synchronization object must be locked when this method is called.
+    /// </remarks>
     /// <param name="location">Registration location of the requested item registration instance.</param>
     /// <param name="id">Id of the requested item registration instance.</param>
     /// <returns>Requested item registration instance, if it exists.</returns>
@@ -331,6 +372,9 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Returns all item registration instances for the specified <paramref name="location"/>.
     /// </summary>
+    /// <remarks>
+    /// The plugin manager's synchronization object must be locked when this method is called.
+    /// </remarks>
     /// <param name="location">Registration location of the requested item registration instances.</param>
     /// <returns>Collection of item registration instances at the specified location.</returns>
     internal static ICollection<PluginItemRegistration> GetItemRegistrations(string location)
@@ -347,6 +391,9 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Returns a collection of available child locations of the given <paramref name="location"/>.
     /// </summary>
+    /// <remarks>
+    /// The plugin manager's synchronization object must be locked when this method is called.
+    /// </remarks>
     /// <param name="location">Location for that the child locations should be returned.</param>
     /// <returns>Collection of child locations of the given parent <paramref name="location"/>.</returns>
     internal static ICollection<string> GetAvailableChildLocations(string location)
@@ -363,6 +410,9 @@ namespace MediaPortal.Core.PluginManager
     /// Adds the specified item registration change <paramref name="listener"/> which will be notified
     /// when items are registered at the specified <paramref name="location"/>.
     /// </summary>
+    /// <remarks>
+    /// The plugin manager's synchronization object must be locked when this method is called.
+    /// </remarks>
     /// <param name="location">Location to add the listener to. The added <paramref name="listener"/> will
     /// be called when items are added to or removed from this location in the plugin tree.</param>
     /// <param name="listener">The listener to add.</param>
@@ -376,6 +426,9 @@ namespace MediaPortal.Core.PluginManager
     /// Removes the specified change <paramref name="listener"/> instance from the specified
     /// <paramref name="location"/>.
     /// </summary>
+    /// <remarks>
+    /// The plugin manager's synchronization object must be locked when this method is called.
+    /// </remarks>
     /// <param name="location">Location to remove the listener from.</param>
     /// <param name="listener">The listener to remove.</param>
     internal static void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
@@ -386,10 +439,70 @@ namespace MediaPortal.Core.PluginManager
       listeners.Remove(listener);
     }
 
+    internal void LockForStateWrite()
+    {
+      lock (_syncObj)
+      {
+        if (_stateIsToBeChanged)
+          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's currently changing its state",
+              _pluginMetadata.Name, _pluginMetadata.PluginId);
+        if (_numStateDependencies > 0)
+          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's locked by state readers",
+              _pluginMetadata.Name, _pluginMetadata.PluginId);
+        _stateIsToBeChanged = true;
+      }
+    }
+
+    internal void ChangeReadLockToWriteLock()
+    {
+      lock (_syncObj)
+      {
+        if (_numStateDependencies == 0)
+          throw new PluginLockedException("Plugin '{0}' (id: '{1}'): No read lock available",
+              _pluginMetadata.Name, _pluginMetadata.PluginId);
+        if (_numStateDependencies > 1)
+          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's locked by state readers",
+              _pluginMetadata.Name, _pluginMetadata.PluginId);
+        _numStateDependencies = 0;
+        _stateIsToBeChanged = true;
+      }
+    }
+
+    internal void UnlockStateForWrite()
+    {
+      lock (_syncObj)
+        _stateIsToBeChanged = false;
+    }
+
+    internal void LockForStateDependency()
+    {
+      lock (_syncObj)
+      {
+        if (_stateIsToBeChanged)
+          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for state dependency - it's currently changing its state",
+              _pluginMetadata.Name, _pluginMetadata.PluginId);
+        _numStateDependencies++;
+      }
+    }
+
+    internal void UnlockStateDependency()
+    {
+      lock (_syncObj)
+        _numStateDependencies--;
+    }
+
     #endregion
 
     #region Protected/private/internal methods to be called only from this class
 
+    /// <summary>
+    /// Returns all plugin item change listeners for the given <paramref name="location"/>.
+    /// </summary>
+    /// <param name="location">Location to return the listeners for.</param>
+    /// <param name="createOnNotExist">If set to <c>true</c>, the plugin tree node will be created, if it doesn't exist.</param>
+    /// <remarks>
+    /// The plugin manager's synchronization object must be locked when this method is called.
+    /// </remarks>
     protected static ICollection<IItemRegistrationChangeListener> GetListenersForLocation(string location, bool createOnNotExist)
     {
       IRegistryNode node = GetRegistryNode(location, createOnNotExist);
@@ -423,21 +536,24 @@ namespace MediaPortal.Core.PluginManager
     /// location and the <see cref="PluginItemMetadata.IsRedundant"/> flag is not set.</exception>
     internal bool RegisterItem(PluginItemMetadata itemMetadata)
     {
-      IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, true);
-      itemMetadata.PluginRuntime = this;
-      if (node.Items != null && node.Items.ContainsKey(itemMetadata.Id))
-        if (itemMetadata.IsRedundant)
-        {
-          PluginItemRegistration itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
-          itemRegistration.AdditionalRedundantItemsMetadata.Add(itemMetadata);
-          return false;
-        }
-        else
-          throw new ArgumentException(string.Format("At location '{0}', a plugin item with id '{1}' is already registered",
-              itemMetadata.RegistrationLocation, itemMetadata.Id));
-      PluginItemRegistration resultItemRegistration = new PluginItemRegistration(itemMetadata);
-      node.AddItem(itemMetadata.Id, resultItemRegistration);
-      _itemRegistrations.Add(itemMetadata, resultItemRegistration);
+      lock (_syncObj)
+      {
+        IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, true);
+        itemMetadata.PluginRuntime = this;
+        if (node.Items != null && node.Items.ContainsKey(itemMetadata.Id))
+          if (itemMetadata.IsRedundant)
+          {
+            PluginItemRegistration itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
+            itemRegistration.AdditionalRedundantItemsMetadata.Add(itemMetadata);
+            return false;
+          }
+          else
+            throw new ArgumentException(string.Format("At location '{0}', a plugin item with id '{1}' is already registered",
+                itemMetadata.RegistrationLocation, itemMetadata.Id));
+        PluginItemRegistration resultItemRegistration = new PluginItemRegistration(itemMetadata);
+        node.AddItem(itemMetadata.Id, resultItemRegistration);
+        _itemRegistrations.Add(itemMetadata, resultItemRegistration);
+      }
       return true;
     }
 
@@ -448,32 +564,33 @@ namespace MediaPortal.Core.PluginManager
     /// <returns>Plugin item registration structure of the item to be unregistered.</returns>
     internal void UnregisterItem(PluginItemMetadata itemMetadata)
     {
-      try
-      {
-        IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, false);
-        if (node == null || node.Items == null)
-          return;
-        if (node.Items.ContainsKey(itemMetadata.Id))
+      lock (_syncObj)
+        try
         {
-          PluginItemRegistration itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
-          // Check, if there are additional redundant items registered at this position. If yes, we'll use
-          // the first of them instead of the old item to be unregistered.
-          PluginItemMetadata newItemMetadata = null;
-          IEnumerator<PluginItemMetadata> enumerator = itemRegistration.AdditionalRedundantItemsMetadata.GetEnumerator();
-          if (enumerator.MoveNext())
+          IRegistryNode node = GetRegistryNode(itemMetadata.RegistrationLocation, false);
+          if (node == null || node.Items == null)
+            return;
+          if (node.Items.ContainsKey(itemMetadata.Id))
           {
-            newItemMetadata = enumerator.Current;
-            itemRegistration.AdditionalRedundantItemsMetadata.Remove(newItemMetadata);
+            PluginItemRegistration itemRegistration = (PluginItemRegistration) node.Items[itemMetadata.Id];
+            // Check, if there are additional redundant items registered at this position. If yes, we'll use
+            // the first of them instead of the old item to be unregistered.
+            PluginItemMetadata newItemMetadata = null;
+            IEnumerator<PluginItemMetadata> enumerator = itemRegistration.AdditionalRedundantItemsMetadata.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+              newItemMetadata = enumerator.Current;
+              itemRegistration.AdditionalRedundantItemsMetadata.Remove(newItemMetadata);
+            }
+            node.Items.Remove(itemMetadata.Id);
+            if (newItemMetadata != null)
+              newItemMetadata.PluginRuntime.RegisterItem(newItemMetadata);
           }
-          node.Items.Remove(itemMetadata.Id);
-          if (newItemMetadata != null)
-            newItemMetadata.PluginRuntime.RegisterItem(newItemMetadata);
         }
-      }
-      finally
-      {
-        _itemRegistrations.Remove(itemMetadata);
-      }
+        finally
+        {
+          _itemRegistrations.Remove(itemMetadata);
+        }
     }
 
     #endregion

@@ -43,7 +43,8 @@ namespace MediaPortal.Core.Services.PathManager
   {
     #region Variables
 
-    private readonly Dictionary<string, string> _paths;
+    protected object _syncObj = new object();
+    protected readonly Dictionary<string, string> _paths;
 
     #endregion
 
@@ -70,14 +71,16 @@ namespace MediaPortal.Core.Services.PathManager
     public bool Exists(string label)
     {
       label = CheckFormat(label);
-      return _paths.ContainsKey(label);
+      lock (_syncObj)
+        return _paths.ContainsKey(label);
     }
 
     public void SetPath(string label, string pathPattern)
     {
       label = CheckFormat(label);
       pathPattern = StringUtils.RemoveSuffixIfPresent(pathPattern, "\\");
-      _paths[label] = pathPattern;
+      lock (_syncObj)
+        _paths[label] = pathPattern;
     }
 
     public string GetPath(string pathPattern)
@@ -86,18 +89,19 @@ namespace MediaPortal.Core.Services.PathManager
 
       MatchCollection pathLabels = label.Matches(pathPattern);
 
-      while (pathLabels.Count > 0)
-      {
-        foreach (Match labelMatch in pathLabels)
+      lock (_syncObj)
+        while (pathLabels.Count > 0)
         {
-          if (!_paths.ContainsKey(labelMatch.Value))
-            throw new ArgumentException("Unkown path label '" + labelMatch.Value + "'");
+          foreach (Match labelMatch in pathLabels)
+          {
+            if (!_paths.ContainsKey(labelMatch.Value))
+              throw new ArgumentException("Unkown path label '" + labelMatch.Value + "'");
 
-          pathPattern = pathPattern.Replace(labelMatch.Value, _paths[labelMatch.Value]);
+            pathPattern = pathPattern.Replace(labelMatch.Value, _paths[labelMatch.Value]);
+          }
+
+          pathLabels = label.Matches(pathPattern);
         }
-
-        pathLabels = label.Matches(pathPattern);
-      }
 
       return pathPattern;
     }
@@ -106,8 +110,9 @@ namespace MediaPortal.Core.Services.PathManager
     {
       label = CheckFormat(label);
 
-      if (_paths.ContainsKey(label))
-        _paths.Remove(label);
+      lock (_syncObj)
+        if (_paths.ContainsKey(label))
+          _paths.Remove(label);
     }
 
     #endregion
@@ -116,12 +121,10 @@ namespace MediaPortal.Core.Services.PathManager
 
 		public IList<string> GetStatus()
 		{
-			List<string> status = new List<string>();
-			status.Add("=== PathManager");
-			foreach (KeyValuePair<string, string> pair in _paths)
-			{
-				status.Add(String.Format("     {0} => {1}", pair.Key, pair.Value));
-			}
+			List<string> status = new List<string> {"=== PathManager"};
+		  lock (_syncObj)
+  			foreach (KeyValuePair<string, string> pair in _paths)
+	  			status.Add(String.Format("     {0} => {1}", pair.Key, pair.Value));
 			return status;
 		}
 

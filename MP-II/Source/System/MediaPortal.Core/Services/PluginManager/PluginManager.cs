@@ -34,11 +34,12 @@ using MediaPortal.Core.Services.PluginManager.Builders;
 using MediaPortal.Core.PluginManager.Exceptions;
 using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
+using System.Collections;
 
 namespace MediaPortal.Core.Services.PluginManager
 {
   /// <summary>
-  /// An <see cref="IPluginManager"/> implementation that reads plugins from plugin directories, with
+  /// Implementation of the <see cref="IPluginManager"/> interface that reads plugins from plugin directories, with
   /// plugin.xml descriptor files.
   /// </summary>
   /// <remarks>
@@ -54,16 +55,25 @@ namespace MediaPortal.Core.Services.PluginManager
   /// </para>
   /// <seealso cref="PluginState"/>.
   /// </remarks>
+  /// 
+  /// Implementation hints (multithreading strategy):
+  /// - C# locks are held shortly only to protect internal data structures against data corruption
+  /// - Protection of plugin states against concurrent modification during state changes or during item request/revocation is
+  ///   done by the use of explicit, non-blocking reader/writer locks implemented in PluginRuntime class
+  /// - It is possible to lock a plugin state dependency (reader lock) or a state lock for write (writer lock). Also a reader
+  ///   lock can be turned into a writer lock.
+  /// - With this implementation, we shouldn't get too many problems with concurrent state modifications; the only thing to
+  ///   care about is the startup and shutdown phase, where potentially multiple concurrent services try to enable plugins.
   public class PluginManager : IPluginManager, IStatus
   {
     #region Protected fields
+
+    protected object _syncObj = new object();
 
     protected IDictionary<Guid, PluginRuntime> _availablePlugins = new Dictionary<Guid, PluginRuntime>();
 
     protected IDictionary<string, PluginBuilderRegistration> _builders =
         new Dictionary<string, PluginBuilderRegistration>();
-
-    protected IDictionary<Guid, PluginState> _pendingPlugins = new Dictionary<Guid, PluginState>();
 
     protected PluginManagerState _state = PluginManagerState.Uninitialized;
 
@@ -100,28 +110,40 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public void Initialize()
     {
-      ServiceScope.Get<ILogger>().Info("PluginManager: Initialize");
-      _state = PluginManagerState.Initializing;
-      ServiceScope.Get<ILogger>().Debug("PluginManager: Loading plugins");
-      IDictionary<string, IPluginMetadata> loadedPlugins = LoadPluginsData();
-      foreach (IPluginMetadata pm in loadedPlugins.Values)
-        AddPlugin(pm);
-      ServiceScope.Get<ILogger>().Debug("PluginManager: Initialized");
+      lock (_syncObj)
+      {
+        ServiceScope.Get<ILogger>().Info("PluginManager: Initialize");
+        _state = PluginManagerState.Initializing;
+        ServiceScope.Get<ILogger>().Debug("PluginManager: Loading plugins");
+        IDictionary<string, IPluginMetadata> loadedPlugins = LoadPluginsData();
+        foreach (IPluginMetadata pm in loadedPlugins.Values)
+          AddPlugin(pm);
+        ServiceScope.Get<ILogger>().Debug("PluginManager: Initialized");
+      }
     }
 
     public void Startup(bool maintenanceMode)
     {
-      if (maintenanceMode)
-        ServiceScope.Get<ILogger>().Info("PluginManager: Startup in maintenance mode");
-      else
-        ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
-      _maintenanceMode = maintenanceMode;
-      _state = PluginManagerState.Starting;
+      lock (_syncObj)
+      {
+        if (maintenanceMode)
+          ServiceScope.Get<ILogger>().Info("PluginManager: Startup in maintenance mode");
+        else
+          ServiceScope.Get<ILogger>().Info("PluginManager: Startup");
+        _maintenanceMode = maintenanceMode;
+        _state = PluginManagerState.Starting;
+      }
       PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.Startup);
-      PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
-      ICollection<Guid> disabledPlugins = settings.UserDisabledPlugins;
       ServiceScope.Get<ILogger>().Debug("PluginManager: Checking dependencies");
-      foreach (PluginRuntime plugin in _availablePlugins.Values)
+      ICollection<Guid> disabledPlugins;
+      ICollection<PluginRuntime> availablePlugins;
+      lock (_syncObj)
+      {
+        availablePlugins = new List<PluginRuntime>(_availablePlugins.Values);
+        PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
+        disabledPlugins = settings.UserDisabledPlugins;
+      }
+      foreach (PluginRuntime plugin in availablePlugins)
       {
         if (disabledPlugins.Contains(plugin.Metadata.PluginId))
           plugin.State = PluginState.Disabled;
@@ -129,89 +151,110 @@ namespace MediaPortal.Core.Services.PluginManager
           TryEnable(plugin, !_maintenanceMode);
       }
       PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.PluginsInitialized);
-      _state = PluginManagerState.Running;
+      lock (_syncObj)
+        _state = PluginManagerState.Running;
       if (maintenanceMode)
         ServiceScope.Get<ILogger>().Debug("PluginManager: Running in maintenance mode");
       else
         ServiceScope.Get<ILogger>().Debug("PluginManager: Ready");
+      ServiceScope.LoadServicesFromPlugins();
     }
 
     public void Shutdown()
     {
       ServiceScope.Get<ILogger>().Info("PluginManager: Shutdown");
-      _state = PluginManagerState.ShuttingDown;
-      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.Shutdown);
-      foreach (PluginRuntime plugin in _availablePlugins.Values)
+      ICollection<PluginRuntime> availablePlugins;
+      lock (_syncObj)
       {
-        if (plugin.StateTracker != null)
-          plugin.StateTracker.Shutdown();
+        _state = PluginManagerState.ShuttingDown;
+        availablePlugins = new List<PluginRuntime>(_availablePlugins.Values);
+      }
+      PluginManagerMessaging.SendPluginManagerMessage(PluginManagerMessaging.MessageType.Shutdown);
+      foreach (PluginRuntime plugin in availablePlugins)
+      {
+        IPluginStateTracker stateTracker = plugin.StateTracker; // Local variable to avoid necessity to lock
+        if (stateTracker != null)
+          stateTracker.Shutdown();
       }
     }
 
     public PluginRuntime AddPlugin(IPluginMetadata pluginMetadata)
     {
-      PluginRuntime result = new PluginRuntime(pluginMetadata);
-      _availablePlugins.Add(pluginMetadata.PluginId, result);
-      return result;
+      lock (_syncObj)
+      {
+        PluginRuntime result = new PluginRuntime(pluginMetadata, _syncObj);
+        _availablePlugins.Add(pluginMetadata.PluginId, result);
+        return result;
+      }
     }
 
     public bool TryStartPlugin(Guid pluginId, bool activate)
     {
-      PluginRuntime pr;
-      if (!_availablePlugins.TryGetValue(pluginId, out pr))
-        throw new ArgumentException(string.Format("Plugin with id '{0}' not found", pluginId));
-      bool result = activate ? TryActivate(pr) : TryEnable(pr, true);
+      PluginRuntime plugin;
+      lock (_syncObj)
+        if (!_availablePlugins.TryGetValue(pluginId, out plugin))
+          throw new ArgumentException(string.Format("Plugin with id '{0}' not found", pluginId));
+      bool result = activate ? TryActivate(plugin) : TryEnable(plugin, true);
       if (result)
-      {
-        PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
-        settings.RemoveUserDisabledPlugin(pluginId);
-        ServiceScope.Get<ISettingsManager>().Save(settings);
-      }
+        lock (_syncObj)
+        {
+          PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
+          settings.RemoveUserDisabledPlugin(pluginId);
+          ServiceScope.Get<ISettingsManager>().Save(settings);
+        }
       return result;
     }
 
     public bool TryStopPlugin(Guid pluginId)
     {
-      PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
-      settings.AddUserDisabledPlugin(pluginId);
-      ServiceScope.Get<ISettingsManager>().Save(settings);
+      lock (_syncObj)
+      {
+        PluginManagerSettings settings = ServiceScope.Get<ISettingsManager>().Load<PluginManagerSettings>();
+        settings.AddUserDisabledPlugin(pluginId);
+        ServiceScope.Get<ISettingsManager>().Save(settings);
+      }
 
-      PluginRuntime pr;
-      if (_availablePlugins.TryGetValue(pluginId, out pr))
-        return TryDisable(pr);
-      return true;
+      PluginRuntime plugin;
+      lock (_syncObj)
+        if (!_availablePlugins.TryGetValue(pluginId, out plugin))
+          return true;
+      return TryDisable(plugin);
     }
 
     public void RegisterSystemPluginItemBuilder(string builderName, IPluginItemBuilder builderInstance)
     {
-      _builders.Add(CreateSystemBuilderRegistration(builderName, builderInstance));
+      lock (_syncObj)
+        _builders.Add(CreateSystemBuilderRegistration(builderName, builderInstance));
     }
 
     public ICollection<Guid> FindConflicts(IPluginMetadata plugin)
     {
       ICollection<Guid> result = new HashSet<Guid>();
-      // Conflicts declared by plugin
-      ICollection<Guid> conflictingPlugins = CollectionUtils.Intersection(plugin.ConflictsWith, _availablePlugins.Keys);
-      foreach (Guid conflictId in conflictingPlugins)
+      lock (_syncObj)
       {
-        PluginRuntime conflict = _availablePlugins[conflictId];
-        if (conflict.State != PluginState.Disabled)
-          // Found a conflict
-          result.Add(conflictId);
-      }
-      // Conflicts declared by other plugins
-      foreach (PluginRuntime pr in _availablePlugins.Values)
-      {
-        if (pr.State != PluginState.Disabled && pr.Metadata.ConflictsWith.Contains(plugin.PluginId))
-          // Plugin pr conflicts with plugin
-          result.Add(pr.Metadata.PluginId);
-      }
-      foreach (Guid dependencyId in plugin.DependsOn)
-      {
-        PluginRuntime pr;
-        if (!_availablePlugins.TryGetValue(dependencyId, out pr))
-          throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyId);
-        CollectionUtils.AddAll(result, FindConflicts(pr.Metadata));
+        // Conflicts declared by plugin
+        ICollection<Guid> conflictingPlugins = CollectionUtils.Intersection(plugin.ConflictsWith, _availablePlugins.Keys);
+        foreach (Guid conflictId in conflictingPlugins)
+        {
+          PluginRuntime conflict = _availablePlugins[conflictId];
+          if (conflict.State != PluginState.Disabled)
+            // Found a conflict
+            result.Add(conflictId);
+        }
+        // Conflicts declared by other plugins
+        foreach (PluginRuntime pr in _availablePlugins.Values)
+        {
+          if (pr.State != PluginState.Disabled && pr.Metadata.ConflictsWith.Contains(plugin.PluginId))
+            // Plugin pr conflicts with plugin
+            result.Add(pr.Metadata.PluginId);
+        }
+        foreach (Guid dependencyId in plugin.DependsOn)
+        {
+          PluginRuntime pr;
+          if (!_availablePlugins.TryGetValue(dependencyId, out pr))
+            throw new PluginMissingDependencyException("Plugin dependency '{0}' is not available", dependencyId);
+          CollectionUtils.AddAll(result, FindConflicts(pr.Metadata));
+        }
       }
       return result;
     }
@@ -219,13 +262,14 @@ namespace MediaPortal.Core.Services.PluginManager
     public ICollection<Guid> FindMissingDependencies(IPluginMetadata plugin)
     {
       ICollection<Guid> result = new HashSet<Guid>();
-      foreach (Guid dependencyId in plugin.DependsOn)
-      {
-        PluginRuntime pr;
-        if (!_availablePlugins.TryGetValue(dependencyId, out pr))
-          result.Add(dependencyId);
-        CollectionUtils.AddAll(result, FindMissingDependencies(pr.Metadata));
-      }
+      lock (_syncObj)
+        foreach (Guid dependencyId in plugin.DependsOn)
+        {
+          PluginRuntime pr;
+          if (!_availablePlugins.TryGetValue(dependencyId, out pr))
+            result.Add(dependencyId);
+          CollectionUtils.AddAll(result, FindMissingDependencies(pr.Metadata));
+        }
       return result;
     }
 
@@ -245,38 +289,39 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public ICollection<string> GetAvailableChildLocations(string location)
     {
-      return PluginRuntime.GetAvailableChildLocations(location);
+      lock (_syncObj)
+        return PluginRuntime.GetAvailableChildLocations(location);
     }
 
-    /// <summary>
-    /// Returns the item registered at the specified <paramref name="location"/> with the specified
-    /// <paramref name="id"/> and the specified type.
-    /// </summary>
-    /// <remarks>
-    /// If the requested item doesn't have type <see cref="T"/>, the item will be loaded anyhow,
-    /// but in this case, the <paramref name="stateTracker"/> won't be registered at the item.
-    /// </remarks>
-    /// <seealso cref="IPluginManager.RequestAllPluginItems{T}"/>
     public T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class
     {
-      PluginItemRegistration itemRegistration = PluginRuntime.GetItemRegistration(location, id);
-      return itemRegistration == null ? null : RequestItem<T>(itemRegistration, stateTracker);
+      return (T) RequestPluginItem(location, id, typeof(T), stateTracker);
     }
 
-    /// <summary>
-    /// Returns all items registered at the specified <paramref name="location"/> with the specified type.
-    /// </summary>
-    /// <remarks>
-    /// All items at the specified <paramref name="location"/> will be loaded. For those items which don't have
-    /// type <see cref="T"/>, the <paramref name="stateTracker"/> won't be registered.
-    /// </remarks>
-    /// <seealso cref="IPluginManager.RequestAllPluginItems{T}"/>
+    public object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker)
+    {
+      PluginItemRegistration itemRegistration = PluginRuntime.GetItemRegistration(location, id);
+      return itemRegistration == null ? null : RequestItem(itemRegistration, type, stateTracker);
+    }
+
     public ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class
     {
       ICollection<T> result = new List<T>();
       foreach (PluginItemRegistration itemRegistration in PluginRuntime.GetItemRegistrations(location))
       {
-        T item = RequestItem<T>(itemRegistration, stateTracker);
+        T item = (T) RequestItem(itemRegistration, typeof(T), stateTracker);
+        if (item != null)
+          result.Add(item);
+      }
+      return result;
+    }
+
+    public ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker)
+    {
+      IList result = new ArrayList();
+      foreach (PluginItemRegistration itemRegistration in PluginRuntime.GetItemRegistrations(location))
+      {
+        object item = RequestItem(itemRegistration, type, stateTracker);
         if (item != null)
           result.Add(item);
       }
@@ -285,50 +330,102 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker)
     {
-      PluginItemRegistration itemRegistration = PluginRuntime.GetItemRegistration(location, id);
+      PluginItemRegistration itemRegistration;
+      lock (_syncObj) // Lock necessary (see docs of PluginRuntime.GetItemRegistration)
+        itemRegistration = PluginRuntime.GetItemRegistration(location, id);
       if (itemRegistration != null)
         RevokeItemUsage(itemRegistration, stateTracker);
     }
 
     public void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker)
     {
-      foreach (PluginItemRegistration itemRegistration in PluginRuntime.GetItemRegistrations(location))
+      ICollection<PluginItemRegistration> registrations;
+      lock (_syncObj) // Lock necessary (see docs of PluginRuntime.GetItemRegistrations)
+        registrations = PluginRuntime.GetItemRegistrations(location);
+      foreach (PluginItemRegistration itemRegistration in registrations)
         RevokeItemUsage(itemRegistration, stateTracker);
     }
 
     public void AddItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
     {
-      PluginRuntime.AddItemRegistrationChangeListener(location, listener);
+      lock (_syncObj) // Lock necessary (see docs of PluginRuntime.AddItemRegistrationChangeListener)
+        PluginRuntime.AddItemRegistrationChangeListener(location, listener);
     }
 
     public void RemoveItemRegistrationChangeListener(string location, IItemRegistrationChangeListener listener)
     {
-      PluginRuntime.RemoveItemRegistrationChangeListener(location, listener);
+      lock (_syncObj) // Lock necessary (see docs of PluginRuntime.RemoveItemRegistrationChangeListener)
+        PluginRuntime.RemoveItemRegistrationChangeListener(location, listener);
     }
 
     #endregion
 
     #region Item&Builder management
 
-    internal T RequestItem<T>(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker) where T : class
+    internal object RequestItem(PluginItemRegistration itemRegistration, Type type, IPluginItemStateTracker stateTracker)
     {
-      PluginRuntime pluginRuntime = itemRegistration.Metadata.PluginRuntime;
-      if (pluginRuntime.State != PluginState.Enabled && pluginRuntime.State != PluginState.Active)
-        throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') neither is enabled nor active, although it has registered items. Something is wrong.",
-            itemRegistration.Metadata.PluginRuntime.Metadata.Name,
-            itemRegistration.Metadata.PluginRuntime.Metadata.PluginId);
-      // TODO: As of the specification (see PluginState.EndRequest), we have to make the current
-      // thread sleep until the stopping procedure is finished or cancelled. This means we have to
-      // implement a notification mechanism in the stop request methods to re-awake this thread.
-      // By now, we simply let the item request fail (which is not the specified behavior!)
-      if (!itemRegistration.StateTrackers.Contains(stateTracker))
-        itemRegistration.StateTrackers.Add(stateTracker);
+      PluginRuntime plugin = itemRegistration.Metadata.PluginRuntime;
+      // We don't change the plugin's state to Pending because in some code paths, we need to call TryActivate which itself
+      // will check the state
+      lock (_syncObj)
+      {
+        if (!IsEnabledOrActive(plugin))
+          throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') neither is enabled nor active; cannot request items in this state",
+              plugin.Metadata.Name, plugin.Metadata.PluginId);
+        // Hint: As of the specification (see PluginState.EndRequest), we would have to make the current
+        // thread sleep until a possible ongoing stopping procedure is finished or cancelled. This means we have to
+        // implement a notification mechanism in the stop request methods to re-awake this thread.
+        // By now, we simply let the item request fail (which is not exactly the specified behavior!)
+      }
       try
       {
-        if (itemRegistration.Item == null)
-          itemRegistration.Item = BuildItem(itemRegistration.Metadata, pluginRuntime);
-        if (itemRegistration.Item is T)
-          return (T) itemRegistration.Item;
+        PluginItemMetadata itemMetadata = itemRegistration.Metadata;
+        IPluginItemBuilder builder = GetOrCreateBuilder(itemMetadata.BuilderName);
+        bool mustBuild = false;
+        lock (_syncObj)
+          if (itemRegistration.Item == null)
+            mustBuild = true;
+        // Escape lock because method TryActivate() is called
+        bool mustBeActive = builder.NeedsPluginActive(itemMetadata, plugin);
+        if (mustBuild && mustBeActive && !TryActivate(plugin))
+          throw new PluginInvalidStateException(string.Format(
+              "Plugin '{0}' (id '{1}') cannot be activated", plugin.Metadata.Name, plugin.Metadata.PluginId));
+        if (mustBeActive)
+          LockPluginStateDependency(plugin, PluginState.Active);
+        else
+          LockPluginStateDependency(plugin, PluginState.Active, PluginState.Enabled);
+        try
+        {
+          object item = builder.BuildItem(itemMetadata, plugin);
+          object releaseItem = null; // Fail safety - if we built the item twice by accident, release it at the end
+          try
+          {
+            lock (_syncObj)
+            {
+              if (itemRegistration.Item == null)
+                itemRegistration.Item = item;
+              else
+                releaseItem = item;
+              object result = itemRegistration.Item;
+              if (result != null && type.IsAssignableFrom(result.GetType()))
+              {
+                if (!itemRegistration.StateTrackers.Contains(stateTracker))
+                  itemRegistration.StateTrackers.Add(stateTracker);
+                return result;
+              }
+            }
+          }
+          finally
+          {
+            // In case we built the item concurrently twice, release item
+            if (releaseItem != null)
+              builder.RevokeItem(releaseItem, itemMetadata, plugin);
+          }
+        }
+        finally
+        {
+          UnlockPluginStateDependency(plugin);
+        }
       }
       catch (Exception e)
       {
@@ -337,7 +434,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       // Requested item isn't of type T - revoke usage again
       if (itemRegistration.Item != null)
-        RevokeItemUsage(itemRegistration, stateTracker);
+        RevokeItemUsage(itemRegistration, null);
       return null;
     }
 
@@ -351,16 +448,29 @@ namespace MediaPortal.Core.Services.PluginManager
     /// The state tracker won't be called any more for any plugin state changes.</param>
     internal void RevokeItemUsage(PluginItemRegistration itemRegistration, IPluginItemStateTracker stateTracker)
     {
-      itemRegistration.StateTrackers.Remove(stateTracker);
-      if (itemRegistration.StateTrackers.Count == 0)
+      PluginItemMetadata metadata = itemRegistration.Metadata;
+      PluginRuntime plugin = metadata.PluginRuntime;
+      LockPluginStateDependency(plugin, PluginState.Active, PluginState.Enabled);
+      try
       {
-        PluginItemMetadata metadata = itemRegistration.Metadata;
+        lock (_syncObj)
+        {
+          if (stateTracker != null)
+            itemRegistration.StateTrackers.Remove(stateTracker);
+          if (itemRegistration.StateTrackers.Count > 0)
+            return;
+        }
+        // No more state trackers present, revoke item
         IPluginItemBuilder builder = GetOrCreateBuilder(metadata.BuilderName);
-        builder.RevokeItem(itemRegistration.Item, metadata, metadata.PluginRuntime);
+        builder.RevokeItem(itemRegistration.Item, metadata, plugin);
         itemRegistration.Item = null;
+        // If we wanted to automatically unload plugins whose items are not accessed any more, this
+        // should be done here
       }
-      // If we wanted to automatically unload plugins whose items are not accessed any more, this
-      // should be done here
+      finally
+      {
+        UnlockPluginStateDependency(plugin);
+      }
     }
 
     /// <summary>
@@ -383,8 +493,7 @@ namespace MediaPortal.Core.Services.PluginManager
         string builderName, IPluginItemBuilder builderInstance)
     {
       KeyValuePair<string, PluginBuilderRegistration> result =
-          new KeyValuePair<string, PluginBuilderRegistration>(
-              builderName,
+          new KeyValuePair<string, PluginBuilderRegistration>(builderName,
               new PluginBuilderRegistration(builderName, builderInstance.GetType().FullName, null));
       result.Value.Builder = builderInstance;
       return result;
@@ -392,83 +501,73 @@ namespace MediaPortal.Core.Services.PluginManager
 
     internal static IDictionary<string, IPluginItemBuilder> GetDefaultBuilders()
     {
-      IDictionary<string, IPluginItemBuilder> result = new Dictionary<string, IPluginItemBuilder>();
-      result.Add("Instance", new InstanceBuilder());
-      result.Add("Resource", new ResourceBuilder());
+      IDictionary<string, IPluginItemBuilder> result = new Dictionary<string, IPluginItemBuilder>
+        {
+            {"Instance", new InstanceBuilder()},
+            {"Resource", new ResourceBuilder()}
+        };
       return result;
     }
 
     internal IPluginItemBuilder GetOrCreateBuilder(string builderName)
     {
       PluginBuilderRegistration builderRegistration;
-      if (!_builders.TryGetValue(builderName, out builderRegistration))
-        throw new FatalException(
-              "Builder '{0}' cannot be found. Something is wrong.", builderName);
-      IPluginItemBuilder result;
-      if (builderRegistration.IsInstantiated)
-        result = builderRegistration.Builder;
-      else
+      lock (_syncObj)
       {
-        if (!TryActivate(builderRegistration.PluginRuntime))
-          throw new PluginInvalidStateException(
-              "Cannot activate plugin providing builder '{0}', which is necessary to build item");
-        object obj = builderRegistration.PluginRuntime.InstanciatePluginObject(
-              builderRegistration.BuilderClassName);
-        if (obj is IPluginItemBuilder)
-          result = (IPluginItemBuilder) obj;
-        else
-        {
-          if (obj != null)
-          {
-            builderRegistration.PluginRuntime.RevokePluginObject(builderRegistration.BuilderClassName);
-            throw new PluginInternalException("Builder class '{0}' does not implement the plugin item builder interface '{1}'",
-                builderRegistration.BuilderClassName, typeof(IPluginItemBuilder).Name);
-          }
-          else
-            throw new PluginInternalException("Builder class '{0}' could not be instantiated",
-                builderRegistration.BuilderClassName);
-        }
+        if (!_builders.TryGetValue(builderName, out builderRegistration))
+          throw new FatalException("Builder '{0}' cannot be found. Something is wrong.", builderName);
+        if (builderRegistration.IsInstantiated)
+          return builderRegistration.Builder;
       }
-      return result;
-    }
 
-    internal object BuildItem(PluginItemMetadata metadata, PluginRuntime plugin)
-    {
-      IPluginItemBuilder builder = GetOrCreateBuilder(metadata.BuilderName);
-      if (builder.NeedsPluginActive(metadata, plugin) && !TryActivate(plugin))
-        throw new PluginInvalidStateException(string.Format(
-            "Plugin '{0}' (id '{1}') cannot be activated, although it has registered items. Something is wrong.",
-            metadata.PluginRuntime.Metadata.Name, metadata.PluginRuntime.Metadata.PluginId));
-      return builder.BuildItem(metadata, plugin);
+      PluginRuntime builderPlugin = builderRegistration.PluginRuntime;
+      if (!TryActivate(builderPlugin))
+        throw new PluginInvalidStateException("Cannot activate plugin providing builder '{0}', which is necessary to build item");
+      LockPluginStateDependency(builderPlugin, PluginState.Active);
+      try
+      {
+        object obj = builderPlugin.InstanciatePluginObject(builderRegistration.BuilderClassName);
+        if (obj == null)
+          throw new PluginInternalException("Builder class '{0}' could not be instantiated",
+              builderRegistration.BuilderClassName);
+        builderRegistration.Builder = obj as IPluginItemBuilder;
+        if (builderRegistration.Builder != null)
+          return builderRegistration.Builder;
+        builderPlugin.RevokePluginObject(builderRegistration.BuilderClassName);
+        throw new PluginInternalException("Builder class '{0}' does not implement the plugin item builder interface '{1}'",
+            builderRegistration.BuilderClassName, typeof(IPluginItemBuilder).Name);
+      }
+      finally
+      {
+        UnlockPluginStateDependency(builderPlugin);
+      }
     }
 
     #endregion
 
     #region Private & protected methods
 
-    protected static bool IsEnabledOrActive(PluginRuntime pr)
+    protected static bool IsEnabledOrActive(PluginRuntime plugin)
     {
-      return pr.State == PluginState.Enabled || pr.State == PluginState.Active;
+      return plugin.State == PluginState.Enabled || plugin.State == PluginState.Active;
     }
 
-    protected static bool IsInStoppingProcess(PluginRuntime pr)
+    protected static bool IsInStoppingProcess(PluginRuntime plugin)
     {
-      return pr.State == PluginState.EndRequest || pr.State == PluginState.Stopping;
+      return plugin.State == PluginState.EndRequest || plugin.State == PluginState.Stopping;
     }
 
     private static void ContinueOpenEndRequests(
-        IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>>
-        endRequestsToClose)
+        IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>> endRequestsToClose)
     {
       foreach (KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>
-        itemStateTrackersToFinish in endRequestsToClose)
+          itemStateTrackersToFinish in endRequestsToClose)
         foreach (IPluginItemStateTracker stateTracker in itemStateTrackersToFinish.Value)
           stateTracker.Continue(itemStateTrackersToFinish.Key);
     }
 
     private static void StopOpenEndRequests(
-        IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>>
-        endRequestsToClose)
+        IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>> endRequestsToClose)
     {
       foreach (KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>
         itemStateTrackersToFinish in endRequestsToClose)
@@ -497,30 +596,59 @@ namespace MediaPortal.Core.Services.PluginManager
     }
 
     /// <summary>
-    /// Method to avoid the re-entering of state change methods for the same plugin.
-    /// This might happen if a component of the outside tries to trigger a state change while
+    /// Method to lock a plugin to its current state until <see cref="UnlockPluginStateDependency"/> gets called. This avoids state
+    /// changes for a plugin, for example while some progress is assuming the current plugin state.
+    /// State changes could happen if a component of the outside tries to trigger a state change while
     /// it is called back from a state changing method.
     /// </summary>
-    /// <param name="plugin">The plugin currently handled.</param>
-    /// <param name="newState">New state which is to be set.</param>
-    protected void StateChangeStart(PluginRuntime plugin, PluginState newState)
+    /// <param name="plugin">The plugin to be locked.</param>
+    /// <param name="statesToLock">The plugin must be in one of those states to be locked.</param>
+    protected void LockPluginStateDependency(PluginRuntime plugin, params PluginState[] statesToLock)
     {
-      Guid pluginId = plugin.Metadata.PluginId;
-      if (_pendingPlugins.ContainsKey(pluginId))
-        throw new PluginRecursiveStateChangeException(
-            "Plugin '{0}' (id: '{1}') is already changing its state to '{1}'",
-            plugin.Metadata.Name, pluginId, newState);
-      _pendingPlugins.Add(pluginId, newState);
+      lock (_syncObj)
+      {
+        if (statesToLock.Length > 0)
+        {
+          ICollection<PluginState> states = new List<PluginState>(statesToLock);
+          if (!states.Contains(plugin.State))
+            throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is not in one of the desired states ('{2}')",
+                plugin.Metadata.Name, plugin.Metadata.PluginId, StringUtils.Join(", ", statesToLock));
+        }
+        plugin.LockForStateDependency();
+      }
+    }
+
+    protected void UnlockPluginStateDependency(PluginRuntime plugin)
+    {
+      plugin.UnlockStateDependency();
+    }
+
+    protected void ChangeReadLockToWriteLock(PluginRuntime plugin)
+    {
+      plugin.ChangeReadLockToWriteLock();
     }
 
     /// <summary>
-    /// Method to finish a state change. This will enable the plugin for other state changes again.
+    /// Method to lock a plugin to its current state until <see cref="UnlockPluginStateForWrite"/> gets called. This sets
+    /// a writer lock at the plugin's state which avoids other writer or reader locks.
+    /// State changes could happen if a component of the outside tries to trigger a state change while
+    /// it is called back from a state changing method.
     /// </summary>
-    /// <param name="plugin">The plugin for that method <see cref="StateChangeStart"/> was called
-    /// before.</param>
-    protected void StateChangeFinish(PluginRuntime plugin)
+    /// <param name="plugin">The plugin to be locked.</param>
+    protected void LockPluginStateForWrite(PluginRuntime plugin)
     {
-      _pendingPlugins.Remove(plugin.Metadata.PluginId);
+      plugin.LockForStateWrite();
+    }
+
+    /// <summary>
+    /// Method to unlock a plugin's writer lock, which was set by
+    /// <see cref="LockPluginStateForWrite(MediaPortal.Core.PluginManager.PluginRuntime)"/>.
+    /// </summary>
+    /// <param name="plugin">The plugin for that method <see cref="LockPluginStateForWrite(MediaPortal.Core.PluginManager.PluginRuntime)"/>
+    /// was called before.</param>
+    protected void UnlockPluginStateForWrite(PluginRuntime plugin)
+    {
+      plugin.UnlockStateForWrite();
     }
 
     #endregion
@@ -540,68 +668,81 @@ namespace MediaPortal.Core.Services.PluginManager
     /// be enabled, else <c>false</c>.</returns>
     public bool TryEnable(PluginRuntime plugin, bool doAutoActivate)
     {
-      // Plugin is already available - check its current state
-      if (IsEnabledOrActive(plugin))
-        return true;
-      if (IsInStoppingProcess(plugin))
-        return false;
-      StateChangeStart(plugin, PluginState.Enabled);
+      bool lockedForWrite = false;
+      LockPluginStateDependency(plugin); // First lock for read
+      ICollection<PluginRuntime> lockedPluginStateDependencies = new List<PluginRuntime> {plugin};
       try
       {
+        // Plugin is already available - check its current state
+        if (IsEnabledOrActive(plugin))
+          return true;
+        if (IsInStoppingProcess(plugin))
+          return false;
         ILogger logger = ServiceScope.Get<ILogger>();
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         logger.Debug("PluginManager: Trying to enable plugin '{0}' (id '{1}')", pluginName, pluginId);
         if (FindConflicts(plugin.Metadata).Count > 0)
         {
-          TryDisable(plugin);
+          logger.Info("PluginManager: Plugin '{0}' (id '{1}') cannot be enabled - there are plugin conflicts", pluginName, pluginId);
           return false;
         }
+
+        // Check if builder dependencies are explicitly named
+        lock (_syncObj)
+          foreach (string builderName in plugin.Metadata.GetNecessaryBuilders())
+          {
+            // Check if all plugins providing required builders are explicitly named as dependencies.
+            // We require this check, because we want to ensure the plugin will run once it is enabled.
+            // If we wouldn't force the plugin to place an explicit dependency on all its builder plugins,
+            // some of the builder plugins could be removed and the new plugin would fail creating items.
+            if (plugin.Metadata.Builders.Keys.Contains(builderName))
+              // Builder is provided by the plugin itself
+              continue;
+            PluginBuilderRegistration builderRegistration;
+            if (!_builders.TryGetValue(builderName, out builderRegistration))
+            {
+              logger.Warn("Plugin '{0}' (id '{1}'): Builder '{2}' is not available - plugin won't be enabled",
+                pluginName, pluginId, builderName);
+              return false;
+            }
+            if (builderRegistration.PluginRuntime == null)
+              // Builder is a default builder
+              continue;
+            if (!plugin.Metadata.DependsOn.Contains(builderRegistration.PluginRuntime.Metadata.PluginId))
+            {
+              logger.Error(
+                  "Plugin '{0}' (id '{1}'): Builder '{2}' (implemented by plugin '{3}') is used, but this plugin dependency is not explicitly specified - plugin won't be enabled",
+                  pluginName, pluginId, builderName, builderRegistration.PluginRuntime.Metadata.Name);
+              return false;
+            }
+          }
 
         // Handle dependencies
         ICollection<PluginRuntime> pendingChildRegistrations = new List<PluginRuntime>();
         foreach (Guid parentId in plugin.Metadata.DependsOn)
         {
-          PluginRuntime parentRuntime;
-          if (!_availablePlugins.TryGetValue(parentId, out parentRuntime))
+          PluginRuntime parentPlugin;
+          lock (_syncObj)
+            if (!_availablePlugins.TryGetValue(parentId, out parentPlugin))
+            {
+              logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' is not available", pluginName, pluginId, parentId);
+              return false;
+            }
+          if (!TryEnable(parentPlugin, doAutoActivate))
           {
-            logger.Warn("Plugin '{0}': Dependency '{2}' is not available", pluginName, pluginId, parentId);
+            logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
             return false;
           }
-          if (!TryEnable(parentRuntime, doAutoActivate))
-          {
-            logger.Warn("Plugin '{0}': Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
-            return false;
-          }
-          pendingChildRegistrations.Add(parentRuntime); // Remember parent -> have to register return value as dependent plugin later
+          LockPluginStateDependency(parentPlugin, PluginState.Enabled, PluginState.Active);
+          lockedPluginStateDependencies.Add(parentPlugin);
+          pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
         }
-        foreach (string builderName in plugin.Metadata.GetNecessaryBuilders())
-        {
-          // Check if all plugins providing required builders are explicitly named as dependencies.
-          // We require this check, because we want to ensure the plugin will run once it is enabled.
-          // If we wouldn't force the plugin to place an explicit dependency on all its builder plugins,
-          // some of the builder plugins could be removed and the new plugin would fail creating items.
-          if (plugin.Metadata.Builders.Keys.Contains(builderName))
-            // Builder is provided by the plugin itself
-            continue;
-          PluginBuilderRegistration builderRegistration;
-          if (!_builders.TryGetValue(builderName, out builderRegistration))
-          {
-            logger.Warn("Plugin '{0}': Builder '{2}' is not available - plugin won't be enabled",
-              pluginName, pluginId, builderName);
-            return false;
-          }
-          if (builderRegistration.PluginRuntime == null)
-            // Builder is a default builder
-            continue;
-          if (!plugin.Metadata.DependsOn.Contains(builderRegistration.PluginRuntime.Metadata.PluginId))
-          {
-            logger.Error(
-                "Plugin '{0}': Builder '{2}' (implemented by plugin '{3}') is used, but this plugin dependency is not explicitly specified - plugin won't be enabled",
-                pluginName, pluginId, builderName, builderRegistration.PluginRuntime.Metadata.Name);
-            return false;
-          }
-        }
+
+        // All checks passed and preconditions met, enable plugin
+        ChangeReadLockToWriteLock(plugin);
+        lockedForWrite = true;
+        lockedPluginStateDependencies.Remove(plugin);
         try
         {
           plugin.RegisterItems();
@@ -612,15 +753,21 @@ namespace MediaPortal.Core.Services.PluginManager
           plugin.UnregisterItems();
           return false;
         }
-        CollectionUtils.AddAll(_builders, CreateBuilderRegistrations(plugin));
-        foreach (PluginRuntime parent in pendingChildRegistrations)
-          parent.AddDependentPlugin(plugin);
-        plugin.State = PluginState.Enabled;
+        lock (_syncObj)
+        {
+          CollectionUtils.AddAll(_builders, CreateBuilderRegistrations(plugin));
+          foreach (PluginRuntime parent in pendingChildRegistrations)
+            parent.AddDependentPlugin(plugin);
+          plugin.State = PluginState.Enabled;
+        }
         logger.Info("PluginManager: Plugin '{0}' (id '{1}') enabled.", pluginName, pluginId);
       }
       finally
       {
-        StateChangeFinish(plugin);
+        if (lockedForWrite)
+          UnlockPluginStateForWrite(plugin);
+        foreach (PluginRuntime lockedPlugin in lockedPluginStateDependencies)
+          UnlockPluginStateDependency(lockedPlugin);
       }
       if (doAutoActivate && plugin.Metadata.AutoActivate)
         TryActivate(plugin);
@@ -638,43 +785,57 @@ namespace MediaPortal.Core.Services.PluginManager
         return false;
       if (IsInStoppingProcess(plugin))
         return false;
-      if (plugin.State == PluginState.Active)
-        return true;
-      string pluginName = plugin.Metadata.Name;
-      Guid pluginId = plugin.Metadata.PluginId;
-      ILogger logger = ServiceScope.Get<ILogger>();
-      logger.Debug("PluginManager: Trying to activate plugin '{0}' (id '{1}')", pluginName, pluginId);
-      StateChangeStart(plugin, PluginState.Active);
+      bool lockedForWrite = false;
+      LockPluginStateDependency(plugin); // First lock for read
+      ICollection<PluginRuntime> lockedPluginStateDependencies = new List<PluginRuntime> {plugin};
       try
       {
-        // Load assemblies of parent plugins
+        if (plugin.State == PluginState.Active)
+          return true;
+        string pluginName = plugin.Metadata.Name;
+        Guid pluginId = plugin.Metadata.PluginId;
+        ILogger logger = ServiceScope.Get<ILogger>();
+        logger.Debug("PluginManager: Trying to activate plugin '{0}' (id '{1}')", pluginName, pluginId);
+        // Activate parent plugins - Load their assemblies etc.
+        IDictionary<Guid, PluginRuntime> availablePlugins;
+        lock (_syncObj)
+          availablePlugins = new Dictionary<Guid, PluginRuntime>(_availablePlugins);
         foreach (Guid parentId in plugin.Metadata.DependsOn)
         {
-          PluginRuntime parent = _availablePlugins[parentId];
+          PluginRuntime parentPlugin = availablePlugins[parentId];
           logger.Debug("PluginManager: Checking activation of plugin dependency '{0}' for plugin '{1}'",
               parentId, pluginName);
-          if (!TryActivate(parent))
+          if (!TryActivate(parentPlugin))
           {
             logger.Debug("PluginManager: Dependent plugin '{0}' could not be activated. Activation of plugin '{1}' was not successful.",
                 parentId, pluginName);
             return false;
           }
+          LockPluginStateDependency(parentPlugin, PluginState.Active);
+          lockedPluginStateDependencies.Add(parentPlugin);
         }
-        // Activate plugin
-        plugin.LoadAssemblies();
-        plugin.State = PluginState.Active;
+        // All checks passed and preconditions met, activate plugin
+        ChangeReadLockToWriteLock(plugin);
+        lockedForWrite = true;
+        lockedPluginStateDependencies.Remove(plugin);
+        lock (_syncObj)
+        {
+          plugin.LoadAssemblies();
+          plugin.State = PluginState.Active;
+        }
         if (plugin.Metadata.StateTrackerClassName != null && !_maintenanceMode)
         {
           try
           {
             object obj = plugin.InstanciatePluginObject(plugin.Metadata.StateTrackerClassName);
+            IPluginStateTracker stateTracker = obj as IPluginStateTracker;
             if (obj == null)
               logger.Error("PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin '{1}'",
                   plugin.Metadata.StateTrackerClassName, pluginName);
-            else if (obj is IPluginStateTracker)
+            else if (stateTracker != null)
             {
-              plugin.StateTracker = obj as IPluginStateTracker;
-              plugin.StateTracker.Activated(plugin);
+              plugin.StateTracker = stateTracker;
+              stateTracker.Activated(plugin);
             }
             else
             {
@@ -694,7 +855,10 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        StateChangeFinish(plugin);
+        if (lockedForWrite)
+          UnlockPluginStateForWrite(plugin);
+        foreach (PluginRuntime lockedPlugin in lockedPluginStateDependencies)
+          UnlockPluginStateDependency(lockedPlugin);
       }
     }
 
@@ -708,32 +872,45 @@ namespace MediaPortal.Core.Services.PluginManager
     /// items usages could be stopped, else <c>false</c>.</returns>
     public bool TryDisable(PluginRuntime plugin)
     {
-      if (plugin.State == PluginState.Disabled)
-        return true;
-      if (IsInStoppingProcess(plugin))
-        throw new PluginInvalidStateException("Plugin is in stopping process");
-      StateChangeStart(plugin, PluginState.Disabled);
+      bool lockedForWrite = false;
+      LockPluginStateDependency(plugin); // First lock for read
+      ICollection<PluginRuntime> lockedPluginStateDependencies = new List<PluginRuntime> {plugin};
       try
       {
+        if (plugin.State == PluginState.Disabled)
+          return true;
+        if (IsInStoppingProcess(plugin))
+          throw new PluginInvalidStateException("Plugin is in stopping process");
         ILogger logger = ServiceScope.Get<ILogger>();
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         logger.Debug("PluginManager: Trying to disable plugin '{0}' (id '{1}')", pluginName, pluginId);
         // Handle dependencies
-        ICollection<PluginRuntime> dependencies = plugin.DependentPlugins;
+        ICollection<PluginRuntime> dependencies;
+        lock (_syncObj)
+          dependencies = plugin.DependentPlugins;
         if (dependencies != null)
-          foreach (PluginRuntime child in dependencies)
-            if (!TryDisable(child))
+          foreach (PluginRuntime childPlugin in dependencies)
+          {
+            if (!TryDisable(childPlugin))
             {
               logger.Debug("PluginManager: Cannot disable plugin '{0}' because dependent plugin '{1}' cannot be disabled",
-                  pluginName, child.Metadata.PluginId);
+                  pluginName, childPlugin.Metadata.PluginId);
               return false;
             }
+            LockPluginStateDependency(childPlugin, PluginState.Disabled);
+            lockedPluginStateDependencies.Add(childPlugin);
+          }
+        // All checks passed and preconditions met, change plugin state
+        ChangeReadLockToWriteLock(plugin);
+        lockedForWrite = true;
+        lockedPluginStateDependencies.Remove(plugin);
         if (plugin.State == PluginState.Active)
         {
           plugin.State = PluginState.EndRequest;
-          if (plugin.StateTracker != null)
-            if (!plugin.StateTracker.RequestEnd())
+          IPluginStateTracker stateTracker = plugin.StateTracker;
+          if (stateTracker != null)
+            if (!stateTracker.RequestEnd())
             {
               logger.Debug("PluginManager: Cannot disable plugin '{0}' because its state tracker doesn't want to be disabled",
                   pluginName);
@@ -746,10 +923,11 @@ namespace MediaPortal.Core.Services.PluginManager
           if (failedStateTrackers.Count == 0)
           {
             plugin.State = PluginState.Stopping;
-            if (plugin.StateTracker != null)
+            if (stateTracker != null)
             {
-              plugin.StateTracker.Stop();
-              plugin.RevokePluginObject(plugin.StateTracker.GetType().FullName);
+              stateTracker.Stop();
+              plugin.StateTracker = null;
+              plugin.RevokePluginObject(stateTracker.GetType().FullName);
             }
             StopOpenEndRequests(endRequestsToClose);
 
@@ -758,15 +936,16 @@ namespace MediaPortal.Core.Services.PluginManager
             {
               object builder = _builders[builderName];
               plugin.RevokePluginObject(builder.GetType().FullName);
-              _builders.Remove(builderName);
+              lock (_syncObj)
+                _builders.Remove(builderName);
             }
           }
           else
           {
             logger.Debug("PluginManager: Cannot disable plugin '{0}', because it is still in use by '{1}'",
                 pluginName, CollectionUtils.Transform(failedStateTrackers, new PluginItemStateTrackerToNameTransformer()));
-            if (plugin.StateTracker != null)
-              plugin.StateTracker.Continue();
+            if (stateTracker != null)
+              stateTracker.Continue();
             ContinueOpenEndRequests(endRequestsToClose);
             return false;
           }
@@ -777,7 +956,10 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        StateChangeFinish(plugin);
+        if (lockedForWrite)
+          UnlockPluginStateForWrite(plugin);
+        foreach (PluginRuntime lockedPlugin in lockedPluginStateDependencies)
+          UnlockPluginStateDependency(lockedPlugin);
       }
     }
 
@@ -815,8 +997,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public IList<string> GetStatus()
     {
-      IList<string> result = new List<string>();
-      result.Add("=== PlugInManager");
+      IList<string> result = new List<string> {"=== PlugInManager"};
       foreach (PluginRuntime plugin in _availablePlugins.Values)
         result.Add(string.Format("  Plugin '{0}': {1}", plugin.Metadata.Name, plugin.State));
       return result;

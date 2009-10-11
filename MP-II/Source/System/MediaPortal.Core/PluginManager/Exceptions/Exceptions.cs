@@ -69,11 +69,11 @@ namespace MediaPortal.Core.PluginManager.Exceptions
         base(msg, ex, args) { }
   }
 
-  public class PluginRecursiveStateChangeException : PluginManagerException
+  public class PluginLockedException : PluginManagerException
   {
-    public PluginRecursiveStateChangeException(string msg, params object[] args):
+    public PluginLockedException(string msg, params object[] args):
         base(msg, args) { }
-    public PluginRecursiveStateChangeException(string msg, Exception ex, params object[] args):
+    public PluginLockedException(string msg, Exception ex, params object[] args):
         base(msg, ex, args) { }
   }
 }

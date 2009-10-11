@@ -27,15 +27,17 @@ using System.Collections.Generic;
 namespace MediaPortal.Core.PluginManager
 {
   /// <summary>
-  /// Holds the item data for a plugin item. Every object brought into the system by
-  /// the plugin via a registration in the plugin tree is called an item. Items can be instances
-  /// of classes, settings, resources, ...
+  /// Holds the item data for a plugin item.
+  /// </summary>
+  /// <remarks>
+  /// Every object brought into the system by the plugin via a registration in the plugin tree is called an item.
+  /// Items can be instances of classes, settings, resources, ...
   /// This item specification is very open; almost everything can be added by a plugin as an item.
   /// The only demand on items is, they have to be registered at a location in the plugin tree.
   /// The item metadata instance itself only holds item creation data; the real item object will be
   /// created by the item builder, which is referenced via its builder name
   /// (see <see cref="BuilderName"/>).
-  /// </summary>
+  /// </remarks>
   public class PluginItemMetadata
   {
     #region Protected fields
@@ -87,6 +89,11 @@ namespace MediaPortal.Core.PluginManager
       get { return _id; }
     }
 
+    public string AbsolutePath
+    {
+      get { return _registrationLocation + "/" + _id; }
+    }
+
     /// <summary>
     /// Returns the information if this plugin item is a "redundant item".
     /// </summary>
@@ -115,7 +122,7 @@ namespace MediaPortal.Core.PluginManager
     public PluginRuntime PluginRuntime
     {
       get { return _pluginRuntime; }
-      set { _pluginRuntime = value; }
+      internal set { _pluginRuntime = value; }
     }
 
     #region Base overrides
