@@ -103,6 +103,10 @@ namespace MediaPortal.Core.General
 
     public static bool operator==(SystemName first, SystemName second)
     {
+      if (ReferenceEquals(first, null) && ReferenceEquals(second, null))
+        return true;
+      if (ReferenceEquals(first, null) || ReferenceEquals(second, null))
+        return false;
       return string.Equals(first.HostName, second.HostName, StringComparison.InvariantCultureIgnoreCase) ||
           (first.IsLocalSystem() && second.IsLocalSystem());
     }
