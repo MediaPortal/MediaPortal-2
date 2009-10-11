@@ -80,9 +80,17 @@ namespace MediaPortal.Core.Messaging
     /// </summary>
     /// <param name="owner">Owner of this queue. Used for setting the queue's default name.</param>
     /// <param name="messageChannels">Message channels this message queue will be registered at the message broker.</param>
-    public AsynchronousMessageQueue(object owner, string[] messageChannels) : base(messageChannels)
+    public AsynchronousMessageQueue(object owner, string[] messageChannels) :
+        this(owner == null ? "Unknown" : owner.GetType().Name, messageChannels) { }
+
+    /// <summary>
+    /// Creates a new asynchronous message queue.
+    /// </summary>
+    /// <param name="ownerType">Type of the owner of this queue. Used for setting the queue's default name.</param>
+    /// <param name="messageChannels">Message channels this message queue will be registered at the message broker.</param>
+    public AsynchronousMessageQueue(string ownerType, string[] messageChannels) : base(messageChannels)
     {
-      _queueName = string.Format("Async message queue '{0}'", owner == null ? "Unknown" : owner.GetType().Name);
+      _queueName = string.Format("Async message queue '{0}'", ownerType);
       ShutdownWatcher.Create(this);
     }
 
