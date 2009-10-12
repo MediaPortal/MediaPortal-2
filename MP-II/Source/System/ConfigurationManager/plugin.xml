@@ -17,7 +17,7 @@
   <Builder Name="CustomConfigSetting" ClassName="MediaPortal.Configuration.Builders.ConfigBuilder"/>
 
   <Register Location="/Services">
-    <Instance Id="MediaPortal.Core.Configuration.IConfigurationManager" ClassName="MediaPortal.Configuration.ConfigurationManagement.ConfigurationManager"/>
+    <Instance Id="MediaPortal.Core.Configuration.IConfigurationManager, MediaPortal.Core" ClassName="MediaPortal.Configuration.ConfigurationManagement.ConfigurationManager"/>
   </Register>
 
   <Register Location="/Resources/Language">

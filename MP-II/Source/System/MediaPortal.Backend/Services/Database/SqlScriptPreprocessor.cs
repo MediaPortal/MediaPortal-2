@@ -73,7 +73,7 @@ namespace MediaPortal.Services.Database
       int end = stringPattern.IndexOf(')');
       if (start == -1 || end <= start)
         throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
-      string lstr = stringPattern.Substring(start, end - start).Trim();
+      string lstr = stringPattern.Substring(start + 1, end - start - 1).Trim();
       uint length;
       if (!uint.TryParse(lstr, out length))
         throw new InvalidDataException("Invalid length in fixed string pattern '{0}'", stringPattern);

@@ -60,6 +60,7 @@ namespace MediaPortal.Database.Firebird
     public static ITransaction BeginTransaction(string connectionString, IsolationLevel level)
     {
       FbConnection connection = new FbConnection(connectionString);
+      connection.Open();
       return new FirebirdTransaction(connection, connection.BeginTransaction(level));
     }
 
@@ -93,7 +94,9 @@ namespace MediaPortal.Database.Firebird
 
     public IDbCommand CreateCommand()
     {
-      return _connection.CreateCommand();
+      IDbCommand result = _connection.CreateCommand();
+      result.Transaction = _transaction;
+      return result;
     }
 
     #endregion

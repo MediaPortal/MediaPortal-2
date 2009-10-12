@@ -44,6 +44,36 @@ namespace MediaPortal.Database
   /// </remarks>
   public class DatabaseSubSchemaManager
   {
+    protected class CreateOperation
+    {
+      protected int _toVersionMajor;
+      protected int _toVersionMinor;
+      protected string _createScriptFilePath;
+
+      public CreateOperation(string updateScriptFilePath,
+          int toVersionMajor, int toVersionMinor)
+      {
+        _createScriptFilePath = updateScriptFilePath;
+        _toVersionMajor = toVersionMajor;
+        _toVersionMinor = toVersionMinor;
+      }
+
+      public int ToVersionMajor
+      {
+        get { return _toVersionMajor; }
+      }
+
+      public int ToVersionMinor
+      {
+        get { return _toVersionMinor; }
+      }
+
+      public string CreateScriptFilePath
+      {
+        get { return _createScriptFilePath; }
+      }
+    }
+
     protected class UpdateOperation
     {
       protected int? _fromVersionMajor;
@@ -118,6 +148,7 @@ namespace MediaPortal.Database
     }
 
     protected string _subSchemaName;
+    protected CreateOperation _createOperation = null;
     protected IDictionary<string, UpdateOperation> _versionToUpdateOperation = new Dictionary<string, UpdateOperation>();
     protected IDictionary<string, DeleteOperation> _versionToDeleteOperation = new Dictionary<string, DeleteOperation>();
 
@@ -131,13 +162,9 @@ namespace MediaPortal.Database
       _subSchemaName = subSchemaName;
     }
 
-    protected UpdateOperation GetCreateOperation()
+    protected CreateOperation GetCreateOperation()
     {
-      UpdateOperation result;
-      if (_versionToUpdateOperation.TryGetValue(WildcardVersionToString(null, null), out result))
-        return result;
-      else
-        return null;
+      return _createOperation;
     }
 
     protected UpdateOperation GetUpdateOperation(int fromVersionMajor, int fromVersionMinor)
@@ -162,28 +189,36 @@ namespace MediaPortal.Database
         return null;
     }
 
-    protected string WildcardVersionToString(int? versionMajor, int? versionMinor)
+    protected string WildcardVersionToString(int versionMajor, int? versionMinor)
     {
-      if (!versionMajor.HasValue)
-        return string.Empty;
-      else if (!versionMinor.HasValue)
-        return versionMajor.Value + ".*";
+      if (!versionMinor.HasValue)
+        return versionMajor + ".*";
       else
-        return versionMajor.Value + "." + versionMinor.Value;
+        return versionMajor + "." + versionMinor.Value;
+    }
+
+    /// <summary>
+    /// Manually sets the creation script for the subschema of this subschema manager.
+    /// </summary>
+    /// <param name="createScriptFilePath">File path to the create script to set.</param>
+    /// <param name="toVersionMajor">Major target version number of the specified create script.</param>
+    /// <param name="toVersionMinor">Minor target version number of the specified create script.</param>
+    public void SetCreateScript(string createScriptFilePath, int toVersionMajor, int toVersionMinor)
+    {
+      _createOperation = new CreateOperation(createScriptFilePath, toVersionMajor, toVersionMinor);
     }
 
     /// <summary>
     /// Manually adds an update script to the collection of available scripts.
     /// </summary>
     /// <param name="updateScriptFilePath">File path to the update script to add.</param>
-    /// <param name="fromVersionMajor">Major version number the specified script will update.
-    /// Should be <c>null</c> if the specified script is a creation script.</param>
+    /// <param name="fromVersionMajor">Major version number the specified script will update.</param>
     /// <param name="fromVersionMinor">Minor version number the specified script will update.
-    /// Should be <c>null</c> if the specified script is a creation script or if the script can work on all
-    /// minor version numbers under the given <paramref name="fromVersionMajor"/> version.</param>
+    /// Should be <c>null</c> if the script can work on all minor version numbers under the given
+    /// <paramref name="fromVersionMajor"/> version.</param>
     /// <param name="toVersionMajor">Major target version number of the specified update script.</param>
     /// <param name="toVersionMinor">Minor target version number of the specified update script.</param>
-    public void AddUpdateScript(string updateScriptFilePath, int? fromVersionMajor, int? fromVersionMinor,
+    public void AddUpdateScript(string updateScriptFilePath, int fromVersionMajor, int? fromVersionMinor,
         int toVersionMajor, int toVersionMinor)
     {
       _versionToUpdateOperation.Add(WildcardVersionToString(fromVersionMajor, fromVersionMinor),
@@ -225,9 +260,10 @@ namespace MediaPortal.Database
       Regex rxCreate = new Regex("^" + Regex.Escape(_subSchemaName) + "-create-([0-9])\\.([0-9])\\.sql$", RegexOptions.IgnoreCase);
       Regex rxUpdate = new Regex("^" + Regex.Escape(_subSchemaName) + "-([0-9])\\.(([0-9])|_)-([0-9])\\.([0-9])\\.sql$", RegexOptions.IgnoreCase);
       Regex rxDelete = new Regex("^" + Regex.Escape(_subSchemaName) + "-([0-9])\\.(([0-9])|_)-delete\\.sql$", RegexOptions.IgnoreCase);
-      foreach (string scriptPath in Directory.GetFiles(Path.Combine(scriptDirectoryPath, searchPatternOs)))
+      foreach (string scriptPath in Directory.GetFiles(scriptDirectoryPath, searchPatternOs))
       {
-        Match match = rxCreate.Match(scriptPath);
+        string scriptName = Path.GetFileName(scriptPath);
+        Match match = rxCreate.Match(scriptName);
         if (match.Success)
         {
           string toVersionMajorStr = match.Groups[1].ToString();
@@ -238,11 +274,11 @@ namespace MediaPortal.Database
           int toVersionMinor;
           if (!int.TryParse(toVersionMinorStr, out toVersionMinor))
             continue;
-          AddUpdateScript(scriptPath, null, null, toVersionMajor, toVersionMinor);
+          SetCreateScript(scriptPath, toVersionMajor, toVersionMinor);
         }
         else
         {
-          match = rxUpdate.Match(scriptPath);
+          match = rxUpdate.Match(scriptName);
           if (match.Success)
           {
             string fromVersionMajorStr = match.Groups[1].ToString();
@@ -270,7 +306,7 @@ namespace MediaPortal.Database
           }
           else
           {
-            match = rxDelete.Match(scriptPath);
+            match = rxDelete.Match(scriptName);
             if (match.Success)
             {
               string fromVersionMajorStr = match.Groups[1].ToString();
@@ -319,17 +355,22 @@ namespace MediaPortal.Database
       int curVersionMinor = 0;
       try
       {
-        UpdateOperation nextOperation;
-        if (databaseManager.GetSubSchemaVersion(_subSchemaName, out curVersionMajor, out curVersionMinor))
-          nextOperation = GetUpdateOperation(curVersionMajor, curVersionMinor);
-        else
+        // Create schema
+        if (!databaseManager.GetSubSchemaVersion(_subSchemaName, out curVersionMajor, out curVersionMinor))
         {
-          nextOperation = GetCreateOperation();
-          if (nextOperation == null)
+          CreateOperation createOperation = GetCreateOperation();
+          if (createOperation == null)
             return false; // No schema could be created
+          databaseManager.UpdateSubSchema(_subSchemaName, null, null,
+              createOperation.CreateScriptFilePath, createOperation.ToVersionMajor, createOperation.ToVersionMinor);
+          curVersionMajor = createOperation.ToVersionMajor;
+          curVersionMinor = createOperation.ToVersionMinor;
         }
-        while (nextOperation != null)
+        while (true)
         {
+          UpdateOperation nextOperation = GetUpdateOperation(curVersionMajor, curVersionMinor);
+          if (nextOperation == null)
+            break;
           // Avoid busy loops on wrong input data
           if (nextOperation.ToVersionMajor < curVersionMajor ||
               (nextOperation.ToVersionMajor == curVersionMajor && nextOperation.ToVersionMinor < curVersionMinor))
@@ -339,7 +380,6 @@ namespace MediaPortal.Database
               nextOperation.UpdateScriptFilePath, nextOperation.ToVersionMajor, nextOperation.ToVersionMinor);
           curVersionMajor = nextOperation.ToVersionMajor;
           curVersionMinor = nextOperation.ToVersionMinor;
-          nextOperation = GetUpdateOperation(curVersionMajor, curVersionMinor);
         }
         return true;
       }
