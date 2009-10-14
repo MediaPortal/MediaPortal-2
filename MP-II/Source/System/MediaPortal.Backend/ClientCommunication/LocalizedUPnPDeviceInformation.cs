@@ -29,7 +29,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.ClientCommunication
 {
   public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {

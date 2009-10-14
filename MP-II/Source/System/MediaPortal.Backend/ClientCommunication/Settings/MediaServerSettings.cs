@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Services.UPnP.Settings
+namespace MediaPortal.ClientCommunication.Settings
 {
   public class MediaServerSettings
   {

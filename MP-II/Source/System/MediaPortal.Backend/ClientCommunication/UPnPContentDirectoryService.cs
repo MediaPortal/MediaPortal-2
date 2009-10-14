@@ -32,7 +32,7 @@ using MediaPortal.MediaLibrary;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Backend.Services.UPnP
+namespace MediaPortal.ClientCommunication
 {
   /// <summary>
   /// Encapsulates the UPnP service for the MediaPortal-II content directory.

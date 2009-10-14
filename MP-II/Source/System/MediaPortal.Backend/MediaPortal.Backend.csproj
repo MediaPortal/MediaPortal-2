@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -68,11 +68,11 @@
     <Compile Include="Services\MediaLibrary\QueryEngine\QueryAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />
-    <Compile Include="Services\UPnP\Settings\MediaServerSettings.cs" />
-    <Compile Include="Services\UPnP\MP2ServerDevice.cs" />
-    <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
-    <Compile Include="Services\UPnP\UPnPMediaServer.cs" />
-    <Compile Include="Services\UPnP\LocalizedUPnPDeviceInformation.cs" />
+    <Compile Include="ClientCommunication\Settings\MediaServerSettings.cs" />
+    <Compile Include="ClientCommunication\MP2ServerDevice.cs" />
+    <Compile Include="ClientCommunication\UPnPContentDirectoryService.cs" />
+    <Compile Include="ClientCommunication\UPnPMediaServer.cs" />
+    <Compile Include="ClientCommunication\LocalizedUPnPDeviceInformation.cs" />
     <Compile Include="Services\Database\DatabaseManager.cs" />
     <Compile Include="Services\Database\MediaPortal_Basis_SubSchema.cs" />
     <Compile Include="Services\Database\SQLUtils.cs" />

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Reflection;
 using FirebirdSql.Data.FirebirdClient;
 using FirebirdSql.Data.Isql;
 using MediaPortal.Core;
@@ -52,6 +53,9 @@ namespace MediaPortal.Database.Firebird
 
     public FirebirdSQLDatabase()
     {
+      string dllDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      Environment.SetEnvironmentVariable("FIREBIRD", dllDirectory);
+      Environment.SetEnvironmentVariable("FIREBIRD_MSG", dllDirectory);
       FirebirdSettings settings = ServiceScope.Get<ISettingsManager>().Load<FirebirdSettings>();
       FbConnectionStringBuilder sb = new FbConnectionStringBuilder
         {

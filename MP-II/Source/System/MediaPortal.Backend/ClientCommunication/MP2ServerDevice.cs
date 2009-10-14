@@ -22,10 +22,9 @@
 
 #endregion
 
-using MediaPortal.Backend.Services.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.ClientCommunication
 {
   public class MP2ServerDevice : DvDevice
   {
