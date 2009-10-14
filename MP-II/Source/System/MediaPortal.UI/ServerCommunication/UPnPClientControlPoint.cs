@@ -31,7 +31,7 @@ using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.ServerCommunication
 {
   public delegate void MediaServerConnectedDlgt(DeviceConnection connection);
   public delegate void MediaServerDisconnectedDlgt(DeviceConnection connection);

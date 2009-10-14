@@ -30,7 +30,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.DeviceTree;
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.ServerCommunication
 {
   public enum RelocationMode
   {

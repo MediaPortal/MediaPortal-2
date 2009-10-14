@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Services.ServerConnection.Settings
@@ -29,12 +30,38 @@ namespace MediaPortal.Services.ServerConnection.Settings
   public class ServerConnectionSettings
   {
     protected string _homeServerUUID = null;
+    protected string _lastHomeServerName;
+    protected SystemName _lastHomeServerSystem;
 
+    /// <summary>
+    /// UUID of our home server. The server connection manager will always try to connect to a home server
+    /// of this UUID.
+    /// </summary>
     [Setting(SettingScope.Global)]
     public string HomeServerUUID
     {
       get { return _homeServerUUID; }
       set { _homeServerUUID = value; }
+    }
+
+    /// <summary>
+    /// Cached display name of the last connected home server.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public string LastHomeServerName
+    {
+      get { return _lastHomeServerName; }
+      set { _lastHomeServerName = value; }
+    }
+
+    /// <summary>
+    /// Computer name of the last connected home server.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public SystemName LastHomeServerSystem
+    {
+      get { return _lastHomeServerSystem; }
+      set { _lastHomeServerSystem = value; }
     }
   }
 }

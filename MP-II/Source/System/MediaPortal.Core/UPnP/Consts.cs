@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.Core.UPnP
 {
   /// <summary>
   /// Constants of the UPnP system.

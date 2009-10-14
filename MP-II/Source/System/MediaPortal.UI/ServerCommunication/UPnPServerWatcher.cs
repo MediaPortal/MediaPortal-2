@@ -28,19 +28,20 @@ using System.Xml;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.UPnP;
 using UPnP.Infrastructure.CP;
+using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.Services.UPnP
+namespace MediaPortal.ServerCommunication
 {
-  public delegate void AvailableMediaServersChangedDlgt(IDictionary<SystemName, RootDescriptor> allAvailableServers);
+  public delegate void AvailableMediaServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers);
 
   /// <summary>
   /// Watches the network for available MediaPortal-II servers.
   /// </summary>
   public class UPnPServerWatcher
   {
-    protected IDictionary<SystemName, RootDescriptor> _availableServers =
-        new Dictionary<SystemName, RootDescriptor>();
+    protected ICollection<ServerDescriptor> _availableServers = new List<ServerDescriptor>();
     protected UPnPNetworkTracker _networkTracker;
 
     public UPnPServerWatcher()
@@ -56,7 +57,7 @@ namespace MediaPortal.Services.UPnP
       Stop();
     }
 
-    public IDictionary<SystemName, RootDescriptor>  AvailableServers
+    public ICollection<ServerDescriptor>  AvailableServers
     {
       get { return _availableServers; }
     }
@@ -73,14 +74,17 @@ namespace MediaPortal.Services.UPnP
       _networkTracker.Close();
     }
 
-    protected SystemName GetSystemOfMPMediaServer(RootDescriptor rootDescriptor)
+    public static ServerDescriptor GetMPMediaServerDescriptor(RootDescriptor rootDescriptor)
     {
       try
       {
         XmlElement mediaServerDeviceElement = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
         if (mediaServerDeviceElement == null)
           return null;
-        return new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);
+        string udn = ((XmlText) mediaServerDeviceElement.SelectSingleNode("UDN/text()")).Data;
+        string friendlyName = ((XmlText) mediaServerDeviceElement.SelectSingleNode("friendlyName/text()")).Data;
+        SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);
+        return new ServerDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName, system);
       }
       catch (Exception e)
       {
@@ -91,13 +95,13 @@ namespace MediaPortal.Services.UPnP
 
     void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
     {
-      IDictionary<SystemName, RootDescriptor>  availableServers;
+      ICollection<ServerDescriptor> availableServers;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        SystemName systemName = GetSystemOfMPMediaServer(rootDescriptor);
-        if (systemName == null || _availableServers.ContainsKey(systemName))
+        ServerDescriptor serverDescriptor = GetMPMediaServerDescriptor(rootDescriptor);
+        if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
-        _availableServers.Add(systemName, rootDescriptor);
+        _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
       }
       InvokeAvailableMediaServersChanged(availableServers);
@@ -105,19 +109,19 @@ namespace MediaPortal.Services.UPnP
 
     void OnUPnPRootDeviceRemoved(RootDescriptor rootDescriptor)
     {
-      IDictionary<SystemName, RootDescriptor>  availableServers;
+      ICollection<ServerDescriptor> availableServers;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        SystemName systemName = GetSystemOfMPMediaServer(rootDescriptor);
-        if (systemName == null || !_availableServers.ContainsKey(systemName))
+        ServerDescriptor serverDescriptor = GetMPMediaServerDescriptor(rootDescriptor);
+        if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
-        _availableServers.Remove(systemName);
+        _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;
       }
       InvokeAvailableMediaServersChanged(availableServers);
     }
 
-    protected void InvokeAvailableMediaServersChanged(IDictionary<SystemName, RootDescriptor> allAvailableServers)
+    protected void InvokeAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers)
     {
       AvailableMediaServersChangedDlgt dlgt = AvailableMediaServersChanged;
       if (dlgt != null)

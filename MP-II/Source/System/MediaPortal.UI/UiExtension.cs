@@ -22,13 +22,12 @@
 
 #endregion
 
-using System;
 using MediaPortal.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
-using MediaPortal.ServerConnection;
+using MediaPortal.ServerCommunication;
 using MediaPortal.Services.Players;
 using MediaPortal.Services.ServerConnection;
 using MediaPortal.Services.Shares;

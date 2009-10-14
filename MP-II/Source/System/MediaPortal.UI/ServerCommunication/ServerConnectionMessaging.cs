@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.ServerConnection
+namespace MediaPortal.ServerCommunication
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the server connection manager.
@@ -66,7 +66,7 @@ namespace MediaPortal.ServerConnection
     /// </summary>
     /// <param name="messageType">One of the <see cref="MessageType.HomeServerConnected"/> or
     /// <see cref="MessageType.HomeServerDisconnected"/> messages.</param>
-    public static void SendConnectionStateChangeMessage(MessageType messageType)
+    public static void SendConnectionStateChangedMessage(MessageType messageType)
     {
       QueueMessage msg = new QueueMessage(messageType);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
@@ -76,7 +76,7 @@ namespace MediaPortal.ServerConnection
     /// Sends a <see cref="MessageType.AvailableServersChanged"/> message.
     /// </summary>
     /// <param name="availableServers">Collection of descriptors of available servers.</param>
-    public static void SendAvailableServersChangeMessage(ICollection<AvailableServer> availableServers)
+    public static void SendAvailableServersChangedMessage(ICollection<ServerDescriptor> availableServers)
     {
       QueueMessage msg = new QueueMessage(MessageType.AvailableServersChanged);
       msg.MessageData[PARAM] = availableServers;

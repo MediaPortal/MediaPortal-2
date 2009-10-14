@@ -108,9 +108,9 @@
     <Compile Include="Presentation\Workflow\PushNavigationTransition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Presentation\Screens\IScreenManager.cs" />
-    <Compile Include="ServerConnection\AvailableServer.cs" />
-    <Compile Include="ServerConnection\IServerConnectionManager.cs" />
-    <Compile Include="ServerConnection\ServerConnectionMessaging.cs" />
+    <Compile Include="ServerCommunication\ServerDescriptor.cs" />
+    <Compile Include="ServerCommunication\IServerConnectionManager.cs" />
+    <Compile Include="ServerCommunication\ServerConnectionMessaging.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PlayerBuilderRegistration.cs" />
@@ -131,8 +131,8 @@
     <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
-    <Compile Include="Services\UPnP\UPnPContentDirectoryService.cs" />
-    <Compile Include="Services\UPnP\UPnPServerWatcher.cs" />
+    <Compile Include="ServerCommunication\UPnPContentDirectoryService.cs" />
+    <Compile Include="ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\UserManagement\Permission.cs" />
     <Compile Include="Services\UserManagement\Role.cs" />
     <Compile Include="Services\UserManagement\User.cs" />
@@ -154,7 +154,7 @@
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />
     <Compile Include="Views\ViewSpecification.cs" />
-    <Compile Include="Services\UPnP\UPnPClientControlPoint.cs" />
+    <Compile Include="ServerCommunication\UPnPClientControlPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
