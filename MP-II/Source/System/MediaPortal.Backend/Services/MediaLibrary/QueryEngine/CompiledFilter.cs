@@ -28,11 +28,10 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Services.MediaLibrary;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   public class CompiledFilter
   {
@@ -54,10 +53,10 @@ namespace MediaPortal.MediaManagement.MLQueries
       _outerMIIDJoinVariablePlaceHolder = outerMIIDJointVariablePlaceHolder;
     }
 
-    public static CompiledFilter Compile(IFilter filter)
+    public static CompiledFilter Compile(MIAM_Management miamManagement, IFilter filter)
     {
       object outerMIIDJointVariablePlaceHolder = new object();
-      IList<object> statementParts = CompileStatementParts(filter, outerMIIDJointVariablePlaceHolder);
+      IList<object> statementParts = CompileStatementParts(miamManagement, filter, outerMIIDJointVariablePlaceHolder);
       ICollection<QueryAttribute> filterAttributes = new List<QueryAttribute>();
       foreach (object statementPart in statementParts)
       {
@@ -68,7 +67,8 @@ namespace MediaPortal.MediaManagement.MLQueries
       return new CompiledFilter(statementParts, filterAttributes, outerMIIDJointVariablePlaceHolder);
     }
 
-    protected static IList<object> CompileStatementParts(IFilter filter, object outerMIIDJointVariablePlaceHolder)
+    protected static IList<object> CompileStatementParts(MIAM_Management miamManagement, IFilter filter,
+        object outerMIIDJointVariablePlaceHolder)
     {
       if (filter == null)
         return new List<object>();
@@ -96,7 +96,7 @@ namespace MediaPortal.MediaManagement.MLQueries
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          result.Add(CompileStatementParts((IFilter) enumOperands.Current, outerMIIDJointVariablePlaceHolder));
+          result.Add(CompileStatementParts(miamManagement, (IFilter) enumOperands.Current, outerMIIDJointVariablePlaceHolder));
         }
         result.Add(")");
         return result;
@@ -108,7 +108,7 @@ namespace MediaPortal.MediaManagement.MLQueries
         IList<object> result = new List<object>
         {
           "NOT (",
-          CompileStatementParts(notFilter.InnerFilter, outerMIIDJointVariablePlaceHolder),
+          CompileStatementParts(miamManagement, notFilter.InnerFilter, outerMIIDJointVariablePlaceHolder),
           ")"
         };
         return result;
@@ -141,7 +141,7 @@ namespace MediaPortal.MediaManagement.MLQueries
           result.Add(" SELECT COLL_MIA_TABLE.");
           result.Add(MIAM_Management.MIAM_MEDIA_ITEM_ID_COL_NAME);
           result.Add(" FROM ");
-          result.Add(MIAM_Management.GetMIAMCollectionAttributeTableName(attributeType));
+          result.Add(miamManagement.GetMIAMCollectionAttributeTableName(attributeType));
           result.Add(" COLL_MIA_TABLE WHERE COLL_MIA_TABLE.");
           result.Add(MIAM_Management.MIAM_MEDIA_ITEM_ID_COL_NAME);
           result.Add("=");

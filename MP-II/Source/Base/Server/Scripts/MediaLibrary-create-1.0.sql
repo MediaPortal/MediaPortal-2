@@ -1,5 +1,5 @@
 -- This script creates the MediaLibrary schema. DO NOT MODIFY!
--- Albert, 2009-09-17
+-- Albert, 2009-10-16
 
 CREATE TABLE SHARES (
   SHARE_ID %STRING_FIXED(36)% NOT NULL PRIMARY KEY,
@@ -28,10 +28,20 @@ CREATE TABLE SHARES_METADATAEXTRACTORS (
 
 -- Stores all managed MIAM instances. Each entry in this table has corresponding schema objects which
 -- belong to its attributes and which store the related media item aspect instances
-CREATE TABLE MEDIA_ITEM_ASPECT_METADATA (
+CREATE TABLE MIA_TYPE (
   MIAM_ID %STRING_FIXED(36)% NOT NULL PRIMARY KEY,
   NAME %STRING(2000)% NOT NULL,
   MIAM_SERIALIZATION %STRING(8192)% NOT NULL
+);
+
+-- Automatically generated identifiers for MIA tables and collection attribute tables may be too long as database
+-- object names, so we need to create shorter names which will be mapped to their original created identifiers in this table.
+CREATE TABLE MIA_NAME_ALIASES (
+  IDENTIFIER %STRING(200)% NOT NULL PRIMARY KEY,
+  DATABASE_OBJECT_NAME %STRING(100)% NOT NULL,
+  MIAM_ID %STRING_FIXED(36)% NOT NULL,
+
+  CONSTRAINT MIA_NAME_ALIASES_MIA_TYPE_FK FOREIGN KEY (MIAM_ID) REFERENCES MIA_TYPE (MIAM_ID) ON DELETE CASCADE
 );
 
 -- Contains the actual media item instances. Each of those media item instances have associated entries in

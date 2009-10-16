@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   public class QueryAttribute
   {

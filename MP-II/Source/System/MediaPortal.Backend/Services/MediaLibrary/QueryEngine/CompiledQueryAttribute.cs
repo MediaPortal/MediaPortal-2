@@ -22,9 +22,7 @@
 
 #endregion
 
-using MediaPortal.Services.MediaLibrary;
-
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   public class CompiledQueryAttribute
   {
@@ -32,11 +30,11 @@ namespace MediaPortal.MediaManagement.MLQueries
     protected TableQueryData _tableQueryData;
     protected string _attributeName;
 
-    public CompiledQueryAttribute(QueryAttribute queryAttribute, TableQueryData tableQueryData)
+    public CompiledQueryAttribute(MIAM_Management miamManagement, QueryAttribute queryAttribute, TableQueryData tableQueryData)
     {
       _queryAttribute = queryAttribute;
       _tableQueryData = tableQueryData;
-      _attributeName = MIAM_Management.GetMIAMAttributeColumnName(_queryAttribute.Attr.AttributeName);
+      _attributeName = miamManagement.GetMIAMAttributeColumnName(_queryAttribute.Attr);
     }
 
     public string GetAlias(Namespace ns)

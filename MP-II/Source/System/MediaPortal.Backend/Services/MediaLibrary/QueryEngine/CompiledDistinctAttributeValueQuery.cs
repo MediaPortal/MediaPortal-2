@@ -31,7 +31,7 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Database;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Creates an SQL query for selecting a set of distinct media item aspect attribute values for a given attribute type
@@ -39,13 +39,16 @@ namespace MediaPortal.MediaManagement.MLQueries
   /// </summary>
   public class CompiledDistinctAttributeValueQuery
   {
+    MIAM_Management _miamManagement;
     protected MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
     protected CompiledFilter _filter;
 
     public CompiledDistinctAttributeValueQuery(
+        MIAM_Management miamManagement,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
         CompiledFilter filter)
     {
+      _miamManagement = miamManagement;
       _selectAttribute = selectedAttribute;
       _filter = filter;
     }
@@ -60,11 +63,12 @@ namespace MediaPortal.MediaManagement.MLQueries
       get { return _filter; }
     }
 
-    public static CompiledDistinctAttributeValueQuery Compile(MediaItemAspectMetadata.AttributeSpecification selectAttribute,
+    public static CompiledDistinctAttributeValueQuery Compile(MIAM_Management miamManagement,
+        MediaItemAspectMetadata.AttributeSpecification selectAttribute,
         IFilter filter, IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes)
     {
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter compiledFilter = CompiledFilter.Compile(filter);
+      CompiledFilter compiledFilter = CompiledFilter.Compile(miamManagement, filter);
       foreach (QueryAttribute qa in compiledFilter.FilterAttributes)
       {
         MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;
@@ -72,7 +76,7 @@ namespace MediaPortal.MediaManagement.MLQueries
           throw new InvalidDataException("MIA type '{0}', which is contained in filter condition, is not present in the media library", miam.Name);
       }
 
-      return new CompiledDistinctAttributeValueQuery(selectAttribute, compiledFilter);
+      return new CompiledDistinctAttributeValueQuery(miamManagement, selectAttribute, compiledFilter);
     }
 
     public ICollection<object> Execute()
@@ -89,7 +93,7 @@ namespace MediaPortal.MediaManagement.MLQueries
           ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_selectAttribute,
               new List<MediaItemAspectMetadata>(), _filter);
           string mediaItemIdAlias;
-          command.CommandText = builder.GenerateSqlStatement(new Namespace(),
+          command.CommandText = builder.GenerateSqlStatement(_miamManagement, new Namespace(),
               true, out mediaItemIdAlias, out valueAlias);
         }
         else
@@ -101,7 +105,7 @@ namespace MediaPortal.MediaManagement.MLQueries
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
           IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
-          command.CommandText = builder.GenerateSqlStatement(ns, true, out mediaItemIdAlias,
+          command.CommandText = builder.GenerateSqlStatement(_miamManagement, ns, true, out mediaItemIdAlias,
               out miamAliases, out qa2cqa);
           valueAlias = qa2cqa[selectAttributeQA].GetAlias(ns);
         }

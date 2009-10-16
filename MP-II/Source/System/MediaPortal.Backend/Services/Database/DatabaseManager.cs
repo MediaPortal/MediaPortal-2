@@ -105,7 +105,7 @@ namespace MediaPortal.Services.Database
           if (reader.Read())
           {
             versionMajor = reader.GetInt32(versionMajorParameterIndex);
-            versionMajor = reader.GetInt32(versionMinorParameterIndex);
+            versionMinor = reader.GetInt32(versionMinorParameterIndex);
             return true;
           }
           return false;
@@ -154,11 +154,13 @@ namespace MediaPortal.Services.Database
           command = MediaPortal_Basis_Schema.InsertSubSchemaCommand(
               transaction, subSchemaName, newVersionMajor, newVersionMinor);
         command.ExecuteNonQuery();
+        transaction.Commit();
         return true;
       }
-      finally
+      catch (Exception)
       {
-        transaction.Dispose();
+        transaction.Rollback();
+        throw;
       }
     }
 

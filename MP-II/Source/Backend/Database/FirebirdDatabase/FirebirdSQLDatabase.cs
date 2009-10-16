@@ -134,6 +134,11 @@ namespace MediaPortal.Database.Firebird
       get { return DATABASE_VERSION; }
     }
 
+    public uint MaxTableNameLength
+    {
+      get { return 30; }
+    }
+
     public string GetSQLType(Type dotNetType)
     {
       if (dotNetType == typeof(DateTime))

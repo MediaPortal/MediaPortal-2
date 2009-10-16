@@ -32,24 +32,27 @@ using MediaPortal.Database;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Creates an SQL query for a media item query, executes the query and reads the result.
   /// </summary>
   public class CompiledMediaItemQuery
   {
+    protected MIAM_Management _miamManagement;
     protected ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
     protected IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
     protected ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
     protected CompiledFilter _filter;
 
     public CompiledMediaItemQuery(
+        MIAM_Management miamManagement,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
         CompiledFilter filter)
     {
+      _miamManagement = miamManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _mainSelectAttributes = mainSelectedAttributes;
       _explicitSelectAttributes = explicitSelectedAttributes;
@@ -71,7 +74,7 @@ namespace MediaPortal.MediaManagement.MLQueries
       get { return _filter; }
     }
 
-    public static CompiledMediaItemQuery Compile(MediaItemQuery query,
+    public static CompiledMediaItemQuery Compile(MIAM_Management miamManagement, MediaItemQuery query,
         IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes)
     {
       ICollection<MediaItemAspectMetadata> necessaryMIAs = new List<MediaItemAspectMetadata>();
@@ -84,7 +87,7 @@ namespace MediaPortal.MediaManagement.MLQueries
         necessaryMIAs.Add(miam);
       }
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter filter = CompiledFilter.Compile(query.Filter);
+      CompiledFilter filter = CompiledFilter.Compile(miamManagement, query.Filter);
       foreach (QueryAttribute qa in filter.FilterAttributes)
       {
         MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;
@@ -116,7 +119,7 @@ namespace MediaPortal.MediaManagement.MLQueries
         }
       }
 
-      return new CompiledMediaItemQuery(necessaryMIAs,
+      return new CompiledMediaItemQuery(miamManagement, necessaryMIAs,
           mainSelectedAttributes, explicitSelectAttributes, filter);
     }
 
@@ -133,11 +136,12 @@ namespace MediaPortal.MediaManagement.MLQueries
             new Dictionary<long, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>>();
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
         {
-          ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(attr, _necessaryRequestedMIAs, _filter);
+          ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
+              attr, _necessaryRequestedMIAs, _filter);
           command = transaction.CreateCommand();
           string mediaItemIdAlias;
           string valueAlias;
-          command.CommandText = complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), false,
+          command.CommandText = complexAttributeQueryBuilder.GenerateSqlStatement(_miamManagement, new Namespace(), false,
               out mediaItemIdAlias, out valueAlias);
 
           IDataReader reader = command.ExecuteReader();
@@ -173,7 +177,7 @@ namespace MediaPortal.MediaManagement.MLQueries
         Namespace mainQueryNS = new Namespace();
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
         IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
-        command.CommandText = mainQueryBuilder.GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2,
+        command.CommandText = mainQueryBuilder.GenerateSqlStatement(_miamManagement, mainQueryNS, false, out mediaItemIdAlias2,
             out miamAliases, out qa2cqa);
 
         ICollection<MediaItemAspectMetadata> selectedMIAs = new HashSet<MediaItemAspectMetadata>();

@@ -25,10 +25,9 @@
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Services.MediaLibrary;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Builds the SQL statement for the main media item query. The main query requests all inline attributes of
@@ -73,7 +72,7 @@ namespace MediaPortal.MediaManagement.MLQueries
       get { return _filter; }
     }
 
-    public string GenerateSqlStatement(Namespace ns, bool distinctValue,
+    public string GenerateSqlStatement(MIAM_Management miamManagement, Namespace ns, bool distinctValue,
         out string mediaItemIdAlias,
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out IDictionary<QueryAttribute, CompiledQueryAttribute> compiledAttributes)
@@ -102,8 +101,8 @@ namespace MediaPortal.MediaManagement.MLQueries
         TableQueryData tqd;
         MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
         if (!tableQueries.TryGetValue(miam, out tqd))
-          tqd = tableQueries[miam] = new TableQueryData(miam);
-        CompiledQueryAttribute cqa = new CompiledQueryAttribute(attr, tqd);
+          tqd = tableQueries[miam] = new TableQueryData(miamManagement, miam);
+        CompiledQueryAttribute cqa = new CompiledQueryAttribute(miamManagement, attr, tqd);
         compiledAttributes.Add(attr, cqa);
         selectAttributeDeclarations.Add(cqa.GetDeclarationWithAlias(ns));
       }
@@ -117,8 +116,8 @@ namespace MediaPortal.MediaManagement.MLQueries
           TableQueryData tqd;
           MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
           if (!tableQueries.TryGetValue(miam, out tqd))
-            tqd = tableQueries[miam] = new TableQueryData(miam);
-          compiledAttributes.Add(attr, new CompiledQueryAttribute(attr, tqd));
+            tqd = tableQueries[miam] = new TableQueryData(miamManagement, miam);
+          compiledAttributes.Add(attr, new CompiledQueryAttribute(miamManagement, attr, tqd));
         }
       }
       string mediaItemsTableAlias = ns.GetOrCreate(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME, "T");
@@ -173,7 +172,7 @@ namespace MediaPortal.MediaManagement.MLQueries
       {
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miam, out tqd))
-          tableQueries[miam] = new TableQueryData(miam);
+          tableQueries[miam] = new TableQueryData(miamManagement, miam);
         tableList.Add(tqd);
       }
       // after that, add other tables with OUTER JOINs

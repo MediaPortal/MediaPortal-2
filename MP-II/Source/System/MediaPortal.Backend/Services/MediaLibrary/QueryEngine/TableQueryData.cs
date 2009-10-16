@@ -23,19 +23,18 @@
 #endregion
 
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Services.MediaLibrary;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   public class TableQueryData
   {
     protected MediaItemAspectMetadata _miam;
     protected string _tableName;
 
-    public TableQueryData(MediaItemAspectMetadata miam)
+    public TableQueryData(MIAM_Management miamManagement, MediaItemAspectMetadata miam)
     {
       _miam = miam;
-      _tableName = MIAM_Management.GetMIAMTableName(miam);
+      _tableName = miamManagement.GetMIAMTableName(miam);
     }
 
     public MediaItemAspectMetadata MIAM

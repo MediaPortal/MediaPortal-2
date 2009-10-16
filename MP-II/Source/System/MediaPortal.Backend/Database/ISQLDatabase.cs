@@ -63,6 +63,11 @@ namespace MediaPortal.Database
     string DatabaseVersion { get; }
 
     /// <summary>
+    /// Gets the maximum length of a table name in this database.
+    /// </summary>
+    uint MaxTableNameLength { get; }
+
+    /// <summary>
     /// Returns the SQL type name for the specified .net type.
     /// </summary>
     /// <param name="dotNetType">Type to get the SQL type pendant for.</param>

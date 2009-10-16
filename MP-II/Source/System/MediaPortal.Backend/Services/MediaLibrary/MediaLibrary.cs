@@ -33,8 +33,8 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Database;
 using MediaPortal.Exceptions;
 using MediaPortal.MediaLibrary;
-using MediaPortal.MediaManagement.MLQueries;
 using MediaPortal.Services.Database;
+using MediaPortal.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.FileSystem;
@@ -45,21 +45,20 @@ namespace MediaPortal.Services.MediaLibrary
   // on the fly and holds up to N prepared commands.
   public class MediaLibrary : IMediaLibrary, IDisposable
   {
-    protected object _syncObj = new object();
-    protected IDictionary<Guid, MediaItemAspectMetadata> _availableMIAMs = null; // Lazy initialized
-
+    protected MIAM_Management _miamManagement = null;
+    
     public void Dispose()
     {
     }
 
-    protected static int RelocateMediaItems(ITransaction transaction,
+    protected int RelocateMediaItems(ITransaction transaction,
         SystemName originalNativeSystem, Guid originalProviderId, string originalBasePath,
         SystemName newNativeSystem, Guid newProviderId, string newBasePath)
     {
-      string providerAspectTable = MIAM_Management.GetMIAMTableName(ProviderResourceAspect.Metadata);
-      string sourceComputerAttribute = MIAM_Management.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_SOURCE_COMPUTER.AttributeName);
-      string providerIdAttribute = MIAM_Management.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PROVIDER_ID.AttributeName);
-      string pathAttribute = MIAM_Management.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PATH.AttributeName);
+      string providerAspectTable = _miamManagement.GetMIAMTableName(ProviderResourceAspect.Metadata);
+      string sourceComputerAttribute = _miamManagement.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_SOURCE_COMPUTER);
+      string providerIdAttribute = _miamManagement.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PROVIDER_ID);
+      string pathAttribute = _miamManagement.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PATH);
 
       originalBasePath = FileUtils.RemoveTrailingPathDelimiter(originalBasePath) + "/";
       newBasePath = FileUtils.RemoveTrailingPathDelimiter(newBasePath) + "/";
@@ -102,14 +101,14 @@ namespace MediaPortal.Services.MediaLibrary
       return command.ExecuteNonQuery();
     }
 
-    public static int DeleteAllMediaItemsUnderPath(ITransaction transaction,
+    public int DeleteAllMediaItemsUnderPath(ITransaction transaction,
         SystemName nativeSystem, Guid mediaProviderId, string path)
     {
       MediaItemAspectMetadata providerAspectMetadata = ProviderResourceAspect.Metadata;
-      string providerAspectTableName = MIAM_Management.GetMIAMTableName(providerAspectMetadata);
-      string providerAspectSourceComputerColName = MIAM_Management.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_SOURCE_COMPUTER.AttributeName);
-      string providerAspectProviderIdColName = MIAM_Management.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PROVIDER_ID.AttributeName);
-      string providerAspectPathColName = MIAM_Management.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PATH.AttributeName);
+      string providerAspectTableName = _miamManagement.GetMIAMTableName(providerAspectMetadata);
+      string providerAspectSourceComputerColName = _miamManagement.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_SOURCE_COMPUTER);
+      string providerAspectProviderIdColName = _miamManagement.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PROVIDER_ID);
+      string providerAspectPathColName = _miamManagement.GetMIAMAttributeColumnName(ProviderResourceAspect.ATTR_PATH);
       IDbCommand command = transaction.CreateCommand();
       command.CommandText = "DELETE FROM " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME +
           " WHERE " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN (" +
@@ -196,12 +195,6 @@ namespace MediaPortal.Services.MediaLibrary
       command.ExecuteNonQuery();
     }
 
-    protected void ClearMIAMCache()
-    {
-      lock (_syncObj)
-        _availableMIAMs = null;
-    }
-
     #region IMediaLibrary implementation
 
     public void Startup()
@@ -216,6 +209,7 @@ namespace MediaPortal.Services.MediaLibrary
         throw new IllegalCallException(string.Format(
             "Unable to update the MediaLibrary's subschema version to expected version {0}.{1}",
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
+      _miamManagement = new MIAM_Management();
     }
 
     public void Shutdown()
@@ -224,7 +218,7 @@ namespace MediaPortal.Services.MediaLibrary
 
     public IList<MediaItem> Search(MediaItemQuery query)
     {
-      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(query, GetManagedMediaItemAspectMetadata());
+      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miamManagement, query, GetManagedMediaItemAspectMetadata());
       return cmiq.Execute();
     }
 
@@ -232,55 +226,38 @@ namespace MediaPortal.Services.MediaLibrary
         IFilter filter)
     {
       CompiledDistinctAttributeValueQuery cdavq = CompiledDistinctAttributeValueQuery.Compile(
-          attributeType, filter, GetManagedMediaItemAspectMetadata());
+          _miamManagement, attributeType, filter, GetManagedMediaItemAspectMetadata());
       return cdavq.Execute();
     }
 
     public bool MediaItemAspectStorageExists(Guid aspectId)
     {
-      string name;
-      string serialization;
-      return MIAM_Management.GetMediaItemAspectMetadata(aspectId, out name, out serialization);
+      return _miamManagement.MediaItemAspectStorageExists(aspectId);
     }
 
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid aspectId)
     {
-      string name;
-      string serialization;
-      if (!MIAM_Management.GetMediaItemAspectMetadata(aspectId, out name, out serialization))
-        throw new InvalidDataException("The requested MediaItemAspectMetadata of id '{0}' is unknown", aspectId);
-      return MediaItemAspectMetadata.Deserialize(serialization);
+      return _miamManagement.GetMediaItemAspectMetadata(aspectId);
     }
 
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
-      MIAM_Management.AddMediaItemAspectStorage(miam);
-      ClearMIAMCache();
+      _miamManagement.AddMediaItemAspectStorage(miam);
     }
 
     public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
-      MIAM_Management.RemoveMediaItemAspectStorage(aspectId);
-      ClearMIAMCache();
+      _miamManagement.RemoveMediaItemAspectStorage(aspectId);
     }
 
     public IDictionary<Guid, MediaItemAspectMetadata> GetManagedMediaItemAspectMetadata()
     {
-      lock (_syncObj)
-        if (_availableMIAMs != null)
-          return _availableMIAMs;
-
-      IDictionary<Guid, MediaItemAspectMetadata> result = new Dictionary<Guid, MediaItemAspectMetadata>();
-      foreach (MediaItemAspectMetadata miam in MIAM_Management.GetManagedMediaItemAspectMetadata())
-        result[miam.AspectId] = miam;
-      lock (_syncObj)
-        _availableMIAMs = result;
-      return result;
+      return _miamManagement.ManagedMediaItemAspectTypes;
     }
 
     public MediaItemAspectMetadata GetManagedMediaItemAspectMetadata(Guid aspectId)
     {
-      return MIAM_Management.GetManagedMediaItemAspectMetadata(aspectId);
+      return _miamManagement.GetMediaItemAspectMetadata(aspectId);
     }
 
     public void RegisterShare(Share share)

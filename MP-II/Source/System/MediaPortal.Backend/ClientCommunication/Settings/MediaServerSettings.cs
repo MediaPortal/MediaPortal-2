@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Core.Settings;
 
 namespace MediaPortal.ClientCommunication.Settings
 {
@@ -30,6 +31,7 @@ namespace MediaPortal.ClientCommunication.Settings
   {
     protected Guid? _mediaServerDeviceId = null;
 
+    [Setting(SettingScope.Global)]
     public Guid? MediaServerDeviceId
     {
       get { return _mediaServerDeviceId; }

@@ -25,9 +25,8 @@
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Services.MediaLibrary;
 
-namespace MediaPortal.MediaManagement.MLQueries
+namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Builds the SQL statement for a complex media item aspect attribute query, filtered by a <see cref="CompiledFilter"/>.
@@ -47,7 +46,8 @@ namespace MediaPortal.MediaManagement.MLQueries
     /// with a cardinality different from <see cref="Cardinality.Inline"/> are allowed here.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="filter">Filter which must be applied to the media items to match the query.</param>
-    public ComplexAttributeQueryBuilder(MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
+    public ComplexAttributeQueryBuilder(
+        MediaItemAspectMetadata.AttributeSpecification complexQueryAttribute,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs, CompiledFilter filter)
     {
       _queryAttribute = complexQueryAttribute;
@@ -68,6 +68,7 @@ namespace MediaPortal.MediaManagement.MLQueries
     /// <summary>
     /// Generates a statement to query the values of the complex <see cref="QueryAttribute"/>.
     /// </summary>
+    /// <param name="miamManagement">MIAM management instance from media library.</param>
     /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
     /// inside another statement, the use of a common namespace prevents name collisions.</param>
     /// <param name="distinctValue">If set to <c>true</c>, the returned statement will request a set of distinct values.
@@ -78,7 +79,7 @@ namespace MediaPortal.MediaManagement.MLQueries
     /// the media item id and thus the output variable <paramref name="mediaItemIdAlias"/> won't have a meaningful
     /// value.</param>
     /// <param name="valueAlias">Alias for the value column.</param>
-    public string GenerateSqlStatement(Namespace ns, bool distinctValue,
+    public string GenerateSqlStatement(MIAM_Management miamManagement, Namespace ns, bool distinctValue,
         out string mediaItemIdAlias, out string valueAlias)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its compiled
@@ -99,11 +100,11 @@ namespace MediaPortal.MediaManagement.MLQueries
           TableQueryData tqd;
           MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
           if (!tableQueries.TryGetValue(miam, out tqd))
-            tqd = tableQueries[miam] = new TableQueryData(miam);
-          compiledAttributes.Add(attr, new CompiledQueryAttribute(attr, tqd));
+            tqd = tableQueries[miam] = new TableQueryData(miamManagement, miam);
+          compiledAttributes.Add(attr, new CompiledQueryAttribute(miamManagement, attr, tqd));
         }
       }
-      string queryAttributeTableName = MIAM_Management.GetMIAMCollectionAttributeTableName(_queryAttribute);
+      string queryAttributeTableName = miamManagement.GetMIAMCollectionAttributeTableName(_queryAttribute);
       string queryAttributeTableAlias = ns.GetOrCreate(queryAttributeTableName, "T");
       valueAlias = ns.GetOrCreate(MIAM_Management.COLL_MIAM_VALUE_COL_NAME, "A");
 
@@ -147,7 +148,7 @@ namespace MediaPortal.MediaManagement.MLQueries
       {
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miam, out tqd))
-          tableQueries[miam] = new TableQueryData(miam);
+          tableQueries[miam] = new TableQueryData(miamManagement, miam);
         tableList.Add(tqd);
       }
       // after that, add other tables with OUTER JOINs
