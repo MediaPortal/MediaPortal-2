@@ -90,12 +90,18 @@ namespace MediaPortal.ClientCommunication
       DvStateVariable A_ARG_TYPE_MediaItemAspectMetadata = new DvStateVariable("A_ARG_TYPE_MediaItemAspectMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspectMetadata));
       AddStateVariable(A_ARG_TYPE_MediaItemAspectMetadata);
 
-      // Used to give a mode of relocating media items after a share edit. RelocationMode can be "Relocate" or "ClearAndReImport"
-      DvStateVariable A_ARG_TYPE_MediaItemRelocationMode = new DvStateVariable("A_ARG_TYPE_MediaItemRelocationMode", new DvStandardDataType(UPnPStandardDataType.String));
+      // Used to give a mode of relocating media items after a share edit.
+      DvStateVariable A_ARG_TYPE_MediaItemRelocationMode = new DvStateVariable("A_ARG_TYPE_MediaItemRelocationMode", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            AllowedValueList = new List<string> {"Relocate", "ClearAndReImport"}
+        };
       AddStateVariable(A_ARG_TYPE_MediaItemRelocationMode);
 
-      // Used to filter requested shares. SharesFilter can be "All" or "ConnectedShares"
-      DvStateVariable A_ARG_TYPE_SharesFilter = new DvStateVariable("A_ARG_TYPE_SharesFilter", new DvStandardDataType(UPnPStandardDataType.Boolean));
+      // Used to filter requested shares.
+      DvStateVariable A_ARG_TYPE_SharesFilter = new DvStateVariable("A_ARG_TYPE_SharesFilter", new DvStandardDataType(UPnPStandardDataType.Boolean))
+        {
+            AllowedValueList = new List<string> {"All", "ConnectedShares"}
+        };
       AddStateVariable(A_ARG_TYPE_SharesFilter);
       
       // More state variables go here
