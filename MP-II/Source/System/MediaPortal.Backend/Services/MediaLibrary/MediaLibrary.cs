@@ -116,7 +116,7 @@ namespace MediaPortal.Services.MediaLibrary
               "SELECT " + MIAM_Management.MIAM_MEDIA_ITEM_ID_COL_NAME + " FROM " + providerAspectTableName +
               " WHERE " + providerAspectSourceComputerColName + " = ? AND " +
               providerAspectProviderIdColName + " = ? AND " +
-              providerAspectPathColName + " LIKE ? ESCAPE '\\'";
+              providerAspectPathColName + " LIKE ? ESCAPE '\\')";
 
       IDbDataParameter param = command.CreateParameter();
       param.Value = nativeSystem.HostName;
