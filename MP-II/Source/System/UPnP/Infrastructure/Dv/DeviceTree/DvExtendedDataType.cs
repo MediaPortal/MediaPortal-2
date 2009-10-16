@@ -91,6 +91,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       result.Append(
           "<dataType type=\"");
       result.Append(dataTypeSchemas2NSPrefix[_dataType.SchemaURI]);
+      result.Append(':');
       result.Append(_dataType.DataTypeName);
       result.Append("\">string</dataType>");
     }
