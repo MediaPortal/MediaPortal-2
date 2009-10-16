@@ -176,26 +176,31 @@ namespace UPnP.Infrastructure.Dv
     /// availability, this value should be short, for more durable serves, this interval can be much longer (maybe a day).</param>
     public void Bind(int advertisementInterval)
     {
-      if (_serverData.IsActive)
-        throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
+      lock (_syncObj)
+      {
+        if (_serverData.IsActive)
+          throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
 
-      _serverData.HTTPListener = HttpListener.Create(IPAddress.Any, 0);
-      _serverData.HTTPListener.RequestReceived += OnHttpListenerRequestReceived;
-      _serverData.HTTPListener.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-      _serverData.HTTP_PORT = (uint) _serverData.HTTPListener.LocalEndpoint.Port;
+        _serverData.HTTPListener = HttpListener.Create(IPAddress.Any, 0);
+        _serverData.HTTPListener.RequestReceived += OnHttpListenerRequestReceived;
+        _serverData.HTTPListener.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+        _serverData.HTTP_PORT = (uint) _serverData.HTTPListener.LocalEndpoint.Port;
 
-      _serverData.SSDPController = new SSDPServerController(_serverData)
-        {
-            AdvertisementExpirationTime = advertisementInterval
-        };
-      _serverData.GENAController = new GENAServerController(_serverData);
+        _serverData.SSDPController = new SSDPServerController(_serverData)
+          {
+              AdvertisementExpirationTime = advertisementInterval
+          };
+        _serverData.GENAController = new GENAServerController(_serverData);
 
-      InitializeDiscoveryEndpoints();
-      _serverData.SSDPController.Start();
-      _serverData.GENAController.Start();
+        InitializeDiscoveryEndpoints();
 
-      NetworkChange.NetworkAddressChanged += OnNetworkAddressChanged;
-      _serverData.IsActive = true;
+        NetworkChange.NetworkAddressChanged += OnNetworkAddressChanged;
+        _serverData.IsActive = true;
+
+        // At the end, start the controllers
+        _serverData.SSDPController.Start();
+        _serverData.GENAController.Start();
+      }
     }
 
     /// <summary>
@@ -209,10 +214,13 @@ namespace UPnP.Infrastructure.Dv
     /// </remarks>
     public void UpdateConfiguration()
     {
-      _serverData.ConfigId++;
-      foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
-        GenerateObjectURLs(config);
-      _serverData.SSDPController.Advertise();
+      lock (_syncObj)
+      {
+        _serverData.ConfigId++;
+        foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
+          GenerateObjectURLs(config);
+        _serverData.SSDPController.Advertise();
+      }
     }
 
     /// <summary>

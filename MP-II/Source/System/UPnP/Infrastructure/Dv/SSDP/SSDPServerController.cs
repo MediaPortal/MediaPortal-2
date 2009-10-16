@@ -193,10 +193,10 @@ namespace UPnP.Infrastructure.Dv.SSDP
     {
       lock (_serverData.SyncObj)
       {
+        _searchResponseTimer = new Timer(OnSearchResponseTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
         // Wait a random time from 0 to 100 milliseconds, as proposed in the UPnP device architecture specification
         _advertisementTimer = new Timer(OnAdvertisementTimerElapsed, null,
             rnd.Next(INITIAL_ADVERTISEMENT_MAX_WAIT_MS), Timeout.Infinite);
-        _searchResponseTimer = new Timer(OnSearchResponseTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
       }
     }
 
@@ -300,6 +300,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
       // Unicast sender and receiver socket - used for receiving unicast M-SEARCH queries and sending M-SEARCH responses
       socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+      socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
       try
       {
         // Try to bind our unicast receiver socket to the default SSDP port
