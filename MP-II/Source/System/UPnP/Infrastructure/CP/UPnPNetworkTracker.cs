@@ -488,8 +488,9 @@ namespace UPnP.Infrastructure.CP
     protected void InvalidateDescriptor(RootDescriptor rd)
     {
       rd.State = RootDescriptorState.Invalid;
-      foreach (ServiceDescriptor sd in rd.ServiceDescriptors.Values)
-        sd.State = ServiceDescriptorState.Invalid;
+      foreach (IDictionary<string, ServiceDescriptor> sdDict in rd.ServiceDescriptors.Values)
+        foreach (ServiceDescriptor sd in sdDict.Values)
+          sd.State = ServiceDescriptorState.Invalid;
     }
 
     protected RootDescriptor GetRootDescriptor(RootEntry rootEntry)
