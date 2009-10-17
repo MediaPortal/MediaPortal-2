@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Database;
 using MediaPortal.Utilities.Exceptions;
 
@@ -56,7 +57,11 @@ namespace MediaPortal.Services.Database
         throw new IllegalCallException("There is no database present in the system");
       // Prepare schema
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
+      {
+        ServiceScope.Get<ILogger>().Debug("DatabaseManager: Creating MEDIAPORTAL_BASIS subschema");
         database.ExecuteBatch(new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath), true);
+        ServiceScope.Get<ILogger>().Info("DatabaseManager: MEDIAPORTAL_BASIS subschema created");
+      }
       // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
     }
 
@@ -131,14 +136,22 @@ namespace MediaPortal.Services.Database
       if (schemaPresent)
         if (currentVersionMajor.HasValue && currentVersionMajor.Value == versionMajor &&
             currentVersionMinor.HasValue && currentVersionMinor.Value == versionMinor)
+        {
+          ServiceScope.Get<ILogger>().Debug("DatabaseManager: Updating subschema '{0}' from version {1}.{2} to version {3}.{4}...",
+              subSchemaName, versionMajor, versionMinor, newVersionMajor, newVersionMinor);
           database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
+        }
         else
           throw new ArgumentException(string.Format(
               "The current version of sub schema '{0}' is {1}.{2}, but the schema update script is given for version {3}",
               subSchemaName, versionMajor, versionMinor, ExplicitVersionToString(currentVersionMajor, currentVersionMinor)));
       else // !schemaPresent
         if (!currentVersionMajor.HasValue && !currentVersionMinor.HasValue)
+        {
+          ServiceScope.Get<ILogger>().Debug("DatabaseManager: Creating subschema '{0}' version {1}.{2}...",
+              subSchemaName, newVersionMajor, newVersionMinor);
           database.ExecuteBatch(new SqlScriptPreprocessor(updateScriptFilePath), true);
+        }
         else
           throw new ArgumentException(string.Format(
               "The sub schema '{0}' is not present yet, but the schema update script is given for version {1}",
@@ -155,6 +168,8 @@ namespace MediaPortal.Services.Database
               transaction, subSchemaName, newVersionMajor, newVersionMinor);
         command.ExecuteNonQuery();
         transaction.Commit();
+        ServiceScope.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}", subSchemaName,
+            newVersionMajor, newVersionMinor);
         return true;
       }
       catch (Exception)
