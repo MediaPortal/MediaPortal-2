@@ -315,6 +315,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         // ... which will be stored in the SSDPSearchPort variable which will be used for the SEARCHPORT.UPNP.ORG SSDP header.
         config.SSDPSearchPort = ((IPEndPoint) socket.LocalEndPoint).Port;
       }
+      Configuration.LOGGER.Info("UPnP server: SSDP enabled for IP endpoint '{0}', search port is {1}", config.EndPointIPAddress, config.SSDPSearchPort);
       if (family == AddressFamily.InterNetwork)
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
       else

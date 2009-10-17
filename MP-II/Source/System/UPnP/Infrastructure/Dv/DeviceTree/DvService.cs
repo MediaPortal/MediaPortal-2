@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -261,6 +262,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     internal void AddDeviceDescriptionForService(StringBuilder result, EndpointConfiguration config)
     {
+      Uri parentDeviceUri = new Uri(config.RootDeviceDescriptionURLs[_parentDevice]);
       ServiceURLs serviceURLs = config.ServiceURLs[this];
       result.Append(
           "<service>" +
@@ -276,17 +278,17 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
             "</serviceId>" +
             "<SCPDURL>");
       result.Append(
-              serviceURLs.SCDPURL);
+              new Uri(serviceURLs.SCDPURL).AbsolutePath);
       result.Append(
             "</SCPDURL>" +
             "<controlURL>");
       result.Append(
-              serviceURLs.ControlURL);
+              new Uri(serviceURLs.ControlURL).AbsolutePath);
       result.Append(
             "</controlURL>" +
             "<eventSubURL>");
       result.Append(
-              serviceURLs.EventSubURL);
+              new Uri(serviceURLs.EventSubURL).AbsolutePath);
       result.Append(
             "</eventSubURL>");
       result.Append(
