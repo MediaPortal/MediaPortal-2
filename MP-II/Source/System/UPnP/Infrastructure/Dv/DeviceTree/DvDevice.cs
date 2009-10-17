@@ -323,7 +323,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
               deviceInformation.GetManufacturer(culture));
       result.Append(
             "</manufacturer>");
-      string manufacturerURL = deviceInformation.GetManufacturer(culture);
+      string manufacturerURL = deviceInformation.GetManufacturerURL(culture);
       if (!string.IsNullOrEmpty(manufacturerURL))
       {
         result.Append(
