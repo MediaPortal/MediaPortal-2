@@ -24,14 +24,13 @@
 
 using System;
 using System.Threading;
+using System.Windows.Forms;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 #if !DEBUG
 using MediaPortal.Services.Logging;
 #endif
 using MediaPortal.Core.Services.Runtime;
-using MediaPortal.Database;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
@@ -44,32 +43,6 @@ namespace MediaPortal
 {
   internal static class ApplicationLauncher
   {
-    private static AsynchronousMessageQueue _messageQueue;
-    private static ManualResetEvent _shutdownEvent;
-
-    private static void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue("Main application method", new string[]
-          {
-            SystemMessaging.CHANNEL
-          });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    private static void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
-    {
-      if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        if ((SystemMessaging.MessageType) message.MessageType == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
-          if (state == SystemState.ShuttingDown)
-            _shutdownEvent.Set();
-        }
-      }
-    }
-
     /// <summary>
     /// The main entry point for the MP-II server application.
     /// </summary>
@@ -102,7 +75,6 @@ namespace MediaPortal
         {
 #endif
 
-        _shutdownEvent = new ManualResetEvent(false);
         SystemStateService systemStateService = new SystemStateService();
         ServiceScope.Add<ISystemStateService>(systemStateService);
         systemStateService.SwitchSystemState(SystemState.Initializing, false);
@@ -115,7 +87,6 @@ namespace MediaPortal
           level = (LogLevel) mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
 
         ApplicationCore.RegisterCoreServices(level, logMethods);
-        SubscribeToMessages();
         ILogger logger = ServiceScope.Get<ILogger>();
 
         IPathManager pathManager = ServiceScope.Get<IPathManager>();
@@ -151,11 +122,7 @@ namespace MediaPortal
 
           systemStateService.SwitchSystemState(SystemState.Started, true);
 
-          // Has to be done from somewhere outside:
-          //systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
-
-          // Wait until someone shuts the system down
-          _shutdownEvent.WaitOne();
+          Application.Run(new MainForm());
 
           ServiceScope.IsShuttingDown = true; // Block ServiceScope from trying to load new services in shutdown phase
 
