@@ -187,7 +187,9 @@ namespace HttpServer.HttpModules
           }
 
           if (_useLastModifiedHeader)
-            response.AddHeader("Last-modified", File.GetLastWriteTime(path).ToString("r"));
+            // Fixed by Albert, Team MediaPortal
+            //response.AddHeader("Last-modified", File.GetLastWriteTime(path).ToString("r"));
+            response.AddHeader("Last-modified", File.GetLastWriteTime(path).ToUniversalTime().ToString("r"));
           response.ContentLength = stream.Length;
           response.SendHeaders();
 

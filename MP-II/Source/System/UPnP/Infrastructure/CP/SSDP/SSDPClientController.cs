@@ -571,7 +571,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       string bi = header["BOOTID.UPNP.ORG"];
       string ci = header["CONFIGID.UPNP.ORG"];
       string sp = header["SEARCHPORT.UPNP.ORG"];
-      HandleNotifyPacket(config, httpVersion, DateTime.Now.ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp);
+      HandleNotifyPacket(config, httpVersion, DateTime.Now.ToUniversalTime().ToString("R"), cacheControl, location, server, nts, usn, bi, ci, sp);
     }
 
     protected void HandleNotifyPacket(EndpointConfiguration config, HTTPVersion httpVersion, string date, string cacheControl,

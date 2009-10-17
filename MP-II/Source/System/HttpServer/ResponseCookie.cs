@@ -73,9 +73,10 @@ namespace HttpServer
       string temp = string.Format("{0}={1}; ", HttpUtility.UrlEncode(Name), HttpUtility.UrlEncode(Value));
       if (_persistant)
       {
-        TimeSpan span = DateTime.Now - DateTime.UtcNow;
-        DateTime utc = _expires.Subtract(span);
-        temp += string.Format("expires={0};", utc.ToString("r"));
+        // Fixed by Albert, Team MediaPortal
+        //TimeSpan span = DateTime.Now - DateTime.UtcNow;
+        //DateTime utc = _expires.ToUniversalTime();
+        temp += string.Format("expires={0};", _expires.ToUniversalTime().ToString("r"));
       }
       if (!string.IsNullOrEmpty(_path))
         temp += string.Format("path={0}; ", _path);

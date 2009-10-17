@@ -317,7 +317,9 @@ namespace HttpServer
       HeadersSent = true;
 
       if (_headers["Date"] == null)
-        _headers["Date"] = DateTime.Now.ToString("r");
+        // Fixed by Albert, Team MediaPortal
+        //_headers["Date"] = DateTime.Now.ToString("r");
+        _headers["Date"] = DateTime.Now.ToUniversalTime().ToString("r");
       if (_headers["Content-Length"] == null)
         _headers["Content-Length"] = _contentLength == 0 ? Body.Length.ToString() : _contentLength.ToString();
       if (_headers["Content-Type"] == null)

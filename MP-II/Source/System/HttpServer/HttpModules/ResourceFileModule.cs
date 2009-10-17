@@ -142,6 +142,8 @@ namespace HttpServer.HttpModules
           response.Status = HttpStatusCode.NotModified;
       }
 
+      // Albert, Team MediaPortal: No conversion from modifiedTime to UTC necessary because modifiedTime doesn't denote any
+      // meaningful time here
       response.AddHeader("Last-modified", modifiedTime.ToString("r"));
       response.ContentLength = resourceStream.Length;
       response.SendHeaders();
