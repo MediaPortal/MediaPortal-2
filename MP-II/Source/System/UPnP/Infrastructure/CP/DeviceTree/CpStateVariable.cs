@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Utils;
 
@@ -204,11 +205,11 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     #region Connection
 
     internal static CpStateVariable ConnectStateVariable(DeviceConnection connection, CpService parentService,
-        XmlElement stateVariableElement, DataTypeResolverDlgt dataTypeResolver)
+        XPathNavigator svIt, IXmlNamespaceResolver nsmgr, DataTypeResolverDlgt dataTypeResolver)
     {
-      string name = ParserHelper.SelectText(stateVariableElement, "name/text()");
-      XmlElement dataTypeElement = (XmlElement) stateVariableElement.SelectSingleNode("dataType");
-      CpDataType dataType = CpDataType.CreateDataType(dataTypeElement, dataTypeResolver);
+      string name = ParserHelper.SelectText(svIt, "s:name/text()", nsmgr);
+      XPathNodeIterator dtIt = svIt.Select("s:dataType", nsmgr);
+      CpDataType dataType = CpDataType.CreateDataType(dtIt.Current, nsmgr, dataTypeResolver);
       return new CpStateVariable(connection, parentService, name, dataType);
     }
 

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
@@ -78,11 +79,13 @@ namespace MediaPortal.ServerCommunication
     {
       try
       {
-        XmlElement mediaServerDeviceElement = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
-        if (mediaServerDeviceElement == null)
+        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+        if (mediaServerDeviceElementNav == null)
           return null;
-        string udn = ((XmlText) mediaServerDeviceElement.SelectSingleNode("UDN/text()")).Data;
-        string friendlyName = ((XmlText) mediaServerDeviceElement.SelectSingleNode("friendlyName/text()")).Data;
+        XmlNamespaceManager nsmgr = new XmlNamespaceManager(mediaServerDeviceElementNav.NameTable);
+        nsmgr.AddNamespace("d", UPnP.Infrastructure.Consts.NS_DEVICE_DESCRIPTION);
+        string udn = RootDescriptor.GetDeviceUDN(mediaServerDeviceElementNav, nsmgr);
+        string friendlyName = ParserHelper.SelectText(mediaServerDeviceElementNav, "d:friendlyName/text()", nsmgr);
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);
         return new ServerDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName, system);
       }

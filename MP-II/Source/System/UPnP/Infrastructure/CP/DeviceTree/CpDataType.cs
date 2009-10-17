@@ -25,6 +25,7 @@
 
 using System;
 using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
@@ -56,14 +57,15 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public abstract string SoapSerializeValue(object value, bool forceSimpleValue);
 
     /// <summary>
-    /// Deserializes the contents of the given SOAP <paramref name="enclosingElement"/> to an object of this UPnP data type.
+    /// Deserializes the contents of the given SOAP <paramref name="enclosingElementNav"/> to an object of this UPnP data type.
     /// </summary>
-    /// <param name="enclosingElement">SOAP representation of an object of this UPnP data type.</param>
+    /// <param name="enclosingElementNav">XPath navigator pointing to an XML element which contains a SOAP representation
+    /// of an object of this UPnP data type.</param>
     /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized from its
-    /// string-equivalent, i.e. the XML text content of the <paramref name="enclosingElement"/> should be expected,
+    /// string-equivalent, i.e. the XML text content of the given XML element should be examined,
     /// else the value should be deserialized from the extended representation of this data type.</param>
     /// <returns>Value which was deserialized.</returns>
-    public abstract object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue);
+    public abstract object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue);
 
     /// <summary>
     /// Returns the information if an object of the given type can be assigned to a variable of this UPnP data type.
@@ -86,10 +88,11 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       return actualType == null || IsAssignableFrom(actualType);
     }
 
-    internal static CpDataType CreateDataType(XmlElement dataTypeElement, DataTypeResolverDlgt dataTypeResolver)
+    internal static CpDataType CreateDataType(XPathNavigator dataTypeElementNav, IXmlNamespaceResolver nsmgr,
+        DataTypeResolverDlgt dataTypeResolver)
     {
-      string standardDataType = ParserHelper.SelectText(dataTypeElement, "text()");
-      string extendedDataType = dataTypeElement.GetAttribute("type");
+      string standardDataType = ParserHelper.SelectText(dataTypeElementNav, "text()", nsmgr);
+      string extendedDataType = dataTypeElementNav.GetAttribute("type", string.Empty);
       if (string.IsNullOrEmpty(extendedDataType))
       { // Standard data type
         UPnPStandardDataType type = UPnPStandardDataType.ParseStandardType(standardDataType);
@@ -103,7 +106,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
           throw new ArgumentException("UPnP extended data types need to yield a standard data type of 'string'");
         string schemaURI;
         string dataTypeName;
-        if (!ParserHelper.TryParseDataTypeReference(extendedDataType, dataTypeElement, out schemaURI, out dataTypeName))
+        if (!ParserHelper.TryParseDataTypeReference(extendedDataType, dataTypeElementNav, out schemaURI, out dataTypeName))
           throw new ArgumentException(string.Format("Unable to parse namespace URI of extended data type '{0}'", extendedDataType));
         UPnPExtendedDataType result;
         if (dataTypeResolver != null && dataTypeResolver(schemaURI + ":" + dataTypeName, out result))

@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Utils;
@@ -39,11 +39,6 @@ namespace UPnP.Infrastructure.Dv.SOAP
   /// </summary>
   public class SOAPHandler
   {
-    /// <summary>
-    /// XML namespace to be used for the SOAP envelope.
-    /// </summary>
-    public const string NS_SOAP_ENVELOPE = "http://schemas.xmlsoap.org/soap/envelope/";
-
     protected class Parameter
     {
       protected DvArgument _argument;
@@ -89,29 +84,31 @@ namespace UPnP.Infrastructure.Dv.SOAP
     {
       result = null;
       // Parse XML request
-      XmlDocument doc = new XmlDocument();
+      XPathDocument doc;
       try
       {
-        XmlTextReader reader = new XmlTextReader(new StreamReader(messageStream, streamEncoding));
-        doc.Load(reader);
+        doc = new XPathDocument(new StreamReader(messageStream, streamEncoding));
       }
-      catch (XmlException)
+      catch (XPathException)
       {
         return HttpStatusCode.BadRequest;
       }
-      XmlElement soapEnvelope = doc.DocumentElement;
-      XmlElement body;
+      XPathNavigator soapEnvelopeNav = doc.CreateNavigator();
+      soapEnvelopeNav.MoveToChild(XPathNodeType.Element);
+      XPathNavigator body;
       // Parse SOAP envelope
-      if (!UnwrapEnvelopeElement(soapEnvelope, out body))
+      if (!ParserHelper.UnwrapSoapEnvelopeElement(soapEnvelopeNav, out body))
         return HttpStatusCode.BadRequest;
-      XmlElement xml_action = (XmlElement) body.SelectSingleNode("*");
-      string serviceTypeVersion_URN = xml_action.NamespaceURI;
+      XPathNavigator actionNav = body.Clone();
+      if (!actionNav.MoveToChild(XPathNodeType.Element))
+        return HttpStatusCode.BadRequest;
+      string serviceTypeVersion_URN = actionNav.NamespaceURI;
       string type;
       int version;
       // Parse service and action
       if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version))
         return HttpStatusCode.BadRequest;
-      string actionName = xml_action.Name;
+      string actionName = actionNav.LocalName;
       DvAction action;
       if (!service.Actions.TryGetValue(actionName, out action))
       {
@@ -121,24 +118,24 @@ namespace UPnP.Infrastructure.Dv.SOAP
       // Parse and check input parameters
       IList<DvArgument> formalArguments = action.InArguments;
       IList<object> inParameterValues = new List<object>();
-      XmlNodeList xmlParameters = xml_action.SelectNodes("*");
-      if (formalArguments.Count != xmlParameters.Count)
+      XPathNodeIterator parameterIt = actionNav.SelectChildren(XPathNodeType.Element);
+      if (formalArguments.Count != parameterIt.Count)
       {
         result = CreateFaultDocument(402, "Invalid Args");
         return HttpStatusCode.InternalServerError;
       }
       UPnPError res;
-      for (int i = 0; i < formalArguments.Count; i++)
+      for (int i = 0; parameterIt.MoveNext(); i++)
       {
         DvArgument argument = formalArguments[i];
-        XmlElement element = (XmlElement) xmlParameters[i++];
-        if (element.Name != argument.Name)
+        XPathNavigator parameterNav = parameterIt.Current;
+        if (parameterNav.LocalName != argument.Name)
         {
           result = CreateFaultDocument(402, "Invalid Args");
           return HttpStatusCode.InternalServerError;
         }
         object value;
-        res = argument.SoapParseArgument(element, !subscriberSupportsUPnP11, out value);
+        res = argument.SoapParseArgument(parameterNav, !subscriberSupportsUPnP11, out value);
         if (res != null)
         {
           result = CreateFaultDocument(res.ErrorCode, res.ErrorDescription);
@@ -238,18 +235,6 @@ namespace UPnP.Infrastructure.Dv.SOAP
               "</s:Body>" +
             "</s:Envelope>");
       return sb.ToString();
-    }
-
-    protected static bool UnwrapEnvelopeElement(XmlElement soapEnvelope, out XmlElement body)
-    {
-      body = null;
-      if (soapEnvelope == null || soapEnvelope.Name != "Envelope" || soapEnvelope.NamespaceURI != NS_SOAP_ENVELOPE)
-        return false;
-      XmlElement ele = (XmlElement) soapEnvelope.SelectSingleNode("Body");
-      if (ele.NamespaceURI != NS_SOAP_ENVELOPE)
-        return false;
-      body = ele;
-      return true;
     }
   }
 }

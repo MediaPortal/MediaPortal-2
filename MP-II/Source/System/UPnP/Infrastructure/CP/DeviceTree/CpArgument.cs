@@ -25,6 +25,7 @@
 
 using System;
 using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
@@ -108,9 +109,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       return _relatedStateVariable.IsValueInRange(value);
     }
 
-    public void SoapParseArgument(XmlElement enclosingElement, bool isSimpleValue, out object value)
+    public void SoapParseArgument(XPathNavigator enclosingElementNav, bool isSimpleValue, out object value)
     {
-      value = _relatedStateVariable.DataType.SoapDeserializeValue(enclosingElement, isSimpleValue);
+      value = _relatedStateVariable.DataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
     }
 
     public void SoapSerializeArgument(object value, bool forceSimpleValue, out string serializedValue)
@@ -133,16 +134,17 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       }
     }
 
-    internal static CpArgument CreateArgument(CpAction parentAction, CpService parentService, XmlElement argumentElement)
+    internal static CpArgument CreateArgument(CpAction parentAction, CpService parentService, XPathNavigator argumentNav,
+        IXmlNamespaceResolver nsmgr)
     {
-      string name = ParserHelper.SelectText(argumentElement, "name/text()");
-      string relatedStateVariableName = ParserHelper.SelectText(argumentElement, "relatedStateVariable/text()");
+      string name = ParserHelper.SelectText(argumentNav, "s:name/text()", nsmgr);
+      string relatedStateVariableName = ParserHelper.SelectText(argumentNav, "s:relatedStateVariable/text()", nsmgr);
       CpStateVariable relatedStateVariable;
       if (!parentService.StateVariables.TryGetValue(relatedStateVariableName, out relatedStateVariable))
         throw new ArgumentException("Related state variable '{0}' is not present in service", relatedStateVariableName);
-      string direction = ParserHelper.SelectText(argumentElement, "direction/text()");
-      XmlElement retVal = (XmlElement) argumentElement.SelectSingleNode("retval");
-      CpArgument result = new CpArgument(parentAction, name, relatedStateVariable, ParseArgumentDirection(direction), retVal != null);
+      string direction = ParserHelper.SelectText(argumentNav, "s:direction/text()", nsmgr);
+      XPathNodeIterator retValIt = argumentNav.Select("s:retval", nsmgr);
+      CpArgument result = new CpArgument(parentAction, name, relatedStateVariable, ParseArgumentDirection(direction), retValIt.MoveNext());
       return result;
     }
 

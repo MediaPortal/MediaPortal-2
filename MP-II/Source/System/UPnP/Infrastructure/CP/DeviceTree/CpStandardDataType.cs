@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
@@ -52,9 +52,9 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       return _type.SoapSerializeValue(value);
     }
 
-    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
     {
-      string serializedValue = ParserHelper.SelectText(enclosingElement, "text()");
+      string serializedValue = ParserHelper.SelectText(enclosingElementNav, "text()", null);
       return _type.SoapDeserializeValue(serializedValue);
     }
 

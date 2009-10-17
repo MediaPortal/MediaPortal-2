@@ -25,6 +25,7 @@
 
 using System;
 using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -68,7 +69,7 @@ namespace UPnP.Infrastructure.Utils
       return int.TryParse(versionStr, out version); // We don't permit version numbers which aren't integers.
     }
 
-    public static bool TryParseDataTypeReference(string typeStr, XmlElement dataTypeElement,
+    public static bool TryParseDataTypeReference(string typeStr, XPathNavigator dataTypeElementNav,
         out string schemaURI, out string dataTypeName)
     {
       schemaURI = null;
@@ -78,10 +79,7 @@ namespace UPnP.Infrastructure.Utils
         return false;
       string prefix = typeStr.Substring(0, index);
       dataTypeName = typeStr.Substring(index + 1);
-      if (prefix.StartsWith("urn:"))
-        schemaURI = prefix;
-      else
-        schemaURI = dataTypeElement.GetNamespaceOfPrefix(prefix);
+      schemaURI = prefix.StartsWith("urn:") ? prefix : dataTypeElementNav.GetNamespace(prefix);
       return true;
     }
 
@@ -102,17 +100,37 @@ namespace UPnP.Infrastructure.Utils
     /// Returns the text string result of the specified <paramref name="xPathExpr"/> referencing an
     /// XML text node.
     /// </summary>
-    /// <param name="element">Element to apply the XPath expression to.</param>
+    /// <param name="elementNav">XPath navigator pointing to an XML element to apply the XPath expression to.</param>
     /// <param name="xPathExpr">XPath expression which references an XML text node (i.e. must end with "text()").</param>
+    /// <param name="nsmgr">Namespace resolver for the used namespace prefixes in the <paramref name="xPathExpr"/>.
+    /// If set to <c>null</c>, no namespace resolver will be used.</param>
     /// <returns>Contents of the referenced XML text node.</returns>
     /// <exception cref="ArgumentException">If the given <paramref name="xPathExpr"/> doesn't reference an
     /// XML text node.</exception>
-    public static string SelectText(XmlElement element, string xPathExpr)
+    public static string SelectText(XPathNavigator elementNav, string xPathExpr, IXmlNamespaceResolver nsmgr)
     {
-      XmlText text = element.SelectSingleNode(xPathExpr) as XmlText;
-      if (text == null)
-        throw new ArgumentException(string.Format("Error evaluating XPath expression '{0}'", xPathExpr));
-      return text.Data;
+      XPathNodeIterator it = elementNav.Select(xPathExpr, nsmgr);
+      if (it.MoveNext())
+        return it.Current.Value;
+      throw new ArgumentException(string.Format("Error evaluating XPath expression '{0}'", xPathExpr));
+    }
+
+    /// <summary>
+    /// Given an XPath navigator <paramref name="soapEnvelopeNav"/> pointing to an XML element with a SOAP envelope,
+    /// this method unwraps the envelope and returns the <paramref name="body"/> element.
+    /// </summary>
+    /// <param name="soapEnvelopeNav">XPath navigator pointing to a SOAP envelope XML element.</param>
+    /// <param name="body">Unwrapped SOAP body.</param>
+    /// <returns><c>true</c> if the unwrapping was successful, else <c>false</c>.</returns>
+    public static bool UnwrapSoapEnvelopeElement(XPathNavigator soapEnvelopeNav, out XPathNavigator body)
+    {
+      body = null;
+      if (soapEnvelopeNav == null || soapEnvelopeNav.LocalName != "Envelope" || soapEnvelopeNav.NamespaceURI != Consts.NS_SOAP_ENVELOPE)
+        return false;
+      XPathNodeIterator it = soapEnvelopeNav.SelectChildren("Body", Consts.NS_SOAP_ENVELOPE);
+      if (it.MoveNext())
+        body = it.Current;
+      return true;
     }
   }
 }

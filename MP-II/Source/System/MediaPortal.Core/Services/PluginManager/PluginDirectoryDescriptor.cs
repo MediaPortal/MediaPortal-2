@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Utilities;
@@ -90,84 +90,85 @@ namespace MediaPortal.Core.Services.PluginManager
       _pluginFilePath = path;
       try
       {
-        XmlDocument doc = new XmlDocument();
-        doc.Load(_pluginFilePath);
-        XmlElement descriptorElement = doc.DocumentElement;
-        if (descriptorElement == null || descriptorElement.Name != "Plugin")
+        XPathDocument doc = new XPathDocument(_pluginFilePath);
+        XPathNavigator nav = doc.CreateNavigator();
+        nav.MoveToChild(XPathNodeType.Element);
+        if (nav.LocalName != "Plugin")
           throw new ArgumentException(
               "File is no plugin descriptor file (document element must be 'Plugin')");
 
         bool versionOk = false;
         bool pluginIdSet = false;
-        foreach (XmlAttribute attr in descriptorElement.Attributes)
-        {
-          switch (attr.Name)
+        XPathNavigator attrNav = nav.Clone();
+        if (attrNav.MoveToFirstAttribute())
+          do
           {
-            case "DescriptorVersion":
-              Versions.CheckVersionCompatible(attr.Value, PLUGIN_DESCRIPTOR_VERSION_MAJOR, MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR);
-              //string specVersion = attr.Value; <- if needed
-              versionOk = true;
-              break;
-            case "Name":
-              _name = attr.Value;
-              break;
-            case "PluginId":
-              _pluginId = new Guid(attr.Value);
-              pluginIdSet = true;
-              break;
-            case "Author":
-              _author = attr.Value;
-              break;
-            case "Copyright":
-              _copyright = attr.Value;
-              break;
-            case "Description":
-              _description = attr.Value;
-              break;
-            case "PluginVersion":
-              _version = attr.Value;
-              break;
-            case "AutoActivate":
-              _autoActivate = Boolean.Parse(attr.Value);
-              break;
-            default:
-              throw new ArgumentException("'Plugin' element doesn't support an attribute '" + attr.Name + "'");
-          }
-        }
+            switch (attrNav.Name)
+            {
+              case "DescriptorVersion":
+                Versions.CheckVersionCompatible(attrNav.Value, PLUGIN_DESCRIPTOR_VERSION_MAJOR, MIN_PLUGIN_DESCRIPTOR_VERSION_MINOR);
+                //string specVersion = attr.Value; <- if needed
+                versionOk = true;
+                break;
+              case "Name":
+                _name = attrNav.Value;
+                break;
+              case "PluginId":
+                _pluginId = new Guid(attrNav.Value);
+                pluginIdSet = true;
+                break;
+              case "Author":
+                _author = attrNav.Value;
+                break;
+              case "Copyright":
+                _copyright = attrNav.Value;
+                break;
+              case "Description":
+                _description = attrNav.Value;
+                break;
+              case "PluginVersion":
+                _version = attrNav.Value;
+                break;
+              case "AutoActivate":
+                _autoActivate = Boolean.Parse(attrNav.Value);
+                break;
+              default:
+                throw new ArgumentException("'Plugin' element doesn't support an attribute '" + attrNav.Name + "'");
+            }
+          } while (attrNav.MoveToNextAttribute());
         if (!versionOk)
           throw new ArgumentException("'Version' attribute not found");
 
         if (!pluginIdSet)
           throw new ArgumentException("'PluginId' attribute not found");
 
-        foreach (XmlNode child in descriptorElement.ChildNodes)
-        {
-          XmlElement childElement = child as XmlElement;
-          if (childElement == null)
-            continue;
-          switch (childElement.Name)
+        XPathNavigator childNav = nav.Clone();
+        if (childNav.MoveToChild(XPathNodeType.Element))
+          do
           {
-            case "Runtime":
-              ParseRuntimeElement(childElement, pluginDirectoryPath);
-              break;
-            case "Builder":
-              if (_builders == null)
-                _builders = new Dictionary<string, string>();
-              _builders.Add(ParseBuilderElement(childElement));
-              break;
-            case "Register":
-              CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childElement));
-              break;
-            case "DependsOn":
-              CollectionUtils.AddAll(_dependsOn, ParsePluginIdEnumeration(childElement));
-              break;
-            case "ConflictsWith":
-              CollectionUtils.AddAll(_conflictsWith, ParsePluginIdEnumeration(childElement));
-              break;
-            default:
-              throw new ArgumentException("'Plugin' element doesn't support a child element '" + child.Name + "'");
-          }
-        }
+            switch (childNav.LocalName)
+            {
+              case "Runtime":
+                ParseRuntimeElement(childNav.Clone(), pluginDirectoryPath);
+                break;
+              case "Builder":
+                if (_builders == null)
+                  _builders = new Dictionary<string, string>();
+                _builders.Add(ParseBuilderElement(childNav.Clone()));
+                break;
+              case "Register":
+                CollectionUtils.AddAll(_itemsMetadata, ParseRegisterElement(childNav.Clone()));
+                break;
+              case "DependsOn":
+                CollectionUtils.AddAll(_dependsOn, ParsePluginIdEnumeration(childNav.Clone()));
+                break;
+              case "ConflictsWith":
+                CollectionUtils.AddAll(_conflictsWith, ParsePluginIdEnumeration(childNav.Clone()));
+                break;
+              default:
+                throw new ArgumentException("'Plugin' element doesn't support a child element '" + childNav.Name + "'");
+            }
+          } while (childNav.MoveToNext(XPathNodeType.Element));
       }
       catch (Exception e)
       {
@@ -182,67 +183,68 @@ namespace MediaPortal.Core.Services.PluginManager
     /// <summary>
     /// Processes the <i>Runtime</i> sub element of the <i>Plugin</i> element.
     /// </summary>
-    /// <param name="runtimeElement">Runtime element.</param>
+    /// <param name="runtimeNavigator">XPath navigator pointing to the <c>Runtime</c> element.</param>
     /// <param name="pluginDirectory">Root directory path of the plugin whose metadata is to be parsed.</param>
-    protected void ParseRuntimeElement(XmlElement runtimeElement, string pluginDirectory)
+    protected void ParseRuntimeElement(XPathNavigator runtimeNavigator, string pluginDirectory)
     {
-      if (runtimeElement.HasAttributes)
+      if (runtimeNavigator.HasAttributes)
         throw new ArgumentException("'Runtime' element mustn't contain any attributes");
-      foreach (XmlNode child in runtimeElement.ChildNodes)
-      {
-        XmlElement childElement = child as XmlElement;
-        if (childElement == null)
-          continue;
-        switch (childElement.Name)
+      XPathNavigator childNav = runtimeNavigator.Clone();
+      if (childNav.MoveToChild(XPathNodeType.Element))
+        do
         {
-          case "Assembly":
-            string fileName = childElement.GetAttribute("FileName");
-            if (fileName.Length == 0)
-              throw new ArgumentException("'Assembly' element needs an attribute 'FileName'");
-            string assemblyFilePath = Path.IsPathRooted(fileName) ? fileName : Path.Combine(pluginDirectory, fileName);
-            if (!File.Exists(assemblyFilePath))
-              throw new ArgumentException(string.Format("Plugin '{0}': Assembly DLL file '{1}' does not exist", _name, assemblyFilePath));
-            _assemblyFilePaths.Add(assemblyFilePath);
-            break;
-          case "PluginStateTracker":
-            _stateTrackerClassName = childElement.GetAttribute("ClassName");
-            if (_stateTrackerClassName.Length == 0)
-              throw new ArgumentException("'PluginStateTracker' element needs an attribute 'ClassName'");
-            break;
-          default:
-            throw new ArgumentException("'Runtime' element doesn't support a child element '" + childElement.Name + "'");
-        }
-      }
+          switch (childNav.LocalName)
+          {
+            case "Assembly":
+              string fileName = childNav.GetAttribute("FileName", string.Empty);
+              if (fileName.Length == 0)
+                throw new ArgumentException("'Assembly' element needs an attribute 'FileName'");
+              string assemblyFilePath = Path.IsPathRooted(fileName) ? fileName : Path.Combine(pluginDirectory, fileName);
+              if (!File.Exists(assemblyFilePath))
+                throw new ArgumentException(string.Format("Plugin '{0}': Assembly DLL file '{1}' does not exist", _name, assemblyFilePath));
+              _assemblyFilePaths.Add(assemblyFilePath);
+              break;
+            case "PluginStateTracker":
+              _stateTrackerClassName = childNav.GetAttribute("ClassName", string.Empty);
+              if (_stateTrackerClassName.Length == 0)
+                throw new ArgumentException("'PluginStateTracker' element needs an attribute 'ClassName'");
+              break;
+            default:
+              throw new ArgumentException("'Runtime' element doesn't support a child element '" + childNav.Name + "'");
+          }
+        } while (childNav.MoveToNext(XPathNodeType.Element));
     }
 
     /// <summary>
     /// Processes the <i>Builder</i> sub element of the <i>Plugin</i> element.
     /// </summary>
-    /// <param name="builderElement">Builder element.</param>
+    /// <param name="builderNavigator">XPath navigator pointing to the <c>Builder</c> element.</param>
     /// <returns>Parsed builder - name to classname mapping.</returns>
-    protected static KeyValuePair<string, string> ParseBuilderElement(XmlElement builderElement)
+    protected static KeyValuePair<string, string> ParseBuilderElement(XPathNavigator builderNavigator)
     {
       string name = null;
       string className = null;
-      foreach (XmlAttribute attr in builderElement.Attributes)
-      {
-        switch (attr.Name)
+      XPathNavigator attrNav = builderNavigator.Clone();
+      if (attrNav.MoveToFirstAttribute())
+        do
         {
-          case "Name":
-            name = attr.Value;
-            break;
-          case "ClassName":
-            className = attr.Value;
-            break;
-          default:
-            throw new ArgumentException("'Builder' element doesn't support an attribute '" + attr.Name + "'");
-        }
-      }
+          switch (attrNav.Name)
+          {
+            case "Name":
+              name = attrNav.Value;
+              break;
+            case "ClassName":
+              className = attrNav.Value;
+              break;
+            default:
+              throw new ArgumentException("'Builder' element doesn't support an attribute '" + attrNav.Name + "'");
+          }
+        } while (attrNav.MoveToNextAttribute());
       if (name == null)
         throw new ArgumentException("'Builder' element needs an attribute 'Name'");
       if (className == null)
         throw new ArgumentException("'Builder' element needs an attribute 'ClassName'");
-      if (builderElement.ChildNodes.Count > 0)
+      if (builderNavigator.SelectChildren(XPathNodeType.Element).Count > 0)
         throw new ArgumentException("'Builder' element doesn't support child nodes");
       return new KeyValuePair<string, string>(name, className);
     }
@@ -250,92 +252,97 @@ namespace MediaPortal.Core.Services.PluginManager
     /// <summary>
     /// Processes the <i>Register</i> sub element of the <i>Plugin</i> element.
     /// </summary>
-    /// <param name="registerElement">Register element.</param>
+    /// <param name="registerNavigator">XPath navigator pointing to the <c>Register</c> element.</param>
     /// <returns>Metadata structures of all registered items in the given element.</returns>
-    protected static IEnumerable<PluginItemMetadata> ParseRegisterElement(XmlElement registerElement)
+    protected static IEnumerable<PluginItemMetadata> ParseRegisterElement(XPathNavigator registerNavigator)
     {
       string location = null;
-      foreach (XmlAttribute attr in registerElement.Attributes)
-      {
-        switch (attr.Name)
+      XPathNavigator attrNav = registerNavigator.Clone();
+      if (attrNav.MoveToFirstAttribute())
+      do
         {
-          case "Location":
-            location = attr.Value;
-            break;
-          default:
-            throw new ArgumentException("'Register' element doesn't support an attribute '" + attr.Name + "'");
-        }
-      }
-      if (location == null)
-        throw new ArgumentException("'Register' element needs an attribute 'Location'");
-      foreach (XmlNode child in registerElement.ChildNodes)
-      {
-        string id = null;
-        bool redundant = false;
-        XmlElement childElement = child as XmlElement;
-        if (childElement == null)
-          continue;
-        IDictionary<string, string> attributes = new Dictionary<string, string>();
-        string builderName = childElement.Name;
-        foreach (XmlAttribute attr in childElement.Attributes)
-        {
-          switch (attr.Name)
+          switch (attrNav.Name)
           {
-            case "Id":
-              id = attr.Value;
-              break;
-            case "Redundant":
-              redundant = bool.Parse(attr.Value);
+            case "Location":
+              location = attrNav.Value;
               break;
             default:
-              attributes.Add(attr.Name, attr.Value);
-              break;
+              throw new ArgumentException("'Register' element doesn't support an attribute '" + attrNav.Name + "'");
           }
-        }
-        if (id == null)
-          throw new ArgumentException("'Id' attribute has to be given for plugin item '" + childElement.Name + "'");
-        yield return new PluginItemMetadata(location, builderName, id, redundant, attributes);
-      }
+        } while (attrNav.MoveToNextAttribute());
+      if (location == null)
+        throw new ArgumentException("'Register' element needs an attribute 'Location'");
+      XPathNavigator childNav = registerNavigator.Clone();
+      if (childNav.MoveToChild(XPathNodeType.Element))
+        do
+        {
+          string id = null;
+          bool redundant = false;
+          IDictionary<string, string> attributes = new Dictionary<string, string>();
+          string builderName = childNav.LocalName;
+          attrNav = childNav.Clone();
+          if (attrNav.MoveToFirstAttribute())
+            do
+            {
+              switch (attrNav.Name)
+              {
+                case "Id":
+                  id = attrNav.Value;
+                  break;
+                case "Redundant":
+                  redundant = bool.Parse(attrNav.Value);
+                  break;
+                default:
+                  attributes.Add(attrNav.Name, attrNav.Value);
+                  break;
+              }
+            } while (attrNav.MoveToNextAttribute());
+          if (id == null)
+            throw new ArgumentException("'Id' attribute has to be given for plugin item '" + childNav.Name + "'");
+          yield return new PluginItemMetadata(location, builderName, id, redundant, attributes);
+        } while (childNav.MoveToNext(XPathNodeType.Element));
     }
 
     /// <summary>
     /// Processes an element containing a collection of <i>&lt;PluginReference PluginId="..."/&gt;</i> sub elements and
     /// returns an enumeration of the referenced ids.
     /// </summary>
-    /// <param name="enumElement">Element containing the &lt;PluginReference PluginId="..."/&gt; sub elements.</param>
+    /// <param name="enumNavigator">XPath navigator pointing to an element containing the &lt;PluginReference PluginId="..."/&gt;
+    /// sub elements.</param>
     /// <returns>Enumeration of parsed plugin ids.</returns>
-    protected static IEnumerable<Guid> ParsePluginIdEnumeration(XmlElement enumElement)
+    protected static IEnumerable<Guid> ParsePluginIdEnumeration(XPathNavigator enumNavigator)
     {
-      if (enumElement.HasAttributes)
-        throw new ArgumentException(string.Format("'{0}' element mustn't contain any attributes", enumElement.Name));
-      foreach (XmlNode child in enumElement.ChildNodes)
-      {
-        XmlElement childElement = child as XmlElement;
-        if (childElement == null)
-          continue;
-        switch (childElement.Name)
+      if (enumNavigator.HasAttributes)
+        throw new ArgumentException(string.Format("'{0}' element mustn't contain any attributes", enumNavigator.Name));
+      XPathNavigator childNav = enumNavigator.Clone();
+      if (childNav.MoveToChild(XPathNodeType.Element))
+        do
         {
-          case "PluginReference":
-            string id = null;
-            foreach (XmlAttribute attr in childElement.Attributes)
-            {
-              switch (attr.Name)
-              {
-                case "PluginId":
-                  id = attr.Value;
-                  break;
-                default:
-                  throw new ArgumentException("'PluginReference' sub element doesn't support an attribute '" + attr.Name + "'");
-              }
-            }
-            if (id == null)
-              throw new ArgumentException("'PluginReference' sub element needs an attribute 'PluginId'");
-            yield return new Guid(id);
-            break;
-          default:
-            throw new ArgumentException("'" + enumElement.Name + "' element doesn't support a child element '" + child.Name + "'");
-        }
-      }
+          switch (childNav.LocalName)
+          {
+            case "PluginReference":
+              string id = null;
+              XPathNavigator attrNav = childNav.Clone();
+              if (attrNav.MoveToFirstAttribute())
+                do
+                {
+                  switch (attrNav.Name)
+                  {
+                    case "PluginId":
+                      id = attrNav.Value;
+                      break;
+                    default:
+                      throw new ArgumentException("'PluginReference' sub element doesn't support an attribute '" + attrNav.Name + "'");
+                  }
+                } while (attrNav.MoveToNextAttribute());
+              if (id == null)
+                throw new ArgumentException("'PluginReference' sub element needs an attribute 'PluginId'");
+              yield return new Guid(id);
+              break;
+            default:
+              throw new ArgumentException("'" + enumNavigator.Name + "' element doesn't support a child element '" + childNav.Name + "'");
+          }
+        } while (childNav.MoveToNext(XPathNodeType.Element));
     }
 
     #endregion

@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Presentation.SkinResources;
 using MediaPortal.SkinEngine.SkinManagement;
 
@@ -78,22 +78,25 @@ namespace MediaPortal.SkinEngine.Fonts
       string defaultFontFilePath = resourcesCollection.GetResourceFilePath(
           SkinResources.FONTS_DIRECTORY + Path.DirectorySeparatorChar + DEFAULT_FONT_FILE);
 
-      XmlDocument doc = new XmlDocument();
-      doc.Load(defaultFontFilePath);
+      XPathDocument doc = new XPathDocument(defaultFontFilePath);
 
-      _defaultFontFamily = doc.DocumentElement.GetAttribute("FontFamily");
-      string defaultFontSize = doc.DocumentElement.GetAttribute("FontSize");
+      XPathNavigator nav = doc.CreateNavigator();
+      nav.MoveToChild(XPathNodeType.Element);
+      _defaultFontFamily = nav.GetAttribute("FontFamily", string.Empty);
+      string defaultFontSize = nav.GetAttribute("FontSize", string.Empty);
       _defaultFontSize = int.Parse(defaultFontSize);
 
       // Iterate over font family descriptors
       foreach (string descriptorFilePath in resourcesCollection.GetResourceFilePaths(
           "^" + SkinResources.FONTS_DIRECTORY + "\\\\.*\\.desc$").Values)
       {
-        doc.Load(descriptorFilePath);
-        string familyName = doc.DocumentElement.GetAttribute("Name");
+        doc = new XPathDocument(descriptorFilePath);
+        nav = doc.CreateNavigator();
+        nav.MoveToChild(XPathNodeType.Element);
+        string familyName = nav.GetAttribute("Name", string.Empty);
         if (string.IsNullOrEmpty(familyName))
           throw new ArgumentException("FontManager: Failed to parse family name for font descriptor file '{0}'", descriptorFilePath);
-        string ttfFile = doc.DocumentElement.GetAttribute("Ttf");
+        string ttfFile = nav.GetAttribute("Ttf", string.Empty);
         if (string.IsNullOrEmpty(ttfFile))
           throw new ArgumentException("FontManager: Failed to parse ttf name for font descriptor file '{0}'", descriptorFilePath);
 

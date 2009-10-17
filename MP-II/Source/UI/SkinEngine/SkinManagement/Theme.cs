@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities;
@@ -112,61 +112,65 @@ namespace MediaPortal.SkinEngine.SkinManagement
     {
       try
       {
-        XmlDocument doc = new XmlDocument();
-        doc.Load(metaFilePath);
-        XmlElement themeElement = doc.DocumentElement;
-        if (themeElement == null || themeElement.Name != "Theme")
+        XPathDocument doc = new XPathDocument(metaFilePath);
+        XPathNavigator nav = doc.CreateNavigator();
+        nav.MoveToChild(XPathNodeType.Element);
+        if (nav.LocalName != "Theme")
           throw new ArgumentException("File is no theme descriptor (needs to contain a 'Theme' element)");
 
         bool versionOk = false;
-        foreach (XmlAttribute attr in themeElement.Attributes)
-        {
-          switch (attr.Name)
+        XPathNavigator attrNav = nav.Clone();
+        if (attrNav.MoveToFirstAttribute())
+          do
           {
-            case "Version":
-              Versions.CheckVersionCompatible(attr.Value, THEME_DESCRIPTOR_VERSION_MAJOR, MIN_THEME_DESCRIPTOR_VERSION_MINOR);
-              _specVersion = attr.Value;
-              versionOk = true;
-              break;
-            case "Name":
-              if (_name != null && _name != attr.Value)
-                throw new ArgumentException("Theme name '" + _name + "' doesn't correspond to specified name '" + attr.Value + "'");
-              else
-                _name = attr.Value;
-              break;
-            default:
-              throw new ArgumentException("Attribute '" + attr.Name + "' is unknown");
-          }
-        }
+            switch (attrNav.Name)
+            {
+              case "Version":
+                Versions.CheckVersionCompatible(attrNav.Value, THEME_DESCRIPTOR_VERSION_MAJOR, MIN_THEME_DESCRIPTOR_VERSION_MINOR);
+                _specVersion = attrNav.Value;
+                versionOk = true;
+                break;
+              case "Name":
+                if (_name != null && _name != attrNav.Value)
+                  throw new ArgumentException("Theme name '" + _name + "' doesn't correspond to specified name '" + attrNav.Value + "'");
+                else
+                  _name = attrNav.Value;
+                break;
+              default:
+                throw new ArgumentException("Attribute '" + attrNav.Name + "' is unknown");
+            }
+          } while (attrNav.MoveToNextAttribute());
         if (!versionOk)
           throw new ArgumentException("Attribute 'Version' expected");
 
-        foreach (XmlNode child in themeElement.ChildNodes)
-        {
-          switch (child.Name)
+        XPathNavigator childNav = nav.Clone();
+        if (childNav.MoveToChild(XPathNodeType.Element))
+          do
           {
-            case "ShortDescription":
-              _description = child.InnerText;
-              break;
-            case "Preview":
-              _previewResourceKey = child.InnerText;
-              break;
-            case "Author":
-              _author = child.InnerText;
-              break;
-            case "ThemeVersion":
-              _themeVersion = child.InnerText;
-              break;
-            case "SkinEngine":
-              _skinEngineVersion = child.InnerText;
-              break;
-            case "MinColorDepth":
-              _minColorDepth = Int32.Parse(child.InnerText);
-              break;
-            default:
-              throw new ArgumentException("Child element '" + child.Name + "' is unknown");
-          }
-        }
+            switch (childNav.LocalName)
+            {
+              case "ShortDescription":
+                _description = childNav.Value;
+                break;
+              case "Preview":
+                _previewResourceKey = childNav.Value;
+                break;
+              case "Author":
+                _author = childNav.Value;
+                break;
+              case "ThemeVersion":
+                _themeVersion = childNav.Value;
+                break;
+              case "SkinEngine":
+                _skinEngineVersion = childNav.Value;
+                break;
+              case "MinColorDepth":
+                _minColorDepth = Int32.Parse(childNav.Value);
+                break;
+              default:
+                throw new ArgumentException("Child element '" + childNav.Name + "' is unknown");
+            }
+          } while (childNav.MoveToNext(XPathNodeType.Element));
       }
       catch (Exception e)
       {

@@ -52,8 +52,9 @@ namespace UPnP.Infrastructure.CP
   /// </code>
   /// </example>
   /// To react to an upcoming availability of a new UPnP device in the network, in the example method
-  /// <c>OnUPnPRootDeviceAdded</c> is attached to the <see cref="NetworkTracker.RootDeviceAdded"/> event.
-  /// Here is an example of an event handler for the event <see cref="NetworkTracker.RootDeviceAdded"/>:
+  /// <c>OnUPnPRootDeviceAdded</c> is attached to the <see cref="UPnPNetworkTracker.RootDeviceAdded"/> event of the
+  /// <see cref="NetworkTracker"/> property.
+  /// Here is an example of an event handler for the event <see cref="UPnPNetworkTracker.RootDeviceAdded"/>:
   /// <example>
   /// <code>
   /// void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)

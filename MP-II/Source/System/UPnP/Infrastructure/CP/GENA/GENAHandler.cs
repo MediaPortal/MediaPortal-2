@@ -27,7 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -41,19 +41,17 @@ namespace UPnP.Infrastructure.CP.GENA
       try
       {
         // Parse XML document
-        XmlDocument doc = new XmlDocument();
-        XmlTextReader reader = new XmlTextReader(new StreamReader(stream, streamEncoding));
-        doc.Load(reader);
-        XmlElement root = doc.DocumentElement;
-        if (root.LocalName != "propertyset" || root.NamespaceURI != "urn:schemas-upnp-org:event-1-0")
+        XPathDocument doc = new XPathDocument(new StreamReader(stream, streamEncoding));
+        XPathNavigator nav = doc.CreateNavigator();
+        nav.MoveToChild(XPathNodeType.Element);
+        if (nav.LocalName != "propertyset" || nav.NamespaceURI != "urn:schemas-upnp-org:event-1-0")
           return HttpStatusCode.BadRequest;
-        XmlNodeList nl = root.SelectNodes("property");
-        foreach (XmlElement propertyElement in nl)
+        XPathNodeIterator propertyIt = nav.SelectChildren("property", "urn:schemas-upnp-org:event-1-0");
+        while (propertyIt.MoveNext())
         {
-          if (propertyElement.NamespaceURI != "urn:schemas-upnp-org:event-1-0")
-            return HttpStatusCode.BadRequest;
-          XmlElement variableElement = (XmlElement) propertyElement.SelectSingleNode("*");
-          HandleVariableChangeNotification(variableElement, service, upnpVersion);
+          XPathNavigator variableNav = propertyIt.Current.Clone();
+          if (variableNav.MoveToChild(XPathNodeType.Element))
+            HandleVariableChangeNotification(variableNav, service, upnpVersion);
         }
         return HttpStatusCode.OK;
       }
@@ -63,15 +61,15 @@ namespace UPnP.Infrastructure.CP.GENA
       }
     }
 
-    protected static void HandleVariableChangeNotification(XmlElement variableElement, CpService service, UPnPVersion upnpVersion)
+    protected static void HandleVariableChangeNotification(XPathNavigator variableNav, CpService service, UPnPVersion upnpVersion)
     {
-      string variableName = variableElement.Name;
+      string variableName = variableNav.LocalName;
       CpStateVariable stateVariable;
       if (!service.StateVariables.TryGetValue(variableName, out stateVariable))
         // We don't know that variable. This is no error case, as the service might have
         // only a subset of state variable templates defined
         return;
-      object value = stateVariable.DataType.SoapDeserializeValue(variableElement, upnpVersion.VerMin == 0);
+      object value = stateVariable.DataType.SoapDeserializeValue(variableNav, upnpVersion.VerMin == 0);
       stateVariable.Value = value;
     }
   }

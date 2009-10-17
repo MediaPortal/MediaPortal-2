@@ -25,7 +25,7 @@
 
 using System;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -109,11 +109,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _relatedStateVariable.IsValueInRange(value);
     }
 
-    public UPnPError SoapParseArgument(XmlElement enclosingElement, bool isSimpleValue, out object value)
+    public UPnPError SoapParseArgument(XPathNavigator enclosingElementNav, bool isSimpleValue, out object value)
     {
       try
       {
-        value = _relatedStateVariable.DataType.SoapDeserializeValue(enclosingElement, isSimpleValue);
+        value = _relatedStateVariable.DataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
       }
       catch (Exception)
       {

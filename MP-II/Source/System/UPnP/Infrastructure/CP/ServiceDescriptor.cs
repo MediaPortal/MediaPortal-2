@@ -23,7 +23,7 @@
 
 #endregion
 
-using System.Xml;
+using System.Xml.XPath;
 
 namespace UPnP.Infrastructure.CP
 {
@@ -71,7 +71,7 @@ namespace UPnP.Infrastructure.CP
     protected string _serviceId;
     protected string _controlURL;
     protected string _eventSubURL;
-    protected XmlDocument _serviceDescription = null;
+    protected XPathDocument _serviceDescription = null;
     protected ServiceDescriptorState _state = ServiceDescriptorState.Initializing;
 
     internal ServiceDescriptor(string serviceType, int serviceTypeVersion, string serviceId, string controlURL, string eventSubURL)
@@ -141,7 +141,7 @@ namespace UPnP.Infrastructure.CP
     /// The description is present when the service descriptor is in the <see cref="State"/>
     /// <see cref="RootDescriptorState.Ready"/>.
     /// </remarks>
-    public XmlDocument ServiceDescription
+    public XPathDocument ServiceDescription
     {
       get { return _serviceDescription; }
       internal set { _serviceDescription = value; }

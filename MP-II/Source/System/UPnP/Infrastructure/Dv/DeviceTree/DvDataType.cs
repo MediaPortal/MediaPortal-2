@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -53,14 +53,16 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public abstract string SoapSerializeValue(object value, bool forceSimpleValue);
 
     /// <summary>
-    /// Deserializes the contents of the given SOAP <paramref name="enclosingElement"/> to an object of this UPnP data type.
+    /// Deserializes the contents of the given SOAP XML element the <paramref name="enclosingElementNav"/> points to
+    /// to an object of this UPnP data type.
     /// </summary>
-    /// <param name="enclosingElement">SOAP representation of an object of this UPnP data type.</param>
+    /// <param name="enclosingElementNav">XPath navigator pointing to an XML element containing the SOAP representation of an
+    /// object of this UPnP data type.</param>
     /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized from its
-    /// string-equivalent, i.e. the XML text content of the <paramref name="enclosingElement"/> should be expected,
+    /// string-equivalent, i.e. the XML text content of the given XML element should be evaluated,
     /// else the value should be deserialized from the extended representation of this data type.</param>
     /// <returns>Value which was deserialized.</returns>
-    public abstract object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue);
+    public abstract object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue);
 
     /// <summary>
     /// Returns the information if an object of the given type can be assigned to a variable of this UPnP data type.

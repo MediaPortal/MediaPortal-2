@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
@@ -58,9 +58,9 @@ namespace MediaPortal.Core.UPnP
       return miam.Serialize();
     }
 
-    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
     {
-      string serialization = StringUtils.TrimToEmpty(enclosingElement.InnerXml);
+      string serialization = StringUtils.TrimToEmpty(enclosingElementNav.Value);
       return string.IsNullOrEmpty(serialization) ? null : MediaItemAspectMetadata.Deserialize(serialization);
     }
 

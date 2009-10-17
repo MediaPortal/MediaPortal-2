@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -36,8 +36,6 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   /// </summary>
   public class ExtendedDataTypeDummy : UPnPExtendedDataType
   {
-    protected XmlElement _value;
-
     public ExtendedDataTypeDummy(string schemaURI, string dataTypeName) : base(schemaURI, dataTypeName) { }
 
     public override bool SupportsStringEquivalent
@@ -50,7 +48,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       throw new IllegalCallException("Dummy extended data type cannot serialize values");
     }
 
-    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
     {
       throw new IllegalCallException("Dummy extended data type cannot deserialize values");
     }

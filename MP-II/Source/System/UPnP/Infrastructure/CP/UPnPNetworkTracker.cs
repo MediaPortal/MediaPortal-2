@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;
@@ -292,13 +293,20 @@ namespace UPnP.Infrastructure.CP
         try
         {
           Stream body = response.GetResponseStream();
-          XmlDocument doc = new XmlDocument();
-          doc.Load(body);
+          XPathDocument doc = new XPathDocument(body);
           lock (_cpData.SyncObj)
           {
             rd.DeviceDescription = doc;
-            XmlElement rootDeviceElement = (XmlElement) doc.DocumentElement.SelectSingleNode("device");
-            ExtractServiceDescriptorsRecursive(rootDeviceElement, rd.ServiceDescriptors, state.PendingServiceDescriptions);
+            XPathNavigator nav = doc.CreateNavigator();
+            nav.MoveToChild(XPathNodeType.Element);
+            XPathNodeIterator rootDeviceIt = nav.SelectChildren("device", "urn:schemas-upnp-org:device-1-0");
+            if (rootDeviceIt.MoveNext())
+            {
+              XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
+              nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+              ExtractServiceDescriptorsRecursive(rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
+                  state.PendingServiceDescriptions);
+            }
             rd.State = RootDescriptorState.AwaitingServiceDescriptions;
           }
           ContinueGetServiceDescription(state);
@@ -365,8 +373,7 @@ namespace UPnP.Infrastructure.CP
           try
           {
             Stream body = response.GetResponseStream();
-            XmlDocument doc = new XmlDocument();
-            doc.Load(body);
+            XPathDocument doc = new XPathDocument(body);
             state.CurrentServiceDescriptor.ServiceDescription = doc;
             state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
           }
@@ -428,51 +435,59 @@ namespace UPnP.Infrastructure.CP
     /// their SCPD urls in <paramref name="pendingServiceDescriptions"/></item>
     /// </list>
     /// </summary>
-    /// <param name="deviceElement">XML &lt;device&gt; element containing the device description.</param>
+    /// <param name="deviceNav">XPath navigator pointing to an XML &lt;device&gt; element containing the device
+    /// description.</param>
+    /// <param name="nsmgr">Namespace manager mapping the "d" namespace prefix to the namespace URI
+    /// "urn:schemas-upnp-org:device-1-0".</param>
     /// <param name="serviceDescriptors">Dictionary of device UUIDs to collections of service descriptors, containing
     /// descriptors of services which are contained in the device with the key UUID.</param>
     /// <param name="pendingServiceDescriptions">Dictionary of device service descriptors mapped to the SCPD url of the
     /// service.</param>
-    private static void ExtractServiceDescriptorsRecursive(XmlElement deviceElement,
+    private static void ExtractServiceDescriptorsRecursive(XPathNavigator deviceNav, IXmlNamespaceResolver nsmgr,
         IDictionary<string, IDictionary<string, ServiceDescriptor>> serviceDescriptors,
         IDictionary<ServiceDescriptor, string> pendingServiceDescriptions)
     {
-      if (deviceElement == null)
-        return;
-      string deviceUuid = ParserHelper.ExtractUUIDFromUDN(ParserHelper.SelectText(deviceElement, "UDN/text()"));
-      XmlNodeList nl = deviceElement.SelectNodes("serviceList/service");
-      if (nl.Count > 0)
+      string deviceUuid = ParserHelper.ExtractUUIDFromUDN(RootDescriptor.GetDeviceUDN(deviceNav, nsmgr));
+      XPathNodeIterator it = deviceNav.Select("d:serviceList/d:service", nsmgr);
+      if (it.MoveNext())
       {
         IDictionary<string, ServiceDescriptor> sds = serviceDescriptors[deviceUuid] = new Dictionary<string, ServiceDescriptor>();
-        foreach (XmlElement serviceElement in nl)
+        do
         {
           string descriptionURL;
-          ServiceDescriptor sd = ExtractServiceDescriptor(serviceElement, out descriptionURL);
+          ServiceDescriptor sd = ExtractServiceDescriptor(it.Current, nsmgr, out descriptionURL);
           sds.Add(sd.ServiceTypeVersion_URN, sd);
           pendingServiceDescriptions[sd] = descriptionURL;
-        }
+        } while (it.MoveNext());
       }
-      foreach (XmlElement embeddedDeviceElement in deviceElement.SelectNodes("deviceList/device"))
-        ExtractServiceDescriptorsRecursive(embeddedDeviceElement, serviceDescriptors, pendingServiceDescriptions);
+      it = deviceNav.Select("d:deviceList/d:device", nsmgr);
+      while (it.MoveNext())
+        ExtractServiceDescriptorsRecursive(it.Current, nsmgr, serviceDescriptors, pendingServiceDescriptions);
     }
 
     /// <summary>
     /// Given an XML &lt;service&gt; element containing a service description, this method extracts the returned
     /// <see cref="ServiceDescriptor"/> and the SCDP description url.
     /// </summary>
-    /// <param name="serviceElement">XML &lt;service&gt; element containing the service description.</param>
+    /// <param name="serviceNav">XPath navigator pointing to an XML &lt;service&gt; element containing the service
+    /// description.</param>
+    /// <param name="nsmgr">Namespace manager mapping the "d" namespace prefix to the namespace URI
+    /// "urn:schemas-upnp-org:device-1-0".</param>
     /// <param name="descriptionURL">Returns the description URL for the service.</param>
     /// <returns>Extracted service descriptor.</returns>
-    private static ServiceDescriptor ExtractServiceDescriptor(XmlElement serviceElement, out string descriptionURL)
+    private static ServiceDescriptor ExtractServiceDescriptor(XPathNavigator serviceNav, IXmlNamespaceResolver nsmgr,
+        out string descriptionURL)
     {
-      descriptionURL = ParserHelper.SelectText(serviceElement, "SCPDURL/text()");
+      descriptionURL = ParserHelper.SelectText(serviceNav, "d:SCPDURL/text()", nsmgr);
       string serviceType;
       int serviceTypeVersion;
-      if (!ParserHelper.TryParseTypeVersion_URN(ParserHelper.SelectText(serviceElement, "serviceType/text()"), out serviceType, out serviceTypeVersion))
+      if (!ParserHelper.TryParseTypeVersion_URN(ParserHelper.SelectText(serviceNav, "d:serviceType/text()", nsmgr),
+          out serviceType, out serviceTypeVersion))
         throw new ArgumentException("'serviceType' content has the wrong format");
-      string controlURL = ParserHelper.SelectText(serviceElement, "controlURL");
-      string eventSubURL = ParserHelper.SelectText(serviceElement, "eventSubURL");
-      return new ServiceDescriptor(serviceType, serviceTypeVersion, ParserHelper.SelectText(serviceElement, "serviceId/text()"), controlURL, eventSubURL);
+      string controlURL = ParserHelper.SelectText(serviceNav, "d:controlURL", nsmgr);
+      string eventSubURL = ParserHelper.SelectText(serviceNav, "d:eventSubURL", nsmgr);
+      return new ServiceDescriptor(serviceType, serviceTypeVersion,
+          ParserHelper.SelectText(serviceNav, "d:serviceId/text()", nsmgr), controlURL, eventSubURL);
     }
 
     private static HttpWebRequest CreateHttpGetRequest(string url)

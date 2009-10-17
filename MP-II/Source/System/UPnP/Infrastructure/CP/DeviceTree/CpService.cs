@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -301,11 +302,16 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       {
         CpService result = new CpService(connection, parentDevice, serviceDescriptor.ServiceType, serviceDescriptor.ServiceTypeVersion,
             serviceDescriptor.ServiceId);
+        XPathNavigator serviceNav = serviceDescriptor.ServiceDescription.CreateNavigator();
+        XmlNamespaceManager nsmgr = new XmlNamespaceManager(serviceNav.NameTable);
+        nsmgr.AddNamespace("s", Consts.NS_SERVICE_DESCRIPTION);
+        XPathNodeIterator svIt = serviceNav.Select("s:serviceStateTable/s:stateVariable", nsmgr);
         // State variables must be connected first because they are needed from the action's arguments
-        foreach (XmlElement stateVariableElement in serviceDescriptor.ServiceDescription.DocumentElement.SelectNodes("serviceStateTable/stateVariable"))
-          result.AddStateVariable(CpStateVariable.ConnectStateVariable(connection, result, stateVariableElement, dataTypeResolver));
-        foreach (XmlElement actionElement in serviceDescriptor.ServiceDescription.DocumentElement.SelectNodes("actionList/action"))
-          result.AddAction(CpAction.ConnectAction(connection, result, actionElement));
+        while (svIt.MoveNext())
+          result.AddStateVariable(CpStateVariable.ConnectStateVariable(connection, result, svIt.Current, nsmgr, dataTypeResolver));
+        XPathNodeIterator acIt = serviceNav.Select("s:actionList/s:action", nsmgr);
+        while (acIt.MoveNext())
+          result.AddAction(CpAction.ConnectAction(connection, result, acIt.Current, nsmgr));
         return result;
       }
     }

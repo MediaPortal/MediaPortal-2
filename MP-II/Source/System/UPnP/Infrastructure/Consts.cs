@@ -101,5 +101,24 @@ namespace UPnP.Infrastructure
     public const string MEL_UPNP_GENERAL = "upnp:/general";
 
     #endregion
+
+    #region Namespace URIs
+
+    /// <summary>
+    /// XML namespace to be used for the SOAP envelope.
+    /// </summary>
+    public const string NS_SOAP_ENVELOPE = "http://schemas.xmlsoap.org/soap/envelope/";
+
+    /// <summary>
+    /// XML namespace for the UPnP device description.
+    /// </summary>
+    public const string NS_DEVICE_DESCRIPTION = "urn:schemas-upnp-org:device-1-0";
+
+    /// <summary>
+    /// XML namespace for the UPnP service description.
+    /// </summary>
+    public const string NS_SERVICE_DESCRIPTION = "urn:schemas-upnp-org:service-1-0";
+
+    #endregion
   }
 }

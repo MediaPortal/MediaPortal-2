@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.Utils;
@@ -110,37 +110,39 @@ namespace UPnP.Infrastructure.CP.SOAP
       try
       {
         // Parse XML document
-        XmlDocument doc = new XmlDocument();
-        doc.Load(reader);
-        XmlElement soapEnvelope = doc.DocumentElement;
-        XmlElement body;
+        XPathDocument doc = new XPathDocument(reader);
+        XPathNavigator soapEnvelopeNav = doc.CreateNavigator();
+        soapEnvelopeNav.MoveToChild(XPathNodeType.Element);
+        XPathNavigator body;
         // Parse SOAP envelope
-        if (!UnwrapEnvelopeElement(soapEnvelope, out body))
+        if (!ParserHelper.UnwrapSoapEnvelopeElement(soapEnvelopeNav, out body))
           throw new ArgumentException("Invalid SOAP envelope");
-        XmlElement xml_action = (XmlElement) body.SelectSingleNode("*");
-        string serviceTypeVersion_URN = xml_action.NamespaceURI;
+        XPathNavigator actionNav = body.Clone();
+        if (!actionNav.MoveToChild(XPathNodeType.Element))
+          throw new ArgumentException("Invalid SOAP response");
+        string serviceTypeVersion_URN = actionNav.NamespaceURI;
         string type;
         int version;
         // Parse service and action
         if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version) ||
             service.ServiceType != type || version < service.ServiceTypeVersion)
           throw new ArgumentException("Invalid service type or version");
-        if (!xml_action.Name.EndsWith("Response") ||
-            xml_action.Name.Substring(0, xml_action.Name.Length - "Response".Length) != action.Name)
+        if (!actionNav.LocalName.EndsWith("Response") ||
+            actionNav.LocalName.Substring(0, actionNav.LocalName.Length - "Response".Length) != action.Name)
           throw new ArgumentException("Invalid action name in result message");
         // Parse and check output parameters
         IList<CpArgument> formalArguments = action.OutArguments;
-        XmlNodeList xmlParameters = xml_action.SelectNodes("*");
-        if (formalArguments.Count != xmlParameters.Count)
+        XPathNodeIterator parameterIt = actionNav.SelectChildren(XPathNodeType.Element);
+        if (formalArguments.Count != parameterIt.Count)
           throw new ArgumentException("Invalid out argument count");
-        for (int i = 0; i < formalArguments.Count; i++)
+        for (int i = 0; parameterIt.MoveNext(); i++)
         {
           CpArgument argument = formalArguments[i];
-          XmlElement element = (XmlElement) xmlParameters[i++];
-          if (element.Name != argument.Name)
+          XPathNavigator parameterNav = parameterIt.Current;
+          if (parameterNav.LocalName != argument.Name)
             throw new ArgumentException("Invalid argument name");
           object value;
-          argument.SoapParseArgument(element, !sourceSupportsUPnP11, out value);
+          argument.SoapParseArgument(parameterNav, !sourceSupportsUPnP11, out value);
           outParameterValues.Add(value);
         }
       }
@@ -190,18 +192,6 @@ namespace UPnP.Infrastructure.CP.SOAP
                 "</s:Body" +
               "</s:Envelope>");
       return sb.ToString();
-    }
-
-    protected static bool UnwrapEnvelopeElement(XmlElement soapEnvelope, out XmlElement body)
-    {
-      body = null;
-      if (soapEnvelope == null || soapEnvelope.Name != "Envelope" || soapEnvelope.NamespaceURI != NS_SOAP_ENVELOPE)
-        return false;
-      XmlElement ele = (XmlElement) soapEnvelope.SelectSingleNode("Body");
-      if (ele.NamespaceURI != NS_SOAP_ENVELOPE)
-        return false;
-      body = ele;
-      return true;
     }
   }
 }

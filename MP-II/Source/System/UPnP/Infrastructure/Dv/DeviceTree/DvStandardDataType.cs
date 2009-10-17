@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -48,10 +48,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _type.SoapSerializeValue(value);
     }
 
-    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
     {
-      XmlText text = (XmlText) enclosingElement.SelectSingleNode("text()");
-      string serializedValue = text == null ? string.Empty : text.Data;
+      XPathNodeIterator it = enclosingElementNav.Select("text()");
+      string serializedValue = it.MoveNext() ? it.Current.Value : string.Empty;
       return _type.SoapDeserializeValue(serializedValue);
     }
 

@@ -25,6 +25,7 @@
 
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Utils;
 
@@ -77,7 +78,7 @@ namespace UPnP.Infrastructure.CP
   public class RootDescriptor
   {
     protected RootEntry _rootEntry;
-    protected XmlDocument _deviceDescription = null;
+    protected XPathDocument _deviceDescription = null;
     protected IDictionary<string, IDictionary<string, ServiceDescriptor>> _serviceDescriptors =
         new Dictionary<string, IDictionary<string, ServiceDescriptor>>();
     protected RootDescriptorState _state = RootDescriptorState.Initializing;
@@ -106,7 +107,7 @@ namespace UPnP.Infrastructure.CP
     /// The description is present when the root descriptor is in the <see cref="State"/>s
     /// <see cref="RootDescriptorState.AwaitingServiceDescriptions"/> and <see cref="RootDescriptorState.Ready"/>.
     /// </remarks>
-    public XmlDocument DeviceDescription
+    public XPathDocument DeviceDescription
     {
       get { return _deviceDescription; }
       internal set { _deviceDescription = value; }
@@ -143,16 +144,21 @@ namespace UPnP.Infrastructure.CP
     /// <param name="deviceType">Device type to search. Only devices will be returned with exactly the specified type.</param>
     /// <param name="minDeviceVersion">Minimum device version to search. All device elements will be returned with the
     /// specified version or with a higher version.</param>
-    /// <returns>Enumeration of XML &lt;device&gt; elements of the specified device type and version.</returns>
-    public IEnumerable<XmlElement> FindDeviceElements(string deviceType, int minDeviceVersion)
+    /// <returns>Enumeration of XPath navigator elements pointing to XML &lt;device&gt; elements of the specified device
+    /// type and version.</returns>
+    public IEnumerable<XPathNavigator> FindDeviceElements(string deviceType, int minDeviceVersion)
     {
-      foreach (XmlElement deviceElement in _deviceDescription.SelectNodes("descendant::device"))
+      XPathNavigator nav = _deviceDescription.CreateNavigator();
+      XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
+      nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+      XPathNodeIterator it = nav.Select("descendant::d:device", nsmgr);
+      while (it.MoveNext())
       {
         string type;
         int version;
-        if (ParserHelper.TryParseTypeVersion_URN(((XmlText) deviceElement.SelectSingleNode("deviceType/text()")).Data,
+        if (ParserHelper.TryParseTypeVersion_URN(ParserHelper.SelectText(it.Current, "d:deviceType/text()", nsmgr),
             out type, out version) && type == deviceType && version >= minDeviceVersion)
-          yield return deviceElement;
+          yield return it.Current.Clone();
       }
       yield break;
     }
@@ -166,34 +172,50 @@ namespace UPnP.Infrastructure.CP
     /// <param name="minDeviceVersion">Minimum device version to search. A device element will be returned if its version
     /// is exactly the specified version or higher.</param>
     /// <returns>First device which was found with the specified type and version. The search order depends on the
-    /// XPath processor which is used by the framework.</returns>
-    public XmlElement FindFirstDeviceElement(string deviceType, int minDeviceVersion)
+    /// XPath processor which is used by the framework. If no device element with the given criteria was found,
+    /// <c>null</c> is returned.</returns>
+    public XPathNavigator FindFirstDeviceElement(string deviceType, int minDeviceVersion)
     {
-      foreach (XmlElement deviceElement in FindDeviceElements(deviceType, minDeviceVersion))
-        return deviceElement;
+      foreach (XPathNavigator deviceNav in FindDeviceElements(deviceType, minDeviceVersion))
+        return deviceNav;
       return null;
     }
 
     /// <summary>
     /// Reads the UDN of the device with the given device's description XML element.
     /// </summary>
-    /// <param name="deviceElement">&lt;device&gt; element of a device's description</param>
-    /// <returns>UDN of the device or <c>null</c> if the given <paramref name="deviceElement"/> doesn't contain
-    /// an UDN entry. The UDN is specifically of the form "uuid:[Device-ID]".</returns>
-    public static string GetDeviceUDN(XmlElement deviceElement)
+    /// <param name="deviceNav">XPath navigator to an XML &lt;device&gt; element of a device's description</param>
+    /// <returns>UDN of the device or <c>null</c> if the given XML element doesn't contain an UDN entry.
+    /// The UDN is specifically of the form "uuid:[Device-ID]".</returns>
+    public static string GetDeviceUDN(XPathNavigator deviceNav)
     {
-      return ((XmlText) deviceElement.SelectSingleNode("UDN/text()")).Data;
+      XmlNamespaceManager nsmgr = new XmlNamespaceManager(deviceNav.NameTable);
+      nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+      return GetDeviceUDN(deviceNav, nsmgr);
+    }
+
+    /// <summary>
+    /// Reads the UDN of the device with the given device's description XML element.
+    /// </summary>
+    /// <param name="deviceNav">XPath navigator to an XML &lt;device&gt; element of a device's description</param>
+    /// <param name="nsmgr">XML namespace manager containing a namespace mapping for the namespace prefix "d" to
+    /// "urn:schemas-upnp-org:device-1-0".</param>
+    /// <returns>UDN of the device or <c>null</c> if the given XML element doesn't contain an UDN entry.
+    /// The UDN is specifically of the form "uuid:[Device-ID]".</returns>
+    public static string GetDeviceUDN(XPathNavigator deviceNav, IXmlNamespaceResolver nsmgr)
+    {
+      return ParserHelper.SelectText(deviceNav, "d:UDN/text()", nsmgr);
     }
 
     /// <summary>
     /// Reads the UUID of the device with the given device's description XML element.
     /// </summary>
-    /// <param name="deviceElement">&lt;device&gt; element of a device's description</param>
-    /// <returns>UUID of the device or <c>null</c> if the given <paramref name="deviceElement"/> doesn't contain
-    /// an UDN entry. The returned UUID is the part of the device's UDN after the "uuid:" prefix.</returns>
-    public static string GetDeviceUUID(XmlElement deviceElement)
+    /// <param name="deviceNav">XPath navigator pointing to a &lt;device&gt; element of a device's description</param>
+    /// <returns>UUID of the device or <c>null</c> if the given XML element doesn't contain an UDN entry.
+    /// The returned UUID is the part of the device's UDN after the "uuid:" prefix.</returns>
+    public static string GetDeviceUUID(XPathNavigator deviceNav)
     {
-      string udn = GetDeviceUDN(deviceElement);
+      string udn = GetDeviceUDN(deviceNav);
       if (udn == null || !udn.StartsWith("uuid:"))
         return null;
       return udn.Substring("uuid:".Length);

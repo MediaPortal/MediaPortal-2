@@ -31,6 +31,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using System.Xml.XPath;
 using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
@@ -254,10 +255,13 @@ namespace UPnP.Infrastructure.CP
     {
       if (rootDescriptor.State == RootDescriptorState.Erroneous)
         throw new ArgumentException("Cannot connect to an erroneous root descriptor");
-      XmlElement deviceElement = (XmlElement) rootDescriptor.DeviceDescription.SelectSingleNode("descendant::device[UDN=concat(\"uuid:\",\"" + deviceUUID + "\")]");
-      if (deviceElement == null)
+      XPathNavigator nav = rootDescriptor.DeviceDescription.CreateNavigator();
+      XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
+      nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+      XPathNodeIterator deviceIt = nav.Select("descendant::d:device[d:UDN/text()=concat(\"uuid:\",\"" + deviceUUID + "\")]");
+      if (!deviceIt.MoveNext())
         throw new ArgumentException(string.Format("Device with the specified id '{0}' isn't present in the given root descriptor", _deviceUUID));
-      _device = CpDevice.ConnectDevice(this, rootDescriptor, deviceElement, dataTypeResolver);
+      _device = CpDevice.ConnectDevice(this, rootDescriptor, deviceIt.Current, nsmgr, dataTypeResolver);
     }
 
     /// <summary>

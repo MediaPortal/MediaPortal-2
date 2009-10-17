@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -75,9 +75,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _dataType.SoapSerializeValue(value, forceSimpleValue);
     }
 
-    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
     {
-      return _dataType.SoapDeserializeValue(enclosingElement, isSimpleValue);
+      return _dataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
     }
 
     public override bool IsAssignableFrom(Type type)

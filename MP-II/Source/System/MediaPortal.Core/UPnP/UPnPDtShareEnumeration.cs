@@ -27,7 +27,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
@@ -55,7 +55,7 @@ namespace MediaPortal.Core.UPnP
       if (value != null && !(typeof(IEnumerable).IsAssignableFrom(value.GetType())))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShareEnumeration).Name, value.GetType().Name);
       StringBuilder result = new StringBuilder(
-          "<Shares>", 2000);
+          "<Shares xmlns=\"\">", 2000);
       IEnumerable shares = (IEnumerable) value;
       foreach (Share share in shares)
         result.Append(share.Serialize());
@@ -64,12 +64,12 @@ namespace MediaPortal.Core.UPnP
       return result.ToString();
     }
 
-    public override object SoapDeserializeValue(XmlElement enclosingElement, bool isSimpleValue)
+    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
     {
-      XmlElement sharesElement = (XmlElement) enclosingElement.SelectSingleNode("Shares");
+      XPathNodeIterator sharesIt = enclosingElementNav.Select("Shares");
       ICollection<Share> result = new List<Share>();
-      foreach (XmlElement shareElement in sharesElement.SelectNodes("*"))
-        result.Add(Share.Deserialize(shareElement.OuterXml));
+      while (sharesIt.MoveNext())
+        result.Add(Share.Deserialize(sharesIt.Current.OuterXml));
       return result;
     }
 

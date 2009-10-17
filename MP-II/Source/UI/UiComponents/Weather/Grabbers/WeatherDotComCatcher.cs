@@ -29,6 +29,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
@@ -40,6 +41,7 @@ namespace UiComponents.Weather.Grabbers
   /// Implementation of the IWeatherCatcher
   /// Interface which grabs the Data from
   /// www.weather.com
+  /// TODO: Replace usage of XmlDocument by XPathDocument
   /// </summary>
   public class WeatherDotComCatcher : IWeatherCatcher
   {
@@ -142,28 +144,20 @@ namespace UiComponents.Weather.Grabbers
         Encoding iso8859 = Encoding.GetEncoding("iso-8859-1");
         StreamReader streamReader = new StreamReader(responseStream, iso8859);
 
+        XPathDocument document = new XPathDocument(streamReader);
+        XPathNavigator nav = document.CreateNavigator();
+        nav.MoveToChild(XPathNodeType.Element);
+        XPathNodeIterator locIt = nav.Select("/search/loc");
         //
-        // Fetch information from our stream
+        // Iterate through our results
         //
-        string data = streamReader.ReadToEnd();
-
-        XmlDocument document = new XmlDocument();
-        document.LoadXml(data);
-
-        XmlNodeList nodes = document.DocumentElement.SelectNodes("/search/loc");
-
-        if (nodes != null)
+        while (locIt.MoveNext())
         {
-          //
-          // Iterate through our results
-          //
-          foreach (XmlNode node in nodes)
-          {
-            string name = node.InnerText;
-            string id = node.Attributes["id"].Value;
+          XPathNavigator locNav = locIt.Current;
+          string name = locNav.Value;
+          string id = locNav.GetAttribute("id", string.Empty);
 
-            locations.Add(new CitySetupInfo(name, id));
-          }
+          locations.Add(new CitySetupInfo(name, id));
         }
         return locations;
       }

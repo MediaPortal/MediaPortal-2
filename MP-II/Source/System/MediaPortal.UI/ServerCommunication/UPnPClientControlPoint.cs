@@ -23,7 +23,7 @@
 #endregion
 
 using System;
-using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.UPnP;
@@ -95,10 +95,10 @@ namespace MediaPortal.ServerCommunication
       {
         if (_connection != null)
           return;
-        XmlElement mediaServerDeviceElement = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
-        if (mediaServerDeviceElement == null)
+        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+        if (mediaServerDeviceElementNav == null)
           return;
-        deviceUuid = RootDescriptor.GetDeviceUUID(mediaServerDeviceElement);
+        deviceUuid = RootDescriptor.GetDeviceUUID(mediaServerDeviceElementNav);
         if (deviceUuid != _homeServerUUID)
           return;
         connection = _connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);

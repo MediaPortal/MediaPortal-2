@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Xml;
+using System.Xml.XPath;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
@@ -352,17 +353,17 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       _outArguments.Add(argument);
     }
 
-    internal static CpAction ConnectAction(DeviceConnection connection, CpService parentService, XmlElement actionElement)
+    internal static CpAction ConnectAction(DeviceConnection connection, CpService parentService, XPathNavigator actionNav,
+        IXmlNamespaceResolver nsmgr)
     {
       lock (connection.CPData.SyncObj)
       {
-        string name = ParserHelper.SelectText(actionElement, "name/text()");
+        string name = ParserHelper.SelectText(actionNav, "s:name/text()", nsmgr);
         CpAction result = new CpAction(connection, parentService, name);
-        XmlNodeList argumentList = actionElement.SelectNodes("argumentList/argument");
-        for (int i = 0; i < argumentList.Count; i++)
+        XPathNodeIterator argumentIt = actionNav.Select("s:argumentList/s:argument", nsmgr);
+        while (argumentIt.MoveNext())
         {
-          XmlElement argumentElement = (XmlElement) argumentList[i];
-          CpArgument argument = CpArgument.CreateArgument(result, parentService, argumentElement);
+          CpArgument argument = CpArgument.CreateArgument(result, parentService, argumentIt.Current, nsmgr);
           if (argument.Direction == ArgumentDirection.In)
             result.AddInAgrument(argument);
           else

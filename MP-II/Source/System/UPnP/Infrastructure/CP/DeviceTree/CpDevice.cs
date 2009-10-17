@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using System.Xml.XPath;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
@@ -283,21 +284,23 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       _services.Add(service.ServiceId, service);
     }
 
-    internal static CpDevice ConnectDevice(DeviceConnection connection, RootDescriptor rootDescriptor, XmlElement deviceElement,
-        DataTypeResolverDlgt dataTypeResolver)
+    internal static CpDevice ConnectDevice(DeviceConnection connection, RootDescriptor rootDescriptor, XPathNavigator deviceNav,
+        IXmlNamespaceResolver nsmgr, DataTypeResolverDlgt dataTypeResolver)
     {
       lock (connection.CPData.SyncObj)
       {
-        string deviceUUID = ParserHelper.ExtractUUIDFromUDN(ParserHelper.SelectText(deviceElement, "UDN/text()"));
+        string deviceUUID = ParserHelper.ExtractUUIDFromUDN(RootDescriptor.GetDeviceUDN(deviceNav, nsmgr));
         // Check current device
-        string typeVersion_URN = ParserHelper.SelectText(deviceElement, "deviceType/text()");
+        string typeVersion_URN = ParserHelper.SelectText(deviceNav, "d:deviceType/text()", nsmgr);
         string type;
         int version;
         if (!ParserHelper.TryParseTypeVersion_URN(typeVersion_URN, out type, out version))
           throw new ArgumentException(string.Format("Invalid device type/version URN '{0}'", typeVersion_URN));
         CpDevice result = new CpDevice(connection, type, version, deviceUUID);
-        foreach (XmlElement embeddedDeviceElement in deviceElement.SelectNodes("deviceList/device"))
-          result.AddEmbeddedDevice(ConnectDevice(connection, rootDescriptor, embeddedDeviceElement, dataTypeResolver));
+
+        XPathNodeIterator dvIt = deviceNav.Select("d:deviceList/d:device", nsmgr);
+        while (dvIt.MoveNext())
+          result.AddEmbeddedDevice(ConnectDevice(connection, rootDescriptor, dvIt.Current, nsmgr, dataTypeResolver));
         IDictionary<string, ServiceDescriptor> sds;
         if (!rootDescriptor.ServiceDescriptors.TryGetValue(deviceUUID, out sds))
           return result;
