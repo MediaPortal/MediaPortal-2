@@ -206,6 +206,7 @@ namespace UPnP.Infrastructure.CP
         ssdpController.DeviceRebooted += OnSSDPDeviceRebooted;
         _cpData.SSDPController = ssdpController;
         ssdpController.Start();
+        ssdpController.SearchAll(null);
       }
     }
 
@@ -272,12 +273,20 @@ namespace UPnP.Infrastructure.CP
         };
       lock (_cpData.SyncObj)
         SetRootDescriptor(rootEntry, rd);
-      HttpWebRequest request = CreateHttpGetRequest(rootEntry.DescriptionLocation);
-      DescriptionRequestState state = new DescriptionRequestState(rd, request);
-      lock (_cpData.SyncObj)
-        _pendingRequests.Add(state);
-      IAsyncResult result = request.BeginGetResponse(OnDeviceDescriptionReceived, state);
-      NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
+      try
+      {
+        HttpWebRequest request = CreateHttpGetRequest(new Uri(rootEntry.DescriptionLocation));
+        DescriptionRequestState state = new DescriptionRequestState(rd, request);
+        lock (_cpData.SyncObj)
+          _pendingRequests.Add(state);
+        IAsyncResult result = request.BeginGetResponse(OnDeviceDescriptionReceived, state);
+        NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
+      }
+      catch (Exception)
+      {
+        lock (_cpData.SyncObj)
+          rd.State = RootDescriptorState.Erroneous;
+      }
     }
 
     private void OnDeviceDescriptionReceived(IAsyncResult asyncResult)
@@ -351,10 +360,18 @@ namespace UPnP.Infrastructure.CP
         string url = state.PendingServiceDescriptions[state.CurrentServiceDescriptor];
         state.PendingServiceDescriptions.Remove(state.CurrentServiceDescriptor);
         state.CurrentServiceDescriptor.State = ServiceDescriptorState.AwaitingDescription;
-        HttpWebRequest request = CreateHttpGetRequest(url);
-        state.Request = request;
-        IAsyncResult result = request.BeginGetResponse(OnServiceDescriptionReceived, state);
-        NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
+        try
+        {
+          HttpWebRequest request = CreateHttpGetRequest(new Uri(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation), url));
+          state.Request = request;
+          IAsyncResult result = request.BeginGetResponse(OnServiceDescriptionReceived, state);
+          NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
+        }
+        catch (Exception)
+        {
+          lock (_cpData.SyncObj)
+            state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
+        }
       }
     }
 
@@ -364,7 +381,7 @@ namespace UPnP.Infrastructure.CP
       RootDescriptor rd = state.RootDescriptor;
       lock (_cpData.SyncObj)
       {
-        if (rd.State != RootDescriptorState.AwaitingDeviceDescription)
+        if (rd.State != RootDescriptorState.AwaitingServiceDescriptions)
           return;
         HttpWebRequest request = state.Request;
         try
@@ -490,9 +507,9 @@ namespace UPnP.Infrastructure.CP
           ParserHelper.SelectText(serviceNav, "d:serviceId/text()", nsmgr), controlURL, eventSubURL);
     }
 
-    private static HttpWebRequest CreateHttpGetRequest(string url)
+    private static HttpWebRequest CreateHttpGetRequest(Uri uri)
     {
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(url);
+      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(uri);
       request.Method = "GET";
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;

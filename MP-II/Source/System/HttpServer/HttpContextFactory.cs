@@ -259,9 +259,7 @@ namespace HttpServer
     public override void Close()
     {
       if (Socket != null && Socket.Connected)
-        // Changed by Albert, Team-MediaPortal
-        //Socket.Close(); //TODO: Maybe use Disconnect with reuseSocket=true? I tried but it took forever.
-        Socket.Disconnect(true);
+        Socket.Close(); //TODO: Maybe use Disconnect with reuseSocket=true? I tried but it took forever.
       base.Close();
     }
 

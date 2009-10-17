@@ -386,12 +386,9 @@ namespace UPnP.Infrastructure.Dv
         EndpointConfiguration config = new EndpointConfiguration
           {
               EndPointIPAddress = address,
-              DescriptionURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_DESCRIPTION_URL_PREFIX),
-              ControlURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_CONTROL_URL_PREFIX),
-              EventSubURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, DEFAULT_HTTP_EVENT_SUBSCRIPTION_PORT), DEFAULT_EVENT_SUB_URL_PREFIX)
+              DescriptionURLBase = string.Format("/{0}", DEFAULT_DESCRIPTION_URL_PREFIX),
+              ControlURLBase = string.Format("/{0}", DEFAULT_CONTROL_URL_PREFIX),
+              EventSubURLBase = string.Format("/{0}", DEFAULT_EVENT_SUB_URL_PREFIX)
           };
         GenerateObjectURLs(config);
         _serverData.UPnPEndPoints.Add(config);
@@ -409,6 +406,5 @@ namespace UPnP.Infrastructure.Dv
     }
 
     #endregion
-
   }
 }

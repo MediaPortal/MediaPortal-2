@@ -104,6 +104,8 @@ namespace MediaPortal.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPMediaServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaServer '{0}' at host '{1}'",
+            serverDescriptor.ServerName, serverDescriptor.System.HostName);
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
       }
@@ -118,6 +120,8 @@ namespace MediaPortal.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPMediaServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MediaServer '{0}' at host '{1}' was removed from the network",
+            serverDescriptor.ServerName, serverDescriptor.System.HostName);
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;
       }
