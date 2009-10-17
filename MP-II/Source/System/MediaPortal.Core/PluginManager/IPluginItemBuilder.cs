@@ -47,6 +47,8 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     /// <param name="itemData">The plugin item's metadata to use.</param>
     /// <param name="plugin">The plugin runtime instance.</param>
+    /// <returns>Item which was built by this item builder. If the item cannot be built, <c>null</c> should be
+    /// returned.</returns>
     object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin);
 
     /// <summary>
@@ -68,6 +70,7 @@ namespace MediaPortal.Core.PluginManager
     /// </remarks>
     /// <param name="itemData">The plugin item's metadata to use.</param>
     /// <param name="plugin">The plugin runtime instance.</param>
+    /// <returns><c>true</c>, if the plugin needs to be active for the specified item to be built, else <c>false</c>.</returns>
     bool NeedsPluginActive(PluginItemMetadata itemData, PluginRuntime plugin);
 	}
 }

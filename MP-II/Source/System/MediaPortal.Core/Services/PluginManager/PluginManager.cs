@@ -397,6 +397,8 @@ namespace MediaPortal.Core.Services.PluginManager
         try
         {
           object item = builder.BuildItem(itemMetadata, plugin);
+          if (item == null)
+            return null;
           object releaseItem = null; // Fail safety - if we built the item twice by accident, release it at the end
           try
           {
@@ -504,7 +506,8 @@ namespace MediaPortal.Core.Services.PluginManager
       IDictionary<string, IPluginItemBuilder> result = new Dictionary<string, IPluginItemBuilder>
         {
             {"Instance", new InstanceBuilder()},
-            {"Resource", new ResourceBuilder()}
+            {"Resource", new ResourceBuilder()},
+            {"Service", new ServiceBuilder()},
         };
       return result;
     }

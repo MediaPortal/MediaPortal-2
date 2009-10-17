@@ -183,6 +183,11 @@ namespace MediaPortal.Core.PluginManager
       get { return _dependentPlugins; }
     }
 
+    /// <summary>
+    /// Returns instances of types which are implemented in this plugin's assemblies.
+    /// </summary>
+    /// <param name="typeName">Fully qualified name of the requested type.</param>
+    /// <returns>Type of the specified name or <c>null</c>, if the type wasn't found.</returns>
     public Type GetPluginType(string typeName)
     {
       lock (_syncObj)

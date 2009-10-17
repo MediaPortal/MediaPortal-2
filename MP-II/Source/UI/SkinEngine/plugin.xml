@@ -19,7 +19,8 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Instance Id="MediaPortal.Presentation.Screens.IDialogManager, MediaPortal.UI" ClassName="MediaPortal.SkinEngine.ScreenManagement.DialogManager"/>
+    <Service Id="DialogManagerService" RegistrationClassName="MediaPortal.Presentation.Screens.IDialogManager"
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.SkinEngine.ScreenManagement.DialogManager"/>
   </Register>
 
   <Register Location="/Resources/Language">

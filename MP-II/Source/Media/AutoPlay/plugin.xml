@@ -17,6 +17,7 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Instance Id="MediaPortal.Presentation.AutoPlay.IAutoPlay, MediaPortal.UI" ClassName="Components.Services.AutoPlay.AutoPlay"/>
+    <Service Id="AutoPlayService" RegistrationClassName="MediaPortal.Presentation.AutoPlay.IAutoPlay"
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="Components.Services.AutoPlay.AutoPlay"/>
   </Register>
 </Plugin>

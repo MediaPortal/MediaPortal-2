@@ -153,6 +153,7 @@
     <Compile Include="PluginManager\FixedItemStateTracker.cs" />
     <Compile Include="PluginManager\IPluginMetadata.cs" />
     <Compile Include="PluginManager\IPluginStateTracker.cs" />
+    <Compile Include="Services\PluginManager\Builders\ServiceBuilder.cs" />
     <Compile Include="Services\PluginManager\PluginBuilderRegistration.cs" />
     <Compile Include="PluginManager\PluginItemRegistration.cs" />
     <Compile Include="PluginManager\IPluginItemStateTracker.cs" />

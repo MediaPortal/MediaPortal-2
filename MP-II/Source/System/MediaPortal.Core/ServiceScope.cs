@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.Services.PluginManager.Builders;
 
 namespace MediaPortal.Core
 {
@@ -319,15 +320,14 @@ namespace MediaPortal.Core
       ICollection<PluginItemMetadata> metadata = pluginManager.GetAllPluginItemMetadata(PLUGIN_TREE_SERVICES_LOCATION);
       foreach (PluginItemMetadata itemMetadata in metadata)
       {
-        Type typeKey = Type.GetType(itemMetadata.Id);
-        if (typeKey == null)
+        ServiceBuilder.ServiceItem item = pluginManager.RequestPluginItem<ServiceBuilder.ServiceItem>(
+            PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, new FixedItemStateTracker(string.Format("System services")));
+        if (item == null)
         {
-          logger.Warn("Service item '{0}' cannot be built: Type '{1}' cannot be instantiated", itemMetadata.AbsolutePath, itemMetadata.Id);
+          Get<ILogger>().Warn("ServiceScope: Could not register dynamic service with id '{0}'", itemMetadata.Id);
           continue;
         }
-        object service = pluginManager.RequestPluginItem(PLUGIN_TREE_SERVICES_LOCATION, itemMetadata.Id, typeKey,
-            new FixedItemStateTracker(string.Format("System services")));
-        Current.services.Add(typeKey, service);
+        Current.services.Add(item.RegistrationType, item.ServiceInstance);
       }
     }
 
