@@ -50,7 +50,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
     {
       SimpleHTTPResponse response = new SimpleHTTPResponse(HTTPResponseCode.Ok);
       response.SetHeader("CACHE-CONTROL", "max-age = " + _serverData.AdvertisementExpirationTime);
-      response.SetHeader("DATE", DateTime.Now.ToString("R"));
+      response.SetHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
       response.SetHeader("EXT", string.Empty);
       response.SetHeader("SERVER", Configuration.UPnPMachineInfoHeader);
       response.SetHeader("ST", NT);

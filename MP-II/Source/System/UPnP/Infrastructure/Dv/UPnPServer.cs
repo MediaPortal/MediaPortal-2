@@ -323,7 +323,7 @@ namespace UPnP.Infrastructure.Dv
                 response.Send();
                 return;
               }
-              response.AddHeader("DATE", DateTime.Now.ToString("R"));
+              response.AddHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
               response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
               string result;
               HttpStatusCode status = SOAPHandler.HandleRequest(service, request.Body, encoding, minorVersion >= 1, out result);

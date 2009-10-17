@@ -379,7 +379,7 @@ namespace UPnP.Infrastructure.Dv.GENA
                 out date, out sid))
             {
               response.Status = HttpStatusCode.OK;
-              response.AddHeader("DATE", date.ToString("R"));
+              response.AddHeader("DATE", date.ToUniversalTime().ToString("R"));
               response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
               response.AddHeader("SID", sid);
               response.AddHeader("CONTENT-LENGTH", "0");
@@ -402,7 +402,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             if (RenewSubscription(config, sid, ref timeout, out date))
             {
               response.Status = HttpStatusCode.OK;
-              response.AddHeader("DATE", date.ToString("R"));
+              response.AddHeader("DATE", date.ToUniversalTime().ToString("R"));
               response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
               response.AddHeader("SID", sid);
               response.AddHeader("CONTENT-LENGTH", "0");
