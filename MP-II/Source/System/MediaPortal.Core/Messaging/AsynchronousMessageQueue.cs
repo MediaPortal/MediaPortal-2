@@ -163,6 +163,9 @@ namespace MediaPortal.Core.Messaging
       get { return _queueName; }
     }
 
+    /// <summary>
+    /// Starts this message queue.
+    /// </summary>
     public void Start()
     {
       lock (_syncObj)
@@ -183,6 +186,9 @@ namespace MediaPortal.Core.Messaging
     /// this method returns. If this method is called from the message delivery thread, it cannot wait until all
     /// messages were delivered. In this case, this method returns <c>true</c>. Else it returns <c>false</c>.
     /// </summary>
+    /// <remarks>
+    /// A message queue being shut down can be restarted later by calling <see cref="Start"/> again.
+    /// </remarks>
     /// <returns><c>true</c>, if there are still messages being delivered. <c>false</c>, if no more messages will be
     /// delivered by this queue.</returns>
     public bool Shutdown()
