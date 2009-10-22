@@ -156,6 +156,7 @@ namespace MediaPortal.Presentation.Workflow
     /// </summary>
     public void SetMenuActions(IEnumerable<WorkflowAction> actions)
     {
+      UninitializeMenuActions();
       _menuActions.Clear();
       foreach (WorkflowAction action in actions)
         _menuActions[action.ActionId] = action;
