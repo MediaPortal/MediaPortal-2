@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
@@ -209,6 +210,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       string name = ParserHelper.SelectText(svIt, "s:name/text()", nsmgr);
       XPathNodeIterator dtIt = svIt.Select("s:dataType", nsmgr);
+      if (!dtIt.MoveNext())
+        throw new ArgumentException("Error evaluating data type element");
       CpDataType dataType = CpDataType.CreateDataType(dtIt.Current, nsmgr, dataTypeResolver);
       return new CpStateVariable(connection, parentService, name, dataType);
     }

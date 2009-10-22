@@ -303,6 +303,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         CpService result = new CpService(connection, parentDevice, serviceDescriptor.ServiceType, serviceDescriptor.ServiceTypeVersion,
             serviceDescriptor.ServiceId);
         XPathNavigator serviceNav = serviceDescriptor.ServiceDescription.CreateNavigator();
+        serviceNav.MoveToChild(XPathNodeType.Element);
         XmlNamespaceManager nsmgr = new XmlNamespaceManager(serviceNav.NameTable);
         nsmgr.AddNamespace("s", Consts.NS_SERVICE_DESCRIPTION);
         XPathNodeIterator svIt = serviceNav.Select("s:serviceStateTable/s:stateVariable", nsmgr);

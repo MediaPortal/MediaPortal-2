@@ -313,7 +313,7 @@ namespace UPnP.Infrastructure.CP
             {
               XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
               nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
-              ExtractServiceDescriptorsRecursive(rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
+              ExtractServiceDescriptorsRecursive(rd, rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
                   state.PendingServiceDescriptions);
             }
             rd.State = RootDescriptorState.AwaitingServiceDescriptions;
@@ -452,6 +452,7 @@ namespace UPnP.Infrastructure.CP
     /// their SCPD urls in <paramref name="pendingServiceDescriptions"/></item>
     /// </list>
     /// </summary>
+    /// <param name="rd">Root descriptor of the services.</param>
     /// <param name="deviceNav">XPath navigator pointing to an XML &lt;device&gt; element containing the device
     /// description.</param>
     /// <param name="nsmgr">Namespace manager mapping the "d" namespace prefix to the namespace URI
@@ -460,7 +461,7 @@ namespace UPnP.Infrastructure.CP
     /// descriptors of services which are contained in the device with the key UUID.</param>
     /// <param name="pendingServiceDescriptions">Dictionary of device service descriptors mapped to the SCPD url of the
     /// service.</param>
-    private static void ExtractServiceDescriptorsRecursive(XPathNavigator deviceNav, IXmlNamespaceResolver nsmgr,
+    private static void ExtractServiceDescriptorsRecursive(RootDescriptor rd, XPathNavigator deviceNav, IXmlNamespaceResolver nsmgr,
         IDictionary<string, IDictionary<string, ServiceDescriptor>> serviceDescriptors,
         IDictionary<ServiceDescriptor, string> pendingServiceDescriptions)
     {
@@ -472,27 +473,28 @@ namespace UPnP.Infrastructure.CP
         do
         {
           string descriptionURL;
-          ServiceDescriptor sd = ExtractServiceDescriptor(it.Current, nsmgr, out descriptionURL);
+          ServiceDescriptor sd = ExtractServiceDescriptor(rd, it.Current, nsmgr, out descriptionURL);
           sds.Add(sd.ServiceTypeVersion_URN, sd);
           pendingServiceDescriptions[sd] = descriptionURL;
         } while (it.MoveNext());
       }
       it = deviceNav.Select("d:deviceList/d:device", nsmgr);
       while (it.MoveNext())
-        ExtractServiceDescriptorsRecursive(it.Current, nsmgr, serviceDescriptors, pendingServiceDescriptions);
+        ExtractServiceDescriptorsRecursive(rd, it.Current, nsmgr, serviceDescriptors, pendingServiceDescriptions);
     }
 
     /// <summary>
     /// Given an XML &lt;service&gt; element containing a service description, this method extracts the returned
     /// <see cref="ServiceDescriptor"/> and the SCDP description url.
     /// </summary>
+    /// <param name="rd">Root descriptor of the service descriptor to be built.</param>
     /// <param name="serviceNav">XPath navigator pointing to an XML &lt;service&gt; element containing the service
     /// description.</param>
     /// <param name="nsmgr">Namespace manager mapping the "d" namespace prefix to the namespace URI
     /// "urn:schemas-upnp-org:device-1-0".</param>
     /// <param name="descriptionURL">Returns the description URL for the service.</param>
     /// <returns>Extracted service descriptor.</returns>
-    private static ServiceDescriptor ExtractServiceDescriptor(XPathNavigator serviceNav, IXmlNamespaceResolver nsmgr,
+    private static ServiceDescriptor ExtractServiceDescriptor(RootDescriptor rd, XPathNavigator serviceNav, IXmlNamespaceResolver nsmgr,
         out string descriptionURL)
     {
       descriptionURL = ParserHelper.SelectText(serviceNav, "d:SCPDURL/text()", nsmgr);
@@ -503,7 +505,7 @@ namespace UPnP.Infrastructure.CP
         throw new ArgumentException("'serviceType' content has the wrong format");
       string controlURL = ParserHelper.SelectText(serviceNav, "d:controlURL", nsmgr);
       string eventSubURL = ParserHelper.SelectText(serviceNav, "d:eventSubURL", nsmgr);
-      return new ServiceDescriptor(serviceType, serviceTypeVersion,
+      return new ServiceDescriptor(rd, serviceType, serviceTypeVersion,
           ParserHelper.SelectText(serviceNav, "d:serviceId/text()", nsmgr), controlURL, eventSubURL);
     }
 

@@ -72,11 +72,6 @@ namespace UPnP.Infrastructure.Dv
     /// </summary>
     public static string DEFAULT_EVENT_SUB_URL_PREFIX = "upnphost/eventing";
 
-    /// <summary>
-    /// HTTP listening port for event subscription requests.
-    /// </summary>
-    public static int DEFAULT_HTTP_EVENT_SUBSCRIPTION_PORT = 8081;
-
     protected ICollection<DvDevice> _rootDevices = new List<DvDevice>();
     protected object _syncObj = new object();
     protected ServerData _serverData = new ServerData();
@@ -394,7 +389,7 @@ namespace UPnP.Infrastructure.Dv
               ControlURLBase = string.Format(
                   "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_CONTROL_URL_PREFIX),
               EventSubURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, DEFAULT_HTTP_EVENT_SUBSCRIPTION_PORT), DEFAULT_EVENT_SUB_URL_PREFIX)
+                  "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_EVENT_SUB_URL_PREFIX)
           };
         GenerateObjectURLs(config);
         _serverData.UPnPEndPoints.Add(config);

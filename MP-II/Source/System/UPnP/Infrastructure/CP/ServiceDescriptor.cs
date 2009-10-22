@@ -66,6 +66,7 @@ namespace UPnP.Infrastructure.CP
   /// </summary>
   public class ServiceDescriptor
   {
+    protected RootDescriptor _rootDescriptor;
     protected string _serviceType;
     protected int _serviceTypeVersion;
     protected string _serviceId;
@@ -74,8 +75,9 @@ namespace UPnP.Infrastructure.CP
     protected XPathDocument _serviceDescription = null;
     protected ServiceDescriptorState _state = ServiceDescriptorState.Initializing;
 
-    internal ServiceDescriptor(string serviceType, int serviceTypeVersion, string serviceId, string controlURL, string eventSubURL)
+    internal ServiceDescriptor(RootDescriptor rootDescriptor, string serviceType, int serviceTypeVersion, string serviceId, string controlURL, string eventSubURL)
     {
+      _rootDescriptor = rootDescriptor;
       _serviceType = serviceType;
       _serviceTypeVersion = serviceTypeVersion;
       _serviceId = serviceId;
@@ -92,6 +94,14 @@ namespace UPnP.Infrastructure.CP
     {
       get { return _state; }
       internal set { _state = value; }
+    }
+
+    /// <summary>
+    /// Gets the root descriptor which contains this service descriptor.
+    /// </summary>
+    public RootDescriptor RootDescriptor
+    {
+      get { return _rootDescriptor; }
     }
 
     /// <summary>

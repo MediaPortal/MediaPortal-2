@@ -242,8 +242,8 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public void DisconnectAll()
     {
-      foreach (KeyValuePair<string, DeviceConnection> kvp in _connectedDevices)
-        DoDisconnect(kvp.Key, true);
+      foreach (string deviceUUID in new List<string>(_connectedDevices.Keys))
+        DoDisconnect(deviceUUID, true);
     }
 
     #region Private/protected methods

@@ -149,6 +149,7 @@ namespace UPnP.Infrastructure.CP
     public IEnumerable<XPathNavigator> FindDeviceElements(string deviceType, int minDeviceVersion)
     {
       XPathNavigator nav = _deviceDescription.CreateNavigator();
+      nav.MoveToChild(XPathNodeType.Element);
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
       nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
       XPathNodeIterator it = nav.Select("descendant::d:device", nsmgr);

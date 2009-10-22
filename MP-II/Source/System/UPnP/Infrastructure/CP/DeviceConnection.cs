@@ -226,7 +226,7 @@ namespace UPnP.Infrastructure.CP
       _cpData = cpData;
       _rootDescriptor = rootDescriptor;
       _deviceUUID = deviceUuid;
-      _eventNotificationURL = string.Format("{0}/{1}/", new IPEndPoint(_rootDescriptor.SSDPRootEntry.Endpoint.EndPointIPAddress,
+      _eventNotificationURL = string.Format("http://{0}/{1}/", new IPEndPoint(_rootDescriptor.SSDPRootEntry.Endpoint.EndPointIPAddress,
           (int) cpData.HttpPort), Guid.NewGuid());
       BuildDevice(rootDescriptor, deviceUuid, dataTypeResolver);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
@@ -238,7 +238,7 @@ namespace UPnP.Infrastructure.CP
       {
         Disconnect(false);
         _subscriptionRenewalTimer.Dispose();
-        foreach (AsyncRequestState state in _pendingCalls)
+        foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingCalls))
           state.Request.Abort();
         _pendingCalls.Clear();
       }
@@ -256,9 +256,10 @@ namespace UPnP.Infrastructure.CP
       if (rootDescriptor.State == RootDescriptorState.Erroneous)
         throw new ArgumentException("Cannot connect to an erroneous root descriptor");
       XPathNavigator nav = rootDescriptor.DeviceDescription.CreateNavigator();
+      nav.MoveToChild(XPathNodeType.Element);
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
       nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
-      XPathNodeIterator deviceIt = nav.Select("descendant::d:device[d:UDN/text()=concat(\"uuid:\",\"" + deviceUUID + "\")]");
+      XPathNodeIterator deviceIt = nav.Select("descendant::d:device[d:UDN/text()=concat(\"uuid:\",\"" + deviceUUID + "\")]", nsmgr);
       if (!deviceIt.MoveNext())
         throw new ArgumentException(string.Format("Device with the specified id '{0}' isn't present in the given root descriptor", _deviceUUID));
       _device = CpDevice.ConnectDevice(this, rootDescriptor, deviceIt.Current, nsmgr, dataTypeResolver);
@@ -315,7 +316,7 @@ namespace UPnP.Infrastructure.CP
       ServiceDescriptor sd = GetServiceDescriptor(service);
       string message = SOAPHandler.EncodeCall(action, inParams, _rootDescriptor.SSDPRootEntry.UPnPVersion);
 
-      HttpWebRequest request = CreateActionCallRequest(action, sd.ControlURL);
+      HttpWebRequest request = CreateActionCallRequest(sd, action);
       ActionCallState state = new ActionCallState(action, clientState, request);
       state.SetRequestMessage(message);
       lock (_cpData.SyncObj)
@@ -598,9 +599,10 @@ namespace UPnP.Infrastructure.CP
       return null;
     }
 
-    protected static HttpWebRequest CreateActionCallRequest(CpAction action, string callURL)
+    protected static HttpWebRequest CreateActionCallRequest(ServiceDescriptor sd, CpAction action)
     {
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(callURL);
+      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+          new Uri(sd.RootDescriptor.SSDPRootEntry.DescriptionLocation), sd.ControlURL));
       request.Method = "POST";
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;
@@ -612,10 +614,11 @@ namespace UPnP.Infrastructure.CP
 
     protected HttpWebRequest CreateEventSubscribeRequest(ServiceDescriptor sd)
     {
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(sd.EventSubURL);
+      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+          new Uri(sd.RootDescriptor.SSDPRootEntry.DescriptionLocation), sd.EventSubURL));
       request.Method = "SUBSCRIBE";
       request.UserAgent = Configuration.UPnPMachineInfoHeader;
-      request.Headers.Add("CALLBACK", _eventNotificationURL);
+      request.Headers.Add("CALLBACK", "<" + _eventNotificationURL + ">");
       request.Headers.Add("NT", "upnp:event");
       request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
       return request;
@@ -624,7 +627,8 @@ namespace UPnP.Infrastructure.CP
     protected HttpWebRequest CreateRenewEventSubscribeRequest(EventSubscription subscription)
     {
       ServiceDescriptor sd = GetServiceDescriptor(subscription.Service);
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(sd.EventSubURL);
+      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+          new Uri(sd.RootDescriptor.SSDPRootEntry.DescriptionLocation), sd.EventSubURL));
       request.Method = "SUBSCRIBE";
       request.Headers.Add("SID", subscription.Sid);
       request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
@@ -634,7 +638,8 @@ namespace UPnP.Infrastructure.CP
     protected HttpWebRequest CreateEventUnsubscribeRequest(EventSubscription subscription)
     {
       ServiceDescriptor sd = GetServiceDescriptor(subscription.Service);
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(sd.EventSubURL);
+      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+          new Uri(sd.RootDescriptor.SSDPRootEntry.DescriptionLocation), sd.EventSubURL));
       request.Method = "UNSUBSCRIBE";
       request.Headers.Add("SID", subscription.Sid);
       return request;
