@@ -302,7 +302,10 @@ namespace MediaPortal.Services.Workflow
 
       // Check if state change is accepted
       if (workflowModel != null && !workflowModel.CanEnterState(predecessor, newContext))
+      {
+        logger.Debug("WorkflowManager: Workflow model with id '{0}' doesn't accept the state being pushed onto the workflow context stack. Reverting to old workflow state.");
         return false;
+      }
 
       // Push new context
       logger.Debug("WorkflowManager: Entering workflow state '{0}'", state.Name);
