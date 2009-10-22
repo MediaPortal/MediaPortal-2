@@ -98,7 +98,7 @@ namespace MediaPortal.ClientCommunication
       AddStateVariable(A_ARG_TYPE_MediaItemRelocationMode);
 
       // Used to filter requested shares.
-      DvStateVariable A_ARG_TYPE_SharesFilter = new DvStateVariable("A_ARG_TYPE_SharesFilter", new DvStandardDataType(UPnPStandardDataType.Boolean))
+      DvStateVariable A_ARG_TYPE_SharesFilter = new DvStateVariable("A_ARG_TYPE_SharesFilter", new DvStandardDataType(UPnPStandardDataType.String))
         {
             AllowedValueList = new List<string> {"All", "ConnectedShares"}
         };
