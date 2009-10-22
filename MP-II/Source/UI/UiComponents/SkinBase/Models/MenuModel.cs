@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Workflow;
@@ -45,70 +44,17 @@ namespace UiComponents.SkinBase.Models
     #region Protected fields
 
     protected ICollection<WorkflowAction> _registeredActions = new List<WorkflowAction>();
-    protected ItemsList _currentMenuItems;
-    protected bool _invalid = true;
+    protected ItemsList _currentMenuItems = null;
     protected object _syncObj = new object();
-
-    #endregion
-
-    #region Ctor
-
-    public MenuModel()
-    {
-      SubscribeToMessages();
-      RebuildMenu();
-    }
+    protected Guid _currentWorkflowStateId = Guid.Empty;
 
     #endregion
 
     #region Protected methods
 
-    void SubscribeToMessages()
-    {
-      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
-      _messageQueue.PreviewMessage += OnPreviewMessage;
-      _messageQueue.MessageReceived += OnMessageReceived;
-    }
-
     public override Guid ModelId
     {
       get { return new Guid(MODEL_ID_STR); }
-    }
-
-    void OnPreviewMessage(IMessageReceiver queue, QueueMessage message)
-    {
-      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
-      {
-        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case WorkflowManagerMessaging.MessageType.StatePushed:
-          case WorkflowManagerMessaging.MessageType.StatesPopped:
-            // We'll delay the menu update until the navigation complete message, but remember that the menu isn't valid
-            // any more - so we can update the menu if it was requested again before the navigation complete message
-            // has arrived.
-            // In fact, this will be the normal case if the screen gets changed when the workflow state changes,
-            // i.e. before the workflow manager sends the navigation complete message, the screen will be updated.
-            // But in case the screen doesn't change for example, the NavigationComplete message updates the menu.
-            _invalid = true;
-            break;
-        }
-      }
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
-    {
-      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
-      {
-        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
-        switch (messageType)
-        {
-          case WorkflowManagerMessaging.MessageType.NavigationComplete:
-            if (_invalid)
-              RebuildMenu();
-            break;
-        }
-      }
     }
 
     protected void OnMenuActionStateChanged(WorkflowAction action)
@@ -143,22 +89,6 @@ namespace UiComponents.SkinBase.Models
       List<WorkflowAction> result = new List<WorkflowAction>(actions);
       result.Sort(Compare);
       return result;
-    }
-
-    /// <summary>
-    /// Will be called when the workflow state changed. This will completely rebuild the menu and
-    /// discard the old menu items list instance.
-    /// </summary>
-    protected void RebuildMenu()
-    {
-      lock (_syncObj)
-      {
-        // We need to create a new ItemsList instance here, because if we would reuse the old instance,
-        // the old screen (which is still visible) would update the menu to reflect the new menu state - which is not
-        // what we want
-        _currentMenuItems = new ItemsList();
-        UpdateMenu();
-      }
     }
 
     protected void RegisterActionChangeHandler(WorkflowAction action)
@@ -202,14 +132,17 @@ namespace UiComponents.SkinBase.Models
     {
       lock (_syncObj)
       {
-        _invalid = false;
         NavigationContext context = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+        if (_currentWorkflowStateId == context.WorkflowState.StateId)
+          return;
+        _currentWorkflowStateId = context.WorkflowState.StateId;
         IList<WorkflowAction> actions = SortActions(context.MenuActions.Values);
         if (!MenuChanged(actions))
+          // If the menu didn't change, we don't need to rebuild it
           return;
         UnregisterActionChangeHandlers();
 
-        _currentMenuItems.Clear();
+        _currentMenuItems = new ItemsList();
         foreach (WorkflowAction action in actions)
         {
           RegisterActionChangeHandler(action);
@@ -223,7 +156,6 @@ namespace UiComponents.SkinBase.Models
           item.AdditionalProperties[ITEM_ACTION_KEY] = action;
           _currentMenuItems.Add(item);
         }
-        _currentMenuItems.FireChange();
       }
     }
 
@@ -235,8 +167,7 @@ namespace UiComponents.SkinBase.Models
     {
       get
       {
-        if (_invalid)
-          RebuildMenu();
+        UpdateMenu();
         return _currentMenuItems;
       }
     }
