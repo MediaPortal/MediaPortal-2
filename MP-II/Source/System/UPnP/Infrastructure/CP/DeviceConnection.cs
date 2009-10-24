@@ -420,7 +420,7 @@ namespace UPnP.Infrastructure.CP
           string dateStr = response.Headers.Get("DATE");
           string sid = response.Headers.Get("SID");
           string timeoutStr = response.Headers.Get("TIMEOUT");
-          DateTime date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture);
+          DateTime date = DateTime.ParseExact(dateStr, "R", CultureInfo.InvariantCulture).ToLocalTime();
           int timeout;
           if (string.IsNullOrEmpty(timeoutStr) || (!timeoutStr.StartsWith("Second-") ||
               !int.TryParse(timeoutStr.Substring("Second-".Length).Trim(), out timeout)))
@@ -513,7 +513,11 @@ namespace UPnP.Infrastructure.CP
           long numMilliseconds = (minExpiration.Value - DateTime.Now).Milliseconds - EVENT_SUBSCRIPTION_RENEWAL_GAP;
           if (numMilliseconds < 0)
             numMilliseconds = 0;
-          _subscriptionRenewalTimer.Change(numMilliseconds, Timeout.Infinite);
+          try
+          {
+            _subscriptionRenewalTimer.Change(numMilliseconds, Timeout.Infinite);
+          }
+          catch (ObjectDisposedException) { }
         }
       }
     }
