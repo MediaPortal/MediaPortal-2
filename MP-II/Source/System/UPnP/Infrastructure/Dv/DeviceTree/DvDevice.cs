@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -284,11 +285,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildRootDeviceDescription(ServerData serverData, EndpointConfiguration config, CultureInfo culture)
     {
       StringBuilder result = new StringBuilder(10000);
-      XmlWriter writer = XmlWriter.Create(result);
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       writer.WriteStartDocument();
-      writer.WriteStartElement("root");
-      // Default namespaces
-      writer.WriteAttributeString("xmlns", null, UPnPConsts.NS_DEVICE_DESCRIPTION);
+      writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
 
       writer.WriteAttributeString("configId", serverData.ConfigId.ToString());
       writer.WriteStartElement("specVersion");

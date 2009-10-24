@@ -100,6 +100,7 @@
     <Compile Include="Infrastructure\CP\Exceptions.cs" />
     <Compile Include="Infrastructure\ILogger.cs" />
     <Compile Include="Infrastructure\Utils\SoapHelper.cs" />
+    <Compile Include="Infrastructure\Utils\StringWriterWithEncoding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\Common\HTTPVersion.cs" />
     <Compile Include="Infrastructure\Common\UPnPVersion.cs" />

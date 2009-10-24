@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using UPnP.Infrastructure.Dv.DeviceTree;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.GENA
 {
@@ -35,7 +36,7 @@ namespace UPnP.Infrastructure.Dv.GENA
     public static string BuildEventNotificationMessage(IEnumerable<DvStateVariable> variables, bool forceSimpleValue)
     {
       StringBuilder result = new StringBuilder(1000);
-      XmlWriter writer = XmlWriter.Create(result);
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       writer.WriteStartDocument();
       writer.WriteStartElement("e", "propertyset", UPnPConsts.NS_UPNP_EVENT);
       writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);

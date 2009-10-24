@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -211,11 +212,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildSCDPDocument(ServerData serverData)
     {
       StringBuilder result = new StringBuilder(10000);
-      XmlWriter writer = XmlWriter.Create(result);
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       writer.WriteStartDocument();
-      writer.WriteStartElement("scpd");
+      writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
       // Default namespaces
-      writer.WriteAttributeString("xmlns", null, UPnPConsts.NS_SERVICE_DESCRIPTION);
       writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
       // Datatype schema namespaces
       uint ct = 0;

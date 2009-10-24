@@ -220,7 +220,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       XPathNodeIterator dvIt = svIt.Select("s:defaultValue", nsmgr);
       if (dvIt.MoveNext())
         result.DefaultValue = dataType.SoapDeserializeValue(dvIt.Current.ReadSubtree(), true); // Default value is always simple value (see DevArch)
-      XPathNodeIterator avlIt = svIt.Select("s:allowedValueList/s:allowedValue");
+      XPathNodeIterator avlIt = svIt.Select("s:allowedValueList/s:allowedValue", nsmgr);
       if (avlIt.Count > 0)
       {
         IList<string> allowedValueList = new List<string>();
@@ -228,7 +228,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
           allowedValueList.Add(ParserHelper.SelectText(avlIt.Current, "text()", null));
         result.AllowedValueList = allowedValueList;
       }
-      XPathNodeIterator avrIt = svIt.Select("s:allowedValueRange");
+      XPathNodeIterator avrIt = svIt.Select("s:allowedValueRange", nsmgr);
       if (avrIt.MoveNext())
         result.AllowedValueRange = CpAllowedValueRange.CreateAllowedValueRange(avrIt.Current, nsmgr);
       return result;

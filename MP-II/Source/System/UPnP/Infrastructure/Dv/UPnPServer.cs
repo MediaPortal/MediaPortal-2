@@ -348,7 +348,7 @@ namespace UPnP.Infrastructure.Dv
         context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
         return;
       }
-      catch (Exception)
+      catch (Exception e)
       {
         IHttpResponse response = request.CreateResponse(context);
         response.Status = HttpStatusCode.InternalServerError;

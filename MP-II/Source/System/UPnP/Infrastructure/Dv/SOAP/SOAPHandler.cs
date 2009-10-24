@@ -177,7 +177,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     protected static string CreateResultDocument(DvAction action, IList<OutParameter> outParameters, bool forceSimpleValues)
     {
       StringBuilder result = new StringBuilder(2000);
-      XmlWriter writer = XmlWriter.Create(result);
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       SoapHelper.WriteSoapEnvelopeStart(writer, true);
       writer.WriteStartElement("u", action.Name + "Response", action.ParentService.ServiceTypeVersion_URN);
       foreach (OutParameter parameter in outParameters)
@@ -194,14 +194,13 @@ namespace UPnP.Infrastructure.Dv.SOAP
     protected static string CreateFaultDocument(int errorCode, string errorDescription)
     {
       StringBuilder result = new StringBuilder(2000);
-      XmlWriter writer = XmlWriter.Create(result);
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       SoapHelper.WriteSoapEnvelopeStart(writer, false);
       writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
       writer.WriteElementString("faultcode", "x:Client");
       writer.WriteElementString("faultstring", "UPnPError");
       writer.WriteStartElement("detail");
-      writer.WriteStartElement("UPnPError");
-      writer.WriteAttributeString(null, "xmlns", null, UPnPConsts.NS_UPNP_CONTROL);
+      writer.WriteStartElement(string.Empty, "UPnPError", UPnPConsts.NS_UPNP_CONTROL);
       writer.WriteElementString("errorCode", errorCode.ToString());
       writer.WriteElementString("errorDescription", errorDescription);
       writer.WriteEndElement(); // UPnPError

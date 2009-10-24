@@ -51,7 +51,7 @@ namespace UPnP.Infrastructure.CP.SOAP
     {
       bool targetSupportsUPnP11 = upnpVersion.VerMin >= 1;
       StringBuilder result = new StringBuilder(5000);
-      XmlWriter writer = XmlWriter.Create(result);
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       SoapHelper.WriteSoapEnvelopeStart(writer, true);
       writer.WriteStartElement("u", action.Name, action.ParentService.ServiceTypeVersion_URN);
 

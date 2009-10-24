@@ -79,15 +79,15 @@ namespace UPnP.Infrastructure.CP.DeviceTree
 
     internal static CpAllowedValueRange CreateAllowedValueRange(XPathNavigator allowedValueRangeElementNav, IXmlNamespaceResolver nsmgr)
     {
-      XPathNodeIterator minIt = allowedValueRangeElementNav.Select("minimum");
+      XPathNodeIterator minIt = allowedValueRangeElementNav.Select("s:minimum", nsmgr);
       if (!minIt.MoveNext())
         return null;
       double min = Convert.ToDouble(ParserHelper.SelectText(minIt.Current, "text()", null));
-      XPathNodeIterator maxIt = allowedValueRangeElementNav.Select("maximum");
+      XPathNodeIterator maxIt = allowedValueRangeElementNav.Select("s:maximum", nsmgr);
       if (!maxIt.MoveNext())
         return null;
       double max = Convert.ToDouble(ParserHelper.SelectText(maxIt.Current, "text()", null));
-      XPathNodeIterator stepIt = allowedValueRangeElementNav.Select("step");
+      XPathNodeIterator stepIt = allowedValueRangeElementNav.Select("s:step", nsmgr);
       double? step = null;
       if (stepIt.MoveNext())
         step = Convert.ToDouble(ParserHelper.SelectText(stepIt.Current, "text()", null));
