@@ -52,7 +52,10 @@ namespace MediaPortal.Core.UPnP
       if (value != null && !(value is Share))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShare).Name, value.GetType().Name);
       if (value == null)
+      {
         SoapWriteNull(writer);
+        return;
+      }
       Share share = (Share) value;
       share.Serialize(writer);
     }

@@ -52,7 +52,10 @@ namespace MediaPortal.Core.UPnP
       if (value != null && !(value is MediaItemAspectMetadata))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtMediaItemAspectMetadata).Name, value.GetType().Name);
       if (value == null)
+      {
         SoapWriteNull(writer);
+        return;
+      }
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
       miam.Serialize(writer);
     }

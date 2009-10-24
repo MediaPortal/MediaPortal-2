@@ -54,7 +54,10 @@ namespace MediaPortal.Core.UPnP
       if (value != null && !(typeof(IEnumerable).IsAssignableFrom(value.GetType())))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShareEnumeration).Name, value.GetType().Name);
       if (value == null)
+      {
         SoapWriteNull(writer);
+        return;
+      }
       writer.WriteStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       IEnumerable shares = (IEnumerable) value;
       foreach (Share share in shares)
