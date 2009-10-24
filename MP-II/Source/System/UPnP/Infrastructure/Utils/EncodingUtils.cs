@@ -63,9 +63,16 @@ namespace UPnP.Infrastructure.Utils
       if (index > -1)
       {
         mediaType = contentType.Substring(0, index).Trim();
+        string ctStr = contentType.Substring(index + 1).Trim(); // charset="utf-8"
+        index = ctStr.IndexOf('=');
+        if (index == -1)
+          return false;
+        string encStr = ctStr.Substring(index + 1);
+        if (encStr.StartsWith("\"") && encStr.EndsWith("\"") && encStr.Length > 2)
+          encStr = encStr.Substring(1, encStr.Length - 2); // Unwrap ""
         try
         {
-          encoding = Encoding.GetEncoding(contentType.Substring(index + 1).Trim());
+          encoding = Encoding.GetEncoding(encStr);
         }
         catch (ArgumentException)
         {
