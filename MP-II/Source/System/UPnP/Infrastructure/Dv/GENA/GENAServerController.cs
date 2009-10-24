@@ -312,35 +312,6 @@ namespace UPnP.Infrastructure.Dv.GENA
           string nt = request.Headers.Get("NT");
           string sid = request.Headers.Get("SID");
           string timeoutStr = request.Headers.Get("TIMEOUT");
-          bool subscriberSupportsUPnP11;
-          try
-          {
-            if (string.IsNullOrEmpty(userAgentStr))
-              subscriberSupportsUPnP11 = false;
-            else
-            {
-              int minorVersion;
-              if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
-              {
-                response.Status = HttpStatusCode.BadRequest;
-                response.Send();
-                return true;
-              }
-              subscriberSupportsUPnP11 = minorVersion >= 1;
-            }
-          }
-          catch (Exception)
-          {
-            response.Status = HttpStatusCode.BadRequest;
-            response.Send();
-            return true;
-          }
-          if (service.HasComplexStateVariables && !subscriberSupportsUPnP11)
-          {
-            response.Status = HttpStatusCode.ServiceUnavailable;
-            response.Send();
-            return true;
-          }
           int timeout = DEFAULT_SUBSCRIPTION_TIMEOUT;
           ICollection<string> callbackURLs = null;
           if ((!string.IsNullOrEmpty(timeoutStr) && (!timeoutStr.StartsWith("Second-") ||
@@ -361,6 +332,35 @@ namespace UPnP.Infrastructure.Dv.GENA
           }
           if (callbackURLs != null && !string.IsNullOrEmpty(nt))
           { // Subscription
+            bool subscriberSupportsUPnP11;
+            try
+            {
+              if (string.IsNullOrEmpty(userAgentStr))
+                subscriberSupportsUPnP11 = false;
+              else
+              {
+                int minorVersion;
+                if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
+                {
+                  response.Status = HttpStatusCode.BadRequest;
+                  response.Send();
+                  return true;
+                }
+                subscriberSupportsUPnP11 = minorVersion >= 1;
+              }
+            }
+            catch (Exception)
+            {
+              response.Status = HttpStatusCode.BadRequest;
+              response.Send();
+              return true;
+            }
+            if (service.HasComplexStateVariables && !subscriberSupportsUPnP11)
+            {
+              response.Status = HttpStatusCode.ServiceUnavailable;
+              response.Send();
+              return true;
+            }
             bool validURLs = true;
             foreach (string url in callbackURLs)
               if (!url.StartsWith("http://"))
