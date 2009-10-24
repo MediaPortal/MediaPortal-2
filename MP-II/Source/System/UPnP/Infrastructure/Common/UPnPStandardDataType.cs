@@ -181,7 +181,6 @@ namespace UPnP.Infrastructure.Common
       if (SoapHelper.ReadNull(reader))
       {
         reader.ReadStartElement();
-        reader.ReadEndElement();
         result = null;
       }
       else
