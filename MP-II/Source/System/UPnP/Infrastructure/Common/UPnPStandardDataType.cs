@@ -180,10 +180,17 @@ namespace UPnP.Infrastructure.Common
       object result;
       if (SoapHelper.ReadNull(reader))
       {
-        reader.ReadStartElement();
+        if (reader.IsEmptyElement)
+          reader.ReadStartElement();
+        else
+        {
+          reader.ReadStartElement();
+          reader.ReadEndElement();
+        }
         result = null;
       }
       else
+      {
         switch (_upnpTypeName)
         {
           case "ui1":
@@ -235,7 +242,8 @@ namespace UPnP.Infrastructure.Common
           default:
             throw new NotImplementedException(string.Format("UPnP standard data type '{0}' is not implemented", _upnpTypeName));
         }
-      reader.ReadEndElement();
+        reader.ReadEndElement();
+      }
       return result;
     }
 

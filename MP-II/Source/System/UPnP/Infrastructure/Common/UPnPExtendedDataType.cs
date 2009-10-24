@@ -125,7 +125,13 @@ namespace UPnP.Infrastructure.Common
     {
       if (SoapHelper.ReadNull(reader))
       {
-        reader.ReadEndElement();
+        if (reader.IsEmptyElement)
+          reader.ReadStartElement();
+        else
+        {
+          reader.ReadStartElement();
+          reader.ReadEndElement();
+        }
         return true;
       }
       return false;

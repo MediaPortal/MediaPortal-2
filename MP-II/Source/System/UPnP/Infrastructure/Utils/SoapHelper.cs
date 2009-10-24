@@ -50,11 +50,14 @@ namespace UPnP.Infrastructure.Utils
     {
       writer.WriteStartAttribute("null", UPnPConsts.NS_XSI);
       writer.WriteValue(true);
+      writer.WriteEndAttribute();
     }
 
     public static bool ReadNull(XmlReader reader)
     {
-      return reader.MoveToAttribute("null", UPnPConsts.NS_XSI) && reader.ReadContentAsBoolean();
+      bool result = reader.MoveToAttribute("null", UPnPConsts.NS_XSI) && reader.ReadContentAsBoolean();
+      reader.MoveToElement();
+      return result;
     }
   }
 }
