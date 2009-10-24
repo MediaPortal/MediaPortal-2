@@ -217,6 +217,17 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
+    /// Serializes this share descriptor instance to the given <paramref name="writer"/>.
+    /// </summary>
+    /// <param name="writer">Writer to write the XML serialization to.</param>
+    public void Serialize(XmlWriter writer)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        xs.Serialize(writer, this);
+    }
+
+    /// <summary>
     /// Deserializes a share descriptor instance from a given XML fragment.
     /// </summary>
     /// <param name="str">XML fragment containing a serialized share descriptor instance.</param>
@@ -227,6 +238,18 @@ namespace MediaPortal.Core.MediaManagement
       lock (xs)
         using (StringReader reader = new StringReader(str))
           return xs.Deserialize(reader) as Share;
+    }
+
+    /// <summary>
+    /// Deserializes a share descriptor instance from a given <paramref name="reader"/>.
+    /// </summary>
+    /// <param name="reader">XML reader containing a serialized share descriptor instance.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static Share Deserialize(XmlReader reader)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        return xs.Deserialize(reader) as Share;
     }
 
     public override bool Equals(object obj)

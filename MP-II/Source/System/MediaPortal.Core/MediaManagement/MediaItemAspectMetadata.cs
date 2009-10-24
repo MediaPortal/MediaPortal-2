@@ -334,6 +334,17 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
+    /// Serializes this MediaItem aspect metadata instance to the given <paramref name="writer"/>.
+    /// </summary>
+    /// <param name="writer">Writer to write the XML serialization to.</param>
+    public void Serialize(XmlWriter writer)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        xs.Serialize(writer, this);
+    }
+
+    /// <summary>
     /// Deserializes a MediaItem aspect metadata instance from a given XML fragment.
     /// </summary>
     /// <param name="str">XML fragment containing a serialized MediaItem aspect metadata instance.</param>
@@ -344,6 +355,18 @@ namespace MediaPortal.Core.MediaManagement
       lock (xs)
         using (StringReader reader = new StringReader(str))
           return xs.Deserialize(reader) as MediaItemAspectMetadata;
+    }
+
+    /// <summary>
+    /// Deserializes a MediaItem aspect metadata instance from a given <paramref name="reader"/>.
+    /// </summary>
+    /// <param name="reader">XML reader containing a MediaItem aspect metadata XML serialization.</param>
+    /// <returns>Deserialized instance.</returns>
+    public static MediaItemAspectMetadata Deserialize(XmlReader reader)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        return xs.Deserialize(reader) as MediaItemAspectMetadata;
     }
 
     public override bool Equals(object obj)
