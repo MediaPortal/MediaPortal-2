@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal</RootNamespace>
-    <AssemblyName>MediaPortal-II</AssemblyName>
+    <AssemblyName>MP-II-Server</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
