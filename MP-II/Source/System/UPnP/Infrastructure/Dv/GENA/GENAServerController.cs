@@ -203,12 +203,13 @@ namespace UPnP.Infrastructure.Dv.GENA
           return false;
         if (callbackURLs == null)
           callbackURLs = new List<string>();
-        callbackURLs.Add(callbackURLsStr.Substring(i + 1, j));
+        callbackURLs.Add(callbackURLsStr.Substring(i + 1, j - i - 1));
         i = j + 1;
         // Find beginning of next URL
         j = callbackURLsStr.IndexOf('<', i);
-        if (j > -1)
-          i = j;
+        if (j == -1)
+          break;
+        i = j;
       }
       return true;
     }

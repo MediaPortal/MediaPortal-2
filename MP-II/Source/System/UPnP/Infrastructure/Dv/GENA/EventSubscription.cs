@@ -165,6 +165,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       request.Headers.Add("NTS", "upnp:propchange");
       request.Headers.Add("SID", _sid);
       request.Headers.Add("SEQ", _eventingState.EventKey.ToString());
+      state.Request = request;
 
       // First get the request stream...
       IAsyncResult result = state.Request.BeginGetRequestStream(OnGetRequestStream, state);
