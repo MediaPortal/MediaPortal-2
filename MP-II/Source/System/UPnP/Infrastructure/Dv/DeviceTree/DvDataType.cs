@@ -24,9 +24,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -37,32 +35,36 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   public abstract class DvDataType
   {
     /// <summary>
-    /// Serializes the given <paramref name="value"/> in the serialization strategy specified by this UPnP data type. The
-    /// serialized value will be an XML string.
+    /// Serializes the given <paramref name="value"/> as the value of the <paramref name="writer"/>s current element
+    /// in the serialization strategy specified by this UPnP data type.
     /// </summary>
     /// <remarks>
-    /// The returned string is a serialized XML node which contains either the serialized value directly, encoded as
-    /// string (for simple data types and for UPnP 1.0 complex data types, if <paramref name="forceSimpleValue"/> is set to
-    /// <c>true</c>), or which contains a serialized XML element containing the structure as specified by the schema type
-    /// of this data type for extended UPnP 1.1 data types.
+    /// The value is either encoded as string (for simple data types and for UPnP 1.0 complex data types,
+    /// if <paramref name="forceSimpleValue"/> is set to <c>true</c>), or as an XML element containing the structure
+    /// as specified by the schema type of this data type for extended UPnP 1.1 data types.
     /// </remarks>
     /// <param name="value">Value to be serialized.</param>
     /// <param name="forceSimpleValue">If set to <c>true</c>, also extended datatypes will be serialized using their
     /// "string equivalent".</param>
-    /// <returns>SOAP serialization for the given <paramref name="value"/>.</returns>
-    public abstract string SoapSerializeValue(object value, bool forceSimpleValue);
+    /// <param name="writer">Xml writer here the value will be serialized to.
+    /// The writer's position is the start of the parent element, the result should go. After this method returns, the writer
+    /// must have read the end element.</param>
+    /// <returns>SOAP serialization for the given <paramref name="value"/>. May be <c>null</c> for serializations of
+    /// <c>null</c> values. In this case, an attriute <i>xsi:null="true"</i> must be added in the enclosing SOAP element.</returns>
+    public abstract void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
 
     /// <summary>
-    /// Deserializes the contents of the given SOAP XML element the <paramref name="enclosingElementNav"/> points to
+    /// Deserializes the contents of the current element of the given <paramref name="reader"/>
     /// to an object of this UPnP data type.
     /// </summary>
-    /// <param name="enclosingElementNav">XPath navigator pointing to an XML element containing the SOAP representation of an
-    /// object of this UPnP data type.</param>
+    /// <param name="reader">XML reader whose current element's value will be deserialized.
+    /// The writer's position is the start of the parent element, the result should go. After this method returns, the writer
+    /// must have read the end element.</param>
     /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized from its
-    /// string-equivalent, i.e. the XML text content of the given XML element should be evaluated,
+    /// string-equivalent, i.e. the XML text content of the given XML element should be examined,
     /// else the value should be deserialized from the extended representation of this data type.</param>
     /// <returns>Value which was deserialized.</returns>
-    public abstract object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue);
+    public abstract object SoapDeserializeValue(XmlReader reader, bool isSimpleValue);
 
     /// <summary>
     /// Returns the information if an object of the given type can be assigned to a variable of this UPnP data type.
@@ -91,10 +93,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// Generates the (UPnP 1.0) SCDP description which will be written in the state variable description as child into the
     /// element &lt;dataType/&gt;.
     /// </summary>
-    /// <param name="result">String builder to add the datatype string to.</param>
-    /// <param name="dataTypeSchemas2NSPrefix">Dictionary with datatype schema URIs mapped to their XML namespace prefix
-    /// to use.</param>
-    internal abstract void AddSCDPDescriptionForStandardDataType(StringBuilder result, IDictionary<string, string> dataTypeSchemas2NSPrefix);
+    /// <param name="writer">XML writer to write the datatype description fragment to.</param>
+    internal abstract void AddSCDPDescriptionForStandardDataType(XmlWriter writer);
 
     #endregion
   }

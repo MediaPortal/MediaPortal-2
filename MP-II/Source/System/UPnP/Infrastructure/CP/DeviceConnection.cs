@@ -258,7 +258,7 @@ namespace UPnP.Infrastructure.CP
       XPathNavigator nav = rootDescriptor.DeviceDescription.CreateNavigator();
       nav.MoveToChild(XPathNodeType.Element);
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
-      nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+      nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
       XPathNodeIterator deviceIt = nav.Select("descendant::d:device[d:UDN/text()=concat(\"uuid:\",\"" + deviceUUID + "\")]", nsmgr);
       if (!deviceIt.MoveNext())
         throw new ArgumentException(string.Format("Device with the specified id '{0}' isn't present in the given root descriptor", _deviceUUID));

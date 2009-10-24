@@ -63,7 +63,7 @@ namespace UPnP.Infrastructure.Dv
     protected UdpClient _genaUdpClient = null;
     protected IPAddress _endpointIPAddress = null;
     protected bool _ssdpUsesSpecialSearchPort = false;
-    protected int _ssdpSearchPort = Consts.DEFAULT_SSDP_SEARCH_PORT;
+    protected int _ssdpSearchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
     protected int _endPointGENAPort = 0;
     protected IPAddress _ssdpMulticastAddress = null;
     protected IPAddress _genaMulticastAddress = null;
@@ -116,7 +116,7 @@ namespace UPnP.Infrastructure.Dv
 
     /// <summary>
     /// Returns the information if the <see cref="SSDPSearchPort"/> is another port than
-    /// <see cref="Consts.DEFAULT_SSDP_SEARCH_PORT"/>.
+    /// <see cref="UPnPConsts.DEFAULT_SSDP_SEARCH_PORT"/>.
     /// </summary>
     public bool SSDPUsesSpecialSearchPort
     {
@@ -132,7 +132,7 @@ namespace UPnP.Infrastructure.Dv
       set
       {
         _ssdpSearchPort = value;
-        _ssdpUsesSpecialSearchPort = value != Consts.DEFAULT_SSDP_SEARCH_PORT;
+        _ssdpUsesSpecialSearchPort = value != UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
       }
     }
 

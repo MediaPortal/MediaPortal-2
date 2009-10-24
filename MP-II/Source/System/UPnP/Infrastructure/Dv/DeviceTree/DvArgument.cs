@@ -24,8 +24,7 @@
 #endregion
 
 using System;
-using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -109,11 +108,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _relatedStateVariable.IsValueInRange(value);
     }
 
-    public UPnPError SoapParseArgument(XPathNavigator enclosingElementNav, bool isSimpleValue, out object value)
+    public UPnPError SoapParseArgument(XmlReader reader, bool isSimpleValue, out object value)
     {
       try
       {
-        value = _relatedStateVariable.DataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
+        value = _relatedStateVariable.DataType.SoapDeserializeValue(reader, isSimpleValue);
       }
       catch (Exception)
       {
@@ -130,40 +129,33 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return null;
     }
 
-    public UPnPError SoapSerializeArgument(object value, bool forceSimpleValue, out string serializedValue)
+    public UPnPError SoapSerializeArgument(object value, bool forceSimpleValue, XmlWriter writer)
     {
       try
       {
-        serializedValue = _relatedStateVariable.DataType.SoapSerializeValue(value, forceSimpleValue);
+        _relatedStateVariable.DataType.SoapSerializeValue(value, forceSimpleValue, writer);
         return null;
       }
       catch (Exception)
       {
-        serializedValue = null;
         return new UPnPError(501, "Action Failed");
       }
     }
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForArgument(StringBuilder result)
+    internal void AddSCDPDescriptionForArgument(XmlWriter writer)
     {
-      result.Append(
-          "<argument>" +
-            "<name>");
-      result.Append(_name);
-      result.Append("</name>" +
-            "<direction>");
-      result.Append(_direction == ArgumentDirection.In ? "in" : "out");
-      result.Append("</direction>");
+      writer.WriteStartElement("argument");
+      writer.WriteElementString("name", _name);
+      writer.WriteElementString("direction", _direction == ArgumentDirection.In ? "in" : "out");
       if (_isReturnValue)
-        result.Append(
-            "<retval/>");
-      result.Append(
-            "<relatedStateVariable>");
-      result.Append(_relatedStateVariable.Name);
-      result.Append("</relatedStateVariable>" +
-          "</argument>");
+      {
+        writer.WriteStartElement("retval");
+        writer.WriteEndElement();
+      }
+      writer.WriteElementString("relatedStateVariable", _relatedStateVariable.Name);
+      writer.WriteEndElement(); // argument
     }
 
     #endregion

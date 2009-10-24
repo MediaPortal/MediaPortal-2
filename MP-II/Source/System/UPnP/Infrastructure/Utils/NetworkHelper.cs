@@ -60,7 +60,7 @@ namespace UPnP.Infrastructure.Utils
     /// <paramref name="localAddress"/>.
     /// </summary>
     /// <param name="localAddress">IP address to use as local ip adddress.</param>
-    /// <param name="multicastAddress">Multicast address to use. The port will be <see cref="Consts.SSDP_MULTICAST_PORT"/>.</param>
+    /// <param name="multicastAddress">Multicast address to use. The port will be <see cref="UPnPConsts.SSDP_MULTICAST_PORT"/>.</param>
     /// <param name="data">Message data to multicast.</param>
     public static void MulticastMessage(IPAddress localAddress, IPAddress multicastAddress, byte[] data)
     {
@@ -80,7 +80,7 @@ namespace UPnP.Infrastructure.Utils
               new IPv6MulticastOption(multicastAddress));
       }
       // Add membership to multicast group here?
-      IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, Consts.SSDP_MULTICAST_PORT);
+      IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
       socket.SendTo(data, multicastEndpoint);
       socket.SendTo(data, multicastEndpoint);
       // Drop member to multicast group, if appropriate

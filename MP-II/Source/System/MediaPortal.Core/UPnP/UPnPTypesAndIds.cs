@@ -27,7 +27,7 @@ namespace MediaPortal.Core.UPnP
   /// <summary>
   /// Constants of the UPnP system.
   /// </summary>
-  public class Consts
+  public class UPnPTypesAndIds
   {
     public const string MEDIA_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
     public const int MEDIA_SERVER_DEVICE_TYPE_VERSION = 1;

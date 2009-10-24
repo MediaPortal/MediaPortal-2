@@ -78,28 +78,6 @@ namespace UPnP.Infrastructure.Utils
     }
 
     /// <summary>
-    /// Escapes the given string <paramref name="str"/> as XML text. Escapes the characters "<", ">", "&", "\"".
-    /// </summary>
-    /// <example>"Hello <b>World</b>" will be escaped to &quot;Hello &lt;b&gt;World&lt;/b&gt;&quot;.</example>
-    /// <param name="str">String to be escaped.</param>
-    /// <returns>Escaped string.</returns>
-    public static string XMLEscape(string str)
-    {
-      return str.Replace("<", "&lt;").Replace(">", "&gt;").Replace("&", "&amp;").Replace("\"", "&quot;");
-    }
-
-    /// <summary>
-    /// Unescapes the given XML text string <paramref name="str"/>. Unescapes the characters "<", ">", "&", "\"".
-    /// </summary>
-    /// <example>&quot;Hello &lt;b&gt;World&lt;/b&gt;&quot; will be unescaped to "Hello <b>World</b>".</example>
-    /// <param name="str">String to be unescaped.</param>
-    /// <returns>Unescaped string.</returns>
-    public static string XMLUnescape(string str)
-    {
-      return str.Replace("&lt;", "<").Replace("&gt;", ">").Replace("&amp;", "&").Replace("&quot;", "\"");
-    }
-
-    /// <summary>
     /// Encodes the given <paramref name="bytes"/> as a hex string.
     /// </summary>
     /// <example>The byte array {5, 16, 200} will be escaped to "0510C8".</example>

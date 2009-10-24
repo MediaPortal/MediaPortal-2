@@ -312,7 +312,7 @@ namespace UPnP.Infrastructure.CP
             if (rootDeviceIt.MoveNext())
             {
               XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
-              nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+              nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
               ExtractServiceDescriptorsRecursive(rd, rootDeviceIt.Current, nsmgr, rd.ServiceDescriptors,
                   state.PendingServiceDescriptions);
             }

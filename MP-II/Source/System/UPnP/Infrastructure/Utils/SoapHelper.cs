@@ -23,39 +23,38 @@
 
 #endregion
 
-using System;
 using System.Xml;
-using MediaPortal.Utilities.Exceptions;
-using UPnP.Infrastructure.Common;
 
-namespace UPnP.Infrastructure.CP.DeviceTree
+namespace UPnP.Infrastructure.Utils
 {
-  /// <summary>
-  /// Placeholder for all extended data types at control point side, for which the application didn't provide an
-  /// implementation.
-  /// </summary>
-  public class ExtendedDataTypeDummy : UPnPExtendedDataType
+  public static class SoapHelper
   {
-    public ExtendedDataTypeDummy(string schemaURI, string dataTypeName) : base(schemaURI, dataTypeName) { }
-
-    public override bool SupportsStringEquivalent
+    public static void WriteSoapEnvelopeStart(XmlWriter writer, bool addXSINamespace)
     {
-      get { return false; }
+      writer.WriteStartDocument();
+      writer.WriteStartElement("s", "Envelope", UPnPConsts.NS_SOAP_ENVELOPE);
+      if (addXSINamespace)
+        writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
+      writer.WriteAttributeString("s", "encodingStyle", null, UPnPConsts.NS_SOAP_ENCODING);
+      writer.WriteStartElement("Body", UPnPConsts.NS_SOAP_ENVELOPE);
     }
 
-    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    public static void WriteSoapEnvelopeEndAndClose(XmlWriter writer)
     {
-      throw new IllegalCallException("Dummy extended data type cannot serialize values");
+      writer.WriteEndElement(); // s:Body
+      writer.WriteEndElement(); // s:Envelope
+      writer.Close();
     }
 
-    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
+    public static void WriteNull(XmlWriter writer)
     {
-      throw new IllegalCallException("Dummy extended data type cannot deserialize values");
+      writer.WriteStartAttribute("null", UPnPConsts.NS_XSI);
+      writer.WriteValue(true);
     }
 
-    public override bool IsAssignableFrom(Type type)
+    public static bool ReadNull(XmlReader reader)
     {
-      return false;
+      return reader.MoveToAttribute("null", UPnPConsts.NS_XSI) && reader.ReadContentAsBoolean();
     }
   }
 }

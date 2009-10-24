@@ -151,7 +151,7 @@ namespace UPnP.Infrastructure.CP
       XPathNavigator nav = _deviceDescription.CreateNavigator();
       nav.MoveToChild(XPathNodeType.Element);
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
-      nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+      nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
       XPathNodeIterator it = nav.Select("descendant::d:device", nsmgr);
       while (it.MoveNext())
       {
@@ -191,7 +191,7 @@ namespace UPnP.Infrastructure.CP
     public static string GetDeviceUDN(XPathNavigator deviceNav)
     {
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(deviceNav.NameTable);
-      nsmgr.AddNamespace("d", Consts.NS_DEVICE_DESCRIPTION);
+      nsmgr.AddNamespace("d", UPnPConsts.NS_DEVICE_DESCRIPTION);
       return GetDeviceUDN(deviceNav, nsmgr);
     }
 

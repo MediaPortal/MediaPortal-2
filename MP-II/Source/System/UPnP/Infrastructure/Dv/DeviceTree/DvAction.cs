@@ -25,7 +25,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Xml;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Common;
 
@@ -145,25 +145,19 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForAction(StringBuilder result)
+    internal void AddSCDPDescriptionForAction(XmlWriter writer)
     {
-      result.Append(
-          "<action>" +
-            "<name>");
-      result.Append(_name);
-      result.Append("</name>");
+      writer.WriteStartElement("action");
+      writer.WriteElementString("name", _name);
       IList<DvArgument> arguments = CollectionUtils.UnionList(_inArguments, _outArguments);
       if (arguments.Count > 0)
       {
-        result.Append(
-            "<argumentList>");
+        writer.WriteStartElement("argumentList");
         foreach (DvArgument argument in arguments)
-          argument.AddSCDPDescriptionForArgument(result);
-        result.Append(
-            "</argumentList>");
+          argument.AddSCDPDescriptionForArgument(writer);
+        writer.WriteEndElement(); // argumentList
       }
-      result.Append(
-          "</action>");
+      writer.WriteEndElement(); // action
     }
 
     #endregion

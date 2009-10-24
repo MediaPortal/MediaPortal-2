@@ -31,7 +31,7 @@ namespace UPnP.Infrastructure
   /// <summary>
   /// Contains global consts of the UPnP system.
   /// </summary>
-  public class Consts
+  public class UPnPConsts
   {
     /// <summary>
     /// Port for SSDP multicast messages.
@@ -102,12 +102,25 @@ namespace UPnP.Infrastructure
 
     #endregion
 
+    public const uint UPNP_VERSION_MAJOR = 1;
+    public const uint UPNP_VERSION_MINOR = 1;
+
     #region Namespace URIs
 
     /// <summary>
     /// XML namespace to be used for the SOAP envelope.
     /// </summary>
     public const string NS_SOAP_ENVELOPE = "http://schemas.xmlsoap.org/soap/envelope/";
+
+    /// <summary>
+    /// XML namespace to be used for the SOAP encoding.
+    /// </summary>
+    public const string NS_SOAP_ENCODING = "http://schemas.xmlsoap.org/soap/encoding/";
+
+    /// <summary>
+    /// XML namespace for the UPnP control schema.
+    /// </summary>
+    public const string NS_UPNP_CONTROL = "urn:schemas-upnp-org:control-1-0";
 
     /// <summary>
     /// XML namespace for the UPnP device description.
@@ -118,6 +131,16 @@ namespace UPnP.Infrastructure
     /// XML namespace for the UPnP service description.
     /// </summary>
     public const string NS_SERVICE_DESCRIPTION = "urn:schemas-upnp-org:service-1-0";
+
+    /// <summary>
+    /// XML namespace for UPnP GENA event notifications.
+    /// </summary>
+    public const string NS_UPNP_EVENT = "urn:schemas-upnp-org:event-1-0";
+
+    /// <summary>
+    /// XML namespace for the XSI scheme.
+    /// </summary>
+    public const string NS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
 
     #endregion
   }

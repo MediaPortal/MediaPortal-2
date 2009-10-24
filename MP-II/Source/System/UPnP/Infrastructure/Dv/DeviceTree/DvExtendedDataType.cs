@@ -24,9 +24,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -70,14 +68,14 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Base overrides
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      return _dataType.SoapSerializeValue(value, forceSimpleValue);
+      _dataType.SoapSerializeValue(value, forceSimpleValue, writer);
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      return _dataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
+      return _dataType.SoapDeserializeValue(reader, isSimpleValue);
     }
 
     public override bool IsAssignableFrom(Type type)
@@ -85,15 +83,13 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _dataType.IsAssignableFrom(type);
     }
 
-    internal override void AddSCDPDescriptionForStandardDataType(StringBuilder result,
-        IDictionary<string, string> dataTypeSchemas2NSPrefix)
+    internal override void AddSCDPDescriptionForStandardDataType(XmlWriter writer)
     {
-      result.Append(
-          "<dataType type=\"");
-      result.Append(dataTypeSchemas2NSPrefix[_dataType.SchemaURI]);
-      result.Append(':');
-      result.Append(_dataType.DataTypeName);
-      result.Append("\">string</dataType>");
+      writer.WriteStartElement("dataType");
+      string prefix = writer.LookupPrefix(_dataType.SchemaURI);
+      writer.WriteAttributeString("type", prefix + ':' + _dataType.DataTypeName);
+      writer.WriteString("string");
+      writer.WriteEndElement(); // dataType
     }
 
     #endregion

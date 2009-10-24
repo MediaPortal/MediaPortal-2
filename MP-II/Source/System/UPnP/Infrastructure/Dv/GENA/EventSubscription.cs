@@ -316,7 +316,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       {
         TimeSpan? nextScheduleTimeSpan = _eventingState.GetNextScheduleTimeSpan();
         if (nextScheduleTimeSpan.HasValue)
-          _notificationTimer.Change(nextScheduleTimeSpan.Value, Consts.INFINITE_TIMESPAN);
+          _notificationTimer.Change(nextScheduleTimeSpan.Value, UPnPConsts.INFINITE_TIMESPAN);
       }
     }
 

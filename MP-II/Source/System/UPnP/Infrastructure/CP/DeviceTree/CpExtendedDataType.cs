@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
@@ -68,14 +68,14 @@ namespace UPnP.Infrastructure.CP.DeviceTree
 
     #region Base overrides
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      return _dataType.SoapSerializeValue(value, forceSimpleValue);
+      _dataType.SoapSerializeValue(value, forceSimpleValue, writer);
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      return _dataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
+      return _dataType.SoapDeserializeValue(reader, isSimpleValue);
     }
 
     public override bool IsAssignableFrom(Type type)

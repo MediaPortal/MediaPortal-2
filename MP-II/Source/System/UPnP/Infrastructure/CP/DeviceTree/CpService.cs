@@ -305,7 +305,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         XPathNavigator serviceNav = serviceDescriptor.ServiceDescription.CreateNavigator();
         serviceNav.MoveToChild(XPathNodeType.Element);
         XmlNamespaceManager nsmgr = new XmlNamespaceManager(serviceNav.NameTable);
-        nsmgr.AddNamespace("s", Consts.NS_SERVICE_DESCRIPTION);
+        nsmgr.AddNamespace("s", UPnPConsts.NS_SERVICE_DESCRIPTION);
         XPathNodeIterator svIt = serviceNav.Select("s:serviceStateTable/s:stateVariable", nsmgr);
         // State variables must be connected first because they are needed from the action's arguments
         while (svIt.MoveNext())

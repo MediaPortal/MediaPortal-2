@@ -26,8 +26,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
@@ -50,26 +49,28 @@ namespace MediaPortal.Core.UPnP
       get { return false; }
     }
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       if (value != null && !(typeof(IEnumerable).IsAssignableFrom(value.GetType())))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShareEnumeration).Name, value.GetType().Name);
-      StringBuilder result = new StringBuilder(
-          "<Shares xmlns=\"\">", 2000);
+      if (value == null)
+        SoapWriteNull(writer);
+      writer.WriteStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       IEnumerable shares = (IEnumerable) value;
       foreach (Share share in shares)
-        result.Append(share.Serialize());
-      result.Append(
-          "</Shares>");
-      return result.ToString();
+        share.Serialize(writer);
+      writer.WriteEndElement();
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      XPathNodeIterator sharesIt = enclosingElementNav.Select("Shares");
+      if (SoapReadNull(reader))
+        return new List<Share>();
+      reader.ReadStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       ICollection<Share> result = new List<Share>();
-      while (sharesIt.MoveNext())
-        result.Add(Share.Deserialize(sharesIt.Current.OuterXml));
+      while (reader.NodeType != XmlNodeType.EndElement)
+        result.Add(Share.Deserialize(reader));
+      reader.ReadEndElement();
       return result;
     }
 

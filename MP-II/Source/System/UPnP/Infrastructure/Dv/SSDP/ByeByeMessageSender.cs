@@ -60,7 +60,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
       {
-        IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, Consts.SSDP_MULTICAST_PORT);
+        IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
         response.SetHeader("HOST", ep.ToString());
         byte[] bytes = response.Encode();
         NetworkHelper.MulticastMessage(config.EndPointIPAddress, config.SSDPMulticastAddress, bytes);

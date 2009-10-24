@@ -24,6 +24,9 @@
 #endregion
 
 using System;
+using System.Xml;
+using System.Xml.XPath;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
 {
@@ -71,5 +74,26 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       else
         return true;
     }
+
+    #region Connection
+
+    internal static CpAllowedValueRange CreateAllowedValueRange(XPathNavigator allowedValueRangeElementNav, IXmlNamespaceResolver nsmgr)
+    {
+      XPathNodeIterator minIt = allowedValueRangeElementNav.Select("minimum");
+      if (!minIt.MoveNext())
+        return null;
+      double min = Convert.ToDouble(ParserHelper.SelectText(minIt.Current, "text()", null));
+      XPathNodeIterator maxIt = allowedValueRangeElementNav.Select("maximum");
+      if (!maxIt.MoveNext())
+        return null;
+      double max = Convert.ToDouble(ParserHelper.SelectText(maxIt.Current, "text()", null));
+      XPathNodeIterator stepIt = allowedValueRangeElementNav.Select("step");
+      double? step = null;
+      if (stepIt.MoveNext())
+        step = Convert.ToDouble(ParserHelper.SelectText(stepIt.Current, "text()", null));
+      return new CpAllowedValueRange(min, max, step);
+    }
+
+    #endregion
   }
 }

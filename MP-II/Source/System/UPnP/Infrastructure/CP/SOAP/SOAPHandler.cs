@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.Utils;
@@ -40,33 +40,6 @@ namespace UPnP.Infrastructure.CP.SOAP
   public class SOAPHandler
   {
     /// <summary>
-    /// XML namespace to be used for the SOAP envelope.
-    /// </summary>
-    public const string NS_SOAP_ENVELOPE = "http://schemas.xmlsoap.org/soap/envelope/";
-
-    protected class Parameter
-    {
-      protected CpArgument _argument;
-      protected string _xmlValue;
-
-      public Parameter(CpArgument argument, string xmlValue)
-      {
-        _argument = argument;
-        _xmlValue = xmlValue;
-      }
-
-      public CpArgument Argument
-      {
-        get { return _argument; }
-      }
-
-      public string XMLValue
-      {
-        get { return _xmlValue; }
-      }
-    }
-
-    /// <summary>
     /// Encodes a call of the specified <paramref name="action"/> with the given <paramref name="inParamValues"/> and
     /// returns the resulting SOAP XML string.
     /// </summary>
@@ -74,83 +47,52 @@ namespace UPnP.Infrastructure.CP.SOAP
     /// <param name="inParamValues">List of parameter values which must match the action's signature.</param>
     /// <param name="upnpVersion">UPnP version to use for the encoding.</param>
     /// <returns>XML string which contains the SOAP document.</returns>
-    public static string EncodeCall(CpAction action, IList<object> inParamValues,
-        UPnPVersion upnpVersion)
+    public static string EncodeCall(CpAction action, IList<object> inParamValues, UPnPVersion upnpVersion)
     {
       bool targetSupportsUPnP11 = upnpVersion.VerMin >= 1;
-      // Check output parameters
+      StringBuilder result = new StringBuilder(5000);
+      XmlWriter writer = XmlWriter.Create(result);
+      SoapHelper.WriteSoapEnvelopeStart(writer, true);
+      writer.WriteStartElement("u", action.Name, action.ParentService.ServiceTypeVersion_URN);
+
+      // Check input parameters
       IList<CpArgument> formalArguments = action.InArguments;
       if (inParamValues.Count != formalArguments.Count)
         throw new ArgumentException("Invalid argument count");
-      IList<Parameter> inParams = new List<Parameter>();
       for (int i = 0; i < formalArguments.Count; i++)
       {
         CpArgument argument = formalArguments[i];
         object value = inParamValues[i];
-        string serializedValue;
-        argument.SoapSerializeArgument(value, !targetSupportsUPnP11, out serializedValue);
-        inParams.Add(new Parameter(argument, serializedValue));
+        writer.WriteStartElement(argument.Name);
+        argument.SoapSerializeArgument(value, !targetSupportsUPnP11, writer);
+        writer.WriteEndElement(); // argument.Name
       }
-      return CreateCallDocument(action, inParams);
+      SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
+      return result.ToString();
     }
 
     /// <summary>
-    /// Takes the XML document provided by the given <paramref name="reader"/> instance, parses it and provides
+    /// Takes the XML document provided by the given <paramref name="textReader"/> instance, parses it and provides
     /// the action result to the appropriate receiver.
     /// </summary>
-    /// <param name="reader">Text reader which contains the SOAP XML action result message.</param>
+    /// <param name="textReader">Text reader which contains the SOAP XML action result message.</param>
     /// <param name="action">Action which was called before.</param>
     /// <param name="clientState">State object which was given in the action call and which will be returned to the client.</param>
     /// <param name="upnpVersion">UPnP version of the UPnP server.</param>
-    public static void HandleResult(TextReader reader, CpAction action, object clientState, UPnPVersion upnpVersion)
+    public static void HandleResult(TextReader textReader, CpAction action, object clientState, UPnPVersion upnpVersion)
     {
       bool sourceSupportsUPnP11 = upnpVersion.VerMin >= 1;
-      CpService service = action.ParentService;
-      IList<object> outParameterValues = new List<object>();
+      IList<object> outParameterValues;
       try
       {
-        // Parse XML document
-        XPathDocument doc = new XPathDocument(reader);
-        XPathNavigator soapEnvelopeNav = doc.CreateNavigator();
-        soapEnvelopeNav.MoveToChild(XPathNodeType.Element);
-        XPathNavigator body;
-        // Parse SOAP envelope
-        if (!ParserHelper.UnwrapSoapEnvelopeElement(soapEnvelopeNav, out body))
-          throw new ArgumentException("Invalid SOAP envelope");
-        XPathNavigator actionNav = body.Clone();
-        if (!actionNav.MoveToChild(XPathNodeType.Element))
-          throw new ArgumentException("Invalid SOAP response");
-        string serviceTypeVersion_URN = actionNav.NamespaceURI;
-        string type;
-        int version;
-        // Parse service and action
-        if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version) ||
-            service.ServiceType != type || version < service.ServiceTypeVersion)
-          throw new ArgumentException("Invalid service type or version");
-        if (!actionNav.LocalName.EndsWith("Response") ||
-            actionNav.LocalName.Substring(0, actionNav.LocalName.Length - "Response".Length) != action.Name)
-          throw new ArgumentException("Invalid action name in result message");
-        // Parse and check output parameters
-        IList<CpArgument> formalArguments = action.OutArguments;
-        XPathNodeIterator parameterIt = actionNav.SelectChildren(XPathNodeType.Element);
-        if (formalArguments.Count != parameterIt.Count)
-          throw new ArgumentException("Invalid out argument count");
-        for (int i = 0; parameterIt.MoveNext(); i++)
-        {
-          CpArgument argument = formalArguments[i];
-          XPathNavigator parameterNav = parameterIt.Current;
-          if (parameterNav.LocalName != argument.Name)
-            throw new ArgumentException("Invalid argument name");
-          object value;
-          argument.SoapParseArgument(parameterNav, !sourceSupportsUPnP11, out value);
-          outParameterValues.Add(value);
-        }
+        outParameterValues = ParseResult(textReader, action, sourceSupportsUPnP11);
       }
       catch (Exception)
       {
         // TODO Albert: In the current state of the (DevArch) document, the UPnP action error codes 613-699
         // are TBD. I guess we should use one of them instead of 501 (Action failed) here.
         action.ActionErrorResultPresent(new UPnPError(501, "Invalid action result"), clientState);
+        return;
       }
       try
       {
@@ -163,35 +105,46 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
     }
 
-    protected static string CreateCallDocument(CpAction action, IList<Parameter> inParameters)
+    protected static IList<object> ParseResult(TextReader textReader, CpAction action, bool sourceSupportsUPnP11)
     {
-      StringBuilder sb = new StringBuilder(
-          "<?xml version=\"1.0\"?>" +
-              "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/ " +
-                  "s:encodingStyle=\"http://schemas.xmlsoap.org./soap/encoding/\">" +
-                "<s:Body>" +
-                  "<u:");
-      sb.Append(action.Name);
-      sb.Append(" xmlns:u=\"");
-      sb.Append(action.ParentService.ServiceTypeVersion_URN);
-      sb.Append("\">");
-      foreach (Parameter parameter in inParameters)
+      IList<object> outParameterValues = new List<object>();
+      using(XmlReader reader = XmlReader.Create(textReader))
       {
-        sb.Append("<");
-        sb.Append(parameter.Argument.Name);
-        sb.Append(">");
-        sb.Append(parameter.XMLValue);
-        sb.Append("</");
-        sb.Append(parameter.Argument.Name);
-        sb.Append(">");
+        reader.MoveToContent();
+        // Parse SOAP envelope
+        reader.ReadStartElement("Envelope", UPnPConsts.NS_SOAP_ENVELOPE);
+        reader.ReadStartElement("Body", UPnPConsts.NS_SOAP_ENVELOPE);
+        // Reader is positioned at the action element
+        string serviceTypeVersion_URN = reader.NamespaceURI;
+        string type;
+        int version;
+        // Parse service and action
+        if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version))
+          throw new ArgumentException("Invalid service type or version");
+        string actionName = reader.LocalName;
+        if (!actionName.EndsWith("Response") ||
+            actionName.Substring(0, actionName.Length - "Response".Length) != action.Name)
+          throw new ArgumentException("Invalid action name in result message");
+        reader.ReadStartElement();
+
+        // Parse and check output parameters
+        IEnumerator<CpArgument> formalArgumentEnumer = action.OutArguments.GetEnumerator();
+        while (reader.NodeType != XmlNodeType.EndElement)
+        {
+          string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
+          if (!formalArgumentEnumer.MoveNext())
+            throw new ArgumentException("Invalid out argument count");
+          if (formalArgumentEnumer.Current.Name != argumentName) // Too many arguments
+            throw new ArgumentException("Invalid argument name");
+          object value;
+          if (SoapHelper.ReadNull(reader))
+            value = null;
+          else
+            formalArgumentEnumer.Current.SoapParseArgument(reader, !sourceSupportsUPnP11, out value);
+          outParameterValues.Add(value);
+        }
       }
-      sb.Append(
-                  "</u:");
-      sb.Append(action.Name);
-      sb.Append("Response>" +
-                "</s:Body" +
-              "</s:Envelope>");
-      return sb.ToString();
+      return outParameterValues;
     }
   }
 }

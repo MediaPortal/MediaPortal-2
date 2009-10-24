@@ -24,7 +24,7 @@
 #endregion
 
 using System;
-using System.Text;
+using System.Xml;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -80,27 +80,22 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForValueRange(StringBuilder result)
+    internal void AddSCDPDescriptionForValueRange(XmlWriter writer)
     {
-      result.Append(
-          "<allowedValueRange>");
-      result.Append(
-            "<minimum>");
-      result.Append(_dataType.SoapSerializeValue(_minValue, true));
-      result.Append("</minimum>");
-      result.Append(
-            "<maximum>");
-      result.Append(_dataType.SoapSerializeValue(_maxValue, true));
-      result.Append("</maximum>");
+      writer.WriteStartElement("allowedValueRange");
+      writer.WriteStartElement("minimum");
+      _dataType.SoapSerializeValue(_minValue, true, writer);
+      writer.WriteEndElement(); // minimum
+      writer.WriteStartElement("maximum");
+      _dataType.SoapSerializeValue(_maxValue, true, writer);
+      writer.WriteEndElement(); // maximum
       if (_step.HasValue)
       {
-        result.Append(
-              "<step>");
-        result.Append(_dataType.SoapSerializeValue(_step.Value, true));
-        result.Append("</step>");
+        writer.WriteStartElement("step");
+        _dataType.SoapSerializeValue(_step.Value, true, writer);
+        writer.WriteEndElement(); // step
       }
-      result.Append(
-          "</allowedValueRange>");
+      writer.WriteEndElement(); // allowedValueRange
     }
 
     #endregion

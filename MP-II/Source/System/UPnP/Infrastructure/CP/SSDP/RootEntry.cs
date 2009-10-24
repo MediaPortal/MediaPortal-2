@@ -46,7 +46,7 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected DateTime _expirationTime;
     protected IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
     protected string _rootDeviceID = null; // UID of the root device
-    protected int _searchPort = Consts.DEFAULT_SSDP_SEARCH_PORT;
+    protected int _searchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
     protected uint _bootID = 0;
     protected uint _configID = 0;
     protected IDictionary<string, object> _clientProperties = new Dictionary<string, object>();

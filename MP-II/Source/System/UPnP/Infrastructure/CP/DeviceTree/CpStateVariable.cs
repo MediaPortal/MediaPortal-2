@@ -46,7 +46,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     protected CpService _parentService;
     protected bool _sendEvents = true;
     protected bool _multicast = false;
-    protected string _multicastEventLevel = Consts.MEL_UPNP_INFO;
+    protected string _multicastEventLevel = UPnPConsts.MEL_UPNP_INFO;
     protected CpDataType _dataType;
     protected object _defaultValue; // Initial value of this state variable
     protected object _value;
@@ -141,6 +141,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public object DefaultValue
     {
       get { return _defaultValue; }
+      internal set { _defaultValue = value; }
     }
 
     /// <summary>
@@ -150,6 +151,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public IList<string> AllowedValueList
     {
       get { return _allowedValueList; }
+      internal set { _allowedValueList = value; }
     }
 
     /// <summary>
@@ -159,6 +161,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public CpAllowedValueRange AllowedValueRange
     {
       get { return _allowedValueRange; }
+      internal set { _allowedValueRange = value; }
     }
 
     /// <summary>
@@ -213,7 +216,22 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       if (!dtIt.MoveNext())
         throw new ArgumentException("Error evaluating data type element");
       CpDataType dataType = CpDataType.CreateDataType(dtIt.Current, nsmgr, dataTypeResolver);
-      return new CpStateVariable(connection, parentService, name, dataType);
+      CpStateVariable result = new CpStateVariable(connection, parentService, name, dataType);
+      XPathNodeIterator dvIt = svIt.Select("s:defaultValue", nsmgr);
+      if (dvIt.MoveNext())
+        result.DefaultValue = dataType.SoapDeserializeValue(dvIt.Current.ReadSubtree(), true); // Default value is always simple value (see DevArch)
+      XPathNodeIterator avlIt = svIt.Select("s:allowedValueList/s:allowedValue");
+      if (avlIt.Count > 0)
+      {
+        IList<string> allowedValueList = new List<string>();
+        while (avlIt.MoveNext())
+          allowedValueList.Add(ParserHelper.SelectText(avlIt.Current, "text()", null));
+        result.AllowedValueList = allowedValueList;
+      }
+      XPathNodeIterator avrIt = svIt.Select("s:allowedValueRange");
+      if (avrIt.MoveNext())
+        result.AllowedValueRange = CpAllowedValueRange.CreateAllowedValueRange(avrIt.Current, nsmgr);
+      return result;
     }
 
     internal void Disconnect()

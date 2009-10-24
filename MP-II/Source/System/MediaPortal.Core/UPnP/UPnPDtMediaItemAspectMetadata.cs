@@ -24,9 +24,8 @@
 #endregion
 
 using System;
-using System.Xml.XPath;
+using System.Xml;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -48,20 +47,23 @@ namespace MediaPortal.Core.UPnP
       get { return false; }
     }
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       if (value != null && !(value is MediaItemAspectMetadata))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtMediaItemAspectMetadata).Name, value.GetType().Name);
       if (value == null)
-        return string.Empty;
+        SoapWriteNull(writer);
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
-      return miam.Serialize();
+      miam.Serialize(writer);
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      string serialization = StringUtils.TrimToEmpty(enclosingElementNav.Value);
-      return string.IsNullOrEmpty(serialization) ? null : MediaItemAspectMetadata.Deserialize(serialization);
+      if (SoapReadNull(reader))
+        return null;
+      MediaItemAspectMetadata result = MediaItemAspectMetadata.Deserialize(reader);
+      reader.ReadEndElement();
+      return result;
     }
 
     public override bool IsAssignableFrom(Type type)

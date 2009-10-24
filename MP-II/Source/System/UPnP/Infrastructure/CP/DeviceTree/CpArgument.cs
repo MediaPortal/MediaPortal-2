@@ -109,14 +109,14 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       return _relatedStateVariable.IsValueInRange(value);
     }
 
-    public void SoapParseArgument(XPathNavigator enclosingElementNav, bool isSimpleValue, out object value)
+    public void SoapParseArgument(XmlReader reader, bool isSimpleValue, out object value)
     {
-      value = _relatedStateVariable.DataType.SoapDeserializeValue(enclosingElementNav, isSimpleValue);
+      value = _relatedStateVariable.DataType.SoapDeserializeValue(reader, isSimpleValue);
     }
 
-    public void SoapSerializeArgument(object value, bool forceSimpleValue, out string serializedValue)
+    public void SoapSerializeArgument(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      serializedValue = _relatedStateVariable.DataType.SoapSerializeValue(value, forceSimpleValue);
+      _relatedStateVariable.DataType.SoapSerializeValue(value, forceSimpleValue, writer);
     }
 
     #region Connection

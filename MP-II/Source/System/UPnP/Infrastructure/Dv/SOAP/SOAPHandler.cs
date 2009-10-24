@@ -23,11 +23,12 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Utils;
@@ -39,15 +40,15 @@ namespace UPnP.Infrastructure.Dv.SOAP
   /// </summary>
   public class SOAPHandler
   {
-    protected class Parameter
+    protected class OutParameter
     {
       protected DvArgument _argument;
-      protected string _xmlValue;
+      protected object _value;
 
-      public Parameter(DvArgument argument, string xmlValue)
+      public OutParameter(DvArgument argument, object value)
       {
         _argument = argument;
-        _xmlValue = xmlValue;
+        _value = value;
       }
 
       public DvArgument Argument
@@ -55,9 +56,9 @@ namespace UPnP.Infrastructure.Dv.SOAP
         get { return _argument; }
       }
 
-      public string XMLValue
+      public object Value
       {
-        get { return _xmlValue; }
+        get { return _value; }
       }
     }
 
@@ -83,158 +84,131 @@ namespace UPnP.Infrastructure.Dv.SOAP
         bool subscriberSupportsUPnP11, out string result)
     {
       result = null;
-      // Parse XML request
-      XPathDocument doc;
+      UPnPError res;
       try
       {
-        doc = new XPathDocument(new StreamReader(messageStream, streamEncoding));
-      }
-      catch (XPathException)
-      {
-        return HttpStatusCode.BadRequest;
-      }
-      XPathNavigator soapEnvelopeNav = doc.CreateNavigator();
-      soapEnvelopeNav.MoveToChild(XPathNodeType.Element);
-      XPathNavigator body;
-      // Parse SOAP envelope
-      if (!ParserHelper.UnwrapSoapEnvelopeElement(soapEnvelopeNav, out body))
-        return HttpStatusCode.BadRequest;
-      XPathNavigator actionNav = body.Clone();
-      if (!actionNav.MoveToChild(XPathNodeType.Element))
-        return HttpStatusCode.BadRequest;
-      string serviceTypeVersion_URN = actionNav.NamespaceURI;
-      string type;
-      int version;
-      // Parse service and action
-      if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version))
-        return HttpStatusCode.BadRequest;
-      string actionName = actionNav.LocalName;
-      DvAction action;
-      if (!service.Actions.TryGetValue(actionName, out action))
-      {
-        result = CreateFaultDocument(401, "Invalid Action");
-        return HttpStatusCode.InternalServerError;
-      }
-      // Parse and check input parameters
-      IList<DvArgument> formalArguments = action.InArguments;
-      IList<object> inParameterValues = new List<object>();
-      XPathNodeIterator parameterIt = actionNav.SelectChildren(XPathNodeType.Element);
-      if (formalArguments.Count != parameterIt.Count)
-      {
-        result = CreateFaultDocument(402, "Invalid Args");
-        return HttpStatusCode.InternalServerError;
-      }
-      UPnPError res;
-      for (int i = 0; parameterIt.MoveNext(); i++)
-      {
-        DvArgument argument = formalArguments[i];
-        XPathNavigator parameterNav = parameterIt.Current;
-        if (parameterNav.LocalName != argument.Name)
+        IList<object> inParameterValues = new List<object>();
+        DvAction action;
+        using (StreamReader streamReader = new StreamReader(messageStream, streamEncoding))
+          using(XmlReader reader = XmlReader.Create(streamReader))
+          {
+            reader.MoveToContent();
+            // Parse SOAP envelope
+            reader.ReadStartElement("Envelope", UPnPConsts.NS_SOAP_ENVELOPE);
+            reader.ReadStartElement("Body", UPnPConsts.NS_SOAP_ENVELOPE);
+            // Reader is positioned at the action element
+            string serviceTypeVersion_URN = reader.NamespaceURI;
+            string type;
+            int version;
+            // Parse service and action
+            if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version))
+              return HttpStatusCode.BadRequest;
+            string actionName = reader.LocalName;
+            if (!service.Actions.TryGetValue(actionName, out action))
+            {
+              result = CreateFaultDocument(401, "Invalid Action");
+              return HttpStatusCode.InternalServerError;
+            }
+            reader.ReadStartElement(); // Action name
+            IEnumerator<DvArgument> formalArgumentEnumer = action.InArguments.GetEnumerator();
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+              string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
+              if (!formalArgumentEnumer.MoveNext() || formalArgumentEnumer.Current.Name != argumentName)
+                  // Too many arguments
+              {
+                result = CreateFaultDocument(402, "Invalid Args");
+                return HttpStatusCode.InternalServerError;
+              }
+              object value;
+              if (SoapHelper.ReadNull(reader))
+                value = null;
+              else
+              {
+                res = formalArgumentEnumer.Current.SoapParseArgument(reader, !subscriberSupportsUPnP11, out value);
+                if (res != null)
+                {
+                  result = CreateFaultDocument(res.ErrorCode, res.ErrorDescription);
+                  return HttpStatusCode.InternalServerError;
+                }
+              }
+              inParameterValues.Add(value);
+            }
+            if (formalArgumentEnumer.MoveNext()) // Too few arguments
+            {
+              result = CreateFaultDocument(402, "Invalid Args");
+              return HttpStatusCode.InternalServerError;
+            }
+          }
+        IList<object> outParameterValues;
+        // Invoke action
+        try
         {
-          result = CreateFaultDocument(402, "Invalid Args");
+          res = action.InvokeAction(inParameterValues, out outParameterValues, false);
+        }
+        catch (Exception)
+        {
           return HttpStatusCode.InternalServerError;
         }
-        object value;
-        res = argument.SoapParseArgument(parameterNav, !subscriberSupportsUPnP11, out value);
         if (res != null)
         {
           result = CreateFaultDocument(res.ErrorCode, res.ErrorDescription);
           return HttpStatusCode.InternalServerError;
         }
-        inParameterValues.Add(value);
-      }
-      IList<object> outParameterValues;
-      // Invoke action
-      res = action.InvokeAction(inParameterValues, out outParameterValues, false);
-      if (res != null)
-      {
-        result = CreateFaultDocument(res.ErrorCode, res.ErrorDescription);
-        return HttpStatusCode.InternalServerError;
-      }
-      // Check output parameters
-      formalArguments = action.OutArguments;
-      if (outParameterValues.Count != formalArguments.Count)
-      {
-        result = CreateFaultDocument(501, "Action Failed");
-        return HttpStatusCode.InternalServerError;
-      }
-      IList<Parameter> outParams = new List<Parameter>();
-      for (int i = 0; i < formalArguments.Count; i++)
-      {
-        DvArgument argument = formalArguments[i];
-        object value = outParameterValues[i];
-        string serializedValue;
-        res = argument.SoapSerializeArgument(value, !subscriberSupportsUPnP11, out serializedValue);
-        if (res != null)
+        // Check output parameters
+        IList<DvArgument> formalArguments = action.OutArguments;
+        if (outParameterValues.Count != formalArguments.Count)
         {
           result = CreateFaultDocument(501, "Action Failed");
           return HttpStatusCode.InternalServerError;
         }
-        outParams.Add(new Parameter(argument, serializedValue));
+        IList<OutParameter> outParams = new List<OutParameter>();
+        for (int i = 0; i < formalArguments.Count; i++)
+          outParams.Add(new OutParameter(formalArguments[i], outParameterValues[i]));
+        result = CreateResultDocument(action, outParams, !subscriberSupportsUPnP11);
+        return HttpStatusCode.OK;
       }
-      result = CreateResultDocument(action, outParams);
-      return HttpStatusCode.OK;
+      catch (Exception)
+      {
+        return HttpStatusCode.BadRequest;
+      }
     }
 
-    protected static string CreateResultDocument(DvAction action, IList<Parameter> outParameters)
+    protected static string CreateResultDocument(DvAction action, IList<OutParameter> outParameters, bool forceSimpleValues)
     {
-      StringBuilder sb = new StringBuilder(
-          "<?xml version=\"1.0\"?>" +
-              "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/ " +
-                  "s:encodingStyle=\"http://schemas.xmlsoap.org./soap/encoding/\">" +
-                "<s:Body>" +
-                  "<u:");
-      sb.Append(action.Name);
-      sb.Append("Response xmlns:u=\"");
-      sb.Append(action.ParentService.ServiceTypeVersion_URN);
-      sb.Append("\">");
-      foreach (Parameter parameter in outParameters)
+      StringBuilder result = new StringBuilder(2000);
+      XmlWriter writer = XmlWriter.Create(result);
+      SoapHelper.WriteSoapEnvelopeStart(writer, true);
+      writer.WriteStartElement("u", action.Name + "Response", action.ParentService.ServiceTypeVersion_URN);
+      foreach (OutParameter parameter in outParameters)
       {
-        sb.Append("<");
-        sb.Append(parameter.Argument.Name);
-        sb.Append(">");
-        sb.Append(parameter.XMLValue);
-        sb.Append("</");
-        sb.Append(parameter.Argument.Name);
-        sb.Append(">");
+        writer.WriteStartElement(parameter.Argument.Name);
+        parameter.Argument.SoapSerializeArgument(parameter.Value, forceSimpleValues, writer);
+        writer.WriteEndElement(); // parameter.Argument.Name
       }
-      sb.Append(
-                  "</u:");
-      sb.Append(action.Name);
-      sb.Append("Response>" +
-                "</s:Body" +
-              "</s:Envelope>");
-      return sb.ToString();
+      writer.WriteEndElement(); // u:[action.Name]Response
+      SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
+      return result.ToString();
     }
 
     protected static string CreateFaultDocument(int errorCode, string errorDescription)
     {
-      StringBuilder sb = new StringBuilder(
-          "<?xml version=\"1.0\"?>" +
-            "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/ " +
-                "s:encodingStyle=\"http://schemas.xmlsoap.org./soap/encoding/\">" +
-              "<s:Body>" +
-                "<s:Fault>" +
-                  "<faultcode>x:Client</faultcode>" +
-                  "<faultstring>UPnPError</faultstring>" +
-                  "<detail>" +
-                    "<UPnPError xmlns=\"urn:schemas-upnp-org:control-1-0\">" +
-                      "<errorCode>", 10000);
-      sb.Append(
-                        errorCode);
-      sb.Append(
-                      "</errorCode>" +
-                      "<errorDescription>");
-      sb.Append(
-                        errorDescription);
-      sb.Append(
-                      "</errorDescription>" +
-                    "</UPnPError>" +
-                  "</detail>" +
-                "</s:Fault>" +
-              "</s:Body>" +
-            "</s:Envelope>");
-      return sb.ToString();
+      StringBuilder result = new StringBuilder(2000);
+      XmlWriter writer = XmlWriter.Create(result);
+      SoapHelper.WriteSoapEnvelopeStart(writer, false);
+      writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
+      writer.WriteElementString("faultcode", "x:Client");
+      writer.WriteElementString("faultstring", "UPnPError");
+      writer.WriteStartElement("detail");
+      writer.WriteStartElement("UPnPError");
+      writer.WriteAttributeString(null, "xmlns", null, UPnPConsts.NS_UPNP_CONTROL);
+      writer.WriteElementString("errorCode", errorCode.ToString());
+      writer.WriteElementString("errorDescription", errorDescription);
+      writer.WriteEndElement(); // UPnPError
+      writer.WriteEndElement(); // detail
+      writer.WriteEndElement(); // s:Fault
+      SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
+      return result.ToString();
     }
   }
 }

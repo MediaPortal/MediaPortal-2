@@ -41,31 +41,35 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   public abstract class CpDataType
   {
     /// <summary>
-    /// Serializes the given <paramref name="value"/> in the serialization strategy specified by this UPnP data type. The
-    /// serialized value will be an XML string.
+    /// Serializes the given <paramref name="value"/> as the value of the <paramref name="writer"/>s current element
+    /// in the serialization strategy specified by this UPnP data type.
     /// </summary>
     /// <remarks>
-    /// The returned string is a serialized XML node which contains either the serialized value directly, encoded as
-    /// string (for simple data types and for UPnP 1.0 complex data types, if <paramref name="forceSimpleValue"/> is set to
-    /// <c>true</c>), or which contains a serialized XML element containing the structure as specified by the schema type
-    /// of this data type for extended UPnP 1.1 data types.
+    /// The value is either encoded as string (for simple data types and for UPnP 1.0 complex data types,
+    /// if <paramref name="forceSimpleValue"/> is set to <c>true</c>), or as an XML element containing the structure
+    /// as specified by the schema type of this data type for extended UPnP 1.1 data types.
+    /// The writer's position is the start of the parent element, the result should go. After this method returns, the writer
+    /// must have read the end element.</param>
     /// </remarks>
     /// <param name="value">Value to be serialized.</param>
     /// <param name="forceSimpleValue">If set to <c>true</c>, also extended datatypes will be serialized using their
     /// "string equivalent".</param>
-    /// <returns>SOAP serialization for the given <paramref name="value"/>.</returns>
-    public abstract string SoapSerializeValue(object value, bool forceSimpleValue);
+    /// <returns>SOAP serialization for the given <paramref name="value"/>. May be <c>null</c> for serializations of
+    /// <c>null</c> values. In this case, an attriute <i>xsi:null="true"</i> must be added in the enclosing SOAP element.</returns>
+    public abstract void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
 
     /// <summary>
-    /// Deserializes the contents of the given SOAP <paramref name="enclosingElementNav"/> to an object of this UPnP data type.
+    /// Deserializes the contents of the current element of the given <paramref name="reader"/>
+    /// to an object of this UPnP data type.
     /// </summary>
-    /// <param name="enclosingElementNav">XPath navigator pointing to an XML element which contains a SOAP representation
-    /// of an object of this UPnP data type.</param>
+    /// <param name="reader">XML reader whose current element's value will be deserialized.
+    /// The reader's position is the start of the parent element, the result comes from. After this method returns, the reader
+    /// must have read the end element.</param>
     /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized from its
     /// string-equivalent, i.e. the XML text content of the given XML element should be examined,
     /// else the value should be deserialized from the extended representation of this data type.</param>
     /// <returns>Value which was deserialized.</returns>
-    public abstract object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue);
+    public abstract object SoapDeserializeValue(XmlReader reader, bool isSimpleValue);
 
     /// <summary>
     /// Returns the information if an object of the given type can be assigned to a variable of this UPnP data type.
@@ -87,6 +91,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       Type actualType = value == null ? null : value.GetType();
       return actualType == null || IsAssignableFrom(actualType);
     }
+
+    #region Connection
 
     internal static CpDataType CreateDataType(XPathNavigator dataTypeElementNav, IXmlNamespaceResolver nsmgr,
         DataTypeResolverDlgt dataTypeResolver)
@@ -114,5 +120,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
         return new CpExtendedDataType(new ExtendedDataTypeDummy(schemaURI, dataTypeName));
       }
     }
+
+    #endregion
   }
 }

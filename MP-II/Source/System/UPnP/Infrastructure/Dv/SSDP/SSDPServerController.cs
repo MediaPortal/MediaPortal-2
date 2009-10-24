@@ -269,18 +269,18 @@ namespace UPnP.Infrastructure.Dv.SSDP
     {
       AddressFamily family = config.EndPointIPAddress.AddressFamily;
       if (family == AddressFamily.InterNetwork)
-        config.SSDPMulticastAddress = Consts.SSDP_MULTICAST_ADDRESS_V4;
+        config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V4;
       else if (family == AddressFamily.InterNetworkV6)
-        config.SSDPMulticastAddress = Consts.SSDP_MULTICAST_ADDRESS_V6;
+        config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V6;
       else
         return;
-      config.SSDPSearchPort = Consts.DEFAULT_SSDP_SEARCH_PORT;
+      config.SSDPSearchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
 
       // Multicast receiver socket - used for receiving multicast messages
       Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
       socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
       // Need to bind the multicast socket to the multicast port. Which meaning does the IP address have?
-      socket.Bind(new IPEndPoint(config.EndPointIPAddress, Consts.SSDP_MULTICAST_PORT));
+      socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
       if (family == AddressFamily.InterNetwork)
       {
         socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,

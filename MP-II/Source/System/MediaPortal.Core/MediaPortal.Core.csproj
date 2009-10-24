@@ -211,7 +211,7 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
-    <Compile Include="UPnP\Consts.cs" />
+    <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAspectMetadata.cs" />

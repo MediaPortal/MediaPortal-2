@@ -162,7 +162,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             nextScheduleTimeSpan = ts;
         }
         if (nextScheduleTimeSpan.HasValue)
-          _notificationTimer.Change(nextScheduleTimeSpan.Value, Consts.INFINITE_TIMESPAN);
+          _notificationTimer.Change(nextScheduleTimeSpan.Value, UPnPConsts.INFINITE_TIMESPAN);
       }
     }
 
@@ -277,7 +277,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         config.GENAMulticastAddress = GENA_MULTICAST_ADDRESS_V6;
       else
         return;
-      config.EndPointGENAPort = Consts.GENA_MULTICAST_PORT;
+      config.EndPointGENAPort = UPnPConsts.GENA_MULTICAST_PORT;
     }
 
     /// <summary>

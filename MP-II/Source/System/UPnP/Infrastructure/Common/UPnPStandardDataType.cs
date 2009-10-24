@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Common
@@ -93,8 +94,22 @@ namespace UPnP.Infrastructure.Common
       get { return _dotNetType; }
     }
 
-    public string SoapSerializeValue(object value)
+    /// <summary>
+    /// Serializes the given <paramref name="value"/> as contents of the current element in the
+    /// given XML <paramref name="writer"/> in the formatting rules given by this data type.
+    /// </summary>
+    /// <param name="value">Value to serialize. The value must be of this data type.</param>
+    /// <param name="writer">XML writer where the value will be serialized to. The value will be serialized as
+    /// contents of the writer's current element.
+    /// The writer's position is the start of the parent element, the result should go. The caller will write the end
+    /// element tag.</param>
+    public void SoapSerializeValue(object value, XmlWriter writer)
     {
+      if (value == null)
+      {
+        SoapHelper.WriteNull(writer);
+        return;
+      }
       switch (_upnpTypeName)
       {
         case "ui1":
@@ -104,97 +119,125 @@ namespace UPnP.Infrastructure.Common
         case "i2":
         case "i4":
         case "int":
-          return value.ToString();
+          writer.WriteString(value.ToString());
+          break;
         case "r4":
         case "r8":
         case "number":
         case "float":
-          return ((Double) value).ToString("E");
+          writer.WriteString(((Double) value).ToString("E"));
+          break;
         case "fixed.14.4":
-          return ((Double) value).ToString("0.##############E+0");
+          writer.WriteString(((Double) value).ToString("0.##############E+0"));
+          break;
         case "char":
         case "string":
         case "uuid":
-          return EncodingUtils.XMLEscape(value.ToString());
+          writer.WriteString(value.ToString());
+          break;
         case "date":
-          return ((DateTime) value).ToString("yyyy-MM-dd");
+          writer.WriteString(((DateTime) value).ToString("yyyy-MM-dd"));
+          break;
         case "dateTime":
-          return ((DateTime) value).ToString("s");
+          writer.WriteString(((DateTime) value).ToString("s"));
+          break;
         case "dateTime.tz":
-          return ((DateTime) value).ToUniversalTime().ToString("u");
+          writer.WriteString(((DateTime) value).ToUniversalTime().ToString("u"));
+          break;
         case "time":
-          return ((DateTime) value).ToString("T");
+          writer.WriteString(((DateTime) value).ToString("T"));
+          break;
         case "time.tz":
-          return ((DateTime) value).ToUniversalTime().ToString("hh:mm:ss");
+          writer.WriteString(((DateTime) value).ToUniversalTime().ToString("hh:mm:ss"));
+          break;
         case "boolean":
-          return ((bool) value) ? "1" : "0";
+          writer.WriteValue((bool) value);
+          break;
         case "bin.base64":
-          return Convert.ToBase64String((byte[]) value);
+          writer.WriteValue(value);
+          break;
         case "bin.hex":
-          return EncodingUtils.ToHexString((byte[]) value);
+          writer.WriteString(EncodingUtils.ToHexString((byte[]) value));
+          break;
         case "uri":
-          return EncodingUtils.XMLEscape(((Uri) value).AbsoluteUri);
+          writer.WriteString(((Uri) value).AbsoluteUri);
+          break;
         default:
           throw new NotImplementedException(string.Format("UPnP standard data type '{0}' is not implemented", _upnpTypeName));
       }
     }
 
-    public object SoapDeserializeValue(string serializedValue)
+    /// <summary>
+    /// Deserializes the contents of the given XML <paramref name="reader"/>'s current element in the formatting rules
+    /// given by this data type.
+    /// </summary>
+    /// <param name="reader">XML reader whose current element's value will be deserialized.
+    /// The reader's position is the start of the parent element, the result should go. After this method returns, the reader
+    /// must have read the end element.</param>
+    /// <returns>Deserialized object of this data type (may be <c>null</c>).</returns>
+    public object SoapDeserializeValue(XmlReader reader)
     {
-      switch (_upnpTypeName)
+      object result;
+      if (SoapHelper.ReadNull(reader))
       {
-        case "ui1":
-          return Byte.Parse(serializedValue);
-        case "ui2":
-          return UInt16.Parse(serializedValue);
-        case "ui4":
-          return UInt32.Parse(serializedValue);
-        case "i1":
-          return SByte.Parse(serializedValue);
-        case "i2":
-          return Int16.Parse(serializedValue);
-        case "i4":
-          return Int32.Parse(serializedValue);
-        case "int":
-          return int.Parse(serializedValue);
-        case "r4":
-          return Single.Parse(serializedValue);
-        case "r8":
-          return Double.Parse(serializedValue);
-        case "number":
-          return double.Parse(serializedValue);
-        case "fixed.14.4":
-          return double.Parse(serializedValue);
-        case "float":
-          return float.Parse(serializedValue);
-        case "char":
-          if (serializedValue.Length != 1)
-            throw new ArgumentException(string.Format("String '{0}' is not compatible with char", serializedValue));
-          return serializedValue[0];
-        case "string":
-        case "uuid":
-          return EncodingUtils.XMLUnescape(serializedValue);
-        case "date":
-          return System.DateTime.Parse(serializedValue);
-        case "dateTime":
-          return System.DateTime.Parse(serializedValue);
-        case "dateTime.tz":
-          return System.DateTime.Parse(serializedValue);
-        case "time":
-          return System.DateTime.Parse(serializedValue);
-        case "time.tz":
-          return System.DateTime.Parse(serializedValue);
-        case "boolean":
-          return bool.Parse(serializedValue);
-        case "bin.base64":
-          return Convert.FromBase64String(serializedValue);
-        case "bin.hex":
-          return EncodingUtils.FromHexString(serializedValue);
-        case "uri":
-          return new Uri(EncodingUtils.XMLUnescape(System.Web.HttpUtility.UrlDecode(serializedValue)));
-        default:
-          throw new NotImplementedException(string.Format("UPnP standard data type '{0}' is not implemented", _upnpTypeName));
+        reader.ReadStartElement();
+        reader.ReadEndElement();
+        result = null;
       }
+      else
+        switch (_upnpTypeName)
+        {
+          case "ui1":
+          case "ui2":
+          case "ui4":
+          case "i1":
+          case "i2":
+          case "i4":
+          case "int":
+          case "r4":
+          case "r8":
+          case "number":
+          case "fixed.14.4":
+          case "float":
+          case "char":
+            result = reader.ReadElementContentAs(_dotNetType, null);
+            break;
+          case "string":
+          case "uuid":
+            result = reader.ReadElementContentAsString();
+            break;
+          case "date":
+            result = System.DateTime.ParseExact(reader.ReadElementContentAsString(), "yyyy-MM-dd", null);
+            break;
+          case "dateTime":
+            result = System.DateTime.ParseExact(reader.ReadElementContentAsString(), "s", null);
+            break;
+          case "dateTime.tz":
+            result = System.DateTime.ParseExact(reader.ReadElementContentAsString(), "u", null).ToLocalTime();
+            break;
+          case "time":
+            result = System.DateTime.ParseExact(reader.ReadElementContentAsString(), "T", null);
+            break;
+          case "time.tz":
+            result = System.DateTime.ParseExact(reader.ReadElementContentAsString(), "hh:mm:ss", null).ToLocalTime();
+            break;
+          case "boolean":
+            result = reader.ReadElementContentAs(_dotNetType, null);
+            break;
+          case "bin.base64":
+            result = reader.ReadElementContentAs(_dotNetType, null);
+            break;
+          case "bin.hex":
+            result = EncodingUtils.FromHexString(reader.ReadElementContentAsString());
+            break;
+          case "uri":
+            result = new Uri(reader.ReadElementContentAsString());
+            break;
+          default:
+            throw new NotImplementedException(string.Format("UPnP standard data type '{0}' is not implemented", _upnpTypeName));
+        }
+      reader.ReadEndElement();
+      return result;
     }
 
     public double GetNumericValue(object val)

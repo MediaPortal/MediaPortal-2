@@ -24,9 +24,8 @@
 #endregion
 
 using System;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.DeviceTree
 {
@@ -35,32 +34,31 @@ namespace UPnP.Infrastructure.CP.DeviceTree
   /// </summary>
   public class CpStandardDataType : CpDataType
   {
-    protected UPnPStandardDataType _type;
+    protected UPnPStandardDataType _dataType;
 
-    public CpStandardDataType(UPnPStandardDataType type)
+    public CpStandardDataType(UPnPStandardDataType dataType)
     {
-      _type = type;
+      _dataType = dataType;
     }
 
-    public UPnPStandardDataType Type
+    public UPnPStandardDataType DataType
     {
-      get { return _type; }
+      get { return _dataType; }
     }
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      return _type.SoapSerializeValue(value);
+      _dataType.SoapSerializeValue(value, writer);
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      string serializedValue = ParserHelper.SelectText(enclosingElementNav, "text()", null);
-      return _type.SoapDeserializeValue(serializedValue);
+      return _dataType.SoapDeserializeValue(reader);
     }
 
     public override bool IsAssignableFrom(Type type)
     {
-      return _type.DotNetType.IsAssignableFrom(type);
+      return _dataType.DotNetType.IsAssignableFrom(type);
     }
   }
 }

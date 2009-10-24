@@ -26,6 +26,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Xml;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -282,193 +283,97 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <returns>UPnP device description document for this root device and all embedded devices.</returns>
     public string BuildRootDeviceDescription(ServerData serverData, EndpointConfiguration config, CultureInfo culture)
     {
-      StringBuilder result = new StringBuilder(
-          "<?xml version=\"1.0\"?>" +
-            "<root xmlns=\"urn:schemas-upnp-org:device-1-0\" configId=\"", 10000);
-      result.Append(serverData.ConfigId);
-      result.Append("\">" +
-              "<specVersion>" +
-                "<major>1</major>" +
-                "<minor>1</minor>" +
-              "</specVersion>");
-      AddDeviceDescriptionsRecursive(result, config, culture);
-      result.Append(
-            "</root>");
+      StringBuilder result = new StringBuilder(10000);
+      XmlWriter writer = XmlWriter.Create(result);
+      writer.WriteStartDocument();
+      writer.WriteStartElement("root");
+      // Default namespaces
+      writer.WriteAttributeString("xmlns", null, UPnPConsts.NS_DEVICE_DESCRIPTION);
+
+      writer.WriteAttributeString("configId", serverData.ConfigId.ToString());
+      writer.WriteStartElement("specVersion");
+      writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
+      writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
+      writer.WriteEndElement(); // specVersion
+      
+      AddDeviceDescriptionsRecursive(writer, config, culture);
+      writer.WriteEndElement(); // root
+      writer.Close();
       return result.ToString();
     }
 
     /// <summary>
     /// Creates the UPnP device description XML fragment for this device, all embedded devices and all services.
     /// </summary>
-    /// <param name="result">Result string builder to add the XML string to.</param>
+    /// <param name="writer">Result XML writer to add the device descriptions fragment to.</param>
     /// <param name="config">UPnP endpoint which will be used to create the endpoint specific information.</param>
     /// <param name="culture">Culture to create the culture specific information.</param>
-    internal void AddDeviceDescriptionsRecursive(StringBuilder result, EndpointConfiguration config, CultureInfo culture)
+    internal void AddDeviceDescriptionsRecursive(XmlWriter writer, EndpointConfiguration config, CultureInfo culture)
     {
       ILocalizedDeviceInformation deviceInformation = _deviceInformation;
-      result.Append(
-          "<device>" +
-            "<deviceType>");
-      result.Append(
-              DeviceTypeVersion_URN);
-      result.Append(
-            "</deviceType>" +
-            "<friendlyName>");
-      result.Append(
-              deviceInformation.GetFriendlyName(culture));
-      result.Append(
-            "</friendlyName>" +
-            "<manufacturer>");
-      result.Append(
-              deviceInformation.GetManufacturer(culture));
-      result.Append(
-            "</manufacturer>");
+      writer.WriteStartElement("device");
+      writer.WriteElementString("deviceType", DeviceTypeVersion_URN);
+      writer.WriteElementString("friendlyName", deviceInformation.GetFriendlyName(culture));
+      writer.WriteElementString("manufacturer", deviceInformation.GetManufacturer(culture));
       string manufacturerURL = deviceInformation.GetManufacturerURL(culture);
       if (!string.IsNullOrEmpty(manufacturerURL))
-      {
-        result.Append(
-            "<manufacturerURL>");
-        result.Append(
-              manufacturerURL);
-        result.Append(
-            "</manufacturerURL>");
-      }
+        writer.WriteElementString("manufacturerURL", manufacturerURL);
       string modelDescription = deviceInformation.GetModelDescription(culture);
       if (!string.IsNullOrEmpty(modelDescription))
-      {
-        result.Append(
-            "<modelDescription>");
-        result.Append(
-              modelDescription);
-        result.Append(
-            "</modelDescription>");
-      }
-      result.Append(
-            "<modelName>");
-      result.Append(
-              deviceInformation.GetModelName(culture));
-      result.Append(
-            "</modelName>");
+        writer.WriteElementString("modelDescription", modelDescription);
+      writer.WriteElementString("modelName", deviceInformation.GetModelName(culture));
       string modelNumber = deviceInformation.GetModelNumber(culture);
       if (!string.IsNullOrEmpty(modelNumber))
-      {
-        result.Append(
-            "<modelNumber>");
-        result.Append(
-              modelNumber);
-        result.Append(
-            "</modelNumber>");
-      }
+        writer.WriteElementString("modelNumber", modelNumber);
       string modelURL = deviceInformation.GetModelURL(culture);
       if (!string.IsNullOrEmpty(modelURL))
-      {
-        result.Append(
-            "<modelURL>");
-        result.Append(
-              modelURL);
-        result.Append(
-            "</modelURL>");
-      }
+        writer.WriteElementString("modelURL", modelURL);
       string serialNumber = deviceInformation.GetSerialNumber(culture);
       if (!string.IsNullOrEmpty(serialNumber))
-      {
-        result.Append(
-            "<serialNumber>");
-        result.Append(
-              serialNumber);
-        result.Append(
-            "</serialNumber>");
-      }
-      result.Append(
-            "<UDN>");
-      result.Append(
-              UDN);
-      result.Append(
-            "</UDN>");
+        writer.WriteElementString("serialNumber", serialNumber);
+      writer.WriteElementString("UDN", UDN);
       string upc = deviceInformation.GetUPC();
       if (!string.IsNullOrEmpty(upc))
-      {
-        result.Append(
-            "<UPC>");
-        result.Append(
-              upc);
-        result.Append(
-            "</UPC>");
-      }
+        writer.WriteElementString("UPC", upc);
       ICollection<IconDescriptor> icons = deviceInformation.GetIcons(culture);
       if (icons.Count > 0)
       {
-        result.Append(
-            "<iconList>");
+        writer.WriteStartElement("iconList");
         foreach (IconDescriptor icon in icons)
         {
-          result.Append(
-              "<icon>" +
-                "<mimetype>");
-          result.Append(
-                  icon.MimeType);
-          result.Append(
-                "</mimetype>" +
-                "<width>");
-          result.Append(
-                  icon.Width);
-          result.Append(
-                "</width>" +
-                "<height>");
-          result.Append(
-                  icon.Height);
-          result.Append(
-                "</height>" +
-                "<depth>");
-          result.Append(
-                  icon.ColorDepth);
-          result.Append(
-                "</depth>" +
-                "<url>");
-          result.Append(
-                  icon.GetIconURLDelegate(config.EndPointIPAddress, culture));
-          result.Append(
-                "</url>" +
-              "</icon>");
+          writer.WriteStartElement("icon");
+          writer.WriteElementString("mimetype", icon.MimeType);
+          writer.WriteElementString("width", icon.Width.ToString());
+          writer.WriteElementString("height", icon.Height.ToString());
+          writer.WriteElementString("depth", icon.ColorDepth.ToString());
+          writer.WriteElementString("url", icon.GetIconURLDelegate(config.EndPointIPAddress, culture));
+          writer.WriteEndElement(); // icon
         }
-        result.Append(
-            "</iconList>");
+        writer.WriteEndElement(); // iconList
       }
       ICollection<DvService> services = _services;
       if (services.Count > 0)
       {
-        result.Append(
-            "<serviceList>");
+        writer.WriteStartElement("serviceList");
         foreach (DvService service in services)
-          service.AddDeviceDescriptionForService(result, config);
-        result.Append(
-            "</serviceList>");
+          service.AddDeviceDescriptionForService(writer, config);
+        writer.WriteEndElement(); // serviceList
       }
       ICollection<DvDevice> embeddedDevices = _embeddedDevices;
       if (embeddedDevices.Count > 0)
       {
-        result.Append(
-            "<deviceList>");
+        writer.WriteStartElement("deviceList");
         foreach (DvDevice embeddedDevice in embeddedDevices)
-          embeddedDevice.AddDeviceDescriptionsRecursive(result, config, culture);
-        result.Append(
-            "</deviceList>");
+          embeddedDevice.AddDeviceDescriptionsRecursive(writer, config, culture);
+        writer.WriteEndElement(); // deviceList
       }
       GetURLForEndpointDlgt presentationURLGetter = GetPresentationURLDelegate;
       string presentationURL = null;
       if (presentationURLGetter != null)
         presentationURL = presentationURLGetter(config.EndPointIPAddress, culture);
       if (!string.IsNullOrEmpty(presentationURL))
-      {
-        result.Append(
-            "<presentationURL>");
-        result.Append(
-              presentationURL);
-        result.Append(
-            "</presentationURL>");
-      }
-      result.Append(
-          "</device>");
+        writer.WriteElementString("presentationURL", presentationURL);
+      writer.WriteEndElement(); // device
     }
 
     #endregion

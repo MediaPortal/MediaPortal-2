@@ -24,9 +24,8 @@
 #endregion
 
 using System;
-using System.Xml.XPath;
+using System.Xml;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 
@@ -48,20 +47,23 @@ namespace MediaPortal.Core.UPnP
       get { return false; }
     }
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       if (value != null && !(value is Share))
         throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShare).Name, value.GetType().Name);
       if (value == null)
-        return string.Empty;
+        SoapWriteNull(writer);
       Share share = (Share) value;
-      return share.Serialize();
+      share.Serialize(writer);
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      string serialization = StringUtils.TrimToEmpty(enclosingElementNav.InnerXml);
-      return string.IsNullOrEmpty(serialization) ? null : Share.Deserialize(serialization);
+      if (SoapReadNull(reader))
+        return null;
+      Share result = Share.Deserialize(reader);
+      reader.ReadEndElement();
+      return result;
     }
 
     public override bool IsAssignableFrom(Type type)

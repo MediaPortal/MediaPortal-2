@@ -24,9 +24,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -36,33 +34,31 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// </summary>
   public class DvStandardDataType : DvDataType
   {
-    protected UPnPStandardDataType _type;
+    protected UPnPStandardDataType _dataType;
 
-    public DvStandardDataType(UPnPStandardDataType type)
+    public DvStandardDataType(UPnPStandardDataType dataType)
     {
-      _type = type;
+      _dataType = dataType;
     }
 
-    public override string SoapSerializeValue(object value, bool forceSimpleValue)
+    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      return _type.SoapSerializeValue(value);
+      _dataType.SoapSerializeValue(value, writer);
     }
 
-    public override object SoapDeserializeValue(XPathNavigator enclosingElementNav, bool isSimpleValue)
+    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      XPathNodeIterator it = enclosingElementNav.Select("text()");
-      string serializedValue = it.MoveNext() ? it.Current.Value : string.Empty;
-      return _type.SoapDeserializeValue(serializedValue);
+      return _dataType.SoapDeserializeValue(reader);
     }
 
     public override bool IsAssignableFrom(Type type)
     {
-      return _type.DotNetType.IsAssignableFrom(type);
+      return _dataType.DotNetType.IsAssignableFrom(type);
     }
 
     public double GetNumericValue(object val)
     {
-      return _type.GetNumericValue(val);
+      return _dataType.GetNumericValue(val);
     }
 
     public double GetNumericDelta(object value1, object value2)
@@ -72,13 +68,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal override void AddSCDPDescriptionForStandardDataType(StringBuilder result,
-        IDictionary<string, string> dataTypeSchemas2NSPrefix)
+    internal override void AddSCDPDescriptionForStandardDataType(XmlWriter writer)
     {
-      result.Append(
-          "<dataType>");
-      result.Append(_type.UPnPTypeName);
-      result.Append("</dataType>");
+      writer.WriteStartElement("dataType");
+      writer.WriteString(_dataType.UPnPTypeName);
+      writer.WriteEndElement();
     }
 
     #endregion

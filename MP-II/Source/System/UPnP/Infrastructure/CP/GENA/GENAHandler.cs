@@ -27,7 +27,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Xml.XPath;
+using System.Xml;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -41,18 +41,19 @@ namespace UPnP.Infrastructure.CP.GENA
       try
       {
         // Parse XML document
-        XPathDocument doc = new XPathDocument(new StreamReader(stream, streamEncoding));
-        XPathNavigator nav = doc.CreateNavigator();
-        nav.MoveToChild(XPathNodeType.Element);
-        if (nav.LocalName != "propertyset" || nav.NamespaceURI != "urn:schemas-upnp-org:event-1-0")
-          return HttpStatusCode.BadRequest;
-        XPathNodeIterator propertyIt = nav.SelectChildren("property", "urn:schemas-upnp-org:event-1-0");
-        while (propertyIt.MoveNext())
-        {
-          XPathNavigator variableNav = propertyIt.Current.Clone();
-          if (variableNav.MoveToChild(XPathNodeType.Element))
-            HandleVariableChangeNotification(variableNav, service, upnpVersion);
-        }
+        using (StreamReader streamReader = new StreamReader(stream, streamEncoding))
+          using (XmlReader reader = XmlReader.Create(streamReader))
+          {
+            reader.MoveToContent();
+            reader.ReadStartElement("propertyset", UPnPConsts.NS_UPNP_EVENT);
+            while (reader.NodeType != XmlNodeType.EndElement)
+            {
+              reader.ReadStartElement("property", UPnPConsts.NS_UPNP_EVENT);
+              HandleVariableChangeNotification(reader, service, upnpVersion);
+              reader.ReadEndElement(); // property
+            }
+            reader.Close();
+          }
         return HttpStatusCode.OK;
       }
       catch (Exception)
@@ -61,15 +62,14 @@ namespace UPnP.Infrastructure.CP.GENA
       }
     }
 
-    protected static void HandleVariableChangeNotification(XPathNavigator variableNav, CpService service, UPnPVersion upnpVersion)
+    protected static void HandleVariableChangeNotification(XmlReader reader, CpService service, UPnPVersion upnpVersion)
     {
-      string variableName = variableNav.LocalName;
+      string variableName = reader.LocalName;
       CpStateVariable stateVariable;
       if (!service.StateVariables.TryGetValue(variableName, out stateVariable))
-        // We don't know that variable. This is no error case, as the service might have
-        // only a subset of state variable templates defined
+        // We don't know that variable - this is an error case but we won't raise an exception here
         return;
-      object value = stateVariable.DataType.SoapDeserializeValue(variableNav, upnpVersion.VerMin == 0);
+      object value = stateVariable.DataType.SoapDeserializeValue(reader, upnpVersion.VerMin == 0);
       stateVariable.Value = value;
     }
   }

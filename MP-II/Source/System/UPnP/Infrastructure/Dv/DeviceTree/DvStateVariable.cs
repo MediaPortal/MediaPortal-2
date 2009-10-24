@@ -25,7 +25,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Xml;
 using MediaPortal.Utilities.Exceptions;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
@@ -42,7 +42,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     protected DvService _parentService = null;
     protected bool _sendEvents = true;
     protected bool _multicast = false;
-    protected string _multicastEventLevel = Consts.MEL_UPNP_INFO;
+    protected string _multicastEventLevel = UPnPConsts.MEL_UPNP_INFO;
     protected object _defaultValue = null; // Initial value of this state variable
     protected object _value = null;
     protected IList<string> _allowedValueList = null; // Only allowed for string data type
@@ -100,7 +100,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     /// <summary>
     /// Event level for multicasted state variables. If <see cref="Multicast"/> is set to <c>true</c>, this event level must be
-    /// set. Default event levels are defined in the MEL_XXX constants in the <see cref="Consts"/> class.
+    /// set. Default event levels are defined in the MEL_XXX constants in the <see cref="UPnPConsts"/> class.
     /// </summary>
     public string MulticastEventLevel
     {
@@ -141,6 +141,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// Enumerates legal string values.
     /// PROHIBITED for other data types than the UPnP standard string.
     /// This parameter MUST NOT be set if the <see cref="DataType"/> is a <see cref="DvExtendedDataType"/>.
+    /// Values must be < 32 characters.
     /// </remarks>
     public IList<string> AllowedValueList
     {
@@ -242,47 +243,29 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForStateVariable(StringBuilder result, IDictionary<string, string> dataTypeSchemas2NSPrefix)
+    internal void AddSCDPDescriptionForStateVariable(XmlWriter writer)
     {
-      result.Append(
-          "<stateVariable sendEvents=\"");
-      result.Append(_sendEvents ? "yes" : "no");
-      result.Append("\" multicast=\"");
-      result.Append(_multicast ? "yes" : "no");
-      result.Append("\">" +
-            "<name>");
-      result.Append(_name);
-      result.Append("</name>");
-      _dataType.AddSCDPDescriptionForStandardDataType(result, dataTypeSchemas2NSPrefix);
+      writer.WriteStartElement("stateVariable");
+      writer.WriteAttributeString("sendEvents", _sendEvents ? "yes" : "no");
+      writer.WriteAttributeString("multicast", _multicast ? "yes" : "no");
+      writer.WriteElementString("name", _name);
+      _dataType.AddSCDPDescriptionForStandardDataType(writer);
       if (_defaultValue != null)
       {
-        result.Append(
-            "<defaultValue>");
-        result.Append(
-              _dataType.SoapSerializeValue(_defaultValue, true));
-        result.Append(
-            "</defaultValue>");
+        writer.WriteStartElement("defaultValue");
+        _dataType.SoapSerializeValue(_defaultValue, true, writer);
+        writer.WriteEndElement(); // defaultValue
       }
       if (_allowedValueList != null && _allowedValueList.Count > 0)
       {
-        result.Append(
-            "<allowedValueList>");
+        writer.WriteStartElement("allowedValueList");
         foreach (string value in _allowedValueList)
-        {
-          result.Append(
-              "<allowedValue>");
-          result.Append(
-                value);
-          result.Append(
-              "</allowedValue>");
-        }
-        result.Append(
-            "</allowedValueList>");
+          writer.WriteElementString("allowedValue", value);
+        writer.WriteEndElement(); // allowedValueList
       }
       if (_allowedValueRange != null)
-        _allowedValueRange.AddSCDPDescriptionForValueRange(result);
-      result.Append(
-          "</stateVariable>");
+        _allowedValueRange.AddSCDPDescriptionForValueRange(writer);
+      writer.WriteEndElement(); // stateVariable
     }
 
     #endregion

@@ -270,16 +270,16 @@ namespace UPnP.Infrastructure.CP.SSDP
           EndpointConfiguration config = new EndpointConfiguration();
           AddressFamily family = address.AddressFamily;
           if (family == AddressFamily.InterNetwork)
-            config.SSDPMulticastAddress = Consts.SSDP_MULTICAST_ADDRESS_V4;
+            config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V4;
           else if (family == AddressFamily.InterNetworkV6)
-            config.SSDPMulticastAddress = Consts.SSDP_MULTICAST_ADDRESS_V6;
+            config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V6;
           else
             continue;
           config.EndPointIPAddress = address;
           // Multicast receiver socket - used for receiving multicast messages
           Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
           socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-          socket.Bind(new IPEndPoint(config.EndPointIPAddress, Consts.SSDP_MULTICAST_PORT));
+          socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
           if (family == AddressFamily.InterNetwork)
             socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
                 new MulticastOption(config.SSDPMulticastAddress));
@@ -508,7 +508,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       {
         foreach (EndpointConfiguration config in _endpoints)
         {
-          IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, Consts.SSDP_MULTICAST_PORT);
+          IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
           request.SetHeader("HOST", ep.ToString());
           byte[] bytes = request.Encode();
           config.UnicastSocket.SendTo(bytes, ep); // The server will send the answer to the same socket as we use to send

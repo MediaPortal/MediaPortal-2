@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -209,90 +210,59 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <returns>UPnP service description document.</returns>
     public string BuildSCDPDocument(ServerData serverData)
     {
-      IDictionary<string, string> dataTypeSchemas2NSPrefix = new Dictionary<string, string>();
-      int ct = 0;
+      StringBuilder result = new StringBuilder(10000);
+      XmlWriter writer = XmlWriter.Create(result);
+      writer.WriteStartDocument();
+      writer.WriteStartElement("scpd");
+      // Default namespaces
+      writer.WriteAttributeString("xmlns", null, UPnPConsts.NS_SERVICE_DESCRIPTION);
+      writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
+      // Datatype schema namespaces
+      uint ct = 0;
       foreach (DvStateVariable stateVariable in _stateVariables.Values)
       {
         DvDataType dataType = stateVariable.DataType;
         if (dataType is DvExtendedDataType)
         {
           string schemaURI = ((DvExtendedDataType) dataType).SchemaURI;
-          if (!dataTypeSchemas2NSPrefix.ContainsKey(schemaURI))
-            dataTypeSchemas2NSPrefix.Add(schemaURI, "dt" + ct++);
+          writer.WriteAttributeString("xmlns", "dt" + ct++, null, schemaURI);
         }
       }
-      StringBuilder result = new StringBuilder(
-          "<?xml version=\"1.0\"?>" +
-          "<scdp xmlns=\"urn:schemas-upnp-org:service-1-0\" ", 10000);
-      foreach (KeyValuePair<string, string> schemaNSPrefix in dataTypeSchemas2NSPrefix)
-      {
-        result.Append("xmlns:");
-        result.Append(schemaNSPrefix.Value);
-        result.Append("=\"");
-        result.Append(schemaNSPrefix.Key);
-        result.Append("\" ");
-      }
-      result.Append(
-              "configId=\"");
-      result.Append(serverData.ConfigId);
-      result.Append("\">" +
-            "<specVersion>" +
-              "<major>1</major>" +
-              "<minor>1</minor>" +
-            "</specVersion>");
+      writer.WriteAttributeString("configId", serverData.ConfigId.ToString());
+      writer.WriteStartElement("specVersion");
+      writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
+      writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
+      writer.WriteEndElement(); // specVersion
+
       ICollection<DvAction> actions = _actions.Values;
       if (actions.Count > 0)
       {
-        result.Append(
-            "<actionList>");
+        writer.WriteStartElement("actionList");
         foreach (DvAction action in actions)
-          action.AddSCDPDescriptionForAction(result);
-        result.Append(
-            "</actionList>");
+          action.AddSCDPDescriptionForAction(writer);
+        writer.WriteEndElement(); // actionList
       }
-      result.Append(
-            "<serviceStateTable>");
+      writer.WriteStartElement("serviceStateTable");
       foreach (DvStateVariable stateVariable in _stateVariables.Values)
-        stateVariable.AddSCDPDescriptionForStateVariable(result, dataTypeSchemas2NSPrefix);
-      result.Append(
-            "</serviceStateTable>" +
-          "</scdp>");
+        stateVariable.AddSCDPDescriptionForStateVariable(writer);
+      writer.WriteEndElement(); // serviceStateTable
+      writer.WriteEndElement(); // scpd
+      writer.WriteEndDocument();
+      writer.Close();
       return result.ToString();
     }
 
-    internal void AddDeviceDescriptionForService(StringBuilder result, EndpointConfiguration config)
+    internal void AddDeviceDescriptionForService(XmlWriter writer, EndpointConfiguration config)
     {
-      Uri parentDeviceUri = new Uri(config.RootDeviceDescriptionURLs[_parentDevice]);
       ServiceURLs serviceURLs = config.ServiceURLs[this];
-      result.Append(
-          "<service>" +
-            "<serviceType>");
-      result.Append(
-              ServiceTypeVersion_URN);
-      result.Append(
-            "</serviceType>" +
-            "<serviceId>");
-      result.Append(
-              _serviceId);
-      result.Append(
-            "</serviceId>" +
-            "<SCPDURL>");
-      result.Append(
-              new Uri(serviceURLs.SCDPURL).AbsolutePath);
-      result.Append(
-            "</SCPDURL>" +
-            "<controlURL>");
-      result.Append(
-              new Uri(serviceURLs.ControlURL).AbsolutePath);
-      result.Append(
-            "</controlURL>" +
-            "<eventSubURL>");
-      result.Append(
-              new Uri(serviceURLs.EventSubURL).AbsolutePath);
-      result.Append(
-            "</eventSubURL>");
-      result.Append(
-          "</service>");
+
+      writer.WriteStartElement("service");
+      writer.WriteElementString("serviceType", ServiceTypeVersion_URN);
+      writer.WriteElementString("serviceId", _serviceId);
+      writer.WriteElementString("SCPDURL", new Uri(serviceURLs.SCDPURL).AbsolutePath);
+      writer.WriteElementString("controlURL", new Uri(serviceURLs.ControlURL).AbsolutePath);
+      writer.WriteElementString("eventSubURL", new Uri(serviceURLs.EventSubURL).AbsolutePath);
+      writer.WriteEndElement(); // service
     }
 
     #endregion

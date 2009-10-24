@@ -114,23 +114,5 @@ namespace UPnP.Infrastructure.Utils
         return it.Current.Value;
       throw new ArgumentException(string.Format("Error evaluating XPath expression '{0}'", xPathExpr));
     }
-
-    /// <summary>
-    /// Given an XPath navigator <paramref name="soapEnvelopeNav"/> pointing to an XML element with a SOAP envelope,
-    /// this method unwraps the envelope and returns the <paramref name="body"/> element.
-    /// </summary>
-    /// <param name="soapEnvelopeNav">XPath navigator pointing to a SOAP envelope XML element.</param>
-    /// <param name="body">Unwrapped SOAP body.</param>
-    /// <returns><c>true</c> if the unwrapping was successful, else <c>false</c>.</returns>
-    public static bool UnwrapSoapEnvelopeElement(XPathNavigator soapEnvelopeNav, out XPathNavigator body)
-    {
-      body = null;
-      if (soapEnvelopeNav == null || soapEnvelopeNav.LocalName != "Envelope" || soapEnvelopeNav.NamespaceURI != Consts.NS_SOAP_ENVELOPE)
-        return false;
-      XPathNodeIterator it = soapEnvelopeNav.SelectChildren("Body", Consts.NS_SOAP_ENVELOPE);
-      if (it.MoveNext())
-        body = it.Current;
-      return true;
-    }
   }
 }
