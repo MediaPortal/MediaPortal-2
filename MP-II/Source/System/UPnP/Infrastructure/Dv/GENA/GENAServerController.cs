@@ -248,7 +248,8 @@ namespace UPnP.Infrastructure.Dv.GENA
         foreach (DvStateVariable variable in kvp.Key.StateVariables.Values)
           if (variable.Multicast)
             multicastVariables.Add(variable);
-        kvp.Value.ScheduleEventNotification(multicastVariables, now);
+        if (multicastVariables.Count > 0)
+          kvp.Value.ScheduleEventNotification(multicastVariables, now);
       }
       ScheduleMulticastEvents();
     }
@@ -509,7 +510,8 @@ namespace UPnP.Infrastructure.Dv.GENA
         foreach (DvStateVariable variable in subscription.Service.StateVariables.Values)
           if (variable.SendEvents)
             variables.Add(variable);
-        subscription.ScheduleEventNotification(variables);
+        if (variables.Count > 0)
+          subscription.ScheduleEventNotification(variables);
       }
     }
 
