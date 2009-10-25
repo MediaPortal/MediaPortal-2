@@ -203,7 +203,10 @@ namespace UPnP.Infrastructure.Dv.GENA
             return;
           }
       }
-      catch (WebException) { }
+      catch (WebException e)
+      {
+        e.Response.Close();
+      }
       // Try next callback URL
       ContinueEventNotification(state);
     }

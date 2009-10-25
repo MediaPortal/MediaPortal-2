@@ -242,7 +242,7 @@ namespace UPnP.Infrastructure.Common
           default:
             throw new NotImplementedException(string.Format("UPnP standard data type '{0}' is not implemented", _upnpTypeName));
         }
-        reader.ReadEndElement();
+        // Reader will already have read the end element in the methods ReadElementContentXXX
       }
       return result;
     }

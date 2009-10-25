@@ -348,7 +348,6 @@ namespace UPnP.Infrastructure.CP
           if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
               mediaType != "text/xml")
           {
-Console.WriteLine("---- OnCallResponseReceived - Falscher Media-Type im Ergebnis!!!");;
             // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
             state.Action.ActionErrorResultPresent(new UPnPError(501, "Invalid content type"), state.ClientState);
             return;
@@ -359,10 +358,13 @@ Console.WriteLine("---- OnCallResponseReceived - Falscher Media-Type im Ergebnis
           response.Close();
         }
       }
-      catch (WebException)
+      catch (WebException e)
       {
+        HttpWebResponse response = (HttpWebResponse) e.Response;
             // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
-        state.Action.ActionErrorResultPresent(new UPnPError(501, "Network error invoking the action"), state.ClientState);
+        state.Action.ActionErrorResultPresent(new UPnPError(501,
+            string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name)), state.ClientState);
+        response.Close();
         return;
       }
       lock (_cpData.SyncObj)
@@ -446,9 +448,11 @@ Console.WriteLine("---- OnCallResponseReceived - Falscher Media-Type im Ergebnis
           response.Close();
         }
       }
-      catch (WebException)
+      catch (WebException e)
       {
-        service.InvokeEventSubscriptionFailed(new UPnPError((int) HttpStatusCode.Gone, "Cannot complete event subscription"));
+        HttpWebResponse response = (HttpWebResponse) e.Response;
+        service.InvokeEventSubscriptionFailed(new UPnPError((int) response.StatusCode, "Cannot complete event subscription"));
+        response.Close();
         return;
       }
     }
@@ -474,7 +478,10 @@ Console.WriteLine("---- OnCallResponseReceived - Falscher Media-Type im Ergebnis
         HttpWebResponse response = (HttpWebResponse) state.Request.EndGetResponse(ar);
         response.Close();
       }
-      catch (WebException) { }
+      catch (WebException e)
+      {
+        e.Response.Close();
+      }
       lock (_cpData.SyncObj)
       {
         _pendingCalls.Remove(state);
