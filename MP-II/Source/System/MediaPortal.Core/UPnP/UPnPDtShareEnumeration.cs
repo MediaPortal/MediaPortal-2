@@ -67,10 +67,12 @@ namespace MediaPortal.Core.UPnP
 
     public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      if (SoapReadNull(reader))
-        return new List<Share>();
-      reader.ReadStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       ICollection<Share> result = new List<Share>();
+      if (SoapReadNull(reader))
+        return result;
+      if (ReadEmptyElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI))
+        return result;
+      reader.ReadStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       while (reader.NodeType != XmlNodeType.EndElement)
         result.Add(Share.Deserialize(reader));
       reader.ReadEndElement();
