@@ -91,12 +91,12 @@ namespace UPnP.Infrastructure.CP.DeviceTree
 
       internal IList<object> GetOutParams()
       {
+        if (!IsCompleted)
+          AsyncWaitHandle.WaitOne();
         lock (_syncObj)
         {
           try
           {
-            if (!IsCompleted)
-              AsyncWaitHandle.WaitOne();
             if (_error != null)
               throw new UPnPRemoteException(_error);
             return _outParams;
@@ -315,8 +315,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public IList<object> InvokeAction(IList<object> inParameters)
     {
       AsyncActionCallResult ar = (AsyncActionCallResult) BeginInvokeAction(inParameters, null, null);
-      ar.AsyncWaitHandle.WaitOne();
-      return ar.GetOutParams();
+      return EndInvokeAction(ar);
     }
 
     internal void ActionResultPresent(IList<object> outParams, object handle)
