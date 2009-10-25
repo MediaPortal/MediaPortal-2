@@ -140,7 +140,7 @@ namespace MediaPortal.Services.MediaLibrary
         SystemName nativeSystem, Guid providerId, string path, out int shareIdIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_NAME=? AND MEDIA_PROVIDER_ID=? AND MEDIAPROVIDER_PATH=?";
+      result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_NAME=? AND MEDIAPROVIDER_ID=? AND MEDIAPROVIDER_PATH=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = nativeSystem.HostName;
