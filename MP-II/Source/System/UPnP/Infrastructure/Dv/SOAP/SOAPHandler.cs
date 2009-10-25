@@ -197,7 +197,8 @@ namespace UPnP.Infrastructure.Dv.SOAP
       XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
       SoapHelper.WriteSoapEnvelopeStart(writer, false);
       writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
-      writer.WriteElementString("faultcode", "x:Client");
+      string soapNamespacePrefix = writer.LookupPrefix(UPnPConsts.NS_SOAP_ENVELOPE);
+      writer.WriteElementString("faultcode", soapNamespacePrefix + ":Client");
       writer.WriteElementString("faultstring", "UPnPError");
       writer.WriteStartElement("detail");
       writer.WriteStartElement(string.Empty, "UPnPError", UPnPConsts.NS_UPNP_CONTROL);
