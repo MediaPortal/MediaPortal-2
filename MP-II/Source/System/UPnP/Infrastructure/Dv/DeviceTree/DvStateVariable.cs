@@ -84,7 +84,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// </summary>
     public bool SendEvents
     {
-      get{ return _sendEvents; }
+      get { return _sendEvents; }
       set { _sendEvents = value; }
     }
 

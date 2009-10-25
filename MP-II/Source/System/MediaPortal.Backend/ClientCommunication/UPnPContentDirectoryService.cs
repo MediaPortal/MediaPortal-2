@@ -51,55 +51,87 @@ namespace MediaPortal.ClientCommunication
     public UPnPContentDirectoryService() : base(SERVICE_TYPE, SERVICE_TYPE_VERSION, SERVICE_ID)
     {
       // Used for several parameters and result values
-      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Int)); // Is int sufficient here?
+      DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Int))
+          {
+            SendEvents = false
+          }; // Is int sufficient here?
       AddStateVariable(A_ARG_TYPE_Count);
 
       // Used for any single GUID value
-      DvStateVariable A_ARG_TYPE_Uuid = new DvStateVariable("A_ARG_TYPE_Id", new DvStandardDataType(UPnPStandardDataType.Uuid));
+      DvStateVariable A_ARG_TYPE_Uuid = new DvStateVariable("A_ARG_TYPE_Id", new DvStandardDataType(UPnPStandardDataType.Uuid))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_Uuid);
 
       // CSV of GUID strings
-      DvStateVariable A_ARG_TYPE_UuidEnumeration = new DvStateVariable("A_ARG_TYPE_UuidEnumeration", new DvStandardDataType(UPnPStandardDataType.String));
+      DvStateVariable A_ARG_TYPE_UuidEnumeration = new DvStateVariable("A_ARG_TYPE_UuidEnumeration", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_UuidEnumeration);
 
       // Used to transport a provider path expression
-      DvStateVariable A_ARG_TYPE_ProviderPath = new DvStateVariable("A_ARG_TYPE_ProviderPath", new DvStandardDataType(UPnPStandardDataType.String));
+      DvStateVariable A_ARG_TYPE_ProviderPath = new DvStateVariable("A_ARG_TYPE_ProviderPath", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_ProviderPath);
 
       // Used to hold names for several objects
-      DvStateVariable A_ARG_TYPE_Name = new DvStateVariable("A_ARG_TYPE_Name", new DvStandardDataType(UPnPStandardDataType.String));
+      DvStateVariable A_ARG_TYPE_Name = new DvStateVariable("A_ARG_TYPE_Name", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_Name);
 
       // CSV of media category strings
-      DvStateVariable A_ARG_TYPE_MediaCategoryEnumeration = new DvStateVariable("A_ARG_TYPE_MediaCategoryEnumeration", new DvStandardDataType(UPnPStandardDataType.String));
+      DvStateVariable A_ARG_TYPE_MediaCategoryEnumeration = new DvStateVariable("A_ARG_TYPE_MediaCategoryEnumeration", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_MediaCategoryEnumeration);
 
       // Used to transport the data of a share structure
-      DvStateVariable A_ARG_TYPE_Share = new DvStateVariable("A_ARG_TYPE_Share", new DvExtendedDataType(UPnPExtendedDataTypes.DtShare));
+      DvStateVariable A_ARG_TYPE_Share = new DvStateVariable("A_ARG_TYPE_Share", new DvExtendedDataType(UPnPExtendedDataTypes.DtShare))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_Share);
 
       // Used to transport an enumeration of shares data
-      DvStateVariable A_ARG_TYPE_ShareEnumeration = new DvStateVariable("A_ARG_TYPE_ShareEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtShareEnumeration));
+      DvStateVariable A_ARG_TYPE_ShareEnumeration = new DvStateVariable("A_ARG_TYPE_ShareEnumeration", new DvExtendedDataType(UPnPExtendedDataTypes.DtShareEnumeration))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_ShareEnumeration);
 
       // Used to transport a system name
-      DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String));
+      DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_SystemName);
 
       // Used to transport a media item aspect metadata structure
-      DvStateVariable A_ARG_TYPE_MediaItemAspectMetadata = new DvStateVariable("A_ARG_TYPE_MediaItemAspectMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspectMetadata));
+      DvStateVariable A_ARG_TYPE_MediaItemAspectMetadata = new DvStateVariable("A_ARG_TYPE_MediaItemAspectMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspectMetadata))
+          {
+            SendEvents = false
+          };
       AddStateVariable(A_ARG_TYPE_MediaItemAspectMetadata);
 
       // Used to give a mode of relocating media items after a share edit.
       DvStateVariable A_ARG_TYPE_MediaItemRelocationMode = new DvStateVariable("A_ARG_TYPE_MediaItemRelocationMode", new DvStandardDataType(UPnPStandardDataType.String))
-        {
+          {
+            SendEvents = false,
             AllowedValueList = new List<string> {"Relocate", "ClearAndReImport"}
-        };
+          };
       AddStateVariable(A_ARG_TYPE_MediaItemRelocationMode);
 
       // Used to filter requested shares.
       DvStateVariable A_ARG_TYPE_SharesFilter = new DvStateVariable("A_ARG_TYPE_SharesFilter", new DvStandardDataType(UPnPStandardDataType.String))
         {
+            SendEvents = false,
             AllowedValueList = new List<string> {"All", "ConnectedShares"}
         };
       AddStateVariable(A_ARG_TYPE_SharesFilter);
