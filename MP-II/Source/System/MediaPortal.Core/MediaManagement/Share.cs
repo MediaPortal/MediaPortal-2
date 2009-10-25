@@ -272,7 +272,7 @@ namespace MediaPortal.Core.MediaManagement
     protected static XmlSerializer GetOrCreateXMLSerializer()
     {
       if (_xmlSerializer == null)
-        _xmlSerializer = new XmlSerializer(typeof(MediaItemAspectMetadata));
+        _xmlSerializer = new XmlSerializer(typeof(Share));
       return _xmlSerializer;
     }
 
