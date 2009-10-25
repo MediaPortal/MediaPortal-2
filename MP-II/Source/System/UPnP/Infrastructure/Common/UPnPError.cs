@@ -60,16 +60,16 @@ namespace UPnP.Infrastructure.Common
   /// </remarks>
   public class UPnPError
   {
-    protected int _errorCode;
+    protected uint _errorCode;
     protected string _errorDescription;
 
-    public UPnPError(int errorCode, string errorDescription)
+    public UPnPError(uint errorCode, string errorDescription)
     {
       _errorCode = errorCode;
       _errorDescription = errorDescription;
     }
 
-    public int ErrorCode
+    public uint ErrorCode
     {
       get { return _errorCode; }
     }

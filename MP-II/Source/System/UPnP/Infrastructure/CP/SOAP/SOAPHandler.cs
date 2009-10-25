@@ -89,9 +89,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
       catch (Exception)
       {
-        // TODO Albert: In the current state of the (DevArch) document, the UPnP action error codes 613-699
-        // are TBD. I guess we should use one of them instead of 501 (Action failed) here.
-        action.ActionErrorResultPresent(new UPnPError(501, "Invalid action result"), clientState);
+        action.ActionErrorResultPresent(new UPnPError(501, "Invalid server result"), clientState);
         return;
       }
       try
@@ -102,6 +100,50 @@ namespace UPnP.Infrastructure.CP.SOAP
       catch (Exception e)
       {
         Configuration.LOGGER.Warn("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
+      }
+    }
+
+    public static void HandleErrorResult(TextReader textReader, CpAction action, object clientState)
+    {
+      try
+      {
+        uint errorCode;
+        string errorDescription;
+        ParseFaultDocument(textReader, out errorCode, out errorDescription);
+        action.ActionErrorResultPresent(new UPnPError(errorCode, errorDescription), clientState);
+      }
+      catch (Exception)
+      {
+        ActionFailed(action, clientState, "Invalid server result");
+      }
+    }
+
+    public static void ActionFailed(CpAction action, object clientState, string errorDescription)
+    {
+      action.ActionErrorResultPresent(new UPnPError(501, errorDescription), clientState);
+    }
+
+    protected static void ParseFaultDocument(TextReader textReader, out uint errorCode, out string errorDescription)
+    {
+      using(XmlReader reader = XmlReader.Create(textReader))
+      {
+        reader.MoveToContent();
+        // Parse SOAP envelope
+        reader.ReadStartElement("Envelope", UPnPConsts.NS_SOAP_ENVELOPE);
+        reader.ReadStartElement("Body", UPnPConsts.NS_SOAP_ENVELOPE);
+        reader.ReadStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
+        string faultcode = reader.ReadElementString("faultcode");
+        int index = faultcode.IndexOf(':');
+        if (index == -1 || reader.LookupNamespace(faultcode.Substring(0, index)) != UPnPConsts.NS_SOAP_ENVELOPE ||
+            faultcode.Substring(index + 1) != "Client")
+          throw new ArgumentException("Invalid faultcode value");
+        string faultstring = reader.ReadElementString("faultstring");
+        if (faultstring != "UPnPError")
+          throw new ArgumentException("Invalid faultstring value (must be 'UPnPError')");
+        reader.ReadStartElement("detail");
+        reader.ReadStartElement("UPnPError", UPnPConsts.NS_UPNP_CONTROL);
+        errorCode = (uint) reader.ReadElementContentAsInt("errorCode", UPnPConsts.NS_UPNP_CONTROL);
+        errorDescription = reader.ReadElementString("errorDescription", UPnPConsts.NS_UPNP_CONTROL);
       }
     }
 

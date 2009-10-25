@@ -338,18 +338,12 @@ namespace UPnP.Infrastructure.CP
         HttpWebResponse response = (HttpWebResponse) state.Request.EndGetResponse(ar);
         try
         {
-          if (response.StatusCode != HttpStatusCode.OK)
-          {
-            state.Action.ActionErrorResultPresent(new UPnPError(501, response.StatusDescription), state.ClientState);
-            return;
-          }
           body = response.GetResponseStream();
           string mediaType;
           if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
               mediaType != "text/xml")
           {
-            // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
-            state.Action.ActionErrorResultPresent(new UPnPError(501, "Invalid content type"), state.ClientState);
+            SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
             return;
           }
         }
@@ -361,14 +355,27 @@ namespace UPnP.Infrastructure.CP
       catch (WebException e)
       {
         HttpWebResponse response = (HttpWebResponse) e.Response;
-            // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
-        state.Action.ActionErrorResultPresent(new UPnPError(501,
-            string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name)), state.ClientState);
-        response.Close();
+        if (response != null && response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+          string mediaType;
+          if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
+              mediaType != "text/xml")
+          {
+            SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
+            return;
+          }
+          SOAPHandler.HandleErrorResult(new StreamReader(response.GetResponseStream(), contentEncoding), state.Action, state.ClientState);
+        }
+        else
+          SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
+        if (e.Response != null)
+          response.Close();
         return;
       }
+      UPnPVersion uPnPVersion;
       lock (_cpData.SyncObj)
-        SOAPHandler.HandleResult(new StreamReader(body, contentEncoding), state.Action, state.ClientState, _rootDescriptor.SSDPRootEntry.UPnPVersion);
+        uPnPVersion = _rootDescriptor.SSDPRootEntry.UPnPVersion;
+      SOAPHandler.HandleResult(new StreamReader(body, contentEncoding), state.Action, state.ClientState, uPnPVersion);
     }
 
     protected void SubscribeEvents(CpService service)
@@ -418,7 +425,7 @@ namespace UPnP.Infrastructure.CP
         {
           if (response.StatusCode != HttpStatusCode.OK)
           {
-            service.InvokeEventSubscriptionFailed(new UPnPError((int) response.StatusCode, response.StatusDescription));
+            service.InvokeEventSubscriptionFailed(new UPnPError((uint) response.StatusCode, response.StatusDescription));
             return;
           }
           string dateStr = response.Headers.Get("DATE");
@@ -451,8 +458,12 @@ namespace UPnP.Infrastructure.CP
       catch (WebException e)
       {
         HttpWebResponse response = (HttpWebResponse) e.Response;
-        service.InvokeEventSubscriptionFailed(new UPnPError((int) response.StatusCode, "Cannot complete event subscription"));
-        response.Close();
+        if (response == null)
+          service.InvokeEventSubscriptionFailed(new UPnPError(503, "Cannot complete event subscription"));
+        else
+          service.InvokeEventSubscriptionFailed(new UPnPError((uint) response.StatusCode, "Cannot complete event subscription"));
+        if (response != null)
+          response.Close();
         return;
       }
     }
@@ -480,7 +491,8 @@ namespace UPnP.Infrastructure.CP
       }
       catch (WebException e)
       {
-        e.Response.Close();
+        if (e.Response != null)
+          e.Response.Close();
       }
       lock (_cpData.SyncObj)
       {

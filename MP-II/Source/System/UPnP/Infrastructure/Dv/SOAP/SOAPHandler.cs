@@ -191,7 +191,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
       return result.ToString();
     }
 
-    protected static string CreateFaultDocument(int errorCode, string errorDescription)
+    protected static string CreateFaultDocument(uint errorCode, string errorDescription)
     {
       StringBuilder result = new StringBuilder(2000);
       XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
