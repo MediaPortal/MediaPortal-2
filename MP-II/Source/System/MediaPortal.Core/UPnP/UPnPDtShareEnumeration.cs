@@ -30,6 +30,7 @@ using System.Xml;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.UPnP
 {
@@ -70,7 +71,7 @@ namespace MediaPortal.Core.UPnP
       ICollection<Share> result = new List<Share>();
       if (SoapReadNull(reader))
         return result;
-      if (ReadEmptyElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI))
+      if (SoapHelper.ReadEmptyElement(reader, "Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI))
         return result;
       reader.ReadStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       while (reader.NodeType != XmlNodeType.EndElement)

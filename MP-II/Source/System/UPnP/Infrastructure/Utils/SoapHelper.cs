@@ -59,5 +59,35 @@ namespace UPnP.Infrastructure.Utils
       reader.MoveToElement();
       return result;
     }
+
+    public static bool ReadEmptyElement(XmlReader reader)
+    {
+      if (reader.IsEmptyElement)
+      {
+        reader.ReadStartElement();
+        return true;
+      }
+      return false;
+    }
+
+    public static bool ReadEmptyElement(XmlReader reader, string name)
+    {
+      if (reader.IsEmptyElement)
+      {
+        reader.ReadStartElement(name);
+        return true;
+      }
+      return false;
+    }
+    
+    public static bool ReadEmptyElement(XmlReader reader, string localName, string ns)
+    {
+      if (reader.IsEmptyElement)
+      {
+        reader.ReadStartElement(localName, ns);
+        return true;
+      }
+      return false;
+    }
   }
 }
