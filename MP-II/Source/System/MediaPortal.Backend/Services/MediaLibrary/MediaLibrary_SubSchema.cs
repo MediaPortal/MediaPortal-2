@@ -162,7 +162,7 @@ namespace MediaPortal.Services.MediaLibrary
         out int providerIdIndex, out int pathIndex, out int shareNameIndex, out int isOnlineIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT (SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE) FROM SHARES";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE FROM SHARES";
 
       shareIdIndex = 0;
       nativeSystemIndex = 1;
@@ -177,7 +177,7 @@ namespace MediaPortal.Services.MediaLibrary
         out int providerIdIndex, out int pathIndex, out int shareNameIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT (SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME) FROM SHARES WHERE SHARE_ID=?";
+      result.CommandText = "SELECT SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME FROM SHARES WHERE SHARE_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareId.ToString();
@@ -195,7 +195,7 @@ namespace MediaPortal.Services.MediaLibrary
         out int shareNameIndex, out int isOnlineIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT (SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE) FROM SHARES WHERE SYSTEM_NAME=?";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE FROM SHARES WHERE SYSTEM_NAME=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = nativeSystem.HostName;
