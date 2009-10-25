@@ -248,8 +248,8 @@ namespace MediaPortal.ClientCommunication
 
     static UPnPError OnGetShares(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      string sharesFilterStr = (string) inParams[0];
-      SystemName system = (SystemName) inParams[0];
+      SystemName system = new SystemName((string) inParams[0]);
+      string sharesFilterStr = (string) inParams[1];
       bool onlyConnected;
       switch (sharesFilterStr)
       {
