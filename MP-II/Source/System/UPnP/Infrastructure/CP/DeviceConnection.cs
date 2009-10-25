@@ -133,8 +133,9 @@ namespace UPnP.Infrastructure.CP
 
       public void SetRequestMessage(string message)
       {
-        byte[] bytes = Encoding.UTF8.GetBytes(message);
-        _httpWebRequest.GetRequestStream().Write(bytes, 0, bytes.Length);
+        StreamWriter sw = new StreamWriter(_httpWebRequest.GetRequestStream(), Encoding.UTF8);
+        sw.Write(message);
+        sw.Close();
       }
     }
 
@@ -347,6 +348,7 @@ namespace UPnP.Infrastructure.CP
           if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
               mediaType != "text/xml")
           {
+Console.WriteLine("---- OnCallResponseReceived - Falscher Media-Type im Ergebnis!!!");;
             // TODO Albert: Should we use one of the error codes 613-699 here instead of 501 (Action failed)?
             state.Action.ActionErrorResultPresent(new UPnPError(501, "Invalid content type"), state.ClientState);
             return;

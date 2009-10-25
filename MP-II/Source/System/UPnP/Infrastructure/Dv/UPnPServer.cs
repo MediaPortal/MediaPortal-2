@@ -289,7 +289,7 @@ namespace UPnP.Infrastructure.Dv
                 if (!string.IsNullOrEmpty(acceptLanguage))
                   response.AddHeader("CONTENT-LANGUAGE", culture.ToString());
                 response.Body = new MemoryStream(Encoding.UTF8.GetBytes(description));
-                response.Send();
+                SafeSendResponse(response);
                 return;
               }
             }
@@ -305,7 +305,7 @@ namespace UPnP.Infrastructure.Dv
               if (!ParserHelper.ParseUserAgentUPnP1MinorVersion(userAgentStr, out minorVersion))
               {
                 response.Status = HttpStatusCode.BadRequest;
-                response.Send();
+                SafeSendResponse(response);
                 return;
               }
               string mediaType;
@@ -315,7 +315,7 @@ namespace UPnP.Infrastructure.Dv
               if (mediaType != "text/xml")
               { // As specified in (DevArch), 3.2.1
                 response.Status = HttpStatusCode.UnsupportedMediaType;
-                response.Send();
+                SafeSendResponse(response);
                 return;
               }
               response.AddHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
@@ -329,7 +329,7 @@ namespace UPnP.Infrastructure.Dv
                 s.Write(result);
               } // else: request will be ignored
               response.Status = status;
-              response.Send();
+              SafeSendResponse(response);
               return;
             }
           }
@@ -348,13 +348,22 @@ namespace UPnP.Infrastructure.Dv
         context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
         return;
       }
-      catch (Exception e)
+      catch (Exception)
       {
         IHttpResponse response = request.CreateResponse(context);
         response.Status = HttpStatusCode.InternalServerError;
-        response.Send();
+        SafeSendResponse(response);
         return;
       }
+    }
+
+    protected void SafeSendResponse(IHttpResponse response)
+    {
+      try
+      {
+        response.Send();
+      }
+      catch (IOException) { }
     }
 
     protected void GenerateObjectURLs(EndpointConfiguration config)
