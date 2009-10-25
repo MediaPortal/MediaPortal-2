@@ -331,13 +331,14 @@ namespace UPnP.Infrastructure.CP
       ActionCallState state = (ActionCallState) ar.AsyncState;
       lock (_cpData.SyncObj)
         _pendingCalls.Remove(state);
-      Stream body;
-      Encoding contentEncoding;
+      HttpWebResponse response = null;
       try
       {
-        HttpWebResponse response = (HttpWebResponse) state.Request.EndGetResponse(ar);
+        Stream body;
+        Encoding contentEncoding;
         try
         {
+          response = (HttpWebResponse) state.Request.EndGetResponse(ar);
           body = response.GetResponseStream();
           string mediaType;
           if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
@@ -347,37 +348,36 @@ namespace UPnP.Infrastructure.CP
             return;
           }
         }
-        finally
+        catch (WebException e)
         {
-          response.Close();
-        }
-      }
-      catch (WebException e)
-      {
-        HttpWebResponse response = (HttpWebResponse) e.Response;
-        if (response == null)
-          SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}'", state.Action.Name));
-        else if (response.StatusCode == HttpStatusCode.InternalServerError)
-        {
-          string mediaType;
-          if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
-              mediaType != "text/xml")
+          response = (HttpWebResponse) e.Response;
+          if (response == null)
+            SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}'", state.Action.Name));
+          else if (response.StatusCode == HttpStatusCode.InternalServerError)
           {
-            SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
-            return;
+            string mediaType;
+            if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
+                mediaType != "text/xml")
+            {
+              SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
+              return;
+            }
+            SOAPHandler.HandleErrorResult(new StreamReader(response.GetResponseStream(), contentEncoding), state.Action, state.ClientState);
           }
-          SOAPHandler.HandleErrorResult(new StreamReader(response.GetResponseStream(), contentEncoding), state.Action, state.ClientState);
+          else
+            SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
+          return;
         }
-        else
-          SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
+        UPnPVersion uPnPVersion;
+        lock (_cpData.SyncObj)
+          uPnPVersion = _rootDescriptor.SSDPRootEntry.UPnPVersion;
+        SOAPHandler.HandleResult(new StreamReader(body, contentEncoding), state.Action, state.ClientState, uPnPVersion);
+      }
+      finally
+      {
         if (response != null)
           response.Close();
-        return;
       }
-      UPnPVersion uPnPVersion;
-      lock (_cpData.SyncObj)
-        uPnPVersion = _rootDescriptor.SSDPRootEntry.UPnPVersion;
-      SOAPHandler.HandleResult(new StreamReader(body, contentEncoding), state.Action, state.ClientState, uPnPVersion);
     }
 
     protected void SubscribeEvents(CpService service)

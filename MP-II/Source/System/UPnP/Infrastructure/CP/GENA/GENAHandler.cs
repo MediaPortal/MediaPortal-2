@@ -46,7 +46,7 @@ namespace UPnP.Infrastructure.CP.GENA
           {
             reader.MoveToContent();
             reader.ReadStartElement("propertyset", UPnPConsts.NS_UPNP_EVENT);
-            while (reader.NodeType != XmlNodeType.EndElement)
+            while (reader.LocalName == "property" && reader.NamespaceURI == UPnPConsts.NS_UPNP_EVENT)
             {
               reader.ReadStartElement("property", UPnPConsts.NS_UPNP_EVENT);
               HandleVariableChangeNotification(reader, service, upnpVersion);
