@@ -59,24 +59,20 @@ namespace MediaPortal.Core.UPnP
         SoapWriteNull(writer);
         return;
       }
-      writer.WriteStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
       IEnumerable shares = (IEnumerable) value;
       foreach (Share share in shares)
         share.Serialize(writer);
-      writer.WriteEndElement();
     }
 
     public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       ICollection<Share> result = new List<Share>();
-      if (SoapReadNull(reader))
+      if (SoapReadNull(reader) || SoapHelper.ReadEmptyElement(reader))
         return result;
-      if (SoapHelper.ReadEmptyElement(reader, "Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI))
-        return result;
-      reader.ReadStartElement("Shares", DataTypesConfiguration.DATATYPES_SCHEMA_URI);
+      reader.ReadStartElement(); // Read start of enclosing element
       while (reader.NodeType != XmlNodeType.EndElement)
         result.Add(Share.Deserialize(reader));
-      reader.ReadEndElement();
+      reader.ReadEndElement(); // End of enclosing element
       return result;
     }
 

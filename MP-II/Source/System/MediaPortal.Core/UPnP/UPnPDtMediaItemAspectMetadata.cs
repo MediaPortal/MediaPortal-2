@@ -28,6 +28,7 @@ using System.Xml;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.UPnP
 {
@@ -62,10 +63,11 @@ namespace MediaPortal.Core.UPnP
 
     public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      if (SoapReadNull(reader))
+      if (SoapReadNull(reader) || SoapHelper.ReadEmptyElement(reader))
         return null;
+      reader.ReadStartElement(); // Read start of enclosing element
       MediaItemAspectMetadata result = MediaItemAspectMetadata.Deserialize(reader);
-      reader.ReadEndElement();
+      reader.ReadEndElement(); // End of enclosing element
       return result;
     }
 
