@@ -205,7 +205,8 @@ namespace UPnP.Infrastructure.Dv.GENA
       }
       catch (WebException e)
       {
-        e.Response.Close();
+        if (e.Response != null)
+          e.Response.Close();
       }
       // Try next callback URL
       ContinueEventNotification(state);

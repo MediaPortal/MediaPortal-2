@@ -355,7 +355,9 @@ namespace UPnP.Infrastructure.CP
       catch (WebException e)
       {
         HttpWebResponse response = (HttpWebResponse) e.Response;
-        if (response != null && response.StatusCode == HttpStatusCode.InternalServerError)
+        if (response == null)
+          SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}'", state.Action.Name));
+        else if (response.StatusCode == HttpStatusCode.InternalServerError)
         {
           string mediaType;
           if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
@@ -368,7 +370,7 @@ namespace UPnP.Infrastructure.CP
         }
         else
           SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
-        if (e.Response != null)
+        if (response != null)
           response.Close();
         return;
       }

@@ -320,16 +320,25 @@ namespace UPnP.Infrastructure.Dv
               }
               response.AddHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
               response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
+              response.AddHeader("CONTENT-TYPE", "text/xml; charset=\"utf-8\"");
               string result;
-              HttpStatusCode status = SOAPHandler.HandleRequest(service, request.Body, encoding, minorVersion >= 1, out result);
-              if (result != null)
+              HttpStatusCode status;
+              try
               {
-                response.AddHeader("CONTENT-TYPE", "text/xml; charset=\"utf-8\"");
-                StreamWriter s = new StreamWriter(response.Body, encoding);
-                s.Write(result);
-              } // else: request will be ignored
+                status = SOAPHandler.HandleRequest(service, request.Body, encoding, minorVersion >= 1, out result);
+              }
+              catch (Exception e)
+              {
+                Configuration.LOGGER.Warn("Action invocation failed", e);
+                result = SOAPHandler.CreateFaultDocument(501, "Action failed");
+                status = HttpStatusCode.InternalServerError;
+              }
               response.Status = status;
+              StreamWriter s = new StreamWriter(response.Body, encoding);
+              s.Write(result);
+              s.Flush();
               SafeSendResponse(response);
+              s.Close();
               return;
             }
           }

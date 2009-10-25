@@ -332,7 +332,8 @@ namespace UPnP.Infrastructure.CP
       catch (WebException e)
       {
         rd.State = RootDescriptorState.Erroneous;
-        e.Response.Close();
+        if (e.Response != null)
+          e.Response.Close();
       }
     }
 
@@ -411,7 +412,8 @@ namespace UPnP.Infrastructure.CP
           state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
           lock (_cpData.SyncObj)
             rd.State = RootDescriptorState.Erroneous;
-          e.Response.Close();
+        if (e.Response != null)
+            e.Response.Close();
         }
       }
       // Don't hold the lock while calling ContinueGetServiceDescription - that method is calling event handlers
