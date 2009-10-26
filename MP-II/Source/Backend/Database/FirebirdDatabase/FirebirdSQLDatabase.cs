@@ -54,6 +54,8 @@ namespace MediaPortal.Database.Firebird
     public FirebirdSQLDatabase()
     {
       string dllDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+      // Register DLL and resource file directories - necessary for the driver, else it would try to
+      // load resources from the application's directory
       Environment.SetEnvironmentVariable("FIREBIRD", dllDirectory);
       Environment.SetEnvironmentVariable("FIREBIRD_MSG", dllDirectory);
       FirebirdSettings settings = ServiceScope.Get<ISettingsManager>().Load<FirebirdSettings>();
@@ -62,9 +64,10 @@ namespace MediaPortal.Database.Firebird
             ServerType = settings.ServerType,
             UserID = settings.UserID,
             Password = settings.Password,
-            Dialect = 3,
             Database = settings.DatabaseFile,
-            Pooling = false // We use our own pooling mechanism
+            Dialect = 3,
+            Charset = "UTF8",
+            Pooling = false, // We use our own pooling mechanism
         };
       _connectionString = sb.ConnectionString;
       try
@@ -73,7 +76,7 @@ namespace MediaPortal.Database.Firebird
         if (!Directory.Exists(dir))
           Directory.CreateDirectory(dir);
         if (!File.Exists(settings.DatabaseFile))
-          FbConnection.CreateDatabase(_connectionString);
+          CreateDatabase(_connectionString);
       }
       catch (Exception e)
       {
@@ -95,6 +98,28 @@ namespace MediaPortal.Database.Firebird
     #endregion
 
     #region Protected methods
+
+    /// <summary>
+    /// Creates a new database with the given <paramref name="connectionString"/>.
+    /// </summary>
+    protected void CreateDatabase(string connectionString)
+    {
+      FbConnection.CreateDatabase(connectionString);
+      // Create BOOLEAN domain
+      ITransaction transaction = BeginTransaction();
+      try
+      {
+        IDbCommand command = transaction.CreateCommand();
+        command.CommandText = "CREATE DOMAIN BOOLEAN AS SMALLINT DEFAULT '0' NOT NULL CHECK (value in (0,1))";
+        command.ExecuteNonQuery();
+        transaction.Commit(); // Seems as if the driver doesn't execute the CREATE DOMAIN statement if we don't commit...
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("FirebirdSQLDatabase: Error creating database (connection string is '{0}')", e, connectionString);
+        transaction.Rollback();
+      }
+    }
 
     /// <summary>
     /// Builds a restrictions string array to be used with method <see cref="FbConnection.GetSchema(string,string[])"/>.
@@ -146,7 +171,7 @@ namespace MediaPortal.Database.Firebird
       if (dotNetType == typeof(Char))
         return "CHAR(1)";
       if (dotNetType == typeof(Boolean))
-        return "CHAR(1)";
+        return "BOOLEAN"; // BOOLEAN is not a datatype - it is a domain which was created in method CreateDatabase()
       if (dotNetType == typeof(Single))
         return "FLOAT";
       if (dotNetType == typeof(Double))
@@ -160,12 +185,12 @@ namespace MediaPortal.Database.Firebird
       return null;
     }
 
-    public string GetSQLUnicodeStringType(uint maxNumChars)
+    public string GetSQLVarLengthStringType(uint maxNumChars)
     {
-      return "VARCHAR(" + maxNumChars + ") CHARACTER SET UNICODE_FSS";
+      return "VARCHAR(" + maxNumChars + ")";
     }
 
-    public string GetSQLFixedStringType(uint maxNumChars)
+    public string GetSQLFixedLengthStringType(uint maxNumChars)
     {
       return "CHAR(" + maxNumChars + ")";
     }
