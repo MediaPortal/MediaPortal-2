@@ -68,26 +68,39 @@ namespace MediaPortal.Database
     uint MaxTableNameLength { get; }
 
     /// <summary>
-    /// Returns the SQL type name for the specified .net type.
+    /// Returns the name of an SQL type (to be used in SQL scripts) which can store values of the specified .net type
+    /// without truncation or loss of data.
     /// </summary>
+    /// <remarks>
+    /// Implementors must support mappings for at least the following types:
+    /// <list>
+    /// <item><see cref="DateTime"/></item>
+    /// <item><see cref="Char"/></item>
+    /// <item><see cref="Boolean"/></item>
+    /// <item><see cref="Single"/></item>
+    /// <item><see cref="Double"/></item>
+    /// <item><see cref="Int32"/></item>
+    /// <item><see cref="Int64"/></item>
+    /// </list>
+    /// </remarks>
     /// <param name="dotNetType">Type to get the SQL type pendant for.</param>
     /// <returns>SQL type which can hold an object of the specified <paramref name="dotNetType"/>. The result value is
     /// <c>null</c>, if the database doesn't support the given <paramref name="dotNetType"/>.</returns>
     string GetSQLType(Type dotNetType);
 
     /// <summary>
-    /// Returns the type for unicode strings of the specified maximum length in this database.
+    /// Returns the type for variable length unicode strings of the specified maximum length in this database.
     /// </summary>
     /// <param name="maxNumChars">Maximum number of chars which should fit into the returned string type.</param>
     /// <returns>SQL string type for a unicode string of the given length.</returns>
-    string GetSQLUnicodeStringType(uint maxNumChars);
+    string GetSQLVarLengthStringType(uint maxNumChars);
 
     /// <summary>
-    /// Returns the type for strings of the specified fixed length in this database.
+    /// Returns the type for unicode strings of the given fixed length in this database.
     /// </summary>
     /// <param name="maxNumChars">Number of chars which should fit into the returned string type.</param>
     /// <returns>SQL string type for a fixed-length string of the given length.</returns>
-    string GetSQLFixedStringType(uint maxNumChars);
+    string GetSQLFixedLengthStringType(uint maxNumChars);
 
     /// <summary>
     /// Gets a database connection from the connection pool and starts a new transaction on that connection
