@@ -40,6 +40,13 @@ namespace UPnP.Infrastructure.Dv.SOAP
   /// </summary>
   public class SOAPHandler
   {
+    protected static IList<object> EMPTY_OBJECT_LIST;
+
+    static SOAPHandler()
+    {
+      EMPTY_OBJECT_LIST = new List<object>();
+    }
+
     protected class OutParameter
     {
       protected DvArgument _argument;
@@ -87,7 +94,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
       UPnPError res;
       try
       {
-        IList<object> inParameterValues = new List<object>();
+        IList<object> inParameterValues = null; // Default to null if there aren't parameters, will be lazily initialized later
         DvAction action;
         using (StreamReader streamReader = new StreamReader(messageStream, streamEncoding))
           using(XmlReader reader = XmlReader.Create(streamReader))
@@ -132,6 +139,8 @@ namespace UPnP.Infrastructure.Dv.SOAP
                   return HttpStatusCode.InternalServerError;
                 }
               }
+              if (inParameterValues == null)
+                inParameterValues = new List<object>();
               inParameterValues.Add(value);
             }
             if (formalArgumentEnumer.MoveNext()) // Too few arguments
@@ -145,9 +154,14 @@ namespace UPnP.Infrastructure.Dv.SOAP
         try
         {
           res = action.InvokeAction(inParameterValues, out outParameterValues, false);
+          // outParameterValues can be null if the action has no output parameters. Setting it to an empty list makes
+          // it easier to check parameter count later.
+          if (outParameterValues == null)
+            outParameterValues = EMPTY_OBJECT_LIST;
         }
-        catch (Exception)
+        catch (Exception e)
         {
+          Configuration.LOGGER.Warn("SOAPHandler: Error invoking UPnP action '{0}'", e, action.Name);
           return HttpStatusCode.InternalServerError;
         }
         if (res != null)
@@ -168,8 +182,9 @@ namespace UPnP.Infrastructure.Dv.SOAP
         result = CreateResultDocument(action, outParams, !subscriberSupportsUPnP11);
         return HttpStatusCode.OK;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Warn("Error handling SOAP request: " + e.Message); // Don't log the whole exception; it's only a communication error with a client
         return HttpStatusCode.BadRequest;
       }
     }
