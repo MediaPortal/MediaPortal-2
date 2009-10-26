@@ -56,8 +56,9 @@ namespace UPnP.Infrastructure.CP.GENA
           }
         return HttpStatusCode.OK;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Warn("GENAHandler: Error handling event notification", e);
         return HttpStatusCode.BadRequest;
       }
     }

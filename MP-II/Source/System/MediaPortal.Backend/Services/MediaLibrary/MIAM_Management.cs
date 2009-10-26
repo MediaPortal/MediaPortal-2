@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Database;
 using MediaPortal.Services.Database;
@@ -322,7 +323,7 @@ namespace MediaPortal.Services.MediaLibrary
         IList<string> terms = new List<string>();
         foreach (MediaItemAspectMetadata.AttributeSpecification spec in miam.AttributeSpecifications)
         {
-          string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLUnicodeStringType(spec.MaxNumChars) :
+          string sqlType = spec.AttributeType == typeof(string) ? database.GetSQLVarLengthStringType(spec.MaxNumChars) :
               database.GetSQLType(spec.AttributeType);
           switch (spec.Cardinality)
           {
@@ -366,8 +367,9 @@ namespace MediaPortal.Services.MediaLibrary
         lock (_syncObj)
           _managedMIAMs.Add(miam.AspectId, miam);
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MIAM_Management: Error adding media item aspect storage '{0}'", e, miam.AspectId);
         transaction.Rollback();
         throw;
       }
@@ -411,8 +413,9 @@ namespace MediaPortal.Services.MediaLibrary
         transaction.Commit();
         ReloadAliasCache();
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MIAM_Management: Error removing media item aspect storage '{0}'", e, aspectId);
         transaction.Rollback();
         throw;
       }

@@ -114,8 +114,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         value = _relatedStateVariable.DataType.SoapDeserializeValue(reader, isSimpleValue);
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Warn("DvArgument: Error deserializing argument value", e);
         value = null;
         return new UPnPError(402, "Invalid Args");
       }
@@ -136,8 +137,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         _relatedStateVariable.DataType.SoapSerializeValue(value, forceSimpleValue, writer);
         return null;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Warn("DvArgument: Error serializing argument value", e);
         return new UPnPError(501, "Action Failed");
       }
     }

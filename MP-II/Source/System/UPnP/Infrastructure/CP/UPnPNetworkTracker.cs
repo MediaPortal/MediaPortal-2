@@ -282,7 +282,7 @@ namespace UPnP.Infrastructure.CP
         IAsyncResult result = request.BeginGetResponse(OnDeviceDescriptionReceived, state);
         NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
       }
-      catch (Exception)
+      catch (Exception) // Don't log messages at this low protocol level
       {
         lock (_cpData.SyncObj)
           rd.State = RootDescriptorState.Erroneous;
@@ -320,7 +320,7 @@ namespace UPnP.Infrastructure.CP
           }
           ContinueGetServiceDescription(state);
         }
-        catch (Exception)
+        catch (Exception) // Don't log exceptions at this low protocol level
         {
           rd.State = RootDescriptorState.Erroneous;
         }
@@ -369,7 +369,7 @@ namespace UPnP.Infrastructure.CP
           IAsyncResult result = request.BeginGetResponse(OnServiceDescriptionReceived, state);
           NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
         }
-        catch (Exception)
+        catch (Exception) // Don't log exceptions at this low protocol level
         {
           lock (_cpData.SyncObj)
             state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
@@ -396,7 +396,7 @@ namespace UPnP.Infrastructure.CP
             state.CurrentServiceDescriptor.ServiceDescription = doc;
             state.CurrentServiceDescriptor.State = ServiceDescriptorState.Ready;
           }
-          catch (Exception)
+          catch (Exception) // Don't log exceptions at this low protocol level
           {
             state.CurrentServiceDescriptor.State = ServiceDescriptorState.Erroneous;
             lock (_cpData.SyncObj)
@@ -421,7 +421,7 @@ namespace UPnP.Infrastructure.CP
       {
         ContinueGetServiceDescription(state);
       }
-      catch (Exception)
+      catch (Exception) // Don't log exceptions at this low protocol level
       {
         rd.State = RootDescriptorState.Erroneous;
       }

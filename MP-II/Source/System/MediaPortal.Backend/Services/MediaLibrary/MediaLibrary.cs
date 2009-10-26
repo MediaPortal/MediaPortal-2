@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
@@ -292,8 +293,9 @@ namespace MediaPortal.Services.MediaLibrary
 
         transaction.Commit();
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error registering share '{0}'", e, share.ShareId);
         transaction.Rollback();
         throw;
       }
@@ -319,8 +321,9 @@ namespace MediaPortal.Services.MediaLibrary
 
         transaction.Commit();
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error removing share '{0}'", e, shareId);
         transaction.Rollback();
         throw;
       }
@@ -386,8 +389,9 @@ namespace MediaPortal.Services.MediaLibrary
         transaction.Commit();
         return numAffected;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error updating share '{0}'", e, shareId);
         transaction.Rollback();
         throw;
       }
@@ -484,8 +488,9 @@ namespace MediaPortal.Services.MediaLibrary
         command.ExecuteNonQuery();
         transaction.Commit();
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error connecting shares", e);
         transaction.Rollback();
         throw;
       }
@@ -501,8 +506,9 @@ namespace MediaPortal.Services.MediaLibrary
         command.ExecuteNonQuery();
         transaction.Commit();
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("MediaLibrary: Error disconnecting shares", e);
         transaction.Rollback();
         throw;
       }

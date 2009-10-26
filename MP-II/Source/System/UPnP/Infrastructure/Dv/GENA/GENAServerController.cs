@@ -350,8 +350,9 @@ namespace UPnP.Infrastructure.Dv.GENA
                 subscriberSupportsUPnP11 = minorVersion >= 1;
               }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+              Configuration.LOGGER.Warn("GENAServerController: Error in event subscription", e);
               response.Status = HttpStatusCode.BadRequest;
               response.Send();
               return true;

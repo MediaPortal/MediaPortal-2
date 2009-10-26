@@ -244,11 +244,11 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
         return false;
       }
-      catch (Exception)
+      catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Exception reading file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
+        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Exception '{0}' reading file '{1}' (media provider: '{2}')", e.Message, path, provider.Metadata.Name);
         return false;
       }
     }

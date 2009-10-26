@@ -35,8 +35,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// Delegate which gets called when an action is invoked by a client.
   /// </summary>
   /// <param name="action">Action instance which was invoked.</param>
-  /// <param name="inParams">Input parameters which match the data types described in <see cref="DvAction.InArguments"/>.</param>
-  /// <param name="outParams">Output parameters which match the data types described in <see cref="DvAction.OutArguments"/>.</param>
+  /// <param name="inParams">Input parameters which match the data types described in <see cref="DvAction.InArguments"/>
+  /// or <c>null</c> if the action doesn't have input parameters.</param>
+  /// <param name="outParams">Output parameters which match the data types described in <see cref="DvAction.OutArguments"/>.
+  /// Can be set to <c>null</c> if the action doesn't have output parameters.</param>
   /// <returns><c>null</c>, if the action invocation was successful, else UPnP error instance with error code and error
   /// description.</returns>
   public delegate UPnPError ActionInvokeDlgt(DvAction action, IList<object> inParams, out IList<object> outParams);

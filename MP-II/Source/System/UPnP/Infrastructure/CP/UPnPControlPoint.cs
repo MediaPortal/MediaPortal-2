@@ -299,7 +299,7 @@ namespace UPnP.Infrastructure.CP
         context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
         return;
       }
-      catch (Exception)
+      catch (Exception) // Don't log the exception here - we don't care about not being able to send the return value to the client
       {
         IHttpResponse response = request.CreateResponse(context);
         response.Status = HttpStatusCode.InternalServerError;

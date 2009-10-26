@@ -261,9 +261,9 @@ namespace UPnP.Infrastructure.Dv
     /// <param name="request">HTTP request to handle.</param>
     protected void HandleHTTPRequest(IHttpClientContext context, IHttpRequest request)
     {
+      string uri = request.Uri.AbsoluteUri;
       try
       {
-        string uri = request.Uri.AbsoluteUri;
         DvService service;
         foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
         {
@@ -357,8 +357,9 @@ namespace UPnP.Infrastructure.Dv
         context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);
         return;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Error("UPnPServer: Error handling HTTP request '{0}'", e, uri);
         IHttpResponse response = request.CreateResponse(context);
         response.Status = HttpStatusCode.InternalServerError;
         SafeSendResponse(response);

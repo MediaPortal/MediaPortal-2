@@ -87,8 +87,9 @@ namespace UPnP.Infrastructure.CP.SOAP
       {
         outParameterValues = ParseResult(textReader, action, sourceSupportsUPnP11);
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Error("SOAPHandler: Error parsing action result document", e);
         action.ActionErrorResultPresent(new UPnPError(501, "Invalid server result"), clientState);
         return;
       }
@@ -99,7 +100,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Warn("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
+        Configuration.LOGGER.Error("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
       }
     }
 
@@ -112,8 +113,9 @@ namespace UPnP.Infrastructure.CP.SOAP
         ParseFaultDocument(textReader, out errorCode, out errorDescription);
         action.ActionErrorResultPresent(new UPnPError(errorCode, errorDescription), clientState);
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Configuration.LOGGER.Error("SOAPHandler: Error parsing action error result document", e);
         ActionFailed(action, clientState, "Invalid server result");
       }
     }

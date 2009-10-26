@@ -172,8 +172,9 @@ namespace MediaPortal.Services.Database
             newVersionMajor, newVersionMinor);
         return true;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Error("DatabaseManager: Error updating subschema '{0}'", e, subSchemaName);
         transaction.Rollback();
         throw;
       }
