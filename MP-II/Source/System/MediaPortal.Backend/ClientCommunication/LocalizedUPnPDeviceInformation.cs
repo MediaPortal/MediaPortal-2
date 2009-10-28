@@ -24,8 +24,10 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.ClientCommunication.Settings;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -34,7 +36,7 @@ namespace MediaPortal.ClientCommunication
   public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {
     public const string RES_UPNPSERVER_SECTION = "UPnPServer";
-    public const string RES_FRIENDLY_NAME = "FriendlyName";
+    public const string RES_DEFAULT_FRIENDLY_NAME = "DefaultFriendlyName";
     public const string RES_MANUFACTURER = "Manufacturer";
     public const string RES_MANUFACTURER_URL = "ManufacturerUrl";
     public const string RES_MODEL_DESCRIPTION = "ModelDescription";
@@ -44,8 +46,17 @@ namespace MediaPortal.ClientCommunication
     
     public string GetFriendlyName(CultureInfo culture)
     {
-      return StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
-          RES_UPNPSERVER_SECTION, RES_FRIENDLY_NAME));
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      MediaServerSettings settings = settingsManager.Load<MediaServerSettings>();
+      string result = settings.FriendlyName;
+      if (string.IsNullOrEmpty(result))
+      {
+        result = StringUtils.TrimToNull(ServiceScope.Get<ILocalization>().ToString(
+          RES_UPNPSERVER_SECTION, RES_DEFAULT_FRIENDLY_NAME)) ?? GetModelName(culture);
+        settings.FriendlyName = result;
+        settingsManager.Save(settings);
+      }
+      return result;
     }
 
     public string GetManufacturer(CultureInfo culture)

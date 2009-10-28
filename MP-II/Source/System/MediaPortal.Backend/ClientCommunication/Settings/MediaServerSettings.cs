@@ -30,12 +30,20 @@ namespace MediaPortal.ClientCommunication.Settings
   public class MediaServerSettings
   {
     protected Guid? _mediaServerDeviceId = null;
+    protected string _friendlyName = null;
 
     [Setting(SettingScope.Global)]
     public Guid? MediaServerDeviceId
     {
       get { return _mediaServerDeviceId; }
       set { _mediaServerDeviceId = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public string FriendlyName
+    {
+      get { return _friendlyName; }
+      set { _friendlyName = value; }
     }
   }
 }
