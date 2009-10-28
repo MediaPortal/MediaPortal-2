@@ -82,16 +82,20 @@ namespace MediaPortal.Core.Services.Settings
 
     #region Protected methods
 
+    protected void CreateRootElement()
+    {
+      XmlElement root = _document.CreateElement("Configuration");
+      _document.AppendChild(root);
+    }
+
     protected XmlElement GetPropertyElement(string entryName, bool createIfNotExists)
     {
       XmlElement root = _document.DocumentElement;
       if (root == null)
-      {
         if (!createIfNotExists)
           return null;
-        root = _document.CreateElement("Configuration");
-        _document.AppendChild(root);
-      }
+        else
+          CreateRootElement();
       XmlElement entryElement = root.SelectSingleNode("Property[@Name=\"" + entryName + "\"]") as XmlElement;
       if (entryElement == null)
       {
@@ -165,8 +169,8 @@ namespace MediaPortal.Core.Services.Settings
       // If the value is null, remove the entry
       if (value == null)
       {
-        RemoveEntry(entryName);
-        _modified = true;
+        if (RemoveEntry(entryName))
+          _modified = true;
         return;
       }
       XmlNode entryElement = GetPropertyElement(entryName, true);
@@ -182,12 +186,14 @@ namespace MediaPortal.Core.Services.Settings
     /// Removes the value with the specified <paramref name="entryName"/>.
     /// </summary>
     /// <param name="entryName">Name of the entry to remove.</param>
-    public void RemoveEntry(string entryName)
+    /// <returns><c>true</c> if the entry was removed, else <c>false</c>.</returns>
+    public bool RemoveEntry(string entryName)
     {
       XmlNode entryElement = GetPropertyElement(entryName, false);
       if (entryElement == null)
-        return;
+        return false;
       entryElement.ParentNode.RemoveChild(entryElement);
+      return true;
     }
 
     /// <summary>
@@ -210,6 +216,7 @@ namespace MediaPortal.Core.Services.Settings
     public void Clear()
     {
       _document = new XmlDocument();
+      CreateRootElement();
       _modified = false;
     }
 
