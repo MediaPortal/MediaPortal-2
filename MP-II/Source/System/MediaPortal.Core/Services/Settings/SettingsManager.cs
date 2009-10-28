@@ -217,8 +217,9 @@ namespace MediaPortal.Core.Services.Settings
     {
       if (!_batchUpdate)
         return;
-      foreach (SettingsObjectWrapper objectWrapper in _cache)
-        Save(objectWrapper.SettingsObject);
+      lock (_cache.SyncObj)
+        foreach (SettingsObjectWrapper objectWrapper in _cache)
+          Save(objectWrapper.SettingsObject);
       _cache.StopKeep();
     }
 

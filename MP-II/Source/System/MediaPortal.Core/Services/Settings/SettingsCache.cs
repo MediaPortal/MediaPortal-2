@@ -56,7 +56,11 @@ namespace MediaPortal.Core.Services.Settings
 
     public object SettingsObject
     {
-      get { return _settingsObject; }
+      get
+      {
+        Use();
+        return _settingsObject;
+      }
       set
       {
         _settingsObject = value;
@@ -105,6 +109,11 @@ namespace MediaPortal.Core.Services.Settings
         _timer.Stop();
         _timer = null;
       }
+    }
+
+    public object SyncObj
+    {
+      get { return _syncObj; }
     }
 
     /// <summary>
