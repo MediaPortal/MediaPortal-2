@@ -182,10 +182,13 @@ namespace MediaPortal.Core.Services.Settings
     public object Load(Type settingsType)
     {
       object result;
-      if ((result = _cache.Get(settingsType)) != null)
-        return result;
-      result = LoadSettingsObject(settingsType);
-      _cache.Set(result);
+      lock (_cache.SyncObj)
+      {
+        if ((result = _cache.Get(settingsType)) != null)
+          return result;
+        result = LoadSettingsObject(settingsType);
+        _cache.Set(result);
+      }
       return result;
     }
 
@@ -201,26 +204,34 @@ namespace MediaPortal.Core.Services.Settings
 
     public void StartBatchUpdate()
     {
-      _cache.KeepAll();
-      _batchUpdate = true;
+      lock (_cache.SyncObj)
+      {
+        _cache.KeepAll();
+        _batchUpdate = true;
+      }
     }
 
     public void CancelBatchUpdate()
     {
-      if (!_batchUpdate)
-        return;
-      _cache.StopKeep();
-      _cache.Clear();
+      lock (_cache.SyncObj)
+      {
+        if (!_batchUpdate)
+          return;
+        _cache.StopKeep();
+        _cache.Clear();
+      }
     }
 
     public void EndBatchUpdate()
     {
-      if (!_batchUpdate)
-        return;
       lock (_cache.SyncObj)
+      {
+        if (!_batchUpdate)
+          return;
         foreach (SettingsObjectWrapper objectWrapper in _cache)
           Save(objectWrapper.SettingsObject);
-      _cache.StopKeep();
+        _cache.StopKeep();
+      }
     }
 
     public void RemoveSettingsData(Type settingsType, bool user, bool global)
