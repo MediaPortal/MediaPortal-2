@@ -166,6 +166,7 @@ namespace MediaPortal.Core.Services.Settings
       if (value == null)
       {
         RemoveEntry(entryName);
+        _modified = true;
         return;
       }
       XmlNode entryElement = GetPropertyElement(entryName, true);
