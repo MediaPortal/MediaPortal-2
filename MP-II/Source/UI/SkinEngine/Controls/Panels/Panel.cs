@@ -357,7 +357,7 @@ namespace MediaPortal.SkinEngine.Controls.Panels
 
     public override bool IsChildVisibleAt(UIElement child, float x, float y)
     {
-      if (!IsInVisibleArea(x, y) || !child.IsInArea(x, y))
+      if (!child.IsInArea(x, y) || !IsInVisibleArea(x, y))
         return false;
       IList<UIElement> children = new List<UIElement>(GetChildren());
       // Iterate from last to first to find elements which are located on top
