@@ -104,6 +104,8 @@ namespace MediaPortal.Core.General
     /// </summary>
     public void SetValue(object value)
     {
+      if (value == null && _type.IsPrimitive)
+        value = Activator.CreateInstance(_type); // Assign default value
       if (value != null && _type != null && !_type.IsAssignableFrom(value.GetType()))
         throw new InvalidCastException(
           String.Format("Value '{0}' cannot be assigned to property of type '{1}'", value, _type.Name));
