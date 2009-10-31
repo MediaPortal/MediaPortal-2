@@ -72,19 +72,21 @@ namespace UPnP.Infrastructure.CP.SOAP
     }
 
     /// <summary>
-    /// Takes the XML document provided by the given <paramref name="textReader"/> instance, parses it and provides
-    /// the action result to the appropriate receiver.
+    /// Takes the XML document provided by the given <paramref name="body"/> stream, parses it in the given
+    /// <paramref name="contentEncoding"/> and provides the action result to the appropriate receiver.
     /// </summary>
-    /// <param name="textReader">Text reader which contains the SOAP XML action result message.</param>
+    /// <param name="body">Body stream of the SOAP XML action result message.</param>
+    /// <param name="contentEncoding">Encoding of the body stream.</param>
     /// <param name="action">Action which was called before.</param>
     /// <param name="clientState">State object which was given in the action call and which will be returned to the client.</param>
     /// <param name="upnpVersion">UPnP version of the UPnP server.</param>
-    public static void HandleResult(TextReader textReader, CpAction action, object clientState, UPnPVersion upnpVersion)
+    public static void HandleResult(Stream body, Encoding contentEncoding, CpAction action, object clientState, UPnPVersion upnpVersion)
     {
       bool sourceSupportsUPnP11 = upnpVersion.VerMin >= 1;
       IList<object> outParameterValues;
       try
       {
+        TextReader textReader = new StreamReader(body, contentEncoding);
         outParameterValues = ParseResult(textReader, action, sourceSupportsUPnP11);
       }
       catch (Exception e)

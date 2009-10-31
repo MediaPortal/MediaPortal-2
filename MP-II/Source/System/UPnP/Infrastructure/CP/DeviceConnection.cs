@@ -371,7 +371,7 @@ namespace UPnP.Infrastructure.CP
         UPnPVersion uPnPVersion;
         lock (_cpData.SyncObj)
           uPnPVersion = _rootDescriptor.SSDPRootEntry.UPnPVersion;
-        SOAPHandler.HandleResult(new StreamReader(body, contentEncoding), state.Action, state.ClientState, uPnPVersion);
+        SOAPHandler.HandleResult(body, contentEncoding, state.Action, state.ClientState, uPnPVersion);
       }
       finally
       {
