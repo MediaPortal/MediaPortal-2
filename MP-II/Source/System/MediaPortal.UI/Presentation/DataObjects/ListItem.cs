@@ -168,7 +168,12 @@ namespace MediaPortal.Presentation.DataObjects
     /// <param name="value">The string label to be added.</param>
     public void SetLabel(string name, string value)
     {
-      _labels[name] = LocalizationHelper.CreateResourceString(value);
+      SetLabel(name, LocalizationHelper.CreateResourceString(value));
+    }
+
+    public void SetLabel(string name, IResourceString value)
+    {
+      _labels[name] = value;
     }
 
     /// <summary>
