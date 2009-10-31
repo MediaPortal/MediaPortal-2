@@ -79,11 +79,11 @@ namespace MediaPortal.ServerCommunication
     {
       try
       {
-        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE, UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE_VERSION);
         if (mediaServerDeviceElementNav == null)
           return null;
         XmlNamespaceManager nsmgr = new XmlNamespaceManager(mediaServerDeviceElementNav.NameTable);
-        nsmgr.AddNamespace("d", UPnP.Infrastructure.Consts.NS_DEVICE_DESCRIPTION);
+        nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
         string udn = RootDescriptor.GetDeviceUDN(mediaServerDeviceElementNav, nsmgr);
         string friendlyName = ParserHelper.SelectText(mediaServerDeviceElementNav, "d:friendlyName/text()", nsmgr);
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);

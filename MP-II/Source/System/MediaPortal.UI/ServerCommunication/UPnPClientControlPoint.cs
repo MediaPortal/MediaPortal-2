@@ -95,7 +95,7 @@ namespace MediaPortal.ServerCommunication
       {
         if (_connection != null)
           return;
-        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE, UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE_VERSION);
         if (mediaServerDeviceElementNav == null)
           return;
         deviceUuid = RootDescriptor.GetDeviceUUID(mediaServerDeviceElementNav);
@@ -106,9 +106,9 @@ namespace MediaPortal.ServerCommunication
       connection.DeviceDisconnected += OnUPnPDeviceDisconnected;
       try
       {
-        CpService cdsStub = connection.Device.FindServiceByServiceId(Consts.CONTENT_DIRECTORY_SERVICE_ID);
+        CpService cdsStub = connection.Device.FindServiceByServiceId(UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_ID);
         if (cdsStub == null)
-          throw new InvalidDataException("ContentDirectory service not found in device '{0}' of type '{1}:{2}'", deviceUuid, Consts.MEDIA_SERVER_DEVICE_TYPE, Consts.MEDIA_SERVER_DEVICE_TYPE_VERSION);
+          throw new InvalidDataException("ContentDirectory service not found in device '{0}' of type '{1}:{2}'", deviceUuid, UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE, UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE_VERSION);
         lock (_networkTracker.SharedControlPointData.SyncObj)
           _contentDirectoryService = new UPnPContentDirectoryService(cdsStub);
         // TODO: other services
