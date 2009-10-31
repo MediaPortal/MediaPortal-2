@@ -87,7 +87,7 @@ namespace MediaPortal.Services.Players
             (WorkflowManagerMessaging.MessageType) message.MessageType;
         if (messageType == WorkflowManagerMessaging.MessageType.StatesPopped)
         {
-          ICollection<Guid> statesRemoved = new List<Guid>((Guid[]) message.MessageData[WorkflowManagerMessaging.PARAM]);
+          ICollection<Guid> statesRemoved = new List<Guid>(((IDictionary<Guid, NavigationContext>) message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
           // Don't request the lock here, because we're in a synchronous message notification method
           if (_inCurrentlyPlayingState.HasValue && statesRemoved.Contains(_inCurrentlyPlayingState.Value))
             _inCurrentlyPlayingState = null;

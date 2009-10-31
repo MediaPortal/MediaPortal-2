@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
@@ -50,13 +51,14 @@ namespace MediaPortal.Presentation.Workflow
     {
       /// <summary>
       /// A new workflow state was pushed onto the workflow navigation context stack.
-      /// The param will contain the Guid of the new state.
+      /// The parameter <see cref="CONTEXT"/> will contain the navigation context of the new state.
       /// </summary>
       StatePushed,
 
       /// <summary>
       /// States were popped from the workflow navigation context stack.
-      /// The param will contain an array of Guid values containing the ids of the states which were popped.
+      /// The parameter <see cref="CONTEXTS"/> will contain a mapping of state guids to navigation contexts of those states
+      /// which were popped.
       /// </summary>
       StatesPopped,
 
@@ -67,27 +69,29 @@ namespace MediaPortal.Presentation.Workflow
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string CONTEXTS = "Contexts"; // Type: IDictionary<Guid, NavigationContext>
+    public const string CONTEXT = "Context"; // Type: NavigationContext
 
     /// <summary>
     /// Sends a <see cref="MessageType.StatePushed"/> message.
     /// </summary>
-    /// <param name="stateId">Workflow state id of the new state.</param>
-    public static void SendStatePushedMessage(Guid stateId)
+    /// <param name="context">Navigation context of the workflow state which was pushed onto the navigation context stack.</param>
+    public static void SendStatePushedMessage(NavigationContext context)
     {
       QueueMessage msg = new QueueMessage(MessageType.StatePushed);
-      msg.MessageData[PARAM] = stateId;
+      msg.MessageData[CONTEXT] = context;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     /// <summary>
     /// Sends a <see cref="MessageType.StatesPopped"/> message.
     /// </summary>
-    /// <param name="stateIds">Ids of the states which were popped.</param>
-    public static void SendStatesPoppedMessage(params Guid[] stateIds)
+    /// <param name="contexts">Dictionary of workflow state ids to navigation contexts which were popped off the
+    /// navigation context stack.</param>
+    public static void SendStatesPoppedMessage(IDictionary<Guid, NavigationContext> contexts)
     {
       QueueMessage msg = new QueueMessage(MessageType.StatesPopped);
-      msg.MessageData[PARAM] = stateIds;
+      msg.MessageData[CONTEXTS] = contexts;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
