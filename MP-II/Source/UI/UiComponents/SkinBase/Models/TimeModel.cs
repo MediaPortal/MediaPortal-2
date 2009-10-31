@@ -80,7 +80,7 @@ namespace UiComponents.SkinBase.Models
     {
       if (message.ChannelName == SkinMessaging.CHANNEL)
       {
-        if (((SkinMessaging.MessageType) message.MessageData[SkinMessaging.Notification]) ==
+        if (((SkinMessaging.MessageType) message.MessageType) ==
             SkinMessaging.MessageType.DateTimeFormatChanged)
             // The DateFormat and TimeFormat configuration classes will send this message when they
             // changed the formats, so we have to update our format here

@@ -35,9 +35,6 @@ namespace UiComponents.SkinBase
     // Message channel name
     public const string CHANNEL = "SkinMessages";
 
-    // Message data
-    public const string Notification = "Notification"; // Notification stored as NotificationType
-
     // Message type
     public enum MessageType
     {
@@ -51,7 +48,6 @@ namespace UiComponents.SkinBase
     {
       // Send Startup Finished Message.
       QueueMessage msg = new QueueMessage(messageType);
-      msg.MessageData[Notification] = messageType;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
