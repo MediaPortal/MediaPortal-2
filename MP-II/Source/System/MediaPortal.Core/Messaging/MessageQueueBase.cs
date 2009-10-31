@@ -31,7 +31,7 @@ namespace MediaPortal.Core.Messaging
   {
     #region Protected fields
 
-    protected string[] _registeredChannels;
+    protected ICollection<string> _registeredChannels;
     protected string _queueName = null;
     protected Queue<QueueMessage> _messages = new Queue<QueueMessage>();
     protected object _syncObj = new object();
@@ -40,11 +40,9 @@ namespace MediaPortal.Core.Messaging
 
     #region Ctor, dtor & Dispose
 
-    protected MessageQueueBase(string[] messageChannels)
+    protected MessageQueueBase(IEnumerable<string> messageChannels)
     {
-      _registeredChannels = messageChannels;
-      foreach (string channel in messageChannels)
-        SubscribeToMessageChannel(channel);
+      _registeredChannels = new List<string>(messageChannels);
     }
 
     ~MessageQueueBase()
@@ -56,8 +54,7 @@ namespace MediaPortal.Core.Messaging
     {
       if (_registeredChannels == null)
         return;
-      foreach (string channel in _registeredChannels)
-        UnsubscribeFromMessageChannel(channel);
+      UnregisterFromAllMessageChannels();
       _registeredChannels = null;
     }
 
@@ -66,6 +63,37 @@ namespace MediaPortal.Core.Messaging
     #region Protected members
 
     protected abstract void HandleMessageAvailable(QueueMessage message);
+
+    public void RegisterAtAllMessageChannels()
+    {
+      ICollection<string> channels;
+      lock (_syncObj)
+        channels = new List<string>(_registeredChannels);
+      foreach (string channel in channels)
+        RegisterAtMessageChannel(channel);
+    }
+
+    protected void UnregisterFromAllMessageChannels()
+    {
+      ICollection<string> channels;
+      lock (_syncObj)
+        channels = new List<string>(_registeredChannels);
+      foreach (string channel in channels)
+        UnregisterFromMessageChannel(channel);
+    }
+
+    protected void RegisterAtMessageChannel(string channelName)
+    {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+      broker.RegisterMessageQueue(channelName, this);
+    }
+
+    protected void UnregisterFromMessageChannel(string channelName)
+    {
+      IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false); // Unregistering might be done after the message broker service has gone
+      if (broker != null)
+        broker.UnregisterMessageQueue(channelName, this);
+    }
 
     #endregion
 
@@ -102,15 +130,28 @@ namespace MediaPortal.Core.Messaging
 
     public void SubscribeToMessageChannel(string channelName)
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.RegisterMessageQueue(channelName, this);
+      lock (_syncObj)
+        _registeredChannels.Add(channelName);
+      RegisterAtMessageChannel(channelName);
     }
 
     public void UnsubscribeFromMessageChannel(string channelName)
     {
-      IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false);
-      if (broker != null)
-        broker.UnregisterMessageQueue(channelName, this);
+      lock (_syncObj)
+        _registeredChannels.Remove(channelName);
+      UnregisterFromMessageChannel(channelName);
+    }
+
+    public void UnsubscribeFromAllMessageChannels()
+    {
+      ICollection<string> channels;
+      lock (_syncObj)
+      {
+        channels = _registeredChannels;
+        _registeredChannels = new List<string>();
+      }
+      foreach (string channel in channels)
+        UnregisterFromMessageChannel(channel);
     }
 
     /// <summary>

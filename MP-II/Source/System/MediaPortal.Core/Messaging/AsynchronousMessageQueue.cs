@@ -168,6 +168,7 @@ namespace MediaPortal.Core.Messaging
     /// </summary>
     public void Start()
     {
+      RegisterAtAllMessageChannels();
       lock (_syncObj)
       {
         if (_messageDeliveryThread != null)
@@ -193,6 +194,7 @@ namespace MediaPortal.Core.Messaging
     /// delivered by this queue.</returns>
     public bool Shutdown()
     {
+      UnregisterFromAllMessageChannels();
       Terminate();
       Thread threadToJoin;
       lock (_syncObj)
