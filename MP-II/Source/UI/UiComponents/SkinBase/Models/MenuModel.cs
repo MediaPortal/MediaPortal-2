@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
+using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Workflow;
@@ -104,7 +105,7 @@ namespace UiComponents.SkinBase.Models
       _registeredActions.Clear();
     }
 
-    protected bool MenuChanged(ICollection<WorkflowAction> newActions)
+    protected bool MenuEntriesChanged(ICollection<WorkflowAction> newActions)
     {
       if (_currentMenuItems == null)
         return true;
@@ -137,24 +138,53 @@ namespace UiComponents.SkinBase.Models
           return;
         _currentWorkflowStateId = context.WorkflowState.StateId;
         IList<WorkflowAction> actions = SortActions(context.MenuActions.Values);
-        if (!MenuChanged(actions))
-          // If the menu didn't change, we don't need to rebuild it
-          return;
-        UnregisterActionChangeHandlers();
+        if (MenuEntriesChanged(actions))
+          RebuildMenuEntries(actions);
+        else
+          UpdateMenuEntries(actions);
+      }
+    }
 
+    protected void RebuildMenuEntries(IList<WorkflowAction> newActions)
+    {
+      lock (_syncObj)
+      {
+        UnregisterActionChangeHandlers();
         _currentMenuItems = new ItemsList();
-        foreach (WorkflowAction action in actions)
+        foreach (WorkflowAction action in newActions)
         {
           RegisterActionChangeHandler(action);
           if (!action.IsVisible)
             continue;
           ListItem item = new ListItem("Name", action.DisplayTitle)
-            {
+              {
                 Command = new MethodDelegateCommand(action.Execute),
                 Enabled = action.IsEnabled,
-            };
+              };
           item.AdditionalProperties[ITEM_ACTION_KEY] = action;
           _currentMenuItems.Add(item);
+        }
+      }
+    }
+
+    protected void UpdateMenuEntries(IList<WorkflowAction> newActions)
+    {
+      lock (_syncObj)
+      {
+        int i = 0;
+        foreach (WorkflowAction action in newActions)
+        {
+          ListItem item = _currentMenuItems[i++];
+          if (item.AdditionalProperties[ITEM_ACTION_KEY] != action)
+            // Should not happen - this was checked by method MenuEntriesChanged
+            break;
+          if (!action.IsVisible)
+            continue;
+          IResourceString rs;
+          if (!item.Labels.TryGetValue("Name", out rs) || rs != action.DisplayTitle)
+            item.SetLabel("Name", action.DisplayTitle);
+          item.Command = new MethodDelegateCommand(action.Execute);
+          item.Enabled = action.IsEnabled;
         }
       }
     }
