@@ -368,7 +368,7 @@ namespace MediaPortal.Services.Workflow
 
       logger.Info("WorkflowManager: Trying to remove {0} workflow states from navigation stack...", count);
       bool stateChangeAccepted = true;
-      IDictionary<Guid, NavigationContext> statesRemoved = new Dictionary<Guid, NavigationContext>();
+      IDictionary<Guid, NavigationContext> removedContexts = new Dictionary<Guid, NavigationContext>();
       for (int i=0; i<count || !stateChangeAccepted; i++)
       {
         if (_navigationContextStack.Count <= 1)
@@ -377,7 +377,7 @@ namespace MediaPortal.Services.Workflow
           return false;
         }
         NavigationContext oldContext = _navigationContextStack.Pop();
-        statesRemoved.Add(oldContext.WorkflowState.StateId, oldContext);
+        removedContexts.Add(oldContext.WorkflowState.StateId, oldContext);
         if (oldContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
         {
           IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
@@ -429,7 +429,7 @@ namespace MediaPortal.Services.Workflow
         oldContext.Dispose();
       }
       IterateCache();
-      WorkflowManagerMessaging.SendStatesPoppedMessage(statesRemoved);
+      WorkflowManagerMessaging.SendStatesPoppedMessage(removedContexts);
       return true;
     }
 
