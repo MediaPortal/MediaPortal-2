@@ -241,5 +241,18 @@ namespace MediaPortal.Core.Localization
     }
 
     #endregion
+
+    public override int GetHashCode()
+    {
+      return _section.GetHashCode() + _name.GetHashCode();
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is StringId))
+        return false;
+      StringId other = (StringId) obj;
+      return other._section == _section && other._name == _name;
+    }
   }
 }

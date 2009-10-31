@@ -74,5 +74,18 @@ namespace MediaPortal.Core.Localization
     {
       return Evaluate();
     }
+
+    public override int GetHashCode()
+    {
+      return _localizedString.GetHashCode();
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is LocalizedStringBuilder))
+        return false;
+      LocalizedStringBuilder other = (LocalizedStringBuilder) obj;
+      return other._localizedString == _localizedString;
+    }
   }
 }
