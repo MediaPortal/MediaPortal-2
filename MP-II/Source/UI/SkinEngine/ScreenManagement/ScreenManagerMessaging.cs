@@ -33,7 +33,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
   public class ScreenManagerMessaging
   {
     // Message channel name
-    public const string CHANNEL = "WorkflowManager";
+    public const string CHANNEL = "ScreenManager";
 
     /// <summary>
     /// Messages of this type are sent by the <see cref="ScreenManager"/>.
