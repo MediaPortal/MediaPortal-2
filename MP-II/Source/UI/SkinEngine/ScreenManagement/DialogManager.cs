@@ -163,7 +163,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
       _dialogData = null;
     }
 
-    protected void OnDialogCancelled(string dialogName)
+    protected void OnDialogClosed(string dialogName)
     {
       if (_dialogData != null && dialogName == GENERIC_DIALOG_SCREEN)
       {
@@ -198,7 +198,7 @@ namespace MediaPortal.SkinEngine.ScreenManagement
 
       CurrentDialogData = new GenericDialogData(headerText, text, buttons, dialogHandle);
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogCancelled);
+      screenManager.ShowDialog(GENERIC_DIALOG_SCREEN, OnDialogClosed);
       return dialogHandle;
     }
 
