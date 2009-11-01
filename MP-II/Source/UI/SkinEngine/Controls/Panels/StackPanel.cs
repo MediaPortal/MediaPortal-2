@@ -454,13 +454,15 @@ namespace MediaPortal.SkinEngine.Controls.Panels
     {
       if (!child.IsInArea(x, y) || !IsInVisibleArea(x, y))
         return false;
-      RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
-      // Check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
-      RectangleF bounds = ActualBounds;
-      if (elementBounds.Right > bounds.Right) return false;
-      if (elementBounds.Left < bounds.Left) return false;
-      if (elementBounds.Top < bounds.Top) return false;
-      if (elementBounds.Bottom > bounds.Bottom) return false;
+      if (_canScroll)
+      { // If we can scroll, check if child is completely in our range -> if not, it won't be rendered and thus isn't visible
+        RectangleF elementBounds = ((FrameworkElement) child).ActualBounds;
+        RectangleF bounds = ActualBounds;
+        if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) return false;
+        if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) return false;
+        if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) return false;
+        if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) return false;
+      }
       return true;
     }
 
@@ -481,9 +483,8 @@ namespace MediaPortal.SkinEngine.Controls.Panels
         if (!element.IsVisible)
           continue;
         if (_canScroll)
-        {
+        { // Don't render elements which are not visible, if we can scroll
           RectangleF elementBounds = element.ActualBounds;
-          // Don't render elements which are not visible, if we can scroll
           if (elementBounds.Right > bounds.Right) continue;
           if (elementBounds.Left < bounds.Left) continue;
           if (elementBounds.Top < bounds.Top) continue;

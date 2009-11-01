@@ -654,10 +654,7 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public override bool IsInVisibleArea(float x, float y)
     {
       UIElement parent = VisualParent as UIElement;
-      if (parent != null)
-        return parent.IsChildVisibleAt(this, x, y);
-      else
-        return IsInArea(x, y);
+      return parent != null ? parent.IsChildVisibleAt(this, x, y) : IsInArea(x, y);
     }
 
     public override bool IsInArea(float x, float y)
