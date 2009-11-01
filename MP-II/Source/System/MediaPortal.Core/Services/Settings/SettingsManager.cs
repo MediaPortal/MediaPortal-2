@@ -196,10 +196,13 @@ namespace MediaPortal.Core.Services.Settings
     {
       if (settingsObject == null)
         throw new ArgumentNullException("settingsObject");
-      _cache.Set(settingsObject);
-      if (_batchUpdate)
-        return;
-      SaveSettingsObject(settingsObject);
+      lock (_cache.SyncObj)
+      {
+        _cache.Set(settingsObject);
+        if (_batchUpdate)
+          return;
+        SaveSettingsObject(settingsObject);
+      }
     }
 
     public void StartBatchUpdate()
@@ -236,37 +239,43 @@ namespace MediaPortal.Core.Services.Settings
 
     public void RemoveSettingsData(Type settingsType, bool user, bool global)
     {
-      if (user)
+      lock (_cache.SyncObj)
       {
-        string userPath = GetUserFilePath(settingsType);
-        FileInfo userConfigFile = new FileInfo(userPath);
-        if (userConfigFile.Exists)
-          userConfigFile.Delete();
-      }
-      if (global)
-      {
-        string globalPath = GetGlobalFilePath(settingsType);
-        FileInfo globalConfigFile = new FileInfo(globalPath);
-        if (globalConfigFile.Exists)
-          globalConfigFile.Delete();
+        if (user)
+        {
+          string userPath = GetUserFilePath(settingsType);
+          FileInfo userConfigFile = new FileInfo(userPath);
+          if (userConfigFile.Exists)
+            userConfigFile.Delete();
+        }
+        if (global)
+        {
+          string globalPath = GetGlobalFilePath(settingsType);
+          FileInfo globalConfigFile = new FileInfo(globalPath);
+          if (globalConfigFile.Exists)
+            globalConfigFile.Delete();
+        }
       }
     }
 
     public void RemoveAllSettingsData(bool user, bool global)
     {
-      if (user)
+      lock (_cache.SyncObj)
       {
-        string userPath = ServiceScope.Get<IPathManager>().GetPath(string.Format(@"<CONFIG>\{0}", Environment.UserName));
-        DirectoryInfo userConfigDirectory = new DirectoryInfo(userPath);
-        if (userConfigDirectory.Exists)
-          userConfigDirectory.Delete(true);
-      }
-      if (global)
-      {
-        string globalPath = ServiceScope.Get<IPathManager>().GetPath("<CONFIG>");
-        DirectoryInfo globalConfigDirectory = new DirectoryInfo(globalPath);
-        if (globalConfigDirectory.Exists)
-          globalConfigDirectory.Delete(true);
+        if (user)
+        {
+          string userPath = ServiceScope.Get<IPathManager>().GetPath(string.Format(@"<CONFIG>\{0}", Environment.UserName));
+          DirectoryInfo userConfigDirectory = new DirectoryInfo(userPath);
+          if (userConfigDirectory.Exists)
+            userConfigDirectory.Delete(true);
+        }
+        if (global)
+        {
+          string globalPath = ServiceScope.Get<IPathManager>().GetPath("<CONFIG>");
+          DirectoryInfo globalConfigDirectory = new DirectoryInfo(globalPath);
+          if (globalConfigDirectory.Exists)
+            globalConfigDirectory.Delete(true);
+        }
       }
     }
 
