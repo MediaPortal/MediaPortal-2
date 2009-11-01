@@ -364,6 +364,9 @@ namespace UiComponents.SkinBase.Models
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
+      lock (_syncObj)
+        if (_mode != Mode.None)
+          return false; // We are already active
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
       if (newContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE)
       {
