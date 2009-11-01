@@ -339,18 +339,6 @@ namespace MediaPortal.Services.Workflow
         }
       // else: same model is currently active - model context change will be handled in the next block
 
-      // Prepare actions before new workflow model is able to change the screen
-      if (state.WorkflowType == WorkflowType.Workflow)
-      {
-        // Compile menu actions
-        logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
-        ICollection<WorkflowAction> menuActions =
-            new List<WorkflowAction>(FilterActionsBySourceState(state.StateId, _menuActions.Values));
-        if (workflowModel != null)
-          workflowModel.UpdateMenuActions(newContext, menuActions);
-
-        newContext.SetMenuActions(menuActions);
-      }
       // - Handle new workflow model
       if (workflowModel != null)
         if (modelChange)
@@ -369,6 +357,17 @@ namespace MediaPortal.Services.Workflow
               newContext.WorkflowState.StateId, predecessor == null ? null : predecessor.WorkflowState.StateId.ToString(), workflowModelId.Value);
           workflowModel.ChangeModelContext(predecessor, newContext, true);
         }
+      if (state.WorkflowType == WorkflowType.Workflow)
+      {
+        // Compile menu actions
+        logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
+        ICollection<WorkflowAction> menuActions =
+            new List<WorkflowAction>(FilterActionsBySourceState(state.StateId, _menuActions.Values));
+        if (workflowModel != null)
+          workflowModel.UpdateMenuActions(newContext, menuActions);
+
+        newContext.SetMenuActions(menuActions);
+      }
 
       IterateCache();
       WorkflowManagerMessaging.SendStatePushedMessage(newContext);
