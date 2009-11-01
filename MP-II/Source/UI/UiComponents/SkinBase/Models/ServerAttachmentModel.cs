@@ -71,6 +71,8 @@ namespace UiComponents.SkinBase.Models
     public const string SERVER_NAME_KEY = "ServerName";
     public const string SYSTEM_KEY = "System";
 
+    public const string AUTO_CLOSE_ON_NO_SERVER_KEY = "AutoCloseOnNoServer";
+
     protected static Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
     /// <summary>
@@ -100,7 +102,7 @@ namespace UiComponents.SkinBase.Models
     protected Guid _attachInfoDialogHandle = Guid.Empty;
     protected Guid _detachConfirmDialogHandle = Guid.Empty;
     protected Mode _mode;
-    protected bool _autoClose = false; // Automatically close the dialog if no more servers are available in the network
+    protected bool _autoCloseOnNoServer = false; // Automatically close the dialog if no more servers are available in the network
     
     #endregion
 
@@ -137,7 +139,7 @@ namespace UiComponents.SkinBase.Models
               mode = _mode;
             if (mode == Mode.AttachToServer)
             {
-              if (_autoClose && availableServers.Count == 0)
+              if (_autoCloseOnNoServer && availableServers.Count == 0)
               {
                 LeaveConfiguration();
                 return;
@@ -387,6 +389,7 @@ namespace UiComponents.SkinBase.Models
       {
         lock (_syncObj)
           _mode = Mode.AttachToServer;
+        _autoCloseOnNoServer = (bool) newContext.GetContextVariable(AUTO_CLOSE_ON_NO_SERVER_KEY, false);
         SynchronizeAvailableServers();
       }
       else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)

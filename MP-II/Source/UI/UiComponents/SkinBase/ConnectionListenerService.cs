@@ -23,10 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.ServerCommunication;
+using UiComponents.SkinBase.Models;
 
 namespace UiComponents.SkinBase
 {
@@ -70,7 +72,10 @@ namespace UiComponents.SkinBase
             if (!serversWereAdded)
               // Don't bother the user with connection messages if servers were only removed from the network
               return;
-            workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE_ID);
+            workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE_ID, new Dictionary<string, object>
+                {
+                  {ServerAttachmentModel.AUTO_CLOSE_ON_NO_SERVER_KEY, true}
+                });
             break;
         }
       }
