@@ -104,6 +104,20 @@
         Id="System"
         Redundant="true"
         Text="[Settings.General.System]"/>
+    <ConfigGroup
+        Id="Server"
+        Redundant="true"
+        Text="[Settings.General.Server]"/>
+  </Register>
+
+  <!-- Contents of '/General/Server' group -->
+  <Register Location="/Configuration/Settings/General/Server">
+    <CustomConfigSetting
+        Id="HomeServer"
+        Text="[Settings.General.Server.HomeServer]"
+        HelpText="[Settings.General.Server.HomeServer.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.General.HomeServerSetting"
+        AdditionalData="WorkflowState=17214BAC-E79C-4e5e-9280-A01478B27579,ConfAppPanel=..."/>
   </Register>
 
   <!-- Contents of '/General/System' group -->

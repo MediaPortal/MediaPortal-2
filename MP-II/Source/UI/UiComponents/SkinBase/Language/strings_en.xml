@@ -83,6 +83,10 @@
     <String Name="General.System.Balloontips" Text="Balloon Tips"/>
     <String Name="General.System.Balloontips.Help" Text="Disable tray area's balloon tips (setting will be changed system-wide)"/>
 
+    <String Name="General.Server" Text="Server"/>
+    <String Name="General.Server.HomeServer" Text="Home server"/>
+    <String Name="General.Server.HomeServer.Help" Text="Home server information, attach to and detach from home server"/>
+
     <String Name="Regional" Text="Regional"/>
     <String Name="Regional.Language" Text="Language"/>
     <String Name="Regional.Language.Main" Text="Language"/>

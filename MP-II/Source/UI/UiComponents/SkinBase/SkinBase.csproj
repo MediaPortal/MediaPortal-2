@@ -73,6 +73,7 @@
     <Compile Include="Models\ScreenSaverModel.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\DateFormat.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\TimeFormat.cs" />
+    <Compile Include="Settings\Configuration\General\HomeServerSetting.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\Configuration\General\Autostart.cs" />
