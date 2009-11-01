@@ -57,11 +57,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions\CurrentMedia.cs" />
-    <Compile Include="Actions\FullscreenContent.cs" />
-    <Compile Include="Actions\PlayerConfiguration.cs" />
+    <Compile Include="Actions\CurrentMediaAction.cs" />
+    <Compile Include="Actions\AttachDetachAction.cs" />
+    <Compile Include="Actions\FullscreenContentAction.cs" />
+    <Compile Include="Actions\PlayerConfigurationAction.cs" />
+    <Compile Include="ConnectionListenerService.cs" />
+    <Compile Include="IConnectionListenerService.cs" />
+    <Compile Include="Models\HomeServerModel.cs" />
     <Compile Include="Models\PlayerConfigurationDialogModel.cs" />
     <Compile Include="Models\MenuModel.cs" />
+    <Compile Include="Models\ServerAttachmentModel.cs" />
     <Compile Include="PlayerBackgroundManager.cs" />
     <Compile Include="Models\PlayerModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -363,6 +368,7 @@
     <Content Include="Skin\default\screens\settingsRefreshrate.xaml" />
     <Content Include="Skin\default\screens\simple_dialog_menu.xaml" />
     <Content Include="Skin\default\screens\weather.xaml" />
+    <Content Include="Skin\default\screens\ShowHomeServer.xaml" />
     <Content Include="Skin\default\themes\default\theme.xml" />
     <Content Include="Skin\default\themes\default\media\preview.png" />
     <Content Include="Skin\default\themes\default\styles\AnalogClock.xaml" />
@@ -378,6 +384,9 @@
     <Content Include="Skin\default\backgrounds\video-background.xaml" />
     <Content Include="Skin\default\workflow\player-states.xml" />
     <Content Include="Skin\default\workflow\player-actions.xml" />
+    <Content Include="Skin\default\workflow\serverconnect-actions.xml" />
+    <Content Include="Skin\default\workflow\serverconnect-states.xml" />
+    <Content Include="Skin\default\screens\AttachToServerDialog.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Skin\default\shaders\blur.fx" />

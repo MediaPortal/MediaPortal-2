@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.General;
 
 namespace MediaPortal.ServerCommunication
@@ -32,17 +33,31 @@ namespace MediaPortal.ServerCommunication
   public interface IServerConnectionManager
   {
     /// <summary>
-    /// Gets the UUID of the home server, this MediaPortal client is attached to.
+    /// Gets a collection of available MediaPortal servers, if this MediaPortal client is not attached to a home server.
+    /// Else, this property will be <c>null</c>.
+    /// </summary>
+    ICollection<ServerDescriptor> AvailableServers { get; }
+
+    /// <summary>
+    /// Returns the information if this MediaPortal client is currently connected to its home server.
+    /// </summary>
+    bool IsHomeServerConnected { get; }
+
+    /// <summary>
+    /// If this MediaPortal client is attached to a home server, this property gets the UUID of that home server.
+    /// Else, this property will be <c>null</c>.
     /// </summary>
     string HomeServerUUID { get; }
 
     /// <summary>
-    /// Gets the display name of the last connecdted home server.
+    /// Gets the display name of the last connected home server, if this MediaPortal client is attached to a home server.
+    /// Else, this property will be <c>null</c>.
     /// </summary>
     string LastHomeServerName { get; }
 
     /// <summary>
-    /// Gets the computer name of the last connecdted home server.
+    /// Gets the computer name of the last connecdted home server, if this MediaPortal client is attached to a home server.
+    /// Else, this property will be <c>null</c>.
     /// </summary>
     SystemName LastHomeServerSystem { get; }
 
@@ -51,6 +66,7 @@ namespace MediaPortal.ServerCommunication
     /// If the home server is not connected, this value is <c>null</c>.
     /// </summary>
     /// <remarks>
+    /// Implementation hint:
     /// We publish the actual UPnP implementation of the content directory service here, because it would be too much work
     /// to encapsulate the whole UPnP system.
     /// </remarks>
@@ -67,9 +83,15 @@ namespace MediaPortal.ServerCommunication
     void Shutdown();
 
     /// <summary>
-    /// Sets the server given by the <paramref name="serverDescriptor"/> as new home server and tries to connect to it.
+    /// Detaches this MediaPortal client from its current home server. All local shares will be removed from the former
+    /// home server.
     /// </summary>
-    /// <param name="serverDescriptor">Descriptor of the server to set as home server.</param>
-    void SetNewHomeServer(ServerDescriptor serverDescriptor);
+    void DetachFromHomeServer();
+
+    /// <summary>
+    /// Sets the server with the UUID <paramref name="mpMediaServerUUID"/> as new home server and tries to connect to it.
+    /// </summary>
+    /// <param name="mpMediaServerUUID">UUID of the MediaPortal server to set as home server.</param>
+    void SetNewHomeServer(string mpMediaServerUUID);
   }
 }

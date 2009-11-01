@@ -101,7 +101,15 @@ namespace MediaPortal.ServerCommunication
         deviceUuid = RootDescriptor.GetDeviceUUID(mediaServerDeviceElementNav);
         if (deviceUuid != _homeServerUUID)
           return;
-        connection = _connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
+        try
+        {
+          connection = _connection = _controlPoint.Connect(rootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("Error attaching to UPnP MP-II content directory service", e);
+          return;
+        }
       }
       connection.DeviceDisconnected += OnUPnPDeviceDisconnected;
       try

@@ -97,10 +97,10 @@ namespace UiComponents.Media
       switch (_currentVideoStateType)
       {
         case VideoStateType.CurrentlyPlaying:
-          screenManager.ShowScreen(CURRENTLY_PLAYING_SCREEN_NAME);
+          screenManager.ExchangeScreen(CURRENTLY_PLAYING_SCREEN_NAME);
           break;
         case VideoStateType.FullscreenContent:
-          screenManager.ShowScreen(FULLSCREENVIDEO_SCREEN_NAME);
+          screenManager.ExchangeScreen(FULLSCREENVIDEO_SCREEN_NAME);
           break;
       }
     }

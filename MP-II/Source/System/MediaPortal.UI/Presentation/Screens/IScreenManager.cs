@@ -78,13 +78,21 @@ namespace MediaPortal.Presentation.Screens
     void SwitchTheme(string newThemeName);
 
     /// <summary>
-    /// Shows the specified screen.
+    /// Shows the specified screen. All dialogs will be closed.
     /// If the screen was not prepared yet, this method will prepare the screen first before
     /// showing it.
     /// </summary>
     /// <param name="screenName">Name of the screen to be shown.</param>
     /// <returns><c>true</c>, if the screen could successfully be shown, else <c>false</c>.</returns>
     bool ShowScreen(string screenName);
+
+    /// <summary>
+    /// Exchanges the current screen with the screen with the given <paramref name="screenName"/>.
+    /// All current dialogs will be left open.
+    /// </summary>
+    /// <param name="screenName">Name of the screen to be shown instead of the current screen.</param>
+    /// <returns><c>true</c>, if the screen could successfully be shown, else <c>false</c>.</returns>
+    bool ExchangeScreen(string screenName);
 
     /// <summary>
     /// Shows the dialog screen with the specified name.

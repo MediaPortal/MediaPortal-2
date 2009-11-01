@@ -217,10 +217,10 @@ namespace MediaPortal.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateNav.Name, name));
       if (string.IsNullOrEmpty(name))
         throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateNav.Name, id));
-      if (string.IsNullOrEmpty(dialogScreen) || string.IsNullOrEmpty(workflowModelId))
-        throw new ArgumentException(string.Format("{0} '{1}': Both 'WorkflowModel' and 'DialogScreen' atrributes must be specified", stateNav.Name, name));
+      if (string.IsNullOrEmpty(dialogScreen) && string.IsNullOrEmpty(workflowModelId))
+        throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'DialogScreen' atrribute must be specified", stateNav.Name, name));
       return new WorkflowState(new Guid(id), name, dialogScreen, false, false,
-          new Guid(workflowModelId), WorkflowType.Dialog);
+          workflowModelId == null ? (Guid?) null : new Guid(workflowModelId), WorkflowType.Dialog);
     }
 
     protected static WorkflowState LoadWorkflowState(XPathNavigator stateNav)

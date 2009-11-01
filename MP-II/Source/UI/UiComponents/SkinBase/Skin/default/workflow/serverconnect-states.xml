@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Workflow states for the server connection configuration -->
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <DialogState Id="E834D0E0-BC35-4397-86F8-AC78C152E693"
+        Name="AttachToServer"
+        DialogScreen="AttachToServerDialog"
+        WorkflowModel="81A130E1-F417-47e4-AC9C-0B2E4912331F"/> <!-- Workflow model = ServerAttachmentModel -->
+
+    <DialogState Id="BAC42991-5AB6-471f-A185-673D2E3B1EBA"
+        Name="DetachFromServer"
+        WorkflowModel="81A130E1-F417-47e4-AC9C-0B2E4912331F"/> <!-- Workflow model = ServerAttachmentModel -->
+
+    <WorkflowState Id="17214BAC-E79C-4e5e-9280-A01478B27579"
+        Name="ShowHomeServer"
+        MainScreen="ShowHomeServer"
+        WorkflowModel="854ABA9A-71A1-420b-A657-9641815F9C01"/> <!-- Workflow model = HomeServerModel -->
+  </States>
+</Workflow>

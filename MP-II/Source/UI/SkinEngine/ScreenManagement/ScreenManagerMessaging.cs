@@ -24,6 +24,7 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Presentation.Screens;
 
 namespace MediaPortal.SkinEngine.ScreenManagement
 {
@@ -41,20 +42,62 @@ namespace MediaPortal.SkinEngine.ScreenManagement
     public enum MessageType
     {
       /// <summary>
-      /// Internal message to hide screens asynchronously.
+      /// Internal message to show a screen asynchronously. The screen to be shown will be given in the
+      /// parameter <see cref="SCREEN"/>. A bool indicating if open dialogs should be closed will be given in the
+      /// parameter <see cref="CLOSE_DIALOGS"/>.
       /// </summary>
-      InternalHideScreens,
+      ShowScreen,
+
+      /// <summary>
+      /// Internal message to show a dialog asynchronously. The dialog to be shown will be given in the
+      /// parameter <see cref="SCREEN"/>.
+      /// </summary>
+      ShowDialog,
+
+      /// <summary>
+      /// Internal message to close a dialog asynchronously. The name of the dialog to close is given in the
+      /// parameter <see cref="DIALOG_NAME"/>.
+      /// </summary>
+      CloseDialog,
+
+      /// <summary>
+      /// Internal message to reload the screen and all open dialogs.
+      /// </summary>
+      ReloadScreens,
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string SCREEN = "Screen"; // Type Screen
+    public const string CLOSE_DIALOGS = "CloseDialogs"; // Type bool
+    public const string DIALOG_NAME = "DialogName"; // Type string
+    public const string DIALOG_CLOSE_CALLBACK = "DialogCloseCallback"; // Type DialogCloseCallbackDlgt
 
-    /// <summary>
-    /// Sends a <see cref="MessageType.InternalHideScreens"/> message.
-    /// </summary>
-    public static void InternalSendHideScreensMessage()
+    internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
     {
-      QueueMessage msg = new QueueMessage(MessageType.InternalHideScreens);
+      QueueMessage msg = new QueueMessage(MessageType.ShowScreen);
+      msg.MessageData[SCREEN] = screen;
+      msg.MessageData[CLOSE_DIALOGS] = closeDialogs;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageShowDialog(Screen dialog, DialogCloseCallbackDlgt dialogCloseCallback)
+    {
+      QueueMessage msg = new QueueMessage(MessageType.ShowDialog);
+      msg.MessageData[SCREEN] = dialog;
+      msg.MessageData[DIALOG_CLOSE_CALLBACK] = dialogCloseCallback;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageCloseDialog(string dialogName)
+    {
+      QueueMessage msg = new QueueMessage(MessageType.CloseDialog);
+      msg.MessageData[DIALOG_NAME] = dialogName;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    internal static void SendMessageReloadScreens()
+    {
+      QueueMessage msg = new QueueMessage(MessageType.ReloadScreens);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

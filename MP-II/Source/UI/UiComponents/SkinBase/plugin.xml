@@ -19,11 +19,19 @@
     <Model Id="D4B7FEDD-243F-4afc-A8BE-28BBBF17D799" Name="ScreenSaverModel" ClassName="UiComponents.SkinBase.Models.ScreenSaverModel"/>
     <Model Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0" Name="MenuModel" ClassName="UiComponents.SkinBase.Models.MenuModel"/>
     <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="UiComponents.SkinBase.Models.TimeModel"/>
+    <Model Id="81A130E1-F417-47e4-AC9C-0B2E4912331F" Name="ServerAttachmentModel" ClassName="UiComponents.SkinBase.Models.ServerAttachmentModel"/>
+    <Model Id="854ABA9A-71A1-420b-A657-9641815F9C01" Name="HomeServerModel" ClassName="UiComponents.SkinBase.Models.HomeServerModel"/>
     <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="PlayerModel" ClassName="UiComponents.SkinBase.Models.PlayerModel"/>
     <Model Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037" Name="PlayerConfigurationDialogModel" ClassName="UiComponents.SkinBase.Models.PlayerConfigurationDialogModel"/>
-    <Model Id="95DD6923-058A-4481-AF33-2455CEBB7A03" Name="PlayerConfigurationContributorModel" ClassName="UiComponents.SkinBase.Actions.PlayerConfiguration"/>
-    <Model Id="04854BDB-0933-4194-8AAE-DEC50062F37F" Name="CurrentMediaContributorModel" ClassName="UiComponents.SkinBase.Actions.CurrentMedia"/>
-    <Model Id="08E19EDA-7BB3-4e74-8079-FFB0D52F3838" Name="FullscreenContentContributorModel" ClassName="UiComponents.SkinBase.Actions.FullscreenContent"/>
+    <Model Id="95DD6923-058A-4481-AF33-2455CEBB7A03" Name="PlayerConfigurationContributorModel" ClassName="UiComponents.SkinBase.Actions.PlayerConfigurationAction"/>
+    <Model Id="04854BDB-0933-4194-8AAE-DEC50062F37F" Name="CurrentMediaContributorModel" ClassName="UiComponents.SkinBase.Actions.CurrentMediaAction"/>
+    <Model Id="08E19EDA-7BB3-4e74-8079-FFB0D52F3838" Name="FullscreenContentContributorModel" ClassName="UiComponents.SkinBase.Actions.FullscreenContentAction"/>
+    <Model Id="793DAD9F-F64C-4c7a-86C0-F5AA222D0CDB" Name="AttachDetachContributorModel" ClassName="UiComponents.SkinBase.Actions.AttachDetachAction"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="ConnectionListenerService" RegistrationClassName="UiComponents.SkinBase.IConnectionListenerService"
+        ServiceClassName="UiComponents.SkinBase.ConnectionListenerService"/>
   </Register>
 
   <Register Location="/Skins/default">

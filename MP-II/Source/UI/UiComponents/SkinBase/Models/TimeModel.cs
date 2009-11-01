@@ -39,7 +39,7 @@ namespace UiComponents.SkinBase.Models
   /// </summary>
   public class TimeModel : BaseTimerControlledUIModel
   {
-    protected static string MODEL_ID_STR = "E821B1C8-0666-4339-8027-AA45A4F6F107";
+    protected const string MODEL_ID_STR = "E821B1C8-0666-4339-8027-AA45A4F6F107";
 
     #region Protected fields
 

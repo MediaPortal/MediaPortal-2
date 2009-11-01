@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[ServerConnection.HomeServer]"/>
+
+    <!-- HomeServerModel -->
+    <Model x:Key="Model" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding !IsHomeServerAttached}">
+          <Label Content="[ServerConnection.NoHomeServerAttached]" Wrap="True"/>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding IsHomeServerAttached}">
+          <Label Content="[ServerConnection.AttachedText.Before]" Wrap="True"/>
+          <Label Color="{ThemeResource EmphasisTextColor}" Content="{Binding Source={StaticResource Model},Path=HomeServer}"/>
+          <Label Content="[ServerConnection.AttachedText.After]"/>
+        </StackPanel>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

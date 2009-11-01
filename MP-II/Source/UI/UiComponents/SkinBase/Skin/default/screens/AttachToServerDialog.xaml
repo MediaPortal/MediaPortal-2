@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    Source="screens\master_dialog.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[ServerConnection.AttachToServerHeader]"/>
+
+    <!-- AttachToServerModel -->
+    <Model x:Key="Model" Id="81A130E1-F417-47e4-AC9C-0B2E4912331F"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid IsVisible="{Binding IsNoServerAvailable}"> <!-- Visible if no server is available -->
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label Grid.Column="0" Grid.Row="0" Content="[ServerConnection.AttachToServerNoServerText]" Wrap="True"/>
+          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center">
+            <Button Margin="10" x:Name="NoServersOkButton" Style="{ThemeResource ButtonWideStyle}"
+                Content="[System.Ok]"
+                Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+          </StackPanel>
+        </Grid>
+        <Grid IsVisible="{Binding IsSingleServerAvailable}"> <!-- Visible if a single server is available -->
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label Content="[ServerConnection.AttachToSingleText.Before]" Grid.Column="0" Grid.Row="0" Wrap="True"/>
+          <Label Content="{Binding Source={StaticResource Model},Path=SingleServer}"
+              Margin="10" Color="{ThemeResource EmphasisTextColor}" Grid.Column="0" Grid.Row="1" Wrap="True"/>
+          <Label Content="[ServerConnection.AttachToSingleText.After]" Grid.Column="0" Grid.Row="2" Wrap="True"/>
+
+          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center">
+            <Button Margin="10" x:Name="SingleServerAttachButton" Grid.Column="0" Style="{ThemeResource ButtonWideStyle}"
+                Content="[ServerConnection.AttachButton]">
+              <Button.Command>
+                <CommandList>
+                  <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
+                  <Command Source="{StaticResource Model}" Path="ConnectToSingleServer"/>
+                </CommandList>
+              </Button.Command>
+            </Button>
+            <Button Margin="10" x:Name="SingleServerCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
+                Content="[System.Cancel]"
+                Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+          </StackPanel>
+        </Grid>
+        <Grid IsVisible="{Binding IsMultipleServersAvailable}"> <!-- Visible if multiple servers are available -->
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label Grid.Column="0" Grid.Row="0" Content="[ServerConnection.AttachToMultipleText]" Wrap="True"/>
+          <ListView Grid.Row="1" Margin="0,10,0,0"
+              Style="{StaticResource ContentsMenuListViewStyle}"
+              ItemsSource="{Binding Path=AvailableServers,Mode=OneTime}"/>
+          <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3" HorizontalAlignment="Center">
+            <Button Margin="10" x:Name="MultipleServersCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
+                Content="[System.Cancel]"
+                Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
@@ -41,6 +42,7 @@ namespace MediaPortal.Services.ServerConnection
   {
     protected UPnPServerWatcher _serverWatcher = null;
     protected UPnPClientControlPoint _controlPoint = null;
+    protected bool _isHomeServerConnected = false;
     protected object _syncObj = new object();
 
     public ServerConnectionManager()
@@ -54,24 +56,30 @@ namespace MediaPortal.Services.ServerConnection
         _controlPoint = BuildClientControlPoint(homeServerUUID);
     }
 
-    static void OnAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers)
+    static void OnAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
-      ServerConnectionMessaging.SendAvailableServersChangedMessage(allAvailableServers);
+      ServerConnectionMessaging.SendAvailableServersChangedMessage(allAvailableServers, serversWereAdded);
     }
 
     void OnMediaServerConnected(DeviceConnection connection)
     {
       ServerDescriptor serverDescriptor = UPnPServerWatcher.GetMPMediaServerDescriptor(connection.RootDescriptor);
-      if (serverDescriptor != null)
-        SaveLastHomeServerData(serverDescriptor);
+      lock (_syncObj)
+      {
+        _isHomeServerConnected = true;
+        if (serverDescriptor != null)
+          SaveLastHomeServerData(serverDescriptor);
+      }
 
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       ServiceScope.Get<IThreadPool>().Add(SynchronizeSharesWithServer);
       // TODO: Call ClientAvailable method at MP server's client manager service
     }
 
-    static void OnMediaServerDisconnected(DeviceConnection connection)
+    void OnMediaServerDisconnected(DeviceConnection connection)
     {
+      lock (_syncObj)
+        _isHomeServerConnected = false;
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDisconnected);
     }
 
@@ -114,6 +122,7 @@ namespace MediaPortal.Services.ServerConnection
         UPnPContentDirectoryService cds = ContentDirectoryService;
         if (cds == null)
           return;
+        ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
         IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
         foreach (Share share in cds.GetShares(SystemName.GetLocalSystemName(), SharesFilter.All))
           serverShares.Add(share.ShareId, share);
@@ -122,14 +131,32 @@ namespace MediaPortal.Services.ServerConnection
           if (!serverShares.ContainsKey(localShare.ShareId))
             cds.RegisterShare(localShare);
         foreach (Guid serverShareId in serverShares.Keys)
-        {
           if (!localShares.ContainsKey(serverShareId))
             cds.RemoveShare(serverShareId);
-        }
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Could not synchronize local shares with server", e);
+        ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local shares with server", e);
+      }
+    }
+
+    public ICollection<ServerDescriptor> AvailableServers
+    {
+      get
+      {
+        lock (_syncObj)
+          if (_serverWatcher != null)
+            return new List<ServerDescriptor>(_serverWatcher.AvailableServers);
+        return null;
+      }
+    }
+
+    public bool IsHomeServerConnected
+    {
+      get
+      {
+        lock (_syncObj)
+          return _isHomeServerConnected;
       }
     }
 
@@ -191,27 +218,58 @@ namespace MediaPortal.Services.ServerConnection
       }
     }
 
-    public void SetNewHomeServer(ServerDescriptor serverDescriptor)
+    public void DetachFromHomeServer()
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
-      // Here, we only set the UUID of the new home server. The server's UUID will remain in the settings
-      // until method SetNewHomeServer is called again.
-      settings.HomeServerUUID = serverDescriptor.MPMediaServerUUID;
-      settingsManager.Save(settings);
+      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Detaching from home server");
+      UPnPClientControlPoint cp;
+      lock (_syncObj)
+        cp = _controlPoint;
+      if (cp != null)
+        cp.Stop(); // Must be outside the lock - sends messages
       lock (_syncObj)
       {
+        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+        ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
+        settings.HomeServerUUID = null;
+        settings.LastHomeServerName = null;
+        settings.LastHomeServerSystem = null;
+        settingsManager.Save(settings);
+        _controlPoint = null;
+      }
+      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
+      if (_serverWatcher == null)
+      {
+        lock (_syncObj)
+          _serverWatcher = BuildServerWatcher();
+        _serverWatcher.Start(); // Outside the lock
+      }
+    }
+
+    public void SetNewHomeServer(string mpMediaServerUUID)
+    {
+      lock (_syncObj)
         if (_serverWatcher != null)
         {
           _serverWatcher.Stop();
           _serverWatcher = null;
         }
-        if (_controlPoint != null)
-        {
-          _controlPoint.Stop();
-          _controlPoint = BuildClientControlPoint(serverDescriptor.MPMediaServerUUID);
-        }
+      UPnPClientControlPoint cp;
+      lock (_syncObj)
+        cp = _controlPoint;
+      if (cp != null)
+        cp.Stop(); // Must be outside the lock - sends messages
+      lock (_syncObj)
+      {
+        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+        ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
+        // Here, we only set the UUID of the new home server. The server's UUID will remain in the settings
+        // until method SetNewHomeServer is called again.
+        settings.HomeServerUUID = mpMediaServerUUID;
+        settingsManager.Save(settings);
+        _controlPoint = BuildClientControlPoint(mpMediaServerUUID);
       }
+      _controlPoint.Start(); // Outside the lock
+      ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerAttached);
     }
   }
 }

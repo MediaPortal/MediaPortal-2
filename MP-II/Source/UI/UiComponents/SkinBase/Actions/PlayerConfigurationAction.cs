@@ -32,18 +32,20 @@ using MediaPortal.Presentation.Workflow;
 namespace UiComponents.SkinBase.Actions
 {
   /// <summary>
-  /// Action which is visible when player slots are open. Depending on the currently active players, this action will
-  /// show the current player's content.
+  /// Action which is visible when player slots are open. This action will show the dialog
+  /// "DialogPlayerConfiguration" when executed.
   /// </summary>
-  public class CurrentMedia : IWorkflowContributor
+  public class PlayerConfigurationAction : IWorkflowContributor
   {
     #region Consts
 
-    public const string CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR = "04854BDB-0933-4194-8AAE-DEC50062F37F";
+    public const string PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR = "95DD6923-058A-4481-AF33-2455CEBB7A03";
+    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
 
-    public static Guid CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
+    public static Guid PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID = new Guid(PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR);
+    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
 
-    public const string CURRENT_MEDIA_RESOURCE = "[Players.CurrentMedia]";
+    public const string DISPLAY_TITLE_RESOURCE = "[Players.PlayerConfiguration]";
 
     #endregion
 
@@ -51,8 +53,14 @@ namespace UiComponents.SkinBase.Actions
 
     protected AsynchronousMessageQueue _messageQueue = null;
     protected bool _isVisible;
+    protected IResourceString _displayTitle;
 
     #endregion
+
+    public PlayerConfigurationAction()
+    {
+      _displayTitle = LocalizationHelper.CreateResourceString(DISPLAY_TITLE_RESOURCE);
+    }
 
     void SubscribeToMessages()
     {
@@ -72,11 +80,12 @@ namespace UiComponents.SkinBase.Actions
       _messageQueue = null;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
+        PlayerManagerMessaging.MessageType messageType =
+            (PlayerManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerSlotActivated:
@@ -89,9 +98,12 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
+      bool oldVisible = _isVisible;
+
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       _isVisible = playerManager.NumActiveSlots > 0;
-      FireStateChanged();
+      if (oldVisible != _isVisible)
+        FireStateChanged();
     }
 
     protected void FireStateChanged()
@@ -116,7 +128,7 @@ namespace UiComponents.SkinBase.Actions
 
     public IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateResourceString(CURRENT_MEDIA_RESOURCE); }
+      get { return _displayTitle; }
     }
 
     public void Initialize()
@@ -132,12 +144,8 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext pc = playerContextManager.CurrentPlayerContext;
-      if (pc == null)
-        return;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(pc.CurrentlyPlayingWorkflowStateId);
+      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
     }
 
     #endregion

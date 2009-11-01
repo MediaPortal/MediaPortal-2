@@ -44,6 +44,10 @@ namespace MediaPortal.ServerCommunication
     {
       /// <summary>
       /// A new MediaPortal server is available in the network or was removed from the network.
+      /// The <see cref="QueueMessage.MessageData"/> contains an entry for
+      /// <see cref="ServerConnectionMessaging.AVAILABLE_SERVERS"/> containing a collection of server descriptors currently
+      /// available in the local network and an entry for <see cref="ServerConnectionMessaging.SERVERS_WERE_ADDED"/> containing
+      /// a bool which indicates that new servers were added to that collection until the last message of this type.
       /// </summary>
       AvailableServersChanged,
 
@@ -56,10 +60,21 @@ namespace MediaPortal.ServerCommunication
       /// The homeserver was disconnected.
       /// </summary>
       HomeServerDisconnected,
+
+      /// <summary>
+      /// A MediaPortal server was attached.
+      /// </summary>
+      HomeServerAttached,
+
+      /// <summary>
+      /// The home server was detached.
+      /// </summary>
+      HomeServerDetached,
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string AVAILABLE_SERVERS = "AvailableServers"; // Contains a collection of ServerDescriptor instances
+    public const string SERVERS_WERE_ADDED = "ServersWereAdded"; // Contains a bool
 
     /// <summary>
     /// Sends a <see cref="MessageType.HomeServerConnected"/> or <see cref="MessageType.HomeServerDisconnected"/> message.
@@ -76,10 +91,12 @@ namespace MediaPortal.ServerCommunication
     /// Sends a <see cref="MessageType.AvailableServersChanged"/> message.
     /// </summary>
     /// <param name="availableServers">Collection of descriptors of available servers.</param>
-    public static void SendAvailableServersChangedMessage(ICollection<ServerDescriptor> availableServers)
+    /// <param name="serversWereAdded"><c>true</c> if new servers are present from the last notification.</param>
+    public static void SendAvailableServersChangedMessage(ICollection<ServerDescriptor> availableServers, bool serversWereAdded)
     {
       QueueMessage msg = new QueueMessage(MessageType.AvailableServersChanged);
-      msg.MessageData[PARAM] = availableServers;
+      msg.MessageData[SERVERS_WERE_ADDED] = serversWereAdded;
+      msg.MessageData[AVAILABLE_SERVERS] = availableServers;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

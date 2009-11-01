@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Player workflow state actions -->
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
@@ -7,18 +7,18 @@
         DisplayCategory="z-WorkflowContributors"
         SortOrder="a"
         SourceState="*"
-        ContributorModelId="95DD6923-058A-4481-AF33-2455CEBB7A03"/>
+        ContributorModelId="95DD6923-058A-4481-AF33-2455CEBB7A03"/> <!-- PlayerConfiguration action -->
     <WorkflowContributorAction Id="D83604C0-0936-4416-9DE8-7B6D7C50023C"
         Name="*->CurrentMedia"
         DisplayCategory="z-WorkflowContributors"
         SortOrder="b"
         SourceState="*"
-        ContributorModelId="04854BDB-0933-4194-8AAE-DEC50062F37F"/>
+        ContributorModelId="04854BDB-0933-4194-8AAE-DEC50062F37F"/> <!-- CurrentMedia action -->
     <WorkflowContributorAction Id="9C3E6701-6856-49ec-A4CD-0CEB15F385F6"
         Name="*->FullscreenContent"
         DisplayCategory="z-WorkflowContributors"
         SortOrder="c"
         SourceState="*"
-        ContributorModelId="08E19EDA-7BB3-4e74-8079-FFB0D52F3838"/>
+        ContributorModelId="08E19EDA-7BB3-4e74-8079-FFB0D52F3838"/> <!-- FullscreenContent action -->
   </MenuActions>
 </Workflow>

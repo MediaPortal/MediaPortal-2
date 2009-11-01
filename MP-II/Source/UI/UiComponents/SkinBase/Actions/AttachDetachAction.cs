@@ -26,28 +26,38 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
+using MediaPortal.ServerCommunication;
 
 namespace UiComponents.SkinBase.Actions
 {
-  public class FullscreenContent : IWorkflowContributor
+  /// <summary>
+  /// Action which triggers a switch to workflow state DetachFromServer if a server is currently connected.
+  /// </summary>
+  public class AttachDetachAction : IWorkflowContributor
   {
     #region Consts
 
-    public const string FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR = "08E19EDA-7BB3-4e74-8079-FFB0D52F3838";
+    public const string ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR = "793DAD9F-F64C-4c7a-86C0-F5AA222D0CDB";
 
-    public static Guid FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
+    protected const string ATTACH_TO_SERVER_STATE_STR = "E834D0E0-BC35-4397-86F8-AC78C152E693";
+    protected const string DETACH_FROM_SERVER_STATE_STR = "BAC42991-5AB6-471f-A185-673D2E3B1EBA";
 
-    public const string FULLSCREEN_CONTENT_RESOURCE = "[Players.Fullscreen]";
+    public static Guid ATTACH_DETACH_CONTRIBUTOR_MODEL_ID = new Guid(ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR);
+
+    public static Guid ATTACH_TO_SERVER_STATE = new Guid(ATTACH_TO_SERVER_STATE_STR);
+    public static Guid DETACH_FROM_SERVER_STATE = new Guid(DETACH_FROM_SERVER_STATE_STR);
+
+    public const string SEARCH_FOR_SERVERS_RES = "[ServerConnection.SearchForServers]";
+    public const string DETACH_FROM_SERVER_RES = "[ServerConnection.DetachFromServer]";
 
     #endregion
 
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected bool _isVisible;
-    protected IResourceString _displayTitle;
+    protected bool _isEnabled = true;
+    protected IResourceString _titleRes = null;
 
     #endregion
 
@@ -55,7 +65,7 @@ namespace UiComponents.SkinBase.Actions
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           PlayerManagerMessaging.CHANNEL
+            ServerConnectionMessaging.CHANNEL
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -71,15 +81,14 @@ namespace UiComponents.SkinBase.Actions
 
     void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
-      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
-        PlayerManagerMessaging.MessageType messageType =
-            (PlayerManagerMessaging.MessageType) message.MessageType;
+        ServerConnectionMessaging.MessageType messageType =
+            (ServerConnectionMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlayerManagerMessaging.MessageType.PlayerStarted:
-          case PlayerManagerMessaging.MessageType.PlayerStopped:
-          case PlayerManagerMessaging.MessageType.PlayerEnded:
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          case ServerConnectionMessaging.MessageType.HomeServerDetached:
             Update();
             break;
         }
@@ -88,16 +97,8 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-      IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
-      _isVisible = vp != null;
-      if (vp == null)
-        _displayTitle = null;
-      else
-        _displayTitle =
-            LocalizationHelper.CreateStaticString(
-                LocalizationHelper.CreateResourceString(FULLSCREEN_CONTENT_RESOURCE).Evaluate(vp.Name));
+      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      _titleRes = LocalizationHelper.CreateResourceString(string.IsNullOrEmpty(scm.HomeServerUUID) ? SEARCH_FOR_SERVERS_RES : DETACH_FROM_SERVER_RES);
       FireStateChanged();
     }
 
@@ -107,17 +108,13 @@ namespace UiComponents.SkinBase.Actions
       if (d != null) d();
     }
 
-    #region IDisposable implementation
-
-    #endregion
-
     #region IWorkflowContributor implementation
 
     public event ContributorStateChangeDelegate StateChanged;
 
     public bool IsActionVisible
     {
-      get { return _isVisible; }
+      get { return true; }
     }
 
     public bool IsActionEnabled
@@ -127,7 +124,7 @@ namespace UiComponents.SkinBase.Actions
 
     public IResourceString DisplayTitle
     {
-      get { return _displayTitle; }
+      get { return _titleRes; }
     }
 
     public void Initialize()
@@ -143,12 +140,12 @@ namespace UiComponents.SkinBase.Actions
 
     public void Execute()
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-      if (pc == null)
-        return;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(pc.FullscreenContentWorkflowStateId);
+      IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+      if (string.IsNullOrEmpty(scm.HomeServerUUID))
+        workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE);
+      else
+        workflowManager.NavigatePush(DETACH_FROM_SERVER_STATE);
     }
 
     #endregion

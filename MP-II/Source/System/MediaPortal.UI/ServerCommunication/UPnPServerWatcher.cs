@@ -35,7 +35,7 @@ using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.ServerCommunication
 {
-  public delegate void AvailableMediaServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers);
+  public delegate void AvailableMediaServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded);
 
   /// <summary>
   /// Watches the network for available MediaPortal-II servers.
@@ -109,7 +109,7 @@ namespace MediaPortal.ServerCommunication
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
       }
-      InvokeAvailableMediaServersChanged(availableServers);
+      InvokeAvailableMediaServersChanged(availableServers, true);
     }
 
     void OnUPnPRootDeviceRemoved(RootDescriptor rootDescriptor)
@@ -125,14 +125,14 @@ namespace MediaPortal.ServerCommunication
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;
       }
-      InvokeAvailableMediaServersChanged(availableServers);
+      InvokeAvailableMediaServersChanged(availableServers, false);
     }
 
-    protected void InvokeAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers)
+    protected void InvokeAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
       AvailableMediaServersChangedDlgt dlgt = AvailableMediaServersChanged;
       if (dlgt != null)
-        dlgt(allAvailableServers);
+        dlgt(allAvailableServers, serversWereAdded);
     }
   }
 }

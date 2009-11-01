@@ -14,6 +14,28 @@
     <String Name="MyPictures" Text="Pictures"/>
     <String Name="InvalidShareName" Text="Invalid share"/>
   </Section>
+  <Section Name="ServerConnection">
+    <String Name="ServerFormatText" Text="'{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
+    <String Name="UnknownServerName" Text="&lt;Unknown&gt;"/>
+    <String Name="UnknownServerSystem" Text="&lt;Unknown&gt;"/>
+    <String Name="HomeServer" Text="Home server"/>
+    <String Name="AttachedText.Before" Text="This MediaPortal-II client is currently attached to home server"/>
+    <String Name="AttachedText.After" Text=""/>
+    <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal-II client."/>
+    <String Name="DetachMenu" Text="Detach"/>
+    <String Name="DetachConfirmDialogHeader" Text="Detach from home server"/>
+    <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all local shares will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host {1}?"/>
+    <String Name="SearchForServers" Text="Search for servers"/>
+    <String Name="DetachFromServer" Text="Detach from home server"/>
+    <String Name="AttachToServerHeader" Text="Attach to MediaPortal-II server"/>
+    <String Name="AttachToMultipleText" Text="There are multiple MP-II servers available in the network. Do you want to choose one of them as home server?"/>
+    <String Name="AttachToSingleText.Before" Text="The MP-II server"/>
+    <String Name="AttachToSingleText.After" Text="is available in the network. Do you want to attach to it?"/>
+    <String Name="AttachToServerNoServerText" Text="Currently, there is no MediaPortal-II server available in the network."/>
+    <String Name="AttachButton" Text="Attach"/>
+    <String Name="AttachInfoDialogHeader" Text="Server attached"/>
+    <String Name="AttachInfoDialogText" Text="This MediaPortal-II client was attached to its new home server '{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
+  </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
     <String Name="CurrentMedia" Text="Current Media"/>

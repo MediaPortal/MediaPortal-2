@@ -24,12 +24,13 @@
 
   <ResourceWrapper x:Key="DialogBorderColor" Resource="#AFFFFFFF"/>
 
-  <!-- Yellow -->
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFFFFF00"/>
 
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
 
   <ResourceWrapper x:Key="HintTextColor" Resource="DarkGray"/>
+
+  <ResourceWrapper x:Key="EmphasisTextColor" Resource="Yellow"/>
 
   <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
 

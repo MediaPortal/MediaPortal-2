@@ -167,8 +167,7 @@ namespace MediaPortal.SkinEngine.SpecialElements.Controls
       _videoWidthProperty = new Property(typeof(float), 0f);
       _videoHeightProperty = new Property(typeof(float), 0f);
 
-      _timer = new Timer(200);
-      _timer.Enabled = false;
+      _timer = new Timer(200) {Enabled = false};
       _timer.Elapsed += OnTimerElapsed;
 
       _headerNormalResource = LocalizationHelper.CreateResourceString(HEADER_NORMAL_RESOURCE);
