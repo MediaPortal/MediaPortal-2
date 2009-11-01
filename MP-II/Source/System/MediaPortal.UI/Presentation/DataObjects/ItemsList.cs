@@ -49,7 +49,12 @@ namespace MediaPortal.Presentation.DataObjects
         d(this);
     }
 
-    #region Implementation of IEnumerable
+    public object SyncRoot
+    {
+      get { return _backingList.SyncRoot; }
+    }
+
+    #region IEnumerable implementation
 
     public IEnumerator<ListItem> GetEnumerator()
     {
@@ -63,7 +68,7 @@ namespace MediaPortal.Presentation.DataObjects
 
     #endregion
 
-    #region Implementation of ICollection<ListItem>
+    #region ICollection<ListItem> implementation
 
     public void Add(ListItem item)
     {
@@ -102,7 +107,7 @@ namespace MediaPortal.Presentation.DataObjects
 
     #endregion
 
-    #region Implementation of IList<ListItem>
+    #region IList<ListItem> implementation
 
     public int IndexOf(ListItem item)
     {

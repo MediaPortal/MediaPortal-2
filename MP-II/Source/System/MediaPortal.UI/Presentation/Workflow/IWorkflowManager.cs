@@ -33,6 +33,12 @@ namespace MediaPortal.Presentation.Workflow
   public interface IWorkflowManager
   {
     /// <summary>
+    /// Synchronization object to lock the workflow manager's internal data like the <see cref="NavigationContextStack"/>
+    /// and its internal model cache.
+    /// </summary>
+    object SyncObj { get; }
+
+    /// <summary>
     /// Returns all currently known workflow states. The dictionary maps state ids to states.
     /// </summary>
     /// <remarks>
@@ -57,7 +63,10 @@ namespace MediaPortal.Presentation.Workflow
     /// Returns the current navigation context in the <see cref="NavigationContextStack"/>.
     /// </summary>
     /// <remarks>
-    /// This is a convenience property for calling <c><see cref="NavigationContextStack"/>.Peek()</c>.
+    /// This is a convenience property for calling the <see cref="NavigationContextStack"/>'s <see cref="Stack{T}.Peek"/>
+    /// method.
+    /// Remember to lock the returned navigation context's <see cref="NavigationContext.SyncRoot"/> object when accessing
+    /// the context.
     /// </remarks>
     NavigationContext CurrentNavigationContext { get; }
 

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Presentation.Models;
 using MediaPortal.Presentation.Workflow;
@@ -39,29 +40,48 @@ namespace UiComponents.SkinBase.Models
 
     protected const string MODEL_ID_STR = "9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0";
     protected const string ITEM_ACTION_KEY = "MenuModel: Item-Action";
+    protected const string REGISTERED_ACTIONS_KEY = "MenuModel: RegisteredActions";
+    protected const string MENU_ITEMS_KEY = "MenuModel: MenuItems";
 
     #endregion
 
     #region Protected fields
 
     protected ICollection<WorkflowAction> _registeredActions = new List<WorkflowAction>();
-    protected ItemsList _currentMenuItems = null;
     protected object _syncObj = new object();
-    protected Guid _currentWorkflowStateId = Guid.Empty;
 
     #endregion
 
-    #region Protected methods
-
-    public override Guid ModelId
+    public MenuModel()
     {
-      get { return new Guid(MODEL_ID_STR); }
+      SubscribeToMessages();
     }
 
-    protected void OnMenuActionStateChanged(WorkflowAction action)
+    #region Protected methods
+
+    void SubscribeToMessages()
     {
-      // TODO: Can we optimize this? If multiple actions change their state simultaneously, we only need one update
-      UpdateMenu();
+      _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        if (((WorkflowManagerMessaging.MessageType) message.MessageType) ==
+            WorkflowManagerMessaging.MessageType.StatesPopped)
+        {
+          ICollection<NavigationContext> removedContexts = ((IDictionary<Guid, NavigationContext>) message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Values;
+          foreach (NavigationContext context in removedContexts)
+            UnregisterActionChangeHandlers(context);
+        }
+      }
+    }
+
+    void OnMenuActionStateChanged(WorkflowAction action)
+    {
+      UpdateMenus();
     }
 
     protected static int Compare(string a, string b)
@@ -92,68 +112,169 @@ namespace UiComponents.SkinBase.Models
       return result;
     }
 
-    protected void RegisterActionChangeHandler(WorkflowAction action)
+    protected void RegisterActionChangeHandler(NavigationContext context, WorkflowAction action)
     {
-      action.StateChanged += OnMenuActionStateChanged;
-      _registeredActions.Add(action);
-    }
-
-    protected void UnregisterActionChangeHandlers()
-    {
-      foreach (WorkflowAction action in _registeredActions)
-        action.StateChanged -= OnMenuActionStateChanged;
-      _registeredActions.Clear();
-    }
-
-    protected bool MenuEntriesChanged(ICollection<WorkflowAction> newActions)
-    {
-      if (_currentMenuItems == null)
-        return true;
-      int oldNumEntries = _currentMenuItems.Count;
-      int newNumEntries = 0;
-      foreach (WorkflowAction action in newActions)
+      lock (context.SyncRoot)
       {
-        if (!action.IsVisible)
-          continue;
-        if (oldNumEntries <= newNumEntries)
-          return true;
-        ListItem item = _currentMenuItems[newNumEntries];
-        newNumEntries++;
-        if (item.AdditionalProperties[ITEM_ACTION_KEY] != action)
-          return true;
+        object regs;
+        ICollection<WorkflowAction> registrations;
+        if (context.ContextVariables.TryGetValue(REGISTERED_ACTIONS_KEY, out regs))
+          registrations = (ICollection<WorkflowAction>) regs;
+        else
+          context.ContextVariables[REGISTERED_ACTIONS_KEY] = registrations = new List<WorkflowAction>();
+        action.StateChanged += OnMenuActionStateChanged;
+        registrations.Add(action);
       }
-      return oldNumEntries != newNumEntries;
+    }
+
+    protected void UnregisterActionChangeHandlers(NavigationContext context)
+    {
+      lock (context.SyncRoot)
+      {
+        ICollection<WorkflowAction> registeredActions =
+            (ICollection<WorkflowAction>) context.GetContextVariable(REGISTERED_ACTIONS_KEY, false);
+        if (registeredActions == null)
+          return;
+        foreach (WorkflowAction action in registeredActions)
+          action.StateChanged -= OnMenuActionStateChanged;
+        context.ContextVariables.Remove(REGISTERED_ACTIONS_KEY);
+      }
+    }
+
+    protected ItemsList GetMenuItems(NavigationContext context)
+    {
+      return (ItemsList) context.GetContextVariable(MENU_ITEMS_KEY, false);
+    }
+
+    protected ItemsList GetOrCreateMenuItems(NavigationContext context)
+    {
+      lock (context.SyncRoot)
+      {
+        ItemsList result = GetMenuItems(context);
+        if (result == null)
+          context.ContextVariables[MENU_ITEMS_KEY] = result = new ItemsList();
+        return result;
+      }
     }
 
     /// <summary>
-    /// Will be called when some actions changed their state. This will rebuild the menu without
+    /// Will be called when some actions changed their state. This will rebuild the menus without
     /// discarding the contents.
     /// </summary>
-    protected void UpdateMenu()
+    protected void UpdateMenus()
     {
-      lock (_syncObj)
+      ICollection<NavigationContext> stackCopy;
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      lock (workflowManager.SyncObj)
+        stackCopy = new List<NavigationContext>(workflowManager.NavigationContextStack);
+      foreach (NavigationContext context in stackCopy)
+        UpdateMenu(context);
+    }
+
+    protected ItemsList UpdateMenu(NavigationContext context)
+    {
+      IList<WorkflowAction> actions;
+      lock (context.SyncRoot)
+        actions = SortActions(context.MenuActions.Values);
+      bool fireListChanged = false;
+      ICollection<ListItem> changed;
+      ItemsList menuItems = GetOrCreateMenuItems(context);
+      lock (menuItems.SyncRoot)
       {
-        NavigationContext context = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
-        if (_currentWorkflowStateId == context.WorkflowState.StateId)
-          return;
-        _currentWorkflowStateId = context.WorkflowState.StateId;
-        IList<WorkflowAction> actions = SortActions(context.MenuActions.Values);
-        if (MenuEntriesChanged(actions))
-          RebuildMenuEntries(actions);
-        else
-          UpdateMenuEntries(actions);
+        if (!TryUpdateMenuEntries(context, menuItems, actions, out changed))
+        {
+          changed = null;
+          RebuildMenuEntries(context, menuItems, actions);
+          fireListChanged = true;
+        }
+      }
+      if (fireListChanged)
+        menuItems.FireChange();
+      if (changed != null)
+        foreach (ListItem item in changed)
+          item.FireChange();
+      return menuItems;
+    }
+
+    /// <summary>
+    /// Tries to update the given <paramref name="menuItems"/> to the given list of <paramref name="newActions"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method locks the synchronization object of the <paramref name="menuItems"/> list and thus must not call
+    /// change handlers.
+    /// After executing this method, the <see cref="ListItem.FireChange"/> method should be called on all list items
+    /// in the returned <paramref name="changedItems"/> collection.
+    /// </remarks>
+    /// <param name="context">Workflow navigation context whose menu should be updated.</param>
+    /// <param name="menuItems">Menu items list to update.</param>
+    /// <param name="newActions">Preprocessed list (sorted etc.) of actions to be used for the new menu.</param>
+    /// <param name="changedItems">Returns a collection of list items which were changed by this method.</param>
+    protected bool TryUpdateMenuEntries(NavigationContext context, ItemsList menuItems, IList<WorkflowAction> newActions,
+        out ICollection<ListItem> changedItems)
+    {
+      lock (menuItems.SyncRoot)
+      {
+        changedItems = null;
+        int oldNumEntries = menuItems.Count;
+        int newNumEntries = 0;
+        foreach (WorkflowAction action in newActions)
+        {
+          if (!action.IsVisible)
+            continue;
+          if (oldNumEntries <= newNumEntries)
+            return false;
+          bool wasChanged = false;
+          ListItem item = menuItems[newNumEntries];
+          newNumEntries++;
+          // Check if it is still the same action at this place
+          if (item.AdditionalProperties[ITEM_ACTION_KEY] != action)
+            return false;
+          // Check and update all properties of the current item
+          IResourceString rs;
+          if (!item.Labels.TryGetValue("Name", out rs) || rs != action.DisplayTitle)
+          {
+            item.SetLabel("Name", action.DisplayTitle);
+            wasChanged = true;
+          }
+          // Not easy to check equality of the command - doesn't matter, simply recreate it
+          item.Command = new MethodDelegateCommand(action.Execute);
+          if (item.Enabled != action.IsEnabled)
+          {
+            item.Enabled = action.IsEnabled;
+            wasChanged = true;
+          }
+          if (wasChanged)
+          {
+            if (changedItems == null)
+              changedItems = new List<ListItem>();
+            changedItems.Add(item);
+          }
+        }
+        return oldNumEntries == newNumEntries;
       }
     }
 
-    protected void RebuildMenuEntries(IList<WorkflowAction> newActions)
+    /// <summary>
+    /// Rebuilds all items of the current menu in the given <paramref name="context"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method locks the synchronization object of the <paramref name="menuItems"/> list and thus must not call
+    /// change handlers.
+    /// After executing this method, the returned <see cref="ItemsList"/>'s <see cref="ItemsList.FireChange"/>
+    /// method must be called.
+    /// </remarks>
+    /// <param name="context">Workflow navigation context the menu should be built for.</param>
+    /// <param name="menuItems">Menu items list to rebuild.</param>
+    /// <param name="newActions">Preprocessed list (sorted etc.) of actions to be used for the new menu.</param>
+    protected void RebuildMenuEntries(NavigationContext context, ItemsList menuItems, IList<WorkflowAction> newActions)
     {
-      lock (_syncObj)
+      UnregisterActionChangeHandlers(context);
+      lock (menuItems.SyncRoot)
       {
-        UnregisterActionChangeHandlers();
-        _currentMenuItems = new ItemsList();
+        menuItems.Clear();
         foreach (WorkflowAction action in newActions)
         {
-          RegisterActionChangeHandler(action);
+          RegisterActionChangeHandler(context, action);
           if (!action.IsVisible)
             continue;
           ListItem item = new ListItem("Name", action.DisplayTitle)
@@ -162,29 +283,7 @@ namespace UiComponents.SkinBase.Models
                 Enabled = action.IsEnabled,
               };
           item.AdditionalProperties[ITEM_ACTION_KEY] = action;
-          _currentMenuItems.Add(item);
-        }
-      }
-    }
-
-    protected void UpdateMenuEntries(IList<WorkflowAction> newActions)
-    {
-      lock (_syncObj)
-      {
-        int i = 0;
-        foreach (WorkflowAction action in newActions)
-        {
-          ListItem item = _currentMenuItems[i++];
-          if (item.AdditionalProperties[ITEM_ACTION_KEY] != action)
-            // Should not happen - this was checked by method MenuEntriesChanged
-            break;
-          if (!action.IsVisible)
-            continue;
-          IResourceString rs;
-          if (!item.Labels.TryGetValue("Name", out rs) || rs != action.DisplayTitle)
-            item.SetLabel("Name", action.DisplayTitle);
-          item.Command = new MethodDelegateCommand(action.Execute);
-          item.Enabled = action.IsEnabled;
+          menuItems.Add(item);
         }
       }
     }
@@ -193,12 +292,24 @@ namespace UiComponents.SkinBase.Models
 
     #region Public properties
 
+    public override Guid ModelId
+    {
+      get { return new Guid(MODEL_ID_STR); }
+    }
+
     public ItemsList MenuItems
     {
       get
       {
-        UpdateMenu();
-        return _currentMenuItems;
+        NavigationContext currentContext = ServiceScope.Get<IWorkflowManager>().CurrentNavigationContext;
+        lock (currentContext.SyncRoot)
+        {
+          ItemsList menu = GetMenuItems(currentContext);
+          if (menu != null)
+            return menu;
+          else
+            return UpdateMenu(currentContext);
+        }
       }
     }
 

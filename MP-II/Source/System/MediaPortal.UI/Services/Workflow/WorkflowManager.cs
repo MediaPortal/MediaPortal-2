@@ -128,6 +128,7 @@ namespace MediaPortal.Services.Workflow
 
     #region Protected fields
 
+    protected object _syncObj = new object();
     protected Stack<NavigationContext> _navigationContextStack = new Stack<NavigationContext>();
 
     protected IDictionary<Guid, ModelEntry> _modelCache = new Dictionary<Guid, ModelEntry>();
@@ -189,11 +190,17 @@ namespace MediaPortal.Services.Workflow
         ServiceScope.Get<ILogger>().Debug("WorkflowManager: Reloading workflow resources");
       WorkflowResourcesLoader loader = new WorkflowResourcesLoader();
       loader.Load();
-      _states = loader.States;
-      _menuActions = loader.MenuActions;
+      lock (_syncObj)
+      {
+        _states = loader.States;
+        _menuActions = loader.MenuActions;
+      }
       int count = 0;
       int numPop = 0;
-      foreach (NavigationContext context in _navigationContextStack)
+      ICollection<NavigationContext> stackCopy;
+      lock (_syncObj)
+        stackCopy = new List<NavigationContext>(_navigationContextStack);
+      foreach (NavigationContext context in stackCopy)
       {
         count++;
         if (!context.WorkflowState.IsTransient && !_states.ContainsKey(context.WorkflowState.StateId))
@@ -213,17 +220,19 @@ namespace MediaPortal.Services.Workflow
     protected object GetOrLoadModel(Guid modelId)
     {
       ModelEntry entry;
-      if (_modelCache.TryGetValue(modelId, out entry))
-      {
-        entry.Use();
-        return entry.ModelInstance;
-      }
+      lock (_syncObj)
+        if (_modelCache.TryGetValue(modelId, out entry))
+        {
+          entry.Use();
+          return entry.ModelInstance;
+        }
       ServiceScope.Get<ILogger>().Debug("WorkflowManager: Loading GUI model '{0}'", modelId);
       object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
           MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
       if (model == null)
         throw new ArgumentException(string.Format("WorkflowManager: Model with id '{0}' is not available", modelId));
-      _modelCache[modelId] = new ModelEntry(model);
+      lock (_syncObj)
+        _modelCache[modelId] = new ModelEntry(model);
       return model;
     }
 
@@ -233,7 +242,8 @@ namespace MediaPortal.Services.Workflow
     /// <param name="modelId">Id of the model to free.</param>
     protected void FreeModel(Guid modelId)
     {
-      _modelCache.Remove(modelId);
+      lock (_syncObj)
+        _modelCache.Remove(modelId);
       ServiceScope.Get<IPluginManager>().RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), _modelItemStateTracker);
     }
 
@@ -298,7 +308,8 @@ namespace MediaPortal.Services.Workflow
       // Create new workflow context
       NavigationContext newContext = new NavigationContext(state, predecessor, workflowModel);
       if (additionalContextVariables != null)
-        CollectionUtils.AddAll(newContext.ContextVariables, additionalContextVariables);
+        lock (newContext.SyncRoot)
+          CollectionUtils.AddAll(newContext.ContextVariables, additionalContextVariables);
 
       // Check if state change is accepted
       if (workflowModel != null && !workflowModel.CanEnterState(predecessor, newContext))
@@ -309,7 +320,8 @@ namespace MediaPortal.Services.Workflow
 
       // Push new context
       logger.Debug("WorkflowManager: Entering workflow state '{0}'", state.Name);
-      _navigationContextStack.Push(newContext);
+      lock (_syncObj)
+        _navigationContextStack.Push(newContext);
 
       Guid? predecessorModelId = predecessor == null ? null : predecessor.WorkflowModelId;
 
@@ -371,12 +383,15 @@ namespace MediaPortal.Services.Workflow
       IDictionary<Guid, NavigationContext> removedContexts = new Dictionary<Guid, NavigationContext>();
       for (int i=0; i<count || !stateChangeAccepted; i++)
       {
-        if (_navigationContextStack.Count <= 1)
-        {
-          logger.Info("WorkflowManager: Cannot remove the initial workflow state... We'll break the loop here");
-          return false;
-        }
-        NavigationContext oldContext = _navigationContextStack.Pop();
+        lock (_syncObj)
+          if (_navigationContextStack.Count <= 1)
+          {
+            logger.Info("WorkflowManager: Cannot remove the initial workflow state... We'll break the loop here");
+            return false;
+          }
+        NavigationContext oldContext;
+        lock (_syncObj)
+          oldContext = _navigationContextStack.Pop();
         removedContexts.Add(oldContext.WorkflowState.StateId, oldContext);
         if (oldContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
         {
@@ -387,7 +402,9 @@ namespace MediaPortal.Services.Workflow
             // removed here (see method UpdateScreen)
             screenManager.CloseDialog();
         }
-        NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
+        NavigationContext newContext;
+        lock (_syncObj)
+          newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
         Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
         IWorkflowModel workflowModel = workflowModelId.HasValue ?
             GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
@@ -437,18 +454,22 @@ namespace MediaPortal.Services.Workflow
     {
       ILogger logger = ServiceScope.Get<ILogger>();
       logger.Debug("WorkflowManager: Tidying up...");
-      foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
-      {
-        Guid modelId = modelEntry.Key;
-        if (!IsModelContainedInNavigationStack(modelId))
-          if (modelEntry.Value.NumStatesUnused > MODEL_CACHE_MAX_NUM_UNUSED)
-          {
-            logger.Debug("WorkflowManager: Freeing unused model with id '{0}'", modelId);
-            FreeModel(modelId);
-          }
-          else
-            modelEntry.Value.Iterate();
-      }
+      ICollection<Guid> modelsToFree = new List<Guid>();
+      lock (_syncObj)
+        foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
+        {
+          Guid modelId = modelEntry.Key;
+          if (!IsModelContainedInNavigationStack(modelId))
+            if (modelEntry.Value.NumStatesUnused > MODEL_CACHE_MAX_NUM_UNUSED)
+            {
+              logger.Debug("WorkflowManager: Freeing unused model with id '{0}'", modelId);
+              modelsToFree.Add(modelId);
+            }
+            else
+              modelEntry.Value.Iterate();
+        }
+      foreach (Guid modelId in modelsToFree)
+        FreeModel(modelId);
     }
 
     /// <summary>
@@ -493,6 +514,11 @@ namespace MediaPortal.Services.Workflow
 
     #region IWorkflowManager implementation
 
+    public object SyncObj
+    {
+      get { return _syncObj; }
+    }
+
     public IDictionary<Guid, WorkflowState> States
     {
       get { return _states; }
@@ -524,17 +550,24 @@ namespace MediaPortal.Services.Workflow
     {
       ServiceScope.Get<ILogger>().Info("WorkflowManager: Shutdown");
       UnsubscribeFromMessages();
-      foreach (Guid modelId in new List<Guid>(_modelCache.Keys))
+      ICollection<Guid> modelIds;
+      lock (_syncObj)
+        modelIds = new List<Guid>(_modelCache.Keys);
+      foreach (Guid modelId in modelIds)
         FreeModel(modelId);
-      foreach (NavigationContext context in _navigationContextStack)
+      ICollection<NavigationContext> stackCopy;
+      lock (_syncObj)
+        stackCopy = new List<NavigationContext>(_navigationContextStack);
+      foreach (NavigationContext context in stackCopy)
         context.Dispose();
     }
 
     public void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables)
     {
       WorkflowState state;
-      if (!_states.TryGetValue(stateId, out state))
-        throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
+      lock (_syncObj)
+        if (!_states.TryGetValue(stateId, out state))
+          throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
       if (DoPushNavigationContext(state, additionalContextVariables))
         if (!UpdateScreen())
@@ -583,29 +616,36 @@ namespace MediaPortal.Services.Workflow
     public object GetModel(Guid modelId)
     {
       object model = GetOrLoadModel(modelId);
-      if (!CurrentNavigationContext.Models.ContainsKey(modelId))
-      {
-        ServiceScope.Get<ILogger>().Debug(
-            "WorkflowManager: Attaching GUI model '{0}' to workflow state '{1}'",
-            modelId, CurrentNavigationContext.WorkflowState.StateId);
-        CurrentNavigationContext.Models[modelId] = model;
-      }
+      NavigationContext current = CurrentNavigationContext;
+      lock (current.SyncRoot)
+        if (!current.Models.ContainsKey(modelId))
+        {
+          ServiceScope.Get<ILogger>().Debug(
+              "WorkflowManager: Attaching GUI model '{0}' to workflow state '{1}'",
+              modelId, CurrentNavigationContext.WorkflowState.StateId);
+          current.Models[modelId] = model;
+        }
       return model;
     }
 
     public bool IsModelContainedInNavigationStack(Guid modelId)
     {
-      foreach (NavigationContext context in _navigationContextStack)
-        if (context.Models.ContainsKey(modelId))
-          return true;
+      ICollection<NavigationContext> stackCopy;
+      lock (_syncObj)
+        stackCopy = new List<NavigationContext>(_navigationContextStack);
+      foreach (NavigationContext context in stackCopy)
+        lock (context.SyncRoot)
+          if (context.Models.ContainsKey(modelId))
+            return true;
       return false;
     }
 
     public void FlushModelCache()
     {
-      foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
-        if (!IsModelContainedInNavigationStack(modelEntry.Key))
-          _modelCache.Remove(modelEntry);
+      lock (_syncObj)
+        foreach (KeyValuePair<Guid, ModelEntry> modelEntry in _modelCache)
+          if (!IsModelContainedInNavigationStack(modelEntry.Key))
+            _modelCache.Remove(modelEntry);
     }
 
     #endregion

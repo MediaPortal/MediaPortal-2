@@ -40,6 +40,7 @@ namespace MediaPortal.Presentation.Workflow
   {
     #region Protected fields
 
+    protected object _syncObj = new object();
     protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
     protected NavigationContext _predecessor;
     protected WorkflowState _workflowState;
@@ -157,9 +158,12 @@ namespace MediaPortal.Presentation.Workflow
     public void SetMenuActions(IEnumerable<WorkflowAction> actions)
     {
       UninitializeMenuActions();
-      _menuActions.Clear();
-      foreach (WorkflowAction action in actions)
-        _menuActions[action.ActionId] = action;
+      lock (_syncObj)
+      {
+        _menuActions.Clear();
+        foreach (WorkflowAction action in actions)
+          _menuActions[action.ActionId] = action;
+      }
       InitializeMenuActions();
     }
 
@@ -170,6 +174,14 @@ namespace MediaPortal.Presentation.Workflow
     public IDictionary<Guid, object> Models
     {
       get { return _models; }
+    }
+
+    /// <summary>
+    /// Synchronization object for multithreaded access to this <see cref="NavigationContext"/>.
+    /// </summary>
+    public object SyncRoot
+    {
+      get { return _syncObj; }
     }
 
     /// <summary>
@@ -184,8 +196,16 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="key">Key of the value to get or set.</param>
     public object this[string key]
     {
-      get { return _contextVariables.ContainsKey(key) ? _contextVariables[key] : null; }
-      set { _contextVariables[key] = value; }
+      get
+      {
+        lock (_syncObj)
+          return _contextVariables.ContainsKey(key) ? _contextVariables[key] : null;
+      }
+      set
+      {
+        lock (_syncObj)
+          _contextVariables[key] = value;
+      }
     }
 
     /// <summary>
@@ -198,8 +218,9 @@ namespace MediaPortal.Presentation.Workflow
     /// <returns>Specified context variable or <c>null</c>, if the context variable could not be found.</returns>
     public object GetContextVariable(string key, bool inheritFromPredecessor)
     {
-      return _contextVariables.ContainsKey(key) ? _contextVariables[key] :
-        (inheritFromPredecessor && _predecessor != null ? _predecessor.GetContextVariable(key, true) : null);
+      lock (_syncObj)
+        return _contextVariables.ContainsKey(key) ? _contextVariables[key] :
+          (inheritFromPredecessor && _predecessor != null ? _predecessor.GetContextVariable(key, true) : null);
     }
 
     /// <summary>
@@ -209,7 +230,8 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="value">The value to set.</param>
     public void SetContextVariable(string key, object value)
     {
-      _contextVariables[key] = value;
+      lock (_syncObj)
+        _contextVariables[key] = value;
     }
 
     /// <summary>
@@ -218,7 +240,8 @@ namespace MediaPortal.Presentation.Workflow
     /// <param name="key">The key of the context variable to remove.</param>
     public void ResetContextVariable(string key)
     {
-      _contextVariables.Remove(key);
+      lock (_syncObj)
+        _contextVariables.Remove(key);
     }
 
     #endregion

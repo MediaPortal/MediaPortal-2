@@ -314,6 +314,9 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
       IList<object> l = new List<object>();
+      // TODO: find a way to lock out other threads potentially accessing ItemsSource while we access it
+      // (for example an interface which is implemented by ItemsList providing a member SyncRoot, which we can use
+      // here to lock)
       CollectionUtils.AddAll(l, ItemsSource);
       IEnumerator enumer = l.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
@@ -360,8 +363,12 @@ namespace MediaPortal.SkinEngine.Controls.Visuals
     public void DoUpdateItems()
     {
       if (_prepare)
-        if (Prepare())
-          _prepare = false;
+      {
+        _prepare = false; // Set this first because another thread might InvalidateItems again while we are rebuilding
+        if (!Prepare())
+          // Didn't succeed yet. Try again next time.
+          _prepare = true;
+      }
     }
 
     public void SetFocusOnItem(object dataItem)
