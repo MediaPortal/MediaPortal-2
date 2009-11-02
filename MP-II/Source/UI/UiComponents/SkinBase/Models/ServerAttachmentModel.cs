@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Messaging;
@@ -214,6 +215,7 @@ namespace UiComponents.SkinBase.Models
             serverItem.SetLabel(SERVER_NAME_KEY, sd.ServerName);
             serverItem.SetLabel(SYSTEM_KEY, sd.System.HostName);
             serverItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY] = sd;
+            serverItem.Command = new MethodDelegateCommand(() => ChooseNewHomeServer(serverItem));
             _availableServers.Add(serverItem);
             serversChanged = true;
           }
