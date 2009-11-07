@@ -195,26 +195,6 @@ namespace MediaPortal.Core.Services.MediaManagement
           _metadataExtractorsPluginItemChangeListener);
     }
 
-    /// <summary>
-    /// Returns an enumeration of default metadata extractors which can cope with the specified
-    /// <paramref name="mediaCategory"/>.
-    /// </summary>
-    /// <param name="mediaCategory">The category to find all default metadata extractors for. If
-    /// this parameter is <c>null</c>, the ids of all default metadata extractors are returned,
-    /// independent of their category.</param>
-    /// <returns>Enumeration of metadata extractors which can be asigned to shares of the
-    /// specified <paramref name="mediaCategory"/> by default.</returns>
-    protected static IEnumerable<Guid> GetDefaultMetadataExtractorsForCategory(string mediaCategory)
-    {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      foreach (IMetadataExtractor metadataExtractor in mediaAccessor.LocalMetadataExtractors.Values)
-      {
-        MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
-        if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
-          yield return metadataExtractor.Metadata.MetadataExtractorId;
-      }
-    }
-
     #endregion
 
     #region IMediaAccessor implementation
@@ -259,13 +239,9 @@ namespace MediaPortal.Core.Services.MediaManagement
           folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
-          ICollection<Guid> metadataExtractorIds = new List<Guid>();
-          foreach (string mediaCategory in mediaCategories)
-            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           Share sd = new Share(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, MY_MUSIC_SHARE_NAME_RESOURE,
-              mediaCategories, metadataExtractorIds);
+              folderPath, MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
           result.Add(sd);
         }
 
@@ -274,13 +250,9 @@ namespace MediaPortal.Core.Services.MediaManagement
           folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
-          ICollection<Guid> metadataExtractorIds = new List<Guid>();
-          foreach (string mediaCategory in mediaCategories)
-            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           Share sd = new Share(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, MY_VIDEOS_SHARE_NAME_RESOURCE,
-              mediaCategories, metadataExtractorIds);
+              folderPath, MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
 
@@ -289,13 +261,9 @@ namespace MediaPortal.Core.Services.MediaManagement
           folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
-          ICollection<Guid> metadataExtractorIds = new List<Guid>();
-          foreach (string mediaCategory in mediaCategories)
-            CollectionUtils.AddAll(metadataExtractorIds, GetDefaultMetadataExtractorsForCategory(mediaCategory));
           Share sd = new Share(
               shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, MY_PICTURES_SHARE_NAME_RESOURCE,
-              mediaCategories, metadataExtractorIds);
+              folderPath, MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
       }
@@ -308,10 +276,21 @@ namespace MediaPortal.Core.Services.MediaManagement
         Guid shareId = Guid.NewGuid();
         Share sd = new Share(
             shareId, SystemName.GetLocalSystemName(), metadata.MediaProviderId,
-            "/", metadata.Name, null, GetDefaultMetadataExtractorsForCategory(null));
+            "/", metadata.Name, null);
         result.Add(sd);
       }
       return result;
+    }
+
+    public IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory)
+    {
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      foreach (IMetadataExtractor metadataExtractor in mediaAccessor.LocalMetadataExtractors.Values)
+      {
+        MetadataExtractorMetadata metadata = metadataExtractor.Metadata;
+        if (mediaCategory == null || metadata.ShareCategories.Contains(mediaCategory))
+          yield return metadataExtractor.Metadata.MetadataExtractorId;
+      }
     }
 
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,

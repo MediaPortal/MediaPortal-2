@@ -28,7 +28,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.Services.MediaManagement;
 using MediaPortal.Core.Settings;
 using MediaPortal.Services.Shares.Settings;
 using MediaPortal.Shares;
@@ -111,10 +110,10 @@ namespace MediaPortal.Services.Shares
       return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
     }
 
-    public Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+    public Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories)
     {
       Share sd = Share.CreateNewShare(SystemName.GetLocalSystemName(), providerId, path,
-          shareName, mediaCategories, metadataExtractorIds);
+          shareName, mediaCategories);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
       SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareAdded, sd.ShareId);
@@ -129,7 +128,7 @@ namespace MediaPortal.Services.Shares
     }
 
     public Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode)
+        IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       Share result = GetShare(shareId);
       if (result == null)
@@ -139,8 +138,6 @@ namespace MediaPortal.Services.Shares
       result.Name = shareName;
       result.MediaCategories.Clear();
       CollectionUtils.AddAll(result.MediaCategories, mediaCategories);
-      result.MetadataExtractorIds.Clear();
-      CollectionUtils.AddAll(result.MetadataExtractorIds, metadataExtractorIds);
       SaveSharesToSettings();
       SharesMessaging.SendShareChangedMessage(shareId, relocationMode);
       return result;

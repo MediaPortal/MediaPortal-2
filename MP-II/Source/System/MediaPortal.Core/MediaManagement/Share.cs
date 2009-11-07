@@ -67,7 +67,6 @@ namespace MediaPortal.Core.MediaManagement
     protected string _path;
     protected string _name;
     protected HashSet<string> _mediaCategories;
-    protected HashSet<Guid> _metadataExtractorIds;
 
     // We could use some cache for this instance, if we would have one...
     [ThreadStatic]
@@ -92,11 +91,9 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Categories of media in this share. If set, the categories describe
     /// the desired contents of this share. If set to <c>null</c>, the share has no explicit media categories,
     /// i.e. it is a general share.</param>
-    /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors which should be used
-    /// for the automatic import.</param>
     public Share(Guid shareId, SystemName systemName,
         Guid mediaProviderId, string path, string name,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+        IEnumerable<string> mediaCategories)
     {
       _shareId = shareId;
       _nativeSystemName = systemName;
@@ -104,7 +101,6 @@ namespace MediaPortal.Core.MediaManagement
       _path = path;
       _name = name;
       _mediaCategories = mediaCategories == null ? new HashSet<string>() : new HashSet<string>(mediaCategories);
-      _metadataExtractorIds = new HashSet<Guid>(metadataExtractorIds);
     }
 
     /// <summary>
@@ -121,15 +117,12 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Media content categories of this share. If set, the category
     /// describes the desired contents of this share. If set to <c>null</c>, this share has no explicit
     /// media categories, i.e. it is a general share.</param>
-    /// <param name="metadataExtractors">Enumeration of metadata extractors which should be used for the
-    /// automatic import.</param>
     /// <returns>Created <see cref="Share"/> with a new share id.</returns>
     public static Share CreateNewShare(SystemName systemName,
         Guid mediaProviderId, string path, string name,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractors)
+        IEnumerable<string> mediaCategories)
     {
-      return new Share(Guid.NewGuid(), systemName, mediaProviderId, path,
-          name, mediaCategories, metadataExtractors);
+      return new Share(Guid.NewGuid(), systemName, mediaProviderId, path, name, mediaCategories);
     }
 
     /// <summary>
@@ -189,15 +182,6 @@ namespace MediaPortal.Core.MediaManagement
     public ICollection<string> MediaCategories
     {
       get { return _mediaCategories; }
-    }
-
-    /// <summary>
-    /// Returns a collection of ids of metadata extractors which are used for the automatic import of this share.
-    /// </summary>
-    [XmlIgnore]
-    public ICollection<Guid> MetadataExtractorIds
-    {
-      get { return _metadataExtractorIds; }
     }
 
     /// <summary>
@@ -334,16 +318,6 @@ namespace MediaPortal.Core.MediaManagement
     {
       get { return _mediaCategories; }
       set { _mediaCategories = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("MetadataExtractorIds")]
-    public HashSet<Guid> XML_MetadataExtractorIds
-    {
-      get { return _metadataExtractorIds; }
-      set { _metadataExtractorIds = value; }
     }
 
     #endregion

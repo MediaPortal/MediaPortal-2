@@ -162,7 +162,6 @@ namespace MediaPortal.ClientCommunication
             new DvArgument("Path", A_ARG_TYPE_ProviderPath, ArgumentDirection.In),
             new DvArgument("ShareName", A_ARG_TYPE_Name, ArgumentDirection.In),
             new DvArgument("MediaCategories", A_ARG_TYPE_MediaCategoryEnumeration, ArgumentDirection.In),
-            new DvArgument("MetadataExtractorIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("RelocateMediaItems", A_ARG_TYPE_MediaItemRelocationMode, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -249,9 +248,7 @@ namespace MediaPortal.ClientCommunication
       string path = (string) inParams[2];
       string shareName = (string) inParams[3];
       string[] mediaCategories = ((string) inParams[4]).Split(',');
-      string[] metadataExtractorIdStrings = ((string) inParams[5]).Split(',');
-      ICollection<Guid> metadataExtractorIds = new List<Guid>();
-      string relocateMediaItems = (string) inParams[6];
+      string relocateMediaItems = (string) inParams[5];
       RelocationMode relocationMode;
       switch (relocateMediaItems)
       {
@@ -265,12 +262,10 @@ namespace MediaPortal.ClientCommunication
           outParams = null;
           return new UPnPError(600, "Argument 'RelocateMediaItems' must be of value 'Relocate' or 'ClearAndReImport'");
       }
-      foreach (string extractorIdString in metadataExtractorIdStrings)
-        metadataExtractorIds.Add(new Guid(extractorIdString));
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
       Share oldShare = mediaLibrary.GetShare(shareId);
       int numAffected = mediaLibrary.UpdateShare(
-          shareId, oldShare.NativeSystem, providerId, path, shareName, mediaCategories, metadataExtractorIds, relocationMode);
+          shareId, oldShare.NativeSystem, providerId, path, shareName, mediaCategories, relocationMode);
       // TODO
       //if (relocationMode == RelocationMode.Remove)
       //  ... schedule reimport of new diretory ...

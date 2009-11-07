@@ -73,11 +73,8 @@ namespace MediaPortal.Shares
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the new share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
-    /// <param name="metadataExtractorIds">Ids of metadata extractors to attach to the new share.
-    /// The system will automatically import the desired metadata on all of the share's media items.</param>
     /// <returns>Descriptor of the new share.</returns>
-    Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories,
-        IEnumerable<Guid> metadataExtractorIds);
+    Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories);
 
     /// <summary>
     /// Removes the local share with the specified id. This will invalidate all references to this share; the share
@@ -98,12 +95,11 @@ namespace MediaPortal.Shares
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
-    /// <param name="metadataExtractorIds">Ids of metadata extractors to be attached to the share.</param>
     /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library or the local media items cache.</param>
     /// <returns>Changed share descriptor.</returns>
     Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode);
+        IEnumerable<string> mediaCategories, RelocationMode relocationMode);
   }
 }

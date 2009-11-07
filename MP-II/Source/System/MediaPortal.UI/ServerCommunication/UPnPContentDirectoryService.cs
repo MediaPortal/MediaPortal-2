@@ -82,7 +82,7 @@ namespace MediaPortal.ServerCommunication
     }
 
     public int UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode)
+        IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       CpAction action;
       if (!_serviceStub.Actions.TryGetValue("UpdateShare", out action))
@@ -95,10 +95,6 @@ namespace MediaPortal.ServerCommunication
             shareName,
             StringUtils.Join(",", mediaCategories)
         };
-      ICollection<string> metadataExtractorIdStrings = new List<string>();
-      foreach (Guid metadataExtractorId in metadataExtractorIds)
-        metadataExtractorIdStrings.Add(metadataExtractorId.ToString("B"));
-      inParameters.Add(StringUtils.Join(",", metadataExtractorIdStrings));
       string relocationModeStr;
       switch (relocationMode)
       {

@@ -69,7 +69,6 @@ namespace UiComponents.Media.Settings.Configuration
     public const string SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
     public const string SHARE_EDIT_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
     public const string SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR = "6218FE5B-767E-48e6-9691-65E466B6020B";
-    public const string SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR = "B4D50B90-A5D7-48a1-8C0E-4DC2CB9B881D";
 
     public const string SHARE_EDIT_STATE_ID_STR = "F68E8EB1-00B2-4951-9948-110CFCA93E8D";
 
@@ -95,7 +94,6 @@ namespace UiComponents.Media.Settings.Configuration
     public static Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
     public static Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
     public static Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
-    public static Guid SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID_STR);
 
     public static Guid SHARE_EDIT_STATE_ID = new Guid(SHARE_EDIT_STATE_ID_STR);
 
@@ -116,10 +114,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected Property _shareNameProperty;
     protected Property _isShareNameEmptyProperty;
     protected ItemsList _allMediaCategoriesList;
-    protected Property _isMetadataExtractorsSelectedProperty;
-    protected ItemsList _allMetadataExtractorsList;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
-    protected ICollection<Guid> _metadataExtractorIds = new HashSet<Guid>();
     protected Guid _currentShareId;
     protected Guid _relocateSharesQueryDialogHandle;
 
@@ -145,10 +140,7 @@ namespace UiComponents.Media.Settings.Configuration
       _shareNameProperty.Attach(OnShareNameChanged);
       _isShareNameEmptyProperty = new Property(typeof(bool), true);
       _allMediaCategoriesList = new ItemsList();
-      _isMetadataExtractorsSelectedProperty = new Property(typeof(bool), false);
-      _allMetadataExtractorsList = new ItemsList();
       _mediaCategories = new HashSet<string>();
-      _metadataExtractorIds = new HashSet<Guid>();
     }
 
     public void Dispose()
@@ -319,36 +311,6 @@ namespace UiComponents.Media.Settings.Configuration
       get { return _mediaCategories; }
     }
 
-    public Property IsMetadataExtractorsSelectedProperty
-    {
-      get { return _isMetadataExtractorsSelectedProperty; }
-    }
-
-    /// <summary>
-    /// <c>true</c> if at least one metadata extractor was selected. To be used in the GUI.
-    /// </summary>
-    public bool IsMetadataExtractorsSelected
-    {
-      get { return (bool) _isMetadataExtractorsSelectedProperty.GetValue(); }
-      set { _isMetadataExtractorsSelectedProperty.SetValue(value); }
-    }
-
-    /// <summary>
-    /// List of all available metadata extractors. To be used in the GUI.
-    /// </summary>
-    public ItemsList AllMetadataExtractors
-    {
-      get { return _allMetadataExtractorsList; }
-    }
-
-    /// <summary>
-    /// Collection of the ids of the choosen metadata extractors.
-    /// </summary>
-    public ICollection<Guid> MetadataExtractorIds
-    {
-      get { return _metadataExtractorIds; }
-    }
-
     /// <summary>
     /// Gets or sets the id of the share currently edited.
     /// </summary>
@@ -422,7 +384,7 @@ namespace UiComponents.Media.Settings.Configuration
       if (_editMode == ShareEditMode.AddShare)
       {
         sharesManagement.RegisterShare(MediaProvider.Metadata.MediaProviderId,
-            MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds);
+            MediaProviderPath, ShareName, MediaCategories);
         ClearAllConfiguredProperties();
         NavigateBackToOverview();
       }
@@ -518,11 +480,6 @@ namespace UiComponents.Media.Settings.Configuration
       UpdateMediaCategories();
     }
 
-    protected void OnMetadataExtractorItemSelectionChanged(Property property, object oldValue)
-    {
-      UpdateMetadataExtractors();
-    }
-
     protected void UpdateIsSharesSelected()
     {
       bool result = false;
@@ -589,29 +546,6 @@ namespace UiComponents.Media.Settings.Configuration
       foreach (ListItem categoryItem in _allMediaCategoriesList)
         if (categoryItem.Selected)
           _mediaCategories.Add(categoryItem[NAME_KEY]);
-      UpdateMetadataExtractorsFromMediaCategories();
-    }
-
-    protected void UpdateMetadataExtractors()
-    {
-      _metadataExtractorIds.Clear();
-      foreach (ListItem metadataExtractorItem in _allMetadataExtractorsList)
-        if (metadataExtractorItem.Selected)
-          _metadataExtractorIds.Add(new Guid(metadataExtractorItem[ID_KEY]));
-      IsMetadataExtractorsSelected = _metadataExtractorIds.Count > 0;
-    }
-
-    protected void UpdateMetadataExtractorsFromMediaCategories()
-    {
-      _metadataExtractorIds.Clear();
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      foreach (IMetadataExtractor me in mediaAccessor.LocalMetadataExtractors.Values)
-      {
-        MetadataExtractorMetadata metadata = me.Metadata;
-        if (CollectionUtils.Intersection(metadata.ShareCategories, MediaCategories).Count > 0)
-          _metadataExtractorIds.Add(metadata.MetadataExtractorId);
-      }
-      IsMetadataExtractorsSelected = _metadataExtractorIds.Count > 0;
     }
 
     protected void UpdateSharesList()
@@ -729,35 +663,12 @@ namespace UiComponents.Media.Settings.Configuration
       }
     }
 
-    protected void UpdateMetadataExtractorsList()
-    {
-      _allMetadataExtractorsList.Clear();
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      List<IMetadataExtractor> metadataExtractors = new List<IMetadataExtractor>(
-          mediaAccessor.LocalMetadataExtractors.Values);
-      metadataExtractors.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
-      foreach (IMetadataExtractor me in metadataExtractors)
-      {
-        MetadataExtractorMetadata metadata = me.Metadata;
-        ListItem metadataExtractorItem = new ListItem(NAME_KEY, metadata.Name);
-        metadataExtractorItem.SetLabel(ID_KEY, metadata.MetadataExtractorId.ToString());
-        if (MetadataExtractorIds.Contains(metadata.MetadataExtractorId) || metadataExtractors.Count == 1)
-          metadataExtractorItem.Selected = true;
-        metadataExtractorItem.SelectedProperty.Attach(OnMetadataExtractorItemSelectionChanged);
-        _allMetadataExtractorsList.Add(metadataExtractorItem);
-      }
-    }
-
     protected void ClearAllConfiguredProperties()
     {
       MediaProvider = null;
       MediaProviderPath = string.Empty;
       ShareName = string.Empty;
       MediaCategories.Clear();
-      MetadataExtractorIds.Clear();
-      // IsMetadataExtractorsSelected has to be cleared also because it is derived from
-      // MediaCategories and MetadataExtractors
-      IsMetadataExtractorsSelected = false;
     }
 
     protected bool InitializePropertiesWithShare(Guid shareId)
@@ -775,11 +686,6 @@ namespace UiComponents.Media.Settings.Configuration
       ShareName = share.Name;
       MediaCategories.Clear();
       CollectionUtils.AddAll(MediaCategories, share.MediaCategories);
-      MetadataExtractorIds.Clear();
-      CollectionUtils.AddAll(MetadataExtractorIds, share.MetadataExtractorIds);
-      // IsMetadataExtractorsSelected has always to be set also because it is derived from
-      // MediaCategories and MetadataExtractors
-      IsMetadataExtractorsSelected = MetadataExtractorIds.Count > 0;
       return true;
     }
 
@@ -812,7 +718,7 @@ namespace UiComponents.Media.Settings.Configuration
     {
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       sharesManagement.UpdateShare(CurrentShareId, MediaProvider.Metadata.MediaProviderId,
-        MediaProviderPath, ShareName, MediaCategories, MetadataExtractorIds, relocateItems ? RelocationMode.Relocate : RelocationMode.Remove);
+        MediaProviderPath, ShareName, MediaCategories, relocateItems ? RelocationMode.Relocate : RelocationMode.Remove);
       ClearAllConfiguredProperties();
       NavigateBackToOverview();
     }
@@ -830,6 +736,11 @@ namespace UiComponents.Media.Settings.Configuration
       }
       else if (workflowState == SHARES_REMOVE_STATE_ID)
       {
+        UpdateSharesList();
+      }
+      else if (workflowState == SHARE_EDIT_STATE_ID)
+      {
+        _editMode = ShareEditMode.EditShare;
         UpdateSharesList();
       }
       else if (workflowState == SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID ||
@@ -864,20 +775,6 @@ namespace UiComponents.Media.Settings.Configuration
       else if (workflowState == SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID)
       {
         UpdateMediaCategoriesList();
-        // We'll reset the choosen metadata extractors here, if the user goes back
-        // to the categories screen - thats for simplicity, else, we would have
-        // to track which MEs the user has choosen explicitly and which are in the
-        // list because a category was choosen
-        UpdateMetadataExtractorsFromMediaCategories();
-      }
-      else if (workflowState == SHARE_EDIT_CHOOSE_METADATA_EXTRACTORS_STATE_ID)
-      {
-        UpdateMetadataExtractorsList();
-      }
-      else if (workflowState == SHARE_EDIT_STATE_ID)
-      {
-        _editMode = ShareEditMode.EditShare;
-        UpdateSharesList();
       }
     }
 

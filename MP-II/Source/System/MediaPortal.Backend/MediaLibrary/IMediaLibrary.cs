@@ -105,10 +105,9 @@ namespace MediaPortal.MediaLibrary
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the new share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
-    /// <param name="metadataExtractorIds">Ids of metadata extractors to attach to the new share.</param>
     /// <returns>ID of the new share.</returns>
     Guid CreateShare(SystemName nativeSystem, Guid providerId, string path,
-        string shareName, IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds);
+        string shareName, IEnumerable<string> mediaCategories);
 
     /// <summary>
     /// Removes the share with the specified id.
@@ -131,13 +130,12 @@ namespace MediaPortal.MediaLibrary
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
-    /// <param name="metadataExtractorIds">Ids of metadata extractors to be attached to the share.</param>
     /// <param name="relocationMode">If set to <see cref="RelocationMode.Relocate"/>, the paths of all media items from the
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
     int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode);
+        IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
     /// <summary>
     /// Returns all shares which are registered in the MediaPortal server's media library.

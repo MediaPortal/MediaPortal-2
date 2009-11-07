@@ -288,52 +288,6 @@ namespace MediaPortal.Services.MediaLibrary
       return result;
     }
 
-    public static IDbCommand SelectShareMetadataExtractorsCommand(ITransaction transaction, Guid shareId,
-        out int metadataExtractorIdIndex)
-    {
-      IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT METADATAEXTRACTOR_ID FROM SHARES_METADATAEXTRACTORS WHERE SHARE_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      metadataExtractorIdIndex = 0;
-      return result;
-    }
-
-    public static IDbCommand InsertShareMetadataExtractorCommand(ITransaction transaction, Guid shareId, Guid metadataExtractorId)
-    {
-      IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO SHARES_METADATAEXTRACTORS (SHARE_ID, METADATAEXTRACTOR_ID) VALUES (?, ?)";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = metadataExtractorId.ToString();
-      result.Parameters.Add(param);
-
-      return result;
-    }
-
-    public static IDbCommand DeleteShareMetadataExtractorCommand(ITransaction transaction, Guid shareId, Guid metadataExtractorId)
-    {
-      IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM SHARES_METADATAEXTRACTORS WHERE SHARE_ID=? AND METADATAEXTRACTOR_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = metadataExtractorId.ToString();
-      result.Parameters.Add(param);
-
-      return result;
-    }
-
     public static IDbCommand UpdateShareCommand(ITransaction transaction, Guid shareId, SystemName nativeSystem,
         Guid providerId, string path, string shareName)
     {

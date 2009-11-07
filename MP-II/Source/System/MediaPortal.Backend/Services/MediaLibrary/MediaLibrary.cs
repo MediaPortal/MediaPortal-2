@@ -165,37 +165,6 @@ namespace MediaPortal.Services.MediaLibrary
       command.ExecuteNonQuery();
     }
 
-    protected ICollection<Guid> GetShareMetadataExtractors(ITransaction transaction, Guid shareId)
-    {
-      int metadataExtractorIndex;
-      IDbCommand command = MediaLibrary_SubSchema.SelectShareMetadataExtractorsCommand(transaction, shareId, out metadataExtractorIndex);
-
-      ICollection<Guid> result = new List<Guid>();
-      IDataReader reader = command.ExecuteReader();
-      try
-      {
-        while (reader.Read())
-          result.Add(new Guid(reader.GetString(metadataExtractorIndex)));
-      }
-      finally
-      {
-        reader.Close();
-      }
-      return result;
-    }
-
-    protected void AddMetadataExtractorToShare(ITransaction transaction, Guid shareId, Guid metadataExtractorId)
-    {
-      IDbCommand command = MediaLibrary_SubSchema.InsertShareMetadataExtractorCommand(transaction, shareId, metadataExtractorId);
-      command.ExecuteNonQuery();
-    }
-
-    protected void RemoveMetadataExtractorFromShare(ITransaction transaction, Guid shareId, Guid metadataExtractorId)
-    {
-      IDbCommand command = MediaLibrary_SubSchema.DeleteShareMetadataExtractorCommand(transaction, shareId, metadataExtractorId);
-      command.ExecuteNonQuery();
-    }
-
     #region IMediaLibrary implementation
 
     public void Startup()
@@ -288,9 +257,6 @@ namespace MediaPortal.Services.MediaLibrary
         foreach (string mediaCategory in share.MediaCategories)
           AddMediaCategoryToShare(transaction, share.ShareId, mediaCategory);
 
-        foreach (Guid metadataExtractorId in share.MetadataExtractorIds)
-          AddMetadataExtractorToShare(transaction, share.ShareId, metadataExtractorId);
-
         transaction.Commit();
       }
       catch (Exception e)
@@ -302,10 +268,10 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public Guid CreateShare(SystemName nativeSystem, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds)
+        IEnumerable<string> mediaCategories)
     {
       Guid shareId = Guid.NewGuid();
-      Share share = new Share(shareId, nativeSystem, providerId, path, shareName,mediaCategories, metadataExtractorIds);
+      Share share = new Share(shareId, nativeSystem, providerId, path, shareName,mediaCategories);
       RegisterShare(share);
       return shareId;
     }
@@ -330,7 +296,7 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
-        IEnumerable<string> mediaCategories, IEnumerable<Guid> metadataExtractorIds, RelocationMode relocationMode)
+        IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -355,21 +321,6 @@ namespace MediaPortal.Services.MediaLibrary
         foreach (string mediaCategory in formerMediaCategories)
           if (!newCategories.Contains(mediaCategory))
             RemoveMediaCategoryFromShare(transaction, shareId, mediaCategory);
-
-        // Update metadata extractors
-        ICollection<Guid> formerMetadataExtractors = GetShareMetadataExtractors(transaction, shareId);
-
-        ICollection<Guid> newMetadataExtractorIds = new List<Guid>();
-        foreach (Guid metadataExtractorId in metadataExtractorIds)
-        {
-          newMetadataExtractorIds.Add(metadataExtractorId);
-          if (!formerMetadataExtractors.Contains(metadataExtractorId))
-            AddMetadataExtractorToShare(transaction, shareId, metadataExtractorId);
-        }
-
-        foreach (Guid metadataExtractorId in formerMetadataExtractors)
-          if (!newMetadataExtractorIds.Contains(metadataExtractorId))
-            RemoveMetadataExtractorFromShare(transaction, shareId, metadataExtractorId);
 
         // Relocate media items
         int numAffected;
@@ -424,12 +375,11 @@ namespace MediaPortal.Services.MediaLibrary
           {
             Guid shareId = new Guid(reader.GetString(shareIdIndex));
             ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-            ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
             if (onlyConnectedShares && !reader.GetBoolean(isOnlineIndex))
               continue;
             result.Add(shareId, new Share(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
                 new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
-                mediaCategories, metadataExtractors));
+                mediaCategories));
           }
         }
         finally
@@ -462,10 +412,9 @@ namespace MediaPortal.Services.MediaLibrary
           if (!reader.Read())
             return null;
           ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-          ICollection<Guid> metadataExtractors = GetShareMetadataExtractors(transaction, shareId);
           return new Share(shareId, new SystemName(reader.GetString(nativeSystemIndex)),
-              new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex), reader.GetString(shareNameIndex),
-              mediaCategories, metadataExtractors);
+              new Guid(reader.GetString(providerIdIndex)), reader.GetString(pathIndex),
+              reader.GetString(shareNameIndex), mediaCategories);
         }
         finally
         {

@@ -60,6 +60,17 @@ namespace MediaPortal.Core.MediaManagement
     ICollection<Share> CreateDefaultShares();
 
     /// <summary>
+    /// Returns an enumeration of local metadata extractors which are classified into the specified
+    /// <paramref name="mediaCategory"/>.
+    /// </summary>
+    /// <param name="mediaCategory">The category to find all local metadata extractors for. If
+    /// this parameter is <c>null</c>, the ids of all default metadata extractors are returned,
+    /// independent of their category.</param>
+    /// <returns>Enumeration of ids of metadata extractors which can handle the
+    /// specified <paramref name="mediaCategory"/>.</returns>
+    IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory);
+
+    /// <summary>
     /// Synchronous metadata extraction method for an extraction of the specified metadata
     /// from the specified media provider location. Only the specified location will be processed,
     /// i.e. if the location denotes a media item, that item will be processed, else if the location
