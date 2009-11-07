@@ -391,7 +391,9 @@ namespace UiComponents.SkinBase.Models
       {
         lock (_syncObj)
           _mode = Mode.AttachToServer;
-        _autoCloseOnNoServer = (bool) newContext.GetContextVariable(AUTO_CLOSE_ON_NO_SERVER_KEY, false);
+        object o = newContext.GetContextVariable(AUTO_CLOSE_ON_NO_SERVER_KEY, false);
+        if (o != null)
+          _autoCloseOnNoServer = (bool) o;
         SynchronizeAvailableServers();
       }
       else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)
