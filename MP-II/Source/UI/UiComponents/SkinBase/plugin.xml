@@ -118,6 +118,11 @@
         HelpText="[Settings.General.Server.HomeServer.Help]"
         ClassName="UiComponents.SkinBase.Settings.Configuration.General.HomeServerSetting"
         AdditionalData="WorkflowState=17214BAC-E79C-4e5e-9280-A01478B27579,ConfAppPanel=..."/>
+    <ConfigSetting
+        Id="ServerListener"
+        Text="[Settings.General.Server.ServerListener]"
+        HelpText="[Settings.General.Server.ServerListener.Help]"
+        ClassName="UiComponents.SkinBase.Settings.Configuration.General.ServerListener"/>
   </Register>
 
   <!-- Contents of '/General/System' group -->

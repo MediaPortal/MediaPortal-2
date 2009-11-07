@@ -86,6 +86,8 @@
     <String Name="General.Server" Text="Server"/>
     <String Name="General.Server.HomeServer" Text="Home server"/>
     <String Name="General.Server.HomeServer.Help" Text="Home server information, attach to and detach from home server"/>
+    <String Name="General.Server.ServerListener" Text="Server listener"/>
+    <String Name="General.Server.ServerListener.Help" Text="Disable automatic popup in unconnected state, when a MediaPortal-II server becomes available in the network"/>
 
     <String Name="Regional" Text="Regional"/>
     <String Name="Regional.Language" Text="Language"/>

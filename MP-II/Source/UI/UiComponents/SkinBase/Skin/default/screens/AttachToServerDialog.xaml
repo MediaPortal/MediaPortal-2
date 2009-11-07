@@ -50,14 +50,7 @@
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Center">
             <Button Margin="10" x:Name="SingleServerAttachButton" Grid.Column="0" Style="{ThemeResource ButtonWideStyle}"
-                Content="[ServerConnection.AttachButton]">
-              <Button.Command>
-                <CommandList>
-                  <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
-                  <Command Source="{StaticResource Model}" Path="ConnectToSingleServer"/>
-                </CommandList>
-              </Button.Command>
-            </Button>
+                Content="[ServerConnection.AttachButton]" Command="{Command Source={StaticResource Model},Path=ConnectToSingleServerAndClose}"/>
             <Button Margin="10" x:Name="SingleServerCancelButton" Grid.Column="2" Style="{ThemeResource ButtonWideStyle}"
                 Content="[System.Cancel]"
                 Command="{Command Source={Service ScreenManager},Path=CloseDialog}"/>

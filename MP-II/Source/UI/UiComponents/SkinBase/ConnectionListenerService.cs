@@ -26,9 +26,11 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Settings;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.ServerCommunication;
 using UiComponents.SkinBase.Models;
+using UiComponents.SkinBase.Settings;
 
 namespace UiComponents.SkinBase
 {
@@ -59,8 +61,11 @@ namespace UiComponents.SkinBase
       if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE_ID)
         // If we are already in the AttachToServer state, don't navigate there again
         return;
-      // TODO: Check setting which prevents the ConnectionListenerService to pop up server availability messages and
-      // return from method, if configured to do so
+      // Check setting which prevents the listener service to pop up server availability messages
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
+      if (settings.DisableServerListener)
+        return;
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
         ServerConnectionMessaging.MessageType messageType =

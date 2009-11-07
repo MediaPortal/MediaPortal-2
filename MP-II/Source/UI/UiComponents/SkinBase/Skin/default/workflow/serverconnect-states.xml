@@ -4,7 +4,6 @@
   <States>
     <DialogState Id="E834D0E0-BC35-4397-86F8-AC78C152E693"
         Name="AttachToServer"
-        DialogScreen="AttachToServerDialog"
         WorkflowModel="81A130E1-F417-47e4-AC9C-0B2E4912331F"/> <!-- Workflow model = ServerAttachmentModel -->
 
     <DialogState Id="BAC42991-5AB6-471f-A185-673D2E3B1EBA"

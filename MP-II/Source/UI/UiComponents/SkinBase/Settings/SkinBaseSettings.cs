@@ -32,6 +32,7 @@ namespace UiComponents.SkinBase.Settings
 
     protected string _dateFormat;
     protected string _timeFormat;
+    protected bool _disableServerListener;
 
     #endregion
 
@@ -47,6 +48,13 @@ namespace UiComponents.SkinBase.Settings
     {
       get { return _timeFormat; }
       set { _timeFormat = value; }
+    }
+
+    [Setting(SettingScope.User, false)]
+    public bool DisableServerListener
+    {
+      get { return _disableServerListener; }
+      set { _disableServerListener = value; }
     }
   }
 }

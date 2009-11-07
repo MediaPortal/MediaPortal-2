@@ -53,6 +53,8 @@ namespace UiComponents.SkinBase.Models
 
     protected const string MODEL_ID_STR = "81A130E1-F417-47e4-AC9C-0B2E4912331F";
 
+    protected const string ATTACH_TO_SERVER_DIALOG = "AttachToServerDialog";
+
     protected const string ATTACH_INFO_DIALOG_HEADER_RES = "[ServerConnection.AttachInfoDialogHeader]";
     protected const string ATTACH_INFO_DIALOG_TEXT_RES = "[ServerConnection.AttachInfoDialogText]";
 
@@ -100,7 +102,7 @@ namespace UiComponents.SkinBase.Models
     protected Property _isMultipleServersAvailableProperty;
     protected Property _isSingleServerAvailableProperty;
     protected ServerDescriptor _singleAvailableServer;
-    protected Guid _attachInfoDialogHandle = Guid.Empty;
+    protected Guid? _attachInfoDialogHandle = null; // null = no dialog shown, Guid.Empty = don't leave WF, attach info dialog will be shown, some GUID = dialog with that id is open
     protected Guid _detachConfirmDialogHandle = Guid.Empty;
     protected Mode _mode;
     protected bool _autoCloseOnNoServer = false; // Automatically close the dialog if no more servers are available in the network
@@ -160,7 +162,7 @@ namespace UiComponents.SkinBase.Models
           lock (_syncObj)
             if (_attachInfoDialogHandle == dialogHandle)
             {
-              _attachInfoDialogHandle = Guid.Empty;
+              _attachInfoDialogHandle = null;
               leaveConfiguration = true;
             }
             else if (_detachConfirmDialogHandle == dialogHandle)
@@ -182,6 +184,8 @@ namespace UiComponents.SkinBase.Models
 
     protected void LeaveConfiguration()
     {
+      if (_mode == Mode.None)
+        return;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.NavigatePop(1);
     }
@@ -215,7 +219,7 @@ namespace UiComponents.SkinBase.Models
             serverItem.SetLabel(SERVER_NAME_KEY, sd.ServerName);
             serverItem.SetLabel(SYSTEM_KEY, sd.System.HostName);
             serverItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY] = sd;
-            serverItem.Command = new MethodDelegateCommand(() => ChooseNewHomeServer(serverItem));
+            serverItem.Command = new MethodDelegateCommand(() => ChooseNewHomeServerAndClose(serverItem));
             _availableServers.Add(serverItem);
             serversChanged = true;
           }
@@ -238,13 +242,26 @@ namespace UiComponents.SkinBase.Models
         SingleServer = string.Empty;
     }
 
+    protected void ShowAttachToServerDialog()
+    {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      screenManager.ShowDialog(ATTACH_TO_SERVER_DIALOG, dialogName =>
+          {
+            if (_attachInfoDialogHandle == null)
+              LeaveConfiguration();
+          });
+    }
+
     /// <summary>
     /// Shows an info dialog that the server with the given <see cref="sd"/> was attached.
     /// </summary>
-    /// <param name="sd"></param>
-    protected void ShowAttachInformationDialog(ServerDescriptor sd)
+    /// <param name="sd">Descriptor of the server whose information should be shown.</param>
+    protected void ShowAttachInformationDialogAndClose(ServerDescriptor sd)
     {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
+      _attachInfoDialogHandle = Guid.Empty; // Set this to value != null here to make the attachment dialog's close handler know we are not finished in our WF-state
+      screenManager.CloseDialog();
       string header = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_HEADER_RES);
       string text = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_TEXT_RES, sd.ServerName, sd.System.HostName);
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
@@ -338,23 +355,23 @@ namespace UiComponents.SkinBase.Models
     /// <summary>
     /// Called from the skin to connect to the <see cref="SingleServer"/>.
     /// </summary>
-    public void ConnectToSingleServer()
+    public void ConnectToSingleServerAndClose()
     {
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
       scm.SetNewHomeServer(_singleAvailableServer.MPMediaServerUUID);
-      ShowAttachInformationDialog(_singleAvailableServer);
+      ShowAttachInformationDialogAndClose(_singleAvailableServer);
     }
 
     /// <summary>
     /// Called from the skin to connect to one of the available servers.
     /// </summary>
     /// <param name="availableServerItem">One of the items in the <see cref="AvailableServers"/> collection</param>
-    public void ChooseNewHomeServer(ListItem availableServerItem)
+    public void ChooseNewHomeServerAndClose(ListItem availableServerItem)
     {
       ServerDescriptor sd = (ServerDescriptor) availableServerItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY];
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
       scm.SetNewHomeServer(sd.MPMediaServerUUID);
-      ShowAttachInformationDialog(sd);
+      ShowAttachInformationDialogAndClose(sd);
     }
 
     #endregion
@@ -371,6 +388,8 @@ namespace UiComponents.SkinBase.Models
       lock (_syncObj)
         if (_mode != Mode.None)
           return false; // We are already active
+      _detachConfirmDialogHandle = Guid.Empty;
+      _attachInfoDialogHandle = null;
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
       if (newContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE)
       {
@@ -395,6 +414,7 @@ namespace UiComponents.SkinBase.Models
         if (o != null)
           _autoCloseOnNoServer = (bool) o;
         SynchronizeAvailableServers();
+        ShowAttachToServerDialog();
       }
       else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)
       {
