@@ -50,7 +50,7 @@
             <ResourceWrapper x:Key="Checker_Command"/>
           </TreeView.Resources>
         </TreeView>
-        <Label Grid.Row="2" Content="{Binding MediaProviderPathDisplayName}" Margin="10,5,10,0" Scroll="True"/>
+        <Label Grid.Row="2" Content="{Binding ChoosenResourcePathDisplayName}" Margin="10,5,10,0" Scroll="True"/>
         <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -64,7 +64,7 @@
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Continue]" IsEnabled="{Binding IsMediaProviderPathValid}"
+              Content="[System.Continue]" IsEnabled="{Binding IsChoosenPathValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
       </Grid>

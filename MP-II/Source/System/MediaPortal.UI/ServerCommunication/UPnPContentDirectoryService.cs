@@ -81,7 +81,7 @@ namespace MediaPortal.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
-    public int UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+    public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       CpAction action;
@@ -90,8 +90,7 @@ namespace MediaPortal.ServerCommunication
       IList<object> inParameters = new List<object>
         {
             shareId.ToString("B"),
-            providerId.ToString("B"),
-            path,
+            baseResourcePath.Serialize(),
             shareName,
             StringUtils.Join(",", mediaCategories)
         };

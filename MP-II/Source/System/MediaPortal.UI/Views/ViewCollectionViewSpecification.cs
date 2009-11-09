@@ -94,7 +94,7 @@ namespace MediaPortal.Views
     /// For internal use of the XML serialization system only.
     /// </summary>
     [XmlArray("SubViews", IsNullable = false)]
-    [XmlArrayItem("LocalShareViewSpecification", typeof(LocalShareViewSpecification))]
+    [XmlArrayItem("LocalDirectoryViewSpecification", typeof(LocalDirectoryViewSpecification))]
     [XmlArrayItem("MediaLibraryViewSpecification", typeof(MediaLibraryViewSpecification))]
     [XmlArrayItem("ViewCollectionViewSpecification", typeof(ViewCollectionViewSpecification))]
     public List<ViewSpecification> XML_SubViews

@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -44,15 +43,12 @@ namespace MediaPortal.Core.MediaManagement
     MetadataExtractorMetadata Metadata { get; }
 
     /// <summary>
-    /// Worker method to actually try a metadata extraction from the <paramref name="provider"/> and
-    /// <paramref name="path"/>.
+    /// Worker method to actually try a metadata extraction from the media resource given by
+    /// <paramref name="mediaItemAccessor"/>.
     /// If this method returns <c>true</c>, the extracted media item aspects were written to the
     /// <paramref name="extractedAspectData"/> collection.
     /// </summary>
-    /// <param name="provider">The provider instance to query the physical media with the specified
-    /// <paramref name="path"/>.</param>
-    /// <param name="path">The path of the physical media file in the specified <paramref "provider"/>
-    /// to process.</param>
+    /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
     /// media item aspects where this metadata extractor will fill its media item aspects with the
     /// extracted metadata in. The dictionary will contain media items for all media item aspect types
@@ -62,7 +58,6 @@ namespace MediaPortal.Core.MediaManagement
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains
     /// unchanged.</returns>
-    bool TryExtractMetadata(IMediaProvider provider, string path,
-        IDictionary<Guid, MediaItemAspect> extractedAspectData);
+    bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData);
   }
 }

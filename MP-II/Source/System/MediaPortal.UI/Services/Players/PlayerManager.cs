@@ -259,8 +259,7 @@ namespace MediaPortal.Services.Players
 
     internal void RevokePlayerBuilder(string playerBuilderId)
     {
-      PlayerBuilderRegistration registration;
-      registration = GetPlayerBuilderRegistration(playerBuilderId);
+      PlayerBuilderRegistration registration = GetPlayerBuilderRegistration(playerBuilderId);
       if (registration == null)
         return;
       lock (_syncObj)
@@ -303,12 +302,12 @@ namespace MediaPortal.Services.Players
     /// <summary>
     /// Will build the player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
     /// </summary>
-    /// <param name="locator">Media item locator to access the to-be-played media item.</param>
+    /// <param name="locator">Resource locator to access the to-be-played media item.</param>
     /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
     /// <param name="psc">Player slot controller which calls this method and which wants its
     /// <see cref="PlayerSlotController.CurrentPlayer"/> property built.</param>
     /// <returns><c>true</c>, if the player could successfully be played, else <c>false</c>.</returns>
-    internal bool BuildPlayer(IMediaItemLocator locator, string mimeType, PlayerSlotController psc)
+    internal bool BuildPlayer(IResourceLocator locator, string mimeType, PlayerSlotController psc)
     {
       lock (_syncObj)
       {

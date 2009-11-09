@@ -28,7 +28,6 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
@@ -76,7 +75,7 @@ namespace UiComponents.Media.Settings.Configuration
     public const string NAME_KEY = "Name";
     public const string ID_KEY = "Id";
     public const string DESCRIPTION_KEY = "Description";
-    public const string MP_PATH_KEY = "MediaProviderPath";
+    public const string RESOURCE_ACCESSOR_KEY = "ResourceAccessor";
     public const string PATH_KEY = "Path";
     public const string SHARE_MEDIAPROVIDER_KEY = "MediaProvider";
     public const string SHARE_CATEGORY_KEY = "Category";
@@ -103,13 +102,14 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected ItemsList _sharesList;
     protected ShareEditMode _editMode;
-    protected ItemsList _allMediaProvidersList;
+    protected ItemsList _allBaseMediaProvidersList;
     protected Property _isSharesSelectedProperty;
     protected Property _isMediaProviderSelectedProperty;
     protected Property _mediaProviderProperty;
-    protected Property _mediaProviderPathProperty;
-    protected Property _isMediaProviderPathValidProperty;
-    protected Property _mediaProviderPathDisplayNameProperty;
+    protected Property _choosenResourcePathStrProperty;
+    protected Property _choosenResourcePathProperty;
+    protected Property _isChoosenPathValidProperty;
+    protected Property _choosenResourcePathDisplayNameProperty;
     protected ItemsList _mediaProviderPathsTree;
     protected Property _shareNameProperty;
     protected Property _isShareNameEmptyProperty;
@@ -127,14 +127,16 @@ namespace UiComponents.Media.Settings.Configuration
     public SharesConfigModel()
     {
       _sharesList = new ItemsList();
-      _allMediaProvidersList = new ItemsList();
+      _allBaseMediaProvidersList = new ItemsList();
       _isSharesSelectedProperty = new Property(typeof(bool), false);
       _isMediaProviderSelectedProperty = new Property(typeof(bool), false);
-      _mediaProviderProperty = new Property(typeof(IMediaProvider), null);
-      _mediaProviderPathProperty = new Property(typeof(string), string.Empty);
-      _mediaProviderPathProperty.Attach(OnMediaProviderPathChanged);
-      _isMediaProviderPathValidProperty = new Property(typeof(bool), false);
-      _mediaProviderPathDisplayNameProperty = new Property(typeof(string), string.Empty);
+      _mediaProviderProperty = new Property(typeof(IBaseMediaProvider), null);
+      _choosenResourcePathStrProperty = new Property(typeof(string), string.Empty);
+      _choosenResourcePathStrProperty.Attach(OnChoosenResourcePathStrChanged);
+      _choosenResourcePathProperty = new Property(typeof(ResourcePath), null);
+      _choosenResourcePathProperty.Attach(OnChoosenResourcePathChanged);
+      _isChoosenPathValidProperty = new Property(typeof(bool), false);
+      _choosenResourcePathDisplayNameProperty = new Property(typeof(string), string.Empty);
       _mediaProviderPathsTree = new ItemsList();
       _shareNameProperty = new Property(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
@@ -166,11 +168,11 @@ namespace UiComponents.Media.Settings.Configuration
     }
 
     /// <summary>
-    /// List of all available media providers. To be used in the GUI.
+    /// List of all available base media providers. To be used in the GUI.
     /// </summary>
-    public ItemsList AllMediaProviders
+    public ItemsList AllBaseMediaProviders
     {
-      get { return _allMediaProvidersList; }
+      get { return _allBaseMediaProvidersList; }
     }
 
     public Property IsSharesSelectedProperty
@@ -207,55 +209,69 @@ namespace UiComponents.Media.Settings.Configuration
     }
 
     /// <summary>
-    /// Selected media provider. To be used in the GUI.
+    /// Selected base media provider. To be used in the GUI.
     /// </summary>
-    public IMediaProvider MediaProvider
+    public IBaseMediaProvider MediaProvider
     {
-      get { return (IMediaProvider) _mediaProviderProperty.GetValue(); }
+      get { return (IBaseMediaProvider) _mediaProviderProperty.GetValue(); }
       set { _mediaProviderProperty.SetValue(value); }
     }
 
-    public Property MediaProviderPathProperty
+    public Property ChoosenResourcePathStrProperty
     {
-      get { return _mediaProviderPathProperty; }
+      get { return _choosenResourcePathStrProperty; }
     }
 
     /// <summary>
     /// Selected media provider path. To be used in the GUI.
     /// </summary>
-    public string MediaProviderPath
+    public string ChoosenResourcePathStr
     {
-      get { return (string) _mediaProviderPathProperty.GetValue(); }
-      set { _mediaProviderPathProperty.SetValue(value); }
+      get { return (string) _choosenResourcePathStrProperty.GetValue(); }
+      set { _choosenResourcePathStrProperty.SetValue(value); }
     }
 
-    public Property IsMediaProviderPathValidProperty
+    public Property ChoosenResourcePathProperty
     {
-      get { return _isMediaProviderPathValidProperty; }
+      get { return _choosenResourcePathProperty; }
+    }
+
+    /// <summary>
+    /// Selected media provider path as resource path instance. To be used in the GUI.
+    /// </summary>
+    public ResourcePath ChoosenResourcePath
+    {
+      get { return (ResourcePath) _choosenResourcePathProperty.GetValue(); }
+      set { _choosenResourcePathProperty.SetValue(value); }
+    }
+
+    public Property IsChoosenPathValidProperty
+    {
+      get { return _isChoosenPathValidProperty; }
     }
 
     /// <summary>
     /// <c>true</c> if the selected media provider path is valid in the media provider.
     /// To be used in the GUI.
     /// </summary>
-    public bool IsMediaProviderPathValid
+    public bool IsChoosenPathValid
     {
-      get { return (bool) _isMediaProviderPathValidProperty.GetValue(); }
-      set { _isMediaProviderPathValidProperty.SetValue(value); }
+      get { return (bool) _isChoosenPathValidProperty.GetValue(); }
+      set { _isChoosenPathValidProperty.SetValue(value); }
     }
 
-    public Property MediaProviderPathDisplayNameProperty
+    public Property ChoosenResourcePathDisplayNameProperty
     {
-      get { return _mediaProviderPathDisplayNameProperty; }
+      get { return _choosenResourcePathDisplayNameProperty; }
     }
 
     /// <summary>
     /// Human-readable display name of the selected media provider path. To be used in the GUI.
     /// </summary>
-    public string MediaProviderPathDisplayName
+    public string ChoosenResourcePathDisplayName
     {
-      get { return (string) _mediaProviderPathDisplayNameProperty.GetValue(); }
-      set { _mediaProviderPathDisplayNameProperty.SetValue(value); }
+      get { return (string) _choosenResourcePathDisplayNameProperty.GetValue(); }
+      set { _choosenResourcePathDisplayNameProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -340,27 +356,33 @@ namespace UiComponents.Media.Settings.Configuration
     public void SelectMediaProviderAndContinue()
     {
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      IMediaProvider mediaProvider = null;
-      foreach (ListItem mediaProviderItem in _allMediaProvidersList)
+      IBaseMediaProvider mediaProvider = null;
+      foreach (ListItem mediaProviderItem in _allBaseMediaProvidersList)
       {
         if (mediaProviderItem.Selected)
         {
           Guid mediaProviderId = new Guid(mediaProviderItem[ID_KEY]);
-          if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mediaProvider))
+          IMediaProvider mp;
+          if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mp))
+          {
+            mediaProvider = mp as IBaseMediaProvider;
             break;
+          }
         }
       }
       if (mediaProvider == null)
         // Error case: Should not happen
         return;
-      if (MediaProvider == null ||
-          MediaProvider.Metadata.MediaProviderId != mediaProvider.Metadata.MediaProviderId)
+      IMediaProvider oldMediaProvider = MediaProvider;
+      if (oldMediaProvider == null ||
+          oldMediaProvider.Metadata.MediaProviderId != mediaProvider.Metadata.MediaProviderId)
         ClearAllConfiguredProperties();
       MediaProvider = mediaProvider;
       // Check if the choosen MP implements a known path navigation interface and go to that screen,
       // if supported
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      if (mediaProvider is IFileSystemMediaProvider)
+      IResourceAccessor rootAccessor = mediaProvider.CreateMediaItemAccessor("/");
+      if (rootAccessor is IFileSystemResourceAccessor)
         workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
       else // If needed, add other path navigation screens here
         // Fallback: Simple TextBox path editor screen
@@ -375,7 +397,7 @@ namespace UiComponents.Media.Settings.Configuration
         pathItem.SubItems.FireChange();
       }
       else
-        RefreshMediaProviderPathList(pathItem.SubItems, pathItem[MP_PATH_KEY]);
+        RefreshMediaProviderPathList(pathItem.SubItems, (IFileSystemResourceAccessor) pathItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY]);
     }
 
     public void FinishShareConfiguration()
@@ -383,8 +405,7 @@ namespace UiComponents.Media.Settings.Configuration
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       if (_editMode == ShareEditMode.AddShare)
       {
-        sharesManagement.RegisterShare(MediaProvider.Metadata.MediaProviderId,
-            MediaProviderPath, ShareName, MediaCategories);
+        sharesManagement.RegisterShare(ChoosenResourcePath, ShareName, MediaCategories);
         ClearAllConfiguredProperties();
         NavigateBackToOverview();
       }
@@ -393,9 +414,9 @@ namespace UiComponents.Media.Settings.Configuration
         Share share = sharesManagement.GetShare(CurrentShareId);
         if (share != null)
         {
-          if (share.MediaProviderId != MediaProvider.Metadata.MediaProviderId ||
-              share.Path != MediaProviderPath)
+          if (share.BaseResourcePath != ChoosenResourcePath)
           {
+            // TODO: Mantis #2464
             IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
             _relocateSharesQueryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
                 "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, false, DialogButtonType.Yes);
@@ -449,33 +470,60 @@ namespace UiComponents.Media.Settings.Configuration
       _messageQueue = null;
     }
 
-    protected void OnShareItemSelectionChanged(Property shareItem, object oldValue)
+    void OnShareItemSelectionChanged(Property shareItem, object oldValue)
     {
       UpdateIsSharesSelected();
     }
 
-    protected void OnMediaProviderItemSelectionChanged(Property shareItem, object oldValue)
+    void OnMediaProviderItemSelectionChanged(Property shareItem, object oldValue)
     {
       UpdateIsMediaProviderSelected();
     }
 
-    protected void OnMediaProviderPathChanged(Property mediaProviderURL, object oldValue)
+    void OnChoosenResourcePathStrChanged(Property mediaProviderURL, object oldValue)
     {
-      UpdateIsMediaProviderPathValid();
-      UpdateMediaProviderPathDisplayName();
+      string str = ChoosenResourcePathStr;
+      ResourcePath result = null;
+      if (!string.IsNullOrEmpty(str))
+      {
+        IBaseMediaProvider mp = MediaProvider;
+        if (mp.IsResource(str))
+          result = new ResourcePath(new ProviderPathSegment[]
+              {
+                new ProviderPathSegment(mp.Metadata.MediaProviderId, str, true), 
+              });
+        else
+          try
+          {
+            result = ResourcePath.Deserialize(str);
+          }
+          catch (ArgumentException)
+          {
+            return;
+          }
+      }
+      // Will trigger the change handler of property ChoosenResourcePath - which evaluates IsChoosenPathValid and ChoosenPathDisplayName
+      ChoosenResourcePath = result;
     }
 
-    protected void OnTreePathSelectionChanged(Property property, object oldValue)
+    void OnChoosenResourcePathChanged(Property mediaProviderURL, object oldValue)
     {
-      UpdateMediaProviderTreePath();
+      // Don't update ChoosenResourcePathStr - the string is the master and can be written in several formats
+      UpdateIsChoosenPathValid();
+      UpdateChoosenPathDisplayName();
     }
 
-    protected void OnShareNameChanged(Property shareName, object oldValue)
+    void OnTreePathSelectionChanged(Property property, object oldValue)
+    {
+      UpdateChoosenResourcePath();
+    }
+
+    void OnShareNameChanged(Property shareName, object oldValue)
     {
       UpdateIsShareNameEmpty();
     }
 
-    protected void OnMediaCategoryItemSelectionChanged(Property property, object oldValue)
+    void OnMediaCategoryItemSelectionChanged(Property property, object oldValue)
     {
       UpdateMediaCategories();
     }
@@ -495,7 +543,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateIsMediaProviderSelected()
     {
       bool result = false;
-      foreach (ListItem mediaProviderItem in _allMediaProvidersList)
+      foreach (ListItem mediaProviderItem in _allBaseMediaProvidersList)
         if (mediaProviderItem.Selected)
         {
           result = true;
@@ -504,35 +552,65 @@ namespace UiComponents.Media.Settings.Configuration
       IsMediaProviderSelected = result;
     }
 
-    protected static string FindMediaProviderTreePath(ItemsList items)
+    protected static IFileSystemResourceAccessor FindChoosenResourcePath(ItemsList items)
     {
       foreach (TreeItem directoryItem in items)
         if (directoryItem.Selected)
-          return directoryItem.Label(MP_PATH_KEY, null).Evaluate();
+          return (IFileSystemResourceAccessor) directoryItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY];
         else
         {
-          string childPath = FindMediaProviderTreePath(directoryItem.SubItems);
-          if (!string.IsNullOrEmpty(childPath))
+          IFileSystemResourceAccessor childPath = FindChoosenResourcePath(directoryItem.SubItems);
+          if (childPath != null)
             return childPath;
         }
       return null;
     }
 
-    protected void UpdateMediaProviderTreePath()
+    protected void UpdateChoosenResourcePath()
     {
-      MediaProviderPath = FindMediaProviderTreePath(MediaProviderPathsTree);
+      IFileSystemResourceAccessor ra = FindChoosenResourcePath(MediaProviderPathsTree);
+      ChoosenResourcePath = ra == null ? null : ra.LocalResourcePath;
     }
 
-    protected void UpdateIsMediaProviderPathValid()
+    protected void UpdateIsChoosenPathValid()
     {
-      IMediaProvider mediaProvider = MediaProvider;
-      IsMediaProviderPathValid = mediaProvider != null && mediaProvider.IsResource(MediaProviderPath);
+      try
+      {
+        ResourcePath rp = ChoosenResourcePath;
+        if (rp == null)
+        {
+          IsChoosenPathValid = false;
+          return;
+        }
+        // Check if we can create an item accessor - if we get an exception, the path is not valid
+        IResourceAccessor ra = rp.CreateLocalMediaItemAccessor();
+        ra.Dispose();
+        IsChoosenPathValid = true;
+      }
+      catch (Exception)
+      {
+        IsChoosenPathValid = false;
+      }
     }
 
-    protected void UpdateMediaProviderPathDisplayName()
+    protected void UpdateChoosenPathDisplayName()
     {
-      IMediaProvider mediaProvider = MediaProvider;
-      MediaProviderPathDisplayName = mediaProvider != null ? mediaProvider.GetResourcePath(MediaProviderPath) : string.Empty;
+      try
+      {
+        ResourcePath rp = ChoosenResourcePath;
+        if (rp == null)
+        {
+          ChoosenResourcePathDisplayName = string.Empty;
+          return;
+        }
+        IResourceAccessor ra = rp.CreateLocalMediaItemAccessor();
+        ChoosenResourcePathDisplayName = ra.ResourcePathName;
+        ra.Dispose();
+      }
+      catch (Exception)
+      {
+        ChoosenResourcePathDisplayName = string.Empty;
+      }
     }
 
     protected void UpdateIsShareNameEmpty()
@@ -551,7 +629,6 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateSharesList()
     {
       _sharesList.Clear();
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       bool selected = false;
       List<Share> shareDescriptors = new List<Share>(sharesManagement.Shares.Values);
@@ -560,12 +637,11 @@ namespace UiComponents.Media.Settings.Configuration
       {
         ListItem shareItem = new ListItem(NAME_KEY, share.Name);
         shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
-        IMediaProvider mediaProvider;
-        if (!mediaAccessor.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
-          mediaProvider = null;
-        shareItem.SetLabel(MP_PATH_KEY, share.Path);
-        shareItem.SetLabel(PATH_KEY, mediaProvider == null ? share.Path : mediaProvider.GetResourcePath(share.Path));
-        shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, mediaProvider == null ? null : mediaProvider.Metadata.Name);
+        IResourceAccessor resourceAccessor = share.BaseResourcePath.CreateLocalMediaItemAccessor();
+        shareItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY] = resourceAccessor;
+        shareItem.SetLabel(PATH_KEY, resourceAccessor.ResourcePathName);
+        IMediaProvider firstMediaProvider = GetFirstMediaProvider(share);
+        shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, firstMediaProvider == null ? null : firstMediaProvider.Metadata.Name);
         string categories = StringUtils.Join(", ", share.MediaCategories);
         shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
         if (shareDescriptors.Count == 1)
@@ -576,15 +652,29 @@ namespace UiComponents.Media.Settings.Configuration
         shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
         _sharesList.Add(shareItem);
       }
+      _sharesList.FireChange();
       IsSharesSelected = selected;
+    }
+
+    protected IBaseMediaProvider GetFirstMediaProvider(Share share)
+    {
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IEnumerator<ProviderPathSegment> enumer = share.BaseResourcePath.GetEnumerator();
+      IMediaProvider result;
+      if (!enumer.MoveNext() || !mediaAccessor.LocalMediaProviders.TryGetValue(enumer.Current.ProviderId, out result))
+        return null;
+      return result as IBaseMediaProvider;
     }
 
     protected void UpdateMediaProvidersList()
     {
-      _allMediaProvidersList.Clear();
+      _allBaseMediaProvidersList.Clear();
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       bool selected = false;
-      List<IMediaProvider> mediaProviders = new List<IMediaProvider>(mediaAccessor.LocalMediaProviders.Values);
+      List<IMediaProvider> mediaProviders = new List<IMediaProvider>();
+      foreach (IMediaProvider mediaProvider in mediaAccessor.LocalMediaProviders.Values)
+        if (mediaProvider is IBaseMediaProvider) // Only show base providers
+          mediaProviders.Add(mediaProvider);
       mediaProviders.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
       foreach (IMediaProvider mediaProvider in mediaProviders)
       {
@@ -598,31 +688,29 @@ namespace UiComponents.Media.Settings.Configuration
           selected = true;
         }
         mediaProviderItem.SelectedProperty.Attach(OnMediaProviderItemSelectionChanged);
-        _allMediaProvidersList.Add(mediaProviderItem);
+        _allBaseMediaProvidersList.Add(mediaProviderItem);
       }
       IsMediaProviderSelected = selected;
     }
 
-    protected void RefreshMediaProviderPathList(ItemsList items, string path)
+    protected void RefreshMediaProviderPathList(ItemsList items, IFileSystemResourceAccessor accessor)
     {
-      IMediaProvider mp = MediaProvider;
-      if (!(mp is IFileSystemMediaProvider))
-        // Error case - The path tree can only be shown if the media provider is a file system provider
+      if (accessor == null)
+        // Error case - would happen if media provider returned a resource accessor which is no IFileSystemResourceAccessor
         return;
-      IFileSystemMediaProvider mediaProvider = (IFileSystemMediaProvider) mp;
       items.Clear();
-      ICollection<string> res = mediaProvider.GetChildDirectories(path);
+      ICollection<IFileSystemResourceAccessor> res = accessor.GetChildDirectories();
       if (res != null)
       {
-        List<string> directories = new List<string>(res);
+        List<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>(res);
         CultureInfo culture = ServiceScope.Get<ILocalization>().CurrentCulture;
-        directories.Sort((a, b) => string.Compare(a, b, true, culture));
-        foreach (string childPath in directories)
+        directories.Sort((a, b) => string.Compare(a.ResourceName, b.ResourceName, true, culture));
+        foreach (IFileSystemResourceAccessor childAccessor in directories)
         {
-          TreeItem directoryItem = new TreeItem(NAME_KEY, mediaProvider.GetResourceName(childPath));
-          directoryItem.SetLabel(MP_PATH_KEY, childPath);
-          directoryItem.SetLabel(PATH_KEY, mediaProvider.GetResourcePath(childPath));
-          if (!string.IsNullOrEmpty(MediaProviderPath) && MediaProviderPath == childPath)
+          TreeItem directoryItem = new TreeItem(NAME_KEY, childAccessor.ResourceName);
+          directoryItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY] = childAccessor;
+          directoryItem.SetLabel(PATH_KEY, childAccessor.ResourcePathName);
+          if (ChoosenResourcePath == childAccessor.LocalResourcePath)
             directoryItem.Selected = true;
           directoryItem.SelectedProperty.Attach(OnTreePathSelectionChanged);
           items.Add(directoryItem);
@@ -633,7 +721,15 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected void UpdateMediaProviderPathTree()
     {
-      RefreshMediaProviderPathList(_mediaProviderPathsTree, "/");
+      IBaseMediaProvider mp = MediaProvider;
+      if (mp == null)
+      { // This happens when the WF-Manager navigates back to the overview screen - all properties have been cleared before
+        _mediaProviderPathsTree.Clear();
+        _mediaProviderPathsTree.FireChange();
+        return;
+      }
+      IResourceAccessor rootAccessor = mp.CreateMediaItemAccessor("/");
+      RefreshMediaProviderPathList(_mediaProviderPathsTree, rootAccessor as IFileSystemResourceAccessor);
     }
 
     protected static ICollection<string> GetAllAvailableCategories()
@@ -666,23 +762,19 @@ namespace UiComponents.Media.Settings.Configuration
     protected void ClearAllConfiguredProperties()
     {
       MediaProvider = null;
-      MediaProviderPath = string.Empty;
+      ChoosenResourcePath = null;
       ShareName = string.Empty;
       MediaCategories.Clear();
     }
 
     protected bool InitializePropertiesWithShare(Guid shareId)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       Share share = sharesManagement.GetShare(shareId);
       if (share == null)
         return false;
-      IMediaProvider mediaProvider;
-      if (!mediaAccessor.LocalMediaProviders.TryGetValue(share.MediaProviderId, out mediaProvider))
-        return false;
-      MediaProvider = mediaProvider;
-      MediaProviderPath = share.Path;
+      MediaProvider = GetFirstMediaProvider(share);
+      ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
       MediaCategories.Clear();
       CollectionUtils.AddAll(MediaCategories, share.MediaCategories);
@@ -691,8 +783,15 @@ namespace UiComponents.Media.Settings.Configuration
 
     protected string SuggestShareName()
     {
-      return string.IsNullOrEmpty(MediaProviderPath) || MediaProvider == null ? string.Empty :
-          MediaProvider.GetResourceName(MediaProviderPath);
+      try
+      {
+        ResourcePath rp = ChoosenResourcePath;
+        return rp.CreateLocalMediaItemAccessor().ResourceName;
+      }
+      catch (Exception)
+      {
+        return string.Empty;
+      }
     }
 
     protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
@@ -717,8 +816,7 @@ namespace UiComponents.Media.Settings.Configuration
     protected void UpdateShareAndFinish(bool relocateItems)
     {
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
-      sharesManagement.UpdateShare(CurrentShareId, MediaProvider.Metadata.MediaProviderId,
-        MediaProviderPath, ShareName, MediaCategories, relocateItems ? RelocationMode.Relocate : RelocationMode.Remove);
+      sharesManagement.UpdateShare(CurrentShareId, ChoosenResourcePath, ShareName, MediaCategories, relocateItems ? RelocationMode.Relocate : RelocationMode.Remove);
       ClearAllConfiguredProperties();
       NavigateBackToOverview();
     }
@@ -757,6 +855,8 @@ namespace UiComponents.Media.Settings.Configuration
         }
         // In the "edit" case, the state SHARE_EDIT_STATE_ID is active before SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID,
         // so we do the initialization there
+        
+        // This could be optimized - we should not update the MPs list every time we are popping a WF state
         UpdateMediaProvidersList();
       }
       else if (workflowState == SHARE_EDIT_EDIT_PATH_STATE_ID)

@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Database;
 using MediaPortal.Utilities;
@@ -137,21 +138,17 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public static IDbCommand SelectShareIdCommand(ITransaction transaction,
-        SystemName nativeSystem, Guid providerId, string path, out int shareIdIndex)
+        SystemName nativeSystem, ResourcePath baseResourcePath, out int shareIdIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_NAME=? AND MEDIAPROVIDER_ID=? AND MEDIAPROVIDER_PATH=?";
+      result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_NAME=? AND BASE_RESOURCE_PATH=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = nativeSystem.HostName;
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
-      param.Value = providerId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = path;
+      param.Value = baseResourcePath.Serialize();
       result.Parameters.Add(param);
 
       shareIdIndex = 0;
@@ -159,43 +156,41 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public static IDbCommand SelectSharesCommand(ITransaction transaction, out int shareIdIndex, out int nativeSystemIndex,
-        out int providerIdIndex, out int pathIndex, out int shareNameIndex, out int isOnlineIndex)
+        out int baseResourcePathIndex, out int shareNameIndex, out int isOnlineIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE FROM SHARES";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, BASE_RESOURCE_PATH, NAME, IS_ONLINE FROM SHARES";
 
       shareIdIndex = 0;
       nativeSystemIndex = 1;
-      providerIdIndex = 2;
-      pathIndex = 3;
-      shareNameIndex = 4;
-      isOnlineIndex = 5;
+      baseResourcePathIndex = 2;
+      shareNameIndex = 3;
+      isOnlineIndex = 4;
       return result;
     }
 
     public static IDbCommand SelectShareByIdCommand(ITransaction transaction, Guid shareId, out int nativeSystemIndex,
-        out int providerIdIndex, out int pathIndex, out int shareNameIndex)
+        out int baseResourcePathIndex, out int shareNameIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME FROM SHARES WHERE SHARE_ID=?";
+      result.CommandText = "SELECT SYSTEM_NAME, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SHARE_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareId.ToString();
       result.Parameters.Add(param);
 
       nativeSystemIndex = 0;
-      providerIdIndex = 1;
-      pathIndex = 2;
-      shareNameIndex = 3;
+      baseResourcePathIndex = 1;
+      shareNameIndex = 2;
       return result;
     }
 
     public static IDbCommand SelectSharesByNativeSystemCommand(ITransaction transaction, SystemName nativeSystem,
-        out int shareIdIndex, out int nativeSystemIndex, out int providerIdIndex, out int pathIndex,
+        out int shareIdIndex, out int nativeSystemIndex, out int baseResourcePathIndex,
         out int shareNameIndex, out int isOnlineIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, NAME, IS_ONLINE FROM SHARES WHERE SYSTEM_NAME=?";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, BASE_RESOURCE_PATH, NAME, IS_ONLINE FROM SHARES WHERE SYSTEM_NAME=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = nativeSystem.HostName;
@@ -203,18 +198,17 @@ namespace MediaPortal.Services.MediaLibrary
 
       shareIdIndex = 0;
       nativeSystemIndex = 1;
-      providerIdIndex = 2;
-      pathIndex = 3;
-      shareNameIndex = 4;
-      isOnlineIndex = 5;
+      baseResourcePathIndex = 2;
+      shareNameIndex = 3;
+      isOnlineIndex = 4;
       return result;
     }
 
     public static IDbCommand InsertShareCommand(ITransaction transaction, Guid shareId, SystemName nativeSystem,
-        Guid providerId, string path, string shareName, bool isOnline)
+        ResourcePath baseResourcePath, string shareName, bool isOnline)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_NAME, MEDIAPROVIDER_ID, MEDIAPROVIDER_PATH, IS_ONLINE) VALUES (?, ?, ?, ?, ?, ?)";
+      result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_NAME, BASE_RESOURCE_PATH, IS_ONLINE) VALUES (?, ?, ?, ?, ?)";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareId.ToString();
@@ -229,11 +223,7 @@ namespace MediaPortal.Services.MediaLibrary
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
-      param.Value = providerId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = path;
+      param.Value = baseResourcePath.Serialize();
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
@@ -289,10 +279,10 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     public static IDbCommand UpdateShareCommand(ITransaction transaction, Guid shareId, SystemName nativeSystem,
-        Guid providerId, string path, string shareName)
+        ResourcePath baseResourcePath, string shareName)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "UPDATE SHARES set NAME=?, SYSTEM_NAME=?, MEDIAPROVIDER_ID=?, MEDIAPROVIDER_PATH=? WHERE SHARE_ID=?";
+      result.CommandText = "UPDATE SHARES set NAME=?, SYSTEM_NAME=?, BASE_RESOURCE_PATH=? WHERE SHARE_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareName;
@@ -303,11 +293,7 @@ namespace MediaPortal.Services.MediaLibrary
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
-      param.Value = providerId.ToString();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = path;
+      param.Value = baseResourcePath.Serialize();
       result.Parameters.Add(param);
 
       param = result.CreateParameter();

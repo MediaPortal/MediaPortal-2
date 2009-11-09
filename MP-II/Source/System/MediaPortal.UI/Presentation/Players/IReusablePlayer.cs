@@ -40,6 +40,6 @@ namespace MediaPortal.Presentation.Players
     /// parameter should be set to <c>null</c>.</param>
     /// <returns><c>true</c>, if this player is able to play the specified next item, else <c>false</c>. In case
     /// <c>false</c> is returned, the player will continue to play as before.</returns>
-    bool NextItem(IMediaItemLocator locator, string mimeType);
+    bool NextItem(IResourceLocator locator, string mimeType);
   }
 }

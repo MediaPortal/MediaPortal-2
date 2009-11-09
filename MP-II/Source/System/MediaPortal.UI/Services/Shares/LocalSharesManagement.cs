@@ -110,9 +110,9 @@ namespace MediaPortal.Services.Shares
       return _shares.ContainsKey(shareId) ? _shares[shareId] : null;
     }
 
-    public Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories)
+    public Share RegisterShare(ResourcePath baseResourcePath, string shareName, IEnumerable<string> mediaCategories)
     {
-      Share sd = Share.CreateNewShare(SystemName.GetLocalSystemName(), providerId, path,
+      Share sd = Share.CreateNewShare(SystemName.GetLocalSystemName(), baseResourcePath,
           shareName, mediaCategories);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
@@ -127,14 +127,13 @@ namespace MediaPortal.Services.Shares
       SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareRemoved, shareId);
     }
 
-    public Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+    public Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
       Share result = GetShare(shareId);
       if (result == null)
         return null;
-      result.MediaProviderId = providerId;
-      result.Path = path;
+      result.BaseResourcePath = baseResourcePath;
       result.Name = shareName;
       result.MediaCategories.Clear();
       CollectionUtils.AddAll(result.MediaCategories, mediaCategories);

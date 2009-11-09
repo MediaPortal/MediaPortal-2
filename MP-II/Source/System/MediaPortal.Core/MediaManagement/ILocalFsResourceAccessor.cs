@@ -22,24 +22,22 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
-
-namespace MediaPortal.Core.Services.MediaManagement
+namespace MediaPortal.Core.MediaManagement
 {
-  public class MediaItemLocalFsAccessor : MediaItemAccessorBase, IMediaItemLocalFsAccessor
+  /// <summary>
+  /// Temporary local filesystem accessor instance for a resource which might located anywhere in an MP-II system.
+  /// Via this instance, the resource, which potentially is located in a remote system, can be accessed
+  /// via a <see cref="LocalFileSystemPath"/>.
+  /// </summary>
+  /// <remarks>
+  /// To get a local filesystem resource accessor, get an <see cref="IResourceLocator"/> and use its
+  /// <see cref="IResourceLocator.CreateLocalFsAccessor"/> method.
+  /// </remarks>
+  public interface ILocalFsResourceAccessor : IFileSystemResourceAccessor
   {
-    protected string _localFileSystemPath;
-
-    internal MediaItemLocalFsAccessor(MediaItemLocator locator,
-        string localFileSystemPath, ITidyUpExecutor tidyUpExecutor) :
-            base(locator, tidyUpExecutor)
-    {
-      _localFileSystemPath = localFileSystemPath;
-    }
-
-    public string LocalFileSystemPath
-    {
-      get { return _localFileSystemPath; }
-    }
+    /// <summary>
+    /// Gets a path in the local filesystem where the represented media item is located.
+    /// </summary>
+    string LocalFileSystemPath { get; }
   }
 }

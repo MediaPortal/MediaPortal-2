@@ -44,22 +44,10 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Source-Computer", 100, Cardinality.ManyToOne);
 
     /// <summary>
-    /// Contains the id of the provider which provides the media item.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PROVIDER_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Provider-ID", 36, Cardinality.ManyToOne);
-
-    /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PATH =
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline);
-
-    /// <summary>
-    /// Contains a collection of IDs of providers the media items depends on.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_PARENTPROVIDERS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("ParentProviders", 36, Cardinality.ManyToMany);
 
     /// <summary>
     /// Contains the date when the media item was added to the media library.
@@ -71,9 +59,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SOURCE_COMPUTER,
-            ATTR_PROVIDER_ID,
-            ATTR_PATH,
-            ATTR_PARENTPROVIDERS,
+            ATTR_RESOURCE_ACCESSOR_PATH,
             ATTR_DATEADDED,
         });
   }

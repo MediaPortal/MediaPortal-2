@@ -67,14 +67,13 @@ namespace MediaPortal.Shares
     /// <summary>
     /// Adds a local share and adds it to the media library's collection of registered shares as soon as possible.
     /// </summary>
-    /// <param name="providerId">ID of the local media provider, this share should get its media items from.</param>
-    /// <param name="path">Lookup path for the specified provider in the specified system.</param>
+    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="shareName">Name of the new share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the new share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <returns>Descriptor of the new share.</returns>
-    Share RegisterShare(Guid providerId, string path, string shareName, IEnumerable<string> mediaCategories);
+    Share RegisterShare(ResourcePath baseResourcePath, string shareName, IEnumerable<string> mediaCategories);
 
     /// <summary>
     /// Removes the local share with the specified id. This will invalidate all references to this share; the share
@@ -89,8 +88,7 @@ namespace MediaPortal.Shares
     /// This will automatically trigger a re-import of the share.
     /// </summary>
     /// <param name="shareId">Id of the share to be changed.</param>
-    /// <param name="providerId">ID of the local media provider, this share should get its media items from.</param>
-    /// <param name="path">Lookup path for the specified provider in the specified system.</param>
+    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="shareName">Name of the share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
@@ -99,7 +97,7 @@ namespace MediaPortal.Shares
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library or the local media items cache.</param>
     /// <returns>Changed share descriptor.</returns>
-    Share UpdateShare(Guid shareId, Guid providerId, string path, string shareName,
+    Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
   }
 }

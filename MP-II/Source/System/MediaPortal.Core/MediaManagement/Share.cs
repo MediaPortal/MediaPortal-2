@@ -63,8 +63,7 @@ namespace MediaPortal.Core.MediaManagement
 
     protected Guid _shareId;
     protected SystemName _nativeSystemName;
-    protected Guid _mediaProviderId;
-    protected string _path;
+    protected ResourcePath _baseResourcePath;
     protected string _name;
     protected HashSet<string> _mediaCategories;
 
@@ -77,28 +76,28 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// Creates a new share descriptor with the specified values.
     /// </summary>
-    /// <param name="shareId">Id of the share. For the same share (i.e. the same media provider on the same
-    /// system with the same path), the id should be perserverd, i.e. the id should not be re-created
+    /// <param name="shareId">Id of the share. For the same share (i.e. the same resource path on the same
+    /// system), the id should be perserverd, i.e. the id should not be re-created
     /// but stored persistently. This helps other components to use the id as fixed identifier for the share.</param>
-    /// <param name="systemName">Specifies the system on that the media provider with the specified
-    /// <paramref name="mediaProviderId"/> is located.</param>
-    /// <param name="mediaProviderId">Id of the media provider which provides the file system for the
-    /// share.</param>
-    /// <param name="path">Path at the media provider with the specified <paramref name="mediaProviderId"/>
-    /// where the share should have its root directory.</param>
+    /// <param name="systemName">Specifies the system on that the <paramref name="baseResourcePath"/> can be
+    /// evaluated.</param>
+    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
-    /// localized.</param>
+    /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
     /// <param name="mediaCategories">Categories of media in this share. If set, the categories describe
     /// the desired contents of this share. If set to <c>null</c>, the share has no explicit media categories,
     /// i.e. it is a general share.</param>
-    public Share(Guid shareId, SystemName systemName,
-        Guid mediaProviderId, string path, string name,
+    public Share(Guid shareId, SystemName systemName, ResourcePath baseResourcePath, string name,
         IEnumerable<string> mediaCategories)
     {
+      if (baseResourcePath == null)
+        throw new ArgumentException("Share base resource path must not null");
+      if (string.IsNullOrEmpty(name))
+        throw new ArgumentException("Share name must not be empty or null");
+
       _shareId = shareId;
-      _nativeSystemName = systemName;
-      _mediaProviderId = mediaProviderId;
-      _path = path;
+      _nativeSystemName = systemName ?? SystemName.GetLocalSystemName();
+      _baseResourcePath = baseResourcePath;
       _name = name;
       _mediaCategories = mediaCategories == null ? new HashSet<string>() : new HashSet<string>(mediaCategories);
     }
@@ -107,22 +106,18 @@ namespace MediaPortal.Core.MediaManagement
     /// Creates a new share. This will create a new share id.
     /// </summary>
     /// <param name="systemName">Specifies the system on that the media provider with the specified
-    /// <paramref name="mediaProviderId"/> is located.</param>
-    /// <param name="mediaProviderId">Id of the media provider which provides the file system for the
-    /// share.</param>
-    /// <param name="path">Path at the media provider with the specified <paramref name="mediaProviderId"/>
-    /// where the share should have its root directory.</param>
+    /// <paramref name="baseResourcePath"/> will be evaluated.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
-    /// localized.</param>
+    /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
+    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="mediaCategories">Media content categories of this share. If set, the category
     /// describes the desired contents of this share. If set to <c>null</c>, this share has no explicit
     /// media categories, i.e. it is a general share.</param>
     /// <returns>Created <see cref="Share"/> with a new share id.</returns>
-    public static Share CreateNewShare(SystemName systemName,
-        Guid mediaProviderId, string path, string name,
+    public static Share CreateNewShare(SystemName systemName, ResourcePath baseResourcePath, string name,
         IEnumerable<string> mediaCategories)
     {
-      return new Share(Guid.NewGuid(), systemName, mediaProviderId, path, name, mediaCategories);
+      return new Share(Guid.NewGuid(), systemName, baseResourcePath, name, mediaCategories);
     }
 
     /// <summary>
@@ -145,23 +140,13 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Returns the id of the media provider this share is based on.
+    /// Returns the resource path describing the resource provider chain for the share's base directory.
     /// </summary>
     [XmlIgnore]
-    public Guid MediaProviderId
+    public ResourcePath BaseResourcePath
     {
-      get { return _mediaProviderId; }
-      set { _mediaProviderId = value; }
-    }
-
-    /// <summary>
-    /// Returns the path used for the media provider (specified by <see cref="MediaProviderId"/>) for this share.
-    /// </summary>
-    [XmlIgnore]
-    public string Path
-    {
-      get { return _path; }
-      set { _path = value; }
+      get { return _baseResourcePath; }
+      set { _baseResourcePath = value; }
     }
 
     /// <summary>
@@ -273,7 +258,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("NativeSystem")]
+    [XmlElement("NativeSystem", IsNullable = false)]
     public SystemName XML_NativeSystem
     {
       get { return _nativeSystemName; }
@@ -283,27 +268,17 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("MediaProviderId")]
-    public Guid XML_MediaProviderId
+    [XmlElement("BaseResourcePath", IsNullable = false)]
+    public string XML_ResourcePath
     {
-      get { return _mediaProviderId; }
-      set { _mediaProviderId = value; }
+      get { return _baseResourcePath.Serialize(); }
+      set { _baseResourcePath = ResourcePath.Deserialize(value); }
     }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("Path")]
-    public string XML_Path
-    {
-      get { return _path; }
-      set { _path = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("Name")]
+    [XmlElement("Name", IsNullable = false)]
     public string XML_Name
     {
       get { return _name; }

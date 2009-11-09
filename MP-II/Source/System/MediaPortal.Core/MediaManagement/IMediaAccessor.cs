@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -72,24 +71,21 @@ namespace MediaPortal.Core.MediaManagement
 
     /// <summary>
     /// Synchronous metadata extraction method for an extraction of the specified metadata
-    /// from the specified media provider location. Only the specified location will be processed,
-    /// i.e. if the location denotes a media item, that item will be processed, else if the location
-    /// denotes a folder, metadata for the folder itself will be extracted, no sub items will be processed.
+    /// from the specified media item file.
     /// </summary>
-    /// <param name="providerId">Id of the media provider to use as source for this metadata extraction.</param>
-    /// <param name="path">Path in the provider to extract metadata from.</param>
+    /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
     /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors to apply to the
     /// specified media file.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
     /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.</returns>
-    IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
+    IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds);
 
     /// <summary>
-    /// Returns a media item locator instance for the specified media <paramref name="item"/>.
+    /// Returns a resource locator instance for the specified media <paramref name="item"/>.
     /// </summary>
     /// <param name="item">Media item to return a locator.</param>
-    /// <returns>Media item locator instance or <c>null</c>, if the item is invalid.</returns>
-    IMediaItemLocator GetMediaItemLocator(MediaItem item);
+    /// <returns>Resource locator instance or <c>null</c>, if the item is invalid.</returns>
+    IResourceLocator GetResourceLocator(MediaItem item);
   }
 }

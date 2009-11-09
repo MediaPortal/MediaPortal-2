@@ -152,14 +152,14 @@ namespace MediaPortal.Presentation.Players
     /// <summary>
     /// Plays the specified media resource without putting it into the playlist.
     /// </summary>
-    /// <param name="locator">Media item locator to the media resource.</param>
+    /// <param name="locator">Resource locator to the media resource.</param>
     /// <param name="mimeType">Mime type of the media resource, if known. If this parameter is given, the
     /// decision whether the media resource can be played might be faster. If this parameter is set to <c>null</c>,
     /// this method will potentially need more time to look into the given resource's content.</param>
     /// <param name="mediaItemTitle">The title of the media item. This value is necessary for some players,
     /// which don't extract metadata from the media file themselves.</param>
     /// <returns><c>true</c>, if the specified item could be played, else <c>false</c>.</returns>
-    bool DoPlay(IMediaItemLocator locator, string mimeType, string mediaItemTitle);
+    bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle);
 
     /// <summary>
     /// Returns all audio stream descriptors for this player context.

@@ -56,7 +56,7 @@ namespace MediaPortal.Presentation.Players
     /// This method should start the crossfading immediately, with the specified <paramref name="fadeMode"/>
     /// and <paramref name="fadeDuration"/>.
     /// </remarks>
-    /// <param name="locator">Media item locator specifying the media item to be faded in.</param>
+    /// <param name="locator">Resource locator specifying the media item to be faded in.</param>
     /// <param name="mimeType">MimeType of the content to be faded in, if available. Else, this
     /// parameter should be set to <c>null</c>.</param>
     /// <param name="fadeMode">Mode specifying how the fade duration shold be calculated.</param>
@@ -64,7 +64,7 @@ namespace MediaPortal.Presentation.Players
     /// this parameter specifies the duration to fade the new item in.</param>
     /// <returns><c>true</c>, if this player is able to cross-fade the specified item, else <c>false</c>. In case
     /// <c>false</c> is returned, the player will continue to play as before.</returns>
-    bool Crossfade(IMediaItemLocator locator, string mimeType, CrossFadeMode fadeMode, TimeSpan fadeDuration);
+    bool Crossfade(IResourceLocator locator, string mimeType, CrossFadeMode fadeMode, TimeSpan fadeDuration);
 
     /// <summary>
     /// Returns the information if this player is currently executing a cross-fading action.

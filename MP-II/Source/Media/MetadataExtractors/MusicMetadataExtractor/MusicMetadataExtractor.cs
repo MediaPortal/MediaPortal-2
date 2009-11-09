@@ -28,7 +28,6 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 using TagLib;
 using File = TagLib.File;
 using MediaPortal.Core.Logging;
@@ -65,13 +64,11 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
     /// </summary>
     protected class MediaProviderFileAbstraction : File.IFileAbstraction
     {
-      protected IMediaProvider _provider;
-      protected string _path;
+      protected IResourceAccessor _resourceAccessor;
 
-      public MediaProviderFileAbstraction(IMediaProvider provider, string path)
+      public MediaProviderFileAbstraction(IResourceAccessor resourceAccessor)
       {
-        _provider = provider;
-        _path = path;
+        _resourceAccessor = resourceAccessor;
       }
 
       #region IFileAbstraction implementation
@@ -83,17 +80,17 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
       public string Name
       {
-        get { return _provider.GetResourcePath(_path); }
+        get { return _resourceAccessor.ResourcePathName; }
       }
 
       public Stream ReadStream
       {
-        get { return _provider.OpenRead(_path); }
+        get { return _resourceAccessor.OpenRead(); }
       }
 
       public Stream WriteStream
       {
-        get { return _provider.OpenWrite(_path); }
+        get { return _resourceAccessor.OpenWrite(); }
       }
 
       #endregion
@@ -188,9 +185,9 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IMediaProvider provider, string path, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      string humanReadablePath = provider.GetResourcePath(path);
+      string humanReadablePath = mediaItemAccessor.ResourcePathName;
       if (!HasAudioExtension(humanReadablePath))
         return false;
 
@@ -201,14 +198,14 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         File tag;
         try
         {
-          tag = File.Create(new MediaProviderFileAbstraction(provider, path),
+          tag = File.Create(new MediaProviderFileAbstraction(mediaItemAccessor),
               Path.GetFileName(humanReadablePath), null, ReadStyle.Fast);
         }
         catch (CorruptFileException)
         {
           // Only log at the info level here - And simply return false. This makes the importer know that we
           // couldn't perform our task here
-          ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' (media provider: '{1}') seems to be broken", path, provider.Metadata.Name);
+          ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Music file '{0}' seems to be broken", mediaItemAccessor.LocalResourcePath);
           return false;
         }
 
@@ -241,14 +238,14 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       }
       catch (UnsupportedFormatException)
       {
-        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
+        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Unsupported music file '{0}'", mediaItemAccessor.LocalResourcePath);
         return false;
       }
       catch (Exception e)
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Exception '{0}' reading file '{1}' (media provider: '{2}')", e.Message, path, provider.Metadata.Name);
+        ServiceScope.Get<ILogger>().Info("MusicMetadataExtractor: Exception '{0}' reading file '{1}'", e.Message, mediaItemAccessor.LocalResourcePath);
         return false;
       }
     }

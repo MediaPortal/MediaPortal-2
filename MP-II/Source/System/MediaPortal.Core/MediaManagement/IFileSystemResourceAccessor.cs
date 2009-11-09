@@ -24,13 +24,13 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManagement.MediaProviders
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// MediaProvider interface to access a hierarchical file system structure.
+  /// Resource accessor interface to access a resource in a hierarchical file system structure.
   /// This interface provides additional methods to navigate through the structure, i.e.
   /// query available sub items and sub directories.
-  /// This provider works for all hierarchical file systems - it is NOT ONLY intended to be used
+  /// This resource accessor interface will be used for all hierarchical file systems - it is NOT ONLY intended to be used
   /// for the local HDD filesystem.
   /// </summary>
   /// <remarks>
@@ -38,31 +38,26 @@ namespace MediaPortal.Core.MediaManagement.MediaProviders
   /// a root directory.
   /// The root directory is denoted by "/". Directory path names are organized like unix paths.
   /// </remarks>
-  public interface IFileSystemMediaProvider : IMediaProvider
+  public interface IFileSystemResourceAccessor : IResourceAccessor
   {
     /// <summary>
-    /// Returns the information if the specified <paramref name="path"/> is a directory which is
-    /// valid in this provider and which might contain files and sub directories.
+    /// Returns the information if this resource is a directory which might contain files and sub directories.
     /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns><c>true</c>, if the specified <paramref name="path"/> denotes a directory in this
-    /// provider.</returns>
-    bool IsDirectory(string path);
+    /// <value><c>true</c>, if this resource denotes a directory.</value>
+    bool IsDirectory { get; }
 
     /// <summary>
-    /// Returns the paths of the media items at the specified <paramref name="path"/>.
+    /// Returns the resource accessors for all child files of this directory resource.
     /// </summary>
-    /// <param name="path">The path so search the media items.</param>
-    /// <returns>Collection of strings containing the paths of media items or <c>null</c> if
-    /// the specified <paramref name="path"/> is invalid in this provider.</returns>
-    ICollection<string> GetFiles(string path);
+    /// <returns>Collection of child resource accessors of sub files or <c>null</c>, if this resource
+    /// is no directory resource or if it is invalid.</returns>
+    ICollection<IFileSystemResourceAccessor> GetFiles();
 
     /// <summary>
-    /// Returns the paths of child directories of the specified <paramref name="path"/>.
+    /// Returns the resource accessors for all child directories of this directory resource.
     /// </summary>
-    /// <param name="path">The path to search child directories.</param>
-    /// <returns>Collection of strings containing the paths of sub directories or <c>null</c> if
-    /// the specified <paramref name="path"/> is invalid in this provider.</returns>
-    ICollection<string> GetChildDirectories(string path);
+    /// <returns>Collection of child resource accessors of sub directories or <c>null</c>, if
+    /// this resource is no directory resource or if it is invalid in this provider.</returns>
+    ICollection<IFileSystemResourceAccessor> GetChildDirectories();
   }
 }

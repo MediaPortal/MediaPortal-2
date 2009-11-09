@@ -99,14 +99,13 @@ namespace MediaPortal.MediaLibrary
     /// Creates a new share and adds it to the media library's collection of registered shares.
     /// </summary>
     /// <param name="nativeSystem">System where the media provider for the new share is located.</param>
-    /// <param name="providerId">ID of the media provider of the specified <paramref name="nativeSystem"/>.</param>
-    /// <param name="path">Lookup path for the specified provider in the specified system.</param>
+    /// <param name="baseResourcePath">Lookup path for the provider resource chain in the specified system.</param>
     /// <param name="shareName">Name of the new share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the new share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <returns>ID of the new share.</returns>
-    Guid CreateShare(SystemName nativeSystem, Guid providerId, string path,
+    Guid CreateShare(SystemName nativeSystem, ResourcePath baseResourcePath,
         string shareName, IEnumerable<string> mediaCategories);
 
     /// <summary>
@@ -124,8 +123,7 @@ namespace MediaPortal.MediaLibrary
     /// </remarks>
     /// <param name="shareId">Id of the share to be changed.</param>
     /// <param name="nativeSystem">System where the share is located.</param>
-    /// <param name="providerId">ID of the media provider which should be installed in the native system of the share.</param>
-    /// <param name="path">Lookup path for the specified provider in the specified system.</param>
+    /// <param name="baseResourcePath">Lookup path for the provider resource chain in the specified system.</param>
     /// <param name="shareName">Name of the share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
@@ -134,7 +132,7 @@ namespace MediaPortal.MediaLibrary
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
-    int UpdateShare(Guid shareId, SystemName nativeSystem, Guid providerId, string path, string shareName,
+    int UpdateShare(Guid shareId, SystemName nativeSystem, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
     /// <summary>

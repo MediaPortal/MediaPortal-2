@@ -27,9 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -227,6 +225,11 @@ namespace MediaPortal.Core.Services.MediaManagement
       UnregisterPluginItemListeners();
     }
 
+    protected ResourcePath BuildSimpleResourceAccessorPath(Guid localProviderId, string fileSystemPath)
+    {
+      return new ResourcePath(new ProviderPathSegment[] {new ProviderPathSegment(localProviderId, fileSystemPath, true)});
+    }
+
     public ICollection<Share> CreateDefaultShares()
     {
       ICollection<Share> result = new List<Share>();
@@ -240,8 +243,8 @@ namespace MediaPortal.Core.Services.MediaManagement
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
           Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
+              shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(localFsMediaProviderId, folderPath),
+              MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
           result.Add(sd);
         }
 
@@ -251,8 +254,8 @@ namespace MediaPortal.Core.Services.MediaManagement
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
           Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
+              shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(localFsMediaProviderId, folderPath),
+              MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
 
@@ -262,8 +265,8 @@ namespace MediaPortal.Core.Services.MediaManagement
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
           Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), localFsMediaProviderId,
-              folderPath, MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
+              shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(localFsMediaProviderId, folderPath),
+              MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
       }
@@ -275,8 +278,8 @@ namespace MediaPortal.Core.Services.MediaManagement
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         Guid shareId = Guid.NewGuid();
         Share sd = new Share(
-            shareId, SystemName.GetLocalSystemName(), metadata.MediaProviderId,
-            "/", metadata.Name, null);
+            shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(metadata.MediaProviderId, "/"),
+            metadata.Name, null);
         result.Add(sd);
       }
       return result;
@@ -293,12 +296,9 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(Guid providerId, string path,
+    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds)
     {
-      if (!LocalMediaProviders.ContainsKey(providerId))
-        return null;
-      IMediaProvider provider = LocalMediaProviders[providerId];
       IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
       bool success = false;
       foreach (Guid extractorId in metadataExtractorIds)
@@ -309,21 +309,20 @@ namespace MediaPortal.Core.Services.MediaManagement
         foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes.Values)
           if (!result.ContainsKey(miaMetadata.AspectId))
             result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
-        if (extractor.TryExtractMetadata(provider, path, result))
+        if (extractor.TryExtractMetadata(mediaItemAccessor, result))
           success = true;
       }
       return success ? result : null;
     }
 
-    public IMediaItemLocator GetMediaItemLocator(MediaItem item)
+    public IResourceLocator GetResourceLocator(MediaItem item)
     {
-      if (item == null)
+      if (item == null || !item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
         return null;
       MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
       string hostName = (string) providerAspect[ProviderResourceAspect.ATTR_SOURCE_COMPUTER];
-      Guid providerId = new Guid((string) providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID]);
-      string path = (string) providerAspect[ProviderResourceAspect.ATTR_PATH];
-      return new MediaItemLocator(new SystemName(hostName), providerId, path);
+      string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
+      return new ResourceLocator(new SystemName(hostName), ResourcePath.Deserialize(resourceAccessorPath));
     }
 
     #endregion
@@ -332,8 +331,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public IList<string> GetStatus()
     {
-      List<string> status = new List<string>();
-      status.Add("=== MediaManager - MediaProviders");
+      List<string> status = new List<string> {"=== MediaManager - MediaProviders"};
       foreach (IMediaProvider provider in _providers.Values)
         status.Add(string.Format("     Provider '{0}'", provider.Metadata.Name));
       status.Add("=== MediaManager - MetadataExtractors");

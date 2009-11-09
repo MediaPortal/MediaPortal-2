@@ -60,7 +60,9 @@ namespace MediaPortal.Views
     {
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       foreach (Share share in sharesManagement.Shares.Values)
-        yield return new LocalShareViewSpecification(share.ShareId, share.Name, string.Empty, _mediaItemAspectIds);
+      {
+        yield return new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath, _mediaItemAspectIds);
+      }
     }
 
     #endregion

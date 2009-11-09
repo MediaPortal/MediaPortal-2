@@ -30,7 +30,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 
 namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 {
@@ -112,9 +111,9 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public bool TryExtractMetadata(IMediaProvider provider, string path, IDictionary<Guid, MediaItemAspect> extractedAspectData)
+    public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
-      string filePath = provider.GetResourcePath(path);
+      string filePath = mediaItemAccessor.ResourcePathName;
       if (!HasMovieExtension(filePath))
         return false;
       try
@@ -134,7 +133,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           Stream stream = null;
           try
           {
-            stream = provider.OpenRead(path);
+            stream = mediaItemAccessor.OpenRead();
             mediaInfo.Open(stream);
           }
           finally
@@ -262,7 +261,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       {
         // Only log at the info level here - And simply return false. This makes the importer know that we
         // couldn't perform our task here
-        ServiceScope.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading file '{0}' (media provider: '{1}')", path, provider.Metadata.Name);
+        ServiceScope.Get<ILogger>().Info("MovieMetadataExtractor: Exception reading file '{0}'", mediaItemAccessor.LocalResourcePath);
         return false;
       }
     }

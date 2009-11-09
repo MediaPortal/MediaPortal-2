@@ -158,8 +158,7 @@ namespace MediaPortal.ClientCommunication
       DvAction updateShareAction = new DvAction("UpdateShare", OnUpdateShare,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("ProviderId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("Path", A_ARG_TYPE_ProviderPath, ArgumentDirection.In),
+            new DvArgument("BaseResourcePath", A_ARG_TYPE_ProviderPath, ArgumentDirection.In),
             new DvArgument("ShareName", A_ARG_TYPE_Name, ArgumentDirection.In),
             new DvArgument("MediaCategories", A_ARG_TYPE_MediaCategoryEnumeration, ArgumentDirection.In),
             new DvArgument("RelocateMediaItems", A_ARG_TYPE_MediaItemRelocationMode, ArgumentDirection.In),
@@ -244,11 +243,10 @@ namespace MediaPortal.ClientCommunication
     static UPnPError OnUpdateShare(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
       Guid shareId = new Guid((string) inParams[0]);
-      Guid providerId = new Guid((string) inParams[1]);
-      string path = (string) inParams[2];
-      string shareName = (string) inParams[3];
-      string[] mediaCategories = ((string) inParams[4]).Split(',');
-      string relocateMediaItems = (string) inParams[5];
+      ResourcePath baseResourcePath = ResourcePath.Deserialize((string) inParams[1]);
+      string shareName = (string) inParams[2];
+      string[] mediaCategories = ((string) inParams[3]).Split(',');
+      string relocateMediaItems = (string) inParams[4];
       RelocationMode relocationMode;
       switch (relocateMediaItems)
       {
@@ -265,7 +263,7 @@ namespace MediaPortal.ClientCommunication
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
       Share oldShare = mediaLibrary.GetShare(shareId);
       int numAffected = mediaLibrary.UpdateShare(
-          shareId, oldShare.NativeSystem, providerId, path, shareName, mediaCategories, relocationMode);
+          shareId, oldShare.NativeSystem, baseResourcePath, shareName, mediaCategories, relocationMode);
       // TODO
       //if (relocationMode == RelocationMode.Remove)
       //  ... schedule reimport of new diretory ...

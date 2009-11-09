@@ -31,7 +31,7 @@ namespace MediaPortal.Presentation.Players
   /// </summary>
   /// <remarks>
   /// When a media file should be played, the system has to find an appropriate player which is able
-  /// to play the given resource.
+  /// to play the given media item resource.
   /// Instances of this interface are able to decide if one of their managed players is able to play
   /// the given resource and can build a player for the resource.
   /// Typically, this interface will be implemented by one single class in each plugin which provides
@@ -43,27 +43,15 @@ namespace MediaPortal.Presentation.Players
   public interface IPlayerBuilder
   {
     /// <summary>
-    /// Returns the information if this player builder contains a player which is able to play the
-    /// specified media resource.
-    /// </summary>
-    /// <param name="locator">Media item locator to get access to the media resource.</param>
-    /// <param name="mimeType">Mime type of the media item, if known. If this parameter is given, the
-    /// decision if the media file can be played might be faster. If this parameter is set to <c>null</c>,
-    /// this method will potentially need more time to look into the given resource.</param>
-    /// <returns><c>true</c>, if the specified media resource can be played by one of the managed players,
-    /// else <c>false</c>.</returns>
-    bool CanPlay(IMediaItemLocator locator, string mimeType);
-
-    /// <summary>
     /// Returns an appropriate player to play the specified media resource.
     /// </summary>
-    /// <param name="locator">Media item locator to get access to the media resource.</param>
+    /// <param name="locator">Resource locator to get access to the media resource.</param>
     /// <param name="mimeType">Mime type of the media item, if known. If this parameter is given, the
     /// method might be able to return faster. If this parameter is set to <c>null</c>,
     /// this method will potentially need to look into the given resource before it is able to choose
     /// an appropriate player for it.</param>
     /// <returns>Player instance which is able to play the specified resource, or <c>null</c>, if there
     /// is no player available in this player builder which can play it.</returns>
-    IPlayer GetPlayer(IMediaItemLocator locator, string mimeType);
+    IPlayer GetPlayer(IResourceLocator locator, string mimeType);
   }
 }

@@ -28,16 +28,13 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.FileEventNotification;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.MediaProviders;
-using MediaPortal.Utilities;
-using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 {
   /// <summary>
   /// Media provider implementation for the local filesystem.
   /// </summary>
-  public class LocalFsMediaProvider : LocalFsMediaProviderBase, IFileSystemMediaProvider, IMediaSourceChangeNotifier
+  public class LocalFsMediaProvider : LocalFsMediaProviderBase, IBaseMediaProvider
   {
     protected class ChangeTrackerRegistrationKey
     {
@@ -104,7 +101,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     public LocalFsMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(PROVIDER_ID, "[LocalFsMediaProvider.Name]");
+      _metadata = new MediaProviderMetadata(PROVIDER_ID, "[LocalFsMediaProvider.Name]", false);
     }
 
     #endregion
@@ -116,7 +113,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       IEnumerable<ChangeTrackerRegistrationKey> ctrks = GetAllChangeTrackerRegistrationsByPath(sender.Path);
       MediaSourceChangeType changeType = TranslateChangeType(args.ChangeType);
       foreach (ChangeTrackerRegistrationKey key in ctrks)
-        key.PathChangeDelegate(this, args.OldPath, args.Path, changeType);
+        key.PathChangeDelegate(new LocalFsResourceAccessor(this, args.Path), args.OldPath, changeType);
     }
 
     protected ICollection<ChangeTrackerRegistrationKey> GetAllChangeTrackerRegistrationsByPath(string path)
@@ -183,109 +180,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     #endregion
 
-    #region IFileSystemMediaProvider implementation
-
-    public MediaProviderMetadata Metadata
-    {
-      get { return _metadata; }
-    }
-
-    public Stream OpenRead(string path)
-    {
-      string dosPath = ToDosPath(path);
-      if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
-        return null;
-      return File.OpenRead(dosPath);
-    }
-
-    public Stream OpenWrite(string path)
-    {
-      string dosPath = ToDosPath(path);
-      if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
-        return null;
-      return File.OpenWrite(dosPath);
-    }
-
-    public bool IsDirectory(string path)
-    {
-      string dosPath = ToDosPath(path);
-      if (string.IsNullOrEmpty(dosPath))
-        return false;
-      return Directory.Exists(dosPath);
-    }
-
-    public ICollection<string> GetFiles(string path)
-    {
-      if (string.IsNullOrEmpty(path))
-        return null;
-      if (path == "/")
-        // No files at root level - there are only logical drives
-        return new List<string>();
-      string dosPath = ToDosPath(path);
-      if (!Directory.Exists(dosPath))
-        return null;
-      return ConcatPaths(path, Directory.GetFiles(dosPath), false);
-    }
-
-    public ICollection<string> GetChildDirectories(string path)
-    {
-      if (string.IsNullOrEmpty(path))
-        return null;
-      if (path == "/")
-      {
-        ICollection<string> result = new List<string>();
-        foreach (string drive in Directory.GetLogicalDrives())
-        {
-          if (!new DriveInfo(drive).IsReady)
-            continue;
-          result.Add("/" + FileUtils.RemoveTrailingPathDelimiter(drive) + "/");
-        }
-        return result;
-      }
-      string dosPath = ToDosPath(path);
-      if (!Directory.Exists(dosPath))
-        return null;
-      return ConcatPaths(path, Directory.GetDirectories(dosPath), true);
-    }
-
-    public bool IsResource(string path)
-    {
-      if (string.IsNullOrEmpty(path) || path == "/")
-        return false;
-      string dosPath = ToDosPath(path);
-      return File.Exists(dosPath) || Directory.Exists(dosPath);
-    }
-
-    public string GetResourceName(string path)
-    {
-      if (string.IsNullOrEmpty(path))
-        return null;
-      if (path == "/")
-        return "/";
-      if (!path.StartsWith("/"))
-        return null;
-      path = path.Substring(1);
-      if (path.EndsWith(":/"))
-      {
-        DriveInfo di = new DriveInfo(path);
-        return di.IsReady ? string.Format("{0} [{1}]", di.VolumeLabel, path) : path;
-      }
-      path = StringUtils.RemoveSuffixIfPresent(path, "/");
-      return Path.GetFileName(path);
-    }
-
-    public string GetResourcePath(string path)
-    {
-      if (string.IsNullOrEmpty(path))
-        return null;
-      if (path == "/")
-        return "/";
-      return ToDosPath(path);
-    }
-
-    #endregion
-
-    #region IMediaSourceChangeNotifier implementation
+    #region Public methods
 
     public void RegisterChangeTracker(PathChangeDelegate changeDelegate,
         string path, IEnumerable<string> fileNameFilters, IEnumerable<MediaSourceChangeType> changeTypes)
@@ -313,6 +208,32 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       foreach (ChangeTrackerRegistrationKey key in oldKeys)
         if (key.PathChangeDelegate.Equals(changeDelegate))
           _changeTrackers.Remove(key);
+    }
+
+    #endregion
+
+    #region IBaseMediaProvider implementation
+
+    public MediaProviderMetadata Metadata
+    {
+      get { return _metadata; }
+    }
+
+    public IResourceAccessor CreateMediaItemAccessor(string path)
+    {
+      if (!IsResource(path))
+        throw new ArgumentException(string.Format("The resource described by path '{0}' doesn't exist", path));
+      return new LocalFsResourceAccessor(this, path);
+    }
+
+    public bool IsResource(string path)
+    {
+      if (string.IsNullOrEmpty(path))
+        return false;
+      if (path == "/")
+        return true;
+      string dosPath = ToDosPath(path);
+      return File.Exists(dosPath) || Directory.Exists(dosPath);
     }
 
     #endregion

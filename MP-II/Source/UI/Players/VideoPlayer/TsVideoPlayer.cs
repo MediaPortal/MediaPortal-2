@@ -141,7 +141,7 @@ namespace Ui.Players.Video
       _renderer.SetPlayer(this);
 
       IFileSourceFilter f = (IFileSourceFilter)_fileSource;
-      f.Load(_mediaItemAccessor.LocalFileSystemPath, null);
+      f.Load(_resourceAccessor.LocalFileSystemPath, null);
     }
 
     protected override void OnBeforeGraphRunning()

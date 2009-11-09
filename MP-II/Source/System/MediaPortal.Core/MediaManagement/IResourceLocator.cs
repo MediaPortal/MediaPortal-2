@@ -24,56 +24,49 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
   /// Encapsulates the data needed to locate a specific media item.
-  /// To locate a media item, we basically need its <see cref="SystemName"/>, the <see cref="Guid"/> of its
-  /// <see cref="IMediaProvider"/> and its path into the media provider. This triple of data identifies a media item
-  /// uniquely in an MP-II system.
-  /// But to access a media item, a local endpoint is needed, so for accessing it, an <see cref="IMediaItemAccessor"/> can
-  /// be built from this item locator.
   /// </summary>
-  public interface IMediaItemLocator
+  /// <remarks>
+  /// To locate a media item, we basically need its <see cref="NativeSystem"/> and its <see cref="NativeResourcePath"/> for
+  /// its native system. This pair of data identifies a media item uniquely in an MP-II system.
+  /// </remarks>
+  public interface IResourceLocator
   {
     /// <summary>
     /// Gets the system where the media item is located originally.
     /// </summary>
-    SystemName SystemName { get; }
+    SystemName NativeSystem { get; }
 
     /// <summary>
-    /// Gets the id of the media provider which provides access to the original media item. The media provider specified
-    /// by this id is installed in the media portal instance which is specified by the <see cref="SystemName"/>.
+    /// Gets the resource path in the <see cref="NativeSystem"/> of the media item. This path must be evaluated
+    /// at the media item's native system.
     /// </summary>
-    Guid MediaProviderId { get; }
+    ResourcePath NativeResourcePath { get; }
 
     /// <summary>
-    /// Gets the path to the media provider to get the original media item.
-    /// </summary>
-    string Path { get; }
-
-    /// <summary>
-    /// Creates a temporary media item accessor.
+    /// Creates a temporary resource accessor.
     /// </summary>
     /// <remarks>
     /// The returned instance implements <see cref="IDisposable"/> and
     /// must be disposed after usage.
     /// The usage of a construct like this is strongly recommended:
     /// <code>
-    ///   IMediaItemLocator locator = ...;
-    ///   using (IMediaItemAccessor accessor = locator.CreateAccessor())
+    ///   IResourceLocator locator = ...;
+    ///   using (IResourceAccessor accessor = locator.CreateAccessor())
     ///   {
     ///     ...
     ///   }
     /// </code>
     /// </remarks>
-    /// <returns>Media item accessor to the media item specified by this instance.</returns>
-    IMediaItemAccessor CreateAccessor();
+    /// <returns>Resource accessor to the media item specified by this instance.</returns>
+    IResourceAccessor CreateAccessor();
 
     /// <summary>
-    /// Creates a media item accessor which is able to provide a path in the local filesystem.
+    /// Creates a resource accessor which is able to provide a path in the local filesystem.
     /// This is necessary for some players to be able to play the media item content.
     /// </summary>
     /// <remarks>
@@ -81,15 +74,15 @@ namespace MediaPortal.Core.MediaManagement
     /// must be disposed after usage.
     /// The usage of a construct like this is strongly recommended:
     /// <code>
-    ///   IMediaItemLocator locator = ...;
-    ///   using (IMediaItemLocalFsAccessor accessor = locator.CreateLocalFsAccessor())
+    ///   IResourceLocator locator = ...;
+    ///   using (ILocalFsResourceAccessor accessor = locator.CreateLocalFsAccessor())
     ///   {
     ///     ...
     ///   }
     /// </code>
     /// </remarks>
-    /// <returns>Media item accessor to a local filesystem resource containing the contents of the media item
+    /// <returns>Resource accessor to a local filesystem resource containing the contents of the media item
     /// specified by this instance.</returns>
-    IMediaItemLocalFsAccessor CreateLocalFsAccessor();
+    ILocalFsResourceAccessor CreateLocalFsAccessor();
   }
 }

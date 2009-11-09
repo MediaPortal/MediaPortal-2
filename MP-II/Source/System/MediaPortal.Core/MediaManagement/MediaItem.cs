@@ -83,9 +83,8 @@ namespace MediaPortal.Core.MediaManagement
         return false;
       MediaItemAspect myProviderAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
       MediaItemAspect otherProviderAspect = other._aspects[ProviderResourceAspect.ASPECT_ID];
-      return
-          myProviderAspect[ProviderResourceAspect.ATTR_PROVIDER_ID] == otherProviderAspect[ProviderResourceAspect.ATTR_PROVIDER_ID] &&
-          myProviderAspect[ProviderResourceAspect.ATTR_PATH] == otherProviderAspect[ProviderResourceAspect.ATTR_PATH];
+      return myProviderAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH] ==
+          otherProviderAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
     }
 
     #endregion
@@ -95,8 +94,7 @@ namespace MediaPortal.Core.MediaManagement
     public override int GetHashCode()
     {
       MediaItemAspect providerAspect = _aspects[ProviderResourceAspect.ASPECT_ID];
-      return providerAspect[ProviderResourceAspect.ATTR_PROVIDER_ID].GetHashCode() +
-          providerAspect[ProviderResourceAspect.ATTR_PATH].GetHashCode();
+      return providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH].GetHashCode();
     }
 
     public override bool Equals(object obj)

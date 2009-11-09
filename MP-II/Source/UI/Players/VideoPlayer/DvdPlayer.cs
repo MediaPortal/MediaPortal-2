@@ -261,7 +261,7 @@ namespace Ui.Players.Video
         if (_dvdCtrl != null)
         {
           _dvdInfo = _dvdbasefilter as IDvdInfo2;
-          string path = Path.GetDirectoryName(_mediaItemAccessor.LocalFileSystemPath);
+          string path = Path.GetDirectoryName(_resourceAccessor.LocalFileSystemPath);
           if (path[path.Length - 1] != Path.VolumeSeparatorChar)
           {
             if (path.Length != 0)

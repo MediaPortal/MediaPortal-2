@@ -22,8 +22,7 @@
 
 #endregion
 
-
-namespace MediaPortal.Core.MediaManagement.MediaProviders
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
   /// Changes that might occur to a media source item or path.

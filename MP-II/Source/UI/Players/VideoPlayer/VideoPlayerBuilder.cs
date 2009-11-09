@@ -25,9 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.MediaManagement.MediaProviders;
 using MediaPortal.Presentation.Players;
 
 namespace Ui.Players.Video
@@ -49,14 +47,9 @@ namespace Ui.Players.Video
       // TODO: Go on with mime types mapping
     }
 
-    protected static Type GetPlayerTypeForMediaItem(IMediaItemLocator locator, string mimeType)
+    protected static Type GetPlayerTypeForMediaItem(ILocalFsResourceAccessor accessor, string mimeType)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      IMediaProvider mediaProvider;
-      // TODO: Use media item accessor built by locator instead of local media providers
-      if (!mediaAccessor.LocalMediaProviders.TryGetValue(locator.MediaProviderId, out mediaProvider))
-        return null;
-      string path = mediaProvider.GetResourcePath(locator.Path);
+      string path = accessor.ResourcePathName;
       string extension = Path.GetExtension(path).ToLowerInvariant();
       Type playerType;
       if (mimeType != null)
@@ -71,14 +64,10 @@ namespace Ui.Players.Video
 
     #region IPlayerBuilder implementation
 
-    public bool CanPlay(IMediaItemLocator locator, string mimeType)
+    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      return GetPlayerTypeForMediaItem(locator, mimeType) != null;
-    }
-
-    public IPlayer GetPlayer(IMediaItemLocator locator, string mimeType)
-    {
-      Type playerType = GetPlayerTypeForMediaItem(locator, mimeType);
+      ILocalFsResourceAccessor accessor = locator.CreateLocalFsAccessor();
+      Type playerType = GetPlayerTypeForMediaItem(accessor, mimeType);
       if (playerType == null)
         return null;
       IInitializablePlayer player = (IInitializablePlayer) Activator.CreateInstance(playerType);

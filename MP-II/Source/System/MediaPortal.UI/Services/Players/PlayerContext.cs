@@ -84,7 +84,7 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    protected static bool GetItemData(MediaItem item, out IMediaItemLocator locator, out string mimeType,
+    protected static bool GetItemData(MediaItem item, out IResourceLocator locator, out string mimeType,
         out string mediaItemTitle)
     {
       locator = null;
@@ -93,7 +93,7 @@ namespace MediaPortal.Services.Players
       if (item == null)
         return false;
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      locator = mediaAccessor.GetMediaItemLocator(item);
+      locator = mediaAccessor.GetResourceLocator(item);
       MediaItemAspect mediaAspect = item[MediaAspect.ASPECT_ID];
       mimeType = (string) mediaAspect[MediaAspect.ATTR_MIME_TYPE];
       mediaItemTitle = (string) mediaAspect[MediaAspect.ATTR_TITLE];
@@ -216,7 +216,7 @@ namespace MediaPortal.Services.Players
 
     public bool DoPlay(MediaItem item)
     {
-      IMediaItemLocator locator;
+      IResourceLocator locator;
       string mimeType;
       string mediaItemTitle;
       if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
@@ -224,7 +224,7 @@ namespace MediaPortal.Services.Players
       return DoPlay(locator, mimeType, mediaItemTitle);
     }
 
-    public bool DoPlay(IMediaItemLocator locator, string mimeType, string mediaItemTitle)
+    public bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle)
     {
       IPlayerSlotController psc = _slotController;
       if (psc == null)

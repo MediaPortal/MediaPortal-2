@@ -3,7 +3,7 @@
 /*
     Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
-
+ 
     This file is part of MediaPortal II
 
     MediaPortal II is free software: you can redistribute it and/or modify
@@ -27,21 +27,25 @@ using System;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Temporary local filesystem accessor instance for a media item which might located anywhere in an MP-II system.
-  /// Via this instance, the media item, which potentially is located in a remote system, can be accessed
-  /// via a <see cref="LocalFileSystemPath"/>.
+  /// Interface to provide access to physical media files specified by a path.
   /// </summary>
-  /// <remarks>
-  /// To get a local filesystem media item accessor, get an <see cref="IMediaItemAccessor"/> and use its
-  /// <see cref="IMediaItemLocator.CreateLocalFsAccessor"/> method.
-  /// The temporary local filesystem media item accessor must be disposed using its
-  /// <see cref="IDisposable.Dispose"/> method when it is not needed any more.
-  /// </remarks>
-  public interface IMediaItemLocalFsAccessor : IDisposable
+  public interface IBaseMediaProvider : IMediaProvider
   {
     /// <summary>
-    /// Gets a path in the local filesystem where the represented media item is located.
+    /// Creates a resource accessor for the given <paramref name="path"/>.
     /// </summary>
-    string LocalFileSystemPath { get; }
+    /// <param name="path">Path to be accessed by the result resource accessor.</param>
+    /// <returns>Resource accessor instance.</returns>
+    /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
+    /// described by the path doesn't exist.</exception>
+    IResourceAccessor CreateMediaItemAccessor(string path);
+
+    /// <summary>
+    /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider.
+    /// </summary>
+    /// <param name="path">Path to evaluate.</param>
+    /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
+    /// else <c>false</c>.</returns>
+    bool IsResource(string path);
   }
 }

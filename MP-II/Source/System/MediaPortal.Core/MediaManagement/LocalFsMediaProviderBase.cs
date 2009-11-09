@@ -22,14 +22,12 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Base methods of the local filesystem media provider which are needed in the media manager.
+  /// Base methods of the local filesystem media provider which are needed in the media accessor.
   /// </summary>
   public class LocalFsMediaProviderBase
   {
@@ -46,16 +44,6 @@ namespace MediaPortal.Core.MediaManagement
     public static string ToProviderPath(string dosPath)
     {
       return "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/');
-    }
-
-    protected static ICollection<string> ConcatPaths(string rootPath,
-        IEnumerable<string> namesWithPathPrefix, bool isDirectory)
-    {
-      rootPath = StringUtils.CheckSuffix(rootPath, "/");
-      ICollection<string> result = new List<string>();
-      foreach (string file in namesWithPathPrefix)
-        result.Add(rootPath + Path.GetFileName(file) + (isDirectory ? "/" : string.Empty));
-      return result;
     }
 
     #endregion

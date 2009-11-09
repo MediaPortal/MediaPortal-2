@@ -100,7 +100,6 @@ namespace MediaPortal
 #endif
 
         // TODO
-        //ServiceScope.Add<IGlobalSharesManagement>(...);
         //ServiceScope.Add<IImporter>(...);
 
         BackendExtension.RegisterBackendServices();

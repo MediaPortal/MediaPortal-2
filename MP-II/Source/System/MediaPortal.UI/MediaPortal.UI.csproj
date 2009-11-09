@@ -149,7 +149,7 @@
     <Compile Include="UserManagement\IUser.cs" />
     <Compile Include="UserManagement\IUserService.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
-    <Compile Include="Views\LocalShareViewSpecification.cs" />
+    <Compile Include="Views\LocalDirectoryViewSpecification.cs" />
     <Compile Include="Views\MediaLibraryViewSpecification.cs" />
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />

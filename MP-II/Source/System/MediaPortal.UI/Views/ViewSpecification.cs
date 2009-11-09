@@ -90,7 +90,8 @@ namespace MediaPortal.Views
 
     /// <summary>
     /// Returns the information if the view specified by this instance currently can be built (i.e. if all of its
-    /// providers/shares are present).
+    /// providers/shares are present). If the task to check that is too complicated, implementors also can fail in the
+    /// methods <see cref="ReLoadItems"/> and/or <see cref="ReLoadSubViewSpecifications"/>.
     /// </summary>
     public abstract bool CanBeBuilt { get; }
 
@@ -106,6 +107,8 @@ namespace MediaPortal.Views
     /// Loading and Reloading of media items.
     /// </remarks>
     /// <returns>Media items in a view specified by this specification.</returns>
+    /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
+    /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
     internal abstract IEnumerable<MediaItem> ReLoadItems();
 
     /// <summary>
@@ -118,6 +121,7 @@ namespace MediaPortal.Views
     /// Loading and Reloading of sub views.
     /// </remarks>
     /// <returns>Sub views of a view specified by this specification.</returns>
+    /// <exception cref="Exception">If there are problems accessing the datasource of this view.</exception>
     internal abstract IEnumerable<ViewSpecification> ReLoadSubViewSpecifications();
 
     #region Additional members for the XML serialization

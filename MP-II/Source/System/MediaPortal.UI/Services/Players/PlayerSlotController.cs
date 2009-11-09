@@ -63,10 +63,10 @@ namespace MediaPortal.Services.Players
     /// <summary>
     /// Creates a new player for the specified <paramref name="locator"/> and <paramref name="mimeType"/>.
     /// </summary>
-    /// <param name="locator">Media item locator of the media item to be played.</param>
+    /// <param name="locator">Resource locator of the media item to be played.</param>
     /// <param name="mimeType">Mime type of the media item to be played. May be <c>null</c>.</param>
     /// <returns><c>true</c>, if the player could be created, else <c>false</c>.</returns>
-    internal bool CreatePlayer(IMediaItemLocator locator, string mimeType)
+    internal bool CreatePlayer(IResourceLocator locator, string mimeType)
     {
       lock (_playerManager.SyncObj)
       {
@@ -238,10 +238,10 @@ namespace MediaPortal.Services.Players
           // Suppress "PlayerStopped" message if slot was activated
           switch (slotState)
           {
-            case Presentation.Players.PlayerSlotState.Inactive:
+            case PlayerSlotState.Inactive:
               PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotDeactivated, this);
               break;
-            case Presentation.Players.PlayerSlotState.Playing:
+            case PlayerSlotState.Playing:
               PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotStarted, this);
               break;
             // Presentation.Players.PlayerSlotState.Stopped:
@@ -369,7 +369,7 @@ namespace MediaPortal.Services.Players
       }
     }
 
-    public bool Play(IMediaItemLocator locator, string mimeType, string mediaItemTitle)
+    public bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle)
     {
       bool result = false;
       lock (SyncObj)

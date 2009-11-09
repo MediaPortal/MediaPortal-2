@@ -22,42 +22,26 @@
 
 #endregion
 
-using System;
-
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Holds all metadata for a the media provider specified by the <see cref="MediaProviderId"/>
+  /// Interface to provide access to physical media files.
   /// </summary>
-  public class MediaProviderMetadata
+  /// <remarks>
+  /// <para>
+  /// This interface is the root interface for all media providers. Media providers are separated into
+  /// <see cref="IBaseMediaProvider"/>s and <see cref="IStackedMediaProvider"/>s. See their interface docs for more
+  /// information.
+  /// </para>
+  /// <para>
+  /// The media provider is partitioned in its metadata part (see <see cref="Metadata"/>) and this worker class.
+  /// </para>
+  /// </remarks>
+  public interface IMediaProvider
   {
-    #region Protected fields
-
-    protected Guid _mediaProviderId;
-    protected string _name;
-
-    #endregion
-
-    public MediaProviderMetadata(Guid mediaProviderId, string name)
-    {
-      _mediaProviderId = mediaProviderId;
-      _name = name;
-    }
-
     /// <summary>
-    /// GUID which uniquely identifies the media provider.
+    /// Metadata descriptor for this media provider.
     /// </summary>
-    public Guid MediaProviderId
-    {
-      get { return _mediaProviderId; }
-    }
-
-    /// <summary>
-    /// Returns the name of the media provider.
-    /// </summary>
-    public string Name
-    {
-      get { return _name; }
-    }
+    MediaProviderMetadata Metadata { get; }
   }
 }

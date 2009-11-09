@@ -132,8 +132,8 @@ namespace Ui.Players.Video
     protected bool _isMuted = false;
     protected bool _initialized = false;
     protected readonly List<IPin> _evrConnectionPins = new List<IPin>();
-    protected IMediaItemLocator _mediaItemLocator;
-    protected IMediaItemLocalFsAccessor _mediaItemAccessor;
+    protected IResourceLocator _resourceLocator;
+    protected ILocalFsResourceAccessor _resourceAccessor;
     protected string _mediaItemTitle = null;
     protected PlayerEventDlgt _started = null;
     protected PlayerEventDlgt _stateReady = null;
@@ -159,9 +159,9 @@ namespace Ui.Players.Video
 
     public void Dispose()
     {
-      if (_mediaItemAccessor != null)
-        _mediaItemAccessor.Dispose();
-      _mediaItemAccessor = null;
+      if (_resourceAccessor != null)
+        _resourceAccessor.Dispose();
+      _resourceAccessor = null;
       UnsubscribeFromMessages();
     }
 
@@ -223,14 +223,19 @@ namespace Ui.Players.Video
 
     #region IInitializablePlayer implementation
 
-    public void SetMediaItemLocator(IMediaItemLocator locator)
+    public void SetMediaItemLocator(IResourceLocator locator)
     {
-      _mediaItemLocator = locator;
-      _mediaItemAccessor = _mediaItemLocator.CreateLocalFsAccessor();
+      if (_resourceAccessor != null)
+      {
+        _resourceAccessor.Dispose();
+        _resourceAccessor = null;
+      }
+      _resourceLocator = locator;
+      _resourceAccessor = _resourceLocator.CreateLocalFsAccessor();
       _state = PlayerState.Active;
       _isPaused = true;
       _vertices = new PositionColored2Textured[4];
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initializing for media file '{0}'", _mediaItemAccessor.LocalFileSystemPath);
+      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initializing for media file '{0}'", _resourceAccessor.LocalFileSystemPath);
 
       try
       {
@@ -414,7 +419,7 @@ namespace Ui.Players.Video
     protected virtual void AddPreferredCodecs()
     {
       VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
-      string ext = Path.GetExtension(_mediaItemAccessor.LocalFileSystemPath);
+      string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
       if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
       {
         //_videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "CoreAVC Video Decoder");
@@ -504,7 +509,7 @@ namespace Ui.Players.Video
     protected virtual void AddFileSource()
     {
       // Render the file
-      int hr = _graphBuilder.RenderFile(_mediaItemAccessor.LocalFileSystemPath, null);
+      int hr = _graphBuilder.RenderFile(_resourceAccessor.LocalFileSystemPath, null);
       DsError.ThrowExceptionForHR(hr);
     }
 
@@ -547,7 +552,7 @@ namespace Ui.Players.Video
     {
       StopSeeking();
       _initialized = false;
-      lock (_mediaItemAccessor)
+      lock (_resourceAccessor)
       {
         ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop playing");
         int hr = 0;
@@ -737,7 +742,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        lock (_mediaItemAccessor)
+        lock (_resourceAccessor)
         {
           if (!_initialized || !(_graphBuilder is IMediaSeeking))
             return new TimeSpan();
@@ -793,7 +798,7 @@ namespace Ui.Players.Video
     {
       get
       {
-        lock (_mediaItemAccessor)
+        lock (_resourceAccessor)
         {
           if (!_initialized || !(_graphBuilder is IMediaSeeking))
             return new TimeSpan();

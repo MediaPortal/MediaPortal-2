@@ -23,40 +23,34 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Core.Services.MediaManagement
 {
-  internal interface ITidyUpExecutor
+  public abstract class ResourceAccessorBase : IDisposable
   {
-    void Execute();
-  }
+    internal ICollection<ITidyUpExecutor> _tidyUpExecutors = null;
 
-  public class MediaItemAccessorBase : IDisposable
-  {
-    protected MediaItemLocator _locator;
-    internal ITidyUpExecutor _tidyUpExecutor;
-
-    internal MediaItemAccessorBase(MediaItemLocator locator, ITidyUpExecutor tidyUpExecutor)
-    {
-      _locator = locator;
-      _tidyUpExecutor = tidyUpExecutor;
-    }
-
-    ~MediaItemAccessorBase()
+    ~ResourceAccessorBase()
     {
       Dispose();
     }
 
     public void Dispose()
     {
-      if (_tidyUpExecutor != null)
-        _tidyUpExecutor.Execute();
-      _tidyUpExecutor = null;
+      if (_tidyUpExecutors == null)
+        return;
+      foreach (ITidyUpExecutor executor in _tidyUpExecutors)
+        executor.Execute();
+      _tidyUpExecutors.Clear();
     }
 
-    public MediaItemLocator Locator
+    public void AddTidyUpExecutor(ITidyUpExecutor executor)
     {
-      get { return _locator; }
+      if (_tidyUpExecutors == null)
+        _tidyUpExecutors = new List<ITidyUpExecutor>();
+      _tidyUpExecutors.Add(executor);
     }
   }
 }
