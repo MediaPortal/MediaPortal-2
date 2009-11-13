@@ -32,16 +32,17 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Encapsulates a path expression (resource or directory) which describes a resource provider chain in MediaPortal.
+  /// Encapsulates a path expression which describes a resource provider chain to a file or directory in MediaPortal.
   /// </summary>
   /// <remarks>
   /// <para>
   /// In MediaPortal, a resource is identified by the id of a media provider and a path which is sensible to that provider.
-  /// Providers can be stacked in that way that a so called "base provider" provides access to a resource (e.g. from
+  /// Providers can be chained in that way that a so called "base provider" provides access to a resource (e.g. from
   /// the local HDD, form an FTP server, from an HTTP site, ...) by providing a <see cref="Stream"/> instance. If this
   /// resource is able to be interpreted as an archive, for example, then an archive provider (which is able to handle such
-  /// an archive resource) can be stacked upon the resource provider chain. There can be any number of providers stacked
-  /// upon an existing resource provider chain.
+  /// an archive resource) can be chained to the base provider, reading the archive contents from the stream.
+  /// Such a chain of providers is called a resource provider chain. There can be any number of providers chained
+  /// to an existing resource provider chain.
   /// </para>
   /// <para>
   /// A <see cref="ResourcePath"/> consists of one or more <see cref="ProviderPathSegment"/>s, describing a resource
@@ -53,21 +54,21 @@ namespace MediaPortal.Core.MediaManagement
   /// <example>
   /// A file at the local HDD with file name <c>D:\Media\R.E.M\Around the sun\R.E.M. - Electron Blue.mp3</c> will be
   /// described by the resource path:
-  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://D:\Media\R.E.M\Around the sun\R.E.M. - Electron Blue.mp3</code>
+  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://D:/Media/R.E.M/Around the sun/R.E.M. - Electron Blue.mp3</code>
   /// where <c>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}</c> is the id of the local HDD provider.
   /// </example>
   /// A more complex example:
   /// <example>
-  /// Think of an image file with a CUE descriptor. The CUE descriptor file is located at the local HDD path
-  /// <c>D:\Media\ISOs\MP3s.cue</c> and thus will be accessed by the local HDD provider. The image itself is navigated
-  /// using the CUE provider. Inside the image, which is described by the CUE file, there is a RAR archive of name
-  /// <c>R.E.M. - Around The Sun.rar</c>, which is accessed using the RAR provider. The complete path looks like this:
-  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://D:\Media\ISOs\MP3s.cue>{90C92668-DBBF-47b3-935E-B84426A96105}://R.E.M. - Around The Sun.rar>{10C18F11-854A-470e-9C47-ECF9EF867066}://R.E.M. - Electron Blue.mp3</code>
-  /// List of the providers:
+  /// Think of a CD image file, located at the local HDD path <c>D:\Media\ISOs\MP3s.iso</c> and thus will be accessed
+  /// by the local HDD provider. The image itself is navigated using the ISO provider. Inside the image, there is a
+  /// RAR archive of name <c>R.E.M. - Around The Sun.rar</c>, which is accessed using the RAR provider. The complete
+  /// path looks like this:
+  /// <code>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}://D:/Media/ISOs/MP3s.iso&gt;{90C92668-DBBF-47b3-935E-B84426A96105}://R.E.M. - Around The Sun.rar&gt;{10C18F11-854A-470e-9C47-ECF9EF867066}://R.E.M. - Electron Blue.mp3</code>
+  /// List of the providers used in that example:
   /// <list type="table">
   /// <listheader><term>Provider id</term><description>Provider name</description></listheader>
   /// <item><term><c>{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}</c></term><description>Local HDD provider</description></item>
-  /// <item><term><c>{90C92668-DBBF-47b3-935E-B84426A96105}</c></term><description>CUE image provider</description></item>
+  /// <item><term><c>{90C92668-DBBF-47b3-935E-B84426A96105}</c></term><description>ISO image provider</description></item>
   /// <item><term><c>{10C18F11-854A-470e-9C47-ECF9EF867066}</c></term><description>RAR archive provider</description></item>
   /// </list>
   /// </example>
@@ -103,6 +104,16 @@ namespace MediaPortal.Core.MediaManagement
     public ProviderPathSegment BasePathSegment
     {
       get { return _pathSegments.Count == 0 ? null : _pathSegments[0]; }
+    }
+
+    public string FileName
+    {
+      get
+      {
+        if (_pathSegments.Count == 0)
+          return null;
+        return Path.GetFileName(_pathSegments[_pathSegments.Count-1].Path);
+      }
     }
 
     /// <summary>
@@ -147,12 +158,12 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Serializes this resource path to a string.
+    /// Serializes this resource path to its string representation.
     /// </summary>
     /// <remarks>
     /// See the class docs of <see cref="ResourcePath"/> for examples of serialized resource paths.
     /// </remarks>
-    /// <returns><see cref="string"/> instance of the form described in the class docs of this class.</returns>
+    /// <returns>A string instance of the form described in the class docs of this class.</returns>
     public string Serialize()
     {
       string result = string.Empty;
@@ -162,7 +173,7 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Deserializes a resource path to a <see cref="ResourcePath"/> instance.
+    /// Deserializes a resource path in its string representation to a <see cref="ResourcePath"/> instance.
     /// </summary>
     /// <remarks>
     /// See the class docs of <see cref="ResourcePath"/> for examples of serialized resource paths.
@@ -182,7 +193,8 @@ namespace MediaPortal.Core.MediaManagement
 
     /// <summary>
     /// Checks if a resource provider chain for this resource path can be created in the local system.
-    /// This method only checks the availability of providers; it doesn't check if the given resource can be accessed.
+    /// This method only checks the availability of providers; it doesn't check if the given path is available
+    /// in the providers.
     /// </summary>
     public void CheckValidLocalPath()
     {
@@ -209,16 +221,16 @@ namespace MediaPortal.Core.MediaManagement
         }
         else
         {
-          IStackedMediaProvider stackedProvider = mediaProvider as IStackedMediaProvider;
-          if (stackedProvider == null)
-            throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IStackedMediaProvider).Name);
+          IChainedMediaProvider chainedProvider = mediaProvider as IChainedMediaProvider;
+          if (chainedProvider == null)
+            throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedMediaProvider).Name);
         }
       } while (enumer.MoveNext());
     }
 
     /// <summary>
     /// Creates a local resource provider chain for this resource path, if it is a local path
-    /// (see <see cref="IsValidLocalPath"/>), and returns its result <see cref="IResourceAccessor"/>.
+    /// (see <see cref="CheckValidLocalPath"/>), and returns its result in a <see cref="IResourceAccessor"/> instance.
     /// </summary>
     /// <returns>Resource accessor to access the resource denoted by this path.</returns>
     /// <exception cref="IllegalCallException">If one of the referenced media providers is not available in the system or
@@ -255,12 +267,12 @@ namespace MediaPortal.Core.MediaManagement
           }
           else
           {
-            IStackedMediaProvider stackedProvider = mediaProvider as IStackedMediaProvider;
-            if (stackedProvider == null)
-              throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IStackedMediaProvider).Name);
+            IChainedMediaProvider chainedProvider = mediaProvider as IChainedMediaProvider;
+            if (chainedProvider == null)
+              throw new IllegalCallException("The media provider with id '{0}' does not implement the {1} interface", pathSegment.ProviderId, typeof(IChainedMediaProvider).Name);
             try
             {
-              resourceAccessor = stackedProvider.CreateResourceAccessor(resourceAccessor, pathSegment.Path);
+              resourceAccessor = chainedProvider.CreateResourceAccessor(resourceAccessor, pathSegment.Path);
             }
             catch (ArgumentException e)
             {
@@ -276,6 +288,33 @@ namespace MediaPortal.Core.MediaManagement
         throw;
       }
       return resourceAccessor;
+    }
+
+    /// <summary>
+    /// Appends the given provider path segment to this resource path.
+    /// </summary>
+    /// <exception cref="IllegalCallException">If the media provider with the given <paramref name="providerId"/> is not
+    /// present in the local system or if it is no chained provider.</exception>
+    public void Append(Guid providerId, string providerPath)
+    {
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      IMediaProvider mediaProvider;
+      if (!mediaAccessor.LocalMediaProviders.TryGetValue(providerId, out mediaProvider))
+        throw new ArgumentException(string.Format("The media provider with id '{0}' is not accessible in the current system", providerId));
+      if (!(mediaProvider is IChainedMediaProvider))
+        throw new ArgumentException(string.Format("The media provider with id '{0}' does not implement the {1} interface", providerId, typeof(IChainedMediaProvider).Name));
+      _pathSegments.Add(new ProviderPathSegment(providerId, providerPath, false));
+    }
+
+    /// <summary>
+    /// Appends the given provider path segment to this resource path.
+    /// </summary>
+    /// <exception cref="ArgumentException">If the given path segment is a base path segment and thus cannot be appended to this resource path.</exception>
+    public void Append(ProviderPathSegment providerPathSegment)
+    {
+      if (providerPathSegment.IsBaseSegment)
+        throw new ArgumentException(string.Format("Path segment '{0}' is a base path segment and cannot be appended to the resource path '{1}'", providerPathSegment.Serialize(), Serialize()));
+      _pathSegments.Add(providerPathSegment);
     }
 
     #region IEnumerable<ProviderPathSegment> implementation

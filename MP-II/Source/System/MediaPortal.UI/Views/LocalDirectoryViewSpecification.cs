@@ -120,8 +120,6 @@ namespace MediaPortal.Views
     internal override IEnumerable<MediaItem> ReLoadItems()
     {
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
-      if (!(baseResourceAccessor is IFileSystemResourceAccessor))
-        yield break;
       ICollection<Guid> metadataExtractorIds = new List<Guid>();
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
@@ -129,8 +127,7 @@ namespace MediaPortal.Views
         if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, _mediaItemAspectIds))
           metadataExtractorIds.Add(extractor.Key);
       // Add all items at the specified path
-      IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) baseResourceAccessor;
-      ICollection<IFileSystemResourceAccessor> files = fsra.GetFiles();
+      ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
       if (files != null)
         foreach (IFileSystemResourceAccessor childAccessor in files)
         {
@@ -143,11 +140,8 @@ namespace MediaPortal.Views
     internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
-      if (!(baseResourceAccessor is IFileSystemResourceAccessor))
-        yield break;
       // Add all directories at the specified path
-      IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) baseResourceAccessor;
-      ICollection<IFileSystemResourceAccessor> directories = fsra.GetChildDirectories();
+      ICollection<IFileSystemResourceAccessor> directories = FileSystemResourceNavigator.GetChildDirectories(baseResourceAccessor);
       if (directories != null)
         foreach (IFileSystemResourceAccessor childDirectory in directories)
           yield return new LocalDirectoryViewSpecification(null, childDirectory.LocalResourcePath,

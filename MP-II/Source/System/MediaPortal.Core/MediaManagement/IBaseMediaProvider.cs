@@ -27,7 +27,7 @@ using System;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Interface to provide access to physical media files specified by a path.
+  /// Provide access to physical media files from arbitrary sources which can be specified by a path.
   /// </summary>
   public interface IBaseMediaProvider : IMediaProvider
   {

@@ -40,6 +40,18 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     IDictionary<Guid, IMediaProvider> LocalMediaProviders { get; }
 
+    /// <summery>
+    /// Returns a collection of all local base media providers. This is a convenience property for
+    /// using <see cref="LocalMediaProviders"/> and filtering and casting them for <see cref="IBaseMediaProvider"/>.
+    /// </summery>
+    IEnumerable<IBaseMediaProvider> LocalBaseMediaProviders { get; }
+
+    /// <summery>
+    /// Returns a collection of all local chained media providers. This is a convenience property for
+    /// using <see cref="LocalMediaProviders"/> and filtering and casting them for <see cref="IChainedMediaProvider"/>.
+    /// </summery>
+    IEnumerable<IChainedMediaProvider> LocalChainedMediaProviders { get; }
+
     /// <summary>
     /// Collection of all registered local metadata extractors, organized as a dictionary of
     /// (GUID; metadata extractor) mappings.

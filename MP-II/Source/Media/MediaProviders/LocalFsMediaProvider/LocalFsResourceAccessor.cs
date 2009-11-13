@@ -63,12 +63,12 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
     {
       get
       {
+        // We are a base provider, so it is sufficient to return a path with only one provider path segment
         return new ResourcePath(new ProviderPathSegment[]
             {
               new ProviderPathSegment(LocalFsMediaProvider.PROVIDER_ID, _path, true)
             });
       }
-
     }
 
     public Stream OpenRead()

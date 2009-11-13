@@ -26,6 +26,11 @@ using System;
 
 namespace MediaPortal.Core.MediaManagement
 {
+  /// <summary>
+  /// Holds an id and a path of a media provider, identifying a resource in that provider.
+  /// a <see cref="ProviderPathSegment"/> is typically used to describe one item in a provider resource chain,
+  /// represented by an instance of <see cref="ResourcePath"/>.
+  /// </summary>
   public class ProviderPathSegment
   {
     protected Guid _providerId;

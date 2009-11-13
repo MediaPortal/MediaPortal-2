@@ -99,12 +99,13 @@
     <Compile Include="MediaManagement\DefaultItemAspects\MusicAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\PictureAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
+    <Compile Include="MediaManagement\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IResourceAccessor.cs" />
     <Compile Include="MediaManagement\ILocalFsResourceAccessor.cs" />
     <Compile Include="MediaManagement\IResourceLocator.cs" />
     <Compile Include="MediaManagement\IMediaAccessor.cs" />
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
-    <Compile Include="MediaManagement\IStackedMediaProvider.cs" />
+    <Compile Include="MediaManagement\IChainedMediaProvider.cs" />
     <Compile Include="MediaManagement\IBaseMediaProvider.cs" />
     <Compile Include="MediaManagement\ProviderPathSegment.cs" />
     <Compile Include="MediaManagement\LocalFsMediaProviderBase.cs" />

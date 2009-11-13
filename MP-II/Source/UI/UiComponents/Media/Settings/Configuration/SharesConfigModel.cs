@@ -672,9 +672,8 @@ namespace UiComponents.Media.Settings.Configuration
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       bool selected = false;
       List<IMediaProvider> mediaProviders = new List<IMediaProvider>();
-      foreach (IMediaProvider mediaProvider in mediaAccessor.LocalMediaProviders.Values)
-        if (mediaProvider is IBaseMediaProvider) // Only show base providers
-          mediaProviders.Add(mediaProvider);
+      foreach (IBaseMediaProvider mediaProvider in mediaAccessor.LocalBaseMediaProviders)
+        mediaProviders.Add(mediaProvider);
       mediaProviders.Sort((a, b) => a.Metadata.Name.CompareTo(b.Metadata.Name));
       foreach (IMediaProvider mediaProvider in mediaProviders)
       {
@@ -699,7 +698,7 @@ namespace UiComponents.Media.Settings.Configuration
         // Error case - would happen if media provider returned a resource accessor which is no IFileSystemResourceAccessor
         return;
       items.Clear();
-      ICollection<IFileSystemResourceAccessor> res = accessor.GetChildDirectories();
+      ICollection<IFileSystemResourceAccessor> res = FileSystemResourceNavigator.GetChildDirectories(accessor);
       if (res != null)
       {
         List<IFileSystemResourceAccessor> directories = new List<IFileSystemResourceAccessor>(res);

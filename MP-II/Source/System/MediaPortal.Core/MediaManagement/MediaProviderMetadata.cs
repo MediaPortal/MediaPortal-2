@@ -35,15 +35,15 @@ namespace MediaPortal.Core.MediaManagement
 
     protected Guid _mediaProviderId;
     protected string _name;
-    protected bool _isStackedProvider;
+    protected bool _isChainedProvider;
 
     #endregion
 
-    public MediaProviderMetadata(Guid mediaProviderId, string name, bool isStackedProvider)
+    public MediaProviderMetadata(Guid mediaProviderId, string name, bool isChainedProvider)
     {
       _mediaProviderId = mediaProviderId;
       _name = name;
-      _isStackedProvider = isStackedProvider;
+      _isChainedProvider = isChainedProvider;
     }
 
     /// <summary>
@@ -63,11 +63,11 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Returns the information if the media provider is stacked upon another provider, i.e. needs an input resource to work.
+    /// Returns the information if the media provider is chained to another provider, i.e. needs an input resource to work.
     /// </summary>
-    public bool IsStackedProvider
+    public bool IsChainedProvider
     {
-      get { return _isStackedProvider; }
+      get { return _isChainedProvider; }
     }
   }
 }

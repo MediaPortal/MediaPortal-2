@@ -206,6 +206,34 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
+    public IEnumerable<IBaseMediaProvider> LocalBaseMediaProviders
+    {
+      get
+      {
+        foreach (IMediaProvider mediaProvider in LocalMediaProviders.Values)
+        {
+          IBaseMediaProvider provider = mediaProvider as IBaseMediaProvider;
+          if (provider != null)
+            yield return provider;
+        }
+        yield break;
+      }
+    }
+
+    public IEnumerable<IChainedMediaProvider> LocalChainedMediaProviders
+    {
+      get
+      {
+        foreach (IMediaProvider mediaProvider in LocalMediaProviders.Values)
+        {
+          IChainedMediaProvider provider = mediaProvider as IChainedMediaProvider;
+          if (provider != null)
+            yield return provider;
+        }
+        yield break;
+      }
+    }
+
     public IDictionary<Guid, IMetadataExtractor> LocalMetadataExtractors
     {
       get
@@ -273,7 +301,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (result.Count > 0)
         return result;
       // Fallback: If no share was added for the defaults above, use the provider's root folders
-      foreach (IMediaProvider mediaProvider in LocalMediaProviders.Values)
+      foreach (IMediaProvider mediaProvider in LocalBaseMediaProviders)
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         Guid shareId = Guid.NewGuid();

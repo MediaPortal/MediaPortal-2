@@ -30,7 +30,7 @@ namespace MediaPortal.Core.MediaManagement
   /// <remarks>
   /// <para>
   /// This interface is the root interface for all media providers. Media providers are separated into
-  /// <see cref="IBaseMediaProvider"/>s and <see cref="IStackedMediaProvider"/>s. See their interface docs for more
+  /// <see cref="IBaseMediaProvider"/>s and <see cref="IChainedMediaProvider"/>s. See their interface docs for more
   /// information.
   /// </para>
   /// <para>
