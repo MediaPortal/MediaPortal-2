@@ -101,14 +101,15 @@ namespace MediaPortal.Core.General
           string.Equals(_hostName, LOCALHOST_NAME, StringComparison.InvariantCultureIgnoreCase);
     }
 
-    public static bool operator==(SystemName first, SystemName second)
+    public static bool operator==(SystemName a, SystemName b)
     {
-      if (ReferenceEquals(first, null) && ReferenceEquals(second, null))
-        return true;
-      if (ReferenceEquals(first, null) || ReferenceEquals(second, null))
+      bool s2null = ReferenceEquals(b, null);
+      if (ReferenceEquals(a, null))
+        return s2null;
+      if (s2null)
         return false;
-      return string.Equals(first.HostName, second.HostName, StringComparison.InvariantCultureIgnoreCase) ||
-          (first.IsLocalSystem() && second.IsLocalSystem());
+      return string.Equals(a.HostName, b.HostName, StringComparison.InvariantCultureIgnoreCase) ||
+          (a.IsLocalSystem() && b.IsLocalSystem());
     }
 
     public static bool operator!=(SystemName first, SystemName second)
