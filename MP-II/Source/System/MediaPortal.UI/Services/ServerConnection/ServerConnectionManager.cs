@@ -28,17 +28,21 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Threading;
 using MediaPortal.ServerCommunication;
 using MediaPortal.Services.ServerConnection.Settings;
+using MediaPortal.Services.Shares;
 using MediaPortal.Shares;
 using UPnP.Infrastructure.CP;
+using RelocationMode=MediaPortal.Shares.RelocationMode;
 
 namespace MediaPortal.Services.ServerConnection
 {
   public class ServerConnectionManager : IServerConnectionManager
   {
+    protected AsynchronousMessageQueue _messageQueue;
     protected UPnPServerWatcher _serverWatcher = null;
     protected UPnPClientControlPoint _controlPoint = null;
     protected bool _isHomeServerConnected = false;
@@ -46,6 +50,12 @@ namespace MediaPortal.Services.ServerConnection
 
     public ServerConnectionManager()
     {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+          {
+            SharesMessaging.CHANNEL
+          });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
       string homeServerUUID = HomeServerUUID;
       if (string.IsNullOrEmpty(homeServerUUID))
         // Watch for all MP-II media servers, if we don't have a homeserver yet
@@ -53,6 +63,43 @@ namespace MediaPortal.Services.ServerConnection
       else
         // If we have a homeserver set, we'll try to connect to it
         _controlPoint = BuildClientControlPoint(homeServerUUID);
+    }
+
+    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    {
+      if (message.ChannelName == SharesMessaging.CHANNEL)
+      {
+        UPnPContentDirectoryService cds = ContentDirectoryService;
+        if (cds == null)
+          return;
+        ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
+        SharesMessaging.MessageType messageType =
+            (SharesMessaging.MessageType) message.MessageType;
+        Guid shareId;
+        Share share;
+        switch (messageType)
+        {
+          case SharesMessaging.MessageType.ShareAdded:
+            shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
+            share = sharesManagement.GetShare(shareId);
+            if (share != null)
+              cds.RegisterShare(share);
+            break;
+          case SharesMessaging.MessageType.ShareRemoved:
+            shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
+            cds.RemoveShare(shareId);
+            break;
+          case SharesMessaging.MessageType.ShareChanged:
+            shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
+            RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
+            share = sharesManagement.GetShare(shareId);
+            if (share != null)
+              cds.UpdateShare(shareId, share.BaseResourcePath, share.Name, share.MediaCategories,
+                  relocationMode == RelocationMode.Relocate ? ServerCommunication.RelocationMode.Relocate :
+                  ServerCommunication.RelocationMode.ClearAndReImport);
+            break;
+        }
+      }
     }
 
     static void OnAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)

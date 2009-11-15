@@ -42,14 +42,14 @@ namespace MediaPortal.Services.Shares
     /// </summary>
     public enum MessageType
     {
-      // Share related messages. The param will contain the id of the share.
+      // Share related messages. The SHARE_ID will contain the id of the share.
       ShareAdded,
       ShareRemoved,
       ShareChanged, // Parameter RELOCATION_MODE will be set
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string SHARE_ID = "ShareId"; // Guid of the affected share
     public const string RELOCATION_MODE = "RelocationMode"; // Contains a variable of type RelocationMode
 
     /// <summary>
@@ -60,14 +60,14 @@ namespace MediaPortal.Services.Shares
     public static void SendShareMessage(MessageType messageType, Guid shareId)
     {
       QueueMessage msg = new QueueMessage(messageType);
-      msg.MessageData[PARAM] = shareId;
+      msg.MessageData[SHARE_ID] = shareId;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     public static void SendShareChangedMessage(Guid shareId, RelocationMode relocationMode)
     {
-      QueueMessage msg = new QueueMessage(SharesMessaging.MessageType.ShareChanged);
-      msg.MessageData[PARAM] = shareId;
+      QueueMessage msg = new QueueMessage(MessageType.ShareChanged);
+      msg.MessageData[SHARE_ID] = shareId;
       msg.MessageData[RELOCATION_MODE] = relocationMode;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
