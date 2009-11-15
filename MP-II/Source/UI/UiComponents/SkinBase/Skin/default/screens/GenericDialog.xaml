@@ -7,8 +7,6 @@
     Source="screens\master_dialog.xaml"
     >
   <Include.Resources>
-    <Service x:Key="ScreenManager" InterfaceName="ScreenManager"/>
-
     <!-- Dialog title -->
     <ResourceWrapper x:Key="Dialog_Header_Text"
         Resource="{Binding Source={Service DialogManager},Path=CurrentDialogData.HeaderText,Mode=OneTime}"/>
