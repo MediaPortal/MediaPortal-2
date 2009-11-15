@@ -28,7 +28,6 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
 using MediaPortal.Presentation.Models;
@@ -80,8 +79,10 @@ namespace UiComponents.Media.Settings.Configuration
     public const string SHARE_MEDIAPROVIDER_KEY = "MediaProvider";
     public const string SHARE_CATEGORY_KEY = "Category";
 
-    public const string ADD_SHARE_TITLE = "[SharesConfig.AddShare]";
-    public const string EDIT_SHARE_TITLE = "[SharesConfig.EditShare]";
+    public const string ADD_SHARE_TITLE_RES = "[SharesConfig.AddShare]";
+    public const string EDIT_SHARE_TITLE_RES = "[SharesConfig.EditShare]";
+
+    public const string SHARES_CONFIG_RELOCATE_DIALOG_SCREEN = "shares_config_relocate_dialog";
 
     public static Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
     
@@ -116,9 +117,6 @@ namespace UiComponents.Media.Settings.Configuration
     protected ItemsList _allMediaCategoriesList;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Guid _currentShareId;
-    protected Guid _relocateSharesQueryDialogHandle;
-
-    protected AsynchronousMessageQueue _messageQueue = null;
 
     #endregion
 
@@ -147,7 +145,6 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void Dispose()
     {
-      UnsubscribeFromMessages();
     }
 
     #endregion
@@ -164,7 +161,7 @@ namespace UiComponents.Media.Settings.Configuration
 
     public string ConfigShareTitle
     {
-      get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE : EDIT_SHARE_TITLE; }
+      get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE_RES : EDIT_SHARE_TITLE_RES; }
     }
 
     /// <summary>
@@ -416,17 +413,25 @@ namespace UiComponents.Media.Settings.Configuration
         {
           if (share.BaseResourcePath != ChoosenResourcePath)
           {
-            // TODO: Mantis #2464
-            IDialogManager dialogManager = ServiceScope.Get<IDialogManager>();
-            _relocateSharesQueryDialogHandle = dialogManager.ShowDialog("[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]",
-                "[SharesConfig.UpdateShareRelocateItemsQueryText]", DialogType.YesNoDialog, false, DialogButtonType.Yes);
+            IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+            screenManager.ShowDialog(SHARES_CONFIG_RELOCATE_DIALOG_SCREEN);
           }
           else
-            UpdateShareAndFinish(false);
+            UpdateShareAndFinish(RelocationMode.ReImport);
         }
       }
       else
         throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _editMode));
+    }
+
+    public void FinishDoRelocate()
+    {
+      UpdateShareAndFinish(RelocationMode.Relocate);
+    }
+
+    public void FinishDoReImport()
+    {
+      UpdateShareAndFinish(RelocationMode.ReImport);
     }
 
     public void EditSelectedShare()
@@ -451,24 +456,6 @@ namespace UiComponents.Media.Settings.Configuration
     #endregion
 
     #region Protected methods
-
-    void SubscribeToMessages()
-    {
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-        {
-           DialogManagerMessaging.CHANNEL
-        });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    void UnsubscribeFromMessages()
-    {
-      if (_messageQueue == null)
-        return;
-      _messageQueue.Shutdown();
-      _messageQueue = null;
-    }
 
     void OnShareItemSelectionChanged(Property shareItem, object oldValue)
     {
@@ -793,29 +780,10 @@ namespace UiComponents.Media.Settings.Configuration
       }
     }
 
-    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
-    {
-      if (message.ChannelName == DialogManagerMessaging.CHANNEL)
-      {
-        Guid dialogHandle = (Guid) message.MessageData[DialogManagerMessaging.DIALOG_HANDLE];
-        if (dialogHandle != _relocateSharesQueryDialogHandle)
-          return;
-        _relocateSharesQueryDialogHandle = Guid.Empty;
-        DialogResult dialogResult = (DialogResult) message.MessageData[DialogManagerMessaging.DIALOG_RESULT];
-        if (dialogResult == DialogResult.Cancel)
-        {
-          NavigateBackToOverview();
-          return;
-        }
-        bool relocateMediaItems = dialogResult == DialogResult.Yes;
-        UpdateShareAndFinish(relocateMediaItems);
-      }
-    }
-
-    protected void UpdateShareAndFinish(bool relocateItems)
+    protected void UpdateShareAndFinish(RelocationMode relocationMode)
     {
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
-      sharesManagement.UpdateShare(CurrentShareId, ChoosenResourcePath, ShareName, MediaCategories, relocateItems ? RelocationMode.Relocate : RelocationMode.Remove);
+      sharesManagement.UpdateShare(CurrentShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
       ClearAllConfiguredProperties();
       NavigateBackToOverview();
     }
@@ -893,13 +861,12 @@ namespace UiComponents.Media.Settings.Configuration
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      SubscribeToMessages();
       PrepareState(newContext.WorkflowState.StateId);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      UnsubscribeFromMessages();
+      // Nothing to do here
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
@@ -920,7 +887,7 @@ namespace UiComponents.Media.Settings.Configuration
     public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
       // Not used yet, currently we don't show any menu during the shares configuration process.
-      // Perhaps we'll add menu actions for different convenience procedures like initializing the
+      // Perhaps we'll add menu actions later for different convenience procedures like initializing the
       // shares to their default setting, ...
     }
 

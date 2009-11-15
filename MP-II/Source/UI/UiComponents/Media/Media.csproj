@@ -76,7 +76,6 @@
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
-    <Content Include="Skin\default\screens\DialogVideoContextMenu.xaml" />
     <Content Include="Skin\default\themes\default\styles\VideoPlayerStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\screens\shares_config_overview.xaml" />
@@ -87,6 +86,7 @@
     <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_share.xaml" />
+    <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />
   </ItemGroup>

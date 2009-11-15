@@ -31,7 +31,7 @@ namespace MediaPortal.Shares
   public enum RelocationMode
   {
     Relocate,
-    Remove
+    ReImport
   }
 
   /// <summary>

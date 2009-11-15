@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    Source="screens\master_dialog.xaml"
+    >
+  <Include.Resources>
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SharesConfig.UpdateShareRelocateItemsQueryDialogHeader]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="10"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Column="0" Grid.Row="0" Wrap="True" Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Info]"/>
+        <Label Grid.Column="0" Grid.Row="1" Wrap="True" Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Description]"/>
+        <Label Grid.Column="0" Grid.Row="3" Wrap="True" Content="[SharesConfig.UpdateShareRelocateItemsQueryText.Query]"/>
+        <StackPanel Grid.Column="0" Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Margin="10" Style="{ThemeResource ButtonWideStyle}" Content="[SharesConfig.Relocate]"
+              Command="{Command Source={StaticResource Model},Path=FinishDoRelocate}"/>
+          <Button Margin="10" Style="{ThemeResource ButtonWideStyle}" Content="[SharesConfig.ReImport]"
+              Command="{Command Source={StaticResource Model},Path=FinishDoReImport}"/>
+        </StackPanel>
+      </Grid>
+    </ResourceWrapper>
+  </Include.Resources>
+</Include>

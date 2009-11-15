@@ -51,6 +51,10 @@
     <String Name="EditShare" Text="Edit share"/>
     <String Name="ChooseShareToBeEdited" Text="Please select the share to be edited"/>
     <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
-    <String Name="UpdateShareRelocateItemsQueryText" Text="The share's media provider and/or path have been updated. Should all media items of that share be updated?"/>
+    <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's media provider and/or path have been updated."/>
+    <String Name="UpdateShareRelocateItemsQueryText.Description" Text="The media library's information about the media items in that share can be updated (relocated) or cleared and reimported."/>
+    <String Name="UpdateShareRelocateItemsQueryText.Query" Text="Do you want to relocate or clear and reimport?"/>
+    <String Name="Relocate" Text="Relocate"/>
+    <String Name="ReImport" Text="ReImport"/>
   </Section>
 </Language>
