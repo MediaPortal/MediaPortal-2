@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 
 namespace MediaPortal.Core.MediaManagement
@@ -29,8 +30,29 @@ namespace MediaPortal.Core.MediaManagement
   /// <summary>
   /// Base methods of the local filesystem media provider which are needed in the media accessor.
   /// </summary>
+  /// <remarks>
+  /// The local filesystem provider is at some locations the most important (default-) media provider. The media manager
+  /// for example builds its default shares on directories in the local filesystem. Because all media providers come
+  /// into the system by plugins, we cannot access methods in classes provided by the local filesystem provider plugin
+  /// directly. Instead, we use this base class with common static methods in the core which is by design the base class for
+  /// the local filesystem media provider.
+  /// </remarks>
   public class LocalFsMediaProviderBase
   {
+    #region Public constants
+
+    /// <summary>
+    /// GUID string for the local filesystem media provider.
+    /// </summary>
+    protected const string LOCAL_FS_MEDIA_PROVIDER_ID_STR = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
+
+    /// <summary>
+    /// Local filesystem media provider GUID.
+    /// </summary>
+    public static Guid LOCAL_FS_MEDIA_PROVIDER_ID = new Guid(LOCAL_FS_MEDIA_PROVIDER_ID_STR);
+
+    #endregion
+
     #region Public methods
 
     public static string ToDosPath(string providerPath)
@@ -44,6 +66,11 @@ namespace MediaPortal.Core.MediaManagement
     public static string ToProviderPath(string dosPath)
     {
       return "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/');
+    }
+
+    public static ResourcePath ToProviderResourcePath(string dosPath)
+    {
+      return ResourcePath.BuildBaseProviderPath(LOCAL_FS_MEDIA_PROVIDER_ID, "/" + dosPath.Replace(Path.DirectorySeparatorChar, '/'));
     }
 
     #endregion

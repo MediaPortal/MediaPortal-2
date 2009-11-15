@@ -47,11 +47,9 @@ namespace MediaPortal.Core.MediaManagement
   public interface IResourceAccessor : IDisposable
   {
     /// <summary>
-    /// Adds a tidy up executor instance whose <see cref="ITidyUpExecutor.Execute"/> method will be called when this
-    /// resource accessor is disposed.
+    /// Returns the media provider which provides this resource.
     /// </summary>
-    /// <param name="tidUpExecutor">Tidy up executor instance to add.</param>
-    void AddTidyUpExecutor(ITidyUpExecutor tidUpExecutor);
+    IMediaProvider ParentProvider { get; }
 
     /// <summary>
     /// Returns the information if this resource is a file which can be opened to an input stream.
@@ -77,6 +75,30 @@ namespace MediaPortal.Core.MediaManagement
     /// Returns the technical resource path which points to this resource.
     /// </summary>
     ResourcePath LocalResourcePath { get; }
+
+    /// <summary>
+    /// Gets the date and time when this resource was changed for the last time.
+    /// </summary>
+    DateTime LastChanged { get; }
+
+    /// <summary>
+    /// Returns the information if the resource at the given path exists in the media provider of this resource.
+    /// </summary>
+    /// <remarks>
+    /// This method is defined in interface <see cref="IResourceAccessor"/> rather than in interface <see cref="IMediaProvider"/>
+    /// because we would need two different signatures for <see cref="IBaseMediaProvider"/> and <see cref="IChainedMediaProvider"/>,
+    /// which is not convenient.
+    /// </remarks>
+    /// <param name="path">Path to check for a resource.</param>
+    /// <returns><c>true</c> if a resource at the given path exists in the <see cref="ParentProvider"/>, else <c>false</c>.</returns>
+    bool Exists(string path);
+
+    /// <summary>
+    /// Adds a tidy up executor instance whose <see cref="ITidyUpExecutor.Execute"/> method will be called when this
+    /// resource accessor is disposed.
+    /// </summary>
+    /// <param name="tidUpExecutor">Tidy up executor instance to add.</param>
+    void AddTidyUpExecutor(ITidyUpExecutor tidUpExecutor);
 
     /// <summary>
     /// Opens a stream to read this resource.

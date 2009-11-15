@@ -32,6 +32,14 @@ namespace MediaPortal.Core.MediaManagement
   public interface IBaseMediaProvider : IMediaProvider
   {
     /// <summary>
+    /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider.
+    /// </summary>
+    /// <param name="path">Path to evaluate.</param>
+    /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
+    /// else <c>false</c>.</returns>
+    bool IsResource(string path);
+
+    /// <summary>
     /// Creates a resource accessor for the given <paramref name="path"/>.
     /// </summary>
     /// <param name="path">Path to be accessed by the result resource accessor.</param>
@@ -39,13 +47,5 @@ namespace MediaPortal.Core.MediaManagement
     /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
     /// described by the path doesn't exist.</exception>
     IResourceAccessor CreateMediaItemAccessor(string path);
-
-    /// <summary>
-    /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider.
-    /// </summary>
-    /// <param name="path">Path to evaluate.</param>
-    /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
-    /// else <c>false</c>.</returns>
-    bool IsResource(string path);
   }
 }

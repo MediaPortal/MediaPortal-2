@@ -28,12 +28,11 @@ namespace MediaPortal.Core.FileEventNotification
 {
 
   /// <summary>
-  /// <see cref="IFileEventNotifier"/> is a service which provides an interface
-  /// to a more advanced <see cref="System.IO.FileSystemWatcher"/>.
+  /// Service to register file and directory change listeners. This service works similar to
+  /// the <see cref="System.IO.FileSystemWatcher"/> service, but has more advanced functions.
   /// </summary>
   public interface IFileEventNotifier
   {
-
     /// <summary>
     /// Subscribes a new instance of <see cref="FileWatchInfo"/>.
     /// The return value is needed to unsubscribe from the service.

@@ -119,13 +119,13 @@ namespace MediaPortal.Views
 
     internal override IEnumerable<MediaItem> ReLoadItems()
     {
-      IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
-      ICollection<Guid> metadataExtractorIds = new List<Guid>();
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      ICollection<Guid> metadataExtractorIds = new List<Guid>();
       foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
         // Collect all metadata extractors which fill our desired media item aspects
         if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, _mediaItemAspectIds))
           metadataExtractorIds.Add(extractor.Key);
+      IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
       // Add all items at the specified path
       ICollection<IFileSystemResourceAccessor> files = FileSystemResourceNavigator.GetFiles(baseResourceAccessor);
       if (files != null)

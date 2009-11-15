@@ -106,6 +106,11 @@ namespace MediaPortal.Core.MediaManagement
       get { return _pathSegments.Count == 0 ? null : _pathSegments[0]; }
     }
 
+    public ProviderPathSegment LastPathSegment
+    {
+      get { return _pathSegments.Count == 0 ? null : _pathSegments[_pathSegments.Count - 1]; }
+    }
+
     public string FileName
     {
       get
@@ -155,6 +160,65 @@ namespace MediaPortal.Core.MediaManagement
         }
         return true;
       }
+    }
+
+    /// <summary>
+    /// Convenience method for creating a <see cref="ResourcePath"/> of a single base media provider path.
+    /// </summary>
+    /// <remarks>
+    /// This method doesn't do any checks if the media provider of the given <paramref name="baseProviderId"/> is present
+    /// in the system nor if it is a base media provider. The caller has to ensure those criteria, else, the returned
+    /// resource path won't work (i.e. no media accessor can be created).
+    /// </remarks>
+    /// <param name="baseProviderId">Id of the provider for the given path.</param>
+    /// <param name="providerPath">Path in the provider, the returned resource path should represent.</param>
+    /// <returns>Resource path representing the given path in the given provider.</returns>
+    public static ResourcePath BuildBaseProviderPath(Guid baseProviderId, string providerPath)
+    {
+      return new ResourcePath(new ProviderPathSegment[] {new ProviderPathSegment(baseProviderId, providerPath, true)});
+    }
+
+    /// <summary>
+    /// Convenience method for creating a resource path equal to this path with a path segment appended.
+    /// </summary>
+    /// <remarks>
+    /// This method doesn't do any checks if the media provider of the given <paramref name="chainedProviderId"/> is present
+    /// in the system nor if it is a chained media provider. The caller has to ensure those criteria, else, the returned
+    /// resource path won't work (i.e. no media accessor can be created).
+    /// </remarks>
+    /// <param name="chainedProviderId">Id of a chained media provider to be appended to the copy of this path.</param>
+    /// <param name="providerPath">Path in the last chained provider segment which will be added to the copy of this path.</param>
+    /// <returns>Resource path representing a path which is equal to this path with the given path segment appended.</returns>
+    public ResourcePath ChainUp(Guid chainedProviderId, string providerPath)
+    {
+      ResourcePath result = new ResourcePath(_pathSegments);
+      result.Append(chainedProviderId, providerPath);
+      return result;
+    }
+
+    /// <summary>
+    /// Appends the given provider path segment to this resource path.
+    /// </summary>
+    /// <remarks>
+    /// This method doesn't do any checks if the media provider of the given <paramref name="chainedProviderId"/> is present
+    /// in the system nor if it is a chained media provider. The caller has to ensure those criteria, else, the returned
+    /// resource path won't work (i.e. no media accessor can be created).
+    /// </remarks>
+    public void Append(Guid chainedProviderId, string providerPath)
+    {
+      _pathSegments.Add(new ProviderPathSegment(chainedProviderId, providerPath, false));
+    }
+
+    /// <summary>
+    /// Appends the given provider path segment to this resource path.
+    /// </summary>
+    /// <exception cref="ArgumentException">If the given path segment is a base path segment and thus cannot be appended to
+    /// this resource path.</exception>
+    public void Append(ProviderPathSegment providerPathSegment)
+    {
+      if (providerPathSegment.IsBaseSegment)
+        throw new ArgumentException(string.Format("Path segment '{0}' is a base path segment and cannot be appended to the resource path '{1}'", providerPathSegment.Serialize(), Serialize()));
+      _pathSegments.Add(providerPathSegment);
     }
 
     /// <summary>
@@ -232,9 +296,9 @@ namespace MediaPortal.Core.MediaManagement
     /// Creates a local resource provider chain for this resource path, if it is a local path
     /// (see <see cref="CheckValidLocalPath"/>), and returns its result in a <see cref="IResourceAccessor"/> instance.
     /// </summary>
-    /// <returns>Resource accessor to access the resource denoted by this path.</returns>
+    /// <returns>Resource accessor to access the resource represented by this path.</returns>
     /// <exception cref="IllegalCallException">If one of the referenced media providers is not available in the system or
-    /// has the wrong type, or if this path doesn't denote a valid resource in this system.</exception>
+    /// has the wrong type, or if this path doesn't represent a valid resource in this system.</exception>
     /// <exception cref="UnexpectedStateException">If this path is empty.</exception>
     public IResourceAccessor CreateLocalMediaItemAccessor()
     {
@@ -262,7 +326,7 @@ namespace MediaPortal.Core.MediaManagement
             }
             catch (ArgumentException e)
             {
-              throw new IllegalCallException("ResourcePath '{0}' doesn't denote a valid resource in this system", e);
+              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e);
             }
           }
           else
@@ -276,7 +340,7 @@ namespace MediaPortal.Core.MediaManagement
             }
             catch (ArgumentException e)
             {
-              throw new IllegalCallException("ResourcePath '{0}' doesn't denote a valid resource in this system", e);
+              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e);
             }
           }
         } while (enumer.MoveNext());
@@ -288,33 +352,6 @@ namespace MediaPortal.Core.MediaManagement
         throw;
       }
       return resourceAccessor;
-    }
-
-    /// <summary>
-    /// Appends the given provider path segment to this resource path.
-    /// </summary>
-    /// <exception cref="IllegalCallException">If the media provider with the given <paramref name="providerId"/> is not
-    /// present in the local system or if it is no chained provider.</exception>
-    public void Append(Guid providerId, string providerPath)
-    {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      IMediaProvider mediaProvider;
-      if (!mediaAccessor.LocalMediaProviders.TryGetValue(providerId, out mediaProvider))
-        throw new ArgumentException(string.Format("The media provider with id '{0}' is not accessible in the current system", providerId));
-      if (!(mediaProvider is IChainedMediaProvider))
-        throw new ArgumentException(string.Format("The media provider with id '{0}' does not implement the {1} interface", providerId, typeof(IChainedMediaProvider).Name));
-      _pathSegments.Add(new ProviderPathSegment(providerId, providerPath, false));
-    }
-
-    /// <summary>
-    /// Appends the given provider path segment to this resource path.
-    /// </summary>
-    /// <exception cref="ArgumentException">If the given path segment is a base path segment and thus cannot be appended to this resource path.</exception>
-    public void Append(ProviderPathSegment providerPathSegment)
-    {
-      if (providerPathSegment.IsBaseSegment)
-        throw new ArgumentException(string.Format("Path segment '{0}' is a base path segment and cannot be appended to the resource path '{1}'", providerPathSegment.Serialize(), Serialize()));
-      _pathSegments.Add(providerPathSegment);
     }
 
     #region IEnumerable<ProviderPathSegment> implementation

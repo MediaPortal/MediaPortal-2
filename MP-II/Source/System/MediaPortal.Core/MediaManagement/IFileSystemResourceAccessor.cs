@@ -36,7 +36,7 @@ namespace MediaPortal.Core.MediaManagement
   /// <remarks>
   /// Implementors of this interface can provide a (maybe virtual) filesystem, starting with
   /// a root directory.
-  /// The root directory is denoted by "/". Directory path names are organized like unix paths.
+  /// The root directory is represented by "/". Directory path names are organized like unix paths.
   /// </remarks>
   public interface IFileSystemResourceAccessor : IResourceAccessor
   {

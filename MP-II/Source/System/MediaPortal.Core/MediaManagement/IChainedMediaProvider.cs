@@ -47,6 +47,17 @@ namespace MediaPortal.Core.MediaManagement
     bool CanChainUp(IResourceAccessor potentialBaseResourceAccessor);
 
     /// <summary>
+    /// Returns the information if the given <paramref name="path"/> is a valid resource path in this provider, interpreted
+    /// in the given <paramref name="baseResourceAccessor"/>.
+    /// </summary>
+    /// <param name="baseResourceAccessor">Resource accessor for the base resource, this provider should take as
+    /// input.</param>
+    /// <param name="path">Path to evaluate.</param>
+    /// <returns><c>true</c>, if the given <paramref name="path"/> exists (i.e. can be accessed by this provider),
+    /// else <c>false</c>.</returns>
+    bool IsResource(IResourceAccessor baseResourceAccessor, string path);
+
+    /// <summary>
     /// Creates a resource accessor for the given <paramref name="path"/>, interpreted in the given
     /// <paramref name="baseResourceAccessor"/>.
     /// </summary>

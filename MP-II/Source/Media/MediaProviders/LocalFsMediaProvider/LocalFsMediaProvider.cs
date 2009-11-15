@@ -75,20 +75,6 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       }
     }
 
-    #region Public constants
-
-    /// <summary>
-    /// GUID string for the local filesystem media provider.
-    /// </summary>
-    public const string PROVIDER_ID_STR = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
-
-    /// <summary>
-    /// Local filesystem media provider GUID.
-    /// </summary>
-    public static Guid PROVIDER_ID = new Guid(PROVIDER_ID_STR);
-
-    #endregion
-
     #region Protected fields
 
     protected MediaProviderMetadata _metadata;
@@ -101,7 +87,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     public LocalFsMediaProvider()
     {
-      _metadata = new MediaProviderMetadata(PROVIDER_ID, "[LocalFsMediaProvider.Name]", false);
+      _metadata = new MediaProviderMetadata(LOCAL_FS_MEDIA_PROVIDER_ID, "[LocalFsMediaProvider.Name]", false);
     }
 
     #endregion
@@ -219,13 +205,6 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       get { return _metadata; }
     }
 
-    public IResourceAccessor CreateMediaItemAccessor(string path)
-    {
-      if (!IsResource(path))
-        throw new ArgumentException(string.Format("The resource described by path '{0}' doesn't exist", path));
-      return new LocalFsResourceAccessor(this, path);
-    }
-
     public bool IsResource(string path)
     {
       if (string.IsNullOrEmpty(path))
@@ -234,6 +213,13 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         return true;
       string dosPath = ToDosPath(path);
       return File.Exists(dosPath) || Directory.Exists(dosPath);
+    }
+
+    public IResourceAccessor CreateMediaItemAccessor(string path)
+    {
+      if (!IsResource(path))
+        throw new ArgumentException(string.Format("The resource described by path '{0}' doesn't exist", path));
+      return new LocalFsResourceAccessor(this, path);
     }
 
     #endregion

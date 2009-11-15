@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.MediaManagement;
@@ -54,6 +55,11 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     #region ILocalFsResourceAccessor implementation
 
+    public IMediaProvider ParentProvider
+    {
+      get { return _provider; }
+    }
+
     public string LocalFileSystemPath
     {
       get { return LocalFsMediaProviderBase.ToDosPath(_path); }
@@ -61,14 +67,23 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
 
     public ResourcePath LocalResourcePath
     {
+      get { return ResourcePath.BuildBaseProviderPath(LocalFsMediaProviderBase.LOCAL_FS_MEDIA_PROVIDER_ID, _path); }
+    }
+
+    public DateTime LastChanged
+    {
       get
       {
-        // We are a base provider, so it is sufficient to return a path with only one provider path segment
-        return new ResourcePath(new ProviderPathSegment[]
-            {
-              new ProviderPathSegment(LocalFsMediaProvider.PROVIDER_ID, _path, true)
-            });
+        string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
+        if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
+          return DateTime.MinValue;
+        return File.GetLastWriteTime(dosPath);
       }
+    }
+
+    public bool Exists(string path)
+    {
+      return _provider.IsResource(path);
     }
 
     public Stream OpenRead()
@@ -95,9 +110,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         // No files at root level - there are only logical drives
         return new List<IFileSystemResourceAccessor>();
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-      if (!Directory.Exists(dosPath))
-        return null;
-      return ConcatPaths(_path, Directory.GetFiles(dosPath), false);
+      return !Directory.Exists(dosPath) ? null : ConcatPaths(_path, Directory.GetFiles(dosPath), false);
     }
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
@@ -116,9 +129,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         return result;
       }
       string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-      if (!Directory.Exists(dosPath))
-        return null;
-      return ConcatPaths(_path, Directory.GetDirectories(dosPath), true);
+      return !Directory.Exists(dosPath) ? null : ConcatPaths(_path, Directory.GetDirectories(dosPath), true);
     }
 
     public bool IsFile
@@ -170,9 +181,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       {
         if (string.IsNullOrEmpty(_path))
           return null;
-        if (_path == "/")
-          return "/";
-        return LocalFsMediaProviderBase.ToDosPath(_path);
+        return _path == "/" ? "/" : LocalFsMediaProviderBase.ToDosPath(_path);
       }
     }
 

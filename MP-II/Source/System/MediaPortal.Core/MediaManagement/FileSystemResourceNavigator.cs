@@ -52,19 +52,24 @@ namespace MediaPortal.Core.MediaManagement
       if (directoryAccessor is IFileSystemResourceAccessor)
       {
         IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) directoryAccessor;
-        ICollection<IFileSystemResourceAccessor> result = new List<IFileSystemResourceAccessor>(fsra.GetChildDirectories());
-        foreach (IFileSystemResourceAccessor fileAccessor in fsra.GetFiles())
-        {
-          IChainedMediaProvider provider;
-          if (CanBeUnfolded(fileAccessor, out provider))
+        ICollection<IFileSystemResourceAccessor> childDirectories = fsra.GetChildDirectories();
+        ICollection<IFileSystemResourceAccessor> result = childDirectories == null ?
+            new List<IFileSystemResourceAccessor>() :
+            new List<IFileSystemResourceAccessor>(childDirectories);
+        ICollection<IFileSystemResourceAccessor> files = fsra.GetFiles();
+        if (files != null)
+          foreach (IFileSystemResourceAccessor fileAccessor in files)
           {
-            IResourceAccessor ra = provider.CreateResourceAccessor(fileAccessor, "/");
-            if (ra is IFileSystemResourceAccessor)
-              result.Add((IFileSystemResourceAccessor) ra);
-            else
-              ra.Dispose();
+            IChainedMediaProvider provider;
+            if (CanBeUnfolded(fileAccessor, out provider))
+            {
+              IResourceAccessor ra = provider.CreateResourceAccessor(fileAccessor, "/");
+              if (ra is IFileSystemResourceAccessor)
+                result.Add((IFileSystemResourceAccessor) ra);
+              else
+                ra.Dispose();
+            }
           }
-        }
         return result;
       }
       else

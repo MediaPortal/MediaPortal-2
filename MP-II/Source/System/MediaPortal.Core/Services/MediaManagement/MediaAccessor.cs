@@ -253,11 +253,6 @@ namespace MediaPortal.Core.Services.MediaManagement
       UnregisterPluginItemListeners();
     }
 
-    protected ResourcePath BuildSimpleResourceAccessorPath(Guid localProviderId, string fileSystemPath)
-    {
-      return new ResourcePath(new ProviderPathSegment[] {new ProviderPathSegment(localProviderId, fileSystemPath, true)});
-    }
-
     public ICollection<Share> CreateDefaultShares()
     {
       ICollection<Share> result = new List<Share>();
@@ -271,7 +266,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
           Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(localFsMediaProviderId, folderPath),
+              shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
               MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
           result.Add(sd);
         }
@@ -282,7 +277,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
           Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(localFsMediaProviderId, folderPath),
+              shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
               MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
@@ -293,7 +288,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
           Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(localFsMediaProviderId, folderPath),
+              shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
               MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
@@ -301,12 +296,12 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (result.Count > 0)
         return result;
       // Fallback: If no share was added for the defaults above, use the provider's root folders
-      foreach (IMediaProvider mediaProvider in LocalBaseMediaProviders)
+      foreach (IBaseMediaProvider mediaProvider in LocalBaseMediaProviders)
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
         Guid shareId = Guid.NewGuid();
         Share sd = new Share(
-            shareId, SystemName.GetLocalSystemName(), BuildSimpleResourceAccessorPath(metadata.MediaProviderId, "/"),
+            shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(metadata.MediaProviderId, "/"),
             metadata.Name, null);
         result.Add(sd);
       }
@@ -327,13 +322,23 @@ namespace MediaPortal.Core.Services.MediaManagement
     public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds)
     {
-      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
-      bool success = false;
+      ICollection<IMetadataExtractor> extractors = new List<IMetadataExtractor>();
       foreach (Guid extractorId in metadataExtractorIds)
       {
-        if (!LocalMetadataExtractors.ContainsKey(extractorId))
-          continue;
-        IMetadataExtractor extractor = LocalMetadataExtractors[extractorId];
+        IMetadataExtractor extractor;
+        if (LocalMetadataExtractors.TryGetValue(extractorId, out extractor))
+          extractors.Add(extractor);
+      }
+      return ExtractMetadata(mediaItemAccessor, extractors);
+    }
+
+    public IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+        IEnumerable<IMetadataExtractor> metadataExtractors)
+    {
+      IDictionary<Guid, MediaItemAspect> result = new Dictionary<Guid, MediaItemAspect>();
+      bool success = false;
+      foreach (IMetadataExtractor extractor in metadataExtractors)
+      {
         foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes.Values)
           if (!result.ContainsKey(miaMetadata.AspectId))
             result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
