@@ -168,7 +168,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         if (path.EndsWith(":/"))
         {
           DriveInfo di = new DriveInfo(path);
-          return di.IsReady ? string.Format("{0} [{1}]", di.VolumeLabel, path) : path;
+          return di.IsReady ? string.Format("[{0}] {1}", path, di.VolumeLabel) : path;
         }
         path = StringUtils.RemoveSuffixIfPresent(path, "/");
         return Path.GetFileName(path);
