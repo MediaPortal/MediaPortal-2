@@ -22,38 +22,32 @@
 
 #endregion
 
-namespace MediaPortal.Core.Runtime
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Messaging;
+
+namespace MediaPortal.Core.Services.MediaManagement
 {
-  public enum SystemState
+  public class ImporterWorkerMessaging
   {
-    /// <summary>
-    /// Not in a defined state yet.
-    /// </summary>
-    None,
+    // Message channel name
+    public const string CHANNEL = "ImporterWorker";
 
     /// <summary>
-    /// The system is initializing. This means, all services and components will be configured and started.
+    /// Messages of this type are sent by the <see cref="ImporterWorker"/>.
     /// </summary>
-    Initializing,
+    public enum MessageType
+    {
+      ImportStatus,
+    }
 
-    /// <summary>
-    /// All services and components have been started and the main application will start to process its window message loop.
-    /// </summary>
-    Started,
+    // Message data
+    public const string RESOURCE_PATH = "ResourcePath";
 
-    /// <summary>
-    /// The system received the signal to shut down. All services and components will shut down now.
-    /// </summary>
-    ShuttingDown,
-
-    /// <summary>
-    /// All services and components have been shut down and the system will exit now.
-    /// </summary>
-    Ending,
-  }
-
-  public interface ISystemStateService
-  {
-    SystemState CurrentState { get; }
+    internal static void SendImportStatusMessage(ResourcePath path)
+    {
+      QueueMessage msg = new QueueMessage(MessageType.ImportStatus);
+      msg.MessageData[RESOURCE_PATH] = path;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
   }
 }

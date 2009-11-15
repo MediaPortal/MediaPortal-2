@@ -100,6 +100,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\PictureAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\FileSystemResourceNavigator.cs" />
+    <Compile Include="MediaManagement\IImporterWorker.cs" />
     <Compile Include="MediaManagement\IResourceAccessor.cs" />
     <Compile Include="MediaManagement\ILocalFsResourceAccessor.cs" />
     <Compile Include="MediaManagement\IResourceLocator.cs" />
@@ -120,6 +121,9 @@
     <Compile Include="MediaManagement\MLQueries\NotFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
     <Compile Include="MediaManagement\ResourcePath.cs" />
+    <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
+    <Compile Include="Services\MediaManagement\ImporterWorkerMessaging.cs" />
+    <Compile Include="Services\MediaManagement\ImportJob.cs" />
     <Compile Include="Services\MediaManagement\ResourceAccessorBase.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
     <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />

@@ -68,6 +68,10 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     void Shutdown();
 
+    /// <summary>
+    /// Creates shares for the system's MyMusic, MyVideos and MyPictures directories.
+    /// </summary>
+    /// <returns>Collection of shares. The shares are not saved to the settings yet.</returns>
     ICollection<Share> CreateDefaultShares();
 
     /// <summary>
@@ -82,16 +86,29 @@ namespace MediaPortal.Core.MediaManagement
     IEnumerable<Guid> GetMetadataExtractorsForCategory(string mediaCategory);
 
     /// <summary>
-    /// Synchronous metadata extraction method for an extraction of the specified metadata
-    /// from the specified media item file.
+    /// Extracts the specified metadata from the specified local media item.
     /// </summary>
     /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
     /// <param name="metadataExtractorIds">Enumeration of ids of metadata extractors to apply to the
     /// specified media file.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
-    /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.</returns>
+    /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
+    /// The result might not contain all media item aspects which can be extracted by the specified media provider,
+    /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
         IEnumerable<Guid> metadataExtractorIds);
+
+    /// <summary>
+    /// Extracts the specified metadata from the specified local media item.
+    /// </summary>
+    /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
+    /// <param name="metadataExtractors">Enumeration of metadata extractors to apply to the specified media file.</param>
+    /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
+    /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
+    /// The result might not contain all media item aspects which can be extracted by the specified media provider,
+    /// if it couldn't extract all of them.</returns>
+    IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,
+        IEnumerable<IMetadataExtractor> metadataExtractors);
 
     /// <summary>
     /// Returns a resource locator instance for the specified media <paramref name="item"/>.

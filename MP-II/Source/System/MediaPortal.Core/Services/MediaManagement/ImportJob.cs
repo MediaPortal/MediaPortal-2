@@ -22,38 +22,25 @@
 
 #endregion
 
-namespace MediaPortal.Core.Runtime
+using System.Collections.Generic;
+using MediaPortal.Core.ImporterWorker;
+using MediaPortal.Core.MediaManagement;
+
+namespace MediaPortal.Core.Services.MediaManagement
 {
-  public enum SystemState
+  public enum ImportJobType
   {
-    /// <summary>
-    /// Not in a defined state yet.
-    /// </summary>
-    None,
-
-    /// <summary>
-    /// The system is initializing. This means, all services and components will be configured and started.
-    /// </summary>
-    Initializing,
-
-    /// <summary>
-    /// All services and components have been started and the main application will start to process its window message loop.
-    /// </summary>
-    Started,
-
-    /// <summary>
-    /// The system received the signal to shut down. All services and components will shut down now.
-    /// </summary>
-    ShuttingDown,
-
-    /// <summary>
-    /// All services and components have been shut down and the system will exit now.
-    /// </summary>
-    Ending,
+    Import,
+    Refresh
   }
 
-  public interface ISystemStateService
+  public struct ImportJob
   {
-    SystemState CurrentState { get; }
+    public ImportJobType JobType;
+    public ResourcePath Path;
+    public ICollection<string> MediaCategories;
+    public bool IncludeSubdirectories;
+    public IMediaLibraryCallback MediaLibraryCallback;
+    public IImportResultCallback ResultCallback;
   }
 }

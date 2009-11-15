@@ -88,10 +88,12 @@ namespace MediaPortal.Core.MediaManagement
 
     /// <summary>
     /// Returns the media item aspects which are provided by the extractor.
-    /// Every media item aspect whose attributes might be equipped by the metadata extractor
-    /// should be defined here. If the ME writes metadata for aspects whose metadata descriptors
-    /// aren't returned here, these attributes can be discarded by the system.
     /// </summary>
+    /// <remarks>
+    /// Every media item aspect whose attributes might be equipped by the metadata extractor
+    /// should be defined here. If the ME still provides metadata in method <see cref="IMetadataExtractor.TryExtractMetadata"/>
+    /// for aspects which aren't returned here, these attributes might be discarded by the system.
+    /// </remarks>
     public IDictionary<Guid, MediaItemAspectMetadata> ExtractedAspectTypes
     {
       get { return _extractedAspectTypes; }

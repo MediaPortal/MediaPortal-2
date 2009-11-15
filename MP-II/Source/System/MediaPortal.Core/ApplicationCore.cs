@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Core.ImporterWorker;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
@@ -93,6 +94,9 @@ namespace MediaPortal.Core
 
       logger.Debug("ApplicationCore: Registering IMediaAccessor service");
       ServiceScope.Add<IMediaAccessor>(new Services.MediaManagement.MediaAccessor());
+
+      logger.Debug("ApplicationCore: Registering IImporterWorker service");
+      ServiceScope.Add<IImporterWorker>(new Services.MediaManagement.ImporterWorker());
     }
 
     public static void StartCoreServices()
@@ -103,6 +107,9 @@ namespace MediaPortal.Core
     public static void DisposeCoreServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("ApplicationCore: Removing IImporterWorker service");
+      ServiceScope.RemoveAndDispose<IImporterWorker>();
 
       logger.Debug("ApplicationCore: Removing IMediaAccessor service");
       ServiceScope.RemoveAndDispose<IMediaAccessor>();
