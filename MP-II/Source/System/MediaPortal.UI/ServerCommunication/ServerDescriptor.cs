@@ -64,9 +64,10 @@ namespace MediaPortal.ServerCommunication
 
     public static bool operator == (ServerDescriptor a, ServerDescriptor b)
     {
-      if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
-        return true;
-      if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+      bool bnull = ReferenceEquals(b, null);
+      if (ReferenceEquals(a, null))
+        return bnull;
+      if (bnull)
         return false;
       return a.MPMediaServerUUID == b.MPMediaServerUUID;
     }

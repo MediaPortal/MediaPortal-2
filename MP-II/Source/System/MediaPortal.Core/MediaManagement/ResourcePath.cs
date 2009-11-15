@@ -397,9 +397,10 @@ namespace MediaPortal.Core.MediaManagement
 
     public static bool operator ==(ResourcePath path1, ResourcePath path2)
     {
-      if (ReferenceEquals(path1, null) != ReferenceEquals(path2, null))
-        return false;
-      if (ReferenceEquals(path1, null) || ReferenceEquals(path2, null))
+      bool p2null = ReferenceEquals(path2, null);
+      if (ReferenceEquals(path1, null))
+        return p2null;
+      if (p2null)
         return false;
       return path1.Equals(path2);
     }
