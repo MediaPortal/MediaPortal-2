@@ -182,7 +182,7 @@ namespace MediaPortal.Core.Services.MediaManagement
               path2Item[providerResourceAspect.GetAttribute<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
           }
         }
-        foreach (IFileSystemResourceAccessor fileAccessor in directoryAccessor.GetFiles())
+        foreach (IFileSystemResourceAccessor fileAccessor in FileSystemResourceNavigator.GetFiles(directoryAccessor))
         { // Add & update files
           try
           {
@@ -213,7 +213,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         }
         if (includeSubDirectories)
           // Handle subdirectories
-          foreach (IFileSystemResourceAccessor childDirectory in directoryAccessor.GetChildDirectories())
+          foreach (IFileSystemResourceAccessor childDirectory in FileSystemResourceNavigator.GetChildDirectories(directoryAccessor))
             ImportDirectory(jobType, childDirectory, metadataExtractors, mediaItemAspectTypes,
                 mediaLibraryCallback, resultCallback, true, mediaAccessor);
       }
