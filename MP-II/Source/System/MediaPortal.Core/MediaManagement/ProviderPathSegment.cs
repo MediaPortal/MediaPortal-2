@@ -77,18 +77,23 @@ namespace MediaPortal.Core.MediaManagement
     public static ProviderPathSegment Deserialize(string ppsStr)
     {
       ppsStr = ppsStr.Trim();
-      bool isBaseSegment = true;
+      bool isBasePathSegment = true;
       if (ppsStr.StartsWith(">"))
       {
-        isBaseSegment = false;
+        isBasePathSegment = false;
         ppsStr = ppsStr.Substring(1).Trim();
       }
+      return Deserialize(ppsStr, isBasePathSegment);
+    }
+
+    public static ProviderPathSegment Deserialize(string ppsStr, bool isBasePathSegment)
+    {
       int index = ppsStr.IndexOf("://");
       if (index == -1)
         throw new ArgumentException("ProviderPathSegment cannot be deserialized from string '{0}', missing '://' separator", ppsStr);
       Guid providerId = new Guid(ppsStr.Substring(0, index));
       string path = UnescapePath(ppsStr.Substring(index + 3));
-      return new ProviderPathSegment(providerId, path, isBaseSegment);
+      return new ProviderPathSegment(providerId, path, isBasePathSegment);
     }
   }
 }

@@ -248,10 +248,22 @@ namespace MediaPortal.Core.MediaManagement
     /// <exception cref="ArgumentException">If the given <paramref name="resourceAccessorPath"/> is malformed.</exception>
     public static ResourcePath Deserialize(string resourceAccessorPath)
     {
+      if (resourceAccessorPath == null)
+        throw new ArgumentNullException("resourceAccessorPath", "Cannot deserialize path string with value null");
+      bool firstIsBase = true;
+      if (resourceAccessorPath.StartsWith(">"))
+      {
+        resourceAccessorPath = resourceAccessorPath.Substring(1);
+        firstIsBase = false;
+      }
       string[] pathSegmentStrs = resourceAccessorPath.Split('>');
       ICollection<ProviderPathSegment> pathSegments = new List<ProviderPathSegment>(pathSegmentStrs.Length);
+      bool isBase = firstIsBase;
       foreach (string pathSegmentStr in pathSegmentStrs)
-        pathSegments.Add(ProviderPathSegment.Deserialize(pathSegmentStr));
+      {
+        pathSegments.Add(ProviderPathSegment.Deserialize(pathSegmentStr, isBase));
+        isBase = false;
+      }
       return new ResourcePath(pathSegments);
     }
 
