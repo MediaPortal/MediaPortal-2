@@ -206,5 +206,14 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return ResourcePathName;
+    }
+
+    #endregion
   }
 }
