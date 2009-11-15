@@ -198,7 +198,6 @@
     <Compile Include="Services\PluginManager\Builders\InstanceBuilder.cs" />
     <Compile Include="Services\PluginManager\Builders\ResourceBuilder.cs" />
     <Compile Include="Services\PluginManager\PluginManager.cs" />
-    <Compile Include="Services\PluginManager\PluginItemStateTrackerToNameTransformer.cs" />
     <Compile Include="Services\PluginManager\PluginManagerSettings.cs" />
     <Compile Include="Services\PluginManager\PluginDirectoryDescriptor.cs" />
     <Compile Include="Services\PluginManager\PluginResource.cs" />

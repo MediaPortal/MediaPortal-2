@@ -35,6 +35,7 @@ using MediaPortal.Core.PluginManager.Exceptions;
 using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 using System.Collections;
+using System.Linq;
 
 namespace MediaPortal.Core.Services.PluginManager
 {
@@ -946,7 +947,7 @@ namespace MediaPortal.Core.Services.PluginManager
           else
           {
             logger.Debug("PluginManager: Cannot disable plugin '{0}', because it is still in use by '{1}'",
-                pluginName, CollectionUtils.Transform(failedStateTrackers, new PluginItemStateTrackerToNameTransformer()));
+                pluginName, failedStateTrackers.Select(failedStateTracker => failedStateTracker.UsageDescription));
             if (stateTracker != null)
               stateTracker.Continue();
             ContinueOpenEndRequests(endRequestsToClose);

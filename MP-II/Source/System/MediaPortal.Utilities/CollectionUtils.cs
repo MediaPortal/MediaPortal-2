@@ -47,19 +47,6 @@ namespace MediaPortal.Utilities
     }
 
     /// <summary>
-    /// Transforms all objects of the <paramref name="sourceEnumeration"/> enumeration with the specified
-    /// <paramref name="transformer"/>.
-    /// </summary>
-    /// <param name="sourceEnumeration">Source enumeration to be transformed.</param>
-    /// <param name="transformer">Transformer to transform each object.</param>
-    /// <returns>Enumeration containing the transformed objects.</returns>
-    public static IEnumerable<T> Transform<S, T>(IEnumerable<S> sourceEnumeration, ITransformer<S, T> transformer)
-    {
-      foreach (S source in sourceEnumeration)
-        yield return transformer.Transform(source);
-    }
-
-    /// <summary>
     /// Removes all elements in the <paramref name="source"/> enumeration from the <paramref name="target"/> collection.
     /// </summary>
     /// <typeparam name="S">Type of the source elements. Needs to be equal to <see cref="T"/> or to be a
