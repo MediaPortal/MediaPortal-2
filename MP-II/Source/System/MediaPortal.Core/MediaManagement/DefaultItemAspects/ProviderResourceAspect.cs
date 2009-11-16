@@ -49,18 +49,11 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline);
 
-    /// <summary>
-    /// Contains the date when the media item was added to the media library.
-    /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DATEADDED =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DateAdded", typeof(DateTime), Cardinality.Inline);
-
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
             ATTR_SOURCE_COMPUTER,
             ATTR_RESOURCE_ACCESSOR_PATH,
-            ATTR_DATEADDED,
         });
   }
 }

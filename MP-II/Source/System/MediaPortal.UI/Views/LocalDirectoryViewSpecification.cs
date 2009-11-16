@@ -179,7 +179,6 @@ namespace MediaPortal.Views
             ProviderResourceAspect.Metadata);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SOURCE_COMPUTER, SystemName.LocalHostName);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.LocalResourcePath.Serialize());
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_DATEADDED, DateTime.Now);
       return new MediaItem(aspects);
     }
 

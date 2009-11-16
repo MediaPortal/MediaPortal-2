@@ -49,11 +49,18 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIRTY =
         MediaItemAspectMetadata.CreateAttributeSpecification("Dirty", typeof(bool), Cardinality.Inline);
 
+    /// <summary>
+    /// Contains the date when the media item was added to the media library.
+    /// </summary>
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_DATEADDED =
+        MediaItemAspectMetadata.CreateAttributeSpecification("DateAdded", typeof(DateTime), Cardinality.Inline);
+
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ImportedItem", new[] {
             ATTR_LAST_IMPORT_DATE,
             ATTR_DIRTY,
+            ATTR_DATEADDED,
         });
   }
 }
