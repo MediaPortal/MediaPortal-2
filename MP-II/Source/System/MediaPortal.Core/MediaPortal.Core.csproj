@@ -108,6 +108,8 @@
     <Compile Include="MediaManagement\IMetadataExtractor.cs" />
     <Compile Include="MediaManagement\IChainedMediaProvider.cs" />
     <Compile Include="MediaManagement\IBaseMediaProvider.cs" />
+    <Compile Include="MediaManagement\MLQueries\AbstractExpressionFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\SimilarToFilter.cs" />
     <Compile Include="MediaManagement\ProviderPathSegment.cs" />
     <Compile Include="MediaManagement\LocalFsMediaProviderBase.cs" />
     <Compile Include="MediaManagement\MediaItem.cs" />

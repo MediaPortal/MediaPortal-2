@@ -22,78 +22,19 @@
 
 #endregion
 
-using System.Xml.Serialization;
-
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   /// <summary>
   /// Specifies an expression which filters media items by a string attribute which is LIKE a given string.
   /// </summary>
-  public class LikeFilter : IAttributeFilter
+  public class LikeFilter : AbstractExpressionFilter
   {
-    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
-    protected string _likeExpression;
-    protected char _escapeChar;
-
     public LikeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string likeExpression, char escapeChar)
-    {
-      _attributeType = attributeType;
-      _likeExpression = likeExpression;
-      _escapeChar = escapeChar;
-    }
-
-    [XmlIgnore]
-    public MediaItemAspectMetadata.AttributeSpecification AttributeType
-    {
-      get { return _attributeType; }
-    }
-
-    [XmlIgnore]
-    public string LikeExpression
-    {
-      get { return _likeExpression; }
-    }
-
-    [XmlIgnore]
-    public char EscapeChar
-    {
-      get { return _escapeChar; }
-    }
+        string expression, char escapeChar) : base(attributeType, expression, escapeChar) { }
 
     #region Additional members for the XML serialization
 
     internal LikeFilter() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("AttributeType", IsNullable = false)]
-    public MediaItemAspectMetadata.AttributeSpecification XML_AttributeType
-    {
-      get { return _attributeType; }
-      set { _attributeType = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("LikeExpression")]
-    public string XML_LikeExpression
-    {
-      get { return _likeExpression; }
-      set { _likeExpression = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlAttribute("EscapeChar")]
-    public char XML_EscapeChar
-    {
-      get { return _escapeChar; }
-      set { _escapeChar = value; }
-    }
 
     #endregion
   }

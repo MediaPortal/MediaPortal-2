@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
@@ -35,7 +36,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// <summary>
   /// Specifies an expression which combines multiple attribute filters with a boolean operator.
   /// </summary>
-  public class BooleanCombinationFilter
+  public class BooleanCombinationFilter : IFilter
   {
     protected BooleanOperator _operator;
     protected IFilter[] _operands;
@@ -80,12 +81,17 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlArrayItem("BooleanCombination", typeof(BooleanCombinationFilter))]
     [XmlArrayItem("In", typeof(InFilter))]
     [XmlArrayItem("Like", typeof(LikeFilter))]
+    [XmlArrayItem("SimilarTo", typeof(SimilarToFilter))]
     [XmlArrayItem("Not", typeof(NotFilter))]
     [XmlArrayItem("Relational", typeof(RelationalFilter))]
-    public IFilter[] XML_Operands
+    public object[] XML_Operands
     {
       get { return _operands; }
-      set { _operands = value; }
+      set
+      {
+        _operands = new IFilter[value.Length];
+        Array.Copy(value, _operands, value.Length);
+      }
     }
 
     #endregion

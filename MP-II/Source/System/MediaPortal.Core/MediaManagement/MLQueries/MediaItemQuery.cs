@@ -24,6 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Xml.Serialization;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
@@ -58,44 +61,126 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   }
 
   /// <summary>
-  /// Encapsulates a query for media items. Holds a list of selected media item aspect types and a
-  /// filter criterion.
+  /// Encapsulates a query for media items. Holds selected media item aspect types and a filter criterion.
   /// </summary>
   public class MediaItemQuery
   {
     protected IFilter _filter;
-    protected ICollection<Guid> _necessaryRequestedMIATypeIDs;
-    protected ICollection<Guid> _optionalRequestedMIATypeIDs = null;
-    protected ICollection<SortInformation> _sortInformation = null;
+    protected HashSet<Guid> _necessaryRequestedMIATypeIDs;
+    protected HashSet<Guid> _optionalRequestedMIATypeIDs = null;
+    protected List<SortInformation> _sortInformation = null;
 
     public MediaItemQuery(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IFilter filter)
     {
-      _necessaryRequestedMIATypeIDs = new List<Guid>(necessaryRequestedMIATypeIDs);
+      _necessaryRequestedMIATypeIDs = new HashSet<Guid>(necessaryRequestedMIATypeIDs);
       _filter = filter;
     }
 
+    public MediaItemQuery(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
+        IFilter filter)
+    {
+      _necessaryRequestedMIATypeIDs = new HashSet<Guid>(necessaryRequestedMIATypeIDs);
+      _optionalRequestedMIATypeIDs = new HashSet<Guid>(optionalRequestedMIATypeIDs);
+      _filter = filter;
+    }
+
+    [XmlIgnore]
     public ICollection<Guid> NecessaryRequestedMIATypeIDs
     {
       get { return _necessaryRequestedMIATypeIDs; }
-      set { _necessaryRequestedMIATypeIDs = value; }
+      set
+      { _necessaryRequestedMIATypeIDs = new HashSet<Guid>(value); }
     }
 
+    [XmlIgnore]
     public ICollection<Guid> OptionalRequestedMIATypeIDs
     {
       get { return _optionalRequestedMIATypeIDs; }
-      set { _optionalRequestedMIATypeIDs = value; }
+      set { _optionalRequestedMIATypeIDs = new HashSet<Guid>(value); }
     }
 
+    [XmlIgnore]
     public IFilter Filter
     {
       get { return _filter; }
       set { _filter = value; }
     }
 
+    [XmlIgnore]
     public ICollection<SortInformation> SortInformation
+    {
+      get { return _sortInformation; }
+      set { _sortInformation = new List<SortInformation>(value); }
+    }
+
+    public override string ToString()
+    {
+      StringBuilder result = new StringBuilder();
+      result.Append("MediaItemQuery: NecessaryRequestedMIATypes: [");
+      result.Append(StringUtils.Join(", ", _necessaryRequestedMIATypeIDs));
+      result.Append("], OptionalRequestedMIATypes: [");
+      result.Append(StringUtils.Join(", ", _optionalRequestedMIATypeIDs));
+      result.Append("], Filter: [");
+      result.Append(_filter);
+      result.Append("], SortInformation: [");
+      result.Append(StringUtils.Join(", ", _sortInformation));
+      result.Append("]");
+      return result.ToString();
+    }
+
+    #region Additional members for the XML serialization
+
+    internal MediaItemQuery() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("NecessaryMIATypes")]
+    [XmlArrayItem("TypeId")]
+    public HashSet<Guid> XML_NecessaryRequestedMIATypeIDs
+    {
+      get { return _necessaryRequestedMIATypeIDs; }
+      set { _necessaryRequestedMIATypeIDs = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("OptionalMIATypes")]
+    [XmlArrayItem("TypeId")]
+    public HashSet<Guid> XML_OptionalRequestedMIATypeIDs
+    {
+      get { return _optionalRequestedMIATypeIDs; }
+      set { _optionalRequestedMIATypeIDs = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("BetweenFilter", typeof(BetweenFilter))]
+    [XmlElement("BooleanCombinationFilter", typeof(BooleanCombinationFilter))]
+    [XmlElement("InFilter", typeof(InFilter))]
+    [XmlElement("LikeFilter", typeof(LikeFilter))]
+    [XmlElement("SimilarToFilter", typeof(SimilarToFilter))]
+    [XmlElement("NotFilter", typeof(NotFilter))]
+    [XmlElement("RelationalFilter", typeof(RelationalFilter))]
+    public object XML_Filter
+    {
+      get { return _filter; }
+      set { _filter = value as IFilter; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlArray("SortInformation")]
+    [XmlArrayItem("Sort")]
+    public List<SortInformation> XML_SortInformation
     {
       get { return _sortInformation; }
       set { _sortInformation = value; }
     }
+
+    #endregion
   }
 }

@@ -22,47 +22,19 @@
 
 #endregion
 
-using System.Xml.Serialization;
-
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
   /// <summary>
-  /// Specifies an expression which negates an inner filter.
+  /// Specifies an expression which filters media items by a string attribute which is SIMILAR TO a given string.
   /// </summary>
-  public class NotFilter : IFilter
+  public class SimilarToFilter : AbstractExpressionFilter
   {
-    protected IFilter _innerFilter;
-
-    public NotFilter(IFilter innerFilter)
-    {
-      _innerFilter = innerFilter;
-    }
-
-    [XmlIgnore]
-    public IFilter InnerFilter
-    {
-      get { return _innerFilter; }
-    }
+    public SimilarToFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        string expression, char escapeChar) : base(attributeType, expression, escapeChar) { }
 
     #region Additional members for the XML serialization
 
-    internal NotFilter() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("Between", typeof(BetweenFilter))]
-    [XmlElement("BooleanCombination", typeof(BooleanCombinationFilter))]
-    [XmlElement("In", typeof(InFilter))]
-    [XmlElement("Like", typeof(LikeFilter))]
-    [XmlElement("SimilarTo", typeof(SimilarToFilter))]
-    [XmlElement("Not", typeof(NotFilter))]
-    [XmlElement("Relational", typeof(RelationalFilter))]
-    public object XML_InnerFilter
-    {
-      get { return _innerFilter; }
-      set { _innerFilter = value as IFilter; }
-    }
+    internal SimilarToFilter() { }
 
     #endregion
   }
