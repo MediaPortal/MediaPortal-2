@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -34,6 +35,23 @@ namespace MediaPortal.Utilities
   /// </summary>
   public class StringUtils
   {
+    /// <summary>
+    /// Escapes each occurence of special characters in the given string <paramref name="str"/> by a sequence of an
+    /// escape character followed by the original special character.
+    /// </summary>
+    /// <param name="str">String to be escaped.</param>
+    /// <param name="specialCharacters">Enumeration of characters which need to be escaped.</param>
+    /// <param name="escapeChar">Escape character to be used.</param>
+    /// <returns>Escaped string.</returns>
+    public static string Escape(string str, IEnumerable<char> specialCharacters, char escapeChar)
+    {
+      string escapeStr = escapeChar.ToString();
+      StringBuilder result = new StringBuilder(str).
+          Replace(escapeStr, escapeStr + escapeChar);
+      foreach (char specialCharacter in specialCharacters)
+        result.Replace(specialCharacter.ToString(), escapeStr + specialCharacter);
+      return result.ToString();
+    }
 
     /// <summary>
     /// Replaces the tag 'tag' in the input string with value 'value'
@@ -158,6 +176,20 @@ namespace MediaPortal.Utilities
       if (source == null)
         return null;
       return source.StartsWith(prefix) ? source : prefix + source;
+    }
+
+    /// <summary>
+    /// Creates a string which consists of <paramref name="count"/> occurences of the given string <paramref name="part"/>.
+    /// </summary>
+    /// <param name="part">String part to repeat.</param>
+    /// <param name="count">Number of times to repeat the given string <paramref name="part"/>.</param>
+    /// <returns>String consisting of <paramref name="count"/> repetitions of <paramref name="part"/>.</returns>
+    public static string Repeat(string part, int count)
+    {
+      StringBuilder result = new StringBuilder(part.Length * count);
+      for (int i = 0; i < count; i++)
+        result.Append(part);
+      return result.ToString();
     }
   }
 }
