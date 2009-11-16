@@ -48,7 +48,7 @@ namespace MediaPortal.Views
 
     #region Ctor
 
-    public ViewCollectionViewSpecification(string viewDisplayName, ICollection<Guid> mediaItemAspectIds) :
+    public ViewCollectionViewSpecification(string viewDisplayName, IEnumerable<Guid> mediaItemAspectIds) :
         base(viewDisplayName, mediaItemAspectIds) { }
 
     #endregion
