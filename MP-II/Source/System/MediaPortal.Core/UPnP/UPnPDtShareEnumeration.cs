@@ -50,35 +50,33 @@ namespace MediaPortal.Core.UPnP
       get { return false; }
     }
 
-    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    public override bool IsNullable
     {
-      if (value != null && !(typeof(IEnumerable).IsAssignableFrom(value.GetType())))
-        throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShareEnumeration).Name, value.GetType().Name);
-      if (value == null)
-      {
-        SoapWriteNull(writer);
-        return;
-      }
+      get { return false; }
+    }
+
+    public override bool IsAssignableFrom(Type type)
+    {
+      return typeof(IEnumerable).IsAssignableFrom(type);
+    }
+
+    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    {
       IEnumerable shares = (IEnumerable) value;
       foreach (Share share in shares)
         share.Serialize(writer);
     }
 
-    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
+    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       ICollection<Share> result = new List<Share>();
-      if (SoapReadNull(reader) || SoapHelper.ReadEmptyElement(reader))
+      if (SoapHelper.ReadEmptyElement(reader))
         return result;
       reader.ReadStartElement(); // Read start of enclosing element
       while (reader.NodeType != XmlNodeType.EndElement)
         result.Add(Share.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
-    }
-
-    public override bool IsAssignableFrom(Type type)
-    {
-      return typeof(IEnumerable).IsAssignableFrom(type);
     }
   }
 }

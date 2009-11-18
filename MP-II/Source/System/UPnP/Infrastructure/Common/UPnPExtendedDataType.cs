@@ -25,6 +25,7 @@
 
 using System;
 using System.Xml;
+using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Common
@@ -66,37 +67,6 @@ namespace UPnP.Infrastructure.Common
     public abstract bool SupportsStringEquivalent { get; }
 
     /// <summary>
-    /// Serializes the given <paramref name="value"/> as contents of the <paramref name="writer"/>'s current element.
-    /// in the serialization strategy specified by this UPnP data type.
-    /// </summary>
-    /// <remarks>
-    /// The value will be either encoded as string (for simple data types and for UPnP 1.0 complex data types,
-    /// if <paramref name="forceSimpleValue"/> is set to <c>true</c>), as an XML sub element containing the structure
-    /// as specified by the schema type of this data type for extended UPnP 1.1 data types.
-    /// </remarks>
-    /// <param name="value">Value to be serialized.</param>
-    /// <param name="forceSimpleValue">If set to <c>true</c>, the resulting value mustn't be an XML element but must
-    /// be encoded in its "string equivalent".</param>
-    /// <param name="writer">XML writer where the value will be serialized to. The value will be serialized as
-    /// contents of the writer's current element. <c>null</c> values can be written by calling method <see cref="SoapWriteNull"/>.
-    /// The writer's position is the start of the parent element, the result should go. The caller will write the end
-    /// element tag.</param>
-    /// <returns>SOAP serialization for the given <paramref name="value"/>. May be <c>null</c> for serializations of
-    /// <c>null</c> values. In this case, an attriute <i>xsi:null="true"</i> must be added in the enclosing SOAP element.</returns>
-    public abstract void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
-
-    /// <summary>
-    /// Deserializes the contents of the <paramref name="reader"/>'s current XML element to an object of this UPnP data type.
-    /// </summary>
-    /// <param name="reader">XML reader to read the value from. <c>null</c> values can be identified by calling method
-    /// <see cref="SoapReadNull"/>.</param>
-    /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized from its
-    /// string-equivalent, i.e. the XML text content of the given XML element should be evaluated,
-    /// else the value should be deserialized from the extended representation of this data type.</param>
-    /// <returns>Value which was deserialized.</returns>
-    public abstract object SoapDeserializeValue(XmlReader reader, bool isSimpleValue);
-
-    /// <summary>
     /// Returns the information if an object of the given type can be assigned to a variable of this UPnP data type.
     /// </summary>
     /// <param name="type">Type which will be checked if objects of that type can be assigned to a variable of this
@@ -104,6 +74,94 @@ namespace UPnP.Infrastructure.Common
     /// <returns><c>true</c>, if an object of the specified <paramref name="type"/> can be assigned to a variable of this
     /// UPnP data type.</returns>
     public abstract bool IsAssignableFrom(Type type);
+
+    /// <summary>
+    /// Returns the information if this data type can transport <c>null</c>-values.
+    /// </summary>
+    public abstract bool IsNullable { get; }
+
+    /// <summary>
+    /// Serializes the given <paramref name="value"/> as contents of the <paramref name="writer"/>'s current element
+    /// in the serialization strategy specified by this UPnP data type.
+    /// </summary>
+    /// <remarks>
+    /// The value should be either written as string contents of the current element (for simple data types and for
+    /// UPnP 1.0 complex data types, if <paramref name="forceSimpleValue"/> is set to <c>true</c>),
+    /// or as an XML sub element containing the structure as specified by the schema type of this data type for extended
+    /// UPnP 1.1 data types.
+    /// <c>null</c> values are serialized by the caller if <see cref="IsNullable"/> is set to <c>true</c>,
+    /// and don't need to be handled in this method.
+    /// </remarks>
+    /// <param name="value">Value to be serialized.</param>
+    /// <param name="forceSimpleValue">If set to <c>true</c>, the value must be encoded in its "string equivalent" and
+    /// written as string contents of the <paramref name="writer"/>'s current element.</param>
+    /// <param name="writer">XML writer where the value will be serialized to. The value will be serialized as
+    /// contents of the writer's current element.
+    /// The writer's position is the start of the parent element, the result should go. The caller will write the end
+    /// element tag.</param>
+    public abstract void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
+
+    /// <summary>
+    /// Deserializes the contents of the <paramref name="reader"/>'s current XML element to an object of this UPnP data type.
+    /// </summary>
+    /// <remarks>
+    /// <c>null</c> values are deserialized by the caller if <see cref="IsNullable"/> is set to <c>true</c>,
+    /// and don't need to be handled in this method.
+    /// </remarks>
+    /// <param name="reader">XML reader to read the value from.</param>
+    /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value should be deserialized
+    /// from its string-equivalent, i.e. the XML text content of the given XML element should be evaluated,
+    /// else the value should be deserialized from the extended representation of this data type.</param>
+    /// <returns>Value which was deserialized.</returns>
+    public abstract object DoDeserializeValue(XmlReader reader, bool isSimpleValue);
+
+    /// <summary>
+    /// Serializes the given <paramref name="value"/> as contents of the <paramref name="writer"/>'s current element.
+    /// </summary>
+    /// <remarks>
+    /// The value will be either encoded as string (for simple data types and for UPnP 1.0 complex data types,
+    /// if <paramref name="forceSimpleValue"/> is set to <c>true</c>), as an XML sub element containing the structure
+    /// as specified by the schema type of this data type for extended UPnP 1.1 data types.
+    /// </remarks>
+    /// <param name="value">Value to be serialized.</param>
+    /// <param name="forceSimpleValue">If set to <c>true</c>, the resulting value is encoded in its
+    /// "string equivalent".</param>
+    /// <param name="writer">XML writer where the value will be serialized to. The value will be serialized as
+    /// contents of the writer's current element.
+    /// The writer's position is the start of the parent element, the result should go. The caller will write the end
+    /// element tag.</param>
+    public void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    {
+      if (value == null)
+      {
+        if (!IsNullable)
+          throw new InvalidDataException("{0}: Invalid null value", GetType().Name);
+        SoapWriteNull(writer);
+        return;
+      }
+      if (!IsAssignableFrom(value.GetType()))
+        throw new InvalidDataException("{0} cannot serialize values of type {1}", GetType().Name, value.GetType().Name);
+      DoSerializeValue(value, forceSimpleValue, writer);
+    }
+
+    /// <summary>
+    /// Deserializes the contents of the <paramref name="reader"/>'s current XML element to an object of this
+    /// UPnP data type.
+    /// </summary>
+    /// <param name="reader">XML reader to read the value from.</param>
+    /// <param name="isSimpleValue">If set to <c>true</c>, for extended data types, the value will be deserialized from its
+    /// string-equivalent, i.e. the XML text content of the given XML element should be evaluated,
+    /// else the value will be deserialized from the extended representation of this data type.</param>
+    /// <returns>Value which was deserialized.</returns>
+    public object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
+    {
+      if (SoapReadNull(reader))
+        if (IsNullable)
+          return null;
+        else
+          throw new InvalidDataException("{0}: Invalid null value", GetType().Name);
+      return DoDeserializeValue(reader, isSimpleValue);
+    }
 
     /// <summary>
     /// Helper method to be used within the <see cref="SoapSerializeValue"/> method to write a <c>null</c> value

@@ -48,32 +48,28 @@ namespace MediaPortal.Core.UPnP
       get { return false; }
     }
 
-    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    public override bool IsNullable
     {
-      if (value != null && !(value is MediaItemAspectMetadata))
-        throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtMediaItemAspectMetadata).Name, value.GetType().Name);
-      if (value == null)
-      {
-        SoapWriteNull(writer);
-        return;
-      }
-      MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
-      miam.Serialize(writer);
-    }
-
-    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
-    {
-      if (SoapReadNull(reader) || SoapHelper.ReadEmptyElement(reader))
-        return null;
-      reader.ReadStartElement(); // Read start of enclosing element
-      MediaItemAspectMetadata result = MediaItemAspectMetadata.Deserialize(reader);
-      reader.ReadEndElement(); // End of enclosing element
-      return result;
+      get { return false; }
     }
 
     public override bool IsAssignableFrom(Type type)
     {
       return typeof(MediaItemAspectMetadata).IsAssignableFrom(type);
+    }
+
+    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    {
+      MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
+      miam.Serialize(writer);
+    }
+
+    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
+    {
+      reader.ReadStartElement(); // Read start of enclosing element
+      MediaItemAspectMetadata result = MediaItemAspectMetadata.Deserialize(reader);
+      reader.ReadEndElement(); // End of enclosing element
+      return result;
     }
   }
 }

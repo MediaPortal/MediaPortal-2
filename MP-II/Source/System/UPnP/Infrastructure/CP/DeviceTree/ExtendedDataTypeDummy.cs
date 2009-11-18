@@ -43,12 +43,17 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       get { return false; }
     }
 
-    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    public override bool IsNullable
+    {
+      get { return true; }
+    }
+
+    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       throw new IllegalCallException("Dummy extended data type cannot serialize values");
     }
 
-    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
+    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       throw new IllegalCallException("Dummy extended data type cannot deserialize values");
     }

@@ -48,32 +48,28 @@ namespace MediaPortal.Core.UPnP
       get { return false; }
     }
 
-    public override void SoapSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    public override bool IsNullable
     {
-      if (value != null && !(value is Share))
-        throw new InvalidDataException("{0} cannot serialize values of type {1}", typeof(UPnPDtShare).Name, value.GetType().Name);
-      if (value == null)
-      {
-        SoapWriteNull(writer);
-        return;
-      }
-      Share share = (Share) value;
-      share.Serialize(writer);
-    }
-
-    public override object SoapDeserializeValue(XmlReader reader, bool isSimpleValue)
-    {
-      if (SoapReadNull(reader) || SoapHelper.ReadEmptyElement(reader))
-        return null;
-      reader.ReadStartElement(); // Read start of enclosing element
-      Share result = Share.Deserialize(reader);
-      reader.ReadEndElement(); // End of enclosing element
-      return result;
+      get { return false; }
     }
 
     public override bool IsAssignableFrom(Type type)
     {
       return typeof(Share).IsAssignableFrom(type);
+    }
+
+    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    {
+      Share share = (Share) value;
+      share.Serialize(writer);
+    }
+
+    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
+    {
+      reader.ReadStartElement(); // Read start of enclosing element
+      Share result = Share.Deserialize(reader);
+      reader.ReadEndElement(); // End of enclosing element
+      return result;
     }
   }
 }

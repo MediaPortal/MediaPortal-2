@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace MediaPortal.Core.MediaManagement
@@ -77,7 +78,19 @@ namespace MediaPortal.Core.MediaManagement
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
       CheckSingleAttribute(attributeSpecification);
-      return (T)_aspectData[attributeSpecification];
+      return (T) _aspectData[attributeSpecification];
+    }
+
+    /// <summary>
+    /// Returns the attribute of type <paramref name="attributeSpecification"/> for this media item aspect.
+    /// </summary>
+    /// <param name="attributeSpecification">Attribute type to return.</param>
+    /// <returns>Attribute of this media item aspect which belongs to the specified <paramref name="attributeSpecification"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown if an attribute type is requested which is not defined on this MIA's metadata.</exception>
+    public object GetAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    {
+      CheckSingleAttribute(attributeSpecification);
+      return _aspectData[attributeSpecification];
     }
 
     /// <summary>
@@ -100,6 +113,21 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
+    /// Returns the collection attribute of type <paramref name="attributeSpecification"/> for this
+    /// media item aspect.
+    /// </summary>
+    /// <param name="attributeSpecification">Attribute type to return.</param>
+    /// <returns>Enumeration of attribute values of this media item aspect which belongs to the specified
+    /// <paramref name="attributeSpecification"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown if an attribute type is requested which is not defined on this
+    /// MIA's metadata.</exception>
+    public IEnumerable GetCollectionAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    {
+      CheckCollectionAttribute(attributeSpecification);
+      return (IEnumerable) _aspectData[attributeSpecification];
+    }
+
+    /// <summary>
     /// Sets the attribute of type <paramref name="attributeSpecification"/> for this media item aspect.
     /// </summary>
     /// <param name="attributeSpecification">Attribute type to set.</param>
@@ -112,6 +140,22 @@ namespace MediaPortal.Core.MediaManagement
     public void SetAttribute<T>(MediaItemAspectMetadata.AttributeSpecification attributeSpecification, T value)
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
+      CheckSingleAttribute(attributeSpecification);
+      _aspectData[attributeSpecification] = value;
+    }
+
+    /// <summary>
+    /// Sets the attribute of type <paramref name="attributeSpecification"/> for this media item aspect.
+    /// </summary>
+    /// <param name="attributeSpecification">Attribute type to set.</param>
+    /// <param name="value">Value to be set to the specified attribute.</param>
+    /// <exception cref="ArgumentException">Thrown if an attribute type is specified which is not defined on this MIA's metadata or
+    /// if the provided <paramref name="value"/>'s type doesn't match the defined type in the
+    /// <paramref name="attributeSpecification"/>.</exception>
+    public void SetAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification, object value)
+    {
+      if (value != null)
+        CheckAttributeSpecification(attributeSpecification, value.GetType());
       CheckSingleAttribute(attributeSpecification);
       _aspectData[attributeSpecification] = value;
     }
@@ -130,6 +174,21 @@ namespace MediaPortal.Core.MediaManagement
     public void SetCollectionAttribute<T>(MediaItemAspectMetadata.AttributeSpecification attributeSpecification, IEnumerable<T> value)
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
+      CheckCollectionAttribute(attributeSpecification);
+      _aspectData[attributeSpecification] = value;
+    }
+
+    /// <summary>
+    /// Sets the collection attribute of type <paramref name="attributeSpecification"/> for this
+    /// media item aspect.
+    /// </summary>
+    /// <param name="attributeSpecification">Attribute type to set.</param>
+    /// <param name="value">Enumeration of values to be set to the specified attribute.</param>
+    /// <exception cref="ArgumentException">Thrown if an attribute type is specified which is not defined on this
+    /// MIA's metadata or if the most specific type of all elements in the <paramref name="value"/> enumeration
+    /// doesn't match the defined type in the <paramref name="attributeSpecification"/>.</exception>
+    public void SetCollectionAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification, IEnumerable value)
+    {
       CheckCollectionAttribute(attributeSpecification);
       _aspectData[attributeSpecification] = value;
     }
