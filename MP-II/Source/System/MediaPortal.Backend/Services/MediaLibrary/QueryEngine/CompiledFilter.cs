@@ -204,7 +204,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       {
         result.Add(attributeOperand);
         result.Add(" LIKE ");
-        result.Add(likeFilter.LikeExpression);
+        result.Add(likeFilter.Expression);
         result.Add(" ESCAPE '");
         result.Add(likeFilter.EscapeChar);
         result.Add("'");
