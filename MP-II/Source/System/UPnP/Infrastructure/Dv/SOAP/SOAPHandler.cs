@@ -90,7 +90,6 @@ namespace UPnP.Infrastructure.Dv.SOAP
     public static HttpStatusCode HandleRequest(DvService service, Stream messageStream, Encoding streamEncoding,
         bool subscriberSupportsUPnP11, out string result)
     {
-      result = null;
       UPnPError res;
       try
       {
@@ -109,7 +108,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
             int version;
             // Parse service and action
             if (!ParserHelper.TryParseTypeVersion_URN(serviceTypeVersion_URN, out type, out version))
-              return HttpStatusCode.BadRequest;
+              throw new MediaPortal.Utilities.Exceptions.InvalidDataException("Unable to parse service type and version URN '{0}'", serviceTypeVersion_URN);
             string actionName = reader.LocalName;
             if (!service.Actions.TryGetValue(actionName, out action))
             {
@@ -162,6 +161,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
         catch (Exception e)
         {
           Configuration.LOGGER.Warn("SOAPHandler: Error invoking UPnP action '{0}'", e, action.Name);
+          result = CreateFaultDocument(501, "Action Failed");
           return HttpStatusCode.InternalServerError;
         }
         if (res != null)
@@ -185,6 +185,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
       catch (Exception e)
       {
         Configuration.LOGGER.Warn("Error handling SOAP request: " + e.Message); // Don't log the whole exception; it's only a communication error with a client
+        result = null;
         return HttpStatusCode.BadRequest;
       }
     }
