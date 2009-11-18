@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security;
 using System.Threading;
 using MediaPortal.Utilities;
 
@@ -65,26 +66,32 @@ namespace UPnP.Infrastructure.Utils
     public static void MulticastMessage(IPAddress localAddress, IPAddress multicastAddress, byte[] data)
     {
       Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-      socket.Bind(new IPEndPoint(localAddress, 0));
-      AddressFamily family = localAddress.AddressFamily;
-      if (family == AddressFamily.InterNetwork)
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, Configuration.DEFAULT_SSDP_UDP_TTL_V4);
-      if (localAddress != IPAddress.Loopback && localAddress != IPAddress.IPv6Loopback)
+      try
       {
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback, 1);
+        socket.Bind(new IPEndPoint(localAddress, 0));
+        AddressFamily family = localAddress.AddressFamily;
         if (family == AddressFamily.InterNetwork)
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-              new MulticastOption(multicastAddress, localAddress));
-        else
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-              new IPv6MulticastOption(multicastAddress));
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, Configuration.DEFAULT_SSDP_UDP_TTL_V4);
+        if (localAddress != IPAddress.Loopback && localAddress != IPAddress.IPv6Loopback)
+        {
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback, 1);
+          if (family == AddressFamily.InterNetwork)
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
+                new MulticastOption(multicastAddress, localAddress));
+          else
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
+                new IPv6MulticastOption(multicastAddress));
+        }
+        // Add membership to multicast group here?
+        IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
+        socket.SendTo(data, multicastEndpoint);
+        socket.SendTo(data, multicastEndpoint);
+        // Drop member to multicast group, if appropriate
+        socket.Close();
       }
-      // Add membership to multicast group here?
-      IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
-      socket.SendTo(data, multicastEndpoint);
-      socket.SendTo(data, multicastEndpoint);
-      // Drop member to multicast group, if appropriate
-      socket.Close();
+      // Simply ignore if we cannot send a multicast message
+      catch (SocketException) { }
+      catch (SecurityException) { }
     }
 
     /// <summary>

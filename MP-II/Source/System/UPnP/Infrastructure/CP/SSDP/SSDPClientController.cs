@@ -133,6 +133,8 @@ namespace UPnP.Infrastructure.CP.SSDP
       UDPAsyncReceiveState state = (UDPAsyncReceiveState) ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
       Socket socket = config.MulticastReceiveSocket;
+      if (socket == null)
+        return;
       try
       {
         Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceive(ar));
@@ -149,9 +151,10 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         StartMulticastReceive(state);
       }
-      catch (ObjectDisposedException)
+      catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
+        Configuration.LOGGER.Info("SSDPClientController: Stopping listening for multicast messages at address '{0}'", config.SSDPMulticastAddress);
       }
     }
 
@@ -160,6 +163,8 @@ namespace UPnP.Infrastructure.CP.SSDP
       UDPAsyncReceiveState state = (UDPAsyncReceiveState) ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
       Socket socket = config.UnicastSocket;
+      if (socket == null)
+        return;
       try
       {
         Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceive(ar));
@@ -176,9 +181,10 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         StartUnicastReceive(state);
       }
-      catch (ObjectDisposedException)
+      catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
+        Configuration.LOGGER.Info("SSDPClientController: Stopping listening for unicast messages at address '{0}'", config.EndPointIPAddress);
       }
     }
 
@@ -276,29 +282,43 @@ namespace UPnP.Infrastructure.CP.SSDP
           else
             continue;
           config.EndPointIPAddress = address;
-          // Multicast receiver socket - used for receiving multicast messages
-          Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
-          socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-          socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
-          if (family == AddressFamily.InterNetwork)
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-                new MulticastOption(config.SSDPMulticastAddress));
-          else
-            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-                new IPv6MulticastOption(config.SSDPMulticastAddress));
-          config.MulticastReceiveSocket = socket;
-          UDPAsyncReceiveState state = new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE);
-          StartMulticastReceive(state);
+          try
+          {
+            // Multicast receiver socket - used for receiving multicast messages
+            Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+            socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
+            if (family == AddressFamily.InterNetwork)
+              socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
+                  new MulticastOption(config.SSDPMulticastAddress));
+            else
+              socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+                  new IPv6MulticastOption(config.SSDPMulticastAddress));
+            config.MulticastReceiveSocket = socket;
+            StartMulticastReceive(new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE));
+          }
+          catch (Exception) // SocketException, SecurityException
+          {
+            Configuration.LOGGER.Info("SSDPClientController: Unable to bind to multicast address '{0}' for endpoint '{1}'",
+                config.SSDPMulticastAddress, config.EndPointIPAddress);
+          }
 
-          // Unicast sender and receiver socket - used for sending M-SEARCH queries and receiving its responses.
-          // We need a second socket here because the search responses which arrive at this port are structured
-          // in another way than the notifications which arrive at our multicast socket.
-          socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
-          socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
-          config.UnicastSocket = socket;
-          _endpoints.Add(config);
-          state = new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE);
-          StartUnicastReceive(state);
+          try
+          {
+            // Unicast sender and receiver socket - used for sending M-SEARCH queries and receiving its responses.
+            // We need a second socket here because the search responses which arrive at this port are structured
+            // in another way than the notifications which arrive at our multicast socket.
+            Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+            socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
+            config.UnicastSocket = socket;
+            _endpoints.Add(config);
+            StartUnicastReceive(new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE));
+          }
+          catch (Exception) // SocketException, SecurityException
+          {
+            Configuration.LOGGER.Info("SSDPClientController: Unable to bind to unicast address '{0}'",
+                config.EndPointIPAddress);
+          }
         }
   
         _expirationTimer = new Timer(OnExpirationTimerElapsed, null, EXPIRATION_TIMER_INTERVAL, EXPIRATION_TIMER_INTERVAL);
@@ -318,8 +338,12 @@ namespace UPnP.Infrastructure.CP.SSDP
         _isActive = false;
         foreach (EndpointConfiguration config in _endpoints)
         {
-          config.MulticastReceiveSocket.Close();
-          config.UnicastSocket.Close();
+          Socket socket = config.MulticastReceiveSocket;
+          if (socket != null)
+            socket.Close();
+          socket = config.UnicastSocket;
+          if (socket != null)
+            socket.Close();
         }
         _endpoints.Clear();
         _deviceEntries.Clear();
@@ -377,12 +401,13 @@ namespace UPnP.Infrastructure.CP.SSDP
     {
       try
       {
-        state.Endpoint.MulticastReceiveSocket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,
-            OnSSDPMulticastReceive, state);
+        Socket socket = state.Endpoint.MulticastReceiveSocket;
+        if (socket != null)
+          socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnSSDPMulticastReceive, state);
       }
-      catch (IOException e)
+      catch (Exception e) // SocketException and ObjectDisposedException
       {
-        Configuration.LOGGER.Error("SSDPClientController: Problem receiving SSDP packets: '{0}'", e.Message);
+        Configuration.LOGGER.Error("SSDPClientController: Problem receiving multicast SSDP packets: '{0}'", e.Message);
       }
     }
 
@@ -390,12 +415,13 @@ namespace UPnP.Infrastructure.CP.SSDP
     {
       try
       {
-        state.Endpoint.UnicastSocket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,
-            OnSSDPUnicastReceive, state);
+        Socket socket = state.Endpoint.UnicastSocket;
+        if (socket != null)
+          socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnSSDPUnicastReceive, state);
       }
-      catch (IOException e)
+      catch (Exception e) // SocketException and ObjectDisposedException
       {
-        Configuration.LOGGER.Error("SSDPClientController: Problem receiving SSDP packets: '{0}'", e.Message);
+        Configuration.LOGGER.Error("SSDPClientController: Problem receiving unicast SSDP packets: '{0}'", e.Message);
       }
     }
 
@@ -490,8 +516,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           if (config.EndPointIPAddress.AddressFamily != endPoint.AddressFamily)
             continue;
+          Socket socket = config.UnicastSocket;
+          if (socket == null)
+            return;
           byte[] bytes = request.Encode();
-          config.UnicastSocket.SendTo(bytes, endPoint); // The server will send the answer to the same socket as we use to send
+          socket.SendTo(bytes, endPoint); // The server will send the answer to the same socket as we use to send
           return;
         }
       }
@@ -510,8 +539,11 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
           request.SetHeader("HOST", ep.ToString());
+          Socket socket = config.UnicastSocket;
+          if (socket == null)
+            continue;
           byte[] bytes = request.Encode();
-          config.UnicastSocket.SendTo(bytes, ep); // The server will send the answer to the same socket as we use to send
+          socket.SendTo(bytes, ep); // The server will send the answer to the same socket as we use to send
         }
       }
     }

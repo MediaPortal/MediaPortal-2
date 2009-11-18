@@ -168,11 +168,11 @@ namespace UPnP.Infrastructure.Dv.GENA
       state.Request = request;
 
       // First get the request stream...
-      IAsyncResult result = state.Request.BeginGetRequestStream(OnGetRequestStream, state);
+      IAsyncResult result = state.Request.BeginGetRequestStream(OnEventGetRequestStream, state);
       NetworkHelper.AddTimeout(request, result, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000);
     }
 
-    private void OnGetRequestStream(IAsyncResult ar)
+    private void OnEventGetRequestStream(IAsyncResult ar)
     {
       AsyncRequestState state = (AsyncRequestState) ar.AsyncState;
       try
@@ -185,6 +185,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         IAsyncResult result = state.Request.BeginGetResponse(OnEventResponseReceived, state);
         NetworkHelper.AddTimeout(state.Request, result, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000);
       }
+      catch (IOException) { }
       catch (WebException) { }
       ContinueEventNotification(state);
     }

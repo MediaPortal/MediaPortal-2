@@ -25,6 +25,7 @@
 
 using System;
 using System.Net;
+using System.Net.Sockets;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.HTTP;
 
@@ -62,7 +63,9 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
       response.SetHeader("LOCATION", _localEndpointConfiguration.RootDeviceDescriptionURLs[rootDevice]);
       byte[] bytes = response.Encode();
-      _localEndpointConfiguration.SSDP_UDP_UnicastSocket.SendTo(bytes, _receiverEndPoint);
+      Socket socket = _localEndpointConfiguration.SSDP_UDP_UnicastSocket;
+      if (socket != null)
+        socket.SendTo(bytes, _receiverEndPoint);
     }
   }
 }

@@ -160,9 +160,10 @@ namespace UPnP.Infrastructure.Dv.SSDP
         }
         StartReceive(state);
       }
-      catch (ObjectDisposedException)
+      catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
+        Configuration.LOGGER.Info("SSDPServerController: Stopping listening for multicast messages at address '{0}'", config.SSDPMulticastAddress);
       }
     }
 
@@ -276,53 +277,67 @@ namespace UPnP.Infrastructure.Dv.SSDP
         return;
       config.SSDPSearchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
 
-      // Multicast receiver socket - used for receiving multicast messages
-      Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
-      socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-      // Need to bind the multicast socket to the multicast port. Which meaning does the IP address have?
-      socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
-      if (family == AddressFamily.InterNetwork)
-      {
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-            new MulticastOption(config.SSDPMulticastAddress));
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-      }
-      else
-      {
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-            new IPv6MulticastOption(config.SSDPMulticastAddress));
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
-      }
-
-      config.SSDP_UDP_MulticastReceiveSocket = socket;
-      UDPAsyncReceiveState state = new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE, socket);
-      StartReceive(state);
-
-      // Unicast sender and receiver socket - used for receiving unicast M-SEARCH queries and sending M-SEARCH responses
-      socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
-      socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
       try
       {
-        // Try to bind our unicast receiver socket to the default SSDP port
-        socket.Bind(new IPEndPoint(config.EndPointIPAddress, config.SSDPSearchPort));
+        // Multicast receiver socket - used for receiving multicast messages
+        Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+        // Need to bind the multicast socket to the multicast port.
+        // Albert: Which meaning does the IP address have?
+        socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
+        if (family == AddressFamily.InterNetwork)
+        {
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
+              new MulticastOption(config.SSDPMulticastAddress));
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+        }
+        else
+        {
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
+              new IPv6MulticastOption(config.SSDPMulticastAddress));
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
+        }
+        config.SSDP_UDP_MulticastReceiveSocket = socket;
+        StartReceive(new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE, socket));
       }
-      catch (SocketException e)
+      catch (Exception) // SocketException, SecurityException
       {
-        if (e.SocketErrorCode != SocketError.AddressAlreadyInUse)
-          throw;
-        // If binding to the default SSDP port doesn't work, try a random port...
-        socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
-        // ... which will be stored in the SSDPSearchPort variable which will be used for the SEARCHPORT.UPNP.ORG SSDP header.
-        config.SSDPSearchPort = ((IPEndPoint) socket.LocalEndPoint).Port;
+        Configuration.LOGGER.Info("SSDPServerController: Unable to bind to multicast address '{0}' for endpoint '{1}'",
+            config.SSDPMulticastAddress, config.EndPointIPAddress);
       }
-      Configuration.LOGGER.Info("UPnP server: SSDP enabled for IP endpoint '{0}', search port is {1}", config.EndPointIPAddress, config.SSDPSearchPort);
-      if (family == AddressFamily.InterNetwork)
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-      else
-        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
-      config.SSDP_UDP_UnicastSocket = socket;
-      state = new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE, socket);
-      StartReceive(state);
+
+      try
+      {
+        // Unicast sender and receiver socket - used for receiving unicast M-SEARCH queries and sending M-SEARCH responses
+        Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+        socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+        try
+        {
+          // Try to bind our unicast receiver socket to the default SSDP port
+          socket.Bind(new IPEndPoint(config.EndPointIPAddress, config.SSDPSearchPort));
+        }
+        catch (SocketException e)
+        {
+          if (e.SocketErrorCode != SocketError.AddressAlreadyInUse)
+            throw;
+          // If binding to the default SSDP port doesn't work, try a random port...
+          socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
+          // ... which will be stored in the SSDPSearchPort variable which will be used for the SEARCHPORT.UPNP.ORG SSDP header.
+          config.SSDPSearchPort = ((IPEndPoint) socket.LocalEndPoint).Port;
+        }
+        Configuration.LOGGER.Info("UPnP server: SSDP enabled for IP endpoint '{0}', search port is {1}", config.EndPointIPAddress, config.SSDPSearchPort);
+        if (family == AddressFamily.InterNetwork)
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
+        else
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
+        config.SSDP_UDP_UnicastSocket = socket;
+        StartReceive(new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE, socket));
+      }
+      catch (Exception) // SocketException, SecurityException
+      {
+        Configuration.LOGGER.Info("SSDPServerController: Unable to bind to unicast address '{0}'",
+            config.EndPointIPAddress);
+      }
     }
 
     /// <summary>
@@ -341,17 +356,33 @@ namespace UPnP.Infrastructure.Dv.SSDP
     public void CloseSSDPEndpoint(EndpointConfiguration config)
     {
       Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
-      socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-          new MulticastOption(config.SSDPMulticastAddress));
-      socket.Close();
-      config.SSDP_UDP_UnicastSocket.Close();
+      if (socket != null)
+      {
+        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
+            new MulticastOption(config.SSDPMulticastAddress));
+        socket.Close();
+        config.SSDP_UDP_MulticastReceiveSocket = null;
+      }
+      socket = config.SSDP_UDP_UnicastSocket;
+      if (socket != null)
+      {
+        config.SSDP_UDP_UnicastSocket.Close();
+        config.SSDP_UDP_UnicastSocket = null;
+      }
     }
 
     protected void StartReceive(UDPAsyncReceiveState state)
     {
       EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
-      state.Socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,
-          ref remoteEP, OnSSDPReceive, state);
+      try
+      {
+        state.Socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,
+            ref remoteEP, OnSSDPReceive, state);
+      }
+      catch (Exception e) // SocketException and ObjectDisposedException
+      {
+        Configuration.LOGGER.Info("SSDPServerController: UPnP SSDP subsystem unable to receive from IP address '{0}'", state.Endpoint.EndPointIPAddress);
+      }
     }
 
     /// <summary>
