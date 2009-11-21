@@ -358,8 +358,12 @@ namespace UPnP.Infrastructure.Dv.SSDP
       Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
       if (socket != null)
       {
-        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-            new MulticastOption(config.SSDPMulticastAddress));
+        if (config.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork)
+          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
+              new MulticastOption(config.SSDPMulticastAddress));
+        else
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+              new MulticastOption(config.SSDPMulticastAddress));
         socket.Close();
         config.SSDP_UDP_MulticastReceiveSocket = null;
       }
