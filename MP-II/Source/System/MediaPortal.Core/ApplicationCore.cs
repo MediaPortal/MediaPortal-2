@@ -27,6 +27,7 @@ using MediaPortal.Core.ImporterWorker;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.PluginManager;
@@ -102,6 +103,17 @@ namespace MediaPortal.Core
     public static void StartCoreServices()
     {
       ServiceScope.Get<ILocalization>().Startup();
+    }
+
+    public static void RegisterDefaultMediaItemAspectTypes()
+    {
+      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(MusicAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(PictureAspect.Metadata);
     }
 
     public static void DisposeCoreServices()

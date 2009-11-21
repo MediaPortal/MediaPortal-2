@@ -116,6 +116,7 @@ namespace MediaPortal
           pluginManager.Initialize();
           pluginManager.Startup(false);
           ApplicationCore.StartCoreServices();
+          ApplicationCore.RegisterDefaultMediaItemAspectTypes();
 
           ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
           IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
