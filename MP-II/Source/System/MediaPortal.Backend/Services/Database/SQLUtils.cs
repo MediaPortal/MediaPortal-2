@@ -24,6 +24,7 @@
 
 using System;
 using System.Text;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Services.Database
 {
@@ -50,11 +51,44 @@ namespace MediaPortal.Services.Database
       return result.ToString().ToUpperInvariant();
     }
 
+    /// <summary>
+    /// Special characters in an SQL LIKE expression which need to be escaped.
+    /// </summary>
+    public static char[] LIKE_SPECIAL_CHARACTERS = new char[]
+        {
+          '%', '_'
+        };
+
+    /// <summary>
+    /// Special characters in an SQL SIMILAR TO expression which need to be escaped.
+    /// </summary>
+    public static char[] SIMILAR_TO_SPECIAL_CHARACTERS = new char[]
+        {
+          '%', '_', '|', '*', '?', '+', '{', '}', '(', ')', '[', ']', '^', '$', '.', '#'
+        };
+
+    /// <summary>
+    /// Escapes all characters in the given string <paramref name="str"/> which are special characters in SQL LIKE expressions.
+    /// </summary>
+    /// <param name="str">String to escape.</param>
+    /// <param name="escapeChar">Character to use as escape character. The character will be put in front of each special
+    /// character in the string.</param>
+    /// <returns>Escaped string.</returns>
     public static string LikeEscape(string str, char escapeChar)
     {
-      return str.Replace(escapeChar.ToString(), escapeChar.ToString() + escapeChar).
-          Replace("%", escapeChar + "%").
-          Replace("_", escapeChar + "_");
+      return StringUtils.Escape(str, LIKE_SPECIAL_CHARACTERS, escapeChar);
+    }
+
+    /// <summary>
+    /// Escapes all characters in the given string <paramref name="str"/> which are special characters in SQL SIMILAR TO expressions.
+    /// </summary>
+    /// <param name="str">String to escape.</param>
+    /// <param name="escapeChar">Character to use as escape character. The character will be put in front of each special
+    /// character in the string.</param>
+    /// <returns>Escaped string.</returns>
+    public static string SimilarToEscape(string str, char escapeChar)
+    {
+      return StringUtils.Escape(str, SIMILAR_TO_SPECIAL_CHARACTERS, escapeChar);
     }
   }
 }

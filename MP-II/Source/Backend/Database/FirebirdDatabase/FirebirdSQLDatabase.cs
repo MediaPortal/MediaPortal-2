@@ -195,6 +195,26 @@ namespace MediaPortal.Database.Firebird
       return "CHAR(" + maxNumChars + ")";
     }
 
+    public string GetCreateSequenceCommand(string sequenceName)
+    {
+      return "CREATE SEQUENCE " + sequenceName;
+    }
+
+    public string GetDropSequenceCommand(string sequenceName)
+    {
+      return "DROP SEQUENCE " + sequenceName;
+    }
+
+    public string GetSelectSequenceNextValStatement(string sequenceName)
+    {
+      return "(SELECT NEXT VALUE FOR " + sequenceName + " FROM RDB$DATABASE)";
+    }
+
+    public string GetSelectSequenceCurrValStatement(string sequenceName)
+    {
+      return "SELECT GEN_ID(" + sequenceName + ", 0 ) FROM RDB$DATABASE";
+    }
+
     public ITransaction BeginTransaction(IsolationLevel level)
     {
       return FirebirdTransaction.BeginTransaction(_connectionString, level);

@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
@@ -35,24 +36,25 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
-  /// Creates an SQL query for a media item query, executes the query and reads the result.
+  /// Contains compiled media item query data, creates an SQL query for the query attributes, executes the query and picks out
+  /// the result.
   /// </summary>
   public class CompiledMediaItemQuery
   {
-    protected MIAM_Management _miamManagement;
-    protected ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
-    protected IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
-    protected ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
-    protected CompiledFilter _filter;
+    protected readonly MIA_Management _miaManagement;
+    protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
+    protected readonly IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> _mainSelectAttributes;
+    protected readonly ICollection<MediaItemAspectMetadata.AttributeSpecification> _explicitSelectAttributes;
+    protected readonly CompiledFilter _filter;
 
     public CompiledMediaItemQuery(
-        MIAM_Management miamManagement,
+        MIA_Management miaManagement,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
         IDictionary<MediaItemAspectMetadata.AttributeSpecification, QueryAttribute> mainSelectedAttributes,
         ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectedAttributes,
         CompiledFilter filter)
     {
-      _miamManagement = miamManagement;
+      _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _mainSelectAttributes = mainSelectedAttributes;
       _explicitSelectAttributes = explicitSelectedAttributes;
@@ -74,7 +76,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public static CompiledMediaItemQuery Compile(MIAM_Management miamManagement, MediaItemQuery query,
+    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query,
         IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes)
     {
       ICollection<MediaItemAspectMetadata> necessaryMIAs = new List<MediaItemAspectMetadata>();
@@ -87,7 +89,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         necessaryMIAs.Add(miam);
       }
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter filter = CompiledFilter.Compile(miamManagement, query.Filter);
+      CompiledFilter filter = CompiledFilter.Compile(miaManagement, query.Filter);
       foreach (QueryAttribute qa in filter.FilterAttributes)
       {
         MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;
@@ -103,14 +105,17 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       ICollection<MediaItemAspectMetadata.AttributeSpecification> explicitSelectAttributes =
           new List<MediaItemAspectMetadata.AttributeSpecification>();
 
+      // Allocate selected attributes to main query and explicit selects
       ICollection<Guid> requestedMIATypeIDs = CollectionUtils.UnionSet(
           query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs);
       foreach (Guid miaTypeID in requestedMIATypeIDs)
       {
         MediaItemAspectMetadata miam;
         if (!availableMIATypes.TryGetValue(miaTypeID, out miam))
+          // If one of the necessary MIA types is not available, an exception was raised above. So we only
+          // come to here if an optional MIA type is not present - simply ignore that.
           continue;
-        foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications)
+        foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
         {
           if (attr.Cardinality == Cardinality.Inline)
             mainSelectedAttributes[attr] = new QueryAttribute(attr);
@@ -119,7 +124,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         }
       }
 
-      return new CompiledMediaItemQuery(miamManagement, necessaryMIAs,
+      return new CompiledMediaItemQuery(miaManagement, necessaryMIAs,
           mainSelectedAttributes, explicitSelectAttributes, filter);
     }
 
@@ -137,11 +142,11 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
         {
           ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
-              attr, _necessaryRequestedMIAs, _filter);
+              _miaManagement, attr, _necessaryRequestedMIAs, _filter);
           command = transaction.CreateCommand();
           string mediaItemIdAlias;
           string valueAlias;
-          command.CommandText = complexAttributeQueryBuilder.GenerateSqlStatement(_miamManagement, new Namespace(), false,
+          command.CommandText = complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), false,
               out mediaItemIdAlias, out valueAlias);
 
           IDataReader reader = command.ExecuteReader();
@@ -168,8 +173,8 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         }
 
         // 2. Main query
-        MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_necessaryRequestedMIAs,
-            _mainSelectAttributes.Values, _filter);
+        MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement,
+            _necessaryRequestedMIAs, _mainSelectAttributes.Values, _filter);
 
         command = transaction.CreateCommand();
         string mediaItemIdAlias2;
@@ -177,7 +182,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         Namespace mainQueryNS = new Namespace();
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
         IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
-        command.CommandText = mainQueryBuilder.GenerateSqlStatement(_miamManagement, mainQueryNS, false, out mediaItemIdAlias2,
+        command.CommandText = mainQueryBuilder.GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2,
             out miamAliases, out qa2cqa);
 
         ICollection<MediaItemAspectMetadata> selectedMIAs = new HashSet<MediaItemAspectMetadata>();
@@ -201,7 +206,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
                 // MIAM is not available for current media item
                 continue;
               MediaItemAspect mia = new MediaItemAspect(miam);
-              foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications)
+              foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
                 if (attr.Cardinality == Cardinality.Inline)
                 {
                   QueryAttribute qa = _mainSelectAttributes[attr];
@@ -229,6 +234,29 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       {
         transaction.Dispose();
       }
+    }
+
+    public override string ToString()
+    {
+      StringBuilder result = new StringBuilder();
+      result.Append("CompiledMediaItemQuery\r\n");
+      foreach (MediaItemAspectMetadata.AttributeSpecification attr in _explicitSelectAttributes)
+      {
+        ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
+            _miaManagement, attr, _necessaryRequestedMIAs, _filter);
+        result.Append("Attribute-Query for ");
+        result.Append(attr.ParentMIAM.Name);
+        result.Append(".");
+        result.Append(attr.AttributeName);
+        result.Append(":\r\n");
+        result.Append(complexAttributeQueryBuilder.ToString());
+        result.Append("\r\n\r\n");
+      }
+      result.Append("Main query:\r\n");
+      MainQueryBuilder mainQueryBuilder = new MainQueryBuilder(_miaManagement, _necessaryRequestedMIAs,
+          _mainSelectAttributes.Values, _filter);
+      result.Append(mainQueryBuilder.ToString());
+      return result.ToString();
     }
   }
 }

@@ -28,7 +28,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Utils;
 
@@ -60,14 +59,14 @@ namespace MediaPortal.Core.UPnP
       return typeof(IEnumerable).IsAssignableFrom(type);
     }
 
-    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       IEnumerable shares = (IEnumerable) value;
       foreach (Share share in shares)
         share.Serialize(writer);
     }
 
-    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
+    protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       ICollection<Share> result = new List<Share>();
       if (SoapHelper.ReadEmptyElement(reader))

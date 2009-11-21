@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Xml;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Core.MediaManagement
@@ -73,6 +74,27 @@ namespace MediaPortal.Core.MediaManagement
     public MediaItemAspect this[Guid mediaItemAspectId]
     {
       get { return _aspects.ContainsKey(mediaItemAspectId) ? _aspects[mediaItemAspectId] : null; }
+    }
+
+    public void Serialize(XmlWriter writer)
+    {
+      writer.WriteStartElement("MediaItem");
+      foreach (MediaItemAspect mia in _aspects.Values)
+        mia.Serialize(writer);
+      writer.WriteEndElement(); // MediaItem
+    }
+
+    public static MediaItem Deserialize(XmlReader reader)
+    {
+      reader.ReadStartElement("MediaItem");
+      MediaItem result = new MediaItem();
+      while (reader.NodeType != XmlNodeType.EndElement)
+      {
+        MediaItemAspect mia = MediaItemAspect.Deserialize(reader);
+        result.Aspects[mia.Metadata.AspectId] = mia;
+      }
+      reader.ReadEndElement(); // MediaItem
+      return result;
     }
 
     #region IEquatable<MediaItem> implementation

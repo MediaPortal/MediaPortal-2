@@ -31,7 +31,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
   /// </summary>
   public class Namespace
   {
-    protected IDictionary<object, string> _objects2names = new Dictionary<object, string>();
+    protected readonly IDictionary<object, string> _objects2names = new Dictionary<object, string>();
 
     public string Get(object obj)
     {

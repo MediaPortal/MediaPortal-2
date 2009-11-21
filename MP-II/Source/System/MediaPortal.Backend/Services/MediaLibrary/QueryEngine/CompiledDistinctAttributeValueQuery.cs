@@ -39,16 +39,16 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
   /// </summary>
   public class CompiledDistinctAttributeValueQuery
   {
-    MIAM_Management _miamManagement;
-    protected MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
-    protected CompiledFilter _filter;
+    protected readonly MIA_Management _miaManagement;
+    protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
+    protected readonly CompiledFilter _filter;
 
     public CompiledDistinctAttributeValueQuery(
-        MIAM_Management miamManagement,
+        MIA_Management miaManagement,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
         CompiledFilter filter)
     {
-      _miamManagement = miamManagement;
+      _miaManagement = miaManagement;
       _selectAttribute = selectedAttribute;
       _filter = filter;
     }
@@ -63,12 +63,12 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public static CompiledDistinctAttributeValueQuery Compile(MIAM_Management miamManagement,
+    public static CompiledDistinctAttributeValueQuery Compile(MIA_Management miaManagement,
         MediaItemAspectMetadata.AttributeSpecification selectAttribute,
         IFilter filter, IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes)
     {
       // Raise exception if MIA types are not present, which are contained in filter condition
-      CompiledFilter compiledFilter = CompiledFilter.Compile(miamManagement, filter);
+      CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, filter);
       foreach (QueryAttribute qa in compiledFilter.FilterAttributes)
       {
         MediaItemAspectMetadata miam = qa.Attr.ParentMIAM;
@@ -76,10 +76,10 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
           throw new InvalidDataException("MIA type '{0}', which is contained in filter condition, is not present in the media library", miam.Name);
       }
 
-      return new CompiledDistinctAttributeValueQuery(miamManagement, selectAttribute, compiledFilter);
+      return new CompiledDistinctAttributeValueQuery(miaManagement, selectAttribute, compiledFilter);
     }
 
-    public ICollection<object> Execute()
+    public HomogenousCollection Execute()
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -90,28 +90,28 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         string valueAlias;
         if (_selectAttribute.Cardinality == Cardinality.Inline)
         {
-          ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_selectAttribute,
-              new List<MediaItemAspectMetadata>(), _filter);
-          string mediaItemIdAlias;
-          command.CommandText = builder.GenerateSqlStatement(_miamManagement, new Namespace(),
-              true, out mediaItemIdAlias, out valueAlias);
-        }
-        else
-        {
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-          MainQueryBuilder builder = new MainQueryBuilder(new List<MediaItemAspectMetadata>(),
+          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new List<MediaItemAspectMetadata>(),
               new QueryAttribute[] {selectAttributeQA}, _filter);
           Namespace ns = new Namespace();
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
           IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
-          command.CommandText = builder.GenerateSqlStatement(_miamManagement, ns, true, out mediaItemIdAlias,
+          command.CommandText = builder.GenerateSqlStatement(ns, true, out mediaItemIdAlias,
               out miamAliases, out qa2cqa);
           valueAlias = qa2cqa[selectAttributeQA].GetAlias(ns);
         }
+        else
+        {
+          ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
+              new List<MediaItemAspectMetadata>(), _filter);
+          string mediaItemIdAlias;
+          command.CommandText = builder.GenerateSqlStatement(new Namespace(),
+              true, out mediaItemIdAlias, out valueAlias);
+        }
 
         IDataReader reader = command.ExecuteReader();
-        ICollection<object> result = new List<object>();
+        HomogenousCollection result = new HomogenousCollection(_selectAttribute.AttributeType);
         try
         {
           while (reader.Read())

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackendServer\IBackendServer.cs" />
+    <Compile Include="ClientCommunication\ParserHelper.cs" />
     <Compile Include="Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
@@ -78,7 +79,8 @@
     <Compile Include="Services\Logging\ServerCrashLogger.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
     <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
-    <Compile Include="Services\MediaLibrary\MIAM_Management.cs" />
+    <Compile Include="Services\MediaLibrary\MIA_Management.cs" />
+    <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">

@@ -78,7 +78,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlAttribute("Expression")]
+    [XmlElement("Expression")]
     public string XML_Expression
     {
       get { return _expression; }
@@ -88,7 +88,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlAttribute("EscapeChar")]
+    [XmlElement("EscapeChar")]
     public char XML_EscapeChar
     {
       get { return _escapeChar; }

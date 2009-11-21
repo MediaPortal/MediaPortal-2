@@ -22,22 +22,20 @@
 
 #endregion
 
-using MediaPortal.Core.MediaManagement;
+using System;
+using System.Collections.Generic;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.ClientCommunication
 {
-  public class QueryAttribute
+  public class ParserHelper
   {
-    protected readonly MediaItemAspectMetadata.AttributeSpecification _attr;
-
-    public QueryAttribute(MediaItemAspectMetadata.AttributeSpecification attr)
+    public static ICollection<Guid> ParseCsvGuidCollection(string csvGuids)
     {
-      _attr = attr;
-    }
-
-    public MediaItemAspectMetadata.AttributeSpecification Attr
-    {
-      get { return _attr; }
+      string[] guids = csvGuids.Split(',');
+      ICollection<Guid> result = new List<Guid>(guids.Length);
+      foreach (string guidStr in guids)
+        result.Add(new Guid(guidStr));
+      return result;
     }
   }
 }

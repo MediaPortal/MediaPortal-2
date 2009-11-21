@@ -24,20 +24,23 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing <see cref="MediaItemAspectMetadata"/> objects.
+  /// Data type serializing and deserializing enumerations of <see cref="MediaItem"/> objects.
   /// </summary>
-  public class UPnPDtMediaItemAspectMetadata : UPnPExtendedDataType
+  public class UPnPDtMediaItems : UPnPExtendedDataType
   {
-    public const string DATATYPE_NAME = "DtMediaItemAspectMetadata";
+    public const string DATATYPE_NAME = "DtMediaItems";
 
-    internal UPnPDtMediaItemAspectMetadata() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtMediaItems() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 
@@ -53,19 +56,24 @@ namespace MediaPortal.Core.UPnP
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(MediaItemAspectMetadata).IsAssignableFrom(type);
+      return typeof(IEnumerable).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
-      miam.Serialize(writer);
+      IEnumerable mediaItems = (IEnumerable) value;
+      foreach (MediaItem mediaItem in mediaItems)
+        mediaItem.Serialize(writer);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
+      ICollection<MediaItem> result = new List<MediaItem>();
+      if (SoapHelper.ReadEmptyElement(reader))
+        return result;
       reader.ReadStartElement(); // Read start of enclosing element
-      MediaItemAspectMetadata result = MediaItemAspectMetadata.Deserialize(reader);
+      while (reader.NodeType != XmlNodeType.EndElement)
+        result.Add(MediaItem.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

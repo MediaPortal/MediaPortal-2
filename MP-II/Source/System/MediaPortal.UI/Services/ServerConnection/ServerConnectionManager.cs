@@ -118,7 +118,7 @@ namespace MediaPortal.Services.ServerConnection
       }
 
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
-      ServiceScope.Get<IThreadPool>().Add(SynchronizeSharesWithServer);
+      ServiceScope.Get<IThreadPool>().Add(SynchronizeDataWithServer);
       // TODO: Call ClientAvailable method at MP server's client manager service
     }
 
@@ -159,15 +159,15 @@ namespace MediaPortal.Services.ServerConnection
     }
 
     /// <summary>
-    /// Synchronously synchronizes all local shares with the MediaPortal server.
+    /// Synchronously synchronizes all local shares and media item aspect types with the MediaPortal server.
     /// </summary>
-    protected void SynchronizeSharesWithServer()
+    protected void SynchronizeDataWithServer()
     {
+      UPnPContentDirectoryService cds = ContentDirectoryService;
+      if (cds == null)
+        return;
       try
       {
-        UPnPContentDirectoryService cds = ContentDirectoryService;
-        if (cds == null)
-          return;
         ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
         IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
         foreach (Share share in cds.GetShares(SystemName.GetLocalSystemName(), SharesFilter.All))
@@ -183,6 +183,19 @@ namespace MediaPortal.Services.ServerConnection
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local shares with server", e);
+      }
+      try
+      {
+        IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+        ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Add unregistered media item aspect types at home server");
+        ICollection<Guid> serverMIATypes = cds.GetAllManagedMediaItemAspectMetadataIds();
+        foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
+          if (!serverMIATypes.Contains(localMiaType.Key))
+            cds.AddMediaItemAspectStorage(localMiaType.Value);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
       }
     }
 

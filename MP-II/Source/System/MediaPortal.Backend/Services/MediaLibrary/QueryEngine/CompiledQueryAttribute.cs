@@ -26,15 +26,15 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   public class CompiledQueryAttribute
   {
-    protected QueryAttribute _queryAttribute;
-    protected TableQueryData _tableQueryData;
-    protected string _attributeName;
+    protected readonly QueryAttribute _queryAttribute;
+    protected readonly TableQueryData _tableQueryData;
+    protected readonly string _attributeName;
 
-    public CompiledQueryAttribute(MIAM_Management miamManagement, QueryAttribute queryAttribute, TableQueryData tableQueryData)
+    public CompiledQueryAttribute(MIA_Management miaManagement, QueryAttribute queryAttribute, TableQueryData tableQueryData)
     {
       _queryAttribute = queryAttribute;
       _tableQueryData = tableQueryData;
-      _attributeName = miamManagement.GetMIAMAttributeColumnName(_queryAttribute.Attr);
+      _attributeName = miaManagement.GetMIAAttributeColumnName(_queryAttribute.Attr);
     }
 
     public string GetAlias(Namespace ns)

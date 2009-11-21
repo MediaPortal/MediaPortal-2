@@ -51,6 +51,13 @@ namespace MediaPortal.Services.Database
   /// <item><term>%STRING([N])%</term><description>string with maximum length of N unicode characters</description></item>
   /// <item><term>%STRING_FIXED([N])%</term><description>string with a fixed length of N characters</description></item>
   /// </list>
+  /// There are also general placeholders:
+  /// <list type="table">
+  /// <listheader><term>Placeholder</term><description>Replacement</description></listheader>  
+  /// <item><term>%CREATE_SEQUENCE([Name])%</term><description>Command creating a sequence.</description></item>
+  /// <item><term>%SELECT_SEQUENCE_NEXTVAL([Name])%</term><description>Pseudo select attribute selecting the next value from the sequence.</description></item>
+  /// <item><term>%SELECT_SEQUENCE_CURRVAL([Name])%</term><description>Pseudo select attribute selecting the current value from the sequence.</description></item>
+  /// </list>
   /// </remarks>
   public class SqlScriptPreprocessor : StringReader
   {
@@ -97,11 +104,41 @@ namespace MediaPortal.Services.Database
       int end = stringPattern.IndexOf(')');
       if (start == -1 || end <= start)
         throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
-      string lstr = stringPattern.Substring(start + 1, end - start - 1).Trim();
+      string lStr = stringPattern.Substring(start + 1, end - start - 1).Trim();
       uint length;
-      if (!uint.TryParse(lstr, out length))
+      if (!uint.TryParse(lStr, out length))
         throw new InvalidDataException("Invalid length in fixed string pattern '{0}'", stringPattern);
       return database.GetSQLFixedLengthStringType(length);
+    }
+
+    protected static string GetCreateSequencePatternReplacement(string stringPattern, ISQLDatabase database)
+    {
+      int start = stringPattern.IndexOf('(');
+      int end = stringPattern.IndexOf(')');
+      if (start == -1 || end <= start)
+        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
+      string name = stringPattern.Substring(start + 1, end - start - 1).Trim();
+      return database.GetCreateSequenceCommand(name);
+    }
+
+    protected static string GetSelectSequenceNextValPatternReplacement(string stringPattern, ISQLDatabase database)
+    {
+      int start = stringPattern.IndexOf('(');
+      int end = stringPattern.IndexOf(')');
+      if (start == -1 || end <= start)
+        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
+      string name = stringPattern.Substring(start + 1, end - start - 1).Trim();
+      return database.GetSelectSequenceNextValStatement(name);
+    }
+
+    protected static string GetSelectSequenceCurrValPatternReplacement(string stringPattern, ISQLDatabase database)
+    {
+      int start = stringPattern.IndexOf('(');
+      int end = stringPattern.IndexOf(')');
+      if (start == -1 || end <= start)
+        throw new InvalidDataException("Malformed fixed string pattern '{0}'", stringPattern);
+      string name = stringPattern.Substring(start + 1, end - start - 1).Trim();
+      return database.GetSelectSequenceCurrValStatement(name);
     }
 
     protected static string Preprocess(string origScript, ISQLDatabase database)
@@ -138,6 +175,36 @@ namespace MediaPortal.Services.Database
         string pattern = match.Value;
         if (!replacements.ContainsKey(pattern))
           replacements.Add(pattern, GetFixedStringPatternReplacement(pattern, database));
+        match = match.NextMatch();
+      }
+
+      // %CREATE_SEQUENCE([NAME])%
+      match = new Regex(@"%CREATE_SEQUENCE\((\w|_)*\)%").Match(interimStr);
+      while (match.Success)
+      {
+        string pattern = match.Value;
+        if (!replacements.ContainsKey(pattern))
+          replacements.Add(pattern, GetCreateSequencePatternReplacement(pattern, database));
+        match = match.NextMatch();
+      }
+
+      // %SELECT_SEQUENCE_NEXTVAL([NAME])%
+      match = new Regex(@"%SELECT_SEQUENCE_NEXTVAL\((\w|_)*\)%").Match(interimStr);
+      while (match.Success)
+      {
+        string pattern = match.Value;
+        if (!replacements.ContainsKey(pattern))
+          replacements.Add(pattern, GetSelectSequenceNextValPatternReplacement(pattern, database));
+        match = match.NextMatch();
+      }
+
+      // %SELECT_SEQUENCE_CURRVAL([NAME])%
+      match = new Regex(@"%SELECT_SEQUENCE_CURRVAL\((\w|_)*\)%").Match(interimStr);
+      while (match.Success)
+      {
+        string pattern = match.Value;
+        if (!replacements.ContainsKey(pattern))
+          replacements.Add(pattern, GetSelectSequenceCurrValPatternReplacement(pattern, database));
         match = match.NextMatch();
       }
 

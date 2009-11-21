@@ -25,18 +25,20 @@
 using MediaPortal.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Presentation.Players;
 using MediaPortal.Presentation.Workflow;
 using MediaPortal.ServerCommunication;
+using MediaPortal.Shares;
+using MediaPortal.Thumbnails;
+using MediaPortal.UserManagement;
 using MediaPortal.Services.Players;
 using MediaPortal.Services.ServerConnection;
 using MediaPortal.Services.Shares;
 using MediaPortal.Services.ThumbnailGenerator;
 using MediaPortal.Services.UserManagement;
 using MediaPortal.Services.Workflow;
-using MediaPortal.Shares;
-using MediaPortal.Thumbnails;
-using MediaPortal.UserManagement;
+using MediaPortal.Services.MediaManagement;
 
 namespace MediaPortal
 {
@@ -67,6 +69,9 @@ namespace MediaPortal
       logger.Debug("UiExtension: Registering IServerConnectionManager service");
       ServiceScope.Add<IServerConnectionManager>(new ServerConnectionManager());
 
+      logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
+      ServiceScope.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
+
       AdditionalUiBuilders.Register();
     }
 
@@ -87,6 +92,9 @@ namespace MediaPortal
       ILogger logger = ServiceScope.Get<ILogger>();
 
       // Reverse order than method RegisterUiServices()
+
+      logger.Debug("UiExtension: Removing IMediaItemAspectTypeRegistration service");
+      ServiceScope.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
 
       logger.Debug("UiExtension: Removing IServerConnectionManager service");
       ServiceScope.RemoveAndDispose<IServerConnectionManager>();

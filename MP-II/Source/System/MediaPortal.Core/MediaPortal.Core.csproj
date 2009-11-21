@@ -77,6 +77,7 @@
     <Compile Include="FileEventNotification\IFileWatchEventArgs.cs" />
     <Compile Include="FileEventNotification\InvalidFileWatchInfoException.cs" />
     <Compile Include="FileEventNotification\NotSupportedDriveTypeException.cs" />
+    <Compile Include="General\HomogenousCollection.cs" />
     <Compile Include="General\IObservable.cs" />
     <Compile Include="General\Property.cs" />
     <Compile Include="General\SmallLRUCache.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IImporterWorker.cs" />
+    <Compile Include="MediaManagement\IMediaItemAspectTypeRegistration.cs" />
     <Compile Include="MediaManagement\IResourceAccessor.cs" />
     <Compile Include="MediaManagement\ILocalFsResourceAccessor.cs" />
     <Compile Include="MediaManagement\IResourceLocator.cs" />
@@ -219,6 +221,11 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItemAspects.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItemAttributeValues.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItemQuery.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItems.cs" />
+    <Compile Include="UPnP\UPnPDtMediaItemsFilter.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />

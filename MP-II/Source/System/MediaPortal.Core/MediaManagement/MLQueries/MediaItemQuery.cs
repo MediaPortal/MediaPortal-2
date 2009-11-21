@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Utilities;
 
@@ -61,14 +62,66 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   }
 
   /// <summary>
+  /// Class to be used for XML serialization of <see cref="IFilter"/> values.
+  /// </summary>
+  internal class FilterWrapper
+  {
+    protected IFilter _filter;
+
+    public FilterWrapper(IFilter filter)
+    {
+      _filter = filter;
+    }
+
+    [XmlIgnore]
+    public IFilter Filter
+    {
+      get { return _filter; }
+      set { _filter = value; }
+    }
+
+    #region Additional members for the XML serialization
+
+    internal FilterWrapper() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("BetweenFilter", typeof(BetweenFilter))]
+    [XmlElement("BooleanCombinationFilter", typeof(BooleanCombinationFilter))]
+    [XmlElement("InFilter", typeof(InFilter))]
+    [XmlElement("LikeFilter", typeof(LikeFilter))]
+    [XmlElement("SimilarToFilter", typeof(SimilarToFilter))]
+    [XmlElement("NotFilter", typeof(NotFilter))]
+    [XmlElement("RelationalFilter", typeof(RelationalFilter))]
+    public object XML_Filter
+    {
+      get { return _filter; }
+      set { _filter = value as IFilter; }
+    }
+
+    #endregion
+  }
+
+  /// <summary>
   /// Encapsulates a query for media items. Holds selected media item aspect types and a filter criterion.
   /// </summary>
   public class MediaItemQuery
   {
+    #region Protected fields
+
     protected IFilter _filter;
     protected HashSet<Guid> _necessaryRequestedMIATypeIDs;
     protected HashSet<Guid> _optionalRequestedMIATypeIDs = null;
     protected List<SortInformation> _sortInformation = null;
+
+    // We could use some cache for this instance, if we would have one...
+    [ThreadStatic]
+    protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
+
+    #endregion
+
+    #region Ctor
 
     public MediaItemQuery(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IFilter filter)
     {
@@ -83,6 +136,10 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       _optionalRequestedMIATypeIDs = new HashSet<Guid>(optionalRequestedMIATypeIDs);
       _filter = filter;
     }
+
+    #endregion
+
+    #region Public properties
 
     [XmlIgnore]
     public ICollection<Guid> NecessaryRequestedMIATypeIDs
@@ -113,6 +170,41 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       set { _sortInformation = new List<SortInformation>(value); }
     }
 
+    #endregion
+
+    public static void SerializeFilter(XmlWriter writer, IFilter filter)
+    {
+      FilterWrapper wrapper = new FilterWrapper(filter);
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        xs.Serialize(writer, wrapper);
+    }
+
+    public static IFilter DeserializeFilter(XmlReader reader)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      FilterWrapper wrapper;
+      lock (xs)
+        wrapper = xs.Deserialize(reader) as FilterWrapper;
+      return wrapper == null ? null : wrapper.Filter;
+    }
+
+    public void Serialize(XmlWriter writer)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        xs.Serialize(writer, this);
+    }
+
+    public static MediaItemQuery Deserialize(XmlReader reader)
+    {
+      XmlSerializer xs = GetOrCreateXMLSerializer();
+      lock (xs)
+        return xs.Deserialize(reader) as MediaItemQuery;
+    }
+
+    #region Base overrides
+
     public override string ToString()
     {
       StringBuilder result = new StringBuilder();
@@ -128,9 +220,18 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       return result.ToString();
     }
 
+    #endregion
+
     #region Additional members for the XML serialization
 
     internal MediaItemQuery() { }
+
+    protected static XmlSerializer GetOrCreateXMLSerializer()
+    {
+      if (_xmlSerializer == null)
+        _xmlSerializer = new XmlSerializer(typeof(MediaItemQuery), new Type[] {typeof(FilterWrapper)});
+      return _xmlSerializer;
+    }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
@@ -173,8 +274,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlArray("SortInformation")]
-    [XmlArrayItem("Sort")]
+    [XmlArray("Sorting")]
+    [XmlArrayItem("SortInformation")]
     public List<SortInformation> XML_SortInformation
     {
       get { return _sortInformation; }

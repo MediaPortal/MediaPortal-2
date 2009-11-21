@@ -26,9 +26,7 @@
 using System;
 using System.Xml;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.UPnP
 {
@@ -58,13 +56,13 @@ namespace MediaPortal.Core.UPnP
       return typeof(Share).IsAssignableFrom(type);
     }
 
-    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       Share share = (Share) value;
       share.Serialize(writer);
     }
 
-    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
+    protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       reader.ReadStartElement(); // Read start of enclosing element
       Share result = Share.Deserialize(reader);

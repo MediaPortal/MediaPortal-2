@@ -103,6 +103,34 @@ namespace MediaPortal.Database
     string GetSQLFixedLengthStringType(uint maxNumChars);
 
     /// <summary>
+    /// Returns the command to create a sequence in this database.
+    /// </summary>
+    /// <param name="sequenceName">Name of the sequence to create.</param>
+    /// <returns>Command to create the sequence with the given name.</returns>
+    string GetCreateSequenceCommand(string sequenceName);
+
+    /// <summary>
+    /// Returns the command to drop a sequence in this database.
+    /// </summary>
+    /// <param name="sequenceName">Name of the sequence to drop.</param>
+    /// <returns>Command to drop the sequence with the given name.</returns>
+    string GetDropSequenceCommand(string sequenceName);
+
+    /// <summary>
+    /// Returns the statement to select the next value of the given sequence.
+    /// </summary>
+    /// <param name="sequenceName">Name of the sequence to select from.</param>
+    /// <returns>Statement which can be used as a pseudo attribute in an SQL select statement.</returns>
+    string GetSelectSequenceNextValStatement(string sequenceName);
+
+    /// <summary>
+    /// Returns the statement to select the current value of the given sequence.
+    /// </summary>
+    /// <param name="sequenceName">Name of the sequence to select from.</param>
+    /// <returns>Statement which can be used as a pseudo attribute in an SQL select statement.</returns>
+    string GetSelectSequenceCurrValStatement(string sequenceName);
+
+    /// <summary>
     /// Gets a database connection from the connection pool and starts a new transaction on that connection
     /// with the specified isolation level.
     /// </summary>

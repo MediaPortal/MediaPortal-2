@@ -87,6 +87,37 @@ namespace MediaPortal.Core.MediaManagement
   /// </remarks>
   public class MediaItemAspectMetadata
   {
+    #region Constants
+
+    /// <summary>
+    /// Contains a collection of supported basic types. Together with those basic types, the <see cref="string"/> type
+    /// is also supported.
+    /// </summary>
+    /// <remarks>
+    /// The following types are supported:
+    /// <list>
+    /// <item><see cref="DateTime"/></item>
+    /// <item><see cref="Char"/></item>
+    /// <item><see cref="Boolean"/></item>
+    /// <item><see cref="Single"/></item>
+    /// <item><see cref="Double"/></item>
+    /// <item><see cref="Int32"/></item>
+    /// <item><see cref="Int64"/></item>
+    /// </list>
+    /// </remarks>
+    public static readonly ICollection<Type> SUPPORTED_BASIC_TYPES = new List<Type>
+        {
+          typeof(DateTime),
+          typeof(Char),
+          typeof(Boolean),
+          typeof(Single),
+          typeof(Double),
+          typeof(Int32),
+          typeof(Int64)
+        };
+
+    #endregion
+
     /// <summary>
     /// Stores the metadata for one attribute in a media item aspect.
     /// </summary>
@@ -221,7 +252,8 @@ namespace MediaPortal.Core.MediaManagement
     protected string _aspectName;
     protected Guid _aspectId;
     protected bool _isSystemAspect;
-    protected ICollection<AttributeSpecification> _attributeSpecifications;
+    protected IDictionary<string, AttributeSpecification> _attributeSpecifications =
+        new Dictionary<string, AttributeSpecification>();
 
     // We could use some cache for this instance, if we would have one...
     [ThreadStatic]
@@ -245,13 +277,14 @@ namespace MediaPortal.Core.MediaManagement
     {
       _aspectId = aspectId;
       _aspectName = aspectName;
-      _attributeSpecifications = new List<AttributeSpecification>(attributeSpecifications).AsReadOnly();
+      foreach (AttributeSpecification spec in attributeSpecifications)
+        _attributeSpecifications[spec.AttributeName] = spec;
       CorrectParentsInAttributeTypes();
     }
 
     protected void CorrectParentsInAttributeTypes()
     {
-      foreach (AttributeSpecification attributeType in _attributeSpecifications)
+      foreach (AttributeSpecification attributeType in _attributeSpecifications.Values)
         attributeType.ParentMIAM = this;
     }
 
@@ -286,10 +319,11 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Returns a read-only collection of available attributes of this media item aspect.
+    /// Returns a read-only mapping of names to attribute specifications for all
+    /// available attributes of this media item aspect.
     /// </summary>
     [XmlIgnore]
-    public ICollection<AttributeSpecification> AttributeSpecifications
+    public IDictionary<string, AttributeSpecification> AttributeSpecifications
     {
       get { return _attributeSpecifications; }
     }
@@ -298,6 +332,11 @@ namespace MediaPortal.Core.MediaManagement
     /// Creates a specification for a new string attribute which can be used in a new
     /// <see cref="MediaItemAspectMetadata"/> instance.
     /// </summary>
+    /// <param name="attributeName">Name of the string attribute to be created.
+    /// TODO: Describe constraints on the name value. See also other CreateXXXAttributeSpecification methods.</param>
+    /// <param name="maxNumChars">Maximum number of characters to be stored in the attribute to
+    /// be created.</param>
+    /// <param name="cardinality">Cardinality of the new attribute.</param>
     public static AttributeSpecification CreateStringAttributeSpecification(string attributeName,
         uint maxNumChars, Cardinality cardinality)
     {
@@ -310,10 +349,17 @@ namespace MediaPortal.Core.MediaManagement
     /// Creates a specification for a new attribute which can be used in a new
     /// <see cref="MediaItemAspectMetadata"/> instance.
     /// </summary>
+    /// <param name="attributeName">Name of the string attribute to be created.
+    /// TODO: Describe constraints on the name value. See also other CreateXXXAttributeSpecification methods.</param>
+    /// <param name="attributeType">Type of the attribute to be stored in the attribute to be created.
+    /// For a list of supported attribute types, see <see cref="SUPPORTED_BASIC_TYPES"/>.</param>
+    /// <param name="cardinality">Cardinality of the new attribute.</param>
     public static AttributeSpecification CreateAttributeSpecification(string attributeName,
         Type attributeType, Cardinality cardinality)
     {
-      // TODO: check if attributeType is a supported database type
+      if (!SUPPORTED_BASIC_TYPES.Contains(attributeType))
+        throw new ArgumentException(string.Format("Attribute type {0} is not supported for media item aspect attributes",
+            attributeType.Name));
       return new AttributeSpecification(attributeName, attributeType, cardinality);
     }
 
@@ -434,10 +480,12 @@ namespace MediaPortal.Core.MediaManagement
     [XmlElement("AttributeSpecifications")]
     public List<AttributeSpecification> XML_AttributeSpecifications
     {
-      get { return new List<AttributeSpecification>(_attributeSpecifications); }
+      get { return new List<AttributeSpecification>(_attributeSpecifications.Values); }
       set
       {
-        _attributeSpecifications = value.AsReadOnly();
+        _attributeSpecifications = new Dictionary<string, AttributeSpecification>(value.Count);
+        foreach (AttributeSpecification spec in value)
+          _attributeSpecifications.Add(spec.AttributeName, spec);
         CorrectParentsInAttributeTypes();
       }
     }

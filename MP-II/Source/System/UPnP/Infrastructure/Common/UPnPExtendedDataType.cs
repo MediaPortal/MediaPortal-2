@@ -99,7 +99,7 @@ namespace UPnP.Infrastructure.Common
     /// contents of the writer's current element.
     /// The writer's position is the start of the parent element, the result should go. The caller will write the end
     /// element tag.</param>
-    public abstract void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
+    protected abstract void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer);
 
     /// <summary>
     /// Deserializes the contents of the <paramref name="reader"/>'s current XML element to an object of this UPnP data type.
@@ -113,7 +113,7 @@ namespace UPnP.Infrastructure.Common
     /// from its string-equivalent, i.e. the XML text content of the given XML element should be evaluated,
     /// else the value should be deserialized from the extended representation of this data type.</param>
     /// <returns>Value which was deserialized.</returns>
-    public abstract object DoDeserializeValue(XmlReader reader, bool isSimpleValue);
+    protected abstract object DoDeserializeValue(XmlReader reader, bool isSimpleValue);
 
     /// <summary>
     /// Serializes the given <paramref name="value"/> as contents of the <paramref name="writer"/>'s current element.

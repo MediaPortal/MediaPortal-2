@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
 using MediaPortal.MediaLibrary;
 using UPnP.Infrastructure.Common;
@@ -72,11 +73,11 @@ namespace MediaPortal.ClientCommunication
       AddStateVariable(A_ARG_TYPE_UuidEnumeration);
 
       // Used to transport a provider path expression
-      DvStateVariable A_ARG_TYPE_ProviderPath = new DvStateVariable("A_ARG_TYPE_ProviderPath", new DvStandardDataType(UPnPStandardDataType.String))
+      DvStateVariable A_ARG_TYPE_ResourcePath = new DvStateVariable("A_ARG_TYPE_ProviderPath", new DvStandardDataType(UPnPStandardDataType.String))
           {
             SendEvents = false
           };
-      AddStateVariable(A_ARG_TYPE_ProviderPath);
+      AddStateVariable(A_ARG_TYPE_ResourcePath);
 
       // Used to hold names for several objects
       DvStateVariable A_ARG_TYPE_Name = new DvStateVariable("A_ARG_TYPE_Name", new DvStandardDataType(UPnPStandardDataType.String))
@@ -106,7 +107,7 @@ namespace MediaPortal.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_ShareEnumeration);
 
-      // Used to transport a system name
+      // Used to transport a system name - contains the hostname string
       DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String))
           {
             SendEvents = false
@@ -135,7 +136,42 @@ namespace MediaPortal.ClientCommunication
             AllowedValueList = new List<string> {"All", "ConnectedShares"}
         };
       AddStateVariable(A_ARG_TYPE_SharesFilter);
-      
+
+      // Used to transport an argument of type MediaItemQuery
+      DvStateVariable A_ARG_TYPE_MediaItemQuery = new DvStateVariable("A_ARG_TYPE_MediaItemQuery", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemQuery))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_MediaItemQuery);
+
+      // Used to transport a collection of media items with some media item aspects
+      DvStateVariable A_ARG_TYPE_MediaItems = new DvStateVariable("A_ARG_TYPE_MediaItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItems))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_MediaItems);
+
+      // Used to transport a single media item filter
+      DvStateVariable A_ARG_TYPE_MediaItemFilter = new DvStateVariable("A_ARG_TYPE_MediaItemFilter", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemsFilter))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_MediaItemFilter);
+
+      // Used to transport a collection of media item attribute values
+      DvStateVariable A_ARG_TYPE_MediaItemAttributeValues = new DvStateVariable("A_ARG_TYPE_MediaItemAttributeValues", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAttributeValues))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_MediaItemAttributeValues);
+
+      // Used to transport a collection of media item aspects for a media item specified elsewhere
+      DvStateVariable A_ARG_TYPE_MediaItemAspects = new DvStateVariable("A_ARG_TYPE_MediaItemAspects", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspects))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_MediaItemAspects);
+
       // More state variables go here
 
       // Shares management
@@ -158,7 +194,7 @@ namespace MediaPortal.ClientCommunication
       DvAction updateShareAction = new DvAction("UpdateShare", OnUpdateShare,
           new DvArgument[] {
             new DvArgument("ShareId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
-            new DvArgument("BaseResourcePath", A_ARG_TYPE_ProviderPath, ArgumentDirection.In),
+            new DvArgument("BaseResourcePath", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("ShareName", A_ARG_TYPE_Name, ArgumentDirection.In),
             new DvArgument("MediaCategories", A_ARG_TYPE_MediaCategoryEnumeration, ArgumentDirection.In),
             new DvArgument("RelocateMediaItems", A_ARG_TYPE_MediaItemRelocationMode, ArgumentDirection.In),
@@ -221,7 +257,62 @@ namespace MediaPortal.ClientCommunication
           });
       AddAction(getMediaItemAspectMetadataAction);
 
-      // TODO: Add more actions
+      // Media query
+
+      DvAction searchAction = new DvAction("Search", OnSearch,
+          new DvArgument[] {
+            new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(searchAction);
+
+      DvAction browseAction = new DvAction("Browse", OnBrowse,
+          new DvArgument[] {
+            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(browseAction);
+
+      DvAction getDistinctAssociatedValuesAction = new DvAction("GetDistinctAssociatedValues", OnGetDistinctAssociatedValues,
+          new DvArgument[] {
+            new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("DistinctValues", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
+          });
+      AddAction(getDistinctAssociatedValuesAction);
+
+      // Media import
+
+      DvAction addOrUpdateMediaItemAction = new DvAction("AddOrUpdateMediaItem", OnAddOrUpdateMediaItem,
+          new DvArgument[] {
+            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+            new DvArgument("UpdatedMediaItemAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(addOrUpdateMediaItemAction);
+
+      DvAction deleteMediaItemOrPathAction = new DvAction("DeleteMediaItemOrPath", OnDeleteMediaItemOrPath,
+          new DvArgument[] {
+            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+          });
+      AddAction(deleteMediaItemOrPathAction);
+
+      // More actions go here
     }
 
     static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams)
@@ -331,6 +422,63 @@ namespace MediaPortal.ClientCommunication
       Guid aspectId = new Guid((string) inParams[0]);
       MediaItemAspectMetadata miam = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
       outParams = new List<object> {miam};
+      return null;
+    }
+
+    static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams)
+    {
+      MediaItemQuery query = (MediaItemQuery) inParams[0];
+      IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query);
+      outParams = new List<object> {mediaItems};
+      return null;
+    }
+
+    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams)
+    {
+      SystemName system = (SystemName) inParams[0];
+      ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
+      IEnumerable<Guid> necessaryMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[2]);
+      IEnumerable<Guid> optionalMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[3]);
+      ICollection<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Browse(system, path, necessaryMIATypes, optionalMIATypes);
+      outParams = new List<object> {mediaItems};
+      return null;
+    }
+
+    static UPnPError OnGetDistinctAssociatedValues(DvAction action, IList<object> inParams, out IList<object> outParams)
+    {
+      Guid aspectId = new Guid((string) inParams[0]);
+      string attributeName = (string) inParams[1];
+      IFilter filter = (IFilter) inParams[2];
+      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      MediaItemAspectMetadata miam;
+      outParams = null;
+      if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectId, out miam))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' is unknown", aspectId));
+      MediaItemAspectMetadata.AttributeSpecification attributeType;
+      if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
+        return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
+            aspectId, attributeName));
+      HomogenousCollection values = ServiceScope.Get<IMediaLibrary>().GetDistinctAssociatedValues(attributeType, filter);
+      outParams = new List<object> {values};
+      return null;
+    }
+
+    static UPnPError OnAddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams)
+    {
+      SystemName system = (SystemName) inParams[0];
+      ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
+      ICollection<MediaItemAspect> mediaItemAspects = (ICollection<MediaItemAspect>) inParams[2];
+      ServiceScope.Get<IMediaLibrary>().AddOrUpdateMediaItem(system, path, mediaItemAspects);
+      outParams = null;
+      return null;
+    }
+
+    static UPnPError OnDeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams)
+    {
+      SystemName system = (SystemName) inParams[0];
+      ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
+      ServiceScope.Get<IMediaLibrary>().DeleteMediaItemOrPath(system, path);
+      outParams = null;
       return null;
     }
   }

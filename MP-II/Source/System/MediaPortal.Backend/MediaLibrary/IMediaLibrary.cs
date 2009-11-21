@@ -51,7 +51,26 @@ namespace MediaPortal.MediaLibrary
 
     #region Media query
 
+    /// <summary>
+    /// Starts a search of media items.
+    /// </summary>
+    /// <param name="query">Query object which specifies the search parameters.</param>
+    /// <returns>List of matching media items with the media item aspects of the given
+    /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
+    /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
     IList<MediaItem> Search(MediaItemQuery query);
+
+    /// <summary>
+    /// Lists all media items of the given location.
+    /// </summary>
+    /// <param name="system">System of the location to browse.</param>
+    /// <param name="path">Path of the location to browse.</param>
+    /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
+    /// If a media item at the given location doesn't contain at least one of those media item aspects, it won't be returned.</param>
+    /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
+    /// <returns>Result collection of media items at the given location.</returns>
+    ICollection<MediaItem> Browse(SystemName system, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+        IEnumerable<Guid> optionalRequestedMIATypeIDs);
 
     /// <summary>
     /// Returns a set of attribute values of the given <paramref name="attributeType"/> for the media items specified
@@ -60,14 +79,29 @@ namespace MediaPortal.MediaLibrary
     /// <param name="attributeType">Attribute type, whose values will be returned.</param>
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <returns>Distinct set of attribute values of the given <paramref name="attributeType"/>.</returns>
-    ICollection<object> GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IFilter filter);
 
     #endregion
 
     #region Media import
 
-    //TODO: Add/Update/Remove media items
+    /// <summary>
+    /// Adds or updates the media item specified by its location (<paramref name="nativeSystem"/> and <paramref name="path"/>).
+    /// </summary>
+    /// <param name="nativeSystem">The native system of the media item to be updated.</param>
+    /// <param name="path">The path at the given system of the media item to be updated.</param>
+    /// <param name="mediaItemAspects">Media item aspects to be updated.</param>
+    void AddOrUpdateMediaItem(SystemName nativeSystem, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
+
+    /// <summary>
+    /// Deletes all media items and directories from the media library which are located at the given
+    /// <paramref name="nativeSystem"/> with the specified <paramref name="path"/>.
+    /// </summary>
+    /// <param name="nativeSystem">The native system of the media item or directory to be deleted.</param>
+    /// <param name="path">The path at the given system of the media item or directory to be deleted. The path can be
+    /// the full path of a media item or just a part of the path in case of a directory.</param>
+    void DeleteMediaItemOrPath(SystemName nativeSystem, ResourcePath path);
 
     #endregion
 

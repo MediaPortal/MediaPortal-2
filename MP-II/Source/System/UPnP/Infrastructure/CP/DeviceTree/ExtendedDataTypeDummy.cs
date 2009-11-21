@@ -48,19 +48,19 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       get { return true; }
     }
 
-    public override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
+    public override bool IsAssignableFrom(Type type)
+    {
+      return false;
+    }
+
+    protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
       throw new IllegalCallException("Dummy extended data type cannot serialize values");
     }
 
-    public override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
+    protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       throw new IllegalCallException("Dummy extended data type cannot deserialize values");
-    }
-
-    public override bool IsAssignableFrom(Type type)
-    {
-      return false;
     }
   }
 }

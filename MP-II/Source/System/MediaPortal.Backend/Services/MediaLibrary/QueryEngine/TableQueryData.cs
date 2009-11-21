@@ -28,13 +28,13 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
 {
   public class TableQueryData
   {
-    protected MediaItemAspectMetadata _miam;
-    protected string _tableName;
+    protected readonly MediaItemAspectMetadata _miam;
+    protected readonly string _tableName;
 
-    public TableQueryData(MIAM_Management miamManagement, MediaItemAspectMetadata miam)
+    public TableQueryData(MIA_Management miaManagement, MediaItemAspectMetadata miam)
     {
       _miam = miam;
-      _tableName = miamManagement.GetMIAMTableName(miam);
+      _tableName = miaManagement.GetMIATableName(miam);
     }
 
     public MediaItemAspectMetadata MIAM

@@ -25,19 +25,19 @@
 
 using System;
 using System.Xml;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
 using UPnP.Infrastructure.Common;
 
 namespace MediaPortal.Core.UPnP
 {
   /// <summary>
-  /// Data type serializing and deserializing <see cref="MediaItemAspectMetadata"/> objects.
+  /// Data type serializing and deserializing polymorphic objects of type <see cref="IFilter"/>.
   /// </summary>
-  public class UPnPDtMediaItemAspectMetadata : UPnPExtendedDataType
+  public class UPnPDtMediaItemsFilter : UPnPExtendedDataType
   {
-    public const string DATATYPE_NAME = "DtMediaItemAspectMetadata";
+    public const string DATATYPE_NAME = "DtMediaItemsFilter";
 
-    internal UPnPDtMediaItemAspectMetadata() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
+    internal UPnPDtMediaItemsFilter() : base(DataTypesConfiguration.DATATYPES_SCHEMA_URI, DATATYPE_NAME)
     {
     }
 
@@ -53,19 +53,19 @@ namespace MediaPortal.Core.UPnP
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(MediaItemAspectMetadata).IsAssignableFrom(type);
+      return typeof(IFilter).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      MediaItemAspectMetadata miam = (MediaItemAspectMetadata) value;
-      miam.Serialize(writer);
+      IFilter filter = (IFilter) value;
+      MediaItemQuery.SerializeFilter(writer, filter);
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       reader.ReadStartElement(); // Read start of enclosing element
-      MediaItemAspectMetadata result = MediaItemAspectMetadata.Deserialize(reader);
+      IFilter result = MediaItemQuery.DeserializeFilter(reader);
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

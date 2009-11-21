@@ -48,6 +48,8 @@ namespace MediaPortal.Services.MediaLibrary
 
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
+    internal const string MEDIA_ITEM_ID_SEQUENCE_NAME = "MEDIA_ITEM_ID_GEN";
+    internal const string DUMMY_TABLE_NAME = "DUMMY";
 
     #endregion
 
@@ -334,6 +336,25 @@ namespace MediaPortal.Services.MediaLibrary
         placeholders.Add("?");
       }
       result.CommandText = "UPDATE SHARES SET IS_ONLINE = ? WHERE SHARE_ID IN (" + StringUtils.Join(",", placeholders) + ")";
+
+      return result;
+    }
+
+    public static IDbCommand InsertMediaItemCommand(ISQLDatabase database, ITransaction transaction)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "INSERT INTO " + MEDIA_ITEMS_TABLE_NAME + " (" + MEDIA_ITEMS_ITEM_ID_COL_NAME + ") VALUES (" +
+          database.GetSelectSequenceNextValStatement(MEDIA_ITEM_ID_SEQUENCE_NAME) + ")";
+
+      return result;
+    }
+
+    public static IDbCommand GetLastGeneratedMediaItemIdCommand(ISQLDatabase database, ITransaction transaction)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "SELECT " + database.GetSelectSequenceCurrValStatement(MEDIA_ITEM_ID_SEQUENCE_NAME) + " FROM " + DUMMY_TABLE_NAME;
 
       return result;
     }

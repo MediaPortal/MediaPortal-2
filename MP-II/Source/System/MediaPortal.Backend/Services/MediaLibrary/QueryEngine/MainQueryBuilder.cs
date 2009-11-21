@@ -35,28 +35,32 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
   /// </summary>
   public class MainQueryBuilder
   {
-    protected ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
+    protected readonly MIA_Management _miaManagement;
+
+    protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
 
     /// <summary>
     /// Attributes which are selected the in main query (=which are requested to be returned, in contrast to those
     /// attributes used in a filter).
     /// </summary>
-    protected IList<QueryAttribute> _selectAttributes;
+    protected readonly IList<QueryAttribute> _selectAttributes;
 
-    protected CompiledFilter _filter;
+    protected readonly CompiledFilter _filter;
 
     /// <summary>
     /// Creates a new <see cref="MainQueryBuilder"/> instance.
     /// </summary>
+    /// <param name="miaManagement">MIAM management instance from media library.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="simpleSelectAttributes">Enumeration of media item aspect attributes, given as
     /// <see cref="QueryAttribute"/> instances, which should be requested in this main query. Only attributes with
-    /// a cardinality of <see cref="Cardinality.Inline"/> are allowed here. The SELECT statement will select the given
-    /// attributes first, in the given order.</param>
+    /// a cardinality of <see cref="Cardinality.Inline"/> are allowed here.</param>
     /// <param name="filter">Filter to restrict the result set.</param>
-    public MainQueryBuilder(ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
+    public MainQueryBuilder(MIA_Management miaManagement,
+        ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
         IEnumerable<QueryAttribute> simpleSelectAttributes, CompiledFilter filter)
     {
+      _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
       _filter = filter;
@@ -72,7 +76,34 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public string GenerateSqlStatement(MIAM_Management miamManagement, Namespace ns, bool distinctValue,
+    /// <summary>
+    /// Generates the SQL statement for this query specification.
+    /// </summary>
+    /// <remarks>
+    /// In case of <c><paramref name="distinctValue"/> == true</c>, A query of the form
+    /// <code>
+    ///   TODO
+    /// </code>
+    /// will be created. In case of <c><paramref name="distinctValue"/> == false</c>, the query will look like this:
+    /// <code>
+    ///   TODO
+    /// </code>
+    /// </remarks>
+    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
+    /// inside another statement, the use of a common namespace prevents name collisions.</param>
+    /// <param name="distinctValue">If set to <c>true</c>, this method will create a DISTINCT result set for the requested
+    /// attributes. In that case, the media item ID won't be requested and thus the parameter <paramref name="mediaItemIdAlias"/>
+    /// won't have a meaningful result value. If <paramref name="distinctValue"/> is set to <c>false</c>, the query won't have
+    /// a DISTINCT modifier and the result set will contain also the media item ID.</param>
+    /// <param name="mediaItemIdAlias">Alias of the media item's IDs in the result set. If <paramref name="distinctValue"/>
+    /// is set to <c>true</c>, the result set won't contain the media item ID and thus this parmeter is meaningless in that
+    /// case.</param>
+    /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
+    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
+    /// <param name="compiledAttributes">Returns the query descriptors for all requested attributes which can be used to
+    /// determine the attribute's aliases.</param>
+    /// <returns></returns>
+    public string GenerateSqlStatement(Namespace ns, bool distinctValue,
         out string mediaItemIdAlias,
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out IDictionary<QueryAttribute, CompiledQueryAttribute> compiledAttributes)
@@ -101,8 +132,8 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         TableQueryData tqd;
         MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
         if (!tableQueries.TryGetValue(miam, out tqd))
-          tqd = tableQueries[miam] = new TableQueryData(miamManagement, miam);
-        CompiledQueryAttribute cqa = new CompiledQueryAttribute(miamManagement, attr, tqd);
+          tqd = tableQueries[miam] = new TableQueryData(_miaManagement, miam);
+        CompiledQueryAttribute cqa = new CompiledQueryAttribute(_miaManagement, attr, tqd);
         compiledAttributes.Add(attr, cqa);
         selectAttributeDeclarations.Add(cqa.GetDeclarationWithAlias(ns));
       }
@@ -116,8 +147,8 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
           TableQueryData tqd;
           MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
           if (!tableQueries.TryGetValue(miam, out tqd))
-            tqd = tableQueries[miam] = new TableQueryData(miamManagement, miam);
-          compiledAttributes.Add(attr, new CompiledQueryAttribute(miamManagement, attr, tqd));
+            tqd = tableQueries[miam] = new TableQueryData(_miaManagement, miam);
+          compiledAttributes.Add(attr, new CompiledQueryAttribute(_miaManagement, attr, tqd));
         }
       }
       string mediaItemsTableAlias = ns.GetOrCreate(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME, "T");
@@ -130,7 +161,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       }
       else
       {
-        mediaItemIdAlias = ns.GetOrCreate(MIAM_Management.MIAM_MEDIA_ITEM_ID_COL_NAME, "A");
+        mediaItemIdAlias = ns.GetOrCreate(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME, "A");
 
         // Append requested attribute MEDIA_ITEMS.MEDIA_ITEM_ID only if no DISTINCT query is made
         result.Append(mediaItemsTableAlias);
@@ -152,7 +183,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       foreach (TableQueryData tqd in tableQueries.Values)
       {
         result.Append(",");
-        string miamColumn = tqd.GetAlias(ns) + "." + MIAM_Management.MIAM_MEDIA_ITEM_ID_COL_NAME;
+        string miamColumn = tqd.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
         result.Append(miamColumn);
         string miamAlias = ns.GetOrCreate(miamColumn, "A");
         result.Append(" ");
@@ -172,7 +203,7 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
       {
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miam, out tqd))
-          tableQueries[miam] = new TableQueryData(miamManagement, miam);
+          tableQueries[miam] = new TableQueryData(_miaManagement, miam);
         tableList.Add(tqd);
       }
       // after that, add other tables with OUTER JOINs
@@ -193,12 +224,21 @@ namespace MediaPortal.Services.MediaLibrary.QueryEngine
         result.Append(" = ");
         result.Append(tqd.GetAlias(ns));
         result.Append(".");
-        result.Append(MIAM_Management.MIAM_MEDIA_ITEM_ID_COL_NAME);
+        result.Append(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
       }
       result.Append(" WHERE ");
       result.Append(_filter.CreateSqlFilterCondition(ns, compiledAttributes,
           mediaItemsTableAlias + "." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME));
       return result.ToString();
+    }
+
+    public override string ToString()
+    {
+      string mediaItemIdAlias2;
+      IDictionary<MediaItemAspectMetadata, string> miamAliases;
+      Namespace mainQueryNS = new Namespace();
+      IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
+      return GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2cqa);
     }
   }
 }

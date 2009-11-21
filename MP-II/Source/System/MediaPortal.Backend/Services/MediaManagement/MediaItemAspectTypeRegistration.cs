@@ -22,22 +22,33 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.MediaLibrary;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Services.MediaManagement
 {
-  public class QueryAttribute
+  /// <summary>
+  /// Media item aspect type registration class for the MediaPortal server. Stores all registered media item aspect types
+  /// and automatically registers them at the connected server.
+  /// </summary>
+  public class MediaItemAspectTypeRegistration : IMediaItemAspectTypeRegistration
   {
-    protected readonly MediaItemAspectMetadata.AttributeSpecification _attr;
-
-    public QueryAttribute(MediaItemAspectMetadata.AttributeSpecification attr)
+    public IDictionary<Guid, MediaItemAspectMetadata> LocallyKnownMediaItemAspectTypes
     {
-      _attr = attr;
+      get
+      {
+        IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+        return mediaLibrary.GetManagedMediaItemAspectMetadata();
+      }
     }
 
-    public MediaItemAspectMetadata.AttributeSpecification Attr
+    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miam)
     {
-      get { return _attr; }
+      IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+      mediaLibrary.AddMediaItemAspectStorage(miam);
     }
   }
 }
