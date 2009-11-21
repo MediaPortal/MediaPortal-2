@@ -30,6 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
 using MediaPortal.MediaLibrary;
+using MediaPortal.Utilities;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -410,10 +411,9 @@ namespace MediaPortal.ClientCommunication
 
     static UPnPError OnGetAllManagedMediaItemAspectMetadataIds(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      ICollection<Guid> result = new List<Guid>();
-      foreach (Guid aspectId in ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys)
-        result.Add(aspectId);
-      outParams = new List<object> {result};
+      ICollection<Guid> result = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;
+      string miaTypeIDs = StringUtils.Join(",", result);
+      outParams = new List<object> {miaTypeIDs};
       return null;
     }
 

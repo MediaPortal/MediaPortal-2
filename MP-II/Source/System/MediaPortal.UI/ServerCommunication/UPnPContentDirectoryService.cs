@@ -170,8 +170,9 @@ namespace MediaPortal.ServerCommunication
         throw new FatalException("Method 'GetAllManagedMediaItemAspectMetadataIds' is not present in the connected MP-II UPnP server");
       IList<object> inParameters = new List<object>();
       IList<object> outParameters = action.InvokeAction(inParameters);
+      string miaTypeIDs = (string) outParameters[0];
       ICollection<Guid> result = new List<Guid>();
-      foreach (string miamIdStr in (IEnumerable<string>) outParameters[0])
+      foreach (string miamIdStr in miaTypeIDs.Split(','))
         result.Add(new Guid(miamIdStr));
       return result;
     }
