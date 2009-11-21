@@ -131,6 +131,8 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     public bool MatchesSignature(IList<object> inParameters)
     {
+      if (inParameters == null)
+        return _inArguments.Count == 0;
       for (int i=0; i<_inArguments.Count; i++)
         if (!_inArguments[i].IsValueAssignable(inParameters[i]))
           return false;
