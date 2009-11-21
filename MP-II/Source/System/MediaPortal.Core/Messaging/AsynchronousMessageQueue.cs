@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using MediaPortal.Core.Logging;
@@ -118,7 +119,15 @@ namespace MediaPortal.Core.Messaging
               "AsynchronousMessageQueue: Asynchronous message queue '{0}' has no message handler. Incoming message (channel '{1}', type '{2}') will be discarded.",
               _queueName, message.ChannelName, message.MessageType);
           else
-            handler(this, message);
+            try
+            {
+              handler(this, message);
+            }
+            catch (Exception e)
+            {
+              ServiceScope.Get<ILogger>().Error("Unhandled exception in message handler of async message queue '{0}' when handling a message of type '{1}'",
+                  e, Name, message.MessageType);
+            }
         }
         lock (_syncObj)
         {

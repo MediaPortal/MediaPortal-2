@@ -237,8 +237,10 @@ namespace MediaPortal.Services.ServerConnection
     {
       get
       {
+        UPnPClientControlPoint cp;
         lock (_syncObj)
-          return _controlPoint.ContentDirectoryService;
+          cp = _controlPoint;
+        return cp == null ? null : cp.ContentDirectoryService;
       }
     }
 
