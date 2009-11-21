@@ -66,7 +66,7 @@ namespace MediaPortal.Services.MediaLibrary
         out int aspectIdIndex, out int serializationsIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPE";
+      result.CommandText = "SELECT MIAM_ID, MIAM_SERIALIZATION FROM MIA_TYPES";
 
       aspectIdIndex = 0;
       serializationsIndex = 1;
@@ -77,7 +77,7 @@ namespace MediaPortal.Services.MediaLibrary
         string name, string serialization)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO MIA_TYPE (MIAM_ID, NAME, MIAM_SERIALIZATION) VALUES (?, ?, ?)";
+      result.CommandText = "INSERT INTO MIA_TYPES (MIAM_ID, NAME, MIAM_SERIALIZATION) VALUES (?, ?, ?)";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = id.ToString();
@@ -130,7 +130,7 @@ namespace MediaPortal.Services.MediaLibrary
     public static IDbCommand DeleteMediaItemAspectMetadataCommand(ITransaction transaction, Guid aspectId)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM MIA_TYPE WHERE MIAM_ID=?";
+      result.CommandText = "DELETE FROM MIA_TYPES WHERE MIAM_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = aspectId.ToString();

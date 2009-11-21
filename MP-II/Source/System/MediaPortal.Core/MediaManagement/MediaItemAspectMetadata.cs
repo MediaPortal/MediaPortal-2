@@ -477,7 +477,8 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("AttributeSpecifications")]
+    [XmlArray("Attributes")]
+    [XmlArrayItem("AttributeType")]
     public List<AttributeSpecification> XML_AttributeSpecifications
     {
       get { return new List<AttributeSpecification>(_attributeSpecifications.Values); }
