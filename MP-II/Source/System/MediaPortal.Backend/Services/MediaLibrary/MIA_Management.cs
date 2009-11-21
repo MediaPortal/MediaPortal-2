@@ -52,7 +52,7 @@ namespace MediaPortal.Services.MediaLibrary
     /// <summary>
     /// Value column name for MIA attribute collection tables.
     /// </summary>
-    protected internal const string COLL_MIA_VALUE_COL_NAME = "VALUE";
+    protected internal const string COLL_MIA_VALUE_COL_NAME = "ATTRIBUTE_VALUE";
 
     protected readonly IDictionary<string, string> _nameAliases = new Dictionary<string, string>();
 
@@ -117,7 +117,7 @@ namespace MediaPortal.Services.MediaLibrary
     /// table name to be used in the DB.</returns>
     internal string GetMIATableIdentifier(MediaItemAspectMetadata miam)
     {
-      return "MIA_" + SqlUtils.ToSQLIdentifier(miam.AspectId.ToString());
+      return "MIA_" + SqlUtils.ToSQLIdentifier(miam.AspectId.ToString()).ToUpperInvariant();
     }
 
     /// <summary>
@@ -192,38 +192,50 @@ namespace MediaPortal.Services.MediaLibrary
     }
 
     /// <summary>
-    /// Given a generated, technical, long table <paramref name="tableIdentifier"/>, this method calculates a
-    /// table name which is unique among the generated tables. The returned table name will automatically be stored
-    /// in the internal cache of table identifiers to table names mappings.
+    /// Given a generated, technical, long <paramref name="objectIdentifier"/>, this method calculates an
+    /// object name which is unique among the generated database objects. The returned object name will automatically be stored
+    /// in the internal cache of identifiers to object names mappings.
     /// </summary>
     /// <param name="transaction">Transaction to be used to add the specified name mapping to the DB.</param>
     /// <param name="aspectId">ID of the media item aspect type the given mapping belongs to.</param>
-    /// <param name="tableIdentifier">Technical indentifier to be mapped to a table name for our DB.</param>
+    /// <param name="objectIdentifier">Technical indentifier to be mapped to a table name for our DB.</param>
     /// <param name="desiredName">Root name to start the name generation.</param>
     /// <returns>Table name corresponding to the specified table identifier.</returns>
-    private string GenerateDBTableName(ITransaction transaction, Guid aspectId, string tableIdentifier, string desiredName)
+    private string GenerateDBObjectName(ITransaction transaction, Guid aspectId, string objectIdentifier, string desiredName)
     {
       lock (_syncObj)
       {
-        if (_nameAliases.ContainsKey(tableIdentifier))
-          throw new InvalidDataException("Table identifier '{0}' is already present in alias cache", tableIdentifier);
+        if (_nameAliases.ContainsKey(objectIdentifier))
+          throw new InvalidDataException("Table identifier '{0}' is already present in alias cache", objectIdentifier);
         ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
         uint maxLen = database.MaxTableNameLength;
         uint ct = 0;
         string result;
-        while (_nameAliases.ContainsKey(result = ConcatNameParts(desiredName, ct, maxLen)))
-          ct++;
-        AddNameAlias(transaction, aspectId, tableIdentifier, result);
+        desiredName = SqlUtils.ToSQLIdentifier(desiredName);
+        if (!NamePresent(desiredName))
+          result = desiredName;
+        else
+          while (NamePresent(result = ConcatNameParts(desiredName, ct, maxLen)))
+            ct++;
+        AddNameAlias(transaction, aspectId, objectIdentifier, result);
         return result;
       }
     }
 
-    protected void AddNameAlias(ITransaction transaction, Guid aspectId, string tableIdentifier, string dbObjectName)
+    protected bool NamePresent(string dbObjectName)
     {
-      IDbCommand command = MediaLibrary_SubSchema.CreateMIANameAliasCommand(transaction, aspectId, tableIdentifier, dbObjectName);
+      foreach (string objectName in _nameAliases.Values)
+        if (dbObjectName == objectName)
+          return true;
+      return false;
+    }
+
+    protected void AddNameAlias(ITransaction transaction, Guid aspectId, string objectIdentifier, string dbObjectName)
+    {
+      IDbCommand command = MediaLibrary_SubSchema.CreateMIANameAliasCommand(transaction, aspectId, objectIdentifier, dbObjectName);
       command.ExecuteNonQuery();
       lock (_syncObj)
-        _nameAliases[tableIdentifier] = dbObjectName;
+        _nameAliases[objectIdentifier] = dbObjectName;
     }
 
     private static string GetClippedColumnName(string columnName)
@@ -239,7 +251,7 @@ namespace MediaPortal.Services.MediaLibrary
     internal string GenerateMIATableName(ITransaction transaction, MediaItemAspectMetadata miam)
     {
       string identifier = GetMIATableIdentifier(miam);
-      return GenerateDBTableName(transaction, miam.AspectId, identifier, miam.Name);
+      return GenerateDBObjectName(transaction, miam.AspectId, identifier, miam.Name);
     }
 
     internal string GenerateMIAAttributeColumnName(MediaItemAspectMetadata.AttributeSpecification spec)
@@ -251,7 +263,7 @@ namespace MediaPortal.Services.MediaLibrary
     internal string GenerateMIACollectionAttributeTableName(ITransaction transaction, MediaItemAspectMetadata.AttributeSpecification spec)
     {
       string identifier = GetMIACollectionAttributeTableIdentifier(spec);
-      return GenerateDBTableName(transaction, spec.ParentMIAM.AspectId, identifier, spec.AttributeName);
+      return GenerateDBObjectName(transaction, spec.ParentMIAM.AspectId, identifier, spec.AttributeName);
     }
 
     #endregion
@@ -347,7 +359,12 @@ namespace MediaPortal.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = transaction.CreateCommand();
+        // Register metadata first - generated aliases will reference to the new MIA type row
+        IDbCommand command = MediaLibrary_SubSchema.CreateMediaItemAspectMetadataCommand(transaction, miam.AspectId, miam.Name, miam.Serialize());
+        command.ExecuteNonQuery();
+
+        // Generate tables for new MIA type
+        command = transaction.CreateCommand();
         string miaTableName = GenerateMIATableName(transaction, miam);
         StringBuilder mainStatementBuilder = new StringBuilder("CREATE TABLE " + miaTableName + " (" +
             MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Int64)) + ",");
@@ -366,11 +383,13 @@ namespace MediaPortal.Services.MediaLibrary
             case Cardinality.ManyToOne:
             case Cardinality.ManyToMany:
               string collectionAttributeTableName = GenerateMIACollectionAttributeTableName(transaction, spec);
+              string pkConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_PK", "PK");
+              string fkMediaItemConstraintName = GenerateDBObjectName(transaction, miam.AspectId, collectionAttributeTableName + "_MEDIA_ITEM_FK", "FK");
               command.CommandText = "CREATE TABLE " + collectionAttributeTableName + " (" +
-                  MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Int64)) +
-                  COLL_MIA_VALUE_COL_NAME + " " + sqlType +
-                  "CONSTRAINT " + collectionAttributeTableName + "_PK PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")," +
-                  "CONSTRAINT " + collectionAttributeTableName + "_MEDIA_ITEM_FK" +
+                  MIA_MEDIA_ITEM_ID_COL_NAME + " " + database.GetSQLType(typeof(Int64)) + ", " +
+                  COLL_MIA_VALUE_COL_NAME + " " + sqlType + ", " +
+                  "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
+                  "CONSTRAINT " + fkMediaItemConstraintName +
                   " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")" +
                   " REFERENCES " + MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE" +
                   ")";
@@ -381,19 +400,19 @@ namespace MediaPortal.Services.MediaLibrary
                   spec.Cardinality, miam.AspectId, spec.AttributeName));
           }
         }
+        mainStatementBuilder.Append(StringUtils.Join(", ", terms));
+        mainStatementBuilder.Append(", ");
+        string pkConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_PK", "PK");
+        string fkMediaItemConstraintName1 = GenerateDBObjectName(transaction, miam.AspectId, miaTableName + "_MEDIA_ITEMS_FK", "FK");
         mainStatementBuilder.Append(
-            "CONSTRAINT " + miaTableName + "_PK PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ")," +
-            "CONSTRAINT " + miaTableName + "_MEDIA_ITEMS_FK" +
+            "CONSTRAINT " + pkConstraintName1 + " PRIMARY KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + "), " +
+            "CONSTRAINT " + fkMediaItemConstraintName1 +
             " FOREIGN KEY (" + MIA_MEDIA_ITEM_ID_COL_NAME + ") REFERENCES " +
                 MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME + " (" + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + ") ON DELETE CASCADE");
-        mainStatementBuilder.Append(StringUtils.Join(", ", terms));
         mainStatementBuilder.Append(")");
         command.CommandText = mainStatementBuilder.ToString();
         command.ExecuteNonQuery();
 
-        // Register metadata
-        command = MediaLibrary_SubSchema.CreateMediaItemAspectMetadataCommand(transaction, miam.AspectId, miam.Name, miam.Serialize());
-        command.ExecuteNonQuery();
         transaction.Commit();
       }
       catch (Exception e)
@@ -403,7 +422,7 @@ namespace MediaPortal.Services.MediaLibrary
         throw;
       }
       lock (_syncObj)
-        _managedMIATypes.Add(miam.AspectId, miam);
+        _managedMIATypes[miam.AspectId] = miam;
     }
 
     public void RemoveMediaItemAspectStorage(Guid aspectId)

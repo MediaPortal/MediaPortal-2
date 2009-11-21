@@ -41,7 +41,7 @@ namespace MediaPortal.Services.Database
       {
         char c = name[i];
         if (c >= 'a' && c <= 'z' ||
-            c >= 'A' && c <= 'A' ||
+            c >= 'A' && c <= 'Z' ||
             Char.IsDigit(c) ||
             c == '_')
           result.Append(c);

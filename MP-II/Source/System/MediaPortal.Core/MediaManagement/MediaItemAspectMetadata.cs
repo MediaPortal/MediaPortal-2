@@ -218,10 +218,10 @@ namespace MediaPortal.Core.MediaManagement
       /// For internal use of the XML serialization system only.
       /// </summary>
       [XmlElement("AttributeType")]
-      public Type XML_AttributeType
+      public string XML_AttributeType
       {
-        get { return _attributeType; }
-        set { _attributeType = value; }
+        get { return _attributeType.FullName; }
+        set { _attributeType = Type.GetType(value); }
       }
 
       /// <summary>
@@ -430,7 +430,7 @@ namespace MediaPortal.Core.MediaManagement
 
     public override string ToString()
     {
-      return "MIAM '" + _aspectName + "' (Id='" + _aspectId + "')";
+      return "MIA Type '" + _aspectName + "' (Id='" + _aspectId + "')";
     }
 
     #region Additional members for the XML serialization

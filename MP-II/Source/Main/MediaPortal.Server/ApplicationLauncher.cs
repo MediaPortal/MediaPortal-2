@@ -114,9 +114,9 @@ namespace MediaPortal
           pluginManager.Initialize();
           pluginManager.Startup(false);
           ApplicationCore.StartCoreServices();
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes();
 
           BackendExtension.StartupBackendServices();
+          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
 
           mediaAccessor.Initialize();
 

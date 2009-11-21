@@ -116,7 +116,6 @@ namespace MediaPortal
           pluginManager.Initialize();
           pluginManager.Startup(false);
           ApplicationCore.StartCoreServices();
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes();
 
           ISkinEngine skinEngine = ServiceScope.Get<ISkinEngine>();
           IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
@@ -134,6 +133,8 @@ namespace MediaPortal
           workflowManager.Initialize(); // 2)
           skinEngine.Startup(); // 3)
           UiExtension.Startup();
+
+          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
 
           systemStateService.SwitchSystemState(SystemState.Started, true);
 
