@@ -103,7 +103,7 @@ namespace MediaPortal.Backend.Services.BackendServer
     }
 
     protected readonly HttpServer.HttpServer _httpServer;
-    protected readonly UPnPMediaServer _upnpServer;
+    protected readonly UPnPBackendServer _upnpServer;
 
     internal class HttpLogWriter : ILogWriter
     {
@@ -140,7 +140,7 @@ namespace MediaPortal.Backend.Services.BackendServer
       _httpServer = new HttpServer.HttpServer(new HttpLogWriter());
       Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
       Configuration.LOGGER = new UPnPLoggerDelegate();
-      _upnpServer = new UPnPMediaServer();
+      _upnpServer = new UPnPBackendServer();
     }
 
     public void Dispose()

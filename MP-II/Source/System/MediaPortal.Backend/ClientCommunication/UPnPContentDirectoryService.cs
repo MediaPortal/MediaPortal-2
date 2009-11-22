@@ -38,7 +38,7 @@ using UPnP.Infrastructure.Dv.DeviceTree;
 namespace MediaPortal.Backend.ClientCommunication
 {
   /// <summary>
-  /// Encapsulates the UPnP service for the MediaPortal-II content directory.
+  /// Provides the UPnP service for the MediaPortal-II content directory.
   /// </summary>
   /// <remarks>
   /// This service works similar to the ContentDirectory service of the UPnP standard MediaServer device, but it uses a bit
@@ -74,6 +74,13 @@ namespace MediaPortal.Backend.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_UuidEnumeration);
 
+      // Used to transport a system name - contains the hostname string
+      DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String))
+          {
+            SendEvents = false
+          };
+      AddStateVariable(A_ARG_TYPE_SystemName);
+
       // Used to transport a provider path expression
       DvStateVariable A_ARG_TYPE_ResourcePath = new DvStateVariable("A_ARG_TYPE_ProviderPath", new DvStandardDataType(UPnPStandardDataType.String))
           {
@@ -108,13 +115,6 @@ namespace MediaPortal.Backend.ClientCommunication
             SendEvents = false
           };
       AddStateVariable(A_ARG_TYPE_ShareEnumeration);
-
-      // Used to transport a system name - contains the hostname string
-      DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String))
-          {
-            SendEvents = false
-          };
-      AddStateVariable(A_ARG_TYPE_SystemName);
 
       // Used to transport a media item aspect metadata structure
       DvStateVariable A_ARG_TYPE_MediaItemAspectMetadata = new DvStateVariable("A_ARG_TYPE_MediaItemAspectMetadata", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspectMetadata))

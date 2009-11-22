@@ -31,16 +31,16 @@ using UPnP.Infrastructure.Dv;
 namespace MediaPortal.Backend.ClientCommunication
 {
   /// <summary>
-  /// Encapsulates the MediaPortal-II UPnP server device.
+  /// Encapsulates the MediaPortal-II UPnP backend server device.
   /// </summary>
-  public class UPnPMediaServer : UPnPServer
+  public class UPnPBackendServer : UPnPServer
   {
     public const int SSDP_ADVERTISMENT_INTERVAL = 1800;
 
-    public UPnPMediaServer()
+    public UPnPBackendServer()
     {
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      MediaServerSettings settings = settingsManager.Load<MediaServerSettings>();
+      BackendServerSettings settings = settingsManager.Load<BackendServerSettings>();
       Guid deviceId;
       if (settings.MediaServerDeviceId.HasValue)
         deviceId = settings.MediaServerDeviceId.Value;

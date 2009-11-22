@@ -35,7 +35,7 @@ namespace MediaPortal.Backend.ClientCommunication
 {
   public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {
-    public const string RES_UPNPSERVER_SECTION = "UPnPServer";
+    public const string RES_UPNPSERVER_SECTION = "UPnPBackendServer";
     public const string RES_DEFAULT_FRIENDLY_NAME = "DefaultFriendlyName";
     public const string RES_MANUFACTURER = "Manufacturer";
     public const string RES_MANUFACTURER_URL = "ManufacturerUrl";
@@ -47,7 +47,7 @@ namespace MediaPortal.Backend.ClientCommunication
     public string GetFriendlyName(CultureInfo culture)
     {
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      MediaServerSettings settings = settingsManager.Load<MediaServerSettings>();
+      BackendServerSettings settings = settingsManager.Load<BackendServerSettings>();
       string result = settings.FriendlyName;
       if (string.IsNullOrEmpty(result))
       {

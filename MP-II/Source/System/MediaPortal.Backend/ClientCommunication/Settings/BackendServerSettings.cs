@@ -27,7 +27,7 @@ using MediaPortal.Core.Settings;
 
 namespace MediaPortal.Backend.ClientCommunication.Settings
 {
-  public class MediaServerSettings
+  public class BackendServerSettings
   {
     protected Guid? _mediaServerDeviceId = null;
     protected string _friendlyName = null;
