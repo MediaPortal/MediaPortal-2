@@ -176,7 +176,7 @@ namespace MediaPortal.Core.Services.Settings
       XmlNode entryElement = GetPropertyElement(entryName, true);
       XmlSerializer xs = GetSerializer(value.GetType());
       StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-      using (XmlWriter writer = new XmlInnerElementWriter(sb))
+      using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
         xs.Serialize(writer, value);
       entryElement.InnerXml = sb.ToString();
       _modified = true;

@@ -373,7 +373,7 @@ namespace MediaPortal.Core.MediaManagement
       lock (xs)
       {
         StringBuilder sb = new StringBuilder(); // Will contain the data, formatted as XML
-        using (XmlWriter writer = new XmlInnerElementWriter(sb))
+        using (XmlWriter writer = XmlWriter.Create(sb, new XmlWriterSettings {OmitXmlDeclaration = true}))
           xs.Serialize(writer, this);
         return sb.ToString();
       }
