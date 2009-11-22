@@ -67,8 +67,9 @@ namespace MediaPortal.Core.Messaging
         {
           SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
           ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
-          if (messageType == SystemMessaging.MessageType.SystemStateChanged && sss.CurrentState == SystemState.ShuttingDown)
-            _owner.Terminate();
+          if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+            if (sss.CurrentState == SystemState.ShuttingDown || sss.CurrentState == SystemState.Ending)
+              _owner.Terminate();
         }
       }
     }

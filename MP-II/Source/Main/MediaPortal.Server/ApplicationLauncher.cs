@@ -29,7 +29,8 @@ using MediaPortal.Backend;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 #if !DEBUG
-using MediaPortal.Services.Logging;
+using MediaPortal.Backend.Services.Logging;
+using System.IO;
 #endif
 using MediaPortal.Core.Services.Runtime;
 using MediaPortal.Utilities.CommandLine;
@@ -69,92 +70,106 @@ namespace MediaPortal
 
       using (new ServiceScope(true)) // Create the servicescope
       {
-#if !DEBUG
-        // In release mode, catch all Exceptions.
-        // In Debug mode these will be left unhandled.
-        try
-        {
-#endif
-
         SystemStateService systemStateService = new SystemStateService();
         ServiceScope.Add<ISystemStateService>(systemStateService);
         systemStateService.SwitchSystemState(SystemState.Initializing, false);
 
-        //Check whether the user wants to log method names in the logger
-        //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
-        bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
-        LogLevel level = LogLevel.All;
-        if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
-          level = (LogLevel) mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
-
-        ApplicationCore.RegisterCoreServices(level, logMethods);
-        ILogger logger = ServiceScope.Get<ILogger>();
-
-        IPathManager pathManager = ServiceScope.Get<IPathManager>();
-
-        // Check if user wants to override the default Application Data location.
-        if (mpArgs.IsOption(CommandLineOptions.Option.Data))
-          pathManager.SetPath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
-
-#if !DEBUG
-        logPath = pathManager.GetPath("<LOG>");
-#endif
-
-        // TODO
-        //ServiceScope.Add<IImporter>(...);
-
-        BackendExtension.RegisterBackendServices();
-
-        // Start the core
-        logger.Debug("ApplicationLauncher: Starting core");
-
         try
         {
-          IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-          IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-          pluginManager.Initialize();
-          pluginManager.Startup(false);
-          ApplicationCore.StartCoreServices();
+          ILogger logger = null;
+          try
+          {
+            //Check whether the user wants to log method names in the logger
+            //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
+            bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
+            LogLevel level = LogLevel.All;
+            if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
+              level = (LogLevel) mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
 
-          BackendExtension.StartupBackendServices();
-          ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
+            ApplicationCore.RegisterCoreServices(level, logMethods);
+            logger = ServiceScope.Get<ILogger>();
 
-          mediaAccessor.Initialize();
+            IPathManager pathManager = ServiceScope.Get<IPathManager>();
 
-          systemStateService.SwitchSystemState(SystemState.Started, true);
+            // Check if user wants to override the default Application Data location.
+            if (mpArgs.IsOption(CommandLineOptions.Option.Data))
+              pathManager.SetPath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
 
-          Application.Run(new MainForm());
-
-          ServiceScope.IsShuttingDown = true; // Block ServiceScope from trying to load new services in shutdown phase
-
-          mediaAccessor.Shutdown();
-
-          pluginManager.Shutdown();
-
-          BackendExtension.ShutdownBackendServices();
-        }
-        catch (Exception e)
-        {
-          logger.Critical("Error executing application", e);
-          systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
-          ServiceScope.IsShuttingDown = true;
-        }
-        finally
-        {
-          BackendExtension.DisposeBackendServices();
-          ApplicationCore.DisposeCoreServices();
-        }
-
-        systemStateService.SwitchSystemState(SystemState.Ending, false);
 #if !DEBUG
+            logPath = pathManager.GetPath("<LOG>");
+#endif
+
+            // TODO
+            //ServiceScope.Add<IImporter>(...);
+
+            BackendExtension.RegisterBackendServices();
+          }
+          catch (Exception e)
+          {
+            if (logger != null)
+              logger.Critical("Error starting application", e);
+            systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+            ServiceScope.IsShuttingDown = true;
+
+            BackendExtension.DisposeBackendServices();
+            ApplicationCore.DisposeCoreServices();
+
+            throw;
+          }
+
+          // Start the core
+          logger.Debug("ApplicationLauncher: Starting core");
+
+          try
+          {
+            IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+            IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
+            pluginManager.Initialize();
+            pluginManager.Startup(false);
+            ApplicationCore.StartCoreServices();
+
+            BackendExtension.StartupBackendServices();
+            ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after backend services are running
+
+            mediaAccessor.Initialize();
+
+            systemStateService.SwitchSystemState(SystemState.Started, true);
+
+            Application.Run(new MainForm());
+
+            systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+            ServiceScope.IsShuttingDown = true; // Block ServiceScope from trying to load new services in shutdown phase
+
+            mediaAccessor.Shutdown();
+
+            pluginManager.Shutdown();
+
+            BackendExtension.ShutdownBackendServices();
+          }
+          catch (Exception e)
+          {
+            logger.Critical("Error executing application", e);
+            systemStateService.SwitchSystemState(SystemState.ShuttingDown, true);
+            ServiceScope.IsShuttingDown = true;
+          }
+          finally
+          {
+            BackendExtension.DisposeBackendServices();
+            ApplicationCore.DisposeCoreServices();
+            systemStateService.SwitchSystemState(SystemState.Ending, false);
+          }
+
         }
         catch (Exception ex)
         {
+#if !DEBUG
           ServerCrashLogger crash = new ServerCrashLogger(logPath);
           crash.CreateLog(ex);
+#endif
+
+          systemStateService.SwitchSystemState(SystemState.Ending, false);
           Application.Exit();
         }
-#endif
       }
     }
   }
