@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Backend.ClientCommunication
+namespace MediaPortal.Utilities.UPnP
 {
   public class ParserHelper
   {
