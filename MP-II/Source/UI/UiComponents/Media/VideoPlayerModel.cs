@@ -24,13 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.Media
 {

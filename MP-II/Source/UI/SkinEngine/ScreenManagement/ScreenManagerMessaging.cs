@@ -24,9 +24,9 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.SkinEngine.ScreenManagement
+namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the screen manager.

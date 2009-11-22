@@ -26,7 +26,7 @@ using MediaPortal.Core.General;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class SplineDoubleKeyFrame : DoubleKeyFrame
   {

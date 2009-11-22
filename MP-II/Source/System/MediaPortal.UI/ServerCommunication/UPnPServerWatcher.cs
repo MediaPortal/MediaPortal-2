@@ -33,7 +33,7 @@ using MediaPortal.Core.UPnP;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.ServerCommunication
+namespace MediaPortal.UI.ServerCommunication
 {
   public delegate void AvailableMediaServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded);
 

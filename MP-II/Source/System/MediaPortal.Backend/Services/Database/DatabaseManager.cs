@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Database;
+using MediaPortal.Backend.Database;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.Database
+namespace MediaPortal.Backend.Services.Database
 {
   public class DatabaseManager : IDatabaseManager, IDisposable
   {

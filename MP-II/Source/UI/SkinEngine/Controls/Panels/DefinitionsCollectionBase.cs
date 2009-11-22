@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public class DefinitionsCollectionBase : List<DefinitionBase>, IDeepCopyable
   {

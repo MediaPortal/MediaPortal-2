@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Represents an instance of a markup extension which can be evaluated

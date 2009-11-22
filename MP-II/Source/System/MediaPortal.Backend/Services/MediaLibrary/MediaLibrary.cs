@@ -31,15 +31,15 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Database;
-using MediaPortal.Exceptions;
-using MediaPortal.MediaLibrary;
-using MediaPortal.Services.Database;
-using MediaPortal.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Exceptions;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.MediaLibrary
+namespace MediaPortal.Backend.Services.MediaLibrary
 {
   // TODO: Preparation of some SQL statements? We could use a lazy initialized DBCommand cache which prepares DBCommands
   // on the fly and holds up to N prepared commands.

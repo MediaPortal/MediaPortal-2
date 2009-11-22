@@ -27,9 +27,9 @@ using System.Reflection;
 using System.Globalization;
 using System.IO;
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   /// <summary>
   /// Helper class for assembly methods.

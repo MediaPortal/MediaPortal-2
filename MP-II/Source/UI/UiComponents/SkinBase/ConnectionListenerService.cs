@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.ServerCommunication;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.ServerCommunication;
 using UiComponents.SkinBase.Models;
 using UiComponents.SkinBase.Settings;
 

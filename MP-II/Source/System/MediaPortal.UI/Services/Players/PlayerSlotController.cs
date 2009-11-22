@@ -27,11 +27,11 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Services.Players.Settings;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.Players
+namespace MediaPortal.UI.Services.Players
 {
   /// <summary>
   /// Controller for one player slot. This class manages a player slot state, a current player, the audio setting

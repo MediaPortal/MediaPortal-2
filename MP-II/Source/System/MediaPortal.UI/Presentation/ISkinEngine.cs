@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation
+namespace MediaPortal.UI.Presentation
 {
   public interface ISkinEngine
   {

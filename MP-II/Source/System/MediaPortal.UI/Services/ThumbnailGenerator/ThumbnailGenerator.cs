@@ -28,11 +28,11 @@ using System.IO;
 using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Services.ThumbnailGenerator.Database;
-using MediaPortal.Thumbnails;
+using MediaPortal.UI.Services.ThumbnailGenerator.Database;
+using MediaPortal.UI.Thumbnails;
 using MediaPortal.Utilities.FileSystem;
 
-namespace MediaPortal.Services.ThumbnailGenerator
+namespace MediaPortal.UI.Services.ThumbnailGenerator
 {
   /// <summary>
   /// Represents a thumbnail generator service, which takes thumbnail generation tasks for input

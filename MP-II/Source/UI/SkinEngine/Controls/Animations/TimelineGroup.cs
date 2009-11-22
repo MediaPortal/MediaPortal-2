@@ -24,11 +24,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   /// <summary>
   /// Timeline context class for <see cref="TimelineGroup"/>s.

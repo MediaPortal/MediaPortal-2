@@ -22,12 +22,12 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MarkupExtensions;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public enum AlignmentX { Left, Center, Right };
   public enum AlignmentY { Top, Center, Bottom };

@@ -25,9 +25,9 @@
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.UserManagement;
+using MediaPortal.UI.UserManagement;
 
-namespace MediaPortal.Services.UserManagement
+namespace MediaPortal.UI.Services.UserManagement
 {
   /// <summary>
   /// Service that provides user management.

@@ -28,9 +28,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.ServerCommunication;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.ServerCommunication;
 
 namespace UiComponents.SkinBase.Models
 {

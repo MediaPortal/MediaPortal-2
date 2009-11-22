@@ -24,7 +24,7 @@
 
 using SlimDX;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class PointKeyFrame : ValueKeyFrame<Vector2>
   {

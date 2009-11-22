@@ -29,10 +29,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Services.PluginManager;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.SkinResources;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
 
-namespace MediaPortal.SkinEngine.SkinManagement
+namespace MediaPortal.UI.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Manager class which manages and caches all skins which are available in the system.

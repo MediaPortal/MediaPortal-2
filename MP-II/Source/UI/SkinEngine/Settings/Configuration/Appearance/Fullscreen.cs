@@ -25,9 +25,9 @@
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance
+namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance
 {
   /// <summary>
   /// Configuration setting class to change the fullscreen setting.

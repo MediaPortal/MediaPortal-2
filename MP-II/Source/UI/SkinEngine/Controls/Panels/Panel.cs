@@ -25,19 +25,19 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Rendering;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
-using Brush=MediaPortal.SkinEngine.Controls.Brushes.Brush;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   /// <summary>
   /// Finder implementation which looks for a panel which has its

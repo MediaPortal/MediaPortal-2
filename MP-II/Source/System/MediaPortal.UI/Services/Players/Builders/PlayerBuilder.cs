@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Services.PluginManager.Builders;
 
-namespace MediaPortal.Services.Players.Builders
+namespace MediaPortal.UI.Services.Players.Builders
 {
   public class PlayerBuilder : InstanceBuilder
   {

@@ -25,7 +25,7 @@
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public class DefinitionBase : IDeepCopyable
   {

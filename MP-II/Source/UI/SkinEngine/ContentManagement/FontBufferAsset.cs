@@ -24,14 +24,13 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.SkinManagement;
-using Font=MediaPortal.SkinEngine.Fonts.Font;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using Font=MediaPortal.UI.SkinEngine.Fonts.Font;
 
-namespace MediaPortal.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public class FontBufferAsset : IAsset
   {

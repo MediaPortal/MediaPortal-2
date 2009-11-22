@@ -28,13 +28,13 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.Workflow
+namespace MediaPortal.UI.Services.Workflow
 {
   public class WorkflowManager : IWorkflowManager
   {

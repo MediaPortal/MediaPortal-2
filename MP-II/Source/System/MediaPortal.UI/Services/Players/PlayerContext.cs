@@ -27,11 +27,11 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Presentation.Geometries;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.Players
+namespace MediaPortal.UI.Services.Players
 {
   public class PlayerContext : IPlayerContext, IDisposable
   {

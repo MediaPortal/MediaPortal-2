@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// Object to describe an audio stream to be played.

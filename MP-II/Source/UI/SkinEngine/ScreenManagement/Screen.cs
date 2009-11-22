@@ -25,16 +25,16 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.Actions;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.InputManagement;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.Presentation.Actions;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.InputManagement;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.ScreenManagement
+namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.

@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Geometries;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   public enum PlayerContextType
   {

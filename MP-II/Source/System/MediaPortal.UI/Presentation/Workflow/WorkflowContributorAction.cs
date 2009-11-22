@@ -27,7 +27,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localization;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   /// <summary>
   /// The <see cref="WorkflowContributorAction"/> enables plugins to add a workflow action which is backed by

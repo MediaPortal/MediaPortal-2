@@ -24,7 +24,7 @@
 
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.ClientCommunication
+namespace MediaPortal.Backend.ClientCommunication
 {
   public class MP2ServerDevice : DvDevice
   {

@@ -22,13 +22,13 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Marks a visual's element class to have an implicit key. A resource
   /// with an implicit key may not have an explicit <c>x:Key</c> attribute
   /// when used in a
-  /// <see cref="MediaPortal.SkinEngine.MpfElements.Resources.ResourceDictionary"/>.
+  /// <see cref="MediaPortal.UI.SkinEngine.MpfElements.Resources.ResourceDictionary"/>.
   /// </summary>
   public interface IImplicitKey
   {

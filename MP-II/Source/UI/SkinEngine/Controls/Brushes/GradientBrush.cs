@@ -25,11 +25,11 @@
 using MediaPortal.Core.General;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public enum BrushMappingMode
   {

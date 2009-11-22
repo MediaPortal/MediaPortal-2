@@ -28,12 +28,12 @@ using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.Shares;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Shares;
 using MediaPortal.Utilities;
 
 namespace UiComponents.Media.Settings.Configuration

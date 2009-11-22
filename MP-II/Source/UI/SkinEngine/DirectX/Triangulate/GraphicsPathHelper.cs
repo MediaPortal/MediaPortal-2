@@ -26,7 +26,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace MediaPortal.SkinEngine.DirectX.Triangulate
+namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
   public class GraphicsPathHelper
   {

@@ -24,11 +24,11 @@
 
 using System.Data;
 using System.IO;
-using MediaPortal.Database;
+using MediaPortal.Backend.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 
-namespace MediaPortal.Services.Database
+namespace MediaPortal.Backend.Services.Database
 {
   /// <summary>
   /// Creates SQL commands for the communication with the MEDIAPORTAL_BASIS sub schema.

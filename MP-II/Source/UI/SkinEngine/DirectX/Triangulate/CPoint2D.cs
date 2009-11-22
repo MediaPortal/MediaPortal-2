@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.SkinEngine.DirectX.Triangulate
+namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
   /// <summary>
   /// Summary description for CPoint2D.

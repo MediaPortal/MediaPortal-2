@@ -31,10 +31,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Services.ThumbnailGenerator.Database;
-using MediaPortal.Thumbnails;
+using MediaPortal.UI.Services.ThumbnailGenerator.Database;
+using MediaPortal.UI.Thumbnails;
 
-namespace MediaPortal.Services.ThumbnailGenerator
+namespace MediaPortal.UI.Services.ThumbnailGenerator
 {
   public class ThumbnailBuilder
   {

@@ -25,11 +25,11 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Templates
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
   public class DataTemplate : FrameworkTemplate, IImplicitKey
   {

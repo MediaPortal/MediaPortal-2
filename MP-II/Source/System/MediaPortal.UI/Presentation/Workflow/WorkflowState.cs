@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   public enum WorkflowType
   {

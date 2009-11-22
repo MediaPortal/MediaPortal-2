@@ -25,13 +25,13 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class BrushTexture : ITextureAsset
   {

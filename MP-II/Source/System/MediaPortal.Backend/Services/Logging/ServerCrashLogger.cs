@@ -28,7 +28,7 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Services.Logging;
 
-namespace MediaPortal.Services.Logging
+namespace MediaPortal.Backend.Services.Logging
 {
   /// <summary>
   /// Logs as much information about a server crash as possible.

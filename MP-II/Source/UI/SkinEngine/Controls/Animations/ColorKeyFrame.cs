@@ -24,7 +24,7 @@
 
 using System.Drawing;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class ColorKeyFrame : ValueKeyFrame<Color>
   {

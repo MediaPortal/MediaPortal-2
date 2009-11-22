@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.UserManagement;
+using MediaPortal.UI.UserManagement;
 
-namespace MediaPortal.Services.UserManagement
+namespace MediaPortal.UI.Services.UserManagement
 {
   /// <summary>
   /// Class which stores user data.

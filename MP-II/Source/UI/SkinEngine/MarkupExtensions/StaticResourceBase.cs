@@ -22,13 +22,13 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.SkinManagement;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Base class for MPF static resource lookup markup extensions

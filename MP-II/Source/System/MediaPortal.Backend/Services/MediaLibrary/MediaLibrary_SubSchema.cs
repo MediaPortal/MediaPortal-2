@@ -29,10 +29,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Database;
+using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.MediaLibrary
+namespace MediaPortal.Backend.Services.MediaLibrary
 {
   /// <summary>
   /// Creates SQL commands for the communication with the MEDIALIBRARY subschema.

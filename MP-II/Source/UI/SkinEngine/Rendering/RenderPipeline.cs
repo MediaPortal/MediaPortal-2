@@ -23,10 +23,10 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Rendering
+namespace MediaPortal.UI.SkinEngine.Rendering
 {
   /// <summary>
   /// TODO:

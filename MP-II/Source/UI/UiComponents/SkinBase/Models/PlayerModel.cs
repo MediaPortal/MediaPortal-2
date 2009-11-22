@@ -27,8 +27,8 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Players;
 
 namespace UiComponents.SkinBase.Models
 {

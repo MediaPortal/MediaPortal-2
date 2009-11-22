@@ -24,10 +24,10 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   public class TreeHelper
   {

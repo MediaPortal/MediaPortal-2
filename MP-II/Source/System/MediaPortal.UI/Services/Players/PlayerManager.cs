@@ -27,10 +27,10 @@ using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.Players
+namespace MediaPortal.UI.Services.Players
 {
   internal delegate void PlayerSlotWorkerInternalDelegate(PlayerSlotController slotController);
 

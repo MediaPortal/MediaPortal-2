@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Represents a mapping of object identities to unique names within this namespace.

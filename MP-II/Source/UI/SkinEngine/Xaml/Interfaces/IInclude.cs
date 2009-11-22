@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   public interface IInclude
   {

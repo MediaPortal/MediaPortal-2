@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -23,7 +23,7 @@
 #endregion
 
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Geometries;
 
 namespace Ui.Players.Video
 {

@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Marks a visual's element class to have the need to be initialized before it works.

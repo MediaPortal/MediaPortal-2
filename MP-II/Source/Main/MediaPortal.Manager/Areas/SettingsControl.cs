@@ -35,10 +35,10 @@ using System.Drawing.Imaging;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localisation;
-using MediaPortal.Configuration;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Localisation;
+using MediaPortal.UI.Configuration;
+using MediaPortal.UI.Configuration.Settings;
 
 // System.Windows.Forms.Control gets mixed up with MediaPortal.Control
 using FormControl = System.Windows.Forms.Control;

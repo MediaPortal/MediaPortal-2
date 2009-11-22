@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.SkinEngine.Controls
+namespace MediaPortal.UI.SkinEngine.Controls
 {
   /// <summary>
   /// This interface supports focus movements inside a scroll viewer.

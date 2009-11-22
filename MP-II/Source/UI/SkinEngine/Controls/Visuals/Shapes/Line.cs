@@ -25,17 +25,17 @@
 using System;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.DirectX.Triangulate;
-using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.Rendering;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Line : Shape
   {

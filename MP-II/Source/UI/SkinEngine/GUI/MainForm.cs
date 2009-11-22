@@ -29,21 +29,21 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.General;
+using MediaPortal.UI.General;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.InputManagement;
-using MediaPortal.SkinEngine.Players;
-using MediaPortal.SkinEngine.ScreenManagement;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.InputManagement;
+using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-using MediaPortal.SkinEngine.Settings;
+using MediaPortal.UI.SkinEngine.Settings;
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.SkinEngine.GUI
+namespace MediaPortal.UI.SkinEngine.GUI
 {
   // MainForm must be first in file otherwise can't open in designer
   public partial class MainForm : Form, IScreenControl

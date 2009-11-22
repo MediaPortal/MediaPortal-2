@@ -23,10 +23,10 @@
 #endregion
 
 using MediaPortal.Core.Commands;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Commands
+namespace MediaPortal.UI.SkinEngine.Commands
 {
   /// <summary>
   /// Represents a bridge between the two command frameworks: the <see cref="IExecutableCommand"/> &

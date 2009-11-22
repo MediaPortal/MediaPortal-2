@@ -38,7 +38,7 @@ using MediaPortal.Core.Logging;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.SkinEngine.DirectX
+namespace MediaPortal.UI.SkinEngine.DirectX
 {
   public class MPDirect3D 
   {
@@ -1282,7 +1282,7 @@ namespace MediaPortal.SkinEngine.DirectX
       _presentParams.BackBufferCount = 2;
 
       // Z order must be enabled for batching to work
-      if (MediaPortal.SkinEngine.SkinManagement.SkinContext.UseBatching == true)
+      if (MediaPortal.UI.SkinEngine.SkinManagement.SkinContext.UseBatching == true)
       {
         _presentParams.EnableAutoDepthStencil = true;
         _presentParams.AutoDepthStencilFormat = Format.D24X8;

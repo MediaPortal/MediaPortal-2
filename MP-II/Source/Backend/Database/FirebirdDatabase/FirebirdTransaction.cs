@@ -24,8 +24,9 @@
 
 using System.Data;
 using FirebirdSql.Data.FirebirdClient;
+using MediaPortal.Backend.Database;
 
-namespace MediaPortal.Database.Firebird
+namespace MediaPortal.BackendComponents.Database.Firebird
 {
   /// <summary>
   /// Encapsulates a db transaction which closes the underlaying Firebird connection automatically when the transaction is

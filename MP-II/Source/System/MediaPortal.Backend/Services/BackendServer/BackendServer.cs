@@ -26,14 +26,14 @@ using System;
 using System.Net;
 using HttpServer;
 using HttpServer.HttpModules;
-using MediaPortal.BackendServer;
-using MediaPortal.ClientCommunication;
+using MediaPortal.Backend.BackendServer;
+using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Core;
 using UPnP.Infrastructure;
 using ILogger=MediaPortal.Core.Logging.ILogger;
 using UPnPLogger = UPnP.Infrastructure.ILogger;
 
-namespace MediaPortal.Services.BackendServer
+namespace MediaPortal.Backend.Services.BackendServer
 {
   public class BackendServer : IBackendServer, IDisposable
   {

@@ -26,7 +26,7 @@ using System.Collections;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Templates
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
   public class HierarchicalDataTemplate : DataTemplate
   {

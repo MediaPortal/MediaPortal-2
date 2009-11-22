@@ -24,12 +24,12 @@
 
 using System;
 using SlimDX;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.Rendering;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public class TextureRender
   {

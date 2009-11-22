@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Interface to mark controls to constitute an own nameing scope.

@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Shares
+namespace MediaPortal.UI.Shares
 {
   public enum RelocationMode
   {

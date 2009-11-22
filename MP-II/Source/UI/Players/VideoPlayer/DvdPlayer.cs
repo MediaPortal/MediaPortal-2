@@ -36,12 +36,12 @@ using DirectShowLib.Dvd;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
-using MediaPortal.General;
+using MediaPortal.UI.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 using SlimDX;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace Ui.Players.Video
 {

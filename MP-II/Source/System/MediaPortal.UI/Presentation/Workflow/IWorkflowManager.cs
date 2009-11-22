@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   /// <summary>
   /// Component for tracking application states, managing application workflows and GUI models.

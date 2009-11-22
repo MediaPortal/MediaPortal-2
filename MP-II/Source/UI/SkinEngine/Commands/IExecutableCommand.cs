@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Commands
+namespace MediaPortal.UI.SkinEngine.Commands
 {
   /// <summary>
   /// Describes a single command which can be executed to fulfill a special short-time job.

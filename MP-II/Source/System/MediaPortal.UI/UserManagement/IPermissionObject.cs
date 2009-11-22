@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Services.UserManagement
+namespace MediaPortal.UI.Services.UserManagement
 {
   /// <summary>
   /// Interface for a permisson object.

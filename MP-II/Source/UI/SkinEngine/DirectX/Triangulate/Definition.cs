@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.DirectX.Triangulate
+namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
   /// <summary>
   /// Defines some constant Values used for local judgment.

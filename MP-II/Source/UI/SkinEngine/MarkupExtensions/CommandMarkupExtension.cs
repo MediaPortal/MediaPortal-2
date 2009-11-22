@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.Commands;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Implements the MPF Command markup extension.

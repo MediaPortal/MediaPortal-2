@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -27,8 +27,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.UserManagement;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.UserManagement;
 
 namespace UiComponents.Login
 {

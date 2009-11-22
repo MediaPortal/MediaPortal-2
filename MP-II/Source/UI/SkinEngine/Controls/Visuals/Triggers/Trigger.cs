@@ -24,12 +24,12 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class Trigger: TriggerBase, IAddChild<Setter>
   {

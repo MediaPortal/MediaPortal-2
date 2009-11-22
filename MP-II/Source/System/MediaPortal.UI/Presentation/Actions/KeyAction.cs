@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 
-namespace MediaPortal.Presentation.Actions
+namespace MediaPortal.UI.Presentation.Actions
 {
   public delegate bool ActionDlgt();
 

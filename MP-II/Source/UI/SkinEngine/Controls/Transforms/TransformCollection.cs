@@ -25,10 +25,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Transforms
+namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class TransformCollection : DependencyObject, IObservable, IEnumerable<Transform>
   {

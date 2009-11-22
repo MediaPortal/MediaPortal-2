@@ -26,7 +26,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 
-namespace MediaPortal.Presentation.DataObjects
+namespace MediaPortal.UI.Presentation.DataObjects
 {
   /// <summary>
   /// List of <see cref="ListItem"/> instances to be shown in the GUI.

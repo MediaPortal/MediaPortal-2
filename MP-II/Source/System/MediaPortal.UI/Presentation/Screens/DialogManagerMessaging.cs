@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Presentation.Screens
+namespace MediaPortal.UI.Presentation.Screens
 {
   public enum DialogResult
   {

@@ -25,13 +25,13 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   /// <summary>
   /// Timeline context class for <see cref="PropertyAnimationTimeline"/>s.

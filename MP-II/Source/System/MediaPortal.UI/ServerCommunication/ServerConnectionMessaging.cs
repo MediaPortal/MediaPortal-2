@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.ServerCommunication
+namespace MediaPortal.UI.ServerCommunication
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the server connection manager.

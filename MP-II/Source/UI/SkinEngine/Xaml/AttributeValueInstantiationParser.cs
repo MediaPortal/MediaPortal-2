@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   /// <summary>
   /// Holds some static helper methods for parsing markup extension invocations

@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Configuration;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace UiComponents.Configuration.ConfigurationControllers
 {

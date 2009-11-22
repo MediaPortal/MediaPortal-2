@@ -25,10 +25,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.Players
+namespace MediaPortal.UI.Services.Players
 {
   public class Playlist : IPlaylist
   {

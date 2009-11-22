@@ -26,20 +26,20 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Timers;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.Core.Runtime;
 
-namespace MediaPortal.SkinEngine.SpecialElements.Controls
+namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
   /// <summary>
   /// Visible Control providing the overview data for one player slot. This control can be decorated by different

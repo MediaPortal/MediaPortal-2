@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.General;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public class RowDefinition : DefinitionBase
   {

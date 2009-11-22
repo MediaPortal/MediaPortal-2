@@ -23,11 +23,11 @@
 #endregion
 
 using System;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace UiComponents.SkinBase.Models
 {

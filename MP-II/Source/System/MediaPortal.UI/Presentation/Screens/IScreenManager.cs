@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Screens
+namespace MediaPortal.UI.Presentation.Screens
 {
   public delegate void DialogCloseCallbackDlgt(string dialogName);
 

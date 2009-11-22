@@ -23,7 +23,7 @@
 #endregion
 
 
-namespace MediaPortal.Presentation.AutoPlay
+namespace MediaPortal.UI.Presentation.AutoPlay
 {
   public interface IAutoPlay
   {

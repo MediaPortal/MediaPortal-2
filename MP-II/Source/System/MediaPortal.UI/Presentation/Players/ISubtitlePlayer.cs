@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// Interface for each player class which is able to produce subtitles to its current content.

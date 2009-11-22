@@ -25,11 +25,11 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration.Players
+namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Players
 {
   public class DefaultGeometry : SingleSelectionList
   {

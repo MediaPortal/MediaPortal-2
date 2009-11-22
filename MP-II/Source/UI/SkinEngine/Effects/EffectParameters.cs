@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using SlimDX;
-namespace MediaPortal.SkinEngine.Effects
+namespace MediaPortal.UI.SkinEngine.Effects
 {
   public class EffectParameters
   {

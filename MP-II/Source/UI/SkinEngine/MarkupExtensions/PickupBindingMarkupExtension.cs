@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.MpfElements.Resources;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
 
   /// <summary>

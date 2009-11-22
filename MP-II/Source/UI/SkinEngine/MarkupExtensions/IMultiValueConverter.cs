@@ -23,9 +23,9 @@
 #endregion
 
 using System;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   public interface IMultiValueConverter
   {

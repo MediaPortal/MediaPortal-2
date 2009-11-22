@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.MediaLibrary;
+using MediaPortal.Backend.MediaLibrary;
 
-namespace MediaPortal.Services.MediaManagement
+namespace MediaPortal.Backend.Services.MediaManagement
 {
   /// <summary>
   /// Media item aspect type registration class for the MediaPortal server. Stores all registered media item aspect types

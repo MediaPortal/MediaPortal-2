@@ -26,21 +26,21 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ScreenManagement;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Xaml;
 using SlimDX;
-using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
-using MediaPortal.SkinEngine.Controls.Animations;
-using MediaPortal.SkinEngine.Controls.Transforms;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.MpfElements.Resources;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.SkinEngine.Controls.Panels;
+using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.Controls.Animations;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
+using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
 
   public enum VisibilityEnum

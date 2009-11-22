@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 
 namespace Ui.Players.Video
 {

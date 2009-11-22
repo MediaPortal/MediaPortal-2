@@ -28,10 +28,10 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
-using MediaPortal.Database;
+using MediaPortal.Backend.Database;
 using InvalidDataException=MediaPortal.Utilities.Exceptions.InvalidDataException;
 
-namespace MediaPortal.Services.Database
+namespace MediaPortal.Backend.Services.Database
 {
   /// <summary>
   /// Preprocessor for SQL scripts.

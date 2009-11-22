@@ -25,7 +25,7 @@
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.ServerConnection.Settings
+namespace MediaPortal.UI.Services.ServerConnection.Settings
 {
   public class ServerConnectionSettings
   {

@@ -26,13 +26,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Matrix=SlimDX.Matrix;
 
-namespace MediaPortal.SkinEngine.DirectX.Triangulate
+namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
   public class TriangulateHelper
   {

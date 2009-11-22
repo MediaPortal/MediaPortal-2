@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.SkinResources
+namespace MediaPortal.UI.Presentation.SkinResources
 {
   public delegate void SkinResourceCollectionChangedDlgt();
 

@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Exceptions
+namespace MediaPortal.Backend.Exceptions
 {
   /// <summary>
   /// Thrown if a share with the given access path already exists.

@@ -2,7 +2,7 @@
 <Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mp_special="clr-namespace:MediaPortal.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     x:Name="FullscreenLayoutGrid"
     DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}"
     > <!-- DataContext model = VideoPlayerModel -->

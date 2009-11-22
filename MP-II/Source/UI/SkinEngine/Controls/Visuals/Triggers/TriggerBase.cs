@@ -24,12 +24,12 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerBase: DependencyObject
   {

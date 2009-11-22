@@ -29,11 +29,11 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Database;
+using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Contains compiled media item query data, creates an SQL query for the query attributes, executes the query and picks out

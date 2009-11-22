@@ -24,11 +24,11 @@
 
 using System.Collections;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class TreeViewItem : HeaderedItemsControl, ISearchableItem, IAddChild<FrameworkElement>
   {

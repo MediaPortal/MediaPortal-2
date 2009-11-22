@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using MediaPortal.Control.InputManager;
-using MediaPortal.Presentation.Actions;
+using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.Presentation.Actions;
 
-namespace MediaPortal.SkinEngine.InputManagement
+namespace MediaPortal.UI.SkinEngine.InputManagement
 {
   /// <summary>
   /// Delegate for a mouse handler.

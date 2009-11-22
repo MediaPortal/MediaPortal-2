@@ -28,7 +28,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
 
-namespace MediaPortal.Database
+namespace MediaPortal.Backend.Database
 {
   /// <summary>
   /// Automatic database update script manager for a sub schema.

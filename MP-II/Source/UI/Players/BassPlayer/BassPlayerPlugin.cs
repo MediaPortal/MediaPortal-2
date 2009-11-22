@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -28,8 +28,8 @@ using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.Media.MediaManagement;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Media.MediaManagement;
+using MediaPortal.UI.Presentation.Players;
 
 namespace Media.Players.BassPlayer
 {

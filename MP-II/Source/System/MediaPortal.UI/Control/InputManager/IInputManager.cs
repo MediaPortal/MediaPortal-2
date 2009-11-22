@@ -25,9 +25,9 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using MediaPortal.Presentation.Actions;
+using MediaPortal.UI.Presentation.Actions;
 
-namespace MediaPortal.Control.InputManager
+namespace MediaPortal.UI.Control.InputManager
 {
   /// <summary>
   /// Public interface of the input manager.

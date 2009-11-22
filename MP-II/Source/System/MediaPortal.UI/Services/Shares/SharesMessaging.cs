@@ -25,9 +25,9 @@
 using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Shares;
+using MediaPortal.UI.Shares;
 
-namespace MediaPortal.Services.Shares
+namespace MediaPortal.UI.Services.Shares
 {
   /// <summary>
   /// This class provides an interface for all shares related messages.

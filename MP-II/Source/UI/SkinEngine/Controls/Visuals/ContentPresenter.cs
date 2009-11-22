@@ -25,13 +25,13 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Xaml;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class ContentPresenter : FrameworkElement
   {

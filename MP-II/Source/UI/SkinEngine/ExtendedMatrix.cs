@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,7 +25,7 @@
 using System;
 using SlimDX;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.UI.SkinEngine
 {
   /// <summary>
   /// Matrix class with extended functionality (transformations, inverting, ...).

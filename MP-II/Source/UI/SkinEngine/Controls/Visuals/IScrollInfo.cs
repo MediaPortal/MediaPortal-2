@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Will be used for the <see cref="IScrollInfo.Scrolled"/> event.

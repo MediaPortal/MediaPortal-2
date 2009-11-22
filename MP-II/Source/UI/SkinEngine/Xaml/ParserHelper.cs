@@ -24,10 +24,10 @@
 
 using System.Collections.Generic;
 using System;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   public class ParserHelper
   {

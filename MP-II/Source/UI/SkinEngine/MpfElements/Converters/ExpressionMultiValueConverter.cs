@@ -24,11 +24,11 @@
 
 using System;
 using Jyc.Expr;
-using MediaPortal.SkinEngine.MarkupExtensions;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.Xaml;
 using Parser=Jyc.Expr.Parser;
 
-namespace MediaPortal.SkinEngine.MpfElements.Converters
+namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
   /// Multi value converter which evaluates an expression based on given values.

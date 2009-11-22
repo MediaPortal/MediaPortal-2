@@ -23,10 +23,10 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class ListViewItem : ContentControl, ISearchableItem
   {

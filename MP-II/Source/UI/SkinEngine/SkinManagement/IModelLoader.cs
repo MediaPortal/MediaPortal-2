@@ -1,6 +1,6 @@
 using System;
 
-namespace MediaPortal.SkinEngine.SkinManagement
+namespace MediaPortal.UI.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Callback interface to load GUI models.

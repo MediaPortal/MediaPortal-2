@@ -24,17 +24,17 @@
 
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SizeF = System.Drawing.SizeF;
-using Brush = MediaPortal.SkinEngine.Controls.Brushes.Brush;
+using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Shapes
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   /// <summary>
   /// Describes to a LineStrip how it should place the line's width relative to its points

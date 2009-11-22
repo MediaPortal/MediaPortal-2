@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.Commands;
 
-namespace MediaPortal.SkinEngine.Controls.Bindings
+namespace MediaPortal.UI.SkinEngine.Controls.Bindings
 {
   /// <summary>
   /// <see cref="TriggerAction"/> wrapper class for an <see cref="IExecutableCommand"/>.

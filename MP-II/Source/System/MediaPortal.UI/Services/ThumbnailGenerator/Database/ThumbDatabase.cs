@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Thumbnails;
+using MediaPortal.UI.Thumbnails;
 using MediaPortal.Utilities.FileSystem;
 
-namespace MediaPortal.Services.ThumbnailGenerator.Database
+namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
 {
   /// <summary>
   /// Database for image and video thumbnails of one folder.

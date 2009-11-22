@@ -29,11 +29,11 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.Players
+namespace MediaPortal.UI.Services.Players
 {
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {

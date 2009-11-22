@@ -23,9 +23,9 @@
 #endregion
 
 using System.Drawing;
-using MediaPortal.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Geometries;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// General interface for a video player. Holds most of the methods which are common to all video players.

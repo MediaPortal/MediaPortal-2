@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Marks a visual's element class to be content-enabled.

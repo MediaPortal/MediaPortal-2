@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.SkinEngine.Commands
+namespace MediaPortal.UI.SkinEngine.Commands
 {
   /// <summary>
   /// Describes a "stencil" for a command to be executed with actual parameters, to fulfill a

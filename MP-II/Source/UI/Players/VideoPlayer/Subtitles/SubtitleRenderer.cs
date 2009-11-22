@@ -26,18 +26,18 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using MediaPortal.SkinEngine;
-using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using DirectShowLib;
 using System.Drawing.Imaging;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Core.Logging;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace Ui.Players.Video.Subtitles
 {

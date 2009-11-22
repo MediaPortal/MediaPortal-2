@@ -24,15 +24,15 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using RectangleF = System.Drawing.RectangleF;
 using SizeF = System.Drawing.SizeF;
-using MediaPortal.SkinEngine.Controls.Brushes;
-using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Control : FrameworkElement, IUpdateEventHandler
   {

@@ -30,12 +30,12 @@ using System.Text.RegularExpressions;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.FileSystem;
 
-namespace MediaPortal.SkinEngine.SkinManagement
+namespace MediaPortal.UI.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Encapsulates a collection of resources from a set of root directories.

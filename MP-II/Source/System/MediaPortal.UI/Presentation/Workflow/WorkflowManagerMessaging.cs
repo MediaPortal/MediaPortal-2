@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the workflow manager.

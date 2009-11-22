@@ -25,10 +25,10 @@
 using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using MediaPortal.ClientCommunication.Settings;
+using MediaPortal.Backend.ClientCommunication.Settings;
 using UPnP.Infrastructure.Dv;
 
-namespace MediaPortal.ClientCommunication
+namespace MediaPortal.Backend.ClientCommunication
 {
   /// <summary>
   /// Encapsulates the MediaPortal-II UPnP server device.

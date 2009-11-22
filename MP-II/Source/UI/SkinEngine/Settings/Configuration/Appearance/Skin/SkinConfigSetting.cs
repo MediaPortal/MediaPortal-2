@@ -26,11 +26,11 @@
 using System.Collections.Generic;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
+namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 {
   /// <summary>
   /// Custom configuration setting class to change the current skin.

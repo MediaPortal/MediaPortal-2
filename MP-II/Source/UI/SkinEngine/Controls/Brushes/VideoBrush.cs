@@ -26,17 +26,17 @@ using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Geometries;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Players;
+using MediaPortal.UI.Presentation.Geometries;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Players;
 using SlimDX.Direct3D9;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class VideoBrush : Brush
   {

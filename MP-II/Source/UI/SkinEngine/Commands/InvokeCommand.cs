@@ -24,10 +24,10 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Commands
+namespace MediaPortal.UI.SkinEngine.Commands
 {
   /// <summary>
   /// <see cref="IExecutableCommand"/> implementation to execute an

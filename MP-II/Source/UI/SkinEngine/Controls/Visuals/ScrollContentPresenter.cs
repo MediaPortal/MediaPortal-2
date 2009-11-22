@@ -24,12 +24,12 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class ScrollContentPresenter : ContentPresenter, IScrollInfo, IScrollViewerFocusSupport
   {

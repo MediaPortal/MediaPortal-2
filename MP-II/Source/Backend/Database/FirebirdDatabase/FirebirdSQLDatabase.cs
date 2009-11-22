@@ -29,12 +29,13 @@ using System.IO;
 using System.Reflection;
 using FirebirdSql.Data.FirebirdClient;
 using FirebirdSql.Data.Isql;
+using MediaPortal.Backend.Database;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.Database.Firebird.Settings;
+using MediaPortal.BackendComponents.Database.Firebird.Settings;
 
-namespace MediaPortal.Database.Firebird
+namespace MediaPortal.BackendComponents.Database.Firebird
 {
   /// <summary>
   /// Database implementation for the FirebirdDotNet implementation.

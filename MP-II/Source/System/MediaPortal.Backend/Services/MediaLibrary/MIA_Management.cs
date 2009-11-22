@@ -30,13 +30,13 @@ using System.Text;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Database;
-using MediaPortal.Services.Database;
-using MediaPortal.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.MediaLibrary
+namespace MediaPortal.Backend.Services.MediaLibrary
 {
   /// <summary>
   /// Management class for media item aspect types and media item aspects.

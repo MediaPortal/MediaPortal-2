@@ -27,12 +27,12 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Geometries;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.SkinBase.Models
 {

@@ -21,9 +21,9 @@
 */
 #endregion
 
-using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public enum State
   {

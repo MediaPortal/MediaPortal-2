@@ -25,7 +25,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MediaPortal.Presentation.Screens
+namespace MediaPortal.UI.Presentation.Screens
 {
   public enum ScreenMode
   {

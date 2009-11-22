@@ -26,7 +26,7 @@ using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.General
+namespace MediaPortal.UI.General
 {
   /// <summary>
   /// This class provides an interface for broadcasting and receiving messages sent by

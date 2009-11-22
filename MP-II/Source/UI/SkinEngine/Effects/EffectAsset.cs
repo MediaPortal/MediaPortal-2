@@ -27,12 +27,12 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Effects
+namespace MediaPortal.UI.SkinEngine.Effects
 {
   public class EffectAsset : IAsset
   {

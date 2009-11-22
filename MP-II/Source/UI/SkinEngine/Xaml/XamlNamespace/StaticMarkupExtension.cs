@@ -25,10 +25,10 @@
 using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Xaml.XamlNamespace
+namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 {
   public class StaticMarkupExtension: IEvaluableMarkupExtension
   {

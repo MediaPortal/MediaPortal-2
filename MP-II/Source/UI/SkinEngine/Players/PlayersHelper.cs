@@ -23,9 +23,9 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.SkinEngine.Players
+namespace MediaPortal.UI.SkinEngine.Players
 {
   /// <summary>
   /// Class with static helper methods for player management.

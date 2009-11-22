@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   public interface ITypeConverter
   {

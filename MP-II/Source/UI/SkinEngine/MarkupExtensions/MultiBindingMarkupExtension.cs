@@ -25,12 +25,12 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Implements the MPF MultiBinding markup extension.

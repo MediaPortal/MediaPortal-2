@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Services.PluginManager.Builders;
 
-namespace MediaPortal.Services.Workflow
+namespace MediaPortal.UI.Services.Workflow
 {
   /// <summary>
   /// Builds an item of type "Model". The "Model" item type provides an instance of a

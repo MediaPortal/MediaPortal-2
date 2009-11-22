@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// For each video player, there need to be present two special states to present its video content:

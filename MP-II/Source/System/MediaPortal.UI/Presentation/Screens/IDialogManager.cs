@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Presentation.Screens
+namespace MediaPortal.UI.Presentation.Screens
 {
   public enum DialogType
   {

@@ -25,13 +25,13 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.SkinEngine.Rendering
+namespace MediaPortal.UI.SkinEngine.Rendering
 {
   public class RenderContext : IDisposable
   {

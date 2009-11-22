@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Xaml.XamlNamespace
+namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 {
   public class TypeMarkupExtension: IEvaluableMarkupExtension
   {

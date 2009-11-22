@@ -26,14 +26,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.Controls.Panels;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.Controls.Panels;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Represents a control that can be used to present a collection of items.

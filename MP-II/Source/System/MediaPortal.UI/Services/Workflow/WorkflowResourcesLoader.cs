@@ -28,11 +28,11 @@ using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.Workflow
+namespace MediaPortal.UI.Services.Workflow
 {
   /// <summary>
   /// Class for loading MediaPortal-II workflow resources from the current skin context.

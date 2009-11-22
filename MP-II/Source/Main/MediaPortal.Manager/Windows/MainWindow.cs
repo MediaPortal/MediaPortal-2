@@ -26,9 +26,9 @@
 using System.Windows.Forms;
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localisation;
-using MediaPortal.Configuration;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Localisation;
+using MediaPortal.UI.Configuration;
 
 namespace MediaPortal.Manager
 {

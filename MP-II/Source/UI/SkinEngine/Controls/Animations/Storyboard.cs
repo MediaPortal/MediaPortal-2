@@ -23,9 +23,9 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class Storyboard : ParallelTimeline
   {

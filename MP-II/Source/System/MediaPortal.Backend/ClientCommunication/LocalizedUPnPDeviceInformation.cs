@@ -24,14 +24,14 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.ClientCommunication.Settings;
+using MediaPortal.Backend.ClientCommunication.Settings;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.ClientCommunication
+namespace MediaPortal.Backend.ClientCommunication
 {
   public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {

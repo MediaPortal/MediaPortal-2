@@ -7,7 +7,7 @@
     <ProjectGuid>{6759DACE-15CD-4EB1-8337-8096F35EAEA3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Database.Firebird</RootNamespace>
+    <RootNamespace>MediaPortal.BackendComponents.Database.Firebird</RootNamespace>
     <AssemblyName>FirebirdDatabase</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

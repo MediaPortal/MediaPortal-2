@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.Controls.Panels;
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Controls.Panels;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Used within the template of an item control to specify the place in the control’s visual tree 

@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.Thumbnails;
+using MediaPortal.UI.Thumbnails;
 
-namespace MediaPortal.Services.ThumbnailGenerator.Database
+namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
 {
   /// <summary>
   /// Encapsulates the data of a thumbnail image in a thumb database file.

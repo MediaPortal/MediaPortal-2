@@ -28,10 +28,10 @@ using System.Data;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Database;
+using MediaPortal.Backend.Database;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Creates an SQL query for selecting a set of distinct media item aspect attribute values for a given attribute type

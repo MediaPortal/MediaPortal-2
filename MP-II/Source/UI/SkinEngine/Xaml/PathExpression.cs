@@ -30,10 +30,10 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   /// <summary>
   /// Path segment in a <see cref="PathExpression"/>. A path segment
@@ -371,7 +371,7 @@ namespace MediaPortal.SkinEngine.Xaml
   /// <para>
   /// <example>
   /// A path expression, which can be evaluated on a
-  /// <see cref="MediaPortal.SkinEngine.Controls.Visuals.Shapes.Rectangle"/>, is for example:<br/>
+  /// <see cref="MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes.Rectangle"/>, is for example:<br/>
   /// <code>Fill.RelativeTransform.Children[0].ScaleY</code>
   /// </example>
   /// </para>

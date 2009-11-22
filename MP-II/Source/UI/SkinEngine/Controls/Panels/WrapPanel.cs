@@ -26,11 +26,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
 using SlimDX;
-using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   /// <summary>
   /// Positions child elements in sequential position from left to right, 

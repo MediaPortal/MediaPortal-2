@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Services.UserManagement;
+using MediaPortal.UI.Services.UserManagement;
 
-namespace MediaPortal.UserManagement
+namespace MediaPortal.UI.UserManagement
 {
   /// <summary>
   /// Interface that provides access to the public data for a registered user object.

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,8 +22,8 @@
 
 #endregion
 
-using MediaPortal.Views;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Views;
+using MediaPortal.UI.Presentation.DataObjects;
 
 namespace UiComponents.Media
 {

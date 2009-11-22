@@ -25,7 +25,7 @@
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class DoubleAnimation : PropertyAnimationTimeline
   {

@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -25,7 +25,7 @@
 using SlimDX;
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.SkinEngine.DirectX
+namespace MediaPortal.UI.SkinEngine.DirectX
 {
   /// <summary>
   /// Various helper functions for graphics samples

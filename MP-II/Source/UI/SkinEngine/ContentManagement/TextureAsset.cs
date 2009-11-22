@@ -31,12 +31,12 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.Thumbnails;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.Thumbnails;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public class TextureAsset : ITextureAsset
   {

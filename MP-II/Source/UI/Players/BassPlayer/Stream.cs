@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -35,9 +35,9 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 
-using MediaPortal.Media.MediaManagement;
+using MediaPortal.UI.Media.MediaManagement;
 
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Cd;

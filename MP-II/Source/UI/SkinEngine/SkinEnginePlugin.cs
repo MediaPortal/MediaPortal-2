@@ -23,22 +23,22 @@
 #endregion
 
 using System;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation;
-using MediaPortal.Presentation.Geometries;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Geometry;
-using MediaPortal.SkinEngine.GUI;
+using MediaPortal.UI.Presentation;
+using MediaPortal.UI.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Geometry;
+using MediaPortal.UI.SkinEngine.GUI;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.SkinEngine.InputManagement;
-using MediaPortal.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.InputManagement;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.UI.SkinEngine
 {
   public class SkinEnginePlugin: IPluginStateTracker, ISkinEngine
   {

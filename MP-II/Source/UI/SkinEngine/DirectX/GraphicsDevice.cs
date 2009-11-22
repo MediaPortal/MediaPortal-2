@@ -28,17 +28,17 @@ using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Players;
-using MediaPortal.SkinEngine.ScreenManagement;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Rendering;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine
+namespace MediaPortal.UI.SkinEngine
 {
   public class GraphicsDevice : IDisposable
   {

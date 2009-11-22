@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Models;
+using MediaPortal.UI.Presentation.Models;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   /// <summary>
   /// Holds the navigation context data for one workflow navigation step.

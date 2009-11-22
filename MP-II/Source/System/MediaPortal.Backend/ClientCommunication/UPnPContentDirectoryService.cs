@@ -29,12 +29,12 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
-using MediaPortal.MediaLibrary;
+using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.ClientCommunication
+namespace MediaPortal.Backend.ClientCommunication
 {
   /// <summary>
   /// Encapsulates the UPnP service for the MediaPortal-II content directory.

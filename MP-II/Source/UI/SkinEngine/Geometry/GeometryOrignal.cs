@@ -24,9 +24,9 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.Presentation.Geometries;
+using MediaPortal.UI.Presentation.Geometries;
 
-namespace MediaPortal.SkinEngine.Geometry
+namespace MediaPortal.UI.SkinEngine.Geometry
 {
   /// <summary>
   /// Cropping = No

@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 
-namespace MediaPortal.ServerCommunication
+namespace MediaPortal.UI.ServerCommunication
 {
   /// <summary>
   /// Manages the UPnP connection to the backend home server.

@@ -25,18 +25,18 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MarkupExtensions;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements
 {
   /// <summary>
   /// Represents an object which can contain foreign attached properties.
   /// This class also implements the <see cref="DependencyObject.DataContext"/>
   /// which is needed for
-  /// <see cref="MediaPortal.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
+  /// <see cref="MediaPortal.UI.SkinEngine.MarkupExtensions.BindingMarkupExtension">bindings</see>.
   /// </summary>
   public class DependencyObject: IDeepCopyable, IInitializable
   {

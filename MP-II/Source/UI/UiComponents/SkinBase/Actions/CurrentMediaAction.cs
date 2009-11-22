@@ -26,8 +26,8 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.SkinBase.Actions
 {

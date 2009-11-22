@@ -25,15 +25,15 @@
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.MpfElements.Resources;
-using MediaPortal.SkinEngine.SkinManagement;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Controls the tree type to be used when searching a resource in the DynamicResource

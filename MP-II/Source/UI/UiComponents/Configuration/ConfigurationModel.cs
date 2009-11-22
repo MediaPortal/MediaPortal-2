@@ -30,10 +30,10 @@ using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Models;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
 using UiComponents.Configuration.ConfigurationControllers;
 
 namespace UiComponents.Configuration

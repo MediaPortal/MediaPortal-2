@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Controls.Visuals.Templates;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class ListView : ItemsControl
   {

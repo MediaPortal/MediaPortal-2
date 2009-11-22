@@ -26,10 +26,10 @@ using System;
 
 using System.Reflection;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   public delegate void DataChangedHandler(IDataDescriptor dd);
 

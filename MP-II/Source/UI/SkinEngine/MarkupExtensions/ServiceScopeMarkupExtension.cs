@@ -25,16 +25,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   public class ServiceScopeMarkupExtension: IEvaluableMarkupExtension
   {

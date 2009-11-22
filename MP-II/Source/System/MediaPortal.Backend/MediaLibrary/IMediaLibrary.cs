@@ -28,7 +28,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 
-namespace MediaPortal.MediaLibrary
+namespace MediaPortal.Backend.MediaLibrary
 {
   public enum RelocationMode
   {

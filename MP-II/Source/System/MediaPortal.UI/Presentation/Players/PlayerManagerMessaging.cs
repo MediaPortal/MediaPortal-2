@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the player manager.

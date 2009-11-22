@@ -24,9 +24,9 @@
 
 using MediaPortal.Core;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Services.Players.Builders;
+using MediaPortal.UI.Services.Players.Builders;
 
-namespace MediaPortal.Builders
+namespace MediaPortal.UI.Builders
 {
   public class AdditionalUiBuilders
   {

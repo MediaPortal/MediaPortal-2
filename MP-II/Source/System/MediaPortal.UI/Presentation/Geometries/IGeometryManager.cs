@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace MediaPortal.Presentation.Geometries
+namespace MediaPortal.UI.Presentation.Geometries
 {
   /// <summary>
   /// Manages a set of <see cref="IGeometry"/> instances to do transformations for video windows, a current geometry

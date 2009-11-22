@@ -23,17 +23,17 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
 using System.Drawing;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class SolidColorBrush : Brush
   {

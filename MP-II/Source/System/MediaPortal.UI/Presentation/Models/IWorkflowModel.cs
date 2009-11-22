@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Workflow;
 
-namespace MediaPortal.Presentation.Models
+namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
   /// A workflow model is a special GUI model which is able to attend some states of a GUI workflow.

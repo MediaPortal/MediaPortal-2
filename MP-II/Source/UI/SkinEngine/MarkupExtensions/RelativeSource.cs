@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   public enum RelativeSourceMode
   {

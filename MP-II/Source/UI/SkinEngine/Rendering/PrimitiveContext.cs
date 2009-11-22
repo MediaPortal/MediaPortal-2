@@ -22,11 +22,11 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.DirectX;
 
-namespace MediaPortal.SkinEngine.Rendering
+namespace MediaPortal.UI.SkinEngine.Rendering
 {
   public class PrimitiveContext
   {

@@ -23,12 +23,12 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Presentation.Actions;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Actions;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using UiComponents.SkinBase.Models;
 
 namespace UiComponents.SkinBase

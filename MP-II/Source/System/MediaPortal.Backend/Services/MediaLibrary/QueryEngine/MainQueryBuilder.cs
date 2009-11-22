@@ -27,7 +27,7 @@ using System.Text;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Builds the SQL statement for the main media item query. The main query requests all inline attributes of

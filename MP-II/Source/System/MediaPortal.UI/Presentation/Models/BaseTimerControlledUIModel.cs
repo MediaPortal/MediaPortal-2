@@ -28,7 +28,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Runtime;
 
-namespace MediaPortal.Presentation.Models
+namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
   /// Base class for UI models which use a timer to update their properties periodically. Provides a timer-controlled

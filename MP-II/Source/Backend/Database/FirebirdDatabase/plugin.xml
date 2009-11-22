@@ -13,7 +13,7 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Service Id="FirebirdDatabase" RegistrationClassName="MediaPortal.Database.ISQLDatabase"
-        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.Database.Firebird.FirebirdSQLDatabase"/>
+    <Service Id="FirebirdDatabase" RegistrationClassName="MediaPortal.Backend.Database.ISQLDatabase"
+        RegistrationClassAssembly="MediaPortal.Backend" ServiceClassName="MediaPortal.BackendComponents.Database.Firebird.FirebirdSQLDatabase"/>
   </Register>
 </Plugin>

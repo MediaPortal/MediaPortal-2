@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// Players with this interface implemented are able to reconfigure their input source. This can be sensible

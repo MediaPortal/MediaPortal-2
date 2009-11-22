@@ -23,10 +23,10 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements
 {                            
   /// <summary>
   /// CopyManager class for MPF elements. This copy manager provides the

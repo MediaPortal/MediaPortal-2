@@ -21,10 +21,10 @@
 */
 #endregion
 
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 {
   public abstract class SetterBase : DependencyObject
   {

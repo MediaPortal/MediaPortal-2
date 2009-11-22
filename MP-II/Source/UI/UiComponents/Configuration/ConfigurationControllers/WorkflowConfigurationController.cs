@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core.Configuration;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.Configuration.ConfigurationControllers
 {

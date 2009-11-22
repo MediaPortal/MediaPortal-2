@@ -27,7 +27,7 @@ using MediaPortal.Core.General;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Transforms
+namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class SkewTransform : Transform
   {

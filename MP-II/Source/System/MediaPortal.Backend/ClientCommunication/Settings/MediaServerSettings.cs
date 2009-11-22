@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.ClientCommunication.Settings
+namespace MediaPortal.Backend.ClientCommunication.Settings
 {
   public class MediaServerSettings
   {

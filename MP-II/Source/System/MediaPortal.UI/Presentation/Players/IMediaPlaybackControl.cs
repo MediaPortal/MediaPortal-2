@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// Interface for controlling a player's position and playback speed.

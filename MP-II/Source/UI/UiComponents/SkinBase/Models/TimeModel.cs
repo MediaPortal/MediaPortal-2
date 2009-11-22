@@ -29,7 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Models;
+using MediaPortal.UI.Presentation.Models;
 using UiComponents.SkinBase.Settings;
 
 namespace UiComponents.SkinBase.Models

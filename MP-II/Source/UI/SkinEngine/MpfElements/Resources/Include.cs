@@ -23,13 +23,13 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.MpfElements.Resources
+namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   public class Include : NameScope, IInclude, IInitializable
   {

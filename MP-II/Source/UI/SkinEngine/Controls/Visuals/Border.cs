@@ -26,19 +26,19 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Brushes;
-using MediaPortal.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.Rendering;
-using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.DirectX;
 using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
 // changes possible:
 // - opacity
@@ -47,7 +47,7 @@ using MediaPortal.SkinEngine.SkinManagement;
 // - rendertransform
 // - visibility
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Border : FrameworkElement, IAddChild<FrameworkElement>, IUpdateEventHandler
   {

@@ -26,7 +26,7 @@ using System;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   /// <summary>
   /// When invoked, this action pushes a new, transient workflow state onto the workflow navigation stack.

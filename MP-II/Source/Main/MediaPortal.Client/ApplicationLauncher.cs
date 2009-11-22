@@ -27,13 +27,13 @@ using System.Windows.Forms;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Runtime;
-using MediaPortal.Presentation;
-using MediaPortal.Presentation.Workflow;
+using MediaPortal.UI.Presentation;
+using MediaPortal.UI.Presentation.Workflow;
 #if !DEBUG
-using MediaPortal.Services.Logging;
+using MediaPortal.UI.Services.Logging;
 using System.IO;
 #endif
-using MediaPortal.Shares;
+using MediaPortal.UI.Shares;
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;

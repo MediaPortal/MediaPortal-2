@@ -22,10 +22,10 @@
 
 #endregion
 
-using MediaPortal.Presentation.Players;
-using MediaPortal.SkinEngine.Effects;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine.Effects;
 
-namespace MediaPortal.SkinEngine.Players
+namespace MediaPortal.UI.SkinEngine.Players
 {
   /// <summary>
   /// Interface which has to be implemented by video players, which are written for this SkinEngine.

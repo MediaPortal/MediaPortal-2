@@ -31,7 +31,7 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   public class CompiledFilter
   {

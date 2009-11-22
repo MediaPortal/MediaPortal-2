@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Services.Players.Settings
+namespace MediaPortal.UI.Services.Players.Settings
 {
   public class FadingSettings
   {

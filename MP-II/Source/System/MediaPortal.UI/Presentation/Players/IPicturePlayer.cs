@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// Interface for a picture player. Holds all methods which are common to all picture players.

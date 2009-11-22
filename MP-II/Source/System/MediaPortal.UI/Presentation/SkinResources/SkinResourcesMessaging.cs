@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Presentation.SkinResources
+namespace MediaPortal.UI.Presentation.SkinResources
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the skin resource manager (located in the SkinEngine).

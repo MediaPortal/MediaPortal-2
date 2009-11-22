@@ -28,20 +28,20 @@ using System.Threading;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Screens;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
-using MediaPortal.SkinEngine.Players;
-using MediaPortal.SkinEngine.Settings;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.Settings;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.SkinEngine.ScreenManagement
+namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   public class ScreenManager : IScreenManager
   {

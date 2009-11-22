@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 
-namespace MediaPortal.Database
+namespace MediaPortal.Backend.Database
 {
   public interface ITransaction : IDisposable
   {

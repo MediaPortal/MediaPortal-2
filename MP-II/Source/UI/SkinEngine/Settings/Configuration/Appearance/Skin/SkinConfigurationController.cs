@@ -24,10 +24,10 @@
 #endregion
 
 using MediaPortal.Core.Configuration;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.DataObjects;
 using UiComponents.Configuration.ConfigurationControllers;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin
+namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
 {
   public class SkinConfigurationController : DialogConfigurationController
   {

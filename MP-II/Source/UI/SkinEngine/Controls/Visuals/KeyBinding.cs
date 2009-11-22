@@ -23,12 +23,12 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.ScreenManagement;
+using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class KeyBinding : FrameworkElement
   {

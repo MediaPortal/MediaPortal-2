@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Services.UserManagement;
+using MediaPortal.UI.Services.UserManagement;
 
-namespace MediaPortal.UserManagement
+namespace MediaPortal.UI.UserManagement
 {
   /// <summary>
   /// Interface for a permission. A permission may be an atomic right which can be

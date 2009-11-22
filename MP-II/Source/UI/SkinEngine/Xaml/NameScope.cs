@@ -24,9 +24,9 @@
 
 using System.Collections.Generic;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   public class NameScope: INameScope, IDeepCopyable
   {

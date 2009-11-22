@@ -30,10 +30,10 @@ using System.Text;
 using System.Windows.Forms;
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Localisation;
-using MediaPortal.Configuration;
-using MediaPortal.Configuration.Settings;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Localisation;
+using MediaPortal.UI.Configuration;
+using MediaPortal.UI.Configuration.Settings;
 
 
 namespace MediaPortal.Manager

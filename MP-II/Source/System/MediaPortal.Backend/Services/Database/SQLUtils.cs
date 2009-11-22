@@ -26,7 +26,7 @@ using System;
 using System.Text;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.Database
+namespace MediaPortal.Backend.Services.Database
 {
   public class SqlUtils
   {

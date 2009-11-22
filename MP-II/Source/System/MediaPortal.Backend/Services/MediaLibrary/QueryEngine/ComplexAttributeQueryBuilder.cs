@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Services.MediaLibrary.QueryEngine
+namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Builds the SQL statement for a complex media item aspect attribute query, filtered by a <see cref="CompiledFilter"/>.

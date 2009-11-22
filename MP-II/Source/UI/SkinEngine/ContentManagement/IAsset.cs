@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public interface IAsset
   {

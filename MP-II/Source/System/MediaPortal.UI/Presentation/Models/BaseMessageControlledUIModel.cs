@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Presentation.Models
+namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
   /// Base class for UI models which are registered to messages from the system.

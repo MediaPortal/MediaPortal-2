@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   public delegate void PlayerEventDlgt(IPlayer player);
 

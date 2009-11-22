@@ -24,7 +24,7 @@
 
 using SlimDX.Direct3D9;
 
-namespace MediaPortal.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public interface ITextureAsset : IAsset
   {

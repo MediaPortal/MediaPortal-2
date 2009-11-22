@@ -25,7 +25,7 @@
 using System;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   public enum PlayerState
   {

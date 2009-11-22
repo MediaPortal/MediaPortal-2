@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -24,7 +24,7 @@
 
 using System.Drawing;
 
-namespace MediaPortal.Presentation.Geometries
+namespace MediaPortal.UI.Presentation.Geometries
 {
   public class CropSettings
   {

@@ -31,14 +31,14 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Threading;
-using MediaPortal.ServerCommunication;
-using MediaPortal.Services.ServerConnection.Settings;
-using MediaPortal.Services.Shares;
-using MediaPortal.Shares;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Services.ServerConnection.Settings;
+using MediaPortal.UI.Services.Shares;
+using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
-using RelocationMode=MediaPortal.Shares.RelocationMode;
+using RelocationMode=MediaPortal.UI.Shares.RelocationMode;
 
-namespace MediaPortal.Services.ServerConnection
+namespace MediaPortal.UI.Services.ServerConnection
 {
   public class ServerConnectionManager : IServerConnectionManager
   {

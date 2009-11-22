@@ -24,11 +24,11 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
 using System.Collections.Generic;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Templates
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
   /// <summary>
   /// Specifies the visual structure and behavioral aspects of a Control that

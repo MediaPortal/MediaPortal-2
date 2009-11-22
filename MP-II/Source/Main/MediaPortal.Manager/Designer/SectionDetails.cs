@@ -23,7 +23,7 @@
 
 #endregion
 
-using MediaPortal.Configuration;
+using MediaPortal.UI.Configuration;
 
 using FormControl = System.Windows.Forms.Control;
 

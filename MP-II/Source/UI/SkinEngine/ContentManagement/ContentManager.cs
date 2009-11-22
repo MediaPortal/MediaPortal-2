@@ -24,13 +24,13 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.Core.Messaging;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.ContentManagement
+namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   // FIXME Albert: make a real signleton object, implement a disposal method to unsubscribe from queue
   public class ContentManager

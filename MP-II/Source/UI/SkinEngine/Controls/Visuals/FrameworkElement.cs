@@ -25,19 +25,19 @@
 using System;
 using System.Drawing;
 using System.Collections.Generic;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.ContentManagement;
-using MediaPortal.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Fonts;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public enum VerticalAlignmentEnum
   {

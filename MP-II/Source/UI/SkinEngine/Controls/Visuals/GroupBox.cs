@@ -26,11 +26,11 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.DirectX.Triangulate;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class GroupBox : Border
   {

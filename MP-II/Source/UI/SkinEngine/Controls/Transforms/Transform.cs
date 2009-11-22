@@ -23,12 +23,12 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
 
-namespace MediaPortal.SkinEngine.Controls.Transforms
+namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class Transform : DependencyObject, IObservable
   {

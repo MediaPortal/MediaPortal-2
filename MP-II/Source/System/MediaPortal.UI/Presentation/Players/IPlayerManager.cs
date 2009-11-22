@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   public delegate void PlayerSlotWorkerDelegate(IPlayerSlotController slotController);
 

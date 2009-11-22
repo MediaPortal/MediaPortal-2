@@ -23,7 +23,7 @@
 #endregion
 
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class ParallelTimeline: TimelineGroup
   {

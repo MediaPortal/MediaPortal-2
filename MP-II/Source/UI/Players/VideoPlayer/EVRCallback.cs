@@ -32,12 +32,12 @@ or FITNESS FOR A PARTICULAR PURPOSE.
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using MediaPortal.Presentation.Players;
-using MediaPortal.SkinEngine;
-using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.SkinEngine;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
-using MediaPortal.SkinEngine.Effects;
-using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Effects;
+using MediaPortal.UI.SkinEngine.DirectX;
 
 namespace Ui.Players.Video
 {

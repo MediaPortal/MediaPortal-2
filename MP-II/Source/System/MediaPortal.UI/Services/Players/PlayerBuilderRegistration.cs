@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using MediaPortal.Presentation.Players;
+using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.Services.Players
+namespace MediaPortal.UI.Services.Players
 {
     /// <summary>
     /// Registration structure holding data about a registered player builder and its

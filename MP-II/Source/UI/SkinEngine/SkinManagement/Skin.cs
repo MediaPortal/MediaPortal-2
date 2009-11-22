@@ -30,7 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.SkinEngine.SkinManagement
+namespace MediaPortal.UI.SkinEngine.SkinManagement
 {
   /// <summary>
   /// Represents a skin - which is a logical construct consisting of a logical name

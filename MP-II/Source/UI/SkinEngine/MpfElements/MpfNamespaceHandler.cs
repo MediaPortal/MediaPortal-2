@@ -25,12 +25,12 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MediaPortal.SkinEngine.Xaml;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
-namespace MediaPortal.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements
 {
   public class MpfNamespaceHandler: INamespaceHandler
   {

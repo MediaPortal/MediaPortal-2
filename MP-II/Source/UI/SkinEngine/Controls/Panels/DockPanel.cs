@@ -26,12 +26,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public enum Dock { Left, Right, Top, Bottom, Center };
 

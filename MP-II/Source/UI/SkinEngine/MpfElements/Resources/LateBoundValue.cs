@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.SkinEngine.MpfElements.Resources
+namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   /// <summary>
   /// Class to wrap a value object which cannot directly be used. Objects of this class will NOT be

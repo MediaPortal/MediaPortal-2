@@ -24,12 +24,12 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   /// <summary>
   /// Specifies, if a timeline will repeat its animation when it is finished.

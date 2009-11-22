@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -52,9 +52,9 @@ applications, and to alter it and redistribute it freely, subject to the followi
 
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 using System;
-using MediaPortal.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.DirectX;
 
-namespace MediaPortal.SkinEngine.Fonts
+namespace MediaPortal.UI.SkinEngine.Fonts
 {
   public class Quad : ICloneable
   {

@@ -26,10 +26,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.XPath;
-using MediaPortal.Presentation.SkinResources;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.Presentation.SkinResources;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Fonts
+namespace MediaPortal.UI.SkinEngine.Fonts
 {
   public class FontManager 
   {

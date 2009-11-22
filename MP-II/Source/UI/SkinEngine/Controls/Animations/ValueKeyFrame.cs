@@ -24,10 +24,10 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Animations
+namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public abstract class ValueKeyFrame<T>: DependencyObject, IKeyFrame
   {

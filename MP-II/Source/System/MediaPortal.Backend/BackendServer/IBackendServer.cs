@@ -24,7 +24,7 @@
 
 using HttpServer.HttpModules;
 
-namespace MediaPortal.BackendServer
+namespace MediaPortal.Backend.BackendServer
 {
   /// <summary>
   /// Control interface for the backend's server components - HTTP, UPnP, ...

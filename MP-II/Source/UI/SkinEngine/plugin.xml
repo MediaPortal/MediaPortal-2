@@ -15,12 +15,12 @@
 
   <Runtime>
     <Assembly FileName="SkinEngine.dll"/>
-    <PluginStateTracker ClassName="MediaPortal.SkinEngine.SkinEnginePlugin"/>
+    <PluginStateTracker ClassName="MediaPortal.UI.SkinEngine.SkinEnginePlugin"/>
   </Runtime>
 
   <Register Location="/Services">
     <Service Id="DialogManagerService" RegistrationClassName="MediaPortal.Presentation.Screens.IDialogManager"
-        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.SkinEngine.ScreenManagement.DialogManager"/>
+        RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UI.SkinEngine.ScreenManagement.DialogManager"/>
   </Register>
 
   <Register Location="/Resources/Language">
@@ -57,7 +57,7 @@
         Id="Fullscreen"
         Text="[Settings.Appearance.System.Fullscreen]"
         HelpText="[Settings.Appearance.System.Fullscreen.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Fullscreen"/>
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Fullscreen"/>
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->
@@ -74,14 +74,14 @@
         Id="Skin"
         Text="[Settings.Appearance.Skin.SkinAndTheme.ChangeSkin]"
         HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfigSetting"
-        AdditionalTypes="CustomConfigController=MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfigurationController,ConfAppPanel=..."/>
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfigSetting"
+        AdditionalTypes="CustomConfigController=MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin.SkinConfigurationController,ConfAppPanel=..."/>
     <CustomConfigSetting
         Id="Theme"
         Text="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme]"
         HelpText="[Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigSetting"
-        AdditionalTypes="CustomConfigController=MediaPortal.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigurationController,ConfAppPanel=..."/>
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigSetting"
+        AdditionalTypes="CustomConfigController=MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin.ThemeConfigurationController,ConfAppPanel=..."/>
   </Register>
 
   <!-- Contents of '/Players' section -->
@@ -102,7 +102,7 @@
         Id="DefaultGeometry"
         Text="[Settings.Players.Rendering.DefaultGeometry]"
         HelpText="[Settings.Players.Rendering.DefaultGeometry.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Players.DefaultGeometry"/>
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Players.DefaultGeometry"/>
   </Register>
 
   <Register Location="/Configuration/Settings/Players/Rendering/CrossFading">
@@ -110,11 +110,11 @@
         Id="CrossFadingEnabled"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Players.CrossFadingEnabled"/>
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Players.CrossFadingEnabled"/>
     <ConfigSetting
         Id="CrossFadeDuration"
         Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
         HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
-        ClassName="MediaPortal.SkinEngine.Settings.Configuration.Players.CrossFadeDuration"/>
+        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Players.CrossFadeDuration"/>
   </Register>
 </Plugin>

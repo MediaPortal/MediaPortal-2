@@ -24,10 +24,10 @@
 
 using System;
 using System.Drawing;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.Exceptions;
 
-namespace MediaPortal.SkinEngine.MarkupExtensions
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
   /// <summary>
   /// Markup extension calculating color values, based on another color or given by absolute RGB or HSV

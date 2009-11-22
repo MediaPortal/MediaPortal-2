@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 
-namespace MediaPortal.Presentation.Geometries
+namespace MediaPortal.UI.Presentation.Geometries
 {
   /// <summary>
   /// This class provides an interface for the messages sent by the plugin manager.

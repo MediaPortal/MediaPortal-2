@@ -26,22 +26,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
-using MediaPortal.SkinEngine.Commands;
-using MediaPortal.SkinEngine.Controls.Animations;
-using MediaPortal.SkinEngine.Controls.Brushes;
-using MediaPortal.SkinEngine.Controls.Panels;
-using MediaPortal.SkinEngine.Controls.Transforms;
-using MediaPortal.SkinEngine.Controls.Visuals;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Commands;
+using MediaPortal.UI.SkinEngine.Controls.Animations;
+using MediaPortal.UI.SkinEngine.Controls.Brushes;
+using MediaPortal.UI.SkinEngine.Controls.Panels;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using SlimDX;
-using TypeConverter = MediaPortal.SkinEngine.Xaml.TypeConverter;
-using MediaPortal.SkinEngine.Controls.Visuals.Shapes;
+using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 
-namespace MediaPortal.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements
 {                            
   /// <summary>
   /// This class holds a registration for all elements which can be instanciated

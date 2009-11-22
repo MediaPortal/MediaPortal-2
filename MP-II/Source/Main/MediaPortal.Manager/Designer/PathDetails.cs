@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-using MediaPortal.Configuration.Settings;
+using MediaPortal.UI.Configuration.Settings;
 
 
 namespace MediaPortal.Manager

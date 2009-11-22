@@ -31,7 +31,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Views
+namespace MediaPortal.UI.Views
 {
   /// <summary>
   /// View implementation which is based on a local provider path.

@@ -26,9 +26,9 @@ using System;
 using MediaPortal.Core.General;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Transforms
+namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
   public class RotateTransform : Transform
   {

@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Configuration.ConfigurationClasses;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
 
 namespace UiComponents.Configuration.ConfigurationControllers

@@ -24,10 +24,10 @@
 
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class GradientStop : DependencyObject, IObservable
   {

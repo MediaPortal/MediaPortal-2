@@ -22,11 +22,11 @@
 #endregion
 
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.MpfElements.Resources;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Styles
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 {
   public class BindingSetter : SetterBase
   {

@@ -29,7 +29,7 @@ using MediaPortal.Core.Localization;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Collections;
 
-namespace MediaPortal.Presentation.DataObjects
+namespace MediaPortal.UI.Presentation.DataObjects
 {
   public delegate void ListItemChangedHandler(ListItem item);
 

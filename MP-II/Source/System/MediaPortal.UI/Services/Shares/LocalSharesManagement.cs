@@ -29,11 +29,11 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
-using MediaPortal.Services.Shares.Settings;
-using MediaPortal.Shares;
+using MediaPortal.UI.Services.Shares.Settings;
+using MediaPortal.UI.Shares;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Services.Shares
+namespace MediaPortal.UI.Services.Shares
 {
   /// <summary>
   /// Shares management class for client-local shares. All shares are managed redundantly at

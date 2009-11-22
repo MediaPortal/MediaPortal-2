@@ -28,7 +28,7 @@ using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
-namespace MediaPortal.Views
+namespace MediaPortal.UI.Views
 {
   /// <summary>
   /// Holds the building instructions for creating a collection of media items and sub views.

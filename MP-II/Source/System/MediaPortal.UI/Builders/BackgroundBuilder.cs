@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.Builders
+namespace MediaPortal.UI.Builders
 {
   public class BackgroundBuilder : IPluginItemBuilder
   {

@@ -25,7 +25,7 @@
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Presentation.Players
+namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
   /// State indicator for the playback state of a player slot.

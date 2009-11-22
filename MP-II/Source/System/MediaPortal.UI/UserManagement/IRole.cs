@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.UserManagement
+namespace MediaPortal.UI.UserManagement
 {
   /// <summary>
   /// Interface that defines a role. A role itself provides all methods to check

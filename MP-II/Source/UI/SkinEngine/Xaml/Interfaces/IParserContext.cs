@@ -24,7 +24,7 @@
 
 using System.IO;
 
-namespace MediaPortal.SkinEngine.Xaml.Interfaces
+namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
   /// Holds a context of the current parsing operation in the XAML parser.

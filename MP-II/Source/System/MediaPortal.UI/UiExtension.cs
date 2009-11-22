@@ -22,23 +22,23 @@
 
 #endregion
 
-using MediaPortal.Builders;
+using MediaPortal.UI.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Presentation.Players;
-using MediaPortal.Presentation.Workflow;
-using MediaPortal.ServerCommunication;
-using MediaPortal.Shares;
-using MediaPortal.Thumbnails;
-using MediaPortal.UserManagement;
-using MediaPortal.Services.Players;
-using MediaPortal.Services.ServerConnection;
-using MediaPortal.Services.Shares;
-using MediaPortal.Services.ThumbnailGenerator;
-using MediaPortal.Services.UserManagement;
-using MediaPortal.Services.Workflow;
-using MediaPortal.Services.MediaManagement;
+using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Shares;
+using MediaPortal.UI.Thumbnails;
+using MediaPortal.UI.UserManagement;
+using MediaPortal.UI.Services.Players;
+using MediaPortal.UI.Services.ServerConnection;
+using MediaPortal.UI.Services.Shares;
+using MediaPortal.UI.Services.ThumbnailGenerator;
+using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UI.Services.Workflow;
+using MediaPortal.UI.Services.MediaManagement;
 
 namespace MediaPortal
 {

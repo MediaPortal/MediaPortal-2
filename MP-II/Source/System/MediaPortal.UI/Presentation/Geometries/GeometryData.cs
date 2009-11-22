@@ -24,7 +24,7 @@
 
 using System.Drawing;
 
-namespace MediaPortal.Presentation.Geometries
+namespace MediaPortal.UI.Presentation.Geometries
 {
   /// <summary>
   /// Stores video size, target size and the pixel ratio for geometry transformations.

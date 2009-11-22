@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 
-namespace MediaPortal.Presentation.SkinResources
+namespace MediaPortal.UI.Presentation.SkinResources
 {
   /// <summary>
   /// Interface to access a pool of resources available in a special context.

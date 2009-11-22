@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls.Panels
+namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public class RowDefinitionsCollection : DefinitionsCollectionBase, IAddChild<RowDefinition>
   {

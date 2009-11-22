@@ -22,16 +22,16 @@
 
 #endregion
 
-using MediaPortal.BackendServer;
+using MediaPortal.Backend.BackendServer;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Database;
-using MediaPortal.MediaLibrary;
-using MediaPortal.Services.Database;
-using MediaPortal.Services.MediaManagement;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Backend.Services.Database;
+using MediaPortal.Backend.Services.MediaManagement;
 
-namespace MediaPortal
+namespace MediaPortal.Backend
 {
   public class BackendExtension
   {

@@ -22,9 +22,9 @@
 
 #endregion
 
-using MediaPortal.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.MpfElements;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class TriggerAction: DependencyObject
   {

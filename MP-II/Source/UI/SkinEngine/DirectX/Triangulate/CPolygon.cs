@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
-namespace MediaPortal.SkinEngine.DirectX.Triangulate
+namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
   /// <summary>
   /// Represents a simple polygon of <see cref="CPoint2D"/> vertices and provides

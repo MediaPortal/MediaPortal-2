@@ -25,13 +25,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.SkinManagement;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.MpfElements.Resources
+namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   public delegate void ResourcesChangedHandler(ResourceDictionary changedResources);
 

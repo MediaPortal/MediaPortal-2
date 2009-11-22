@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.Localization;
 using MediaPortal.Utilities;
 
-namespace MediaPortal.Presentation.DataObjects
+namespace MediaPortal.UI.Presentation.DataObjects
 {
   /// <summary>
   /// Common class for wrapping single tree "items" to be displayed in the GUI.

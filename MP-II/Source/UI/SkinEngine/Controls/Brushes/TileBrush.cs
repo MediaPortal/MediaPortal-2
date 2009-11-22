@@ -24,12 +24,12 @@
 
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
 
   public enum TileMode

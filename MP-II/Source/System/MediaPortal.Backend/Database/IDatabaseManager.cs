@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Services.Database;
+using MediaPortal.Backend.Services.Database;
 
-namespace MediaPortal.Database
+namespace MediaPortal.Backend.Database
 {
   /// <summary>
   /// Provides database schema management functions. The guidelines for database setup and access must be observed.

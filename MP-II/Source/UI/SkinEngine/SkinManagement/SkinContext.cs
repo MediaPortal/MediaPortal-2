@@ -28,7 +28,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core.General;
 
-namespace MediaPortal.SkinEngine.SkinManagement
+namespace MediaPortal.UI.SkinEngine.SkinManagement
 {                         
   public delegate void SkinResourcesChangedHandler(SkinResources newResources);
 

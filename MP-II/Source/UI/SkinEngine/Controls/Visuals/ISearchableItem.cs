@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.SkinEngine.Controls
+namespace MediaPortal.UI.SkinEngine.Controls
 {
   /// <summary>
   /// This interface marks UI elements which are used in searchable containers like

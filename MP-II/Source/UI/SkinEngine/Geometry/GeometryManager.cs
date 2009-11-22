@@ -26,10 +26,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;
-using MediaPortal.Presentation.Geometries;
-using MediaPortal.SkinEngine.Settings;
+using MediaPortal.UI.Presentation.Geometries;
+using MediaPortal.UI.SkinEngine.Settings;
 
-namespace MediaPortal.SkinEngine.Geometry
+namespace MediaPortal.UI.SkinEngine.Geometry
 {
   /// <summary>
   /// Class which can do transformations for video windows.

@@ -24,9 +24,9 @@
 #endregion
 
 using MediaPortal.Core.Configuration.ConfigurationClasses;
-using MediaPortal.Services.Players.Settings;
+using MediaPortal.UI.Services.Players.Settings;
 
-namespace MediaPortal.SkinEngine.Settings.Configuration.Players
+namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Players
 {
   public class CrossFadingEnabled : YesNo
   {

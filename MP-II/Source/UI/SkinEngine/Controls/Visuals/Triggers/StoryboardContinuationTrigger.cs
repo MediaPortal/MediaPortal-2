@@ -24,9 +24,9 @@
 
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class StoryboardContinuationTrigger : TriggerAction
   {

@@ -23,11 +23,11 @@
 #endregion
 
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Visuals.Styles;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Triggers
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 {
   public class DataTrigger : TriggerBase, IAddChild<Setter>
   {

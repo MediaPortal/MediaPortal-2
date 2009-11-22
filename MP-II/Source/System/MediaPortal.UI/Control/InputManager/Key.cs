@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace MediaPortal.Control.InputManager
+namespace MediaPortal.UI.Control.InputManager
 {
   /// <summary>
   /// Represents a standardized input command in MediaPortal-II. There are two kinds of keys: Printable and non-printable

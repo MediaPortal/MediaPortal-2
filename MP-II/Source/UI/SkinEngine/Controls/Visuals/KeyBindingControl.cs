@@ -22,12 +22,12 @@
 
 #endregion
 
-using MediaPortal.Control.InputManager;
+using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
   /// Control to provide a key binding which can be triggered with a <see cref="MediaPortal.Control.InputManager.Key"/>. This control can also

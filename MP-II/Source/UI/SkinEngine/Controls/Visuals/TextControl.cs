@@ -24,17 +24,17 @@
 
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.Control.InputManager;
-using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.UI.Control.InputManager;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
-using Font = MediaPortal.SkinEngine.Fonts.Font;
-using FontRender = MediaPortal.SkinEngine.ContentManagement.FontRender;
-using FontBufferAsset = MediaPortal.SkinEngine.ContentManagement.FontBufferAsset;
-using FontManager = MediaPortal.SkinEngine.Fonts.FontManager;
+using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
+using FontRender = MediaPortal.UI.SkinEngine.ContentManagement.FontRender;
+using FontBufferAsset = MediaPortal.UI.SkinEngine.ContentManagement.FontBufferAsset;
+using FontManager = MediaPortal.UI.SkinEngine.Fonts.FontManager;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class TextControl : Control
   {

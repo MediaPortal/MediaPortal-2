@@ -26,14 +26,14 @@
 using System;
 using System.Windows.Forms;
 using MediaPortal.Core.PluginManager;
-using MediaPortal.Services.Logging; // Needed for Release build configuration
+using MediaPortal.UI.Services.Logging; // Needed for Release build configuration
 using MediaPortal.Utilities.CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
-using MediaPortal.Presentation.Localisation;
+using MediaPortal.UI.Presentation.Localisation;
 using MediaPortal.Core.Logging;
-using MediaPortal.Services.Localisation;
-using MediaPortal.Configuration;
+using MediaPortal.UI.Services.Localisation;
+using MediaPortal.UI.Configuration;
 
 namespace MediaPortal.Manager
 {

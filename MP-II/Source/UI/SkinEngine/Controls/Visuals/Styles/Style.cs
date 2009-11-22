@@ -24,10 +24,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.MpfElements.Resources;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.MpfElements.Resources;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals.Styles      
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles      
 {
   public class Style: INameScope, IAddChild<SetterBase>, IImplicitKey
   {

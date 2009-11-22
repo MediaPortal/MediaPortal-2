@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
     Copyright (C) 2007-2008 Team MediaPortal
@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.DataObjects;
 using Microsoft.Win32; // for 'RegistryKey'
 using MediaPortal.Core;
 using MediaPortal.Core.Settings;

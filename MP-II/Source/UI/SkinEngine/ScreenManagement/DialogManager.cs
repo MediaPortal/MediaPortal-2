@@ -27,10 +27,10 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
-using MediaPortal.Presentation.DataObjects;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Screens;
 
-namespace MediaPortal.SkinEngine.ScreenManagement
+namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   public class DialogManager : IDialogManager
   {

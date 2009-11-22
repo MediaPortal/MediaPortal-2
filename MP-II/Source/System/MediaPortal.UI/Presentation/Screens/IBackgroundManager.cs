@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.Presentation.Screens
+namespace MediaPortal.UI.Presentation.Screens
 {
   /// <summary>
   /// Management class for the background layer of the screen manager.

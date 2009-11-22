@@ -23,9 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.UserManagement;
+using MediaPortal.UI.UserManagement;
 
-namespace MediaPortal.Services.UserManagement
+namespace MediaPortal.UI.Services.UserManagement
 {
   /// <summary>
   /// Implements a role.

@@ -23,9 +23,9 @@
 #endregion
 
 using MediaPortal.Core;
-using MediaPortal.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
-using MediaPortal.Presentation.Screens;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace UiComponents.Settings
 {

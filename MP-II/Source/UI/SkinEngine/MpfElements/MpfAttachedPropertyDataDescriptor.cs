@@ -25,9 +25,9 @@
 using System;
 using System.Reflection;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.SkinEngine.MpfElements
+namespace MediaPortal.UI.SkinEngine.MpfElements
 {
   public class MpfAttachedPropertyDataDescriptor: DependencyPropertyDataDescriptor
   {

@@ -24,15 +24,15 @@
 
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.Controls.Transforms;
-using MediaPortal.SkinEngine.DirectX;
-using MediaPortal.SkinEngine.MpfElements;
-using MediaPortal.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.Controls.Transforms;
+using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.Controls.Brushes
+namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   /// <summary>
   /// todo:

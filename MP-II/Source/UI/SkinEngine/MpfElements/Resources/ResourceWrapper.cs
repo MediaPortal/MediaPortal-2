@@ -23,10 +23,10 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
-namespace MediaPortal.SkinEngine.MpfElements.Resources
+namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   /// <summary>
   /// Class to wrap a value object which cannot directly be used. This may be the case if

@@ -25,12 +25,12 @@
 using System;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public enum StretchDirection { UpOnly, DownOnly, Both };
 

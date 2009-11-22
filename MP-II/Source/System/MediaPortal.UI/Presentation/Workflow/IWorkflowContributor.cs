@@ -24,7 +24,7 @@
 
 using MediaPortal.Core.Localization;
 
-namespace MediaPortal.Presentation.Workflow
+namespace MediaPortal.UI.Presentation.Workflow
 {
   public delegate void ContributorStateChangeDelegate();
 

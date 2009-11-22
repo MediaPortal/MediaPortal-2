@@ -28,11 +28,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Xml;
-using MediaPortal.SkinEngine.Xaml.Exceptions;
-using MediaPortal.SkinEngine.Xaml.Interfaces;
-using MediaPortal.SkinEngine.Xaml.XamlNamespace;
+using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.UI.SkinEngine.Xaml.XamlNamespace;
 
-namespace MediaPortal.SkinEngine.Xaml
+namespace MediaPortal.UI.SkinEngine.Xaml
 {
   /// <summary>
   /// The XAML object graph parser.
