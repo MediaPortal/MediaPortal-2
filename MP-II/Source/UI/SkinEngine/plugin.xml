@@ -19,7 +19,7 @@
   </Runtime>
 
   <Register Location="/Services">
-    <Service Id="DialogManagerService" RegistrationClassName="MediaPortal.Presentation.Screens.IDialogManager"
+    <Service Id="DialogManagerService" RegistrationClassName="MediaPortal.UI.Presentation.Screens.IDialogManager"
         RegistrationClassAssembly="MediaPortal.UI" ServiceClassName="MediaPortal.UI.SkinEngine.ScreenManagement.DialogManager"/>
   </Register>
 
