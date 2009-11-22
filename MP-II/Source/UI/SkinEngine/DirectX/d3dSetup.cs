@@ -1,8 +1,8 @@
 //#define PROFILE_PERFORMANCE
-#region Copyright (C) 2007-2008 Team MediaPortal
+#region Copyright (C) 2007-2009 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2008 Team MediaPortal
+    Copyright (C) 2007-2009 Team MediaPortal
     http://www.team-mediaportal.com
  
     This file is part of MediaPortal II

@@ -1,7 +1,7 @@
-#region Copyright (C) 2005-2008 Team MediaPortal
+#region Copyright (C) 2007-2009 Team MediaPortal
 
 /* 
- *  Copyright (C) 2005-2008 Team MediaPortal
+ *  Copyright (C) 2007-2009 Team MediaPortal
  *  http://www.team-mediaportal.com
  *
  *  This Program is free software; you can redistribute it and/or modify
