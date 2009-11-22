@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected readonly BackgroundData _backgroundData;
     protected readonly Stack<Screen> _dialogStack = new Stack<Screen>();
     protected Screen _currentScreen = null;
-    protected int _numPendingOperations = 0;
+    protected int _numPendingAsyncOperations = 0;
 
     protected bool _backgroundDisabled = false;
 
@@ -286,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_syncObj)
       {
-        _numPendingOperations++;
+        _numPendingAsyncOperations++;
         Monitor.PulseAll(_syncObj);
       }
     }
@@ -295,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_syncObj)
       {
-        _numPendingOperations--;
+        _numPendingAsyncOperations--;
         Monitor.PulseAll(_syncObj);
       }
     }
@@ -306,7 +306,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected internal void WaitForPendingOperations()
     {
       lock (_syncObj)
-        if (_numPendingOperations > 0)
+        while (_numPendingAsyncOperations > 0)
           // Wait until all outstanding screens have been hidden asynchronously
           Monitor.Wait(_syncObj);
     }
@@ -889,7 +889,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public bool ShowDialog(string dialogName)
     {
-      IncPendingOperations();
       return ShowDialog(dialogName, null);
     }
 
