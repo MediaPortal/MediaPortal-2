@@ -58,5 +58,12 @@ namespace MediaPortal.Core.Localization
     {
       return CultureInfo.CurrentUICulture;
     }
+
+    private void InvokeLanguageChange()
+    {
+      LanguageChangeHandler dlgt = LanguageChange;
+      if (dlgt != null)
+        dlgt(this, CurrentCulture);
+    }
   }
 }
