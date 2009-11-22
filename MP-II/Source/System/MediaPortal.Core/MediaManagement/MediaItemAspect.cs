@@ -100,7 +100,7 @@ namespace MediaPortal.Core.MediaManagement
         if (!_aspectData.TryGetValue(attributeSpecification, out result))
           throw new ArgumentException(string.Format("Attribute type '{0}' isn't present in media item aspect of type '{1}'",
               attributeSpecification.AttributeName, Metadata.Name));
-        return result;
+        return IsIgnore(attributeSpecification) ? null : result;
       }
     }
 
