@@ -51,7 +51,7 @@ namespace MediaPortal.Backend.ClientCommunication
         settings.MediaServerDeviceId = deviceId;
         settingsManager.Save(settings);
       }
-      AddRootDevice(new MP2ServerDevice(deviceId.ToString("D")));
+      AddRootDevice(new MP2BackendServerDevice(deviceId.ToString("D")));
       // TODO: add UPnP standard MediaServer device: it's not implemented yet
       //AddRootDevice(new UPnPMediaServerDevice(...));
     }

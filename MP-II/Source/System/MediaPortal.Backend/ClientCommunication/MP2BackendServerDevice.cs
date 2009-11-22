@@ -26,12 +26,12 @@ using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Backend.ClientCommunication
 {
-  public class MP2ServerDevice : DvDevice
+  public class MP2BackendServerDevice : DvDevice
   {
     public const string DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
     public const int DEVICE_TYPE_VERSION = 1;
 
-    public MP2ServerDevice(string deviceUuid) : base(DEVICE_TYPE, DEVICE_TYPE_VERSION, deviceUuid,
+    public MP2BackendServerDevice(string deviceUuid) : base(DEVICE_TYPE, DEVICE_TYPE_VERSION, deviceUuid,
         new LocalizedUPnPDeviceInformation())
     {
       AddService(new UPnPContentDirectoryService());

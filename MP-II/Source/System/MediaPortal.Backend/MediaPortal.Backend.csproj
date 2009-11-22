@@ -49,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackendServer\IBackendServer.cs" />
-    <Compile Include="ClientCommunication\ParserHelper.cs" />
     <Compile Include="Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />
     <Compile Include="Database\ISQLDatabase.cs" />
@@ -69,7 +68,7 @@
     <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />
     <Compile Include="ClientCommunication\Settings\MediaServerSettings.cs" />
-    <Compile Include="ClientCommunication\MP2ServerDevice.cs" />
+    <Compile Include="ClientCommunication\MP2BackendServerDevice.cs" />
     <Compile Include="ClientCommunication\UPnPContentDirectoryService.cs" />
     <Compile Include="ClientCommunication\UPnPMediaServer.cs" />
     <Compile Include="ClientCommunication\LocalizedUPnPDeviceInformation.cs" />
