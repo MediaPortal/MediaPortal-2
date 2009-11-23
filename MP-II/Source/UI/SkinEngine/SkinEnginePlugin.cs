@@ -56,17 +56,6 @@ namespace MediaPortal.UI.SkinEngine
       IInputManager inputManager = ServiceScope.Get<IInputManager>();
       inputManager.AddKeyBinding(Key.Escape, () =>
         {
-          // Close dialog
-          IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-          if (screenManager.IsDialogVisible)
-          {
-            screenManager.CloseDialog();
-            return true;
-          }
-          return false;
-        });
-      inputManager.AddKeyBinding(Key.Back, () =>
-        {
           // Close dialog or switch to previous workflow state
           IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
           if (screenManager.IsDialogVisible)
