@@ -125,6 +125,7 @@
     <Compile Include="MediaManagement\MLQueries\NotFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
     <Compile Include="MediaManagement\ResourcePath.cs" />
+    <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
