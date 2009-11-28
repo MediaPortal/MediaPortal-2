@@ -73,13 +73,19 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     protected void ValidateAttachmentState(ClientDescriptor client)
     {
       string clientSystemId = client.MPFrontendServerUUID;
+      ServiceScope.Get<ILogger>().Info("ClientManager: Validating attachment state of client '{0}' (system ID '{1}')",
+          client.ClientName, clientSystemId);
       ClientConnection connection = _controlPoint.GetClientConnection(clientSystemId);
       if (connection != null)
       {
         string homeServer = connection.ClientController.GetHomeServer();
         ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
         if (homeServer != systemResolver.LocalSystemId)
+        {
+          ServiceScope.Get<ILogger>().Info(
+              "ClientManager: Client '{0}' is no longer attached to this server, cleaning up client data", clientSystemId);
           DetachClientAndRemoveShares(clientSystemId);
+        }
       }
     }
 
@@ -106,7 +112,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected void UpdateClientSystem(string clientSystemId, SystemName system)
     {
-      ServiceScope.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", system.HostName, clientSystemId);
+      ServiceScope.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", clientSystemId, system.HostName);
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
