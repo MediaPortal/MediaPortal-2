@@ -111,11 +111,16 @@ namespace MediaPortal.UI.Services.ServerCommunication
     void OnBackendServerConnected(DeviceConnection connection)
     {
       ServerDescriptor serverDescriptor = UPnPServerWatcher.GetMPBackendServerDescriptor(connection.RootDescriptor);
+      if (serverDescriptor == null)
+      {
+        ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
+        return;
+      }
+      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}'", serverDescriptor.MPBackendServerUUID);
       lock (_syncObj)
       {
         _isHomeServerConnected = true;
-        if (serverDescriptor != null)
-          SaveLastHomeServerData(serverDescriptor);
+        SaveLastHomeServerData(serverDescriptor);
       }
 
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
@@ -200,11 +205,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
         try
         {
           IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
-          ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Add unregistered media item aspect types at home server");
+          ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Adding unregistered media item aspect types at home server");
           ICollection<Guid> serverMIATypes = cd.GetAllManagedMediaItemAspectMetadataIds();
           foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
             if (!serverMIATypes.Contains(localMiaType.Key))
+            {
+              ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Adding unregistered media item aspect type '{0}' (ID '{1}') at home server",
+                  localMiaType.Value.Name, localMiaType.Key);
               cd.AddMediaItemAspectStorage(localMiaType.Value);
+            }
         }
         catch (Exception e)
         {
