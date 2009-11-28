@@ -39,6 +39,13 @@ namespace UPnP.Infrastructure.CP.SOAP
   /// </summary>
   public class SOAPHandler
   {
+    protected static IList<object> EMPTY_OBJECT_LIST;
+
+    static SOAPHandler()
+    {
+      EMPTY_OBJECT_LIST = new List<object>();
+    }
+
     /// <summary>
     /// Encodes a call of the specified <paramref name="action"/> with the given <paramref name="inParamValues"/> and
     /// returns the resulting SOAP XML string.
@@ -57,6 +64,8 @@ namespace UPnP.Infrastructure.CP.SOAP
 
       // Check input parameters
       IList<CpArgument> formalArguments = action.InArguments;
+      if (inParamValues == null)
+        inParamValues = EMPTY_OBJECT_LIST;
       if (inParamValues.Count != formalArguments.Count)
         throw new ArgumentException("Invalid argument count");
       for (int i = 0; i < formalArguments.Count; i++)
