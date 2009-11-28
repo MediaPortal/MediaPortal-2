@@ -78,6 +78,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     /// <param name="subscriberSupportsUPnP11">Should be set if the requester sent a user agent header which denotes a UPnP
     /// version of 1.1. If set to <c>false</c>, in- and out-parameters with extended data type will be deserialized/serialized
     /// using the string-equivalent of the values.</param>
+    /// <param name="context">Context object holding data for the current action call.</param>
     /// <param name="result">SOAP result - may be an action result, a SOAP fault or <c>null</c> if no body should
     /// be sent in the HTTP response.</param>
     /// <returns>HTTP status code to be sent. Should be
@@ -88,7 +89,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     /// </list>
     /// </returns>
     public static HttpStatusCode HandleRequest(DvService service, Stream messageStream, Encoding streamEncoding,
-        bool subscriberSupportsUPnP11, out string result)
+        bool subscriberSupportsUPnP11, CallContext context, out string result)
     {
       UPnPError res;
       try
@@ -152,7 +153,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
         // Invoke action
         try
         {
-          res = action.InvokeAction(inParameterValues, out outParameterValues, false);
+          res = action.InvokeAction(inParameterValues, out outParameterValues, false, context);
           // outParameterValues can be null if the action has no output parameters. Setting it to an empty list makes
           // it easier to check parameter count later.
           if (outParameterValues == null)

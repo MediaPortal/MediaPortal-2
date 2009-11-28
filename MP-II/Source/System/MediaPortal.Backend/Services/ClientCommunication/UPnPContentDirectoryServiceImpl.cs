@@ -34,6 +34,7 @@ using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
@@ -316,7 +317,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // More actions go here
     }
 
-    static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Share share = (Share) inParams[0];
       ServiceScope.Get<IMediaLibrary>().RegisterShare(share);
@@ -326,7 +328,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnRemoveShare(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnRemoveShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Guid shareId = new Guid((string) inParams[0]);
       ServiceScope.Get<IMediaLibrary>().RemoveShare(shareId);
@@ -334,7 +337,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnUpdateShare(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnUpdateShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Guid shareId = new Guid((string) inParams[0]);
       ResourcePath baseResourcePath = ResourcePath.Deserialize((string) inParams[1]);
@@ -366,7 +370,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetShares(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetShares(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string systemId = (string) inParams[0];
       string sharesFilterStr = (string) inParams[1];
@@ -401,7 +406,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetShare(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetShare(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Guid shareId = new Guid((string) inParams[0]);
       Share result = ServiceScope.Get<IMediaLibrary>().GetShare(shareId);
@@ -409,7 +415,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnAddMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnAddMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       MediaItemAspectMetadata miam = (MediaItemAspectMetadata) inParams[0];
       ServiceScope.Get<IMediaLibrary>().AddMediaItemAspectStorage(miam);
@@ -417,7 +424,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnRemoveMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnRemoveMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Guid aspectId = new Guid((string) inParams[0]);
       ServiceScope.Get<IMediaLibrary>().RemoveMediaItemAspectStorage(aspectId);
@@ -425,7 +433,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetAllManagedMediaItemAspectMetadataIds(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetAllManagedMediaItemAspectMetadataIds(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       ICollection<Guid> result = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;
       string miaTypeIDs = StringUtils.Join(",", result);
@@ -433,7 +442,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Guid aspectId = new Guid((string) inParams[0]);
       MediaItemAspectMetadata miam = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
@@ -441,7 +451,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       MediaItemQuery query = (MediaItemQuery) inParams[0];
       IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query);
@@ -449,7 +460,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
@@ -460,7 +472,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetDistinctAssociatedValues(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetDistinctAssociatedValues(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       Guid aspectId = new Guid((string) inParams[0]);
       string attributeName = (string) inParams[1];
@@ -479,7 +492,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnAddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnAddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
@@ -489,7 +503,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnDeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnDeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);

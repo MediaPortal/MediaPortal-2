@@ -325,7 +325,8 @@ namespace UPnP.Infrastructure.Dv
               HttpStatusCode status;
               try
               {
-                status = SOAPHandler.HandleRequest(service, request.Body, encoding, minorVersion >= 1, out result);
+                CallContext callContext = new CallContext(request, context, config);
+                status = SOAPHandler.HandleRequest(service, request.Body, encoding, minorVersion >= 1, callContext, out result);
               }
               catch (Exception e)
               {

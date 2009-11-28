@@ -39,9 +39,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// or <c>null</c> if the action doesn't have input parameters.</param>
   /// <param name="outParams">Output parameters which match the data types described in <see cref="DvAction.OutArguments"/>.
   /// Can be set to <c>null</c> if the action doesn't have output parameters.</param>
+  /// <param name="context">Context object holding context data of the current action call.</param>
   /// <returns><c>null</c>, if the action invocation was successful, else UPnP error instance with error code and error
   /// description.</returns>
-  public delegate UPnPError ActionInvokeDlgt(DvAction action, IList<object> inParams, out IList<object> outParams);
+  public delegate UPnPError ActionInvokeDlgt(DvAction action, IList<object> inParams, out IList<object> outParams,
+      CallContext context);
 
   /// <summary>
   /// Base UPnP action class providing the functionality for an UPnP service action.
@@ -122,11 +124,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       _outArguments.Add(argument);
     }
 
-    public UPnPError InvokeAction(IList<object> inParameters, out IList<object> outParameters, bool checkSignature)
+    public UPnPError InvokeAction(IList<object> inParameters, out IList<object> outParameters, bool checkSignature, CallContext context)
     {
       if (!checkSignature && !MatchesSignature(inParameters))
         throw new ArgumentException(string.Format("UPnP Action '{0}' cannot be called with this signature", _name));
-      return FireActionInvoked(inParameters, out outParameters);
+      return FireActionInvoked(inParameters, out outParameters, context);
     }
 
     public bool MatchesSignature(IList<object> inParameters)
@@ -139,11 +141,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _inArguments.Count == inParameters.Count;
     }
 
-    protected UPnPError FireActionInvoked(IList<object> inParams, out IList<object> outParams)
+    protected UPnPError FireActionInvoked(IList<object> inParams, out IList<object> outParams, CallContext context)
     {
       outParams = null;
       if (_actionInvoked != null)
-        return _actionInvoked(this, inParams, out outParams);
+        return _actionInvoked(this, inParams, out outParams, context);
       return new UPnPError(602, "Optional Action Not Implemented");
     }
 

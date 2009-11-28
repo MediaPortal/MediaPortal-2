@@ -28,6 +28,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.UPnP;
 using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -92,13 +93,15 @@ namespace MediaPortal.UI.Services.ServerCommunication
       // More actions go here
     }
 
-    static UPnPError OnGetHomeServer(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetHomeServer(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       outParams = new List<object> {ServiceScope.Get<IServerConnectionManager>().HomeServerSystemId};
       return null;
     }
 
-    static UPnPError OnImportLocation(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnImportLocation(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       outParams = null;
       ResourcePath path = ResourcePath.Deserialize((string) inParams[0]);

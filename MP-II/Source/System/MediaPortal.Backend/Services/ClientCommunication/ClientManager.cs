@@ -83,13 +83,43 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
     }
 
-    protected void SetClientConnectionState(string systemId, SystemName currentSytemName, bool isOnline)
+    protected void SetClientConnectionState(string clientSystemId, SystemName currentSytemName, bool isOnline)
     {
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
       if (isOnline)
-        mediaLibrary.NotifySystemOnline(systemId, currentSytemName);
+      {
+        mediaLibrary.NotifySystemOnline(clientSystemId, currentSytemName);
+        UpdateClientSystem(clientSystemId, currentSytemName);
+      }
       else
-        mediaLibrary.NotifySystemOffline(systemId);
+        mediaLibrary.NotifySystemOffline(clientSystemId);
+    }
+
+    protected void UpdateClientSystem(string clientSystemId)
+    {
+      SystemName systemName = null;
+      foreach (ClientDescriptor client in _controlPoint.AvailableClients)
+        if (client.MPFrontendServerUUID == clientSystemId)
+          systemName = client.System;
+      UpdateClientSystem(clientSystemId, systemName);
+    }
+
+    protected void UpdateClientSystem(string clientSystemId, SystemName system)
+    {
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientSystemCommand(transaction, clientSystemId, system);
+        command.ExecuteNonQuery();
+        transaction.Commit();
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("ClientManager: Error updating host name '{0}' of client '{1}'", e, system.HostName, clientSystemId);
+        transaction.Rollback();
+        throw;
+      }
     }
 
     #region IClientManager implementation
@@ -135,9 +165,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId);
+        IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null);
         command.ExecuteNonQuery();
         transaction.Commit();
+        UpdateClientSystem(clientSystemId);
       }
       catch (Exception e)
       {

@@ -29,6 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.UPnP;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
@@ -102,7 +103,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // More actions go here
     }
 
-    static UPnPError OnIsClientAttached(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnIsClientAttached(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string clientSystemId = (string) inParams[0];
       bool isAttached = ServiceScope.Get<IClientManager>().AttachedClientsSystemIds.Contains(clientSystemId);
@@ -110,7 +112,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnAttachClient(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnAttachClient(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string clientSystemId = (string) inParams[0];
       ServiceScope.Get<IClientManager>().AttachClient(clientSystemId);
@@ -118,7 +121,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnDetachClient(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnDetachClient(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string clientSystemId = (string) inParams[0];
       ServiceScope.Get<IClientManager>().DetachClientAndRemoveShares(clientSystemId);
@@ -126,7 +130,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetSystemNameForSytemId(DvAction action, IList<object> inParams, out IList<object> outParams)
+    static UPnPError OnGetSystemNameForSytemId(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
     {
       string systemId = (string) inParams[0];
       SystemName result = ServiceScope.Get<ISystemResolver>().GetSystemNameForSystemId(systemId);

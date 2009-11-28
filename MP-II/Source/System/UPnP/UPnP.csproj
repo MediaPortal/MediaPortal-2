@@ -98,7 +98,9 @@
   <ItemGroup>
     <Compile Include="Infrastructure\ConsoleLogger.cs" />
     <Compile Include="Infrastructure\CP\Exceptions.cs" />
+    <Compile Include="Infrastructure\Dv\CallContext.cs" />
     <Compile Include="Infrastructure\ILogger.cs" />
+    <Compile Include="Infrastructure\Utils\HttpServerHelper.cs" />
     <Compile Include="Infrastructure\Utils\SoapHelper.cs" />
     <Compile Include="Infrastructure\Utils\StringWriterWithEncoding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

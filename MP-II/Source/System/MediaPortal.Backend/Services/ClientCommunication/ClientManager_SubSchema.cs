@@ -24,6 +24,7 @@
 
 using System.Data;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Backend.Database;
 
@@ -52,13 +53,34 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
     }
 
-    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId)
+    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName)
     {
       IDbCommand result = transaction.CreateCommand();
 
-      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID) VALUES (?)";
+      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME) VALUES (?, ?)";
 
       IDbDataParameter param = result.CreateParameter();
+      param.Value = systemId;
+      result.Parameters.Add(param);
+
+      param = result.CreateParameter();
+      param.Value = hostName;
+      result.Parameters.Add(param);
+
+      return result;
+    }
+
+    public static IDbCommand UpdateAttachedClientSystemCommand(ITransaction transaction, string systemId, SystemName system)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = ? WHERE SYSTEM_ID = ?";
+
+      IDbDataParameter param = result.CreateParameter();
+      param.Value = system == null ? null : system.HostName;
+      result.Parameters.Add(param);
+
+      param = result.CreateParameter();
       param.Value = systemId;
       result.Parameters.Add(param);
 
