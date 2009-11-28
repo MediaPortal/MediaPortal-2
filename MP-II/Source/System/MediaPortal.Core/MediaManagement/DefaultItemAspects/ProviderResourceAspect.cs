@@ -41,7 +41,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Contains UPnP device UUID of the system where the media item is located.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_SYSTEM_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.ManyToOne);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.Inline);
 
     /// <summary>
     /// Contains the path of the item in its provider.

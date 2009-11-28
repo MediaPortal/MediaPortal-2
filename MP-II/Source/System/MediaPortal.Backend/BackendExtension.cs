@@ -72,11 +72,13 @@ namespace MediaPortal.Backend
     {
       ServiceScope.Get<IDatabaseManager>().Startup();
       ServiceScope.Get<IMediaLibrary>().Startup();
+      ServiceScope.Get<IClientManager>().Startup();
       ServiceScope.Get<IBackendServer>().Startup();
     }
 
     public static void ShutdownBackendServices()
     {
+      ServiceScope.Get<IClientManager>().Shutdown();
       ServiceScope.Get<IMediaLibrary>().Shutdown();
       ServiceScope.Get<IBackendServer>().Shutdown();
     }
