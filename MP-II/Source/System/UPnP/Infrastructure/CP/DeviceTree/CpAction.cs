@@ -260,7 +260,8 @@ namespace UPnP.Infrastructure.CP.DeviceTree
       for (int i=0; i<_inArguments.Count; i++)
         if (!_inArguments[i].IsValueAssignable(inParameters[i]))
           return false;
-      return _inArguments.Count == inParameters.Count;
+      return (inParameters == null && _inArguments.Count == 0) ||
+          (inParameters != null && _inArguments.Count == inParameters.Count);
     }
 
     /// <summary>
