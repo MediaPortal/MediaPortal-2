@@ -65,11 +65,16 @@ namespace MediaPortal.Backend.Services.Database
       // Prepare schema
       if (!database.TableExists(MediaPortal_Basis_Schema.MEDIAPORTAL_BASIS_TABLE_NAME, false))
       {
-        ServiceScope.Get<ILogger>().Debug("DatabaseManager: Creating MEDIAPORTAL_BASIS subschema");
+        ServiceScope.Get<ILogger>().Info("DatabaseManager: Creating subschema '{0}'", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
         database.ExecuteBatch(new SqlScriptPreprocessor(MediaPortal_Basis_Schema.SubSchemaCreateScriptPath), true);
-        ServiceScope.Get<ILogger>().Info("DatabaseManager: MEDIAPORTAL_BASIS subschema created");
       }
       // Hint: Table MEDIAPORTAL_BASIS contains a sub schema entry for "MEDIAPORTAL_BASIS" with version number 1.0
+      int versionMajor;
+      int versionMinor;
+      if (!GetSubSchemaVersion(MediaPortal_Basis_Schema.SUBSCHEMA_NAME, out versionMajor, out versionMinor))
+        throw new UnexpectedStateException("{0} schema is not present or corrupted", MediaPortal_Basis_Schema.SUBSCHEMA_NAME);
+      ServiceScope.Get<ILogger>().Info("DatabaseManager: Subschema '{0}' present in version {1}.{2}",
+          MediaPortal_Basis_Schema.SUBSCHEMA_NAME, versionMajor, versionMinor);
     }
 
     public ICollection<string> GetDatabaseSubSchemas()

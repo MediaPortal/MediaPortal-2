@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 
 namespace MediaPortal.Backend.Database
 {
@@ -381,6 +382,8 @@ namespace MediaPortal.Backend.Database
           curVersionMajor = nextOperation.ToVersionMajor;
           curVersionMinor = nextOperation.ToVersionMinor;
         }
+        ServiceScope.Get<ILogger>().Info("DatabaseSubSchemaManager: Subschema '{0}' present in version {1}.{2}",
+            _subSchemaName, curVersionMajor, curVersionMinor);
         return true;
       }
       finally

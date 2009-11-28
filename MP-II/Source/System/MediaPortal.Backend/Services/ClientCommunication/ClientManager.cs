@@ -106,6 +106,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     protected void UpdateClientSystem(string clientSystemId, SystemName system)
     {
+      ServiceScope.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", system.HostName, clientSystemId);
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
@@ -176,6 +177,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         transaction.Rollback();
         throw;
       }
+      ServiceScope.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' attached", clientSystemId);
       // Establish the UPnP connection to the client, if available in the network
       _controlPoint.AddAttachedClient(clientSystemId);
     }
@@ -206,6 +208,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         transaction.Rollback();
         throw;
       }
+      ServiceScope.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' detached", clientSystemId);
       // Last action: Remove the client from the collection of attached clients and disconnect the client connection, if connected
       _controlPoint.RemoveAttachedClient(clientSystemId);
     }
