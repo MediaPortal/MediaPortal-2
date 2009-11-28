@@ -27,7 +27,6 @@ using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.UPnP;
-using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
