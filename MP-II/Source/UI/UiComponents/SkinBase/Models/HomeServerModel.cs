@@ -113,7 +113,7 @@ namespace UiComponents.SkinBase.Models
     protected void SynchronizeHomeServer()
     {
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
-      if (string.IsNullOrEmpty(scm.HomeServerUUID))
+      if (string.IsNullOrEmpty(scm.HomeServerSystemId))
       {
         IsHomeServerAttached = false;
         HomeServer = null;

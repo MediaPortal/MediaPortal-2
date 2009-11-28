@@ -28,7 +28,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Threading;
 using System.Timers;
-using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using SystemTimer = System.Timers.Timer;
 

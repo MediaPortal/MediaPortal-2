@@ -49,10 +49,10 @@ namespace MediaPortal.UI.Services.MediaManagement
       if (_locallyKnownMediaItemAspectTypes.ContainsKey(miam.AspectId))
         return;
       IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
-      UPnPContentDirectoryService cds = serverConnectionManager == null ? null :
-          serverConnectionManager.ContentDirectoryService;
-      if (cds != null)
-        cds.AddMediaItemAspectStorage(miam);
+      IContentDirectory cd = serverConnectionManager == null ? null :
+          serverConnectionManager.ContentDirectory;
+      if (cd != null)
+        cd.AddMediaItemAspectStorage(miam);
     }
   }
 }

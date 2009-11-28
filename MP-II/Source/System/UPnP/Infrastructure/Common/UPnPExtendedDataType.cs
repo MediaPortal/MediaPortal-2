@@ -181,18 +181,7 @@ namespace UPnP.Infrastructure.Common
     /// <param name="reader">XML reader which is positioned at the starting tag of the XML element enclosing the value.</param>
     protected bool SoapReadNull(XmlReader reader)
     {
-      if (SoapHelper.ReadNull(reader))
-      {
-        if (reader.IsEmptyElement)
-          reader.ReadStartElement();
-        else
-        {
-          reader.ReadStartElement();
-          reader.ReadEndElement();
-        }
-        return true;
-      }
-      return false;
+      return SoapHelper.ReadNull(reader);
     }
   }
 }

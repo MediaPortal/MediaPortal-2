@@ -22,7 +22,10 @@
 
 #endregion
 
+using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Backend.BackendServer;
+using MediaPortal.Backend.ImporterScheduler;
+using MediaPortal.Backend.Services.SystemResolver;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
@@ -30,6 +33,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaManagement;
+using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Backend
 {
@@ -38,6 +42,9 @@ namespace MediaPortal.Backend
     public static void RegisterBackendServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("BackendExtension: Registering ISystemResolver service");
+      ServiceScope.Add<ISystemResolver>(new SystemResolver());
 
       logger.Debug("BackendExtension: Registering IDatabaseManager service");
       ServiceScope.Add<IDatabaseManager>(new DatabaseManager());
@@ -48,8 +55,14 @@ namespace MediaPortal.Backend
       logger.Debug("BackendExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceScope.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
+      logger.Debug("BackendExtension: Registering IImporterScheduler service");
+      ServiceScope.Add<IImporterScheduler>(new Services.ImporterScheduler.ImporterScheduler());
+
       logger.Debug("BackendExtension: Registering IBackendServer service");
       ServiceScope.Add<IBackendServer>(new Services.BackendServer.BackendServer());
+
+      logger.Debug("BackendExtension: Registering IClientManager service");
+      ServiceScope.Add<IClientManager>(new Services.ClientCommunication.ClientManager());
     }
 
     /// <summary>
@@ -72,8 +85,14 @@ namespace MediaPortal.Backend
     {
       ILogger logger = ServiceScope.Get<ILogger>();
 
+      logger.Debug("BackendExtension: Removing IClientManager service");
+      ServiceScope.RemoveAndDispose<IClientManager>();
+
       logger.Debug("BackendExtension: Removing IBackendServer service");
       ServiceScope.RemoveAndDispose<IBackendServer>();
+
+      logger.Debug("BackendExtension: Removing IImporterScheduler service");
+      ServiceScope.RemoveAndDispose<IImporterScheduler>();
 
       logger.Debug("BackendExtension: Removing IMediaItemAspectTypeRegistration service");
       ServiceScope.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
@@ -83,6 +102,9 @@ namespace MediaPortal.Backend
 
       logger.Debug("BackendExtension: Removing IDatabaseManager service");
       ServiceScope.RemoveAndDispose<IDatabaseManager>();
+
+      logger.Debug("BackendExtension: Removing ISystemResolver service");
+      ServiceScope.RemoveAndDispose<ISystemResolver>();
     }
   }
 }

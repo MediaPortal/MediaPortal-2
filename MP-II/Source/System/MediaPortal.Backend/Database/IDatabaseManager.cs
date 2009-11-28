@@ -39,6 +39,15 @@ namespace MediaPortal.Backend.Database
   public interface IDatabaseManager
   {
     /// <summary>
+    /// Returns the table name of a one-collumn, one-row dummy table.
+    /// </summary>
+    /// <remarks>
+    /// The dummy table can be used in queries, where no natural table exists, for example for queries to the database
+    /// time or for queries of sequence values. The dummy table works exactly like the Oracle "DUAL" table.
+    /// </remarks>
+    string DummyTableName { get; }
+
+    /// <summary>
     /// Starts the database manager. This must be done after the database service is verfügbar (i.e. after the database plugin
     /// was started).
     /// </summary>

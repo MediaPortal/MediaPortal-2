@@ -385,7 +385,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
-        Configuration.LOGGER.Info("SSDPServerController: UPnP SSDP subsystem unable to receive from IP address '{0}'", state.Endpoint.EndPointIPAddress);
+        Configuration.LOGGER.Info("SSDPServerController: UPnP SSDP subsystem unable to receive from IP address '{0}'", e, state.Endpoint.EndPointIPAddress);
       }
     }
 

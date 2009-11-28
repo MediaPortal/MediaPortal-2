@@ -26,9 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Views
@@ -120,6 +120,7 @@ namespace MediaPortal.UI.Views
     internal override IEnumerable<MediaItem> ReLoadItems()
     {
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       ICollection<Guid> metadataExtractorIds = new List<Guid>();
       foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
         // Collect all metadata extractors which fill our desired media item aspects
@@ -131,7 +132,7 @@ namespace MediaPortal.UI.Views
       if (files != null)
         foreach (IFileSystemResourceAccessor childAccessor in files)
         {
-          MediaItem result = GetMetadata(mediaAccessor, childAccessor, metadataExtractorIds);
+          MediaItem result = GetMetadata(mediaAccessor, systemResolver, childAccessor, metadataExtractorIds);
           if (result != null)
             yield return result;
         }
@@ -162,11 +163,13 @@ namespace MediaPortal.UI.Views
     /// </summary>
     /// <param name="mediaAccessor">Media manager instance. This parameter is for performance to avoid
     /// iterated calls to the <see cref="ServiceScope"/>.</param>
+    /// <param name="systemResolver">System resolver instance. This parameter is for performance to avoid
+    /// iterated calls to the <see cref="ServiceScope"/>.</param>
     /// <param name="mediaItemAccessor">Accessor describing the media item to extract metadata.</param>
     /// <param name="metadataExtractorIds">Ids of the metadata extractors to employ on the media item.</param>
     /// <returns>Media item with the specified metadata </returns>
-    protected static MediaItem GetMetadata(IMediaAccessor mediaAccessor, IResourceAccessor mediaItemAccessor,
-        IEnumerable<Guid> metadataExtractorIds)
+    protected static MediaItem GetMetadata(IMediaAccessor mediaAccessor, ISystemResolver systemResolver,
+        IResourceAccessor mediaItemAccessor, IEnumerable<Guid> metadataExtractorIds)
     {
       IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractorIds);
       if (aspects == null)
@@ -177,7 +180,7 @@ namespace MediaPortal.UI.Views
       else
         providerResourceAspect = aspects[ProviderResourceAspect.ASPECT_ID] = new MediaItemAspect(
             ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SOURCE_COMPUTER, SystemName.LocalHostName);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemResolver.LocalSystemId);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.LocalResourcePath.Serialize());
       return new MediaItem(aspects);
     }

@@ -197,13 +197,13 @@ namespace UiComponents.SkinBase.Models
       ICollection<ServerDescriptor> systemAvailableServers = scm.AvailableServers;
       if (systemAvailableServers != null) // AvailableServers can be null if in the meantime, a home server was attached
         foreach (ServerDescriptor sd in scm.AvailableServers)
-          availableServers.Add(sd.MPMediaServerUUID, sd);
+          availableServers.Add(sd.MPBackendServerUUID, sd);
       IDictionary<string, ListItem> shownServers = new Dictionary<string, ListItem>();
       bool serversChanged = false;
       lock (_syncObj)
       {
         foreach (ListItem sdItem in _availableServers)
-          shownServers.Add(((ServerDescriptor) sdItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY]).MPMediaServerUUID, sdItem);
+          shownServers.Add(((ServerDescriptor) sdItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY]).MPBackendServerUUID, sdItem);
         foreach (string uuid in shownServers.Keys)
           if (!availableServers.ContainsKey(uuid))
           {
@@ -211,7 +211,7 @@ namespace UiComponents.SkinBase.Models
             serversChanged = true;
           }
         foreach (ServerDescriptor sd in availableServers.Values)
-          if (!shownServers.ContainsKey(sd.MPMediaServerUUID))
+          if (!shownServers.ContainsKey(sd.MPBackendServerUUID))
           {
             ListItem serverItem = new ListItem();
             serverItem.SetLabel(NAME_KEY, LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
@@ -358,7 +358,7 @@ namespace UiComponents.SkinBase.Models
     public void ConnectToSingleServerAndClose()
     {
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
-      scm.SetNewHomeServer(_singleAvailableServer.MPMediaServerUUID);
+      scm.SetNewHomeServer(_singleAvailableServer.MPBackendServerUUID);
       ShowAttachInformationDialogAndClose(_singleAvailableServer);
     }
 
@@ -370,7 +370,7 @@ namespace UiComponents.SkinBase.Models
     {
       ServerDescriptor sd = (ServerDescriptor) availableServerItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY];
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
-      scm.SetNewHomeServer(sd.MPMediaServerUUID);
+      scm.SetNewHomeServer(sd.MPBackendServerUUID);
       ShowAttachInformationDialogAndClose(sd);
     }
 
@@ -397,7 +397,7 @@ namespace UiComponents.SkinBase.Models
       }
       else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)
       {
-        if (string.IsNullOrEmpty(scm.HomeServerUUID))
+        if (string.IsNullOrEmpty(scm.HomeServerSystemId))
           return false;
       }
       return true;

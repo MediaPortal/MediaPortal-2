@@ -30,12 +30,13 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.UPnP;
+using MediaPortal.UI.ServerCommunication;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.Utils;
 
-namespace MediaPortal.UI.ServerCommunication
+namespace MediaPortal.UI.Services.ServerCommunication
 {
-  public delegate void AvailableMediaServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded);
+  public delegate void AvailableBackendServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded);
 
   /// <summary>
   /// Watches the network for available MediaPortal-II servers.
@@ -58,12 +59,12 @@ namespace MediaPortal.UI.ServerCommunication
       Stop();
     }
 
-    public ICollection<ServerDescriptor>  AvailableServers
+    public ICollection<ServerDescriptor> AvailableServers
     {
       get { return _availableServers; }
     }
 
-    public event AvailableMediaServersChangedDlgt AvailableMediaServersChanged;
+    public event AvailableBackendServersChangedDlgt AvailableBackendServersChanged;
 
     public void Start()
     {
@@ -75,23 +76,24 @@ namespace MediaPortal.UI.ServerCommunication
       _networkTracker.Close();
     }
 
-    public static ServerDescriptor GetMPMediaServerDescriptor(RootDescriptor rootDescriptor)
+    public static ServerDescriptor GetMPBackendServerDescriptor(RootDescriptor rootDescriptor)
     {
       try
       {
-        XPathNavigator mediaServerDeviceElementNav = rootDescriptor.FindFirstDeviceElement(UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE, UPnPTypesAndIds.MEDIA_SERVER_DEVICE_TYPE_VERSION);
-        if (mediaServerDeviceElementNav == null)
+        XPathNavigator deviceElementNav = rootDescriptor.FindFirstDeviceElement(
+            UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION);
+        if (deviceElementNav == null)
           return null;
-        XmlNamespaceManager nsmgr = new XmlNamespaceManager(mediaServerDeviceElementNav.NameTable);
+        XmlNamespaceManager nsmgr = new XmlNamespaceManager(deviceElementNav.NameTable);
         nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
-        string udn = RootDescriptor.GetDeviceUDN(mediaServerDeviceElementNav, nsmgr);
-        string friendlyName = ParserHelper.SelectText(mediaServerDeviceElementNav, "d:friendlyName/text()", nsmgr);
+        string udn = RootDescriptor.GetDeviceUDN(deviceElementNav, nsmgr);
+        string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);
         return new ServerDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName, system);
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Error parsing UPnP MediaServer device location", e);
+        ServiceScope.Get<ILogger>().Warn("Error parsing UPnP device description", e);
         return null;
       }
     }
@@ -101,15 +103,15 @@ namespace MediaPortal.UI.ServerCommunication
       ICollection<ServerDescriptor> availableServers;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        ServerDescriptor serverDescriptor = GetMPMediaServerDescriptor(rootDescriptor);
+        ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaServer '{0}' at host '{1}'",
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MP-II BackendServer '{0}' at host '{1}'",
             serverDescriptor.ServerName, serverDescriptor.System.HostName);
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
       }
-      InvokeAvailableMediaServersChanged(availableServers, true);
+      InvokeAvailableBackendServersChanged(availableServers, true);
     }
 
     void OnUPnPRootDeviceRemoved(RootDescriptor rootDescriptor)
@@ -117,20 +119,20 @@ namespace MediaPortal.UI.ServerCommunication
       ICollection<ServerDescriptor> availableServers;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        ServerDescriptor serverDescriptor = GetMPMediaServerDescriptor(rootDescriptor);
+        ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MediaServer '{0}' at host '{1}' was removed from the network",
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MP-II BackendServer '{0}' at host '{1}' was removed from the network",
             serverDescriptor.ServerName, serverDescriptor.System.HostName);
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;
       }
-      InvokeAvailableMediaServersChanged(availableServers, false);
+      InvokeAvailableBackendServersChanged(availableServers, false);
     }
 
-    protected void InvokeAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
+    protected void InvokeAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
-      AvailableMediaServersChangedDlgt dlgt = AvailableMediaServersChanged;
+      AvailableBackendServersChangedDlgt dlgt = AvailableBackendServersChanged;
       if (dlgt != null)
         dlgt(allAvailableServers, serversWereAdded);
     }

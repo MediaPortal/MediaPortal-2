@@ -32,14 +32,14 @@ namespace MediaPortal.UI.ServerCommunication
     protected RootDescriptor _rootDescriptor;
     protected string _serverName;
     protected SystemName _system;
-    protected string _mpMediaServerUUID;
+    protected string _mpBackendServerUUID;
 
-    public ServerDescriptor(RootDescriptor rootDescriptor, string mpMediaServerUUID, string serverName, SystemName system)
+    public ServerDescriptor(RootDescriptor rootDescriptor, string mpBackendServerUUID, string serverName, SystemName system)
     {
       _rootDescriptor = rootDescriptor;
       _serverName = serverName;
       _system = system;
-      _mpMediaServerUUID = mpMediaServerUUID;
+      _mpBackendServerUUID = mpBackendServerUUID;
     }
 
     public RootDescriptor UPnPRootDescriptor
@@ -57,9 +57,9 @@ namespace MediaPortal.UI.ServerCommunication
       get { return _system; }
     }
 
-    public string MPMediaServerUUID
+    public string MPBackendServerUUID
     {
-      get { return _mpMediaServerUUID; }
+      get { return _mpBackendServerUUID; }
     }
 
     public static bool operator == (ServerDescriptor a, ServerDescriptor b)
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.ServerCommunication
         return bnull;
       if (bnull)
         return false;
-      return a.MPMediaServerUUID == b.MPMediaServerUUID;
+      return a.MPBackendServerUUID == b.MPBackendServerUUID;
     }
 
     public static bool operator != (ServerDescriptor a, ServerDescriptor b)
@@ -87,12 +87,12 @@ namespace MediaPortal.UI.ServerCommunication
 
     public override int GetHashCode()
     {
-      return _mpMediaServerUUID.GetHashCode();
+      return _mpBackendServerUUID.GetHashCode();
     }
 
     public override string ToString()
     {
-      return string.Format("MP media server '{0}' at system '{1}'", _mpMediaServerUUID, _system.HostName);
+      return string.Format("MP backend server '{0}' at system '{1}'", _mpBackendServerUUID, _system.HostName);
     }
   }
 }

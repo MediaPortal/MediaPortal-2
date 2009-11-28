@@ -179,16 +179,7 @@ namespace UPnP.Infrastructure.Common
     {
       object result;
       if (SoapHelper.ReadNull(reader))
-      {
-        if (reader.IsEmptyElement)
-          reader.ReadStartElement();
-        else
-        {
-          reader.ReadStartElement();
-          reader.ReadEndElement();
-        }
         result = null;
-      }
       else
       {
         switch (_upnpTypeName)

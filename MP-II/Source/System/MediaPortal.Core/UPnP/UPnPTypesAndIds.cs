@@ -29,15 +29,24 @@ namespace MediaPortal.Core.UPnP
   /// </summary>
   public class UPnPTypesAndIds
   {
-    public const string MEDIA_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
-    public const int MEDIA_SERVER_DEVICE_TYPE_VERSION = 1;
+    // Backend
+    public const string BACKEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
+    public const int BACKEND_SERVER_DEVICE_TYPE_VERSION = 1;
+
+    public const string CONTENT_DIRECTORY_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ContentDirectory";
+    public const int CONTENT_DIRECTORY_SERVICE_TYPE_VERSION = 1;
     public const string CONTENT_DIRECTORY_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ContentDirectory";
 
+    // Frontend
     public const string FRONTEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Client";
     public const int FRONTEND_SERVER_DEVICE_TYPE_VERSION = 1;
 
     public const string CLIENT_CONTROLLER_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ClientController";
     public const int CLIENT_CONTROLLER_SERVICE_TYPE_VERSION = 1;
     public const string CLIENT_CONTROLLER_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ClientController";
+
+    public const string SERVER_CONTROLLER_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ServerController";
+    public const int SERVER_CONTROLLER_SERVICE_TYPE_VERSION = 1;
+    public const string SERVER_CONTROLLER_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ServerController";
   }
 }

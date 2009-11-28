@@ -22,38 +22,22 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core;
-using MediaPortal.Core.Settings;
-using MediaPortal.Backend.ClientCommunication.Settings;
 using UPnP.Infrastructure.Dv;
 
-namespace MediaPortal.Backend.ClientCommunication
+namespace MediaPortal.UI.Services.ServerCommunication
 {
   /// <summary>
-  /// Encapsulates the MediaPortal-II UPnP backend server device.
+  /// Encapsulates the MediaPortal-II UPnP frontend server device.
   /// </summary>
-  public class UPnPBackendServer : UPnPServer
+  public class UPnPFrontendServer : UPnPServer
   {
     public const int SSDP_ADVERTISMENT_INTERVAL = 1800;
 
-    public UPnPBackendServer()
+    public UPnPFrontendServer(string frontendServerSystemId)
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      BackendServerSettings settings = settingsManager.Load<BackendServerSettings>();
-      Guid deviceId;
-      if (settings.MediaServerDeviceId.HasValue)
-        deviceId = settings.MediaServerDeviceId.Value;
-      else
-      {
-        // Create a new id for our new mediacenter device
-        deviceId = Guid.NewGuid();
-        settings.MediaServerDeviceId = deviceId;
-        settingsManager.Save(settings);
-      }
-      AddRootDevice(new MP2BackendServerDevice(deviceId.ToString("D")));
-      // TODO: add UPnP standard MediaServer device: it's not implemented yet
-      //AddRootDevice(new UPnPMediaServerDevice(...));
+      AddRootDevice(new MP2FrontendServerDevice(frontendServerSystemId));
+      // TODO: add UPnP standard MediaRenderer device: it's not implemented yet
+      //AddRootDevice(new UPnPMediaRendererDevice(...));
     }
 
     public void Start()

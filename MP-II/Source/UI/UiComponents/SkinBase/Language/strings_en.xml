@@ -94,6 +94,15 @@
     <String Name="Regional.Language.Main" Text="Language"/>
     <String Name="Regional.Language.Main.Help" Text="Sets the main language used in the application"/>
   </Section>
+  <Section Name="UPnPFrontendServer">
+    <String Name="DefaultFriendlyName" Text="MediaPortal-II client"/>
+    <String Name="Manufacturer" Text="Team Mediaportal"/>
+    <String Name="ManufacturerUrl" Text="www.team-mediaportal.com"/>
+    <String Name="ModelDescription" Text="MediaPortal-II client - the MediaPortal GUI. Plays media content, hosts local shares and provides other user interface parts."/>
+    <String Name="ModelName" Text="MediaPortal-II client"/>
+    <String Name="ModelNumber" Text="1"/>
+    <!--    <String Name="ModelUrl" Text="..."/> -->
+  </Section>
   <Section Name="General">
     <String Name="Name" Text="Name"/>
     <String Name="Date" Text="Date"/>

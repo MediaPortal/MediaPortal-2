@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core.ImporterWorker;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;

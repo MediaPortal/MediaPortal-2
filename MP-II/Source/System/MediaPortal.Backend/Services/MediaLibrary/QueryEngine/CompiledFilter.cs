@@ -46,17 +46,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     protected readonly ICollection<QueryAttribute> _filterAttributes;
 
     public CompiledFilter(IList<object> statementParts, ICollection<QueryAttribute> filterAttributes,
-        object outerMIIDJointVariablePlaceHolder)
+        object outerMIIDJoinVariablePlaceHolder)
     {
       _statementParts = statementParts;
       _filterAttributes = filterAttributes;
-      _outerMIIDJoinVariablePlaceHolder = outerMIIDJointVariablePlaceHolder;
+      _outerMIIDJoinVariablePlaceHolder = outerMIIDJoinVariablePlaceHolder;
     }
 
     public static CompiledFilter Compile(MIA_Management miaManagement, IFilter filter)
     {
-      object outerMIIDJointVariablePlaceHolder = new object();
-      IList<object> statementParts = CompileStatementParts(miaManagement, filter, outerMIIDJointVariablePlaceHolder);
+      object outerMIIDJoinVariablePlaceHolder = new object();
+      IList<object> statementParts = CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder);
       ICollection<QueryAttribute> filterAttributes = new List<QueryAttribute>();
       foreach (object statementPart in statementParts)
       {
@@ -64,11 +64,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (qa != null)
           filterAttributes.Add(qa);
       }
-      return new CompiledFilter(statementParts, filterAttributes, outerMIIDJointVariablePlaceHolder);
+      return new CompiledFilter(statementParts, filterAttributes, outerMIIDJoinVariablePlaceHolder);
     }
 
     protected static IList<object> CompileStatementParts(MIA_Management miaManagement, IFilter filter,
-        object outerMIIDJointVariablePlaceHolder)
+        object outerMIIDJoinVariablePlaceHolder)
     {
       if (filter == null)
         return new List<object>();
@@ -96,7 +96,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          result.Add(CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJointVariablePlaceHolder));
+          result.Add(CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder));
         }
         result.Add(")");
         return result;
@@ -108,7 +108,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IList<object> result = new List<object>
         {
           "NOT (",
-          CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJointVariablePlaceHolder),
+          CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder),
           ")"
         };
         return result;
@@ -145,7 +145,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Add(" COLL_MIA_TABLE WHERE COLL_MIA_TABLE.");
           result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
           result.Add("=");
-          result.Add(outerMIIDJointVariablePlaceHolder);
+          result.Add(outerMIIDJoinVariablePlaceHolder);
           result.Add(" AND ");
           attributeOperand = "COLL_MIA_TABLE." + MIA_Management.COLL_MIA_VALUE_COL_NAME;
         }

@@ -27,8 +27,9 @@ using System.Net;
 using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.Backend.BackendServer;
-using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Core;
+using MediaPortal.Core.SystemResolver;
 using UPnP.Infrastructure;
 using ILogger=MediaPortal.Core.Logging.ILogger;
 using UPnPLogger = UPnP.Infrastructure.ILogger;
@@ -140,7 +141,9 @@ namespace MediaPortal.Backend.Services.BackendServer
       _httpServer = new HttpServer.HttpServer(new HttpLogWriter());
       Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
       Configuration.LOGGER = new UPnPLoggerDelegate();
-      _upnpServer = new UPnPBackendServer();
+
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      _upnpServer = new UPnPBackendServer(systemResolver.LocalSystemId);
     }
 
     public void Dispose()

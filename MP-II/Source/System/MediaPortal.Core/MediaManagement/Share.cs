@@ -28,7 +28,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using MediaPortal.Core.General;
+using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -61,7 +61,7 @@ namespace MediaPortal.Core.MediaManagement
     #region Protected fields
 
     protected Guid _shareId;
-    protected SystemName _nativeSystemName;
+    protected string _systemId;
     protected ResourcePath _baseResourcePath;
     protected string _name;
     protected HashSet<string> _mediaCategories;
@@ -78,7 +78,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="shareId">Id of the share. For the same share (i.e. the same resource path on the same
     /// system), the id should be perserverd, i.e. the id should not be re-created
     /// but stored persistently. This helps other components to use the id as fixed identifier for the share.</param>
-    /// <param name="systemName">Specifies the system on that the <paramref name="baseResourcePath"/> can be
+    /// <param name="systemId">Specifies the system on that the <paramref name="baseResourcePath"/> can be
     /// evaluated.</param>
     /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
@@ -86,7 +86,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Categories of media in this share. If set, the categories describe
     /// the desired contents of this share. If set to <c>null</c>, the share has no explicit media categories,
     /// i.e. it is a general share.</param>
-    public Share(Guid shareId, SystemName systemName, ResourcePath baseResourcePath, string name,
+    public Share(Guid shareId, string systemId, ResourcePath baseResourcePath, string name,
         IEnumerable<string> mediaCategories)
     {
       if (baseResourcePath == null)
@@ -95,28 +95,44 @@ namespace MediaPortal.Core.MediaManagement
         throw new ArgumentException("Share name must not be empty or null");
 
       _shareId = shareId;
-      _nativeSystemName = systemName ?? SystemName.GetLocalSystemName();
+      _systemId = systemId;
       _baseResourcePath = baseResourcePath;
       _name = name;
       _mediaCategories = mediaCategories == null ? new HashSet<string>() : new HashSet<string>(mediaCategories);
     }
 
     /// <summary>
-    /// Creates a new share. This will create a new share id.
+    /// Creates a new share. This will create a new share id and call the constructor with it.
     /// </summary>
-    /// <param name="systemName">Specifies the system on that the media provider with the specified
+    /// <param name="systemId">Specifies the system on that the media provider with the specified
     /// <paramref name="baseResourcePath"/> will be evaluated.</param>
+    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
     /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
-    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
     /// <param name="mediaCategories">Media content categories of this share. If set, the category
     /// describes the desired contents of this share. If set to <c>null</c>, this share has no explicit
     /// media categories, i.e. it is a general share.</param>
     /// <returns>Created <see cref="Share"/> with a new share id.</returns>
-    public static Share CreateNewShare(SystemName systemName, ResourcePath baseResourcePath, string name,
+    public static Share CreateNewShare(string systemId, ResourcePath baseResourcePath, string name,
         IEnumerable<string> mediaCategories)
     {
-      return new Share(Guid.NewGuid(), systemName, baseResourcePath, name, mediaCategories);
+      return new Share(Guid.NewGuid(), systemId, baseResourcePath, name, mediaCategories);
+    }
+
+    /// <summary>
+    /// Creates a new local share. This will create a new share ID and call the constructor with it.
+    /// </summary>
+    /// <param name="baseResourcePath">Description of the resource provider chain for the share's base directory.</param>
+    /// <param name="name">Name of the share. This name will be shown at the GUI. The string might be
+    /// localized using a "[[Section-Name].[String-Name]]" syntax, for example "[Media.MyMusic]".</param>
+    /// <param name="mediaCategories">Media content categories of this share. If set, the category
+    /// describes the desired contents of this share. If set to <c>null</c>, this share has no explicit
+    /// media categories, i.e. it is a general share.</param>
+    /// <returns>Created <see cref="Share"/> with a new share id.</returns>
+    public static Share CreateNewLocalShare(ResourcePath baseResourcePath, string name, IEnumerable<string> mediaCategories)
+    {
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      return CreateNewShare(systemResolver.LocalSystemId, baseResourcePath, name, mediaCategories);
     }
 
     /// <summary>
@@ -129,13 +145,13 @@ namespace MediaPortal.Core.MediaManagement
     }
 
     /// <summary>
-    /// Returns the system name where this share is located.
+    /// Returns the UUID of the system where this share is located.
     /// </summary>
     [XmlIgnore]
-    public SystemName NativeSystem
+    public string SystemId
     {
-      get { return _nativeSystemName; }
-      set { _nativeSystemName = value; }
+      get { return _systemId; }
+      set { _systemId = value; }
     }
 
     /// <summary>
@@ -257,11 +273,11 @@ namespace MediaPortal.Core.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("NativeSystem", IsNullable = false)]
-    public SystemName XML_NativeSystem
+    [XmlElement("SystemId", IsNullable = false)]
+    public string XML_SystemId
     {
-      get { return _nativeSystemName; }
-      set { _nativeSystemName = value; }
+      get { return _systemId; }
+      set { _systemId = value; }
     }
 
     /// <summary>

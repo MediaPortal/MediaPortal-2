@@ -181,12 +181,15 @@
     <Compile Include="Services\Settings\SettingsCache.cs" />
     <Compile Include="Services\Settings\SettingsFileHandler.cs" />
     <Compile Include="Services\Settings\SettingsManager.cs" />
+    <Compile Include="Services\SystemResolver\Settings\SystemResolverSettings.cs" />
+    <Compile Include="Services\SystemResolver\SystemResolverBase.cs" />
     <Compile Include="Settings\ISettingsManager.cs" />
     <Compile Include="Settings\NoSettingsManager.cs" />
     <Compile Include="Settings\SettingAttribute.cs" />
     <Compile Include="Runtime\SystemMessaging.cs" />
     <Compile Include="Runtime\ISystemStateService.cs" />
     <Compile Include="Services\Runtime\SystemStateService.cs" />
+    <Compile Include="SystemResolver\ISystemResolver.cs" />
     <Compile Include="TaskScheduler\ITaskScheduler.cs" />
     <Compile Include="TaskScheduler\Task.cs" />
     <Compile Include="TaskScheduler\TaskSchedulerMessaging.cs" />

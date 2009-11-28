@@ -38,10 +38,10 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static Guid ASPECT_ID = new Guid("0A296ACD-F95B-4a28-90A2-E4FD2A4CC4ED");
 
     /// <summary>
-    /// Contains the source computer where the media item is located.
+    /// Contains UPnP device UUID of the system where the media item is located.
     /// </summary>
-    public static MediaItemAspectMetadata.AttributeSpecification ATTR_SOURCE_COMPUTER =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Source-Computer", 100, Cardinality.ManyToOne);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_SYSTEM_ID =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.ManyToOne);
 
     /// <summary>
     /// Contains the path of the item in its provider.
@@ -52,7 +52,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
         ASPECT_ID, "ProviderResource", new[] {
-            ATTR_SOURCE_COMPUTER,
+            ATTR_SYSTEM_ID,
             ATTR_RESOURCE_ACCESSOR_PATH,
         });
   }

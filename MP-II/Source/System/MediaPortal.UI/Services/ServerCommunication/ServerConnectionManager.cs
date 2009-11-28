@@ -30,15 +30,16 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.Settings;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.Threading;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.ServerConnection.Settings;
+using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.UI.Services.Shares;
 using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
 using RelocationMode=MediaPortal.UI.Shares.RelocationMode;
 
-namespace MediaPortal.UI.Services.ServerConnection
+namespace MediaPortal.UI.Services.ServerCommunication
 {
   public class ServerConnectionManager : IServerConnectionManager
   {
@@ -56,21 +57,21 @@ namespace MediaPortal.UI.Services.ServerConnection
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
-      string homeServerUUID = HomeServerUUID;
-      if (string.IsNullOrEmpty(homeServerUUID))
+      string homeServerSystemId = HomeServerSystemId;
+      if (string.IsNullOrEmpty(homeServerSystemId))
         // Watch for all MP-II media servers, if we don't have a homeserver yet
         _serverWatcher = BuildServerWatcher();
       else
         // If we have a homeserver set, we'll try to connect to it
-        _controlPoint = BuildClientControlPoint(homeServerUUID);
+        _controlPoint = BuildClientControlPoint(homeServerSystemId);
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
     {
       if (message.ChannelName == SharesMessaging.CHANNEL)
       {
-        UPnPContentDirectoryService cds = ContentDirectoryService;
-        if (cds == null)
+        IContentDirectory cd = ContentDirectory;
+        if (cd == null)
           return;
         ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
         SharesMessaging.MessageType messageType =
@@ -83,33 +84,33 @@ namespace MediaPortal.UI.Services.ServerConnection
             shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
             share = sharesManagement.GetShare(shareId);
             if (share != null)
-              cds.RegisterShare(share);
+              cd.RegisterShare(share);
             break;
           case SharesMessaging.MessageType.ShareRemoved:
             shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
-            cds.RemoveShare(shareId);
+            cd.RemoveShare(shareId);
             break;
           case SharesMessaging.MessageType.ShareChanged:
             shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
             RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
             share = sharesManagement.GetShare(shareId);
             if (share != null)
-              cds.UpdateShare(shareId, share.BaseResourcePath, share.Name, share.MediaCategories,
-                  relocationMode == RelocationMode.Relocate ? ServerCommunication.RelocationMode.Relocate :
-                  ServerCommunication.RelocationMode.ClearAndReImport);
+              cd.UpdateShare(shareId, share.BaseResourcePath, share.Name, share.MediaCategories,
+                  relocationMode == RelocationMode.Relocate ? UI.ServerCommunication.RelocationMode.Relocate :
+                  UI.ServerCommunication.RelocationMode.ClearAndReImport);
             break;
         }
       }
     }
 
-    static void OnAvailableMediaServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
+    static void OnAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
       ServerConnectionMessaging.SendAvailableServersChangedMessage(allAvailableServers, serversWereAdded);
     }
 
-    void OnMediaServerConnected(DeviceConnection connection)
+    void OnBackendServerConnected(DeviceConnection connection)
     {
-      ServerDescriptor serverDescriptor = UPnPServerWatcher.GetMPMediaServerDescriptor(connection.RootDescriptor);
+      ServerDescriptor serverDescriptor = UPnPServerWatcher.GetMPBackendServerDescriptor(connection.RootDescriptor);
       lock (_syncObj)
       {
         _isHomeServerConnected = true;
@@ -119,10 +120,9 @@ namespace MediaPortal.UI.Services.ServerConnection
 
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
       ServiceScope.Get<IThreadPool>().Add(SynchronizeDataWithServer);
-      // TODO: Call ClientAvailable method at MP server's client manager service
     }
 
-    void OnMediaServerDisconnected(DeviceConnection connection)
+    void OnBackendServerDisconnected(DeviceConnection connection)
     {
       lock (_syncObj)
         _isHomeServerConnected = false;
@@ -146,15 +146,15 @@ namespace MediaPortal.UI.Services.ServerConnection
     protected UPnPServerWatcher BuildServerWatcher()
     {
       UPnPServerWatcher result = new UPnPServerWatcher();
-      result.AvailableMediaServersChanged += OnAvailableMediaServersChanged;
+      result.AvailableBackendServersChanged += OnAvailableBackendServersChanged;
       return result;
     }
 
-    protected UPnPClientControlPoint BuildClientControlPoint(string homeServerUUID)
+    protected UPnPClientControlPoint BuildClientControlPoint(string homeServerSystemId)
     {
-      UPnPClientControlPoint result = new UPnPClientControlPoint(homeServerUUID);
-      result.MediaServerConnected += OnMediaServerConnected;
-      result.MediaServerDisconnected += OnMediaServerDisconnected;
+      UPnPClientControlPoint result = new UPnPClientControlPoint(homeServerSystemId);
+      result.BackendServerConnected += OnBackendServerConnected;
+      result.BackendServerDisconnected += OnBackendServerDisconnected;
       return result;
     }
 
@@ -163,41 +163,57 @@ namespace MediaPortal.UI.Services.ServerConnection
     /// </summary>
     protected void SynchronizeDataWithServer()
     {
-      UPnPContentDirectoryService cds = ContentDirectoryService;
-      if (cds == null)
-        return;
-      try
+      IServerController sc = ServerController;
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      if (sc != null)
+        try
+        {
+          if (!sc.IsClientAttached(systemResolver.LocalSystemId))
+            sc.AttachClient(systemResolver.LocalSystemId);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Error attaching to home server '{0}'", e, HomeServerSystemId);
+          return; // As this is a real error case, we don't need to try any other service calls
+        }
+      IContentDirectory cd = ContentDirectory;
+      if (cd != null)
       {
-        ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
-        IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
-        foreach (Share share in cds.GetShares(SystemName.GetLocalSystemName(), SharesFilter.All))
-          serverShares.Add(share.ShareId, share);
-        IDictionary<Guid, Share> localShares = ServiceScope.Get<ILocalSharesManagement>().Shares;
-        foreach (Share localShare in localShares.Values)
-          if (!serverShares.ContainsKey(localShare.ShareId))
-            cds.RegisterShare(localShare);
-        foreach (Guid serverShareId in serverShares.Keys)
-          if (!localShares.ContainsKey(serverShareId))
-            cds.RemoveShare(serverShareId);
-      }
-      catch (Exception e)
-      {
-        ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local shares with server", e);
-      }
-      try
-      {
-        IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
-        ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Add unregistered media item aspect types at home server");
-        ICollection<Guid> serverMIATypes = cds.GetAllManagedMediaItemAspectMetadataIds();
-        foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
-          if (!serverMIATypes.Contains(localMiaType.Key))
-            cds.AddMediaItemAspectStorage(localMiaType.Value);
-      }
-      catch (Exception e)
-      {
-        ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
+        try
+        {
+          ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Synchronizing shares with home server");
+          IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
+          foreach (Share share in cd.GetShares(systemResolver.LocalSystemId, SharesFilter.All))
+            serverShares.Add(share.ShareId, share);
+          IDictionary<Guid, Share> localShares = ServiceScope.Get<ILocalSharesManagement>().Shares;
+          foreach (Share localShare in localShares.Values)
+            if (!serverShares.ContainsKey(localShare.ShareId))
+              cd.RegisterShare(localShare);
+          foreach (Guid serverShareId in serverShares.Keys)
+            if (!localShares.ContainsKey(serverShareId))
+              cd.RemoveShare(serverShareId);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local shares with server", e);
+        }
+        try
+        {
+          IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+          ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Add unregistered media item aspect types at home server");
+          ICollection<Guid> serverMIATypes = cd.GetAllManagedMediaItemAspectMetadataIds();
+          foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
+            if (!serverMIATypes.Contains(localMiaType.Key))
+              cd.AddMediaItemAspectStorage(localMiaType.Value);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
+        }
       }
     }
+
+    #region IServerCommunicationManager implementation
 
     public ICollection<ServerDescriptor> AvailableServers
     {
@@ -219,12 +235,12 @@ namespace MediaPortal.UI.Services.ServerConnection
       }
     }
 
-    public string HomeServerUUID
+    public string HomeServerSystemId
     {
       get
       {
         ServerConnectionSettings settings = ServiceScope.Get<ISettingsManager>().Load<ServerConnectionSettings>();
-        return settings.HomeServerUUID;
+        return settings.HomeServerSystemId;
       }
     }
 
@@ -246,7 +262,7 @@ namespace MediaPortal.UI.Services.ServerConnection
       }
     }
 
-    public UPnPContentDirectoryService ContentDirectoryService
+    public IContentDirectory ContentDirectory
     {
       get
       {
@@ -254,6 +270,17 @@ namespace MediaPortal.UI.Services.ServerConnection
         lock (_syncObj)
           cp = _controlPoint;
         return cp == null ? null : cp.ContentDirectoryService;
+      }
+    }
+
+    public IServerController ServerController
+    {
+      get
+      {
+        UPnPClientControlPoint cp;
+        lock (_syncObj)
+          cp = _controlPoint;
+        return cp == null ? null : cp.ServerControllerService;
       }
     }
 
@@ -282,6 +309,17 @@ namespace MediaPortal.UI.Services.ServerConnection
     public void DetachFromHomeServer()
     {
       ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Detaching from home server");
+      IServerController sc = ServerController;
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      if (sc != null)
+        try
+        {
+          sc.DetachClient(systemResolver.LocalSystemId);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Error detaching from home server '{0}'", e, HomeServerSystemId);
+        }
       UPnPClientControlPoint cp;
       lock (_syncObj)
         cp = _controlPoint;
@@ -291,7 +329,7 @@ namespace MediaPortal.UI.Services.ServerConnection
       {
         ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
         ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
-        settings.HomeServerUUID = null;
+        settings.HomeServerSystemId = null;
         settings.LastHomeServerName = null;
         settings.LastHomeServerSystem = null;
         settingsManager.Save(settings);
@@ -306,7 +344,7 @@ namespace MediaPortal.UI.Services.ServerConnection
       }
     }
 
-    public void SetNewHomeServer(string mpMediaServerUUID)
+    public void SetNewHomeServer(string backendServerSystemId)
     {
       lock (_syncObj)
         if (_serverWatcher != null)
@@ -323,14 +361,16 @@ namespace MediaPortal.UI.Services.ServerConnection
       {
         ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
         ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
-        // Here, we only set the UUID of the new home server. The server's UUID will remain in the settings
+        // Here, we only set the system ID of the new home server. The server's system ID will remain in the settings
         // until method SetNewHomeServer is called again.
-        settings.HomeServerUUID = mpMediaServerUUID;
+        settings.HomeServerSystemId = backendServerSystemId;
         settingsManager.Save(settings);
-        _controlPoint = BuildClientControlPoint(mpMediaServerUUID);
+        _controlPoint = BuildClientControlPoint(backendServerSystemId);
       }
       _controlPoint.Start(); // Outside the lock
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerAttached);
     }
+
+    #endregion
   }
 }

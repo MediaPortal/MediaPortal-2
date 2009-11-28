@@ -38,8 +38,13 @@ namespace MediaPortal.Backend.MediaLibrary
 
   /// <summary>
   /// The media library is a "dumb" data store. It provides search/update methods for all kinds of content stored.
-  /// All media-related management functions (re-imports triggered by a special situation etc.) are handled by the media manager.
+  /// All media-related management functions (re-imports triggered by a special situation etc.) are handled by the
+  /// media management subsystem.
   /// </summary>
+  /// <remarks>
+  /// All system IDs, which are used for defining share or media item locations, are the device UUIDs of the system's
+  /// UPnP servers.
+  /// </remarks>
   public interface IMediaLibrary
   {
     #region Startup & Shutdown
@@ -63,13 +68,13 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <summary>
     /// Lists all media items of the given location.
     /// </summary>
-    /// <param name="system">System of the location to browse.</param>
+    /// <param name="systemId">ID of the system whose location is to browse.</param>
     /// <param name="path">Path of the location to browse.</param>
     /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain at least one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
     /// <returns>Result collection of media items at the given location.</returns>
-    ICollection<MediaItem> Browse(SystemName system, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+    ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         IEnumerable<Guid> optionalRequestedMIATypeIDs);
 
     /// <summary>
@@ -87,21 +92,22 @@ namespace MediaPortal.Backend.MediaLibrary
     #region Media import
 
     /// <summary>
-    /// Adds or updates the media item specified by its location (<paramref name="nativeSystem"/> and <paramref name="path"/>).
+    /// Adds or updates the media item specified by its location (<paramref name="systemId"/> and <paramref name="path"/>).
     /// </summary>
-    /// <param name="nativeSystem">The native system of the media item to be updated.</param>
+    /// <param name="systemId">The ID of the system where the media item to be updated is located.</param>
     /// <param name="path">The path at the given system of the media item to be updated.</param>
     /// <param name="mediaItemAspects">Media item aspects to be updated.</param>
-    void AddOrUpdateMediaItem(SystemName nativeSystem, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
+    void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects);
 
     /// <summary>
-    /// Deletes all media items and directories from the media library which are located at the given
-    /// <paramref name="nativeSystem"/> with the specified <paramref name="path"/>.
+    /// Deletes all media items and directories from the media library which are located at the client with the given
+    /// <paramref name="systemId"/> and the specified <paramref name="path"/>.
     /// </summary>
-    /// <param name="nativeSystem">The native system of the media item or directory to be deleted.</param>
-    /// <param name="path">The path at the given system of the media item or directory to be deleted. The path can be
-    /// the full path of a media item or just a part of the path in case of a directory.</param>
-    void DeleteMediaItemOrPath(SystemName nativeSystem, ResourcePath path);
+    /// <param name="systemId">ID of the system whose media item or directory should be deleted.</param>
+    /// <param name="path">The path of the media item or directory at the system of the given client to be deleted.
+    /// The path can be the full path of a media item or just the first part of the path in case of a directory.
+    /// If this parameter is set to <c>null</c>, all media items of the given client will be deleted.</param>
+    void DeleteMediaItemOrPath(string systemId, ResourcePath path);
 
     #endregion
 
@@ -132,22 +138,26 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <summary>
     /// Creates a new share and adds it to the media library's collection of registered shares.
     /// </summary>
-    /// <param name="nativeSystem">System where the media provider for the new share is located.</param>
+    /// <param name="systemId">ID of the system where the media provider for the new share is located.</param>
     /// <param name="baseResourcePath">Lookup path for the provider resource chain in the specified system.</param>
     /// <param name="shareName">Name of the new share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the new share. If set to <c>null</c>, the new share is a general share without attached media
     /// categories.</param>
     /// <returns>ID of the new share.</returns>
-    Guid CreateShare(SystemName nativeSystem, ResourcePath baseResourcePath,
+    Guid CreateShare(string systemId, ResourcePath baseResourcePath,
         string shareName, IEnumerable<string> mediaCategories);
 
     /// <summary>
     /// Removes the share with the specified id.
     /// </summary>
-    /// <param name="shareId">The id of the share to be removed. The share id is part of the
-    /// <see cref="Share"/> which was returned by the <see cref="RegisterShare"/> method.</param>
+    /// <param name="shareId">Id of the share to be removed.</param>
     void RemoveShare(Guid shareId);
+
+    /// <summary>
+    /// Removes all shares with the specified native <paramref name="systemId"/>.
+    /// </summary>
+    void RemoveSharesOfSystem(string systemId);
 
     /// <summary>
     /// Reconfigures the share with the specified <paramref name="shareId"/>.
@@ -156,8 +166,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// The share's native system cannot be changed by this method, else we would have to consider much more security problems.
     /// </remarks>
     /// <param name="shareId">Id of the share to be changed.</param>
-    /// <param name="nativeSystem">System where the share is located.</param>
-    /// <param name="baseResourcePath">Lookup path for the provider resource chain in the specified system.</param>
+    /// <param name="baseResourcePath">Lookup path for the provider resource chain in the share's system.</param>
     /// <param name="shareName">Name of the share.</param>
     /// <param name="mediaCategories">Categories of media items which are supposed to be contained in
     /// the share. If set to <c>null</c>, the new share is a general share without attached media
@@ -166,17 +175,16 @@ namespace MediaPortal.Backend.MediaLibrary
     /// specified share will be adapted to the new base path. If set to <see cref="RelocationMode.Remove"/>,
     /// all media items from the specified share will be removed from the media library.</param>
     /// <returns>Number of relocated or removed media items.</returns>
-    int UpdateShare(Guid shareId, SystemName nativeSystem, ResourcePath baseResourcePath, string shareName,
+    int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
 
     /// <summary>
     /// Returns all shares which are registered in the MediaPortal server's media library.
     /// </summary>
-    /// <param name="system">Filters the returned shares by system. If <c>null</c>, the returned set isn't filtered
+    /// <param name="systemId">Filters the returned shares by system. If <c>null</c>, the returned set isn't filtered
     /// by system.</param>
-    /// <param name="onlyConnectedShares">If set to <c>true</c>, only shares of connected clients will be returned.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
-    IDictionary<Guid, Share> GetShares(SystemName system, bool onlyConnectedShares);
+    IDictionary<Guid, Share> GetShares(string systemId);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
@@ -186,8 +194,14 @@ namespace MediaPortal.Backend.MediaLibrary
     /// share doesn't exist, the method returns <c>null</c>.</returns>
     Share GetShare(Guid shareId);
 
-    void ConnectShares(ICollection<Guid> shareIds);
-    void DisconnectShares(ICollection<Guid> shareIds);
+    #endregion
+
+    #region Client online registration
+
+    IDictionary<string, SystemName> OnlineClients { get; }
+
+    void NotifySystemOnline(string systemId, SystemName currentSystemName);
+    void NotifySystemOffline(string systemId);
 
     #endregion
   }

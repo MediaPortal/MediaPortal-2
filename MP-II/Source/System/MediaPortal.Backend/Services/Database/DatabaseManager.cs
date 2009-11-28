@@ -34,6 +34,8 @@ namespace MediaPortal.Backend.Services.Database
 {
   public class DatabaseManager : IDatabaseManager, IDisposable
   {
+    public const string DUMMY_TABLE_NAME = "DUMMY";
+
     public void Dispose()
     {
     }
@@ -49,6 +51,11 @@ namespace MediaPortal.Backend.Services.Database
     }
 
     #region IDatabaseManager implementation
+
+    public string DummyTableName
+    {
+      get { return DUMMY_TABLE_NAME; }
+    }
 
     public void Startup()
     {

@@ -28,6 +28,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.PluginManager;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Core.Services.MediaManagement
@@ -263,10 +264,8 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyMusic, out folderPath))
         {
           folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
-          Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] {DefaultMediaCategory.Audio.ToString()};
-          Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
+          Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
               MY_MUSIC_SHARE_NAME_RESOURE, mediaCategories);
           result.Add(sd);
         }
@@ -274,10 +273,8 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyVideos, out folderPath))
         {
           folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
-          Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Video.ToString() };
-          Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
+          Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
               MY_VIDEOS_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
@@ -285,10 +282,8 @@ namespace MediaPortal.Core.Services.MediaManagement
         if (WindowsAPI.GetSpecialFolder(WindowsAPI.SpecialFolder.MyPictures, out folderPath))
         {
           folderPath = LocalFsMediaProviderBase.ToProviderPath(folderPath);
-          Guid shareId = Guid.NewGuid();
           string[] mediaCategories = new[] { DefaultMediaCategory.Image.ToString() };
-          Share sd = new Share(
-              shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
+          Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(localFsMediaProviderId, folderPath),
               MY_PICTURES_SHARE_NAME_RESOURCE, mediaCategories);
           result.Add(sd);
         }
@@ -299,9 +294,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       foreach (IBaseMediaProvider mediaProvider in LocalBaseMediaProviders)
       {
         MediaProviderMetadata metadata = mediaProvider.Metadata;
-        Guid shareId = Guid.NewGuid();
-        Share sd = new Share(
-            shareId, SystemName.GetLocalSystemName(), ResourcePath.BuildBaseProviderPath(metadata.MediaProviderId, "/"),
+        Share sd = Share.CreateNewLocalShare(ResourcePath.BuildBaseProviderPath(metadata.MediaProviderId, "/"),
             metadata.Name, null);
         result.Add(sd);
       }
@@ -353,9 +346,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       if (item == null || !item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
         return null;
       MediaItemAspect providerAspect = item[ProviderResourceAspect.ASPECT_ID];
-      string hostName = (string) providerAspect[ProviderResourceAspect.ATTR_SOURCE_COMPUTER];
+      string systemId = (string) providerAspect[ProviderResourceAspect.ATTR_SYSTEM_ID];
       string resourceAccessorPath = (string) providerAspect[ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH];
-      return new ResourceLocator(new SystemName(hostName), ResourcePath.Deserialize(resourceAccessorPath));
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      SystemName systemName = systemResolver.GetSystemNameForSystemId(systemId);
+      if (systemName == null)
+        throw new ArgumentException(string.Format("Media item cannot be located, system ID '{0}' cannot be resolved", systemId));
+      return new ResourceLocator(systemName, ResourcePath.Deserialize(resourceAccessorPath));
     }
 
     #endregion

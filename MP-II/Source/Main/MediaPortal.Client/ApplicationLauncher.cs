@@ -27,6 +27,7 @@ using System.Windows.Forms;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Runtime;
+using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
 #if !DEBUG

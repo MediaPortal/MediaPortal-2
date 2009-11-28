@@ -1,6 +1,11 @@
 -- This script creates the MediaPortal basis schema. DO NOT MODIFY!
 -- Albert, 2009-08-15
 
+-- Dummy table, like "DUAL" in Oracle
+CREATE TABLE DUMMY (
+  X %INTEGER%
+);
+
 -- Basis-Table where all sub schemas are registered with their current version number.
 CREATE TABLE MEDIAPORTAL_BASIS (
   SUBSCHEMA_NAME %STRING(100)% NOT NULL PRIMARY KEY,

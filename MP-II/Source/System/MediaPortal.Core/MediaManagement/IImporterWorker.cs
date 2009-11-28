@@ -24,9 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Core.ImporterWorker
+namespace MediaPortal.Core.MediaManagement
 {
   public interface IMediaLibraryCallback
   {
@@ -51,6 +50,12 @@ namespace MediaPortal.Core.ImporterWorker
     void EndImport(ResourcePath path);
 
     /// <summary>
+    /// Called when an error occurs while importing the given <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path">Path which could not be imported.</param>
+    void ImportError(ResourcePath path);
+
+    /// <summary>
     /// Adds or updates the metadata of the specified media item.
     /// </summary>
     /// <param name="path">Path of the media item's resource.</param>
@@ -62,12 +67,6 @@ namespace MediaPortal.Core.ImporterWorker
     /// </summary>
     /// <param name="path">Location of the media item to delete.</param>
     void DeleteMediaItem(ResourcePath path);
-
-    /// <summary>
-    /// Called when an error occurs while importing the given <paramref name="resource"/>.
-    /// </summary>
-    /// <param name="resource">Resource which could not be imported.</param>
-    void ImportError(IResourceAccessor resource);
   }
 
   public interface IImporterWorker

@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
@@ -58,12 +57,6 @@ namespace MediaPortal.UI.Services.Shares
     protected const string LOCAL_FS_MEDIAPROVIDER_ID = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
 
     protected IDictionary<Guid, Share> _shares = new Dictionary<Guid, Share>();
-
-    #endregion
-
-    #region Ctor
-
-    public LocalSharesManagement() { }
 
     #endregion
 
@@ -112,7 +105,7 @@ namespace MediaPortal.UI.Services.Shares
 
     public Share RegisterShare(ResourcePath baseResourcePath, string shareName, IEnumerable<string> mediaCategories)
     {
-      Share sd = Share.CreateNewShare(SystemName.GetLocalSystemName(), baseResourcePath,
+      Share sd = Share.CreateNewLocalShare(baseResourcePath,
           shareName, mediaCategories);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();

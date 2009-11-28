@@ -25,11 +25,11 @@
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.UI.Services.ServerConnection.Settings
+namespace MediaPortal.UI.ServerCommunication.Settings
 {
   public class ServerConnectionSettings
   {
-    protected string _homeServerUUID = null;
+    protected string _homeServerSystemId = null;
     protected string _lastHomeServerName;
     protected SystemName _lastHomeServerSystem;
 
@@ -38,10 +38,10 @@ namespace MediaPortal.UI.Services.ServerConnection.Settings
     /// of this UUID.
     /// </summary>
     [Setting(SettingScope.Global)]
-    public string HomeServerUUID
+    public string HomeServerSystemId
     {
-      get { return _homeServerUUID; }
-      set { _homeServerUUID = value; }
+      get { return _homeServerSystemId; }
+      set { _homeServerSystemId = value; }
     }
 
     /// <summary>

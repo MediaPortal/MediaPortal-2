@@ -130,10 +130,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #endregion
 
-    public DialogManager()
-    {
-    }
-
     public GenericDialogData CurrentDialogData
     {
       get { return _dialogData; }

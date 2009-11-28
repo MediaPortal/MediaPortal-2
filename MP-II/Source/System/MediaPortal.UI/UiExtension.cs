@@ -22,31 +22,37 @@
 
 #endregion
 
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.UI.Builders;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Services.SystemResolver;
 using MediaPortal.UI.Shares;
 using MediaPortal.UI.Thumbnails;
 using MediaPortal.UI.UserManagement;
 using MediaPortal.UI.Services.Players;
-using MediaPortal.UI.Services.ServerConnection;
+using MediaPortal.UI.Services.ServerCommunication;
 using MediaPortal.UI.Services.Shares;
 using MediaPortal.UI.Services.ThumbnailGenerator;
 using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UI.Services.Workflow;
 using MediaPortal.UI.Services.MediaManagement;
 
-namespace MediaPortal
+namespace MediaPortal.UI
 {
   public class UiExtension
   {
     public static void RegisterUiServices()
     {
       ILogger logger = ServiceScope.Get<ILogger>();
+
+      logger.Debug("UiExtension: Registering ISystemResolver service");
+      ServiceScope.Add<ISystemResolver>(new SystemResolver());
 
       logger.Debug("UiExtension: Registering IWorkflowManager service");
       ServiceScope.Add<IWorkflowManager>(new WorkflowManager());
@@ -72,6 +78,9 @@ namespace MediaPortal
       logger.Debug("UiExtension: Registering IMediaItemAspectTypeRegistration service");
       ServiceScope.Add<IMediaItemAspectTypeRegistration>(new MediaItemAspectTypeRegistration());
 
+      logger.Debug("UiExtension: Registering IFrontendServer service");
+      ServiceScope.Add<IFrontendServer>(new Services.FrontendServer.FrontendServer());
+
       AdditionalUiBuilders.Register();
     }
 
@@ -92,6 +101,9 @@ namespace MediaPortal
       ILogger logger = ServiceScope.Get<ILogger>();
 
       // Reverse order than method RegisterUiServices()
+
+      logger.Debug("UiExtension: Removing IFrontendServer service");
+      ServiceScope.RemoveAndDispose<IFrontendServer>();
 
       logger.Debug("UiExtension: Removing IMediaItemAspectTypeRegistration service");
       ServiceScope.RemoveAndDispose<IMediaItemAspectTypeRegistration>();
@@ -116,6 +128,9 @@ namespace MediaPortal
 
       logger.Debug("UiExtension: Removing IWorkflowManager service");
       ServiceScope.RemoveAndDispose<IWorkflowManager>();
+
+      logger.Debug("UiExtension: Removing ISystemResolver service");
+      ServiceScope.RemoveAndDispose<ISystemResolver>();
     }
 
     /// <summary>

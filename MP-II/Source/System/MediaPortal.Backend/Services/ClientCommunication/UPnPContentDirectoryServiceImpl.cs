@@ -24,8 +24,9 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.ImporterScheduler;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
@@ -35,7 +36,7 @@ using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Backend.ClientCommunication
+namespace MediaPortal.Backend.Services.ClientCommunication
 {
   /// <summary>
   /// Provides the UPnP service for the MediaPortal-II content directory.
@@ -45,13 +46,11 @@ namespace MediaPortal.Backend.ClientCommunication
   /// different data structure for media items, so it isn't compatible with the standard ContentDirectory service. It also
   /// provides special actions to manage shares and media item aspect metadata schemas.
   /// </remarks>
-  public class UPnPContentDirectoryService : DvService
+  public class UPnPContentDirectoryServiceImpl : DvService
   {
-    public const string SERVICE_TYPE = "schemas-team-mediaportal-com:service:ContentDirectory";
-    public const int SERVICE_TYPE_VERSION = 1;
-    public const string SERVICE_ID = "urn:team-mediaportal-com:serviceId:ContentDirectory";
-
-    public UPnPContentDirectoryService() : base(SERVICE_TYPE, SERVICE_TYPE_VERSION, SERVICE_ID)
+    public UPnPContentDirectoryServiceImpl() : base(
+        UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE, UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_TYPE_VERSION,
+        UPnPTypesAndIds.CONTENT_DIRECTORY_SERVICE_ID)
     {
       // Used for several parameters and result values
       DvStateVariable A_ARG_TYPE_Count = new DvStateVariable("A_ARG_TYPE_Count", new DvStandardDataType(UPnPStandardDataType.Int))
@@ -74,15 +73,15 @@ namespace MediaPortal.Backend.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_UuidEnumeration);
 
-      // Used to transport a system name - contains the hostname string
-      DvStateVariable A_ARG_TYPE_SystemName = new DvStateVariable("A_ARG_TYPE_SystemName", new DvStandardDataType(UPnPStandardDataType.String))
+      // Used for a system ID string
+      DvStateVariable A_ARG_TYPE_SystemId = new DvStateVariable("A_ARG_TYPE_SystemId", new DvStandardDataType(UPnPStandardDataType.String))
           {
             SendEvents = false
           };
-      AddStateVariable(A_ARG_TYPE_SystemName);
+      AddStateVariable(A_ARG_TYPE_SystemId);
 
-      // Used to transport a provider path expression
-      DvStateVariable A_ARG_TYPE_ResourcePath = new DvStateVariable("A_ARG_TYPE_ProviderPath", new DvStandardDataType(UPnPStandardDataType.String))
+      // Used to transport a resource path expression
+      DvStateVariable A_ARG_TYPE_ResourcePath = new DvStateVariable("A_ARG_TYPE_ResourcePath", new DvStandardDataType(UPnPStandardDataType.String))
           {
             SendEvents = false
           };
@@ -167,7 +166,7 @@ namespace MediaPortal.Backend.ClientCommunication
         };
       AddStateVariable(A_ARG_TYPE_MediaItemAttributeValues);
 
-      // Used to transport a collection of media item aspects for a media item specified elsewhere
+      // Used to transport an enumeration of media item aspects for a media item specified elsewhere
       DvStateVariable A_ARG_TYPE_MediaItemAspects = new DvStateVariable("A_ARG_TYPE_MediaItemAspects", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemAspects))
         {
             SendEvents = false,
@@ -208,7 +207,7 @@ namespace MediaPortal.Backend.ClientCommunication
 
       DvAction getSharesAction = new DvAction("GetShares", OnGetShares,
           new DvArgument[] {
-            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("SharesFilter", A_ARG_TYPE_SharesFilter, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -272,7 +271,7 @@ namespace MediaPortal.Backend.ClientCommunication
 
       DvAction browseAction = new DvAction("Browse", OnBrowse,
           new DvArgument[] {
-            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
@@ -297,7 +296,7 @@ namespace MediaPortal.Backend.ClientCommunication
 
       DvAction addOrUpdateMediaItemAction = new DvAction("AddOrUpdateMediaItem", OnAddOrUpdateMediaItem,
           new DvArgument[] {
-            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("UpdatedMediaItemAspects", A_ARG_TYPE_MediaItemAspects, ArgumentDirection.In),
           },
@@ -307,7 +306,7 @@ namespace MediaPortal.Backend.ClientCommunication
 
       DvAction deleteMediaItemOrPathAction = new DvAction("DeleteMediaItemOrPath", OnDeleteMediaItemOrPath,
           new DvArgument[] {
-            new DvArgument("System", A_ARG_TYPE_SystemName, ArgumentDirection.In),
+            new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -321,6 +320,8 @@ namespace MediaPortal.Backend.ClientCommunication
     {
       Share share = (Share) inParams[0];
       ServiceScope.Get<IMediaLibrary>().RegisterShare(share);
+      IImporterScheduler importerScheduler = ServiceScope.Get<IImporterScheduler>();
+      importerScheduler.InvalidatePath(share.SystemId, share.BaseResourcePath);
       outParams = null;
       return null;
     }
@@ -355,18 +356,19 @@ namespace MediaPortal.Backend.ClientCommunication
       }
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
       Share oldShare = mediaLibrary.GetShare(shareId);
-      int numAffected = mediaLibrary.UpdateShare(
-          shareId, oldShare.NativeSystem, baseResourcePath, shareName, mediaCategories, relocationMode);
-      // TODO
-      //if (relocationMode == RelocationMode.Remove)
-      //  ... schedule reimport of new diretory ...
+      int numAffected = mediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, mediaCategories, relocationMode);
+      if (relocationMode == RelocationMode.Remove)
+      {
+        IImporterScheduler importerScheduler = ServiceScope.Get<IImporterScheduler>();
+        importerScheduler.InvalidatePath(oldShare.SystemId, baseResourcePath);
+      }
       outParams = new List<object> {numAffected};
       return null;
     }
 
     static UPnPError OnGetShares(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      SystemName system = new SystemName((string) inParams[0]);
+      string systemId = (string) inParams[0];
       string sharesFilterStr = (string) inParams[1];
       bool onlyConnected;
       switch (sharesFilterStr)
@@ -381,8 +383,21 @@ namespace MediaPortal.Backend.ClientCommunication
           outParams = null;
           return new UPnPError(600, "Argument 'SharesFilter' must be of value 'All' or 'ConnectedShares'");
       }
-      IDictionary<Guid, Share> shares = ServiceScope.Get<IMediaLibrary>().GetShares(system, onlyConnected);
-      outParams = new List<object> {shares.Values};
+      IDictionary<Guid, Share> shares = ServiceScope.Get<IMediaLibrary>().GetShares(systemId);
+      ICollection<Share> result;
+      if (onlyConnected)
+      {
+        ICollection<string> connectedClientsIds = new List<string>();
+        foreach (ClientConnection connection in ServiceScope.Get<IClientManager>().ConnectedClients)
+          connectedClientsIds.Add(connection.Descriptor.MPFrontendServerUUID);
+        result = new List<Share>();
+        foreach (Share share in shares.Values)
+          if (connectedClientsIds.Contains(share.SystemId))
+            result.Add(share);
+      }
+      else
+        result = shares.Values;
+      outParams = new List<object> {result};
       return null;
     }
 
@@ -436,11 +451,11 @@ namespace MediaPortal.Backend.ClientCommunication
 
     static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      SystemName system = (SystemName) inParams[0];
+      string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       IEnumerable<Guid> necessaryMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[2]);
       IEnumerable<Guid> optionalMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[3]);
-      ICollection<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Browse(system, path, necessaryMIATypes, optionalMIATypes);
+      ICollection<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Browse(systemId, path, necessaryMIATypes, optionalMIATypes);
       outParams = new List<object> {mediaItems};
       return null;
     }
@@ -466,19 +481,19 @@ namespace MediaPortal.Backend.ClientCommunication
 
     static UPnPError OnAddOrUpdateMediaItem(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      SystemName system = (SystemName) inParams[0];
+      string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
-      ICollection<MediaItemAspect> mediaItemAspects = (ICollection<MediaItemAspect>) inParams[2];
-      ServiceScope.Get<IMediaLibrary>().AddOrUpdateMediaItem(system, path, mediaItemAspects);
+      IEnumerable<MediaItemAspect> mediaItemAspects = (IEnumerable<MediaItemAspect>) inParams[2];
+      ServiceScope.Get<IMediaLibrary>().AddOrUpdateMediaItem(systemId, path, mediaItemAspects);
       outParams = null;
       return null;
     }
 
     static UPnPError OnDeleteMediaItemOrPath(DvAction action, IList<object> inParams, out IList<object> outParams)
     {
-      SystemName system = (SystemName) inParams[0];
+      string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
-      ServiceScope.Get<IMediaLibrary>().DeleteMediaItemOrPath(system, path);
+      ServiceScope.Get<IMediaLibrary>().DeleteMediaItemOrPath(systemId, path);
       outParams = null;
       return null;
     }

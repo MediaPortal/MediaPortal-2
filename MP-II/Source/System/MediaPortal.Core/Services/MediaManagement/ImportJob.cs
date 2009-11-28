@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Core.ImporterWorker;
 using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Core.Services.MediaManagement

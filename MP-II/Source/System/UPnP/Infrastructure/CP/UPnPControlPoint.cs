@@ -280,7 +280,7 @@ namespace UPnP.Infrastructure.CP
         {
           // Handle different HTTP methods here
           if (request.Method == "NOTIFY")
-          { // GET of descriptions
+          {
             if (uri.StartsWith(connection.EventNotificationURL))
             {
               IHttpResponse response = request.CreateResponse(context);

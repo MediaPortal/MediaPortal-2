@@ -53,11 +53,27 @@ namespace UPnP.Infrastructure.Utils
       writer.WriteEndAttribute();
     }
 
-    public static bool ReadNull(XmlReader reader)
+    public static bool IsNull(XmlReader reader)
     {
       bool result = reader.MoveToAttribute("null", UPnPConsts.NS_XSI) && reader.ReadContentAsBoolean();
       reader.MoveToElement();
       return result;
+    }
+
+    public static bool ReadNull(XmlReader reader)
+    {
+      if (IsNull(reader))
+      {
+        if (reader.IsEmptyElement)
+          reader.ReadStartElement();
+        else
+        {
+          reader.ReadStartElement();
+          reader.ReadEndElement();
+        }
+        return true;
+      }
+      return false;
     }
 
     public static bool ReadEmptyElement(XmlReader reader)

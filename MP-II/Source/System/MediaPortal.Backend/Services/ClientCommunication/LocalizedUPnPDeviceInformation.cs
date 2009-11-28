@@ -31,7 +31,7 @@ using MediaPortal.Core.Settings;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Backend.ClientCommunication
+namespace MediaPortal.Backend.Services.ClientCommunication
 {
   public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
   {

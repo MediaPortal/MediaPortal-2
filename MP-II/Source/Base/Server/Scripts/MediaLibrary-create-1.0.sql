@@ -1,16 +1,11 @@
 -- This script creates the MediaLibrary schema. DO NOT MODIFY!
--- Albert, 2009-10-16
-
-CREATE TABLE DUMMY (
-  X %INTEGER%
-);
+-- Albert, 2009-11-25
 
 CREATE TABLE SHARES (
   SHARE_ID %STRING_FIXED(36)% NOT NULL PRIMARY KEY,
-  SYSTEM_NAME %STRING(100)% NOT NULL,
+  SYSTEM_ID %STRING(100)% NOT NULL,
   BASE_RESOURCE_PATH %STRING(2000)% NOT NULL,
   NAME %STRING(2000)% NOT NULL,
-  IS_ONLINE %BOOLEAN%
 );
   
 CREATE TABLE SHARES_CATEGORIES (
@@ -22,7 +17,7 @@ CREATE TABLE SHARES_CATEGORIES (
 );
 
 -- Stores all managed MIAM instances. Each entry in this table has corresponding schema objects which
--- belong to its attributes and which store the related media item aspect instances
+-- belong to its attributes and which store the related media item aspect instances.
 CREATE TABLE MIA_TYPES (
   MIAM_ID %STRING_FIXED(36)% NOT NULL PRIMARY KEY,
   NAME %STRING(2000)% NOT NULL,

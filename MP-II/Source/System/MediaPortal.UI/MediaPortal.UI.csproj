@@ -51,6 +51,7 @@
     <Compile Include="Builders\AdditionalUiBuilders.cs" />
     <Compile Include="Builders\BackgroundBuilder.cs" />
     <Compile Include="Builders\StaticBackgroundManager.cs" />
+    <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
     <Compile Include="Presentation\AutoPlay\IAutoPlay.cs" />
@@ -111,6 +112,11 @@
     <Compile Include="ServerCommunication\ServerDescriptor.cs" />
     <Compile Include="ServerCommunication\IServerConnectionManager.cs" />
     <Compile Include="ServerCommunication\ServerConnectionMessaging.cs" />
+    <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
+    <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
+    <Compile Include="ServerCommunication\IServerController.cs" />
+    <Compile Include="ServerCommunication\IContentDirectory.cs" />
+    <Compile Include="Services\FrontendServer\FrontendServer.cs" />
     <Compile Include="Services\Logging\UiCrashLogger.cs" />
     <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
     <Compile Include="Services\Players\PlayerBuilderRegistration.cs" />
@@ -120,19 +126,27 @@
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
     <Compile Include="Services\Players\Settings\FadingSettings.cs" />
-    <Compile Include="Services\ServerConnection\ServerConnectionManager.cs" />
-    <Compile Include="Services\ServerConnection\Settings\ServerConnectionSettings.cs" />
+    <Compile Include="Services\ServerCommunication\ImportResultCallback.cs" />
+    <Compile Include="Services\ServerCommunication\LocalizedUPnPDeviceInformation.cs" />
+    <Compile Include="Services\ServerCommunication\MediaLibraryCallback.cs" />
+    <Compile Include="Services\ServerCommunication\MP2FrontendServerDevice.cs" />
+    <Compile Include="Services\ServerCommunication\ServerConnectionManager.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPClientControllerServiceImpl.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPClientControlPoint.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPFrontendServer.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
+    <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
     <Compile Include="Services\Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
+    <Compile Include="Services\SystemResolver\SystemResolver.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabase.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\ThumbDatabaseCache.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailBuilder.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
     <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
-    <Compile Include="ServerCommunication\UPnPContentDirectoryService.cs" />
-    <Compile Include="ServerCommunication\UPnPServerWatcher.cs" />
     <Compile Include="Services\UserManagement\Permission.cs" />
     <Compile Include="Services\UserManagement\Role.cs" />
     <Compile Include="Services\UserManagement\User.cs" />
@@ -155,7 +169,6 @@
     <Compile Include="Views\View.cs" />
     <Compile Include="Views\ViewCollectionViewSpecification.cs" />
     <Compile Include="Views\ViewSpecification.cs" />
-    <Compile Include="ServerCommunication\UPnPClientControlPoint.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">

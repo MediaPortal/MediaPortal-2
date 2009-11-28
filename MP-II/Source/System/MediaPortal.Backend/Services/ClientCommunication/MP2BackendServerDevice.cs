@@ -22,21 +22,19 @@
 
 #endregion
 
+using MediaPortal.Core.UPnP;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
-namespace MediaPortal.Backend.ClientCommunication
+namespace MediaPortal.Backend.Services.ClientCommunication
 {
   public class MP2BackendServerDevice : DvDevice
   {
-    public const string DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
-    public const int DEVICE_TYPE_VERSION = 1;
-
-    public MP2BackendServerDevice(string deviceUuid) : base(DEVICE_TYPE, DEVICE_TYPE_VERSION, deviceUuid,
+    public MP2BackendServerDevice(string deviceUuid) : base(
+        UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.BACKEND_SERVER_DEVICE_TYPE_VERSION, deviceUuid,
         new LocalizedUPnPDeviceInformation())
     {
-      AddService(new UPnPContentDirectoryService());
-      // TODO: Client manager service with method to register the online state of a client - will communicate with the
-      //       system's client manager.
+      AddService(new UPnPContentDirectoryServiceImpl());
+      AddService(new UPnPServerControllerServiceImpl());
       // TODO: Connection manager (is our notion of a connection manager compatible with that of the UPnP standard MediaServer?)
       // TODO: Recording service (dito)
     }

@@ -35,7 +35,7 @@ using MediaPortal.Utilities;
 namespace MediaPortal.Backend.Services.MediaLibrary
 {
   /// <summary>
-  /// Creates SQL commands for the communication with the MEDIALIBRARY subschema.
+  /// Creates SQL commands for the communication with the MediaLibrary subschema.
   /// </summary>
   public class MediaLibrary_SubSchema
   {
@@ -49,7 +49,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
     internal const string MEDIA_ITEM_ID_SEQUENCE_NAME = "MEDIA_ITEM_ID_GEN";
-    internal const string DUMMY_TABLE_NAME = "DUMMY";
 
     #endregion
 
@@ -140,13 +139,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public static IDbCommand SelectShareIdCommand(ITransaction transaction,
-        SystemName nativeSystem, ResourcePath baseResourcePath, out int shareIdIndex)
+        string systemId, ResourcePath baseResourcePath, out int shareIdIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_NAME=? AND BASE_RESOURCE_PATH=?";
+      result.CommandText = "SELECT SHARE_ID FROM SHARES WHERE SYSTEM_ID=? AND BASE_RESOURCE_PATH=?";
 
       IDbDataParameter param = result.CreateParameter();
-      param.Value = nativeSystem.HostName;
+      param.Value = systemId;
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
@@ -157,60 +156,57 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public static IDbCommand SelectSharesCommand(ITransaction transaction, out int shareIdIndex, out int nativeSystemIndex,
-        out int baseResourcePathIndex, out int shareNameIndex, out int isOnlineIndex)
-    {
-      IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, BASE_RESOURCE_PATH, NAME, IS_ONLINE FROM SHARES";
-
-      shareIdIndex = 0;
-      nativeSystemIndex = 1;
-      baseResourcePathIndex = 2;
-      shareNameIndex = 3;
-      isOnlineIndex = 4;
-      return result;
-    }
-
-    public static IDbCommand SelectShareByIdCommand(ITransaction transaction, Guid shareId, out int nativeSystemIndex,
+    public static IDbCommand SelectSharesCommand(ITransaction transaction, out int shareIdIndex, out int systemIdIndex,
         out int baseResourcePathIndex, out int shareNameIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SYSTEM_NAME, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SHARE_ID=?";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES";
+
+      shareIdIndex = 0;
+      systemIdIndex = 1;
+      baseResourcePathIndex = 2;
+      shareNameIndex = 3;
+      return result;
+    }
+
+    public static IDbCommand SelectShareByIdCommand(ITransaction transaction, Guid shareId, out int systemIdIndex,
+        out int baseResourcePathIndex, out int shareNameIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+      result.CommandText = "SELECT SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SHARE_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareId.ToString();
       result.Parameters.Add(param);
 
-      nativeSystemIndex = 0;
+      systemIdIndex = 0;
       baseResourcePathIndex = 1;
       shareNameIndex = 2;
       return result;
     }
 
-    public static IDbCommand SelectSharesByNativeSystemCommand(ITransaction transaction, SystemName nativeSystem,
-        out int shareIdIndex, out int nativeSystemIndex, out int baseResourcePathIndex,
-        out int shareNameIndex, out int isOnlineIndex)
+    public static IDbCommand SelectSharesBySystemCommand(ITransaction transaction, string systemId,
+        out int shareIdIndex, out int systemIdIndex, out int baseResourcePathIndex, out int shareNameIndex)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "SELECT SHARE_ID, SYSTEM_NAME, BASE_RESOURCE_PATH, NAME, IS_ONLINE FROM SHARES WHERE SYSTEM_NAME=?";
+      result.CommandText = "SELECT SHARE_ID, SYSTEM_ID, BASE_RESOURCE_PATH, NAME FROM SHARES WHERE SYSTEM_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
-      param.Value = nativeSystem.HostName;
+      param.Value = systemId;
       result.Parameters.Add(param);
 
       shareIdIndex = 0;
-      nativeSystemIndex = 1;
+      systemIdIndex = 1;
       baseResourcePathIndex = 2;
       shareNameIndex = 3;
-      isOnlineIndex = 4;
       return result;
     }
 
-    public static IDbCommand InsertShareCommand(ITransaction transaction, Guid shareId, SystemName nativeSystem,
-        ResourcePath baseResourcePath, string shareName, bool isOnline)
+    public static IDbCommand InsertShareCommand(ITransaction transaction, Guid shareId, string systemId,
+        ResourcePath baseResourcePath, string shareName)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_NAME, BASE_RESOURCE_PATH, IS_ONLINE) VALUES (?, ?, ?, ?, ?)";
+      result.CommandText = "INSERT INTO SHARES (SHARE_ID, NAME, SYSTEM_ID, BASE_RESOURCE_PATH) VALUES (?, ?, ?, ?)";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareId.ToString();
@@ -221,15 +217,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
-      param.Value = nativeSystem.HostName;
+      param.Value = systemId;
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
       param.Value = baseResourcePath.Serialize();
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = isOnline;
       result.Parameters.Add(param);
 
       return result;
@@ -280,18 +272,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public static IDbCommand UpdateShareCommand(ITransaction transaction, Guid shareId, SystemName nativeSystem,
-        ResourcePath baseResourcePath, string shareName)
+    public static IDbCommand UpdateShareCommand(ITransaction transaction, Guid shareId, ResourcePath baseResourcePath,
+        string shareName)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "UPDATE SHARES set NAME=?, SYSTEM_NAME=?, BASE_RESOURCE_PATH=? WHERE SHARE_ID=?";
+      result.CommandText = "UPDATE SHARES set NAME=?, BASE_RESOURCE_PATH=? WHERE SHARE_ID=?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = shareName;
-      result.Parameters.Add(param);
-
-      param = result.CreateParameter();
-      param.Value = nativeSystem.HostName;
       result.Parameters.Add(param);
 
       param = result.CreateParameter();
@@ -305,37 +293,33 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public static IDbCommand DeleteShareCommand(ITransaction transaction, Guid shareId)
+    public static IDbCommand DeleteSharesCommand(ITransaction transaction, IEnumerable<Guid> shareIds)
     {
       IDbCommand result = transaction.CreateCommand();
-      result.CommandText = "DELETE FROM SHARES WHERE SHARE_ID=?";
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = shareId.ToString();
-      result.Parameters.Add(param);
-
-      return result;
-    }
-
-    public static IDbCommand SetSharesConnectionStateCommand(ITransaction transaction, IEnumerable<Guid> shareIds,
-        bool connectionState)
-    {
-      IDbCommand result = transaction.CreateCommand();
-
-      IDbDataParameter param = result.CreateParameter();
-      param.Value = connectionState;
-      result.Parameters.Add(param);
 
       ICollection<string> placeholders = new List<string>();
       foreach (Guid shareId in shareIds)
       {
-        param = result.CreateParameter();
+        IDbDataParameter param = result.CreateParameter();
         param.Value = shareId.ToString();
         result.Parameters.Add(param);
 
         placeholders.Add("?");
       }
-      result.CommandText = "UPDATE SHARES SET IS_ONLINE = ? WHERE SHARE_ID IN (" + StringUtils.Join(",", placeholders) + ")";
+      result.CommandText = "DELETE FROM SHARES WHERE SHARE_ID in (" + StringUtils.Join(",", placeholders) + ")";
+
+      return result;
+    }
+
+    public static IDbCommand DeleteSharesOfSystemCommand(ITransaction transaction, string systemId)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "DELETE FROM SHARES WHERE SYSTEM_ID = ?";
+
+      IDbDataParameter param = result.CreateParameter();
+      param.Value = systemId;
+      result.Parameters.Add(param);
 
       return result;
     }
@@ -354,7 +338,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       IDbCommand result = transaction.CreateCommand();
 
-      result.CommandText = "SELECT " + database.GetSelectSequenceCurrValStatement(MEDIA_ITEM_ID_SEQUENCE_NAME) + " FROM " + DUMMY_TABLE_NAME;
+      IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
+      result.CommandText = "SELECT " + database.GetSelectSequenceCurrValStatement(MEDIA_ITEM_ID_SEQUENCE_NAME) + " FROM " + databaseManager.DummyTableName;
 
       return result;
     }

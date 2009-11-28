@@ -44,10 +44,10 @@ namespace MediaPortal.UI.ServerCommunication
     bool IsHomeServerConnected { get; }
 
     /// <summary>
-    /// If this MediaPortal client is attached to a home server, this property gets the UUID of that home server.
+    /// If this MediaPortal client is attached to a home server, this property gets the System ID of that home server.
     /// Else, this property will be <c>null</c>.
     /// </summary>
-    string HomeServerUUID { get; }
+    string HomeServerSystemId { get; }
 
     /// <summary>
     /// Gets the display name of the last connected home server, if this MediaPortal client is attached to a home server.
@@ -62,15 +62,16 @@ namespace MediaPortal.UI.ServerCommunication
     SystemName LastHomeServerSystem { get; }
 
     /// <summary>
-    /// Gets the content directory service stub connected to the MediaPortal server's content directory service.
+    /// Gets a proxy object to communicate with the MediaPortal server's content directory service.
     /// If the home server is not connected, this value is <c>null</c>.
     /// </summary>
-    /// <remarks>
-    /// Implementation hint:
-    /// We publish the actual UPnP implementation of the content directory service here, because it would be too much work
-    /// to encapsulate the whole UPnP system.
-    /// </remarks>
-    UPnPContentDirectoryService ContentDirectoryService { get; }
+    IContentDirectory ContentDirectory { get; }
+
+    /// <summary>
+    /// Gets a proxy object to communicate with the MediaPortal server's server controller service.
+    /// If the home server is not connected, this value is <c>null</c>.
+    /// </summary>
+    IServerController ServerController { get; }
 
     /// <summary>
     /// Starts the UPnP subsystem and tries to connect to the home server, if set.
@@ -89,9 +90,9 @@ namespace MediaPortal.UI.ServerCommunication
     void DetachFromHomeServer();
 
     /// <summary>
-    /// Sets the server with the UUID <paramref name="mpMediaServerUUID"/> as new home server and tries to connect to it.
+    /// Sets the server with the given <paramref name="backendServerSystemId"/> as new home server and tries to connect to it.
     /// </summary>
-    /// <param name="mpMediaServerUUID">UUID of the MediaPortal server to set as home server.</param>
-    void SetNewHomeServer(string mpMediaServerUUID);
+    /// <param name="backendServerSystemId">System Id of the MediaPortal server to set as home server.</param>
+    void SetNewHomeServer(string backendServerSystemId);
   }
 }

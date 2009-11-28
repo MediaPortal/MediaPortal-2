@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using MediaPortal.Core.ImporterWorker;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
@@ -199,7 +198,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           catch (Exception e)
           {
             ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
-            resultCallback.ImportError(fileAccessor);
+            resultCallback.ImportError(fileAccessor.LocalResourcePath);
           }
         }
         if (jobType == ImportJobType.Refresh)
@@ -220,7 +219,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing directory '{0}'", e, directoryAccessor.LocalResourcePath);
-        resultCallback.ImportError(directoryAccessor);
+        resultCallback.ImportError(directoryAccessor.LocalResourcePath);
       }
     }
 
@@ -255,7 +254,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
-        resultCallback.ImportError(fileAccessor);
+        resultCallback.ImportError(fileAccessor.LocalResourcePath);
       }
     }
 
@@ -265,32 +264,40 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <param name="importJob">Import job to be executed.</param>
     protected void Process(ImportJob importJob)
     {
-      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-      ICollection<Guid> metadataExtractorIds = new HashSet<Guid>();
-      foreach (string mediaCategory in importJob.MediaCategories)
-        CollectionUtils.AddAll(metadataExtractorIds, mediaAccessor.GetMetadataExtractorsForCategory(mediaCategory));
-      ICollection<MediaItemAspectMetadata> mediaItemAspectTypes = new HashSet<MediaItemAspectMetadata>();
-      ICollection<IMetadataExtractor> metadataExtractors = new List<IMetadataExtractor>();
-      foreach (Guid metadataExtractorId in metadataExtractorIds)
+      try
       {
-        IMetadataExtractor extractor;
-        if (!mediaAccessor.LocalMetadataExtractors.TryGetValue(metadataExtractorId, out extractor))
-          continue;
-        metadataExtractors.Add(extractor);
-        CollectionUtils.AddAll(mediaItemAspectTypes, extractor.Metadata.ExtractedAspectTypes.Values);
-      }
-      IResourceAccessor accessor = importJob.Path.CreateLocalMediaItemAccessor();
-      if (accessor.IsFile || !(accessor is IFileSystemResourceAccessor))
-        ImportFile(importJob.JobType, accessor, metadataExtractors, mediaItemAspectTypes,
-            importJob.MediaLibraryCallback, importJob.ResultCallback, mediaAccessor);
-      else
-      {
-        IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) accessor;
-        if (fsra.IsDirectory)
-          ImportDirectory(importJob.JobType, fsra, metadataExtractors, mediaItemAspectTypes,
-              importJob.MediaLibraryCallback, importJob.ResultCallback, importJob.IncludeSubdirectories, mediaAccessor);
+        IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+        ICollection<Guid> metadataExtractorIds = new HashSet<Guid>();
+        foreach (string mediaCategory in importJob.MediaCategories)
+          CollectionUtils.AddAll(metadataExtractorIds, mediaAccessor.GetMetadataExtractorsForCategory(mediaCategory));
+        ICollection<MediaItemAspectMetadata> mediaItemAspectTypes = new HashSet<MediaItemAspectMetadata>();
+        ICollection<IMetadataExtractor> metadataExtractors = new List<IMetadataExtractor>();
+        foreach (Guid metadataExtractorId in metadataExtractorIds)
+        {
+          IMetadataExtractor extractor;
+          if (!mediaAccessor.LocalMetadataExtractors.TryGetValue(metadataExtractorId, out extractor))
+            continue;
+          metadataExtractors.Add(extractor);
+          CollectionUtils.AddAll(mediaItemAspectTypes, extractor.Metadata.ExtractedAspectTypes.Values);
+        }
+        IResourceAccessor accessor = importJob.Path.CreateLocalMediaItemAccessor();
+        if (accessor.IsFile || !(accessor is IFileSystemResourceAccessor))
+          ImportFile(importJob.JobType, accessor, metadataExtractors, mediaItemAspectTypes,
+              importJob.MediaLibraryCallback, importJob.ResultCallback, mediaAccessor);
         else
-          ServiceScope.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
+        {
+          IFileSystemResourceAccessor fsra = (IFileSystemResourceAccessor) accessor;
+          if (fsra.IsDirectory)
+            ImportDirectory(importJob.JobType, fsra, metadataExtractors, mediaItemAspectTypes,
+                importJob.MediaLibraryCallback, importJob.ResultCallback, importJob.IncludeSubdirectories, mediaAccessor);
+          else
+            ServiceScope.Get<ILogger>().Warn("ImporterWorker: Cannot import resource '{0}': It's neither a file nor a directory", fsra.LocalResourcePath.Serialize());
+        }
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Warn("Error executing import job '{0}'", e, importJob);
+        importJob.ResultCallback.ImportError(importJob.Path);
       }
     }
 
