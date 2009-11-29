@@ -35,12 +35,14 @@ namespace MediaPortal.Backend.ClientCommunication
 
   public class ClientConnection
   {
+    protected UPnPControlPoint _controlPoint;
     protected DeviceConnection _connection;
     protected ClientDescriptor _clientDescriptor;
     protected IClientController _clientController;
 
-    public ClientConnection(DeviceConnection connection, ClientDescriptor clientDescriptor)
+    public ClientConnection(UPnPControlPoint controlPoint, DeviceConnection connection, ClientDescriptor clientDescriptor)
     {
+      _controlPoint = controlPoint;
       _connection = connection;
       _clientDescriptor = clientDescriptor;
       _connection.DeviceDisconnected += OnUPnPDeviceDisconnected;
@@ -81,8 +83,9 @@ namespace MediaPortal.Backend.ClientCommunication
 
     public void Disconnect()
     {
-      _connection.Disconnect(true);
+      _controlPoint.Disconnect(_connection.DeviceUUID);
     }
+
 
     void OnUPnPDeviceDisconnected(DeviceConnection connection)
     {

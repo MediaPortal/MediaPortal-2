@@ -552,7 +552,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public void NotifySystemOnline(string systemId, SystemName currentSystemName)
     {
       lock (_syncObj)
-        _systemsOnline.Add(systemId, currentSystemName);
+        _systemsOnline[systemId] = currentSystemName;
     }
 
     public void NotifySystemOffline(string systemId)

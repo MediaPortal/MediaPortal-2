@@ -206,6 +206,7 @@ namespace UPnP.Infrastructure.CP
     }
 
     protected CPData _cpData;
+    protected UPnPControlPoint _controlPoint;
     protected RootDescriptor _rootDescriptor;
     protected string _deviceUUID;
     protected CpDevice _device;
@@ -218,12 +219,15 @@ namespace UPnP.Infrastructure.CP
     /// Creates a new <see cref="DeviceConnection"/> to the UPnP device contained in the given
     /// <paramref name="rootDescriptor"/> with the given <paramref name="deviceUuid"/>.
     /// </summary>
+    /// <param name="controlPoint">Control point hosting the new device connection instance.</param>
     /// <param name="rootDescriptor">Root descriptor containing the description of the UPnP device to connect.</param>
     /// <param name="deviceUuid">UUID of the UPnP device to connect.</param>
     /// <param name="cpData">Shared control point data structure.</param>
     /// <param name="dataTypeResolver">Delegate method to resolve extended datatypes.</param>
-    public DeviceConnection(RootDescriptor rootDescriptor, string deviceUuid, CPData cpData, DataTypeResolverDlgt dataTypeResolver)
+    public DeviceConnection(UPnPControlPoint controlPoint, RootDescriptor rootDescriptor, string deviceUuid,
+        CPData cpData, DataTypeResolverDlgt dataTypeResolver)
     {
+      _controlPoint = controlPoint;
       _cpData = cpData;
       _rootDescriptor = rootDescriptor;
       _deviceUUID = deviceUuid;
@@ -237,7 +241,7 @@ namespace UPnP.Infrastructure.CP
     {
       lock (_cpData.SyncObj)
       {
-        Disconnect(false);
+        DoDisconnect(false);
         _subscriptionRenewalTimer.Dispose();
         foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingCalls))
           state.Request.Abort();
@@ -252,7 +256,7 @@ namespace UPnP.Infrastructure.CP
     /// <param name="rootDescriptor">Root descriptor which contains the device to build.</param>
     /// <param name="deviceUUID">UUID of the device to connect.</param>
     /// <param name="dataTypeResolver">Delegate method to resolve extended datatypes.</param>
-    public void BuildDevice(RootDescriptor rootDescriptor, string deviceUUID, DataTypeResolverDlgt dataTypeResolver)
+    private void BuildDevice(RootDescriptor rootDescriptor, string deviceUUID, DataTypeResolverDlgt dataTypeResolver)
     {
       if (rootDescriptor.State == RootDescriptorState.Erroneous)
         throw new ArgumentException("Cannot connect to an erroneous root descriptor");
@@ -269,13 +273,15 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Disconnects this device connection.
     /// </summary>
-    /// <param name="unsubscribeEvents">If set to <c>true</c>, unsubscription messages are sent for all subscribed services.</param>
-    public void Disconnect(bool unsubscribeEvents)
+    /// <param name="unsubscribeEvents">If set to <c>true</c>, unsubscription messages are sent for all subscribed
+    /// services.</param>
+    internal void DoDisconnect(bool unsubscribeEvents)
     {
       lock (_cpData.SyncObj)
       {
         foreach (EventSubscription subscription in new List<EventSubscription>(_subscriptions.Values))
-          UnsubscribeEvents(subscription);
+          if (unsubscribeEvents)
+            UnsubscribeEvents(subscription);
         _subscriptions.Clear();
         if (_device.IsConnected)
           _device.Disconnect();
@@ -552,71 +558,6 @@ namespace UPnP.Infrastructure.CP
         dlgt(this);
     }
 
-    /// <summary>
-    /// Gets raised when the device of this device connection was disconnected.
-    /// </summary>
-    public event DeviceDisconnectedDlgt DeviceDisconnected;
-
-    /// <summary>
-    /// Returns the shared control point data structure.
-    /// </summary>
-    public CPData CPData
-    {
-      get { return _cpData; }
-    }
-
-    /// <summary>
-    /// Returns the root descriptor of the connected UPnP device.
-    /// </summary>
-    /// <remarks>
-    /// The root descriptor contains multiple devices which can be connected in several <see cref="DeviceConnection"/> instances,
-    /// so a single <see cref="RootDescriptor"/> might belong to multiple connections.
-    /// </remarks>
-    public RootDescriptor RootDescriptor
-    {
-      get { return _rootDescriptor; }
-    }
-
-    /// <summary>
-    /// Returns the UUID of the device which is the base of the connected device tree.
-    /// </summary>
-    public string DeviceUUID
-    {
-      get { return _deviceUUID; }
-    }
-
-    /// <summary>
-    /// Returns the device instance which is the base of the connected device tree.
-    /// </summary>
-    public CpDevice Device
-    {
-      get { return _device; }
-    }
-
-    /// <summary>
-    /// Returns the unique URL which is used for event notifications from subscribed services.
-    /// </summary>
-    public string EventNotificationURL
-    {
-      get { return _eventNotificationURL; }
-    }
-
-    /// <summary>
-    /// Returns the information whether the specified <paramref name="service"/> is registered for event notifications.
-    /// </summary>
-    /// <remarks>
-    /// When subscribing for state variable changes of a given service s, this method doesn't return <c>true</c> when invoked
-    /// for that service s immediately. The subscription must first be confirmed by the UPnP network service.
-    /// </remarks>
-    /// <param name="service">The service instance to check.</param>
-    /// <returns><c>true</c>, if the <paramref name="service"/> is subscribed for receiving event notifications, else
-    /// <c>false</c>.</returns>
-    public bool IsServiceSubscribedForEvents(CpService service)
-    {
-      lock (_cpData.SyncObj)
-        return FindEventSubscriptionByService(service) != null;
-    }
-
     protected EventSubscription FindEventSubscriptionByService(CpService service)
     {
       lock (_cpData.SyncObj)
@@ -715,6 +656,81 @@ namespace UPnP.Infrastructure.CP
       if (!serviceDescriptors.TryGetValue(service.ServiceTypeVersion_URN, out sd))
         throw new IllegalCallException("Service '{0}' in device '{1}' is not connected to a UPnP network service", service.ServiceTypeVersion_URN, deviceUUID);
       return sd;
+    }
+
+    /// <summary>
+    /// Gets raised when the device of this device connection was disconnected.
+    /// </summary>
+    public event DeviceDisconnectedDlgt DeviceDisconnected;
+
+    /// <summary>
+    /// Returns the shared control point data structure.
+    /// </summary>
+    public CPData CPData
+    {
+      get { return _cpData; }
+    }
+
+    /// <summary>
+    /// Returns the root descriptor of the connected UPnP device.
+    /// </summary>
+    /// <remarks>
+    /// The root descriptor contains multiple devices which can be connected in several <see cref="DeviceConnection"/> instances,
+    /// so a single <see cref="RootDescriptor"/> might belong to multiple connections.
+    /// </remarks>
+    public RootDescriptor RootDescriptor
+    {
+      get { return _rootDescriptor; }
+    }
+
+    /// <summary>
+    /// Returns the UUID of the device which is the base of the connected device tree.
+    /// </summary>
+    public string DeviceUUID
+    {
+      get { return _deviceUUID; }
+    }
+
+    /// <summary>
+    /// Returns the device instance which is the base of the connected device tree.
+    /// </summary>
+    public CpDevice Device
+    {
+      get { return _device; }
+    }
+
+    /// <summary>
+    /// Returns the unique URL which is used for event notifications from subscribed services.
+    /// </summary>
+    public string EventNotificationURL
+    {
+      get { return _eventNotificationURL; }
+    }
+
+    /// <summary>
+    /// Returns the information whether the specified <paramref name="service"/> is registered for event notifications.
+    /// </summary>
+    /// <remarks>
+    /// When subscribing for state variable changes of a given service s, this method doesn't return <c>true</c> when invoked
+    /// for that service s immediately. The subscription must first be confirmed by the UPnP network service.
+    /// </remarks>
+    /// <param name="service">The service instance to check.</param>
+    /// <returns><c>true</c>, if the <paramref name="service"/> is subscribed for receiving event notifications, else
+    /// <c>false</c>.</returns>
+    public bool IsServiceSubscribedForEvents(CpService service)
+    {
+      lock (_cpData.SyncObj)
+        return FindEventSubscriptionByService(service) != null;
+    }
+
+    /// <summary>
+    /// Disconnects this device connection.
+    /// </summary>
+    public void Disconnect()
+    {
+      // The control point needs to trigger the disconnection to keep its datastructures updated; it will call us back
+      // in method DoDisconnect
+      _controlPoint.Disconnect(DeviceUUID);
     }
   }
 }

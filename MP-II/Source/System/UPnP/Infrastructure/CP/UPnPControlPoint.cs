@@ -238,6 +238,16 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
+    /// Disconnects the connected device specified by the given <paramref name="connection"/> instance.
+    /// </summary>
+    /// <param name="connection">Connection instance to disconnect. Must be maintained by this instance, i.e. must have been
+    /// returned by method <see cref="Connect"/> of this instance.</param>
+    public void Disconnect(DeviceConnection connection)
+    {
+      DoDisconnect(connection, true);
+    }
+
+    /// <summary>
     /// Disconnects all connected devices.
     /// </summary>
     public void DisconnectAll()
@@ -252,7 +262,7 @@ namespace UPnP.Infrastructure.CP
     {
       lock (_cpData.SyncObj)
       {
-        DeviceConnection connection = new DeviceConnection(descriptor, deviceUuid, _cpData, dataTypeResolver);
+        DeviceConnection connection = new DeviceConnection(this, descriptor, deviceUuid, _cpData, dataTypeResolver);
         _connectedDevices.Add(deviceUuid, connection);
         return connection;
       }
@@ -265,9 +275,21 @@ namespace UPnP.Infrastructure.CP
         DeviceConnection connection;
         if (!_connectedDevices.TryGetValue(deviceUUID, out connection))
           return;
-        connection.Disconnect(unsubscribeEvents);
+        connection.DoDisconnect(unsubscribeEvents);
         connection.Dispose();
         _connectedDevices.Remove(deviceUUID);
+      }
+    }
+
+    protected void DoDisconnect(DeviceConnection connection, bool unsubscribeEvents)
+    {
+      lock (_cpData.SyncObj)
+      {
+        string deviceUUID = connection.DeviceUUID;
+        if (!_connectedDevices.ContainsKey(deviceUUID))
+          throw new ArgumentException(string.Format("This control point instance doesn't manage the given device connection for device '{0}'",
+              connection.DeviceUUID));
+        DoDisconnect(deviceUUID, unsubscribeEvents);
       }
     }
 

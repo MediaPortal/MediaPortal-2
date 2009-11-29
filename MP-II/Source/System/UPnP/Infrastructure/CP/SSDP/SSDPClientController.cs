@@ -617,11 +617,14 @@ namespace UPnP.Infrastructure.CP.SSDP
       if (ci != null && !uint.TryParse(ci, out configID))
         // Invalid message
         return;
+      if (!usn.StartsWith("uuid:"))
+        // Invalid usn
+        return;
       int separatorIndex = usn.IndexOf("::");
-      if (separatorIndex == -1)
+      if (separatorIndex < 6) // separatorIndex == -1 or separatorIndex not after "uuid:" prefix with at least one char UUID
         // We only use messages containing a "::" substring
         return;
-      string deviceUUID = usn.Substring(0, separatorIndex);
+      string deviceUUID = usn.Substring(5, separatorIndex - 5);
       string messageType = usn.Substring(separatorIndex + 2);
       if (nts == "ssdp:alive")
       {

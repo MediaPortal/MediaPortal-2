@@ -31,6 +31,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.UPnP;
+using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.Utils;
 
@@ -154,6 +155,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         _attachedClientSystemIds.Remove(systemId);
         if (!_clientConnections.TryGetValue(systemId, out connectionToDisconnect))
           return;
+        _clientConnections.Remove(systemId);
       }
       if (connectionToDisconnect != null)
         try
@@ -183,7 +185,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("UPnPClientWatcher: Error parsing UPnP device description", e);
+        RootEntry rootEntry = rootDescriptor.SSDPRootEntry;
+        ServiceScope.Get<ILogger>().Warn("UPnPServerControlPoint: Error parsing UPnP device description for root device '{0}' at location '{1}'", e,
+            rootEntry.RootDeviceID, rootEntry.DescriptionLocation);
         return null;
       }
     }
@@ -196,8 +200,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPClientWatcher: Found MP-II client '{0}' at host '{1}'",
-            clientDescriptor.ClientName, clientDescriptor.System.HostName);
+        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP-II client '{0}' (system ID '{1}') at host '{2}'",
+            clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Add(clientDescriptor);
       }
       InvokeClientAvailable(clientDescriptor);
@@ -212,8 +216,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || !_availableClients.Contains(clientDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPClientWatcher: MP-II client '{0}' at host '{1}' was removed from the network",
-            clientDescriptor.ClientName, clientDescriptor.System.HostName);
+        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: MP-II client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
+            clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Remove(clientDescriptor);
       }
       InvokeClientUnavailable(clientDescriptor);
@@ -237,33 +241,39 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     protected void CheckConnect(ClientDescriptor clientDescriptor)
     {
       // Check if client is attached and connect if it is an attached client
+      string clientSystemId = clientDescriptor.MPFrontendServerUUID;
       lock (_networkTracker.SharedControlPointData.SyncObj)
       {
-        string deviceUuid = clientDescriptor.MPFrontendServerUUID;
-        if (!_attachedClientSystemIds.Contains(deviceUuid))
+        if (!_attachedClientSystemIds.Contains(clientSystemId))
           return;
-        DeviceConnection connection;
-        try
-        {
-          connection = _controlPoint.Connect(clientDescriptor.UPnPRootDescriptor, deviceUuid, UPnPExtendedDataTypes.ResolveDataType);
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Warn("Error connecting to UPnP MP-II frontend server '{0}'", e, deviceUuid);
+        if (_clientConnections.ContainsKey(clientSystemId))
           return;
-        }
-        try
-        {
-          ClientConnection clientConnection = new ClientConnection(connection, clientDescriptor);
+      }
+      DeviceConnection connection;
+      try
+      {
+        connection = _controlPoint.Connect(clientDescriptor.UPnPRootDescriptor, clientSystemId,
+            UPnPExtendedDataTypes.ResolveDataType);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Warn(
+            "UPnPServerControlPoint: Error connecting to UPnP MP-II frontend server '{0}'", e, clientSystemId);
+        return;
+      }
+      try
+      {
+        ClientConnection clientConnection = new ClientConnection(_controlPoint, connection, clientDescriptor);
+        lock (_networkTracker.SharedControlPointData.SyncObj)
           _clientConnections.Add(clientDescriptor.MPFrontendServerUUID, clientConnection);
-          clientConnection.ClientDeviceDisconnected += OnClientDisconnected;
-        }
-        catch (Exception e)
-        {
-          ServiceScope.Get<ILogger>().Warn("Error connecting to services of UPnP MP-II frontend server '{0}'", e, deviceUuid);
-          connection.Disconnect(false);
-          return;
-        }
+        clientConnection.ClientDeviceDisconnected += OnClientDisconnected;
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Warn(
+            "UPnPServerControlPoint: Error connecting to services of UPnP MP-II frontend server '{0}'", e, clientSystemId);
+        _controlPoint.Disconnect(connection);
+        return;
       }
       InvokeClientConnected(clientDescriptor);
     }
