@@ -126,7 +126,7 @@ namespace MediaPortal.Core.Services.Localization
     {
       foreach (string filePath in Directory.GetFiles(directory, "strings_*.xml"))
       {
-        int pos = filePath.IndexOf('_') + 1;
+        int pos = filePath.LastIndexOf('_') + 1;
         string cultName = filePath.Substring(pos, filePath.Length - Path.GetExtension(filePath).Length - pos);
 
         result.Add(CultureInfo.GetCultureInfo(cultName));
