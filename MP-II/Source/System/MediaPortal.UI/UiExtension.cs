@@ -145,6 +145,7 @@ namespace MediaPortal.UI
     {
       RegisterDefaultCommandShortcuts();
       ServiceScope.Get<IServerConnectionManager>().Startup();
+      ServiceScope.Get<IFrontendServer>().Startup();
     }
   }
 }
