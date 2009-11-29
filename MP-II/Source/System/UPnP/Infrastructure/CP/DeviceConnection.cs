@@ -274,7 +274,7 @@ namespace UPnP.Infrastructure.CP
     {
       lock (_cpData.SyncObj)
       {
-        foreach (EventSubscription subscription in _subscriptions.Values)
+        foreach (EventSubscription subscription in new List<EventSubscription>(_subscriptions.Values))
           UnsubscribeEvents(subscription);
         _subscriptions.Clear();
         if (_device.IsConnected)
