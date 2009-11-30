@@ -48,20 +48,10 @@ namespace MediaPortal.Core.Services.PluginManager
     }
 
     [Setting(SettingScope.User)]
-    public ICollection<Guid> UserDisabledPlugins
-    {
-      get { return _userDisabledPlugins; }
-      set { _userDisabledPlugins = new List<Guid>(value); }
-    }
-
-    #region Additional members for the XML serialization
-
-    public List<Guid> XML_UserDisabledPlugins
+    public List<Guid> UserDisabledPlugins
     {
       get { return _userDisabledPlugins; }
       set { _userDisabledPlugins = value; }
     }
-
-    #endregion
   }
 }
