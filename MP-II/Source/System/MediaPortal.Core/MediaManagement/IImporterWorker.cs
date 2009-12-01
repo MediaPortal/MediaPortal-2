@@ -22,63 +22,60 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 
 namespace MediaPortal.Core.MediaManagement
 {
-  public interface IMediaLibraryCallback
-  {
-    ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs);
-  }
-
-  public interface IImportResultCallback
-  {
-    /// <summary>
-    /// Will be called at the start of import of the given location. Will be called once for the complete structure, even
-    /// if the import job includes subdirectories.
-    /// </summary>
-    /// <param name="path">Location which is imported.</param>
-    void StartImport(ResourcePath path);
-
-    /// <summary>
-    /// Will be called when the import of the given location has finished. Will be called once for the complete structure, even
-    /// if the import job includes subdirectories.
-    /// </summary>
-    /// <param name="path">Location which was imported.</param>
-    void EndImport(ResourcePath path);
-
-    /// <summary>
-    /// Called when an error occurs while importing the given <paramref name="path"/>.
-    /// </summary>
-    /// <param name="path">Path which could not be imported.</param>
-    void ImportError(ResourcePath path);
-
-    /// <summary>
-    /// Adds or updates the metadata of the specified media item.
-    /// </summary>
-    /// <param name="path">Path of the media item's resource.</param>
-    /// <param name="updatedAspects">Enumeration of updated media item aspects.</param>
-    void UpdateMediaItem(ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects);
-
-    /// <summary>
-    /// Deletes the media item of the given location.
-    /// </summary>
-    /// <param name="path">Location of the media item to delete.</param>
-    void DeleteMediaItem(ResourcePath path);
-  }
-
+  /// <summary>
+  /// Importer worker instance. Accepts import jobs and processes them, when possible.
+  /// </summary>
+  /// <remarks>
+  /// The importer worker works in the MediaPortal client as well as in the server.<br/>
+  /// <para>
+  /// It has two possible states:
+  /// <list type="table">
+  /// <listheader><term>State</term><description>Description</description></listheader>
+  /// <item><term>Active</term><description>The <see cref="IImportResultHandler"/> and <see cref="IMediaBrowsing"/> callback
+  /// interfaces are installed, i.e. the MediaLibrary is connected.</description></item>
+  /// <item><term>Suspended</term><description>The local system is shutting down or at least one of the callback interfaces
+  /// disappeared or produced problems during the communication.</description></item>
+  /// </list>
+  /// The default state is <i>Suspended</i>. When a connection to the MediaLibrary is established, method
+  /// <see cref="Activate"/> is called which installs the two callback interfaces and switches the importer worker state to
+  /// <i>Active</i>. When the local system shuts down OR when the MediaLibrary gets disconnected (e.g. when this importer
+  /// worker runs in the client and the MediaPortal server shuts down), the state switches back to <i>Suspended</i>.
+  /// </para>
+  /// <para>
+  /// The import jobs of the importer worker are automatically persisted to disc and loaded again when the importer worker
+  /// is restarted.
+  /// </para>
+  /// </remarks>
   public interface IImporterWorker
   {
     /// <summary>
-    /// Returns the information if the importer worker is able to process import requests.
+    /// Gets the information if this importer worker was suspended due to a system shutdown or problems in the communication
+    /// with the callback interfaces provided by method <see cref="Activate"/>.
     /// </summary>
-    bool IsActive { get; }
+    bool IsSuspended { get; }
 
+    /// <summary>
+    /// Starts the importer worker service.
+    /// </summary>
     void Startup();
 
+    /// <summary>
+    /// Stops the importer worker service.
+    /// </summary>
     void Shutdown();
+
+    /// <summary>
+    /// Activates the importer worker. The importer worker automatically stops its activity when it encounters
+    /// problems in the communication with the two provided interfaces <paramref name="mediaBrowsingCallback"/> or
+    /// <paramref name="importResultHandler"/>, or if it is shut down from outside, or if it encounters a system shutdown.
+    /// </summary>
+    /// <param name="mediaBrowsingCallback">Callback interface to browse existing media items in the media library.</param>
+    /// <param name="importResultHandler">Handler interface for import results.</param>
+    void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler);
 
     /// <summary>
     /// Schedules an asynchronous import of the local resource specified by <paramref name="path"/>.
@@ -87,9 +84,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Media categories to choose metadata extractors for.</param>
     /// <param name="includeSubDirectories">If the given <paramref name="path"/> is a directory, this parameter controls if
     /// subdirectories are imported or not.</param>
-    /// <param name="resultCallback">Callback interface to be notified on import results.</param>
-    void ScheduleImport(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories,
-        IImportResultCallback resultCallback);
+    void ScheduleImport(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories);
 
     /// <summary>
     /// Schedules an asynchronous refresh of the local resource specified by <paramref name="path"/>.
@@ -102,9 +97,6 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaCategories">Media categories to choose metadata extractors for.</param>
     /// <param name="includeSubDirectories">If the given <paramref name="path"/> is a directory, this parameter controls if
     /// subdirectories are imported or not.</param>
-    /// <param name="mediaLibraryCallback">Callback interface which will be called to request the current state of media items.</param>
-    /// <param name="resultCallback">Callback interface to be notified on import results.</param>
-    void ScheduleRefresh(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories,
-        IMediaLibraryCallback mediaLibraryCallback, IImportResultCallback resultCallback);
+    void ScheduleRefresh(ResourcePath path, ICollection<string> mediaCategories, bool includeSubDirectories);
   }
 }

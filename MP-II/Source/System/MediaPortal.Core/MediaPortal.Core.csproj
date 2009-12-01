@@ -102,6 +102,8 @@
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\FileSystemResourceNavigator.cs" />
     <Compile Include="MediaManagement\IImporterWorker.cs" />
+    <Compile Include="MediaManagement\IImportResultHandler.cs" />
+    <Compile Include="MediaManagement\IMediaBrowsing.cs" />
     <Compile Include="MediaManagement\IMediaItemAspectTypeRegistration.cs" />
     <Compile Include="MediaManagement\IResourceAccessor.cs" />
     <Compile Include="MediaManagement\ILocalFsResourceAccessor.cs" />
@@ -128,6 +130,7 @@
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerMessaging.cs" />
+    <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
     <Compile Include="Services\MediaManagement\ResourceAccessorBase.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
