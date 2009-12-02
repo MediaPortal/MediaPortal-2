@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Backend.ClientCommunication;
-using MediaPortal.Backend.ImporterScheduler;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
@@ -322,8 +321,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       Share share = (Share) inParams[0];
       ServiceScope.Get<IMediaLibrary>().RegisterShare(share);
-      IImporterScheduler importerScheduler = ServiceScope.Get<IImporterScheduler>();
-      importerScheduler.InvalidatePath(share.SystemId, share.BaseResourcePath);
       outParams = null;
       return null;
     }
@@ -359,13 +356,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           return new UPnPError(600, "Argument 'RelocateMediaItems' must be of value 'Relocate' or 'ClearAndReImport'");
       }
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
-      Share oldShare = mediaLibrary.GetShare(shareId);
       int numAffected = mediaLibrary.UpdateShare(shareId, baseResourcePath, shareName, mediaCategories, relocationMode);
-      if (relocationMode == RelocationMode.Remove)
-      {
-        IImporterScheduler importerScheduler = ServiceScope.Get<IImporterScheduler>();
-        importerScheduler.InvalidatePath(oldShare.SystemId, baseResourcePath);
-      }
       outParams = new List<object> {numAffected};
       return null;
     }
