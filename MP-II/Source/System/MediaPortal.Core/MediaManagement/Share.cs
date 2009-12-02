@@ -241,12 +241,12 @@ namespace MediaPortal.Core.MediaManagement
       if (!(obj is Share))
         return false;
       Share other = (Share) obj;
-      return ShareId == other.ShareId;
+      return _shareId == other._shareId;
     }
 
     public override int GetHashCode()
     {
-      return ShareId.GetHashCode();
+      return _shareId.GetHashCode();
     }
 
     #region Additional members for the XML serialization

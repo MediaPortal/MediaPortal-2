@@ -679,8 +679,7 @@ namespace Ui.Players.Video
 
     protected void CheckAudio()
     {
-      int volume;
-      volume = _isMuted ? 0 : _volume;
+      int volume = _isMuted ? 0 : _volume;
       IBasicAudio audio = _graphBuilder as IBasicAudio;
       if (audio != null)
         // Our volume range is from 0 to 100, IBasicAudio volume range is from -10000 to 0 (in hundredth decibel).
