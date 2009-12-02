@@ -95,5 +95,36 @@ namespace MediaPortal.Core.MediaManagement
       string path = UnescapePath(ppsStr.Substring(index + 3));
       return new ProviderPathSegment(providerId, path, isBasePathSegment);
     }
+
+    #region Base overrides
+
+    public override int GetHashCode()
+    {
+      return ToString().GetHashCode();
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is ProviderPathSegment))
+        return false;
+      return obj.ToString() == ToString();
+    }
+
+    public static bool operator ==(ProviderPathSegment segment1, ProviderPathSegment segment2)
+    {
+      return segment1.ToString() == segment2.ToString();
+    }
+
+    public static bool operator !=(ProviderPathSegment segment1, ProviderPathSegment segment2)
+    {
+      return !(segment1 == segment2);
+    }
+
+    public override string ToString()
+    {
+      return Serialize();
+    }
+
+    #endregion
   }
 }

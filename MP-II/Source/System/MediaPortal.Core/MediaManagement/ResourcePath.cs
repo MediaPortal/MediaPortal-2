@@ -366,6 +366,33 @@ namespace MediaPortal.Core.MediaManagement
       return resourceAccessor;
     }
 
+    /// <summary>
+    /// Returns the information whether this path shares the same path prefix of the given <paramref name="prefixLen"/>
+    /// with the given <paramref name="other"/> path.
+    /// </summary>
+    /// <param name="other">Other path to compare to this path.</param>
+    /// <param name="prefixLen">Count of path segments to compare.</param>
+    /// <returns></returns>
+    public bool HasSamePrefix(ResourcePath other, int prefixLen)
+    {
+      if (prefixLen >= _pathSegments.Count || prefixLen >= other._pathSegments.Count)
+        return false;
+      for (int i = 0; i < prefixLen; i++)
+        if (_pathSegments[i] != other._pathSegments[i])
+          return false;
+      return true;
+    }
+
+    public bool IsSameOrParentOf(ResourcePath other)
+    {
+      return HasSamePrefix(other, _pathSegments.Count);
+    }
+
+    public bool IsParentOf(ResourcePath other)
+    {
+      return _pathSegments.Count < other._pathSegments.Count && HasSamePrefix(other, _pathSegments.Count);
+    }
+
     #region IEnumerable<ProviderPathSegment> implementation
 
     public IEnumerator<ProviderPathSegment> GetEnumerator()
