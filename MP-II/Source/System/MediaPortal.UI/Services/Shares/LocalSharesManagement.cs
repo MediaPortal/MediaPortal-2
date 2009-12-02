@@ -109,15 +109,18 @@ namespace MediaPortal.UI.Services.Shares
           shareName, mediaCategories);
       _shares.Add(sd.ShareId, sd);
       SaveSharesToSettings();
-      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareAdded, sd.ShareId);
+      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareAdded, sd);
       return sd;
     }
 
     public void RemoveShare(Guid shareId)
     {
+      Share share;
+      if (!_shares.TryGetValue(shareId, out share))
+        return;
       _shares.Remove(shareId);
       SaveSharesToSettings();
-      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareRemoved, shareId);
+      SharesMessaging.SendShareMessage(SharesMessaging.MessageType.ShareRemoved, share);
     }
 
     public Share UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
@@ -131,7 +134,7 @@ namespace MediaPortal.UI.Services.Shares
       result.MediaCategories.Clear();
       CollectionUtils.AddAll(result.MediaCategories, mediaCategories);
       SaveSharesToSettings();
-      SharesMessaging.SendShareChangedMessage(shareId, relocationMode);
+      SharesMessaging.SendShareChangedMessage(result, relocationMode);
       return result;
     }
 

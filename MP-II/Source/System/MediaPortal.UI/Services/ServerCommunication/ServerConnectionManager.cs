@@ -41,8 +41,49 @@ using RelocationMode=MediaPortal.UI.Shares.RelocationMode;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
+  // TODO: Schedule regular reimports for all local shares
   public class ServerConnectionManager : IServerConnectionManager
   {
+    /// <summary>
+    /// Callback instance for the importer worker, implementing the callback interfaces
+    /// <see cref="IMediaBrowsing"/> and <see cref="IImportResultHandler"/>.
+    /// </summary>
+    internal class ImporterCallback : IMediaBrowsing, IImportResultHandler
+    {
+      protected IContentDirectory _contentDirectory;
+      protected string _localSystemId;
+
+      public ImporterCallback(IContentDirectory contentDirectory)
+      {
+        _contentDirectory = contentDirectory;
+        _localSystemId = ServiceScope.Get<ISystemResolver>().LocalSystemId;
+      }
+
+      #region IMediaBrowsing implementation
+
+      public ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
+          IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        return _contentDirectory.Browse(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+      }
+
+      #endregion
+
+      #region IImportResultHandler implementation
+
+      public void UpdateMediaItem(ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
+      {
+        _contentDirectory.AddOrUpdateMediaItem(_localSystemId, path, updatedAspects);
+      }
+
+      public void DeleteMediaItem(ResourcePath path)
+      {
+        _contentDirectory.DeleteMediaItemOrPath(_localSystemId, path);
+      }
+
+      #endregion
+    }
+
     protected AsynchronousMessageQueue _messageQueue;
     protected UPnPServerWatcher _serverWatcher = null;
     protected UPnPClientControlPoint _controlPoint = null;
@@ -73,31 +114,30 @@ namespace MediaPortal.UI.Services.ServerCommunication
         IContentDirectory cd = ContentDirectory;
         if (cd == null)
           return;
-        ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
         SharesMessaging.MessageType messageType =
             (SharesMessaging.MessageType) message.MessageType;
-        Guid shareId;
+        IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
         Share share;
         switch (messageType)
         {
           case SharesMessaging.MessageType.ShareAdded:
-            shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
-            share = sharesManagement.GetShare(shareId);
-            if (share != null)
-              cd.RegisterShare(share);
+            share = (Share) message.MessageData[SharesMessaging.SHARE];
+            cd.RegisterShare(share);
+            importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
           case SharesMessaging.MessageType.ShareRemoved:
-            shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
-            cd.RemoveShare(shareId);
+            share = (Share) message.MessageData[SharesMessaging.SHARE];
+            importerWorker.CancelJobsForPath(share.BaseResourcePath);
+            cd.RemoveShare(share.ShareId);
             break;
           case SharesMessaging.MessageType.ShareChanged:
-            shareId = (Guid) message.MessageData[SharesMessaging.SHARE_ID];
             RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
-            share = sharesManagement.GetShare(shareId);
-            if (share != null)
-              cd.UpdateShare(shareId, share.BaseResourcePath, share.Name, share.MediaCategories,
-                  relocationMode == RelocationMode.Relocate ? UI.ServerCommunication.RelocationMode.Relocate :
-                  UI.ServerCommunication.RelocationMode.ClearAndReImport);
+            share = (Share) message.MessageData[SharesMessaging.SHARE];
+            importerWorker.CancelJobsForPath(share.BaseResourcePath);
+            cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories,
+                relocationMode == RelocationMode.Relocate ? UI.ServerCommunication.RelocationMode.Relocate :
+                UI.ServerCommunication.RelocationMode.ClearAndReImport);
+            importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
         }
       }
@@ -124,7 +164,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
 
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerConnected);
-      ServiceScope.Get<IThreadPool>().Add(SynchronizeDataWithServer);
+      ServiceScope.Get<IThreadPool>().Add(CompleteServerConnection);
     }
 
     void OnBackendServerDisconnected(DeviceConnection connection)
@@ -166,7 +206,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     /// <summary>
     /// Synchronously synchronizes all local shares and media item aspect types with the MediaPortal server.
     /// </summary>
-    protected void SynchronizeDataWithServer()
+    protected void CompleteServerConnection()
     {
       IServerController sc = ServerController;
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
@@ -219,6 +259,11 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not synchronize local media item aspect types with server", e);
         }
+
+        ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Activating importer worker");
+        IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+        ImporterCallback ic = new ImporterCallback(cd);
+        importerWorker.Activate(ic, ic);
       }
     }
 
@@ -317,7 +362,16 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public void DetachFromHomeServer()
     {
-      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Detaching from home server");
+      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
+      ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
+      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Detaching from home server '{0}'", settings.HomeServerSystemId);
+
+      ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Clearing pending import jobs and suspending importer worker");
+      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      importerWorker.Suspend();
+      importerWorker.CancelPendingJobs();
+
+      ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Notifying the MediaPortal server about the detachment");
       IServerController sc = ServerController;
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       if (sc != null)
@@ -329,6 +383,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Error detaching from home server '{0}'", e, HomeServerSystemId);
         }
+
+      ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Closing server connection");
       UPnPClientControlPoint cp;
       lock (_syncObj)
         cp = _controlPoint;
@@ -336,8 +392,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
         cp.Stop(); // Must be outside the lock - sends messages
       lock (_syncObj)
       {
-        ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-        ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
         settings.HomeServerSystemId = null;
         settings.LastHomeServerName = null;
         settings.LastHomeServerSystem = null;
@@ -345,6 +399,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         _controlPoint = null;
       }
       ServerConnectionMessaging.SendConnectionStateChangedMessage(ServerConnectionMessaging.MessageType.HomeServerDetached);
+      
+      ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Starting to watch for MediaPortal servers");
       if (_serverWatcher == null)
       {
         lock (_syncObj)
@@ -355,12 +411,17 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public void SetNewHomeServer(string backendServerSystemId)
     {
+      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Attaching to MediaPortal backend server '{0}'", backendServerSystemId);
+
+      ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Stopping to watch for MediaPortal servers");
       lock (_syncObj)
         if (_serverWatcher != null)
         {
           _serverWatcher.Stop();
           _serverWatcher = null;
         }
+
+      ServiceScope.Get<ILogger>().Debug("ServerConnectionManager: Building UPnP control point for communication with the new home server");
       UPnPClientControlPoint cp;
       lock (_syncObj)
         cp = _controlPoint;

@@ -120,10 +120,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
           return new UPnPError(600, "Argument 'ImportMode' must be of value 'Import' or 'Refresh'");
       }
       if (refresh)
-        ServiceScope.Get<IImporterWorker>().ScheduleRefresh(path, mediaCategories, true,
-            new MediaLibraryCallback(), new ImportResultCallback());
+        ServiceScope.Get<IImporterWorker>().ScheduleRefresh(path, mediaCategories, true);
       else
-        ServiceScope.Get<IImporterWorker>().ScheduleImport(path, mediaCategories, true, new ImportResultCallback());
+        ServiceScope.Get<IImporterWorker>().ScheduleImport(path, mediaCategories, true);
       return null;
     }
   }

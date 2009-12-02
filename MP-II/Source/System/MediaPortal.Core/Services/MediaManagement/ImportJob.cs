@@ -37,10 +37,30 @@ namespace MediaPortal.Core.Services.MediaManagement
     Refresh
   }
 
+  public enum ImportJobState
+  {
+    None,
+    Scheduled,
+    Started,
+    Finished,
+    Cancelled,
+    Erroneous
+  }
+
   /// <summary>
   /// Holds the data which specifies a job for the importer worker.
   /// </summary>
   /// <remarks>
+  /// <para>
+  /// An import job specifies a resource, a directory or a directory tree to be imported. An import job
+  /// can potentially be very big (i.e. many sub directories). To be able to persist the current progress of an import
+  /// job, we split the job into smaller pieces, the collection of <see cref="PendingResources"/>, which holds all
+  /// sub directories to be processed.
+  /// In order to have consistent data to be persisted at each time, the importer worker will process for each directory
+  /// its files first. After that, it will replace the current directory in the <see cref="PendingResources"/> by the
+  /// collection of sub directories. So the job can be terminated or persisted at any time without the need to save more
+  /// process information.
+  /// </para>
   /// <para>
   /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
   /// If changed, this has to be taken into consideration.
@@ -48,11 +68,13 @@ namespace MediaPortal.Core.Services.MediaManagement
   /// </remarks>
   public class ImportJob
   {
+    protected object _syncObj = new object();
     protected ImportJobType _jobType;
     protected ResourcePath _basePath;
     protected List<IFileSystemResourceAccessor> _pendingResources = new List<IFileSystemResourceAccessor>();
     protected HashSet<Guid> _metadataExtractorIds;
     protected bool _includeSubDirectories;
+    protected ImportJobState _state = ImportJobState.None;
 
     public ImportJob(ImportJobType jobType, ResourcePath basePath, IEnumerable<Guid> metadataExtractorIds,
       bool includeSubDirectories)
@@ -64,20 +86,60 @@ namespace MediaPortal.Core.Services.MediaManagement
     }
 
     [XmlIgnore]
+    public object SyncObj
+    {
+      get { return _syncObj; }
+    }
+
+    [XmlIgnore]
+    public ImportJobState State
+    {
+      get
+      {
+        lock (_syncObj)
+          return _state;
+      }
+      set
+      {
+        lock (_syncObj)
+          _state = value;
+      }
+    }
+
+    [XmlIgnore]
     public ImportJobType JobType
     {
       get { return _jobType; }
     }
 
+    /// <summary>
+    /// Path which should be processed. If <see cref="IncludeSubDirectories"/> is set to <c>true</c>,
+    /// this property gives the root directory of the tree structure to be processed.
+    /// </summary>
     [XmlIgnore]
     public ResourcePath BasePath
     {
       get { return _basePath; }
     }
 
+    /// <summary>
+    /// Collection of pending directories to import. This property only has a sensible value in import job state
+    /// <see cref="ImportJobState.Started"/>.
+    /// </summary>
+    [XmlIgnore]
     public ICollection<IFileSystemResourceAccessor> PendingResources
     {
       get { return _pendingResources; }
+    }
+
+    [XmlIgnore]
+    public bool HasPendingResources
+    {
+      get
+      {
+        lock (_syncObj)
+          return _pendingResources.Count > 0;
+      }
     }
 
     /// <summary>
@@ -98,6 +160,11 @@ namespace MediaPortal.Core.Services.MediaManagement
     public bool IncludeSubDirectories
     {
       get { return _includeSubDirectories; }
+    }
+
+    public void Cancel()
+    {
+      _state = ImportJobState.Cancelled;
     }
 
     public override bool Equals(object obj)
@@ -130,6 +197,16 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       get { return _jobType; }
       set { _jobType = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlAttribute("State")]
+    public ImportJobState XML_State
+    {
+      get { return _state; }
+      set { _state = value; }
     }
 
     /// <summary>

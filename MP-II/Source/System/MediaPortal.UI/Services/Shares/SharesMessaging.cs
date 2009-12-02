@@ -22,8 +22,8 @@
 
 #endregion
 
-using System;
 using MediaPortal.Core;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Shares;
 
@@ -42,32 +42,32 @@ namespace MediaPortal.UI.Services.Shares
     /// </summary>
     public enum MessageType
     {
-      // Share related messages. The SHARE_ID will contain the id of the share.
+      // Share related messages. The SHARE will contain the share instance which is affected.
       ShareAdded,
       ShareRemoved,
       ShareChanged, // Parameter RELOCATION_MODE will be set
     }
 
     // Message data
-    public const string SHARE_ID = "ShareId"; // Guid of the affected share
+    public const string SHARE = "Share"; // The affected share
     public const string RELOCATION_MODE = "RelocationMode"; // Contains a variable of type RelocationMode
 
     /// <summary>
     /// Sends a message concerning a share.
     /// </summary>
     /// <param name="messageType">Type of the message to send.</param>
-    /// <param name="shareId">Share which is affected.</param>
-    public static void SendShareMessage(MessageType messageType, Guid shareId)
+    /// <param name="share">Share which is affected.</param>
+    public static void SendShareMessage(MessageType messageType, Share share)
     {
       QueueMessage msg = new QueueMessage(messageType);
-      msg.MessageData[SHARE_ID] = shareId;
+      msg.MessageData[SHARE] = share;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
-    public static void SendShareChangedMessage(Guid shareId, RelocationMode relocationMode)
+    public static void SendShareChangedMessage(Share share, RelocationMode relocationMode)
     {
       QueueMessage msg = new QueueMessage(MessageType.ShareChanged);
-      msg.MessageData[SHARE_ID] = shareId;
+      msg.MessageData[SHARE] = share;
       msg.MessageData[RELOCATION_MODE] = relocationMode;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

@@ -78,6 +78,24 @@ namespace MediaPortal.Core.MediaManagement
     void Activate(IMediaBrowsing mediaBrowsingCallback, IImportResultHandler importResultHandler);
 
     /// <summary>
+    /// Suspends the importer worker. This will make the importer stop its current activity and move to the <i>Suspended</i>
+    /// state.
+    /// </summary>
+    void Suspend();
+
+    /// <summary>
+    /// Cancels all pending import jobs and clears the queue.
+    /// </summary>
+    void CancelPendingJobs();
+
+    /// <summary>
+    /// Stops all active tasks for the given <paramref name="path"/> and removes all pending tasks for the given
+    /// <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path">Path, whose import tasks will be removed. Also tasks for sub-paths will be removed.</param>
+    void CancelJobsForPath(ResourcePath path);
+
+    /// <summary>
     /// Schedules an asynchronous import of the local resource specified by <paramref name="path"/>.
     /// </summary>
     /// <param name="path">Resource path of the directory or file to be imported.</param>
