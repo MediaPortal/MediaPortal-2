@@ -50,9 +50,6 @@ namespace UiComponents.Media
     public const string VIDEO_MODULE_ID_STR = "BB5362E4-3723-4a11-A989-A4B01ECCEB14";
     public const string PICTURE_MODULE_ID_STR = "DE0A2E53-1898-4e50-B27F-8652C3D11EDF";
 
-    public const string CURRENTLY_PLAYING_WORKFLOW_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
-    public const string FULLSCREEN_CONTENT_WORKFLOW_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
-
     public const string MEDIA_MAIN_SCREEN = "media";
 
     protected const string VIEW_KEY = "MediaModel: VIEW";
@@ -85,8 +82,11 @@ namespace UiComponents.Media
     public static Guid VIDEO_MODULE_ID = new Guid(VIDEO_MODULE_ID_STR);
     public static Guid PICTURE_MODULE_ID = new Guid(PICTURE_MODULE_ID_STR);
 
-    public static Guid CURRENTLY_PLAYING_WORKFLOW_STATE_ID = new Guid(CURRENTLY_PLAYING_WORKFLOW_STATE_ID_STR);
-    public static Guid FULLSCREEN_CONTENT_WORKFLOW_STATE_ID = new Guid(FULLSCREEN_CONTENT_WORKFLOW_STATE_ID_STR);
+    public static Guid CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID = VideoPlayerModel.CURRENTLY_PLAYING_STATE_ID;
+    public static Guid FULLSCREEN_VIDEO_WORKFLOW_STATE_ID = VideoPlayerModel.FULLSCREEN_CONTENT_STATE_ID;
+
+    public static Guid CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID = AudioPlayerModel.CURRENTLY_PLAYING_STATE_ID;
+    public static Guid FULLSCREEN_AUDIO_WORKFLOW_STATE_ID = AudioPlayerModel.FULLSCREEN_CONTENT_STATE_ID;
 
     #endregion
 
@@ -378,10 +378,10 @@ namespace UiComponents.Media
         // No player context to reuse - so open a new one
         if (mediaType == PlayerContextType.Video)
           pc = pcm.OpenVideoPlayerContext(moduleId, contextName, concurrent, subordinatedVideo,
-              CURRENTLY_PLAYING_WORKFLOW_STATE_ID, FULLSCREEN_CONTENT_WORKFLOW_STATE_ID);
+              CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID, FULLSCREEN_VIDEO_WORKFLOW_STATE_ID);
         else if (mediaType == PlayerContextType.Audio)
           pc = pcm.OpenAudioPlayerContext(moduleId, contextName, concurrent,
-              CURRENTLY_PLAYING_WORKFLOW_STATE_ID, FULLSCREEN_CONTENT_WORKFLOW_STATE_ID);
+              CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID, FULLSCREEN_AUDIO_WORKFLOW_STATE_ID);
       if (pc == null)
         return;
       if (play)

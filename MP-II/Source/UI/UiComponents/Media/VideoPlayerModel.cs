@@ -35,20 +35,20 @@ using MediaPortal.UI.Presentation.Workflow;
 namespace UiComponents.Media
 {
   /// <summary>
-  /// Attends the CurrentlyPlaying and FullscreenContent states for the video player.
+  /// Attends the CurrentlyPlaying and FullscreenContent states for video players.
   /// </summary>
   public class VideoPlayerModel : BaseTimerControlledUIModel, IWorkflowModel
   {
     public const string MODEL_ID_STR = "4E2301B4-3C17-4a1d-8DE5-2CEA169A0256";
-    public static Guid MODEL_ID = new Guid(MODEL_ID_STR);
+    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
     public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
     public const string FULLSCREEN_CONTENT_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
     public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
 
-    public static Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
-    public static Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
-    public static Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
+    public static readonly Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
+    public static readonly Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
+    public static readonly Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID); // From SkinBase
 
     public const string FULLSCREENVIDEO_SCREEN_NAME = "FullscreenContentVideo";
     public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingVideo";
@@ -75,7 +75,7 @@ namespace UiComponents.Media
       _pipWidthProperty = new Property(typeof(float), 0f);
       _pipHeightProperty = new Property(typeof(float), 0f);
       _isPipProperty = new Property(typeof(bool), false);
-      // Don't StartListening here, since that will be done in method EnterModelContext
+      // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
     protected override void Update()
@@ -204,15 +204,13 @@ namespace UiComponents.Media
       {
         IPlayerContext pc = playerContextManager.CurrentPlayerContext;
         // The "currently playing" screen is always bound to the "current player"
-        if (pc == null)
-          return false;
-        return CanHandlePlayer(pc.CurrentPlayer);
+        return pc != null && CanHandlePlayer(pc.CurrentPlayer);
       }
       else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
       {
         // The "fullscreen content" screen is always bound to the "primary player"
-        IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-        return playerContext != null && CanHandlePlayer(playerContext.CurrentPlayer);
+        IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+        return pc != null && CanHandlePlayer(pc.CurrentPlayer);
       }
       else
         return false;

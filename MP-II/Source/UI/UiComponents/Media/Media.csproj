@@ -42,15 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MediaModel.cs" />
-    <Compile Include="NavigationItem.cs" />
-    <Compile Include="PlayableItem.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration\SharesConfigModel.cs" />
-    <Compile Include="Settings\Configuration\SharesConfigSetting.cs" />
-    <Compile Include="VideoPlayerModel.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
@@ -68,6 +59,16 @@
       <Name>SkinBase</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MediaModel.cs" />
+    <Compile Include="NavigationItem.cs" />
+    <Compile Include="PlayableItem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\SharesConfigModel.cs" />
+    <Compile Include="Settings\Configuration\SharesConfigSetting.cs" />
+    <Compile Include="VideoPlayerModel.cs" />
+    <Compile Include="AudioPlayerModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
