@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using MediaPortal.Core.Logging;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
@@ -48,17 +49,48 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       _sortDirection = sortDirection;
     }
 
+    [XmlIgnore]
     public MediaItemAspectMetadata.AttributeSpecification AttributeType
     {
       get { return _attributeType; }
       set { _attributeType = value; }
     }
 
+    [XmlIgnore]
     public SortDirection Direction
     {
       get { return _sortDirection; }
       set { _sortDirection = value; }
     }
+
+    #region Additional members for the XML serialization
+
+    internal SortInformation() { }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("AttributeType", IsNullable=false)]
+    public string XML_AttributeType
+    {
+      get { return _attributeType.ParentMIAM.AspectId + ":" + _attributeType.AttributeName; }
+      set
+      {
+        int index = value.IndexOf(':');
+        IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+        Guid aspectId = new Guid(value.Substring(0, index));
+        string attributeName = value.Substring(index + 1);
+        MediaItemAspectMetadata miam;
+        if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectId, out miam) ||
+            !miam.AttributeSpecifications.TryGetValue(attributeName, out _attributeType))
+        {
+          ServiceScope.Get<ILogger>().Warn("SortInformation: Could not deserialize SortInformation '{0}'", value);
+          _attributeType = null;
+        }
+      }
+    }
+
+    #endregion
   }
 
   /// <summary>
@@ -164,9 +196,9 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     }
 
     [XmlIgnore]
-    public ICollection<SortInformation> SortInformation
+    public IList<SortInformation> SortInformation
     {
-      get { return _sortInformation; }
+      get { return _sortInformation.AsReadOnly(); }
       set { _sortInformation = new List<SortInformation>(value); }
     }
 

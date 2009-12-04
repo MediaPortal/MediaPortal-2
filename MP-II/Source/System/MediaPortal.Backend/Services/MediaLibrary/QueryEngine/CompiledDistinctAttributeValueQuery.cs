@@ -92,7 +92,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
           MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new List<MediaItemAspectMetadata>(),
-              new QueryAttribute[] {selectAttributeQA}, _filter);
+              new QueryAttribute[] {selectAttributeQA}, _filter, null);
           Namespace ns = new Namespace();
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;

@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -47,6 +48,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     protected readonly CompiledFilter _filter;
 
+    protected readonly IList<SortInformation> _sortInformation;
+
     /// <summary>
     /// Creates a new <see cref="MainQueryBuilder"/> instance.
     /// </summary>
@@ -56,14 +59,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <see cref="QueryAttribute"/> instances, which should be requested in this main query. Only attributes with
     /// a cardinality of <see cref="Cardinality.Inline"/> are allowed here.</param>
     /// <param name="filter">Filter to restrict the result set.</param>
+    /// <param name="sortInformation">List of sorting criteria.</param>
     public MainQueryBuilder(MIA_Management miaManagement,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
-        IEnumerable<QueryAttribute> simpleSelectAttributes, CompiledFilter filter)
+        IEnumerable<QueryAttribute> simpleSelectAttributes, CompiledFilter filter,
+        IList<SortInformation> sortInformation)
     {
       _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
       _filter = filter;
+      _sortInformation = sortInformation;
     }
 
     public ICollection<QueryAttribute> SelectAttributes
@@ -74,6 +80,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public CompiledFilter Filter
     {
       get { return _filter; }
+    }
+
+    public ICollection<SortInformation> SortInformation
+    {
+      get { return _sortInformation; }
     }
 
     /// <summary>
@@ -122,6 +133,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           new Dictionary<MediaItemAspectMetadata, TableQueryData>();
 
       // Build table query data for each selected inline attribute
+      // + compile query attribute to be able to produce an alias
+      // + add alias to selectAttributeDeclarations
       foreach (QueryAttribute attr in _selectAttributes)
       {
         if (compiledAttributes.ContainsKey(attr)) // Attribute is requested again
@@ -138,6 +151,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         selectAttributeDeclarations.Add(cqa.GetDeclarationWithAlias(ns));
       }
       // Build table query data for each inline attribute which is part of a filter
+      // + compile query attribute to be able to produce an alias
       foreach (QueryAttribute attr in _filter.FilterAttributes)
       {
         if (compiledAttributes.ContainsKey(attr))
@@ -148,9 +162,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
           if (!tableQueries.TryGetValue(miam, out tqd))
             tqd = tableQueries[miam] = new TableQueryData(_miaManagement, miam);
-          compiledAttributes.Add(attr, new CompiledQueryAttribute(_miaManagement, attr, tqd));
+          CompiledQueryAttribute cqa = new CompiledQueryAttribute(_miaManagement, attr, tqd);
+          compiledAttributes.Add(attr, cqa);
         }
       }
+      // Build table query data for each sort attribute
+      if (_sortInformation != null)
+        foreach (SortInformation sortInformation in _sortInformation)
+        {
+          MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
+          if (attr.Cardinality == Cardinality.Inline)
+          { // Sorting can only be done for inline attributes
+            TableQueryData tqd;
+            MediaItemAspectMetadata miam = attr.ParentMIAM;
+            if (!tableQueries.TryGetValue(miam, out tqd))
+              tableQueries[miam] = new TableQueryData(_miaManagement, miam);
+          }
+        }
       string mediaItemsTableAlias = ns.GetOrCreate(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME, "T");
       StringBuilder result = new StringBuilder("SELECT ");
 
@@ -229,6 +257,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       result.Append(" WHERE ");
       result.Append(_filter.CreateSqlFilterCondition(ns, compiledAttributes,
           mediaItemsTableAlias + "." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME));
+      if (_sortInformation != null)
+      {
+        IList<string> sortCriteria = new List<string>();
+        foreach (SortInformation sortInformation in _sortInformation)
+        {
+          MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
+          if (attr.Cardinality == Cardinality.Inline)
+          { // Sorting can only be done for inline attributes
+            MediaItemAspectMetadata miam = attr.ParentMIAM;
+            TableQueryData tqd = tableQueries[miam];
+            sortCriteria.Add(tqd.GetAlias(ns) + "." + _miaManagement.GetMIAAttributeColumnName(attr));
+          }
+        }
+        result.Append(" ORDER BY ");
+        result.Append(StringUtils.Join(", ", sortCriteria));
+      }
       return result.ToString();
     }
 
