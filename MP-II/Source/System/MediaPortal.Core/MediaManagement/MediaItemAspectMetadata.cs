@@ -42,32 +42,32 @@ namespace MediaPortal.Core.MediaManagement
     Inline,
 
     /// <summary>
-    /// There are multiple entries for the attribute, which are all dedicated to the
-    /// current instance.
+    /// There are multiple values for the attribute, which are all dedicated to the
+    /// current media item.
     /// </summary>
     /// <remarks>
-    /// The attribute will be defined in its own table and the association attribute to the
-    /// current media item aspect is located at the attribute's table.
+    /// The attribute is stored in its own table and the association attribute between the main MIA table
+    /// and the attribute's table is defined in the attribute's table.
     /// </remarks>
     OneToMany,
 
     /// <summary>
-    /// There is exactly one associated entry, which is assigned to multiple
+    /// There is one associated attribute value per media item, which itself might be assigned to multiple
     /// media item's aspects.
     /// </summary>
     /// <remarks>
-    /// The attribute will be defined in its own table and the association attribute to the
-    /// attribute's value is defined in the media item aspect's table.
+    /// The attribute is stored in its own table and the association attribute between the main MIA table
+    /// and the attribute's table is defined in the main MIA table.
     /// </remarks>
     ManyToOne,
 
     /// <summary>
-    /// There are multiple entries for the attribute, which are not dedicated to the
-    /// current instance.
+    /// There are multiple values for the attribute per media item, which themselves might be assigned to multiple
+    /// media items.
     /// </summary>
     /// <remarks>
-    /// The attribute will be defined in its own table and the association between the
-    /// media item aspect's table and the attribute's table will be defined in its own N:M table.
+    /// The attribute is stored in its own table and the association between the main MIA table
+    /// and the attribute's table is defined in its own N:M table.
     /// </remarks>
     ManyToMany
   }
