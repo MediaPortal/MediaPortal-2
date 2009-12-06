@@ -30,6 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 {

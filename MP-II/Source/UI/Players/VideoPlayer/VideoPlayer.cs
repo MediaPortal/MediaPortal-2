@@ -429,13 +429,18 @@ namespace Ui.Players.Video
           _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
               FilterCategory.LegacyAmFilterCategory, settings.H264Codec);
         }
-
+        if (_videoh264Codec == null)
+        {
+          _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "Microsoft DTV-DVD Video Decoder");
+          _videoCodec = _videoh264Codec; // MS only allows one filter in graph, it handles both MPEG2+H264
+        }
         if (_videoh264Codec == null)
         {
           _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
               FilterCategory.LegacyAmFilterCategory, "CyberLink H.264/AVC Decoder (PDVD7.X)");
         }
-        if (!string.IsNullOrEmpty(settings.Mpeg2Codec))
+        if (!string.IsNullOrEmpty(settings.Mpeg2Codec) && _videoCodec == null)
         {
           _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
               FilterCategory.LegacyAmFilterCategory, settings.Mpeg2Codec);
@@ -466,6 +471,11 @@ namespace Ui.Players.Video
         {
           _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
               FilterCategory.LegacyAmFilterCategory, settings.AudioCodec);
+        }
+        if (_audioCodec == null)
+        {
+          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
+              FilterCategory.LegacyAmFilterCategory, "Microsoft DTV-DVD Audio Decoder");
         }
         if (_audioCodec == null)
         {
@@ -519,6 +529,8 @@ namespace Ui.Players.Video
     protected virtual void FreeCodecs()
     {
       int hr;
+
+      bool SingleVideoCodec = (_videoCodec == _videoh264Codec);
       if (_videoh264Codec != null)
       {
         _graphBuilder.RemoveFilter(_videoh264Codec);
@@ -530,7 +542,11 @@ namespace Ui.Players.Video
       }
       if (_videoCodec != null)
       {
-        _graphBuilder.RemoveFilter(_videoCodec);
+        // if one single codec is active, we need to free it only once
+        if (!SingleVideoCodec)
+        {
+          _graphBuilder.RemoveFilter(_videoCodec);
+        }
         while ((hr = Marshal.ReleaseComObject(_videoCodec)) > 0)
         {
           ;
