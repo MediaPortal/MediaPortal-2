@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -231,7 +232,8 @@ namespace UPnP.Infrastructure.CP
       _cpData = cpData;
       _rootDescriptor = rootDescriptor;
       _deviceUUID = deviceUuid;
-      _eventNotificationURL = string.Format("http://{0}/{1}/", new IPEndPoint(_rootDescriptor.SSDPRootEntry.Endpoint.EndPointIPAddress,
+      IPAddress callbackAddress = NetworkHelper.GetLocalIPAddresses().FirstOrDefault();
+      _eventNotificationURL = callbackAddress == null ? null : string.Format("http://{0}/{1}/", new IPEndPoint(callbackAddress,
           (int) cpData.HttpPort), Guid.NewGuid());
       BuildDevice(rootDescriptor, deviceUuid, dataTypeResolver);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
@@ -586,7 +588,7 @@ namespace UPnP.Infrastructure.CP
           new Uri(sd.RootDescriptor.SSDPRootEntry.DescriptionLocation), sd.EventSubURL));
       request.Method = "SUBSCRIBE";
       request.UserAgent = Configuration.UPnPMachineInfoHeader;
-      request.Headers.Add("CALLBACK", "<" + _eventNotificationURL + ">");
+      request.Headers.Add("CALLBACK", "<" + (_eventNotificationURL ?? string.Empty) + ">");
       request.Headers.Add("NT", "upnp:event");
       request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
       return request;
