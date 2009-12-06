@@ -43,7 +43,7 @@ namespace UPnP.Infrastructure.Utils
     /// Returns all local ip addresses which are known via DNS.
     /// </summary>
     /// <returns>Collection of local IP addresses.</returns>
-    public static ICollection<IPAddress> GetLocalIPAddresses()
+    public static ICollection<IPAddress> GetExternalIPAddresses()
     {
       // Collect all interfaces where the UPnP system should be active
       ICollection<IPAddress> result = new List<IPAddress>();
@@ -54,6 +54,22 @@ namespace UPnP.Infrastructure.Utils
       }
       catch (SocketException) { }
       return result;
+    }
+
+    /// <summary>
+    /// Returns the first address of the given <paramref name="addresses"/> collection which has the given address
+    /// <paramref name="family"/>.
+    /// </summary>
+    /// <param name="addresses">Collection of addresses to search.</param>
+    /// <param name="family">Family of the address to return</param>
+    /// <returns>First address of the given address <paramref name="family"/> or <c>null</c>, if no such address is
+    /// in the given addresses collection.</returns>
+    public static IPAddress FindAddressOfFamily(ICollection<IPAddress> addresses, AddressFamily family)
+    {
+      foreach (IPAddress address in addresses)
+        if (address.AddressFamily == family)
+          return address;
+      return null;
     }
 
     /// <summary>

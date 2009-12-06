@@ -145,7 +145,9 @@ namespace UPnP.Infrastructure.Dv.SSDP
       Socket socket = state.Socket;
       try
       {
-        EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
+        EndPoint remoteEP = new IPEndPoint(
+            state.Endpoint.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork ?
+            IPAddress.Any : IPAddress.IPv6Any, 0);
         Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP));
         try
         {
@@ -363,7 +365,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
               new MulticastOption(config.SSDPMulticastAddress));
         else
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new MulticastOption(config.SSDPMulticastAddress));
+              new IPv6MulticastOption(config.SSDPMulticastAddress));
         socket.Close();
         config.SSDP_UDP_MulticastReceiveSocket = null;
       }
@@ -377,7 +379,8 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
     protected void StartReceive(UDPAsyncReceiveState state)
     {
-      EndPoint remoteEP = new IPEndPoint(IPAddress.Any, 0);
+      EndPoint remoteEP = new IPEndPoint(state.Endpoint.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork ?
+          IPAddress.Any : IPAddress.IPv6Any, 0);
       try
       {
         state.Socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,

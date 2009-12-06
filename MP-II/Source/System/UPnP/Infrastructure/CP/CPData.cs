@@ -33,7 +33,8 @@ namespace UPnP.Infrastructure.CP
   public class CPData
   {
     protected object _syncObj = new object();
-    protected uint _httpPort = 0;
+    protected uint _httpPortV4 = 0;
+    protected uint _httpPortV6 = 0;
     protected SSDPClientController _ssdpClientController = null;
 
     /// <summary>
@@ -45,12 +46,21 @@ namespace UPnP.Infrastructure.CP
     }
 
     /// <summary>
-    /// Gets or sets the HTTP listening port for used for event messages.
+    /// Gets or sets the HTTP listening port for IPv4 used for event messages.
     /// </summary>
-    public uint HttpPort
+    public uint HttpPortV4
     {
-      get { return _httpPort; }
-      internal set { _httpPort = value; }
+      get { return _httpPortV4; }
+      internal set { _httpPortV4 = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the HTTP listening port for IPv6 used for event messages.
+    /// </summary>
+    public uint HttpPortV6
+    {
+      get { return _httpPortV6; }
+      internal set { _httpPortV6 = value; }
     }
 
     /// <summary>

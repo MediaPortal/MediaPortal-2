@@ -29,6 +29,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using HttpServer;
 using MediaPortal.Utilities.Exceptions;
@@ -76,6 +77,10 @@ namespace UPnP.Infrastructure.Dv
     protected object _syncObj = new object();
     protected ServerData _serverData = new ServerData();
     
+    /// <summary>
+    /// Creates a new UPnP server instance. After creating this instance, its root devices should be populated by calling
+    /// <see cref="AddRootDevice"/> for each device.
+    /// </summary>
     public UPnPServer()
     {
       _serverData.Server = this;
@@ -176,12 +181,19 @@ namespace UPnP.Infrastructure.Dv
         if (_serverData.IsActive)
           throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
 
-        _serverData.HTTPListener = HttpListener.Create(IPAddress.Any, 0);
-        _serverData.HTTPListener.RequestReceived += OnHttpListenerRequestReceived;
-        _serverData.HTTPListener.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        _serverData.HTTP_PORT = (uint) _serverData.HTTPListener.LocalEndpoint.Port;
+        _serverData.HTTPListenerV4 = HttpListener.Create(IPAddress.Any, 0);
+        _serverData.HTTPListenerV4.RequestReceived += OnHttpListenerRequestReceived;
+        _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+        _serverData.HTTP_PORTv4 = (uint) _serverData.HTTPListenerV4.LocalEndpoint.Port;
 
-        Configuration.LOGGER.Info("UPnP server: HTTP listener started at port {0}", _serverData.HTTP_PORT);
+        Configuration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
+
+        _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
+        _serverData.HTTPListenerV6.RequestReceived += OnHttpListenerRequestReceived;
+        _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+        _serverData.HTTP_PORTv6 = (uint) _serverData.HTTPListenerV6.LocalEndpoint.Port;
+
+        Configuration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
 
         _serverData.SSDPController = new SSDPServerController(_serverData)
           {
@@ -233,7 +245,8 @@ namespace UPnP.Infrastructure.Dv
         _serverData.IsActive = false;
         _serverData.GENAController.Close();
         _serverData.SSDPController.Close();
-        _serverData.HTTPListener.Stop();
+        _serverData.HTTPListenerV4.Stop();
+        _serverData.HTTPListenerV6.Stop();
         _serverData.UPnPEndPoints.Clear();
       }
     }
@@ -394,22 +407,23 @@ namespace UPnP.Infrastructure.Dv
       IDictionary<IPAddress, EndpointConfiguration> oldEndpoints = new Dictionary<IPAddress, EndpointConfiguration>();
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
         oldEndpoints.Add(config.EndPointIPAddress, config);
-      ICollection<IPAddress> addresses = NetworkHelper.GetLocalIPAddresses();
+      ICollection<IPAddress> addresses = NetworkHelper.GetExternalIPAddresses();
 
       // Add new endpoints
       foreach (IPAddress address in addresses)
       {
         if (oldEndpoints.ContainsKey(address))
           continue;
+        int port = (int) (address.AddressFamily == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6);
         EndpointConfiguration config = new EndpointConfiguration
           {
               EndPointIPAddress = address,
               DescriptionURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_DESCRIPTION_URL_PREFIX),
+                  "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_DESCRIPTION_URL_PREFIX),
               ControlURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_CONTROL_URL_PREFIX),
+                  "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_CONTROL_URL_PREFIX),
               EventSubURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, (int) _serverData.HTTP_PORT), DEFAULT_EVENT_SUB_URL_PREFIX)
+                  "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_EVENT_SUB_URL_PREFIX)
           };
         GenerateObjectURLs(config);
         _serverData.UPnPEndPoints.Add(config);

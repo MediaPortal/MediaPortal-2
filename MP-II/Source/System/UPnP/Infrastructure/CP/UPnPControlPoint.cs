@@ -77,7 +77,8 @@ namespace UPnP.Infrastructure.CP
     /// </summary>
     public static int DEFAULT_HTTP_REQUEST_QUEUE_SIZE = 5;
 
-    protected HttpListener _httpListener = null;
+    protected HttpListener _httpListenerV4 = null;
+    protected HttpListener _httpListenerV6 = null;
     protected bool _isActive = false;
     protected IDictionary<string, DeviceConnection> _connectedDevices = new Dictionary<string, DeviceConnection>();
     protected CPData _cpData;
@@ -176,10 +177,14 @@ namespace UPnP.Infrastructure.CP
         if (_isActive)
           throw new IllegalCallException("UPnP control point mustn't be started multiple times");
 
-        _httpListener = HttpListener.Create(IPAddress.Any, 0);
-        _httpListener.RequestReceived += OnHttpListenerRequestReceived;
-        _httpListener.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        _cpData.HttpPort = (uint) _httpListener.LocalEndpoint.Port;
+        _httpListenerV4 = HttpListener.Create(IPAddress.Any, 0);
+        _httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
+        _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+        _cpData.HttpPortV4 = (uint) _httpListenerV4.LocalEndpoint.Port;
+        _httpListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
+        _httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
+        _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+        _cpData.HttpPortV6 = (uint) _httpListenerV6.LocalEndpoint.Port;
         _networkTracker.RootDeviceRemoved += OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted += OnDeviceRebooted;
 
@@ -200,8 +205,10 @@ namespace UPnP.Infrastructure.CP
         _isActive = false;
 
         DisconnectAll();
-        _httpListener.Stop();
-        _httpListener = null;
+        _httpListenerV4.Stop();
+        _httpListenerV4 = null;
+        _httpListenerV6.Stop();
+        _httpListenerV6 = null;
         _networkTracker.RootDeviceRemoved -= OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted -= OnDeviceRebooted;
       }
@@ -303,13 +310,14 @@ namespace UPnP.Infrastructure.CP
           // Handle different HTTP methods here
           if (request.Method == "NOTIFY")
           {
-            if (uri.StartsWith(connection.EventNotificationURL))
-            {
-              IHttpResponse response = request.CreateResponse(context);
-              response.Status = connection.HandleEventNotification(request);
-              response.Send();
-              return;
-            }
+            foreach (string notificationURL in connection.EventNotificationURLs)
+              if (uri.StartsWith(notificationURL))
+              {
+                IHttpResponse response = request.CreateResponse(context);
+                response.Status = connection.HandleEventNotification(request);
+                response.Send();
+                return;
+              }
           }
           else
           {

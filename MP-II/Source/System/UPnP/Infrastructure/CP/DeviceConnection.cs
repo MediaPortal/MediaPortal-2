@@ -29,11 +29,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.XPath;
 using HttpServer;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.DeviceTree;
@@ -211,7 +213,7 @@ namespace UPnP.Infrastructure.CP
     protected RootDescriptor _rootDescriptor;
     protected string _deviceUUID;
     protected CpDevice _device;
-    protected string _eventNotificationURL;
+    protected IList<string> _eventNotificationURLs;
     protected Timer _subscriptionRenewalTimer;
     protected IDictionary<string, EventSubscription> _subscriptions = new Dictionary<string, EventSubscription>();
     protected ICollection<AsyncRequestState> _pendingCalls = new List<AsyncRequestState>();
@@ -232,9 +234,7 @@ namespace UPnP.Infrastructure.CP
       _cpData = cpData;
       _rootDescriptor = rootDescriptor;
       _deviceUUID = deviceUuid;
-      IPAddress callbackAddress = NetworkHelper.GetLocalIPAddresses().FirstOrDefault();
-      _eventNotificationURL = callbackAddress == null ? null : string.Format("http://{0}/{1}/", new IPEndPoint(callbackAddress,
-          (int) cpData.HttpPort), Guid.NewGuid());
+      _eventNotificationURLs = CreateEventNotificationURLs(cpData, rootDescriptor.SSDPRootEntry.Endpoint.EndPointIPAddress);
       BuildDevice(rootDescriptor, deviceUuid, dataTypeResolver);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
     }
@@ -249,6 +249,35 @@ namespace UPnP.Infrastructure.CP
           state.Request.Abort();
         _pendingCalls.Clear();
       }
+    }
+
+    /// <summary>
+    /// Creates event notification URLs in the order of the more probable URLs first for the given communication
+    /// <paramref name="partner"/>.
+    /// </summary>
+    /// <param name="cpData">Shared control point data structure.</param>
+    /// <param name="partner">IP address of the communication partner.</param>
+    /// <returns>List of event notification URLs, the most probable URL first.</returns>
+    protected IList<string> CreateEventNotificationURLs(CPData cpData, IPAddress partner)
+    {
+      IList<IPAddress> callbackAddresses = new List<IPAddress>();
+      // If our partner is at the current PC, add the loopback address for the appropriate address family first
+      if (partner == IPAddress.Loopback)
+        callbackAddresses.Add(IPAddress.Loopback);
+      else if (partner == IPAddress.IPv6Loopback)
+        callbackAddresses.Add(IPAddress.IPv6Loopback);
+
+      ICollection<IPAddress> externalAddresses = NetworkHelper.GetExternalIPAddresses();
+      IPAddress address = NetworkHelper.FindAddressOfFamily(externalAddresses, partner.AddressFamily) ??
+          externalAddresses.FirstOrDefault();
+      if (address != null)
+        callbackAddresses.Add(address);
+      IList<string> result = new List<string>();
+      Guid path = Guid.NewGuid();
+      foreach (IPAddress callbackAddress in callbackAddresses)
+        result.Add(string.Format("http://{0}/{1}/", new IPEndPoint(callbackAddress,
+            (int) (callbackAddress.AddressFamily == AddressFamily.InterNetwork ? cpData.HttpPortV4 : cpData.HttpPortV6)), path));
+      return result;
     }
 
     /// <summary>
@@ -588,7 +617,7 @@ namespace UPnP.Infrastructure.CP
           new Uri(sd.RootDescriptor.SSDPRootEntry.DescriptionLocation), sd.EventSubURL));
       request.Method = "SUBSCRIBE";
       request.UserAgent = Configuration.UPnPMachineInfoHeader;
-      request.Headers.Add("CALLBACK", "<" + (_eventNotificationURL ?? string.Empty) + ">");
+      request.Headers.Add("CALLBACK", "<" + StringUtils.Join("><", _eventNotificationURLs) + ">");
       request.Headers.Add("NT", "upnp:event");
       request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
       return request;
@@ -704,9 +733,9 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Returns the unique URL which is used for event notifications from subscribed services.
     /// </summary>
-    public string EventNotificationURL
+    public IList<string> EventNotificationURLs
     {
-      get { return _eventNotificationURL; }
+      get { return _eventNotificationURLs; }
     }
 
     /// <summary>

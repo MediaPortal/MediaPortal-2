@@ -68,14 +68,24 @@ namespace UPnP.Infrastructure.Dv
     public GENAServerController GENAController;
 
     /// <summary>
-    /// HTTP listener to answer description, control and eventing requests.
+    /// HTTP listener to answer description, control and eventing requests for IPv4.
     /// </summary>
-    public HttpListener HTTPListener;
+    public HttpListener HTTPListenerV4;
 
     /// <summary>
-    /// Port where the HTTP server is listening.
+    /// HTTP listener to answer description, control and eventing requests for IPv6.
     /// </summary>
-    public uint HTTP_PORT = DEFAULT_HTTP_PORT;
+    public HttpListener HTTPListenerV6;
+
+    /// <summary>
+    /// Port where the HTTP server is listening for IPv4.
+    /// </summary>
+    public uint HTTP_PORTv4 = DEFAULT_HTTP_PORT;
+
+    /// <summary>
+    /// Port where the HTTP server is listening for IPv6.
+    /// </summary>
+    public uint HTTP_PORTv6 = DEFAULT_HTTP_PORT;
 
     /// <summary>
     /// The UPnP server which is handled by the UPnP subsystem.

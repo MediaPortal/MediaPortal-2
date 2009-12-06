@@ -268,7 +268,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (_isActive)
           throw new IllegalCallException("SSDPClientController is already active");
         _isActive = true;
-        ICollection<IPAddress> addresses = NetworkHelper.GetLocalIPAddresses();
+        ICollection<IPAddress> addresses = NetworkHelper.GetExternalIPAddresses();
   
         // Add endpoints
         foreach (IPAddress address in addresses)
