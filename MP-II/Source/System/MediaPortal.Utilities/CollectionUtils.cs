@@ -352,5 +352,20 @@ namespace MediaPortal.Utilities
         result.Add(elements.GetRange(i * clusterSize, clusterSize));
       return result;
     }
+
+    /// <summary>
+    /// Returns a list which contains the given object <paramref name="obj"/> <paramref name="num"/> times.
+    /// </summary>
+    /// <typeparam name="T">Type of the object to multiply.</typeparam>
+    /// <param name="obj">Object to fill into the result list.</param>
+    /// <param name="num">Number of times the given object should be copied into the result list.</param>
+    /// <returns>List with size <paramref name="num"/>.</returns>
+    public static IList<T> Fill<T>(T obj, int num)
+    {
+      IList<T> result = new List<T>(num);
+      for (int i = 0; i < num; i++)
+        result.Add(obj);
+      return result;
+    }
   }
 }

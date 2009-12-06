@@ -52,7 +52,7 @@ namespace MediaPortal.Core.MediaManagement
     OneToMany,
 
     /// <summary>
-    /// There is one associated attribute value per media item, which itself might be assigned to multiple
+    /// There is zero or one associated attribute value per media item, which itself might be assigned to multiple
     /// media item's aspects.
     /// </summary>
     /// <remarks>
