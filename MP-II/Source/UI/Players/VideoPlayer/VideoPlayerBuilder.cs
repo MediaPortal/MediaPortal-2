@@ -43,7 +43,10 @@ namespace Ui.Players.Video
       EXTENSIONS2PLAYER.Add(".avi", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ts", typeof(VideoPlayer));
       // TODO: Go on with extensions mapping
+
+      MIMETYPES2PLAYER.Add("video/x-ms-wmv", typeof(VideoPlayer));
       // TODO: Go on with mime types mapping
     }
 
@@ -53,12 +56,17 @@ namespace Ui.Players.Video
       string extension = Path.GetExtension(path).ToLowerInvariant();
       Type playerType;
       if (mimeType != null)
+      {
         if (MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
+        {
           return playerType;
-        else
-          return null;
+        }
+      }
+      // 2nd chance: if no mimetype match, try extensions
       if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
+      {
         return playerType;
+      }
       return null;
     }
 

@@ -74,6 +74,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       MOVIE_EXTENSIONS.Add(".wmv"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".mpg"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".mp4"); // Not confirmed yet
+      MOVIE_EXTENSIONS.Add(".ts"); // Not confirmed yet
     }
 
     public MovieMetadataExtractor()
@@ -171,7 +172,10 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             long? l;
             string s;
             float? f;
-            // TODO: MediaAspect.ATTR_MIME_TYPE
+
+            MimeTypeDetector mtd = new MimeTypeDetector();
+            mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mtd.GetMimeType(filePath)); //tag.MimeType
+
             s = mediaInfo.GetVidCodec(0);
             if (s != null)
               movieAspect.SetAttribute(MovieAspect.ATTR_VIDEOENCODING, s);
