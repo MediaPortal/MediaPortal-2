@@ -125,7 +125,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <exception cref="ArgumentException">Thrown if an attribute type is requested which is not defined on this MIA's metadata or
     /// if the requested type <typeparamref name="T"/> doesn't match the defined type in the
     /// <paramref name="attributeSpecification"/>.</exception>
-    public T GetAttribute<T>(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    public T GetAttributeValue<T>(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
     {
       CheckAttributeSpecification(attributeSpecification, typeof(T));
       CheckSingleAttribute(attributeSpecification);
@@ -141,7 +141,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <returns>Attribute of this media item aspect which belongs to the specified <paramref name="attributeSpecification"/>.
     /// In case the given attribute should be ignored, <c>null</c> will be returned.</returns>
     /// <exception cref="ArgumentException">Thrown if an attribute type is requested which is not defined on this MIA's metadata.</exception>
-    public object GetAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
+    public object GetAttributeValue(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
     {
       CheckSingleAttribute(attributeSpecification);
       if (IsIgnore(attributeSpecification))
@@ -284,7 +284,7 @@ namespace MediaPortal.Core.MediaManagement
             SerializeValue(writer, obj, spec.AttributeType);
         }
         else
-          SerializeValue(writer, GetAttribute(spec), spec.AttributeType);
+          SerializeValue(writer, GetAttributeValue(spec), spec.AttributeType);
         writer.WriteEndElement(); // Attribute
       }
       writer.WriteEndElement(); // MediaItemAspect

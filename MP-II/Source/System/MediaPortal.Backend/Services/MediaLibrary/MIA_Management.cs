@@ -1155,21 +1155,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               terms.Add(attrColName);
             else
               terms.Add(attrColName + " = ?");
-            sqlValues.Add(mia.GetAttribute(spec));
+            sqlValues.Add(mia.GetAttributeValue(spec));
             break;
           case Cardinality.OneToMany:
             InsertOrUpdateOneToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
             break;
           case Cardinality.ManyToOne:
             attrColName = GetMIAAttributeColumnName(spec);
-            object attributeValue = mia.GetAttribute(spec);
+            object attributeValue = mia.GetAttributeValue(spec);
             Int64? insertValue;
             if (attributeValue == null)
               insertValue = null;
             else
             {
               Int64 valuePk;
-              GetOrCreateManyToOneMIAAttributeValue(transaction, spec, mediaItemId, mia.GetAttribute(spec), insert, out valuePk);
+              GetOrCreateManyToOneMIAAttributeValue(transaction, spec, mediaItemId, mia.GetAttributeValue(spec), insert, out valuePk);
               insertValue = valuePk;
             }
             if (insert)

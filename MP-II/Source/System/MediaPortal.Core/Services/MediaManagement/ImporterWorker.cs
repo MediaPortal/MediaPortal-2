@@ -315,7 +315,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           {
             MediaItemAspect providerResourceAspect;
             if (mediaItem.Aspects.TryGetValue(ProviderResourceAspect.ASPECT_ID, out providerResourceAspect))
-              path2Item[providerResourceAspect.GetAttribute<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
+              path2Item[providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)] = mediaItem;
           }
         }
         CheckImportStillRunning(importJob.State);
@@ -328,7 +328,7 @@ namespace MediaPortal.Core.Services.MediaManagement
             if (importJob.JobType == ImportJobType.Refresh &&
                 path2Item.TryGetValue(fileAccessor.LocalResourcePath.Serialize(), out mediaItem) &&
                 mediaItem.Aspects.TryGetValue(ImporterAspect.ASPECT_ID, out importerAspect) &&
-                importerAspect.GetAttribute<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
+                importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_LAST_IMPORT_DATE) > fileAccessor.LastChanged)
               // We can skip this file; it was imported after the last change time of the item
               continue;
             ImportResource(fileAccessor, metadataExtractors, mediaItemAspectTypes, resultHandler, mediaAccessor);
