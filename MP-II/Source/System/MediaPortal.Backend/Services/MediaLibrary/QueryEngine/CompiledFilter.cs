@@ -147,7 +147,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Add("=");
           result.Add(outerMIIDJoinVariablePlaceHolder);
           result.Add(" AND ");
-          attributeOperand = "COLL_MIA_TABLE." + MIA_Management.COLL_MIA_VALUE_COL_NAME;
+          attributeOperand = "COLL_MIA_TABLE." + MIA_Management.COLL_ATTR_VALUE_COL_NAME;
         }
         CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, attributeOperand));
         if (attributeType.Cardinality != Cardinality.Inline)
@@ -266,8 +266,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         QueryAttribute qa = statementPart as QueryAttribute;
         if (qa != null)
-          result.Append(compiledAttributes[qa].GetAlias(ns));
+          result.Append(compiledAttributes[qa].GetQualifiedName(ns));
         else if (statementPart == _outerMIIDJoinVariablePlaceHolder)
+          result.Append(outerMIIDJoinVariable);
+        else
           result.Append(statementPart.ToString());
       }
       return result.ToString();

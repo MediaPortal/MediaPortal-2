@@ -30,7 +30,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
   /// Builds the SQL statement for a complex media item aspect attribute query, filtered by a <see cref="CompiledFilter"/>.
-  /// Complex attributes are all attributes which have a cardinality different from <see cref="Cardinality.Inline"/>.
+  /// Complex attributes are all attributes which have a cardinality different from <see cref="Cardinality.Inline"/> and
+  /// thus need an explicit query for each attribute.
   /// </summary>
   public class ComplexAttributeQueryBuilder
   {
@@ -109,7 +110,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       string queryAttributeTableName = _miaManagement.GetMIACollectionAttributeTableName(_queryAttribute);
       string queryAttributeTableAlias = ns.GetOrCreate(queryAttributeTableName, "T");
-      valueAlias = ns.GetOrCreate(MIA_Management.COLL_MIA_VALUE_COL_NAME, "A");
+      valueAlias = ns.GetOrCreate(MIA_Management.COLL_ATTR_VALUE_COL_NAME, "A");
 
       StringBuilder result = new StringBuilder("SELECT ");
 
@@ -134,7 +135,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Value column of extern attribute table
       result.Append(queryAttributeTableAlias);
       result.Append(".");
-      result.Append(MIA_Management.COLL_MIA_VALUE_COL_NAME);
+      result.Append(MIA_Management.COLL_ATTR_VALUE_COL_NAME);
       result.Append(" ");
       result.Append(valueAlias);
 

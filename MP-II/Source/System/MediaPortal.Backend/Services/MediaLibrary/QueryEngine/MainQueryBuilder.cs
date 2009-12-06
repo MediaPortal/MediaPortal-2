@@ -37,7 +37,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   public class MainQueryBuilder
   {
     protected readonly MIA_Management _miaManagement;
-
     protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
 
     /// <summary>
@@ -45,9 +44,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// attributes used in a filter).
     /// </summary>
     protected readonly IList<QueryAttribute> _selectAttributes;
-
     protected readonly CompiledFilter _filter;
-
     protected readonly IList<SortInformation> _sortInformation;
 
     /// <summary>
@@ -90,16 +87,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <summary>
     /// Generates the SQL statement for this query specification.
     /// </summary>
-    /// <remarks>
-    /// In case of <c><paramref name="distinctValue"/> == true</c>, A query of the form
-    /// <code>
-    ///   TODO
-    /// </code>
-    /// will be created. In case of <c><paramref name="distinctValue"/> == false</c>, the query will look like this:
-    /// <code>
-    ///   TODO
-    /// </code>
-    /// </remarks>
     /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
     /// inside another statement, the use of a common namespace prevents name collisions.</param>
     /// <param name="distinctValue">If set to <c>true</c>, this method will create a DISTINCT result set for the requested
@@ -111,17 +98,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// case.</param>
     /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
     /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
-    /// <param name="compiledAttributes">Returns the query descriptors for all requested attributes which can be used to
-    /// determine the attribute's aliases.</param>
-    /// <returns></returns>
+    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
+    /// <returns>
+    /// In case of <c><paramref name="distinctValue"/> == true</c>, A query of the form
+    /// <code>
+    ///   TODO
+    /// </code>
+    /// will be created. In case of <c><paramref name="distinctValue"/> == false</c>, the query will look like this:
+    /// <code>
+    ///   TODO
+    /// </code>
+    /// </returns>
     public string GenerateSqlStatement(Namespace ns, bool distinctValue,
         out string mediaItemIdAlias,
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
-        out IDictionary<QueryAttribute, CompiledQueryAttribute> compiledAttributes)
+        out IDictionary<QueryAttribute, string> attributeAliases)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its compiled
       // data (with query table and attribute alias)
-      compiledAttributes = new Dictionary<QueryAttribute, CompiledQueryAttribute>();
+      IDictionary<QueryAttribute, CompiledQueryAttribute> compiledAttributes = new Dictionary<QueryAttribute, CompiledQueryAttribute>();
+      attributeAliases = new Dictionary<QueryAttribute, string>();
 
       // Contains a list of compiled select attribute declarations. We need this in a separate list (in contrast to using
       // the selectAttributes list together with the compiledAttributes map) because it might be the case that
@@ -148,7 +144,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           tqd = tableQueries[miam] = new TableQueryData(_miaManagement, miam);
         CompiledQueryAttribute cqa = new CompiledQueryAttribute(_miaManagement, attr, tqd);
         compiledAttributes.Add(attr, cqa);
-        selectAttributeDeclarations.Add(cqa.GetDeclarationWithAlias(ns));
+        string alias;
+        selectAttributeDeclarations.Add(cqa.GetDeclarationWithAlias(ns, out alias));
+        attributeAliases.Add(attr, alias);
       }
       // Build table query data for each inline attribute which is part of a filter
       // + compile query attribute to be able to produce an alias
@@ -203,11 +201,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IList<string> selectAttrStrs = new List<string>();
       // Requested attributes
       foreach (QueryAttribute attr in _selectAttributes)
-        selectAttrStrs.Add(compiledAttributes[attr].GetDeclarationWithAlias(ns));
+        selectAttrStrs.Add(attributeAliases[attr]);
       result.Append(StringUtils.Join(",", selectAttrStrs));
 
-      miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
       // System attributes: Necessary to evaluate if a requested MIA is present for the media item
+      miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
       foreach (TableQueryData tqd in tableQueries.Values)
       {
         result.Append(",");
@@ -273,6 +271,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(" ORDER BY ");
         result.Append(StringUtils.Join(", ", sortCriteria));
       }
+
       return result.ToString();
     }
 
@@ -281,8 +280,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       string mediaItemIdAlias2;
       IDictionary<MediaItemAspectMetadata, string> miamAliases;
       Namespace mainQueryNS = new Namespace();
-      IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
-      return GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2cqa);
+      IDictionary<QueryAttribute, string> qa2a;
+      return GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2a);
     }
   }
 }

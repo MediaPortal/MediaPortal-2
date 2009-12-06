@@ -83,16 +83,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _sortInformation; }
     }
 
-    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query,
-        IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes)
+    public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query)
     {
+      IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       ICollection<MediaItemAspectMetadata> necessaryMIAs = new List<MediaItemAspectMetadata>();
       // Raise exception if necessary MIA types are not present
       foreach (Guid miaTypeID in query.NecessaryRequestedMIATypeIDs)
       {
         MediaItemAspectMetadata miam;
         if (!availableMIATypes.TryGetValue(miaTypeID, out miam))
-          throw new InvalidDataException("Necessary MIA type '{0}' is not present in the media library", miaTypeID);
+          throw new InvalidDataException("Necessary requested MIA type '{0}' is not present in the media library", miaTypeID);
         necessaryMIAs.Add(miam);
       }
       // Raise exception if MIA types are not present, which are contained in filter condition
@@ -188,9 +188,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDictionary<MediaItemAspectMetadata, string> miamAliases;
         Namespace mainQueryNS = new Namespace();
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
-        IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
+        IDictionary<QueryAttribute, string> qa2a;
         command.CommandText = mainQueryBuilder.GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2,
-            out miamAliases, out qa2cqa);
+            out miamAliases, out qa2a);
 
         ICollection<MediaItemAspectMetadata> selectedMIAs = new HashSet<MediaItemAspectMetadata>();
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in CollectionUtils.UnionList(_mainSelectAttributes.Keys, _explicitSelectAttributes))
@@ -217,8 +217,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 if (attr.Cardinality == Cardinality.Inline)
                 {
                   QueryAttribute qa = _mainSelectAttributes[attr];
-                  CompiledQueryAttribute cqa = qa2cqa[qa];
-                  mia.SetAttribute(attr, reader2.GetValue(reader2.GetOrdinal(cqa.GetAlias(mainQueryNS))));
+                  string alias = qa2a[qa];
+                  mia.SetAttribute(attr, reader2.GetValue(reader2.GetOrdinal(alias)));
                 }
                 else
                 {

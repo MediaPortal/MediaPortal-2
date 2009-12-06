@@ -32,6 +32,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   public class Namespace
   {
     protected readonly IDictionary<object, string> _objects2names = new Dictionary<object, string>();
+    protected readonly ICollection<string> namesIndex = new HashSet<string>();
 
     public string Get(object obj)
     {
@@ -47,9 +48,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (!string.IsNullOrEmpty(result))
         return result;
       int ct = 0;
-      ICollection<string> names = new HashSet<string>(_objects2names.Values);
-      while (names.Contains(result = string.Format("{0}{1}", prefix, ct)))
+      while (namesIndex.Contains(result = string.Format("{0}{1}", prefix, ct)))
         ct++;
+      namesIndex.Add(result);
       return _objects2names[obj] = result;
     }
   }

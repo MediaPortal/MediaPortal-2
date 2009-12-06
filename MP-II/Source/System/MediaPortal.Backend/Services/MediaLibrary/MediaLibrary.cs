@@ -80,7 +80,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IDbCommand command = MediaLibrary_SubSchema.InsertMediaItemCommand(database, transaction);
       command.ExecuteNonQuery();
 
-      command = MediaLibrary_SubSchema.GetLastGeneratedMediaItemIdCommand(database, transaction);
+      command = MediaLibrary_SubSchema.GetLastGeneratedMediaLibraryIdCommand(database, transaction);
       return (Int64) command.ExecuteScalar();
     }
 
@@ -197,7 +197,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public IList<MediaItem> Search(MediaItemQuery query)
     {
-      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, query, GetManagedMediaItemAspectMetadata());
+      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, query);
       return cmiq.Execute();
     }
 
@@ -298,7 +298,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IFilter filter)
     {
       CompiledDistinctAttributeValueQuery cdavq = CompiledDistinctAttributeValueQuery.Compile(
-          _miaManagement, attributeType, filter, GetManagedMediaItemAspectMetadata());
+          _miaManagement, attributeType, filter);
       return cdavq.Execute();
     }
 

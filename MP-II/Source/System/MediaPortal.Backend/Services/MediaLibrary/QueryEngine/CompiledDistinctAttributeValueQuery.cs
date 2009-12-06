@@ -64,9 +64,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     }
 
     public static CompiledDistinctAttributeValueQuery Compile(MIA_Management miaManagement,
-        MediaItemAspectMetadata.AttributeSpecification selectAttribute,
-        IFilter filter, IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes)
+        MediaItemAspectMetadata.AttributeSpecification selectAttribute, IFilter filter)
     {
+      IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
       // Raise exception if MIA types are not present, which are contained in filter condition
       CompiledFilter compiledFilter = CompiledFilter.Compile(miaManagement, filter);
       foreach (QueryAttribute qa in compiledFilter.FilterAttributes)
@@ -93,13 +93,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
           MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new List<MediaItemAspectMetadata>(),
               new QueryAttribute[] {selectAttributeQA}, _filter, null);
-          Namespace ns = new Namespace();
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
-          IDictionary<QueryAttribute, CompiledQueryAttribute> qa2cqa;
-          command.CommandText = builder.GenerateSqlStatement(ns, true, out mediaItemIdAlias,
-              out miamAliases, out qa2cqa);
-          valueAlias = qa2cqa[selectAttributeQA].GetAlias(ns);
+          IDictionary<QueryAttribute, string> qa2a;
+          command.CommandText = builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias,
+              out miamAliases, out qa2a);
+          valueAlias = qa2a[selectAttributeQA];
         }
         else
         {

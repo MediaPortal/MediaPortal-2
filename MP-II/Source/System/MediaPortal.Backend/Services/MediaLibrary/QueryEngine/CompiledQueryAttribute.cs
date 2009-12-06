@@ -28,23 +28,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   {
     protected readonly QueryAttribute _queryAttribute;
     protected readonly TableQueryData _tableQueryData;
-    protected readonly string _attributeName;
+    protected readonly string _columnName;
 
     public CompiledQueryAttribute(MIA_Management miaManagement, QueryAttribute queryAttribute, TableQueryData tableQueryData)
     {
       _queryAttribute = queryAttribute;
       _tableQueryData = tableQueryData;
-      _attributeName = miaManagement.GetMIAAttributeColumnName(_queryAttribute.Attr);
+      _columnName = miaManagement.GetMIAAttributeColumnName(_queryAttribute.Attr);
     }
 
-    public string GetAlias(Namespace ns)
+    public string GetQualifiedName(Namespace ns)
     {
-      return ns.GetOrCreate(this, "A");
+      return _tableQueryData.GetAlias(ns) + "." + _columnName;
     }
 
-    public string GetDeclarationWithAlias(Namespace ns)
+    public string GetDeclarationWithAlias(Namespace ns, out string alias)
     {
-      return _tableQueryData.GetAlias(ns) + "." + _attributeName + " " + GetAlias(ns);
+      alias = ns.GetOrCreate(this, "A");
+      return _tableQueryData.GetAlias(ns) + "." + _columnName + " " + alias;
     }
   }
 }
