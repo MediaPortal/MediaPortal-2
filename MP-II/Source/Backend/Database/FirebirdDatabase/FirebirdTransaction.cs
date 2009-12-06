@@ -34,11 +34,13 @@ namespace MediaPortal.BackendComponents.Database.Firebird
   /// </summary>
   public class FirebirdTransaction : ITransaction
   {
+    protected FirebirdSQLDatabase _database;
     protected FbConnection _connection;
     protected FbTransaction _transaction;
 
-    public FirebirdTransaction(FbConnection connection, FbTransaction transaction)
+    public FirebirdTransaction(FirebirdSQLDatabase database, FbConnection connection, FbTransaction transaction)
     {
+      _database = database;
       _connection = connection;
       _transaction = transaction;
     }
@@ -58,14 +60,19 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       get { return _transaction; }
     }
 
-    public static ITransaction BeginTransaction(string connectionString, IsolationLevel level)
+    public static ITransaction BeginTransaction(FirebirdSQLDatabase database, string connectionString, IsolationLevel level)
     {
       FbConnection connection = new FbConnection(connectionString);
       connection.Open();
-      return new FirebirdTransaction(connection, connection.BeginTransaction(level));
+      return new FirebirdTransaction(database, connection, connection.BeginTransaction(level));
     }
 
     #region ITransaction implementation
+
+    public ISQLDatabase Database
+    {
+      get { return _database; }
+    }
 
     public IDbConnection Connection
     {

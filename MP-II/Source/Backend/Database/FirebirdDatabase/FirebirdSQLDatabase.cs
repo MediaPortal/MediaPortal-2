@@ -218,7 +218,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public ITransaction BeginTransaction(IsolationLevel level)
     {
-      return FirebirdTransaction.BeginTransaction(_connectionString, level);
+      return FirebirdTransaction.BeginTransaction(this, _connectionString, level);
     }
 
     public ITransaction BeginTransaction()

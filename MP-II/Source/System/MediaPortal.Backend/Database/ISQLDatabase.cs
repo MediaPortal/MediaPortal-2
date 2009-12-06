@@ -31,7 +31,10 @@ namespace MediaPortal.Backend.Database
 {
   public interface ITransaction : IDisposable
   {
+    ISQLDatabase Database { get; }
+
     IDbConnection Connection { get; }
+
     void Commit();
     void Rollback();
 
