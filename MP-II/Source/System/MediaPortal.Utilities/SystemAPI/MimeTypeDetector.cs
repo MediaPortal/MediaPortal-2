@@ -21,38 +21,35 @@
 */
 
 #endregion
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.IO;
 using Microsoft.Win32;
 
-
-namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
+namespace MediaPortal.Utilities.SystemAPI
 {
   /// <summary>
-  /// Detect MimeType from binary file by reading the first 256 bytes
+  /// Detect MimeType from binary file by reading the first 256 bytes.
   /// </summary>
-  class MimeTypeDetector
+  public static class MimeTypeDetector
   {
     [DllImport(@"urlmon.dll", CharSet = CharSet.Auto)]
-    private extern static System.UInt32 FindMimeFromData(
-        System.UInt32 pBC,
-        [MarshalAs(UnmanagedType.LPStr)] System.String pwzUrl,
+    private extern static UInt32 FindMimeFromData(
+        UInt32 pBC,
+        [MarshalAs(UnmanagedType.LPStr)] String pwzUrl,
         [MarshalAs(UnmanagedType.LPArray)] byte[] pBuffer,
-        System.UInt32 cbSize,
-        [MarshalAs(UnmanagedType.LPStr)] System.String pwzMimeProposed,
-        System.UInt32 dwMimeFlags,
-        out System.UInt32 ppwzMimeOut,
-        System.UInt32 dwReserverd
-    );
+        UInt32 cbSize,
+        [MarshalAs(UnmanagedType.LPStr)] String pwzMimeProposed,
+        UInt32 dwMimeFlags,
+        out UInt32 ppwzMimeOut,
+        UInt32 dwReserverd
+        );
 
-    public string GetMimeType(string filename)
+    public static string GetMimeType(string filename)
     {
       String mimeType = GetMimeFromFile(filename);
-      // if no specific type was found by binary data, try lookup via registry
+      // If no specific type was found by binary data, try lookup via registry
       if (mimeType == "unknown/unknown" || mimeType == "application/octet-stream")
       {
         mimeType = GetMimeTypeFromRegistry(filename);
@@ -60,7 +57,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       return mimeType;
     }
 
-    public string GetMimeFromFile(string filename)
+    public static string GetMimeFromFile(string filename)
     {
       if (!File.Exists(filename))
         throw new FileNotFoundException(filename + " not found");
@@ -75,19 +72,20 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       }
       try
       {
-        System.UInt32 mimetype;
+        UInt32 mimetype;
         FindMimeFromData(0, null, buffer, 256, null, 0, out mimetype, 0);
-        System.IntPtr mimeTypePtr = new IntPtr(mimetype);
+        IntPtr mimeTypePtr = new IntPtr(mimetype);
         string mime = Marshal.PtrToStringUni(mimeTypePtr);
         Marshal.FreeCoTaskMem(mimeTypePtr);
         return mime;
       }
-      catch (Exception e)
+      catch (Exception)
       {
         return "unknown/unknown";
       }
     }
-    private string GetMimeTypeFromRegistry(string filename)
+
+    public static string GetMimeTypeFromRegistry(string filename)
     {
       try
       {
@@ -96,17 +94,16 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
         if (string.IsNullOrEmpty(ext))
           return null;
 
-        // convert to lowercase as registry has lowercase keys
+        // Convert to lowercase as registry has lowercase keys
         ext = ext.ToLower();
-
         RegistryKey registryKey = Registry.ClassesRoot.OpenSubKey(ext);
 
-        if (registryKey == null || registryKey.GetValue("Content Type") == null)
+        if (registryKey == null)
           return null;
 
         return registryKey.GetValue("Content Type") as string;
       }
-      catch (Exception exception)
+      catch (Exception)
       {
         return "unknown/unknown";
       }

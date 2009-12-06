@@ -209,7 +209,6 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
           return false;
         }
 
-
         string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
         IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ? GuessArtists(humanReadablePath) : tag.Tag.Performers;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);

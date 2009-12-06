@@ -30,7 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
-using MediaPortal.Utilities;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 {
@@ -174,8 +174,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             string s;
             float? f;
 
-            MimeTypeDetector mtd = new MimeTypeDetector();
-            mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, mtd.GetMimeType(filePath)); //tag.MimeType
+            mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, MimeTypeDetector.GetMimeType(filePath)); //tag.MimeType
 
             s = mediaInfo.GetVidCodec(0);
             if (s != null)
