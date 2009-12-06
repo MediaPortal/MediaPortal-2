@@ -73,14 +73,16 @@
     <Compile Include="Services\ClientCommunication\UPnPServerControlPoint.cs" />
     <Compile Include="Services\ClientCommunication\UPnPClientControllerServiceProxy.cs" />
     <Compile Include="Services\Database\SqlScriptPreprocessor.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledDistinctAttributeValueQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledQueryAttribute.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\RequestedAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\ComplexAttributeQueryBuilder.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\Namespace.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\QueryAttribute.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\TableJoin.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />
     <Compile Include="BackendServer\Settings\BackendServerSettings.cs" />
     <Compile Include="Services\Database\DatabaseManager.cs" />

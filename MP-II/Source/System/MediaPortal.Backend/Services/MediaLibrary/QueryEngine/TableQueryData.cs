@@ -26,20 +26,45 @@ using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
+  /// <summary>
+  /// Encapsulates a single queried table instance in a query.
+  /// </summary>
   public class TableQueryData
   {
-    protected readonly MediaItemAspectMetadata _miam;
     protected readonly string _tableName;
 
-    public TableQueryData(MIA_Management miaManagement, MediaItemAspectMetadata miam)
+    public TableQueryData(string tableName)
     {
-      _miam = miam;
-      _tableName = miaManagement.GetMIATableName(miam);
+      _tableName = tableName;
     }
 
-    public MediaItemAspectMetadata MIAM
+    /// <summary>
+    /// Creates a table query of the main media item aspect table of the given <paramref name="miaType"/>.
+    /// </summary>
+    /// <param name="miaManagement">MIA management instance.</param>
+    /// <param name="miaType">Type of the MIA to request.</param>
+    /// <returns>Table query for the given MIA.</returns>
+    public static TableQueryData CreateTableQueryOfMIATable(MIA_Management miaManagement,
+        MediaItemAspectMetadata miaType)
     {
-      get { return _miam; }
+      return new TableQueryData(miaManagement.GetMIATableName(miaType));
+    }
+
+    /// <summary>
+    /// Creates a table query of the external table of an attribute of cardinality <see cref="Cardinality.ManyToOne"/>.
+    /// </summary>
+    /// <param name="miaManagement">MIA management instance.</param>
+    /// <param name="spec">Attribute type of cardinality <see cref="Cardinality.ManyToOne"/> whose table should be requested.</param>
+    /// <returns>Table query for the table of the given attribute type.</returns>
+    public static TableQueryData CreateTableQueryOfMTOTable(MIA_Management miaManagement,
+        MediaItemAspectMetadata.AttributeSpecification spec)
+    {
+      return new TableQueryData(miaManagement.GetMIACollectionAttributeTableName(spec));
+    }
+
+    public string TableName
+    {
+      get { return _tableName; }
     }
 
     public string GetAlias(Namespace ns)
@@ -50,6 +75,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public string GetDeclarationWithAlias(Namespace ns)
     {
       return _tableName + " " + ns.GetOrCreate(this, "T");
+    }
+
+    // Inherit Equals() and GetHashCode() from object class; different objects of this class need to be !=
+
+    public override string ToString()
+    {
+      return _tableName;
     }
   }
 }

@@ -124,7 +124,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           continue;
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in miam.AttributeSpecifications.Values)
         {
-          if (attr.Cardinality == Cardinality.Inline)
+          if (attr.Cardinality == Cardinality.Inline || attr.Cardinality == Cardinality.ManyToOne)
             mainSelectedAttributes[attr] = new QueryAttribute(attr);
           else
             explicitSelectAttributes.Add(attr);
@@ -251,7 +251,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         ComplexAttributeQueryBuilder complexAttributeQueryBuilder = new ComplexAttributeQueryBuilder(
             _miaManagement, attr, _necessaryRequestedMIAs, _filter);
-        result.Append("Attribute-Query for ");
+        result.Append("External attribute query for ");
         result.Append(attr.ParentMIAM.Name);
         result.Append(".");
         result.Append(attr.AttributeName);

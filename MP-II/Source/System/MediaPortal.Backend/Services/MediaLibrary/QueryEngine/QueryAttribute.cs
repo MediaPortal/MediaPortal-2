@@ -27,7 +27,7 @@ using MediaPortal.Core.MediaManagement;
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
-  /// Identifies a requested media item aspect attribute in a special role. We need a special wrapping object for the
+  /// Identifies a media item aspect attribute which is queried in a special role. We need a special wrapping object for the
   /// contained attribute type because an attribute type might be requested multiple times in the same query, each queried
   /// on a different query table instance.
   /// </summary>

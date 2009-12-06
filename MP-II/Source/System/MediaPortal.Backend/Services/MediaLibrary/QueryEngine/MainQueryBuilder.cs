@@ -31,12 +31,47 @@ using MediaPortal.Utilities;
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   /// <summary>
-  /// Builds the SQL statement for the main media item query. The main query requests all inline attributes of
+  /// Builds the SQL statement for the main media item query. The main query requests all Inline and MTO attributes of
   /// media item aspects, filtered by a <see cref="CompiledFilter"/>.
   /// </summary>
-  public class MainQueryBuilder
+  public class MainQueryBuilder : BaseQueryBuilder
   {
-    protected readonly MIA_Management _miaManagement;
+    #region Inner classes
+
+    protected class CompiledSortInformation
+    {
+      protected RequestedAttribute _sortAttribute;
+      protected SortDirection _direction;
+
+      public CompiledSortInformation(RequestedAttribute sortAttribute, SortDirection direction)
+      {
+        _sortAttribute = sortAttribute;
+        _direction = direction;
+      }
+
+      public RequestedAttribute SortAttribute
+      {
+        get { return _sortAttribute; }
+      }
+      
+      public SortDirection Direction
+      {
+        get { return _direction; }
+      }
+
+      public string GetSortDeclaration(Namespace ns)
+      {
+        return _sortAttribute.GetQualifiedName(ns) + " " + ToSqlOrderByDirection(_direction);
+      }
+
+      protected static string ToSqlOrderByDirection(SortDirection direction)
+      {
+        return direction == SortDirection.Ascending ? "ASC" : "DESC";
+      }
+    }
+
+    #endregion
+
     protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIAs;
 
     /// <summary>
@@ -53,35 +88,20 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="miaManagement">MIAM management instance from media library.</param>
     /// <param name="necessaryRequestedMIAs">MIAs which must be present for the media item to match the query.</param>
     /// <param name="simpleSelectAttributes">Enumeration of media item aspect attributes, given as
-    /// <see cref="QueryAttribute"/> instances, which should be requested in this main query. Only attributes with
-    /// a cardinality of <see cref="Cardinality.Inline"/> are allowed here.</param>
+    /// <see cref="QueryAttribute"/> instances, which should be selected by this main query. Only attributes with
+    /// cardinalities of <see cref="Cardinality.Inline"/> and <see cref="Cardinality.ManyToOne"/> are allowed here.
+    /// Both necessary and optional attributes are contained in this enumeration.</param>
     /// <param name="filter">Filter to restrict the result set.</param>
     /// <param name="sortInformation">List of sorting criteria.</param>
     public MainQueryBuilder(MIA_Management miaManagement,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIAs,
         IEnumerable<QueryAttribute> simpleSelectAttributes, CompiledFilter filter,
-        IList<SortInformation> sortInformation)
+        IList<SortInformation> sortInformation) : base(miaManagement)
     {
-      _miaManagement = miaManagement;
       _necessaryRequestedMIAs = necessaryRequestedMIAs;
       _selectAttributes = new List<QueryAttribute>(simpleSelectAttributes);
       _filter = filter;
       _sortInformation = sortInformation;
-    }
-
-    public ICollection<QueryAttribute> SelectAttributes
-    {
-      get { return _selectAttributes; }
-    }
-
-    public CompiledFilter Filter
-    {
-      get { return _filter; }
-    }
-
-    public ICollection<SortInformation> SortInformation
-    {
-      get { return _sortInformation; }
     }
 
     /// <summary>
@@ -114,9 +134,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out IDictionary<QueryAttribute, string> attributeAliases)
     {
-      // Contains a mapping of each queried (=selected or filtered) attribute to its compiled
-      // data (with query table and attribute alias)
-      IDictionary<QueryAttribute, CompiledQueryAttribute> compiledAttributes = new Dictionary<QueryAttribute, CompiledQueryAttribute>();
+      // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
+      // data (which holds its requested query table instance)
+      IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes = new Dictionary<QueryAttribute, RequestedAttribute>();
       attributeAliases = new Dictionary<QueryAttribute, string>();
 
       // Contains a list of compiled select attribute declarations. We need this in a separate list (in contrast to using
@@ -124,60 +144,81 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // an attribute is requested twice. In that rare case, we need a new alias name for it.
       IList<string> selectAttributeDeclarations = new List<string>();
 
-      // Contains a dictionary of requested MIAM instances mapped to the table query data to request its contents.
-      IDictionary<MediaItemAspectMetadata, TableQueryData> tableQueries =
-          new Dictionary<MediaItemAspectMetadata, TableQueryData>();
+      // Dictionary containing as key the requested MIAM instance OR attribute specification of cardinality MTO,
+      // mapped to the table query data to request its contents.
+      IDictionary<object, TableQueryData> tableQueries =
+          new Dictionary<object, TableQueryData>();
 
-      // Build table query data for each selected inline attribute
-      // + compile query attribute to be able to produce an alias
+      // Contains the same tables as the tableQueries variable, but in order and enriched with table join data
+      IList<TableJoin> tableJoins = new List<TableJoin>();
+
+      // Contains all table query data for MIA type tables
+      IDictionary<MediaItemAspectMetadata, TableQueryData> miaTypeTableQueries = new Dictionary<MediaItemAspectMetadata, TableQueryData>();
+
+      // First create the request table query data for the MIA main table and the request attribute for the MIA ID.
+      // We'll need the requested attribute as join attribute soon.
+      TableQueryData miaTableQuery = new TableQueryData(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME);
+      RequestedAttribute miaIdAttribute = new RequestedAttribute(miaTableQuery, MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
+
+      // Contains a list of aliases for the seleted attributes
+      IList<string> selectAttrAliases = new List<string>();
+
+      // Contains CompiledSortInformation instances for each sort information instance
+      IList<CompiledSortInformation> compiledSortInformation = null;
+
+      // Ensure that the tables for all necessary MIAs are requested first (INNER JOIN)
+      foreach (MediaItemAspectMetadata miaType in _necessaryRequestedMIAs)
+      {
+        TableQueryData tqd;
+        if (!tableQueries.TryGetValue(miaType, out tqd))
+        {
+          tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+          miaTypeTableQueries.Add(miaType, tqd);
+        }
+        tableJoins.Add(new TableJoin("INNER JOIN", tqd,
+            new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
+      }
+
+      // Build table query data for each selected Inline and MTO attribute
+      // + select query attribute
       // + add alias to selectAttributeDeclarations
       foreach (QueryAttribute attr in _selectAttributes)
       {
-        if (compiledAttributes.ContainsKey(attr)) // Attribute is requested again
-          // Until now, we only have processed selected attributes - this means the attribute must have been
-          // selected before, so we don't need to add it again to selectAttributeDeclarations
-          continue;
-        // Find query table, if already present, or create new one
-        TableQueryData tqd;
-        MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
-        if (!tableQueries.TryGetValue(miam, out tqd))
-          tqd = tableQueries[miam] = new TableQueryData(_miaManagement, miam);
-        CompiledQueryAttribute cqa = new CompiledQueryAttribute(_miaManagement, attr, tqd);
-        compiledAttributes.Add(attr, cqa);
+        RequestedAttribute ra;
+        RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
+            miaIdAttribute, out ra);
         string alias;
-        selectAttributeDeclarations.Add(cqa.GetDeclarationWithAlias(ns, out alias));
+        selectAttributeDeclarations.Add(ra.GetDeclarationWithAlias(ns, out alias));
         attributeAliases.Add(attr, alias);
+        selectAttrAliases.Add(alias);
       }
-      // Build table query data for each inline attribute which is part of a filter
-      // + compile query attribute to be able to produce an alias
+      // Build table query data for each Inline attribute which is part of a filter
+      // + compile query attribute
       foreach (QueryAttribute attr in _filter.FilterAttributes)
       {
-        if (compiledAttributes.ContainsKey(attr))
+        if (attr.Attr.Cardinality != Cardinality.Inline && attr.Attr.Cardinality != Cardinality.ManyToOne)
           continue;
-        if (attr.Attr.Cardinality == Cardinality.Inline)
-        { // Tables of inline attributes, which are part of a filter, are joined with main table
-          TableQueryData tqd;
-          MediaItemAspectMetadata miam = attr.Attr.ParentMIAM;
-          if (!tableQueries.TryGetValue(miam, out tqd))
-            tqd = tableQueries[miam] = new TableQueryData(_miaManagement, miam);
-          CompiledQueryAttribute cqa = new CompiledQueryAttribute(_miaManagement, attr, tqd);
-          compiledAttributes.Add(attr, cqa);
-        }
+        // Tables of Inline and MTO attributes, which are part of a filter, are joined with main table
+        RequestedAttribute ra;
+        RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
+            miaTypeTableQueries, miaIdAttribute, out ra);
       }
       // Build table query data for each sort attribute
       if (_sortInformation != null)
+      {
+        compiledSortInformation = new List<CompiledSortInformation>();
         foreach (SortInformation sortInformation in _sortInformation)
         {
           MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
-          if (attr.Cardinality == Cardinality.Inline)
-          { // Sorting can only be done for inline attributes
-            TableQueryData tqd;
-            MediaItemAspectMetadata miam = attr.ParentMIAM;
-            if (!tableQueries.TryGetValue(miam, out tqd))
-              tableQueries[miam] = new TableQueryData(_miaManagement, miam);
-          }
+          if (attr.Cardinality != Cardinality.Inline && attr.Cardinality != Cardinality.ManyToOne)
+            // Sorting can only be done for Inline and MTO attributes
+            continue;
+          RequestedAttribute ra;
+          RequestSimpleAttribute(new QueryAttribute(attr), tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes,
+              miaTypeTableQueries, miaIdAttribute, out ra);
+          compiledSortInformation.Add(new CompiledSortInformation(ra, sortInformation.Direction));
         }
-      string mediaItemsTableAlias = ns.GetOrCreate(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME, "T");
+      }
       StringBuilder result = new StringBuilder("SELECT ");
 
       if (distinctValue)
@@ -187,87 +228,47 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       else
       {
-        mediaItemIdAlias = ns.GetOrCreate(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME, "A");
-
         // Append requested attribute MEDIA_ITEMS.MEDIA_ITEM_ID only if no DISTINCT query is made
-        result.Append(mediaItemsTableAlias);
-        result.Append(".");
-        result.Append(MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
-        result.Append(" ");
-        result.Append(mediaItemIdAlias);
-        result.Append(",");
+        result.Append(miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdAlias));
+        result.Append(", ");
       }
 
-      IList<string> selectAttrStrs = new List<string>();
-      // Requested attributes
-      foreach (QueryAttribute attr in _selectAttributes)
-        selectAttrStrs.Add(attributeAliases[attr]);
-      result.Append(StringUtils.Join(",", selectAttrStrs));
+      // Selectedattributes
+      result.Append(StringUtils.Join(", ", selectAttrAliases));
 
       // System attributes: Necessary to evaluate if a requested MIA is present for the media item
       miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-      foreach (TableQueryData tqd in tableQueries.Values)
+      foreach (KeyValuePair<MediaItemAspectMetadata, TableQueryData> kvp in miaTypeTableQueries)
       {
         result.Append(",");
-        string miamColumn = tqd.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
+        string miamColumn = kvp.Value.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
         result.Append(miamColumn);
         string miamAlias = ns.GetOrCreate(miamColumn, "A");
         result.Append(" ");
         result.Append(miamAlias);
-        miamAliases.Add(tqd.MIAM, miamAlias);
+        miamAliases.Add(kvp.Key, miamAlias);
       }
 
       result.Append(" FROM ");
-      // Always request the MEDIA_ITEMS table because not all aspects might be available for each requested media item
-      result.Append(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME);
-      result.Append(" ");
-      result.Append(mediaItemsTableAlias);
-      // Prepare sequence of table requests
-      IList<TableQueryData> tableList = new List<TableQueryData>(tableQueries.Count);
-      // First request tables of necessary requested MIAs with INNER JOINs
-      foreach (MediaItemAspectMetadata miam in _necessaryRequestedMIAs)
+      // Always request the MEDIA_ITEMS table because if no necessary aspects are given and the optional aspects aren't
+      // present, we could miss the ID for requested media items
+      result.Append(miaTableQuery.GetDeclarationWithAlias(ns));
+
+      // Other joined tables
+      foreach (TableJoin tableJoin in tableJoins)
       {
-        TableQueryData tqd;
-        if (!tableQueries.TryGetValue(miam, out tqd))
-          tableQueries[miam] = new TableQueryData(_miaManagement, miam);
-        tableList.Add(tqd);
+        result.Append(tableJoin.GetJoinDeclaration(ns));
+        result.Append(' ');
       }
-      // after that, add other tables with OUTER JOINs
-      foreach (TableQueryData tqd in tableQueries.Values)
-        if (!_necessaryRequestedMIAs.Contains(tqd.MIAM))
-          tableList.Add(tqd);
-      foreach (TableQueryData tqd in tableList)
-      {
-        if (_necessaryRequestedMIAs.Contains(tqd.MIAM))
-          result.Append(" INNER JOIN ");
-        else
-          result.Append(" LEFT OUTER JOIN ");
-        result.Append(tqd.GetDeclarationWithAlias(ns));
-        result.Append(" ON ");
-        result.Append(mediaItemsTableAlias);
-        result.Append(".");
-        result.Append(MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
-        result.Append(" = ");
-        result.Append(tqd.GetAlias(ns));
-        result.Append(".");
-        result.Append(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-      }
+
       result.Append(" WHERE ");
-      result.Append(_filter.CreateSqlFilterCondition(ns, compiledAttributes,
-          mediaItemsTableAlias + "." + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME));
-      if (_sortInformation != null)
+      result.Append(_filter.CreateSqlFilterCondition(ns, requestedAttributes,
+          miaIdAttribute.GetQualifiedName(ns)));
+      if (compiledSortInformation != null)
       {
         IList<string> sortCriteria = new List<string>();
-        foreach (SortInformation sortInformation in _sortInformation)
-        {
-          MediaItemAspectMetadata.AttributeSpecification attr = sortInformation.AttributeType;
-          if (attr.Cardinality == Cardinality.Inline)
-          { // Sorting can only be done for inline attributes
-            MediaItemAspectMetadata miam = attr.ParentMIAM;
-            TableQueryData tqd = tableQueries[miam];
-            sortCriteria.Add(tqd.GetAlias(ns) + "." + _miaManagement.GetMIAAttributeColumnName(attr));
-          }
-        }
+        foreach (CompiledSortInformation csi in compiledSortInformation)
+          sortCriteria.Add(csi.GetSortDeclaration(ns));
         result.Append(" ORDER BY ");
         result.Append(StringUtils.Join(", ", sortCriteria));
       }

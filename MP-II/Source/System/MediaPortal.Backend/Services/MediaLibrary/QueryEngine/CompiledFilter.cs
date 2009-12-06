@@ -119,39 +119,66 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         // For attribute filters, we have to create different kinds of expressions, depending on the
         // cardinality of the attribute to be filtered.
-        // For inline attributes, we simply create
+        // For Inline and MTO attributes, we simply create
         //
         // QA [Operator] [Comparison-Value]
         //
-        // while for complex attributes, we create
+        // for OTM attributes, we create
         //
         // EXISTS(
-        //  SELECT COLL_MIA_TABLE.MEDIA_ITEM_ID
-        //  FROM [Complex-Attribute-Table] COLL_MIA_TABLE
-        //  WHERE COLL_MIA_TABLE.MI_ID=[Outer-Join-Variable-Placeholder] AND COLL_MIA_TABLE.VALUE [Operator] [Comparison-Value])
+        //  SELECT VAL.MEDIA_ITEM_ID
+        //  FROM [OTM-Value-Table] VAL
+        //  WHERE VAL.MI_ID=[Outer-Join-Variable-Placeholder] AND VAL.VALUE [Operator] [Comparison-Value])
+        //
+        // for MTM attributes, we create
+        //
+        // EXISTS(
+        //  SELECT NM.MEDIA_ITEM_ID
+        //  FROM [MTM-NM-Table] NM
+        //  INNER JOIN [MTM-Value-Table] VAL ON NM.ID = VAL.ID
+        //  WHERE NM.MI_ID=[Outer-Join-Variable-Placeholder] AND VAL.VALUE [Operator] [Comparison-Value])
 
         IList<object> result = new List<object>();
-        object attributeOperand;
         MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
-        if (attributeType.Cardinality == Cardinality.Inline)
-          attributeOperand = new QueryAttribute(attributeType);
-        else
+        Cardinality cardinality = attributeType.Cardinality;
+        if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
+          CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType)));
+        else if (cardinality == Cardinality.OneToMany)
         {
           result.Add("EXISTS(");
-          result.Add(" SELECT COLL_MIA_TABLE.");
+          result.Add("SELECT VAL.");
           result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
           result.Add(" FROM ");
           result.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
-          result.Add(" COLL_MIA_TABLE WHERE COLL_MIA_TABLE.");
+          result.Add(" VAL WHERE VAL.");
           result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
           result.Add("=");
           result.Add(outerMIIDJoinVariablePlaceHolder);
           result.Add(" AND ");
-          attributeOperand = "COLL_MIA_TABLE." + MIA_Management.COLL_ATTR_VALUE_COL_NAME;
-        }
-        CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, attributeOperand));
-        if (attributeType.Cardinality != Cardinality.Inline)
+          CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, "VAL." + MIA_Management.COLL_ATTR_VALUE_COL_NAME));
           result.Add(")");
+        }
+        else if (cardinality == Cardinality.ManyToMany)
+        {
+          result.Add("EXISTS(");
+          result.Add("SELECT NM.");
+          result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          result.Add(" FROM ");
+          result.Add(miaManagement.GetMIACollectionAttributeNMTableName(attributeType));
+          result.Add(" NM INNER JOIN ");
+          result.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
+          result.Add(" VAL ON NM.");
+          result.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
+          result.Add(" = VAL.");
+          result.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
+          result.Add(" WHERE NM.");
+          result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          result.Add("=");
+          result.Add(outerMIIDJoinVariablePlaceHolder);
+          result.Add(" AND ");
+          CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, "VAL." + MIA_Management.COLL_ATTR_VALUE_COL_NAME));
+          result.Add(")");
+        }
         return result;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
@@ -258,7 +285,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     // outerMIIDJoinVariable is MEDIA_ITEMS.MEDIA_ITEM_ID (or its alias) for simple selects,
     // MIAM_TABLE_XXX.MEDIA_ITEM_ID (or alias) for complex selects, used for join conditions in complex filters
     public string CreateSqlFilterCondition(Namespace ns,
-        IDictionary<QueryAttribute, CompiledQueryAttribute> compiledAttributes,
+        IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes,
         string outerMIIDJoinVariable)
     {
       StringBuilder result = new StringBuilder(1000);
@@ -266,7 +293,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         QueryAttribute qa = statementPart as QueryAttribute;
         if (qa != null)
-          result.Append(compiledAttributes[qa].GetQualifiedName(ns));
+          result.Append(requestedAttributes[qa].GetQualifiedName(ns));
         else if (statementPart == _outerMIIDJoinVariablePlaceHolder)
           result.Append(outerMIIDJoinVariable);
         else

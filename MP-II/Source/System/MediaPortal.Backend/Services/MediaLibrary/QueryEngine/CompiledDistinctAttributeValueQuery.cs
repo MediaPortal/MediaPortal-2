@@ -88,7 +88,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDbCommand command = transaction.CreateCommand();
 
         string valueAlias;
-        if (_selectAttribute.Cardinality == Cardinality.Inline)
+        if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
         {
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
           MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new List<MediaItemAspectMetadata>(),
