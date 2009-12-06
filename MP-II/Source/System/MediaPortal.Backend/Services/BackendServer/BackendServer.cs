@@ -27,8 +27,10 @@ using System.Net;
 using HttpServer;
 using HttpServer.HttpModules;
 using MediaPortal.Backend.BackendServer;
+using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Core;
+using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using UPnP.Infrastructure;
 using ILogger=MediaPortal.Core.Logging.ILogger;
@@ -103,7 +105,8 @@ namespace MediaPortal.Backend.Services.BackendServer
       }
     }
 
-    protected readonly HttpServer.HttpServer _httpServer;
+    protected readonly HttpServer.HttpServer _httpServerV4;
+    protected readonly HttpServer.HttpServer _httpServerV6;
     protected readonly UPnPBackendServer _upnpServer;
 
     internal class HttpLogWriter : ILogWriter
@@ -138,7 +141,8 @@ namespace MediaPortal.Backend.Services.BackendServer
 
     public BackendServer()
     {
-      _httpServer = new HttpServer.HttpServer(new HttpLogWriter());
+      _httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
+      _httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
       Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
       Configuration.LOGGER = new UPnPLoggerDelegate();
 
@@ -155,24 +159,29 @@ namespace MediaPortal.Backend.Services.BackendServer
 
     public void Startup()
     {
-      _httpServer.Start(IPAddress.Any, 80);
+      BackendServerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BackendServerSettings>();
+      _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
+      _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
       _upnpServer.Start();
     }
 
     public void Shutdown()
     {
-      _httpServer.Stop();
+      _httpServerV4.Stop();
+      _httpServerV6.Stop();
       _upnpServer.Stop();
     }
 
     public void AddHttpModule(HttpModule module)
     {
-      _httpServer.Add(module);
+      _httpServerV4.Add(module);
+      _httpServerV6.Add(module);
     }
 
     public void RemoveHttpModule(HttpModule module)
     {
-      _httpServer.Remove(module);
+      _httpServerV4.Remove(module);
+      _httpServerV6.Remove(module);
     }
 
     #endregion

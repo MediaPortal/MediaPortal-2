@@ -24,7 +24,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using MediaPortal.Backend.ClientCommunication.Settings;
+using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Settings;

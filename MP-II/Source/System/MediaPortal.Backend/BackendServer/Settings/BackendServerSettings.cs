@@ -24,11 +24,12 @@
 
 using MediaPortal.Core.Settings;
 
-namespace MediaPortal.Backend.ClientCommunication.Settings
+namespace MediaPortal.Backend.BackendServer.Settings
 {
   public class BackendServerSettings
   {
     protected string _friendlyName = null;
+    protected int _httpServerPort = 80;
 
     [Setting(SettingScope.Global)]
     public string FriendlyName
@@ -36,5 +37,13 @@ namespace MediaPortal.Backend.ClientCommunication.Settings
       get { return _friendlyName; }
       set { _friendlyName = value; }
     }
+
+    [Setting(SettingScope.Global)]
+    public int HttpServerPort
+    {
+      get { return _httpServerPort; }
+      set { _httpServerPort = value; }
+    }
+
   }
 }
