@@ -166,6 +166,7 @@ namespace MediaPortal
             pluginManager.Shutdown();
             mediaAccessor.Shutdown();
             localSharesManagement.Shutdown();
+            ApplicationCore.StopCoreServices();
           }
           catch (Exception e)
           {

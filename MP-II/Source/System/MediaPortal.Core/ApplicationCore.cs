@@ -104,6 +104,12 @@ namespace MediaPortal.Core
     public static void StartCoreServices()
     {
       ServiceScope.Get<ILocalization>().Startup();
+      ServiceScope.Get<IImporterWorker>().Startup();
+    }
+
+    public static void StopCoreServices()
+    {
+      ServiceScope.Get<IImporterWorker>().Shutdown();
     }
 
     public static void RegisterDefaultMediaItemAspectTypes()

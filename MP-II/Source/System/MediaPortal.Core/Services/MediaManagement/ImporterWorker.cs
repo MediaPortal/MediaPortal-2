@@ -198,7 +198,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    protected void StartImporterLoop()
+    protected void StartImporterLoop_NoLock()
     {
       Thread workerThread;
       lock (_syncObj)
@@ -474,8 +474,7 @@ namespace MediaPortal.Core.Services.MediaManagement
             _mediaBrowsingCallback = null;
             _importResultHandler = null;
           }
-          else
-            Monitor.PulseAll(_syncObj);
+          Monitor.PulseAll(_syncObj);
         }
       }
     }
@@ -484,7 +483,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     {
       _messageQueue.Start();
       LoadPendingImportJobs();
-      StartImporterLoop();
+      StartImporterLoop_NoLock();
     }
 
     public void Shutdown()
@@ -500,8 +499,8 @@ namespace MediaPortal.Core.Services.MediaManagement
       {
         _mediaBrowsingCallback = mediaBrowsingCallback;
         _importResultHandler = importResultHandler;
-        StartImporterLoop();
       }
+      StartImporterLoop_NoLock();
     }
 
     public void Suspend()

@@ -145,6 +145,7 @@ namespace MediaPortal
             pluginManager.Shutdown();
 
             BackendExtension.ShutdownBackendServices();
+            ApplicationCore.StopCoreServices();
           }
           catch (Exception e)
           {
