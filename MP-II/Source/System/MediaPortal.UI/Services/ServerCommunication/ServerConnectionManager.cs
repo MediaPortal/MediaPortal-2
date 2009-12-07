@@ -231,12 +231,13 @@ namespace MediaPortal.UI.Services.ServerCommunication
           foreach (Share share in cd.GetShares(systemResolver.LocalSystemId, SharesFilter.All))
             serverShares.Add(share.ShareId, share);
           IDictionary<Guid, Share> localShares = ServiceScope.Get<ILocalSharesManagement>().Shares;
-          foreach (Share localShare in localShares.Values)
-            if (!serverShares.ContainsKey(localShare.ShareId))
-              cd.RegisterShare(localShare);
+          // First remove shares - if the client lost its configuration and re-registers an already present share, the server's method will throw an exception
           foreach (Guid serverShareId in serverShares.Keys)
             if (!localShares.ContainsKey(serverShareId))
               cd.RemoveShare(serverShareId);
+          foreach (Share localShare in localShares.Values)
+            if (!serverShares.ContainsKey(localShare.ShareId))
+              cd.RegisterShare(localShare);
         }
         catch (Exception e)
         {
