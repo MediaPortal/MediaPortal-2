@@ -22,10 +22,7 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.Utilities.Exceptions;
-using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.UI.ServerCommunication
 {

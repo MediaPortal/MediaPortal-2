@@ -146,9 +146,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
       action.InvokeAction(inParameters);
     }
 
-    public ICollection<Guid> GetAllManagedMediaItemAspectMetadataIds()
+    public ICollection<Guid> GetAllManagedMediaItemAspectTypes()
     {
-      CpAction action = GetAction("GetAllManagedMediaItemAspectMetadataIds");
+      CpAction action = GetAction("GetAllManagedMediaItemAspectTypes");
       IList<object> inParameters = new List<object>();
       IList<object> outParameters = action.InvokeAction(inParameters);
       string miaTypeIDs = (string) outParameters[0];

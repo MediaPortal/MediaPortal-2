@@ -246,7 +246,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
           ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Adding unregistered media item aspect types at home server");
-          ICollection<Guid> serverMIATypes = cd.GetAllManagedMediaItemAspectMetadataIds();
+          ICollection<Guid> serverMIATypes = cd.GetAllManagedMediaItemAspectTypes();
           foreach (KeyValuePair<Guid, MediaItemAspectMetadata> localMiaType in miatr.LocallyKnownMediaItemAspectTypes)
             if (!serverMIATypes.Contains(localMiaType.Key))
             {

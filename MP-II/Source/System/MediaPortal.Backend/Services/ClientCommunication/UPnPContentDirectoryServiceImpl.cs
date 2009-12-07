@@ -241,13 +241,13 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(removeMediaItemAspectStorageAction);
 
-      DvAction getAllManagedMediaItemAspectMetadataIdsAction = new DvAction("GetAllManagedMediaItemAspectMetadataIds", OnGetAllManagedMediaItemAspectMetadataIds,
+      DvAction getAllManagedMediaItemAspectTypesAction = new DvAction("GetAllManagedMediaItemAspectTypes", OnGetAllManagedMediaItemAspectTypes,
           new DvArgument[] {
           },
           new DvArgument[] {
-            new DvArgument("MIAMIds", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true),
+            new DvArgument("MIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.Out, true),
           });
-      AddAction(getAllManagedMediaItemAspectMetadataIdsAction);
+      AddAction(getAllManagedMediaItemAspectTypesAction);
 
       DvAction getMediaItemAspectMetadataAction = new DvAction("GetMediaItemAspectMetadata", OnGetMediaItemAspectMetadata,
           new DvArgument[] {
@@ -424,7 +424,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetAllManagedMediaItemAspectMetadataIds(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnGetAllManagedMediaItemAspectTypes(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       ICollection<Guid> result = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;

@@ -24,12 +24,8 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
-using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.UI.ServerCommunication
 {
@@ -61,7 +57,7 @@ namespace MediaPortal.UI.ServerCommunication
     // Media item aspect storage management
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);
     void RemoveMediaItemAspectStorage(Guid aspectId);
-    ICollection<Guid> GetAllManagedMediaItemAspectMetadataIds();
+    ICollection<Guid> GetAllManagedMediaItemAspectTypes();
     MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
 
     // Media query
