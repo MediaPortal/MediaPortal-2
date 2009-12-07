@@ -36,6 +36,7 @@ using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Workflow
 {
+  // TODO: Avoid that methods are called from two different threads at the same time
   public class WorkflowManager : IWorkflowManager
   {
     #region Classes

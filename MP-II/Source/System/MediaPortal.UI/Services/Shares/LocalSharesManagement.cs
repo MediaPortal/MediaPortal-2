@@ -91,6 +91,8 @@ namespace MediaPortal.UI.Services.Shares
         foreach (Share share in mediaAccessor.CreateDefaultShares())
           _shares.Add(share.ShareId, share);
         SaveSharesToSettings();
+        foreach (Share share in _shares.Values)
+          ServiceScope.Get<IImporterWorker>().ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
       }
     }
 
