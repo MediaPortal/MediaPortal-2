@@ -247,6 +247,9 @@ namespace MediaPortal.Core.Services.MediaManagement
       ResourcePath path = mediaItemAccessor.LocalResourcePath;
       ImporterWorkerMessaging.SendImportStatusMessage(path);
       IDictionary<Guid, MediaItemAspect> aspects = mediaAccessor.ExtractMetadata(mediaItemAccessor, metadataExtractors);
+      if (aspects == null)
+        // No metadata could be extracted
+        return;
       // Fill empty entries for media item aspects which aren't returned - this will cleanup those aspects in media library
       foreach (MediaItemAspectMetadata mediaItemAspectType in mediaItemAspectTypes)
       {
@@ -481,9 +484,10 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void Startup()
     {
+      IsSuspended = true;
       _messageQueue.Start();
       LoadPendingImportJobs();
-      StartImporterLoop_NoLock();
+      // Don't start importer loop here - will be started when Activate is called
     }
 
     public void Shutdown()
