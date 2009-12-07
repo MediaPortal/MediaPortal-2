@@ -73,17 +73,16 @@ namespace MediaPortal.Core.UPnP
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
-      if (SoapHelper.ReadEmptyElement(reader))
+      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
         return null;
-      reader.ReadStartElement(); // Read start of enclosing element
-      if (reader.LocalName != "ValueCollection")
-        throw new ArgumentException("Illegal value for {0}", typeof(UPnPDtMediaItemAttributeValues).Name);
       if (!reader.MoveToAttribute("type"))
         throw new ArgumentException("Cannot deserialize value, 'type' attribute missing");
       String typeStr = reader.ReadContentAsString();
       Type type = Type.GetType(typeStr);
       reader.MoveToElement();
       HomogenousCollection result = new HomogenousCollection(type);
+      if (SoapHelper.ReadEmptyStartElement(reader, "ValueCollection"))
+        return result;
       while (reader.NodeType != XmlNodeType.EndElement)
         result.Add(MediaItemAspect.DeserializeValue(reader, type));
       reader.ReadEndElement(); // End of enclosing element

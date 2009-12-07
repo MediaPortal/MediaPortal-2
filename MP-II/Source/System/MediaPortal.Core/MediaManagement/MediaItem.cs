@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -86,8 +87,9 @@ namespace MediaPortal.Core.MediaManagement
 
     public static MediaItem Deserialize(XmlReader reader)
     {
-      reader.ReadStartElement("MediaItem");
       MediaItem result = new MediaItem();
+      if (SoapHelper.ReadEmptyStartElement(reader, "MediaItem"))
+        return result;
       while (reader.NodeType != XmlNodeType.EndElement)
       {
         MediaItemAspect mia = MediaItemAspect.Deserialize(reader);

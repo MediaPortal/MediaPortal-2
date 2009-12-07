@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -292,7 +293,6 @@ namespace MediaPortal.Core.MediaManagement
 
     public static MediaItemAspect Deserialize(XmlReader reader)
     {
-      reader.ReadStartElement("MediaItemAspect");
       if (!reader.MoveToAttribute("AspectTypeId"))
         throw new ArgumentException("Media item aspect cannot be deserialized: 'AspectTypeId' attribute missing");
       Guid aspectTypeId = new Guid(reader.ReadContentAsString());
@@ -303,13 +303,16 @@ namespace MediaPortal.Core.MediaManagement
         throw new ArgumentException(string.Format("Media item aspect cannot be deserialized: Unknown media item aspect type '{0}'",
             aspectTypeId));
       MediaItemAspect result = new MediaItemAspect(miaType);
+      if (SoapHelper.ReadEmptyStartElement(reader, "MediaItemAspect"))
+        return result;
       while (reader.NodeType != XmlNodeType.EndElement)
       {
-        reader.ReadStartElement("Attribute");
         if (!reader.MoveToAttribute("Name"))
           throw new ArgumentException("Media item aspect attribute cannot be deserialized: 'Name' attribute missing");
         String attributeName = reader.ReadContentAsString();
         reader.MoveToElement();
+        if (SoapHelper.ReadEmptyStartElement(reader, "Attribute"))
+          throw new ArgumentException("Unexpected empty Attribute element");
         MediaItemAspectMetadata.AttributeSpecification attributeSpec;
         if (!miaType.AttributeSpecifications.TryGetValue(attributeName, out attributeSpec))
           throw new ArgumentException(string.Format(
@@ -323,6 +326,7 @@ namespace MediaPortal.Core.MediaManagement
         }
         else
           result.SetAttribute(attributeSpec, DeserializeValue(reader, attributeSpec.AttributeType));
+        reader.ReadEndElement(); // Attribute
       }
       reader.ReadEndElement(); // MediaItemAspect
       return result;

@@ -180,24 +180,26 @@ namespace UPnP.Infrastructure.CP.SOAP
         if (!actionName.EndsWith("Response") ||
             actionName.Substring(0, actionName.Length - "Response".Length) != action.Name)
           throw new ArgumentException("Invalid action name in result message");
-        reader.ReadStartElement();
 
-        // Parse and check output parameters
         IEnumerator<CpArgument> formalArgumentEnumer = action.OutArguments.GetEnumerator();
-        while (reader.NodeType != XmlNodeType.EndElement)
-        {
-          string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
-          if (!formalArgumentEnumer.MoveNext())
-            throw new ArgumentException("Invalid out argument count");
-          if (formalArgumentEnumer.Current.Name != argumentName) // Too many arguments
-            throw new ArgumentException("Invalid argument name");
-          object value;
-          if (SoapHelper.ReadNull(reader))
-            value = null;
-          else
-            formalArgumentEnumer.Current.SoapParseArgument(reader, !sourceSupportsUPnP11, out value);
-          outParameterValues.Add(value);
-        }
+        if (!SoapHelper.ReadEmptyStartElement(reader))
+          // Parse and check output parameters
+          while (reader.NodeType != XmlNodeType.EndElement)
+          {
+            string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
+            if (!formalArgumentEnumer.MoveNext()) // Too many arguments
+              throw new ArgumentException("Invalid out argument count");
+            if (formalArgumentEnumer.Current.Name != argumentName)
+              throw new ArgumentException("Invalid argument name");
+            object value;
+            if (SoapHelper.ReadNull(reader))
+              value = null;
+            else
+              formalArgumentEnumer.Current.SoapParseArgument(reader, !sourceSupportsUPnP11, out value);
+            outParameterValues.Add(value);
+          }
+        if (formalArgumentEnumer.MoveNext()) // Too few arguments
+          throw new ArgumentException("Invalid out argument count");
       }
       return outParameterValues;
     }

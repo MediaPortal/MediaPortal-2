@@ -6,6 +6,8 @@ CREATE TABLE DUMMY (
   X %INTEGER%
 );
 
+INSERT INTO DUMMY (X) VALUES (1);
+
 -- Basis-Table where all sub schemas are registered with their current version number.
 CREATE TABLE MEDIAPORTAL_BASIS (
   SUBSCHEMA_NAME %STRING(100)% NOT NULL PRIMARY KEY,

@@ -116,35 +116,34 @@ namespace UPnP.Infrastructure.Dv.SOAP
               result = CreateFaultDocument(401, "Invalid Action");
               return HttpStatusCode.InternalServerError;
             }
-            reader.ReadStartElement(); // Action name
             IEnumerator<DvArgument> formalArgumentEnumer = action.InArguments.GetEnumerator();
-            while (reader.NodeType != XmlNodeType.EndElement)
-            {
-              string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
-              if (!formalArgumentEnumer.MoveNext() || formalArgumentEnumer.Current.Name != argumentName)
-                  // Too many arguments
+            if (!SoapHelper.ReadEmptyStartElement(reader)) // Action name
+              while (reader.NodeType != XmlNodeType.EndElement)
               {
-                result = CreateFaultDocument(402, "Invalid Args");
-                return HttpStatusCode.InternalServerError;
-              }
-              object value;
-              if (SoapHelper.ReadNull(reader))
-                value = null;
-              else
-              {
-                res = formalArgumentEnumer.Current.SoapParseArgument(reader, !subscriberSupportsUPnP11, out value);
-                if (res != null)
-                {
-                  result = CreateFaultDocument(res.ErrorCode, res.ErrorDescription);
+                string argumentName = reader.Name; // Arguments don't have a namespace, so take full name
+                if (!formalArgumentEnumer.MoveNext() || formalArgumentEnumer.Current.Name != argumentName)
+                { // Too many arguments
+                  result = CreateFaultDocument(402, "Invalid Args");
                   return HttpStatusCode.InternalServerError;
                 }
+                object value;
+                if (SoapHelper.ReadNull(reader))
+                  value = null;
+                else
+                {
+                  res = formalArgumentEnumer.Current.SoapParseArgument(reader, !subscriberSupportsUPnP11, out value);
+                  if (res != null)
+                  {
+                    result = CreateFaultDocument(res.ErrorCode, res.ErrorDescription);
+                    return HttpStatusCode.InternalServerError;
+                  }
+                }
+                if (inParameterValues == null)
+                  inParameterValues = new List<object>();
+                inParameterValues.Add(value);
               }
-              if (inParameterValues == null)
-                inParameterValues = new List<object>();
-              inParameterValues.Add(value);
-            }
-            if (formalArgumentEnumer.MoveNext()) // Too few arguments
-            {
+            if (formalArgumentEnumer.MoveNext())
+            { // Too few arguments
               result = CreateFaultDocument(402, "Invalid Args");
               return HttpStatusCode.InternalServerError;
             }

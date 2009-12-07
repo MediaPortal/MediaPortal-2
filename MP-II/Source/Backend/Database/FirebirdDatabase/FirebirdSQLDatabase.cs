@@ -216,7 +216,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public string GetSelectSequenceCurrValStatement(string sequenceName)
     {
-      return "SELECT GEN_ID(" + sequenceName + ", 0 ) FROM RDB$DATABASE";
+      return "SELECT GEN_ID(" + sequenceName + ", 0) FROM RDB$DATABASE";
     }
 
     public ITransaction BeginTransaction(IsolationLevel level)

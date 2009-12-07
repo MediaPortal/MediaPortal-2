@@ -339,7 +339,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IDbCommand result = transaction.CreateCommand();
 
       IDatabaseManager databaseManager = ServiceScope.Get<IDatabaseManager>();
-      result.CommandText = "SELECT " + database.GetSelectSequenceCurrValStatement(MEDIA_LIBRARY_ID_SEQUENCE_NAME) + " FROM " + databaseManager.DummyTableName;
+      result.CommandText = "SELECT (" + database.GetSelectSequenceCurrValStatement(MEDIA_LIBRARY_ID_SEQUENCE_NAME) + ") FROM " + databaseManager.DummyTableName;
 
       return result;
     }

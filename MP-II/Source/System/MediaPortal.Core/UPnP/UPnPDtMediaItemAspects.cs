@@ -69,9 +69,8 @@ namespace MediaPortal.Core.UPnP
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
     {
       ICollection<MediaItemAspect> result = new List<MediaItemAspect>();
-      if (SoapHelper.ReadEmptyElement(reader))
+      if (SoapHelper.ReadEmptyStartElement(reader)) // Read start of enclosing element
         return result;
-      reader.ReadStartElement(); // Read start of enclosing element
       while (reader.NodeType != XmlNodeType.EndElement)
         result.Add(MediaItemAspect.Deserialize(reader));
       reader.ReadEndElement(); // End of enclosing element

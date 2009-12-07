@@ -503,12 +503,19 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     [XmlArray("Attributes")]
     [XmlArrayItem("AttributeType")]
-    public List<AttributeSpecification> XML_AttributeSpecifications
+    // We use an array here because when using a List, stupid XML serializer only uses the property getter and fills the
+    // List with its deserialized entries. When using an array, the property setter is invoked.
+    public AttributeSpecification[] XML_AttributeSpecifications
     {
-      get { return new List<AttributeSpecification>(_attributeSpecifications.Values); }
+      get
+      {
+        AttributeSpecification[] result = new AttributeSpecification[_attributeSpecifications.Count];
+        _attributeSpecifications.Values.CopyTo(result, 0);
+        return result;
+      }
       set
       {
-        _attributeSpecifications = new Dictionary<string, AttributeSpecification>(value.Count);
+        _attributeSpecifications = new Dictionary<string, AttributeSpecification>(value.Length);
         foreach (AttributeSpecification spec in value)
           _attributeSpecifications.Add(spec.AttributeName, spec);
         CorrectParentsInAttributeTypes();

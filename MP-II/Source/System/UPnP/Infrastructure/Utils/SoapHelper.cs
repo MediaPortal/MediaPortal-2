@@ -76,34 +76,25 @@ namespace UPnP.Infrastructure.Utils
       return false;
     }
 
-    public static bool ReadEmptyElement(XmlReader reader)
+    public static bool ReadEmptyStartElement(XmlReader reader)
     {
-      if (reader.IsEmptyElement)
-      {
-        reader.ReadStartElement();
-        return true;
-      }
-      return false;
+      bool result = reader.IsEmptyElement;
+      reader.ReadStartElement();
+      return result;
     }
 
-    public static bool ReadEmptyElement(XmlReader reader, string name)
+    public static bool ReadEmptyStartElement(XmlReader reader, string name)
     {
-      if (reader.IsEmptyElement)
-      {
-        reader.ReadStartElement(name);
-        return true;
-      }
-      return false;
+      bool result = reader.IsEmptyElement;
+      reader.ReadStartElement(name);
+      return result;
     }
     
-    public static bool ReadEmptyElement(XmlReader reader, string localName, string ns)
+    public static bool ReadEmptyStartElement(XmlReader reader, string localName, string ns)
     {
-      if (reader.IsEmptyElement)
-      {
-        reader.ReadStartElement(localName, ns);
-        return true;
-      }
-      return false;
+      bool result = reader.IsEmptyElement;
+      reader.ReadStartElement(localName, ns);
+      return result;
     }
   }
 }
