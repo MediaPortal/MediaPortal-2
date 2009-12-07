@@ -156,7 +156,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
         return;
       }
-      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}'", serverDescriptor.MPBackendServerUUID);
+      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}'", serverDescriptor.MPBackendServerUUID, serverDescriptor.System.HostName);
       lock (_syncObj)
       {
         _isHomeServerConnected = true;
