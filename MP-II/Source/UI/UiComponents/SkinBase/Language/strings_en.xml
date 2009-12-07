@@ -24,7 +24,7 @@
     <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal-II client."/>
     <String Name="DetachMenu" Text="Detach"/>
     <String Name="DetachConfirmDialogHeader" Text="Detach from home server"/>
-    <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all local shares will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host {1}?"/>
+    <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host {1}?"/>
     <String Name="SearchForServers" Text="Search for servers"/>
     <String Name="DetachFromServer" Text="Detach from home server"/>
     <String Name="AttachToServerHeader" Text="Attach to MediaPortal-II server"/>
