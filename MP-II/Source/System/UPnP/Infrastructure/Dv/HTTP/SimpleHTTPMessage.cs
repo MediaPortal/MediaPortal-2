@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Web;
 using InvalidDataException=MediaPortal.Utilities.Exceptions.InvalidDataException;
 
 namespace UPnP.Infrastructure.Dv.HTTP
@@ -48,8 +47,6 @@ namespace UPnP.Infrastructure.Dv.HTTP
     protected string _httpVersion = DEFAULT_HTTP_VERSION;
     protected IDictionary<string, string> _headers = new Dictionary<string, string>();
     protected byte[] _bodyBuffer = null;
-
-    protected SimpleHTTPMessage() { }
 
     public string HttpVersion
     {
