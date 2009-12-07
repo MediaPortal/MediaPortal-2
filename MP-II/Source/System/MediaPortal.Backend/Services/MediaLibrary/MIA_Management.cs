@@ -879,7 +879,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   COLL_ATTR_VALUE_COL_NAME + " " + sqlType + ", " +
                   "CONSTRAINT " + pkConstraintName + " PRIMARY KEY (" + FOREIGN_COLL_ATTR_ID_COL_NAME + ")" +
                   ")";
-              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating MTO table table '{0}' for attribute '{1}' in media item aspect '{2}'",
+              ServiceScope.Get<ILogger>().Debug("MIA_Management: Creating MTO table '{0}' for attribute '{1}' in media item aspect '{2}'",
                   collectionAttributeTableName, spec.AttributeName, miam.AspectId);
               command.ExecuteNonQuery();
 
