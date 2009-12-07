@@ -130,7 +130,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
       if (basePath != null)
       {
-        commandStr = commandStr + " AND " + pathAttribute + " LIKE ? ESCAPE '\\')";
+        commandStr = commandStr + " AND " + pathAttribute + " LIKE ? ESCAPE '\\'";
 
         param = command.CreateParameter();
         param.Value = SqlUtils.LikeEscape(StringUtils.CheckSuffix(basePath.Serialize(), "/"), '\\') + "%";
