@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localization;
 
@@ -87,10 +88,10 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     #region Protected fields
 
-    protected Guid _contributorModelId;
-    protected IWorkflowContributor _contributor;
-    protected ModelItemStateTracker _modelItemStateTracker;
+    protected IWorkflowContributor _contributor = null;
     protected int usages = 0;
+    protected Guid _contributorModelId;
+    protected ModelItemStateTracker _modelItemStateTracker;
 
     #endregion
 
@@ -114,7 +115,10 @@ namespace MediaPortal.UI.Presentation.Workflow
       object model = ServiceScope.Get<IPluginManager>().RequestPluginItem<object>(
           MODELS_REGISTRATION_LOCATION, _contributorModelId.ToString(), _modelItemStateTracker);
       if (model == null)
-        throw new ArgumentException(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));
+      {
+        ServiceScope.Get<ILogger>().Warn(string.Format("WorkflowContributorAction: Workflow contributor model with id '{0}' is not available", _contributorModelId));
+        return;
+      }
       _contributor = (IWorkflowContributor) model;
       _contributor.Initialize();
       _contributor.StateChanged += OnContributorStateChanged;
