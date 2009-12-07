@@ -132,7 +132,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     public void CheckImportStillRunning(ImportJobState state)
     {
-      if (IsSuspended || state == ImportJobState.Cancelled)
+      if (IsSuspended || state == ImportJobState.Cancelled || state == ImportJobState.Erroneous)
         throw new ImportAbortException();
     }
 
@@ -339,6 +339,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           catch (Exception e)
           {
             ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
+            importJob.State = ImportJobState.Erroneous;
           }
           CheckImportStillRunning(importJob.State);
         }

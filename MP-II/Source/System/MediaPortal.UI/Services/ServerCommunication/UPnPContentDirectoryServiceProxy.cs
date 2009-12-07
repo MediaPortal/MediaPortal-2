@@ -197,14 +197,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
         IEnumerable<MediaItemAspect> mediaItemAspects)
     {
       CpAction action = GetAction("AddOrUpdateMediaItem");
-      IList<object> inParameters = new List<object> {systemId, path, mediaItemAspects};
+      IList<object> inParameters = new List<object> {systemId, path.Serialize(), mediaItemAspects};
       action.InvokeAction(inParameters);
     }
 
     public void DeleteMediaItemOrPath(string systemId, ResourcePath path)
     {
       CpAction action = GetAction("DeleteMediaItemOrPath");
-      IList<object> inParameters = new List<object> {systemId, path};
+      IList<object> inParameters = new List<object> {systemId, path.Serialize()};
       action.InvokeAction(inParameters);
     }
 

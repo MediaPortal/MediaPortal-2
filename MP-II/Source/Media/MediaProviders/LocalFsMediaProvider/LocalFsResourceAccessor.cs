@@ -139,7 +139,7 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
         if (string.IsNullOrEmpty(_path) || _path == "/")
           return false;
         string dosPath = LocalFsMediaProviderBase.ToDosPath(_path);
-        return File.Exists(dosPath) || Directory.Exists(dosPath);
+        return File.Exists(dosPath);
       }
     }
 
