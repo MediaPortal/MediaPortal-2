@@ -37,31 +37,31 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
 
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ARTISTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Artists", 100, Cardinality.ManyToMany, true);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUM =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Album", 100, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Album", 100, Cardinality.Inline, true);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_GENRES =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genres", 100, Cardinality.ManyToMany, true);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_TRACK =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Track", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Track", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_NUMTRACKS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("NumTracks", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("NumTracks", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_PLAYCOUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("PlayCount", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ALBUMARTISTS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("AlbumArtists", 100, Cardinality.ManyToMany, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMPOSERS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Composers", 100, Cardinality.ManyToMany, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ENCODING =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Encoding", 50, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Encoding", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_BITRATE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("BitRate", typeof(int), Cardinality.ManyToOne);
+        MediaItemAspectMetadata.CreateAttributeSpecification("BitRate", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DISCID =
-        MediaItemAspectMetadata.CreateAttributeSpecification("DiscId", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("DiscId", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_NUMDISCS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("NumDiscs", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("NumDiscs", typeof(int), Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name

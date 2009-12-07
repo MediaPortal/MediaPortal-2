@@ -41,13 +41,13 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Contains UPnP device UUID of the system where the media item is located.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_SYSTEM_ID =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("System-Id", 100, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the path of the item in its provider.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RESOURCE_ACCESSOR_PATH =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Path", 1000, Cardinality.Inline, true);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name

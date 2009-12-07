@@ -48,6 +48,8 @@ namespace MediaPortal.BackendComponents.Database.Firebird
     public const string FIREBIRD_DATABASE_TYPE = "Firebird";
     public const string DATABASE_VERSION = "2.1.2";
 
+    public const int PAGE_SIZE = 16384;
+
     protected string _connectionString;
 
     #region Ctor & dtor
@@ -69,6 +71,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
             Dialect = 3,
             Charset = "UTF8",
             Pooling = false, // We use our own pooling mechanism
+            ReturnRecordsAffected = true
         };
       _connectionString = sb.ConnectionString;
       try
@@ -105,7 +108,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
     /// </summary>
     protected void CreateDatabase(string connectionString)
     {
-      FbConnection.CreateDatabase(connectionString);
+      FbConnection.CreateDatabase(connectionString, PAGE_SIZE, true, true);
       // Create BOOLEAN domain
       ITransaction transaction = BeginTransaction();
       try
@@ -160,7 +163,7 @@ namespace MediaPortal.BackendComponents.Database.Firebird
       get { return DATABASE_VERSION; }
     }
 
-    public uint MaxTableNameLength
+    public uint MaxObjectNameLength
     {
       get { return 30; }
     }

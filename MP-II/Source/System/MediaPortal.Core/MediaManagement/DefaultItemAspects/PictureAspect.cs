@@ -37,9 +37,9 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static Guid ASPECT_ID = new Guid("8B195D23-5028-4322-98B9-3DEF2BFDD510");
 
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_HEIGHT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name

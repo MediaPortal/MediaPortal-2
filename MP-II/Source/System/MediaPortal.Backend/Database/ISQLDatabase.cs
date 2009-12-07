@@ -66,9 +66,9 @@ namespace MediaPortal.Backend.Database
     string DatabaseVersion { get; }
 
     /// <summary>
-    /// Gets the maximum length of a table name in this database.
+    /// Gets the maximum length of an object name (table, column, sequence, ...) in this database.
     /// </summary>
-    uint MaxTableNameLength { get; }
+    uint MaxObjectNameLength { get; }
 
     /// <summary>
     /// Returns the name of an SQL type (to be used in SQL scripts) which can store values of the specified .net type

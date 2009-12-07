@@ -40,44 +40,44 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     /// Contains a human readable title of the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_TITLE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Title", 1000, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Title", 1000, Cardinality.Inline, true);
 
     /// <summary>
     /// Contains the mime type of the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_MIME_TYPE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("MimeType", 50, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a rectified form of the provider resource path. This might be the DVD folder name, while
     /// the underlaying provider resource path of the media item points to the 'video_ts.ifo' file.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECTIFIED_PATH =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("RectifiedPath", 1000, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("RectifiedPath", 1000, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the recording time date of the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECORDINGTIME =
-        MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);
 
     /// <summary>
     /// Contains a rating of the media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RATING =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Rating", typeof(int), Cardinality.Inline, true);
 
     /// <summary>
     /// Contains a textual comment to this media item.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_COMMENT =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Comment", 1000, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Comment", 1000, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the date when the media item was last played.
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_LASTPLAYED =
-        MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("LastPlayed", typeof(DateTime), Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name

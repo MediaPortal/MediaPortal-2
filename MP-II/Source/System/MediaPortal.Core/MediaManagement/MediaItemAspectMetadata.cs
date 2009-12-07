@@ -129,14 +129,16 @@ namespace MediaPortal.Core.MediaManagement
       protected Type _attributeType;
       protected Cardinality _cardinality;
       protected uint _maxNumChars;
+      protected bool _indexed;
 
       #endregion
 
-      internal AttributeSpecification(string name, Type type, Cardinality cardinality)
+      internal AttributeSpecification(string name, Type type, Cardinality cardinality, bool indexed)
       {
         _attributeName = name;
         _attributeType = type;
         _cardinality = cardinality;
+        _indexed = indexed;
       }
 
       /// <summary>
@@ -176,6 +178,15 @@ namespace MediaPortal.Core.MediaManagement
       public Cardinality Cardinality
       {
         get { return _cardinality; }
+      }
+
+      /// <summary>
+      /// Gets the information if this attribute is indexed in the media library.
+      /// </summary>
+      [XmlIgnore]
+      public bool IsIndexed
+      {
+        get { return _indexed; }
       }
 
       /// <summary>
@@ -231,6 +242,16 @@ namespace MediaPortal.Core.MediaManagement
       {
         get { return _cardinality; }
         set { _cardinality = value; }
+      }
+
+      /// <summary>
+      /// For internal use of the XML serialization system only.
+      /// </summary>
+      [XmlElement("Indexed")]
+      public bool XML_Indexed
+      {
+        get { return _indexed; }
+        set { _indexed = value; }
       }
 
       /// <summary>
@@ -336,10 +357,12 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="maxNumChars">Maximum number of characters to be stored in the attribute to
     /// be created.</param>
     /// <param name="cardinality">Cardinality of the new attribute.</param>
+    /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
+    /// This should only be done if the attribute will often occur in filter criteria.</param>
     public static AttributeSpecification CreateStringAttributeSpecification(string attributeName,
-        uint maxNumChars, Cardinality cardinality)
+        uint maxNumChars, Cardinality cardinality, bool indexed)
     {
-      AttributeSpecification result = new AttributeSpecification(attributeName, typeof(string), cardinality)
+      AttributeSpecification result = new AttributeSpecification(attributeName, typeof(string), cardinality, indexed)
         {MaxNumChars = maxNumChars};
       return result;
     }
@@ -353,13 +376,15 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="attributeType">Type of the attribute to be stored in the attribute to be created.
     /// For a list of supported attribute types, see <see cref="SUPPORTED_BASIC_TYPES"/>.</param>
     /// <param name="cardinality">Cardinality of the new attribute.</param>
+    /// <param name="indexed">Set to <c>true</c> if the new attribute should be indexed in the media library.
+    /// This should only be done if the attribute will often occur in filter criteria.</param>
     public static AttributeSpecification CreateAttributeSpecification(string attributeName,
-        Type attributeType, Cardinality cardinality)
+        Type attributeType, Cardinality cardinality, bool indexed)
     {
       if (!SUPPORTED_BASIC_TYPES.Contains(attributeType))
         throw new ArgumentException(string.Format("Attribute type {0} is not supported for media item aspect attributes",
             attributeType.Name));
-      return new AttributeSpecification(attributeName, attributeType, cardinality);
+      return new AttributeSpecification(attributeName, attributeType, cardinality, indexed);
     }
 
     /// <summary>

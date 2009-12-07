@@ -37,33 +37,33 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
     public static Guid ASPECT_ID = new Guid("8F8B7A4F-767C-4180-B58E-7C8999C52067");
 
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_GENRE =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genre", 100, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Genre", 100, Cardinality.ManyToOne, true);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DURATION =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Duration", typeof(long), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_DIRECTOR =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Director", 100, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Director", 100, Cardinality.ManyToOne, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOSTREAMCOUNT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("AudioStreamCount", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("AudioStreamCount", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOENCODING =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioEncoding", 50, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("AudioEncoding", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_AUDIOBITRATE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("AudioBitRate", typeof(long), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_VIDEOENCODING =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("VideoEncoding", 50, Cardinality.Inline);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("VideoEncoding", 50, Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_VIDEOBITRATE =
-        MediaItemAspectMetadata.CreateAttributeSpecification("VideoBitRate", typeof(long), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("VideoBitRate", typeof(long), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_WIDTH =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Width", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_HEIGHT =
-        MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("Height", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ASPECTRATIO =
-        MediaItemAspectMetadata.CreateAttributeSpecification("AspectRatio", typeof(float), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("AspectRatio", typeof(float), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_FPS =
-        MediaItemAspectMetadata.CreateAttributeSpecification("FPS", typeof(int), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("FPS", typeof(int), Cardinality.Inline, false);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ACTORS =
-        MediaItemAspectMetadata.CreateStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany);
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany, true);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISDVD =
-        MediaItemAspectMetadata.CreateAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline);
+        MediaItemAspectMetadata.CreateAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
