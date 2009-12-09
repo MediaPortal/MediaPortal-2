@@ -312,7 +312,7 @@ namespace MediaPortal.Core.MediaManagement
         String attributeName = reader.ReadContentAsString();
         reader.MoveToElement();
         if (SoapHelper.ReadEmptyStartElement(reader, "Attribute"))
-          throw new ArgumentException("Unexpected empty Attribute element");
+          continue;
         MediaItemAspectMetadata.AttributeSpecification attributeSpec;
         if (!miaType.AttributeSpecifications.TryGetValue(attributeName, out attributeSpec))
           throw new ArgumentException(string.Format(

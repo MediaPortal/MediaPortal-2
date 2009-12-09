@@ -210,6 +210,24 @@ namespace MediaPortal.Core.MediaManagement
         set { _maxNumChars = value; }
       }
 
+      public override bool Equals(object obj)
+      {
+        AttributeSpecification other = obj as AttributeSpecification;
+        if (other == null)
+          return false;
+        return _parentMIAM.AspectId == other._parentMIAM.AspectId && _attributeName == other._attributeName;
+      }
+
+      public override int GetHashCode()
+      {
+        return _parentMIAM.AspectId.GetHashCode() + _attributeName.GetHashCode();
+      }
+
+      public override string ToString()
+      {
+        return "AttributeSpecification '" + _attributeName + "'";
+      }
+
       #region Additional members for the XML serialization
 
       internal AttributeSpecification() { }
