@@ -56,16 +56,22 @@ namespace UPnP.Infrastructure.CP
   public delegate bool DataTypeResolverDlgt(string dataTypeName, out UPnPExtendedDataType dataType);
 
   /// <summary>
-  /// Delegate which is used to notify the disconnect event of a <see cref="DeviceConnection"/>.
-  /// </summary>
-  /// <param name="connection">Connection which was disconnected.</param>
-  public delegate void DeviceDisconnectedDlgt(DeviceConnection connection);
-
-  /// <summary>
   /// Contains the control point connection data of a device template to a network UPnP device.
   /// </summary>
   public class DeviceConnection : IDisposable
   {
+    /// <summary>
+    /// Delegate which is used to notify the disconnect event of a <see cref="DeviceConnection"/>.
+    /// </summary>
+    /// <param name="connection">Connection which was disconnected.</param>
+    public delegate void DeviceDisconnectedDlgt(DeviceConnection connection);
+
+    /// <summary>
+    /// Delegate which is used to notify the reboot of a connected device.
+    /// </summary>
+    /// <param name="connection">Connection whose device was rebooted.</param>
+    public delegate void DeviceRebootedDlgt(DeviceConnection connection);
+
     /// <summary>
     /// Default event expiration time to use.
     /// </summary>
@@ -344,6 +350,7 @@ namespace UPnP.Infrastructure.CP
     internal void OnDeviceRebooted()
     {
       RenewAllEventSubscriptions();
+      InvokeDeviceRebooted();
     }
 
     internal void OnActionCalled(CpAction action, IList<object> inParams, object clientState)
@@ -589,6 +596,13 @@ namespace UPnP.Infrastructure.CP
         dlgt(this);
     }
 
+    protected void InvokeDeviceRebooted()
+    {
+      DeviceRebootedDlgt dlgt = DeviceRebooted;
+      if (dlgt != null)
+        dlgt(this);
+    }
+
     protected EventSubscription FindEventSubscriptionByService(CpService service)
     {
       lock (_cpData.SyncObj)
@@ -693,6 +707,8 @@ namespace UPnP.Infrastructure.CP
     /// Gets raised when the device of this device connection was disconnected.
     /// </summary>
     public event DeviceDisconnectedDlgt DeviceDisconnected;
+
+    public event DeviceRebootedDlgt DeviceRebooted;
 
     /// <summary>
     /// Returns the shared control point data structure.

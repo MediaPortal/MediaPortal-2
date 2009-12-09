@@ -80,7 +80,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForValueRange(XmlWriter writer)
+    internal void AddSCPDDescriptionForValueRange(XmlWriter writer)
     {
       writer.WriteStartElement("allowedValueRange");
       writer.WriteStartElement("minimum");

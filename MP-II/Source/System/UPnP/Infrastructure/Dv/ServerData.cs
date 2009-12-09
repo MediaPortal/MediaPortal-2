@@ -100,13 +100,7 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// UPnP BOOTID. Contains a value that is increased at every startup of the UPnP subsystem.
     /// </summary>
-    public int BootId = NextBootId();
-
-    /// <summary>
-    /// UPnP CONFIGID. Contains a value indicating the current UPnP server configuration. Must be increased when the configuration
-    /// changes.
-    /// </summary>
-    public int ConfigId = 0;
+    public Int32 BootId = NextBootId();
 
     /// <summary>
     /// Collection of pending searches which will be answered some milliseconds later, as specified in the UPnP device

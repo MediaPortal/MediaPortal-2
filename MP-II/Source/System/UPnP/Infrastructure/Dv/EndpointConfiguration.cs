@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -39,7 +40,7 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// The URL where the service's description can be requested.
     /// </summary>
-    public string SCDPURL;
+    public string SCPDURL;
 
     /// <summary>
     /// The URL to be used for control of the service.
@@ -77,6 +78,7 @@ namespace UPnP.Infrastructure.Dv
     protected IDictionary<string, DvService> _eventSubURLsToServices = new Dictionary<string, DvService>();
     protected IDictionary<DvService, ServiceURLs> _serviceURLs = new Dictionary<DvService, ServiceURLs>();
     protected ICollection<EventSubscription> _eventSubscriptions = new List<EventSubscription>();
+    protected Int32 _configId = 0;
 
     /// <summary>
     /// UDP socket which is used for SSDP to send unicast messages over this UPnP endpoint.
@@ -247,6 +249,16 @@ namespace UPnP.Infrastructure.Dv
     public ICollection<EventSubscription> EventSubscriptions
     {
       get { return _eventSubscriptions; }
+    }
+
+    /// <summary>
+    /// UPnP CONFIGID. Contains a value indicating the current UPnP server configuration.
+    /// Must be increased when the configuration changes. Must be in the range from 0 to 16777215 (2^24-1).
+    /// </summary>
+    public Int32 ConfigId
+    {
+      get { return _configId; }
+      internal set { _configId = value; }
     }
   }
 }

@@ -146,7 +146,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForArgument(XmlWriter writer)
+    internal void AddSCPDDescriptionForArgument(XmlWriter writer)
     {
       writer.WriteStartElement("argument");
       writer.WriteElementString("name", _name);

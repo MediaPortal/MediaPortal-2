@@ -57,7 +57,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
       response.SetHeader("ST", NT);
       response.SetHeader("USN", USN);
       response.SetHeader("BOOTID.UPNP.ORG", _serverData.BootId.ToString());
-      response.SetHeader("CONFIGID.UPNP.ORG", _serverData.ConfigId.ToString());
+      response.SetHeader("CONFIGID.UPNP.ORG", _localEndpointConfiguration.ConfigId.ToString());
       if (_localEndpointConfiguration.SSDPUsesSpecialSearchPort)
         response.SetHeader("SEARCHPORT.UPNP.ORG", _localEndpointConfiguration.SSDPSearchPort.ToString());
 

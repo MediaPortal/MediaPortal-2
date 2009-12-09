@@ -68,7 +68,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal override void AddSCDPDescriptionForStandardDataType(XmlWriter writer)
+    internal override void AddSCPDDescriptionForStandardDataType(XmlWriter writer)
     {
       writer.WriteStartElement("dataType");
       writer.WriteString(_dataType.UPnPTypeName);

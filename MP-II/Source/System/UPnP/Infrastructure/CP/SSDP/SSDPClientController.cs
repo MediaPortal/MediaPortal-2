@@ -67,7 +67,15 @@ namespace UPnP.Infrastructure.CP.SSDP
   /// Delegate used for the <see cref="SSDPClientController.DeviceRebooted"/> event.
   /// </summary>
   /// <param name="rootEntry">The root entry of the rebooted device.</param>
-  public delegate void DeviceRebootedDlgt(RootEntry rootEntry);
+  /// <param name="configurationChanged">Provides the information if the rebooted device
+  /// also did change its configuration.</param>
+  public delegate void DeviceRebootedDlgt(RootEntry rootEntry, bool configurationChanged);
+
+  /// <summary>
+  /// Delegate used for the <see cref="SSDPClientController.DeviceConfigurationChanged"/> event.
+  /// </summary>
+  /// <param name="rootEntry">The root entry of the device which changed its configuration.</param>
+  public delegate void DeviceConfigurationChangedDlgt(RootEntry rootEntry);
 
   /// <summary>
   /// Active SSDP listener and controller class which attends the SSDP protocol in a UPnP control point.
@@ -237,10 +245,18 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     /// <summary>
     /// Invoked when a UPnP reboot of a device is determined. A reboot means that possibly all event subscriptions at any of
-    /// the included services are gone and should be re-triggered. Notice that the root entry might have changed its configuration;
-    /// in that case it has a new <see cref="RootEntry.ConfigID"/>.
+    /// the included services are gone and should be re-triggered. The root entry also might have changed its configuration;
+    /// in that case the parameter <c>configurationChanged</c> in the event delegate will be set to <c>true</c>. The new
+    /// value of the configuration can be read from <see cref="RootEntry.ConfigID"/>.
     /// </summary>
     public event DeviceRebootedDlgt DeviceRebooted;
+
+    /// <summary>
+    /// Invoked when a UPnP device changed its configuration. That includes changes of the device description document
+    /// or any of the SCPD documents of its embedded services. Note that also changes in the URLs for description,
+    /// control or eventing (including IP address and port) might have occured.
+    /// </summary>
+    public event DeviceConfigurationChangedDlgt DeviceConfigurationChanged;
 
     #endregion
 
@@ -665,6 +681,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         DeviceEntry deviceEntry = null;
         string serviceType = null;
         bool fireDeviceRebooted = false;
+        bool fireConfigurationChanged = false;
         bool fireRootDeviceAdded = false;
         bool fireDeviceAdded = false;
         bool fireServiceAdded = false;
@@ -677,11 +694,13 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
+          if (rootEntry.ConfigID != configID)
+            fireConfigurationChanged = true;
+          rootEntry.ConfigID = configID;
           if (!rootEntryAdded && bi != null && rootEntry.BootID < bootID)
             // Device reboot
             fireDeviceRebooted = true;
           rootEntry.BootID = bootID;
-          rootEntry.ConfigID = configID;
           if (messageType == "upnp:rootdevice")
           {
             rootEntry.RootDeviceID = deviceUUID;
@@ -719,7 +738,9 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         // Raise events after returning the lock
         if (fireDeviceRebooted)
-          InvokeDeviceRebooted(rootEntry);
+          InvokeDeviceRebooted(rootEntry, fireConfigurationChanged);
+        else if (fireConfigurationChanged)
+          InvokeDeviceConfigurationChanged(rootEntry);
         if (fireRootDeviceAdded)
           InvokeRootDeviceAdded(rootEntry);
         if (fireDeviceAdded)
@@ -781,7 +802,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         rootEntry.BootID = nextBootID;
       }
       if (fireDeviceRebooted)
-        InvokeDeviceRebooted(rootEntry);
+        InvokeDeviceRebooted(rootEntry, false);
     }
 
     protected void InvokeRootDeviceAdded(RootEntry rootEntry)
@@ -812,9 +833,16 @@ namespace UPnP.Infrastructure.CP.SSDP
         dlgt(rootEntry);
     }
 
-    protected void InvokeDeviceRebooted(RootEntry rootEntry)
+    protected void InvokeDeviceRebooted(RootEntry rootEntry, bool configChanged)
     {
       DeviceRebootedDlgt dlgt = DeviceRebooted;
+      if (dlgt != null)
+        dlgt(rootEntry, configChanged);
+    }
+
+    protected void InvokeDeviceConfigurationChanged(RootEntry rootEntry)
+    {
+      DeviceConfigurationChangedDlgt dlgt = DeviceConfigurationChanged;
       if (dlgt != null)
         dlgt(rootEntry);
     }

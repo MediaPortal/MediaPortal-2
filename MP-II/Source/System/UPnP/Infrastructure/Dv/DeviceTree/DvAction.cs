@@ -151,7 +151,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForAction(XmlWriter writer)
+    internal void AddSCPDDescriptionForAction(XmlWriter writer)
     {
       writer.WriteStartElement("action");
       writer.WriteElementString("name", _name);
@@ -160,7 +160,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         writer.WriteStartElement("argumentList");
         foreach (DvArgument argument in arguments)
-          argument.AddSCDPDescriptionForArgument(writer);
+          argument.AddSCPDDescriptionForArgument(writer);
         writer.WriteEndElement(); // argumentList
       }
       writer.WriteEndElement(); // action

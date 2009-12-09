@@ -208,8 +208,10 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <summary>
     /// Creates the UPnP service description for this service.
     /// </summary>
+    /// <param name="config">Endpoint configuration for that the SCPD document should be created.</param>
+    /// <param name="serverData">Global server data structure.</param>
     /// <returns>UPnP service description document.</returns>
-    public string BuildSCDPDocument(ServerData serverData)
+    public string BuildSCPDDocument(EndpointConfiguration config, ServerData serverData)
     {
       StringBuilder result = new StringBuilder(10000);
       XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
@@ -228,7 +230,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
           writer.WriteAttributeString("xmlns", "dt" + ct++, null, schemaURI);
         }
       }
-      writer.WriteAttributeString("configId", serverData.ConfigId.ToString());
+      writer.WriteAttributeString("configId", config.ConfigId.ToString());
       writer.WriteStartElement("specVersion");
       writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
       writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
@@ -239,12 +241,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         writer.WriteStartElement("actionList");
         foreach (DvAction action in actions)
-          action.AddSCDPDescriptionForAction(writer);
+          action.AddSCPDDescriptionForAction(writer);
         writer.WriteEndElement(); // actionList
       }
       writer.WriteStartElement("serviceStateTable");
       foreach (DvStateVariable stateVariable in _stateVariables.Values)
-        stateVariable.AddSCDPDescriptionForStateVariable(writer);
+        stateVariable.AddSCPDDescriptionForStateVariable(writer);
       writer.WriteEndElement(); // serviceStateTable
       writer.WriteEndElement(); // scpd
       writer.WriteEndDocument();
@@ -259,7 +261,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       writer.WriteStartElement("service");
       writer.WriteElementString("serviceType", ServiceTypeVersion_URN);
       writer.WriteElementString("serviceId", _serviceId);
-      writer.WriteElementString("SCPDURL", new Uri(serviceURLs.SCDPURL).AbsolutePath);
+      writer.WriteElementString("SCPDURL", new Uri(serviceURLs.SCPDURL).AbsolutePath);
       writer.WriteElementString("controlURL", new Uri(serviceURLs.ControlURL).AbsolutePath);
       writer.WriteElementString("eventSubURL", new Uri(serviceURLs.EventSubURL).AbsolutePath);
       writer.WriteEndElement(); // service

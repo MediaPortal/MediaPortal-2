@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -168,6 +168,7 @@
     <Compile Include="Infrastructure\Utils\EncodingUtils.cs" />
     <Compile Include="Infrastructure\Utils\NetworkHelper.cs" />
     <Compile Include="Infrastructure\Utils\ParserHelper.cs" />
+    <Compile Include="Infrastructure\Utils\HashGenerator.cs" />
     <Compile Include="Infrastructure\Exceptions.cs" />
     <Compile Include="Infrastructure\UPnPConsts.cs" />
     <Compile Include="Infrastructure\Configuration.cs" />

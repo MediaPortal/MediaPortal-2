@@ -226,9 +226,11 @@ namespace UPnP.Infrastructure.Dv
     {
       lock (_syncObj)
       {
-        _serverData.ConfigId++;
         foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
+        {
           GenerateObjectURLs(config);
+          config.ConfigId = GenerateConfigId(config);
+        }
         _serverData.SSDPController.Advertise();
       }
     }
@@ -293,7 +295,7 @@ namespace UPnP.Infrastructure.Dv
               if (config.RootDeviceDescriptionURLsToRootDevices.TryGetValue(uri, out rootDevice))
                 description = rootDevice.BuildRootDeviceDescription(_serverData, config, culture);
               else if (config.SCPDURLsToServices.TryGetValue(uri, out service))
-                description = service.BuildSCDPDocument(_serverData);
+                description = service.BuildSCPDDocument(config, _serverData);
               if (description != null)
               {
                 IHttpResponse response = request.CreateResponse(context);
@@ -395,6 +397,22 @@ namespace UPnP.Infrastructure.Dv
       DeviceTreeURLGenerator.GenerateObjectURLs(this, config);
     }
 
+    protected Int32 GenerateConfigId(EndpointConfiguration config)
+    {
+      Int64 result = 0;
+      foreach (DvDevice rootDevice in config.RootDeviceDescriptionURLsToRootDevices.Values)
+      {
+        string description = rootDevice.BuildRootDeviceDescription(_serverData, config, CultureInfo.InvariantCulture);
+        result += HashGenerator.CalculateHash(0, description);
+      }
+      foreach (DvService service in config.SCPDURLsToServices.Values)
+      {
+        string description = service.BuildSCPDDocument(config, _serverData);
+        result += HashGenerator.CalculateHash(0, description);
+      }
+      return (int) result;
+    }
+
     protected void UpdateInterfaceConfiguration()
     {
       InitializeDiscoveryEndpoints();
@@ -426,6 +444,7 @@ namespace UPnP.Infrastructure.Dv
                   "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_EVENT_SUB_URL_PREFIX)
           };
         GenerateObjectURLs(config);
+        config.ConfigId = GenerateConfigId(config);
         _serverData.UPnPEndPoints.Add(config);
         _serverData.SSDPController.StartSSDPEndpoint(config);
         _serverData.GENAController.InitializeGENAEndpoint(config);

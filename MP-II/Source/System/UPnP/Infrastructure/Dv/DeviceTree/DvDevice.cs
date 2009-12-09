@@ -289,7 +289,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       writer.WriteStartDocument();
       writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
 
-      writer.WriteAttributeString("configId", serverData.ConfigId.ToString());
+      writer.WriteAttributeString("configId", config.ConfigId.ToString());
       writer.WriteStartElement("specVersion");
       writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
       writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());

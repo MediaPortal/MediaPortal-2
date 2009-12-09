@@ -36,32 +36,33 @@ using UPnP.Infrastructure.Utils;
 namespace UPnP.Infrastructure.CP
 {
   /// <summary>
-  /// Delegate to be called when a network device was added and its given <paramref name="rootDescriptor"/> was filled
-  /// completely.
-  /// </summary>
-  /// <param name="rootDescriptor">Descriptor containing all description documents of the new UPnP device.</param>
-  public delegate void DeviceAddedDlgt(RootDescriptor rootDescriptor);
-
-  /// <summary>
-  /// Delegate to be called when a network device was removed.
-  /// </summary>
-  /// <param name="rootDescriptor">Descriptor of the UPnP device which was removed.</param>
-  public delegate void DeviceRemovedDlgt(RootDescriptor rootDescriptor);
-
-  /// <summary>
-  /// Delegate to be called when a reboot of a network device was detected.
-  /// </summary>
-  /// <param name="rootDescriptor">Descriptor of the UPnP device which was rebooted.</param>
-  public delegate void DeviceRebootedDlgt(RootDescriptor rootDescriptor);
-
-  /// <summary>
   /// Tracks UPnP devices which are available in the network. Provides materialized descriptions for each available
   /// device and service. Provides an event <see cref="RootDeviceAdded"/> which gets fired when all description documents
   /// were fetched from the device's server. Provides an event <see cref="RootDeviceRemoved"/> which gets fired when
-  /// the device disappears.
+  /// the device disappears. SSDP events for device configuration changes are completely hidden by this class and mapped
+  /// to calls to <see cref="RootDeviceRemoved"/> and <see cref="RootDeviceAdded"/>.
   /// </summary>
   public class UPnPNetworkTracker : IDisposable
   {
+    /// <summary>
+    /// Delegate to be called when a network device was added and its given <paramref name="rootDescriptor"/> was filled
+    /// completely.
+    /// </summary>
+    /// <param name="rootDescriptor">Descriptor containing all description documents of the new UPnP device.</param>
+    public delegate void DeviceAddedDlgt(RootDescriptor rootDescriptor);
+
+    /// <summary>
+    /// Delegate to be called when a network device was removed.
+    /// </summary>
+    /// <param name="rootDescriptor">Descriptor of the UPnP device which was removed.</param>
+    public delegate void DeviceRemovedDlgt(RootDescriptor rootDescriptor);
+
+    /// <summary>
+    /// Delegate to be called when a reboot of a network device was detected.
+    /// </summary>
+    /// <param name="rootDescriptor">Descriptor of the UPnP device which was rebooted.</param>
+    public delegate void DeviceRebootedDlgt(RootDescriptor rootDescriptor);
+
     protected class DescriptionRequestState
     {
       protected RootDescriptor _rootDescriptor;
@@ -204,6 +205,7 @@ namespace UPnP.Infrastructure.CP
         ssdpController.RootDeviceAdded += OnSSDPRootDeviceAdded;
         ssdpController.RootDeviceRemoved += OnSSDPRootDeviceRemoved;
         ssdpController.DeviceRebooted += OnSSDPDeviceRebooted;
+        ssdpController.DeviceConfigurationChanged += OnSSDPDeviceConfigurationChanged;
         _cpData.SSDPController = ssdpController;
         ssdpController.Start();
         ssdpController.SearchAll(null);
@@ -233,6 +235,7 @@ namespace UPnP.Infrastructure.CP
         ssdpController.RootDeviceAdded -= OnSSDPRootDeviceAdded;
         ssdpController.RootDeviceRemoved -= OnSSDPRootDeviceRemoved;
         ssdpController.DeviceRebooted -= OnSSDPDeviceRebooted;
+        ssdpController.DeviceConfigurationChanged -= OnSSDPDeviceConfigurationChanged;
         _cpData.SSDPController = null;
         foreach (DescriptionRequestState state in _pendingRequests)
           state.Request.Abort();
@@ -266,6 +269,11 @@ namespace UPnP.Infrastructure.CP
     }
 
     private void OnSSDPRootDeviceAdded(RootEntry rootEntry)
+    {
+      InitializeRootDescriptor(rootEntry);
+    }
+
+    protected void InitializeRootDescriptor(RootEntry rootEntry)
     {
       RootDescriptor rd = new RootDescriptor(rootEntry)
         {
@@ -437,12 +445,32 @@ namespace UPnP.Infrastructure.CP
       InvokeRootDeviceRemoved(rd);
     }
 
-    private void OnSSDPDeviceRebooted(RootEntry rootEntry)
+    private void OnSSDPDeviceRebooted(RootEntry rootEntry, bool configurationChanged)
     {
       RootDescriptor rd = GetRootDescriptor(rootEntry);
       if (rd == null)
         return;
-      InvokeDeviceRebooted(rd);
+      if (configurationChanged)
+        HandleDeviceConfigurationChanged(rd);
+      else
+        InvokeDeviceRebooted(rd);
+    }
+
+    private void OnSSDPDeviceConfigurationChanged(RootEntry rootEntry)
+    {
+      RootDescriptor rd = GetRootDescriptor(rootEntry);
+      if (rd == null)
+        return;
+      HandleDeviceConfigurationChanged(rd);
+    }
+
+    private void HandleDeviceConfigurationChanged(RootDescriptor rootDescriptor)
+    {
+      // Configuration changes cannot be given to our clients because they need a re-initialization of the
+      // device and all service description documents. So configuration changes will be handled by invocing a
+      // root device remove/add event combination.
+      InvokeRootDeviceRemoved(rootDescriptor);
+      InitializeRootDescriptor(rootDescriptor.SSDPRootEntry);
     }
 
     /// <summary>
@@ -489,7 +517,7 @@ namespace UPnP.Infrastructure.CP
 
     /// <summary>
     /// Given an XML &lt;service&gt; element containing a service description, this method extracts the returned
-    /// <see cref="ServiceDescriptor"/> and the SCDP description url.
+    /// <see cref="ServiceDescriptor"/> and the SCPD description url.
     /// </summary>
     /// <param name="rd">Root descriptor of the service descriptor to be built.</param>
     /// <param name="serviceNav">XPath navigator pointing to an XML &lt;service&gt; element containing the service

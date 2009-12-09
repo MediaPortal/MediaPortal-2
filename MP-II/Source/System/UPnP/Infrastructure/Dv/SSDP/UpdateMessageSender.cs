@@ -59,12 +59,12 @@ namespace UPnP.Infrastructure.Dv.SSDP
       response.SetHeader("NTS", "ssdp:update");
       response.SetHeader("USN", USN);
       response.SetHeader("BOOTID.UPNP.ORG", _lastBootId.ToString());
-      response.SetHeader("CONFIGID.UPNP.ORG", _serverData.ConfigId.ToString());
       response.SetHeader("NEXTBOOTID.UPNP.ORG", _nextBootId.ToString());
       // Currently, we don't support SEARCHPORT.UPNP.ORG function and header
 
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
       {
+        response.SetHeader("CONFIGID.UPNP.ORG", config.ConfigId.ToString());
         IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
         response.SetHeader("HOST", ep.ToString());
         if (config.SSDPUsesSpecialSearchPort)

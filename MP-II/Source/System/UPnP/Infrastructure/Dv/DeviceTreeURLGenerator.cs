@@ -76,7 +76,7 @@ namespace UPnP.Infrastructure.Dv
       {
         ServiceURLs serviceURLs = new ServiceURLs
           {
-              SCDPURL = GenerateAndAddUniqueURL(
+              SCPDURL = GenerateAndAddUniqueURL(
                   config.SCPDURLsToServices, descriptionBase + deviceRelUrl + service.ServiceTypeVersion_URN, ".xml", service),
               ControlURL = GenerateAndAddUniqueURL(
                   config.ControlURLsToServices, controlBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service),

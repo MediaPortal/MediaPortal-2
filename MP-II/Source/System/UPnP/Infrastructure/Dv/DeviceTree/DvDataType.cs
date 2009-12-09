@@ -90,11 +90,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     #region Description generation
 
     /// <summary>
-    /// Generates the (UPnP 1.0) SCDP description which will be written in the state variable description as child into the
+    /// Generates the (UPnP 1.0) SCPD description which will be written in the state variable description as child into the
     /// element &lt;dataType/&gt;.
     /// </summary>
     /// <param name="writer">XML writer to write the datatype description fragment to.</param>
-    internal abstract void AddSCDPDescriptionForStandardDataType(XmlWriter writer);
+    internal abstract void AddSCPDDescriptionForStandardDataType(XmlWriter writer);
 
     #endregion
   }

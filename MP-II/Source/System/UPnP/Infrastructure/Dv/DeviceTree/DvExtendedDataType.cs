@@ -83,7 +83,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       return _dataType.IsAssignableFrom(type);
     }
 
-    internal override void AddSCDPDescriptionForStandardDataType(XmlWriter writer)
+    internal override void AddSCPDDescriptionForStandardDataType(XmlWriter writer)
     {
       writer.WriteStartElement("dataType");
       string prefix = writer.LookupPrefix(_dataType.SchemaURI);

@@ -243,13 +243,13 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     #region Description generation
 
-    internal void AddSCDPDescriptionForStateVariable(XmlWriter writer)
+    internal void AddSCPDDescriptionForStateVariable(XmlWriter writer)
     {
       writer.WriteStartElement("stateVariable");
       writer.WriteAttributeString("sendEvents", _sendEvents ? "yes" : "no");
       writer.WriteAttributeString("multicast", _multicast ? "yes" : "no");
       writer.WriteElementString("name", _name);
-      _dataType.AddSCDPDescriptionForStandardDataType(writer);
+      _dataType.AddSCPDDescriptionForStandardDataType(writer);
       if (_defaultValue != null)
       {
         writer.WriteStartElement("defaultValue");
@@ -264,7 +264,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         writer.WriteEndElement(); // allowedValueList
       }
       if (_allowedValueRange != null)
-        _allowedValueRange.AddSCDPDescriptionForValueRange(writer);
+        _allowedValueRange.AddSCPDDescriptionForValueRange(writer);
       writer.WriteEndElement(); // stateVariable
     }
 
