@@ -795,6 +795,32 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    protected object ReadObject(IDataReader reader, int colIndex, MediaItemAspectMetadata.AttributeSpecification spec)
+    {
+      // Because the IDataReader interface doesn't provide a getter method which takes the desired return type,
+      // we have to write this method
+      Type type = spec.AttributeType;
+      if (type == typeof(string))
+        return reader.GetString(colIndex);
+      else if (type == typeof(DateTime))
+        return reader.GetDateTime(colIndex);
+      else if (type == typeof(Char))
+        return reader.GetChar(colIndex);
+      else if (type == typeof(Boolean))
+        return reader.GetBoolean(colIndex);
+      else if (type == typeof(Single))
+        return reader.GetFloat(colIndex);
+      else if (type == typeof(Double))
+        return reader.GetDouble(colIndex);
+      else if (type == typeof(Int32))
+        return reader.GetInt32(colIndex);
+      else if (type ==typeof(Int64))
+        return reader.GetInt64(colIndex);
+      else
+        throw new NotSupportedException(string.Format(
+            "The datatype '{0}' of attribute '{1}' in media item aspect type '{2}' (id '{3}') is not supported", type, spec.AttributeName, spec.ParentMIAM.Name, spec.ParentMIAM.AspectId));
+    }
+
     #endregion
 
     #region MIA storage management
@@ -1287,7 +1313,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
           {
             if (spec.Cardinality == Cardinality.Inline)
-              result.SetAttribute(spec, reader.GetValue(i));
+              result.SetAttribute(spec, ReadObject(reader, i, spec));
             i++;
           }
       }
