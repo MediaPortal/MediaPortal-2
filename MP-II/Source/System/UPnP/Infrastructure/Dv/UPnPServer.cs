@@ -410,6 +410,7 @@ namespace UPnP.Infrastructure.Dv
         string description = service.BuildSCPDDocument(config, _serverData);
         result += HashGenerator.CalculateHash(0, description);
       }
+      result += HashGenerator.CalculateHash(0, config.ControlURLBase + config.DescriptionURLBase + config.EventSubURLBase);
       return (int) result;
     }
 
