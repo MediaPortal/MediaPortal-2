@@ -52,7 +52,6 @@
     <Compile Include="ClientCommunication\ClientDescriptor.cs" />
     <Compile Include="ClientCommunication\ClientManagerMessaging.cs" />
     <Compile Include="ClientCommunication\IClientManager.cs" />
-    <Compile Include="ClientCommunication\Settings\ClientConnectionSettings.cs" />
     <Compile Include="ClientCommunication\IClientController.cs" />
     <Compile Include="Database\DatabaseSubSchemaManager.cs" />
     <Compile Include="Database\IDatabaseManager.cs" />

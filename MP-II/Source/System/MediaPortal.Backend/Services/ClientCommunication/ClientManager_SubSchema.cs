@@ -53,6 +53,18 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
     }
 
+    public static IDbCommand SelectAttachedClientsCommand(ITransaction transaction, out int attachedClientsIndex,
+        out int lastHostNameIndex)
+    {
+      IDbCommand result = transaction.CreateCommand();
+
+      result.CommandText = "SELECT SYSTEM_ID, LAST_HOSTNAME FROM ATTACHED_CLIENTS";
+
+      attachedClientsIndex = 0;
+      lastHostNameIndex = 1;
+      return result;
+    }
+
     public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName)
     {
       IDbCommand result = transaction.CreateCommand();

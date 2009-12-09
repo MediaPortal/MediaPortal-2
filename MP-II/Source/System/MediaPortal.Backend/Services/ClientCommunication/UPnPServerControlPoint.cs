@@ -50,9 +50,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     protected UPnPNetworkTracker _networkTracker;
     protected UPnPControlPoint _controlPoint;
 
-    public UPnPServerControlPoint(ICollection<string> attachedClientSystemIds)
+    public UPnPServerControlPoint()
     {
-      _attachedClientSystemIds = attachedClientSystemIds;
       CPData cpData = new CPData();
       _networkTracker = new UPnPNetworkTracker(cpData);
       _controlPoint = new UPnPControlPoint(_networkTracker);
@@ -81,6 +80,11 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       {
         lock (_networkTracker.SharedControlPointData.SyncObj)
           return new List<string>(_attachedClientSystemIds);
+      }
+      set
+      {
+        lock (_networkTracker.SharedControlPointData.SyncObj)
+          _attachedClientSystemIds = new List<string>(value);
       }
     }
 

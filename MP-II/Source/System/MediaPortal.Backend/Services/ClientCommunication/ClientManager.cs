@@ -26,13 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Backend.ClientCommunication;
-using MediaPortal.Backend.ClientCommunication.Settings;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Settings;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.Threading;
 using MediaPortal.Utilities.Exceptions;
@@ -46,8 +44,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public ClientManager()
     {
-      ClientConnectionSettings settings = ServiceScope.Get<ISettingsManager>().Load<ClientConnectionSettings>();
-      _controlPoint = new UPnPServerControlPoint(settings.AttachedClients);
+      _controlPoint = new UPnPServerControlPoint();
       _controlPoint.ClientConnected += OnClientConnected;
       _controlPoint.ClientDisconnected += OnClientDisconnected;
     }
@@ -61,7 +58,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // So we will validate if the client is still attached.
       ClientManagerMessaging.SendConnectionStateChangedMessage(
           ClientManagerMessaging.MessageType.ValidateAttachmentState, client);
-      ServiceScope.Get<IThreadPool>().Add(() => ValidateAttachmentState(client));
+      ServiceScope.Get<IThreadPool>().Add(() => CompleteClientConnection(client));
     }
 
     void OnClientDisconnected(ClientDescriptor client)
@@ -70,7 +67,46 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ClientManagerMessaging.SendConnectionStateChangedMessage(ClientManagerMessaging.MessageType.ClientOffline, client);
     }
 
-    protected void ValidateAttachmentState(ClientDescriptor client)
+    /// <summary>
+    /// Returns a dictionary which maps the system ids of all attached clients to their last hostname.
+    /// </summary>
+    /// <returns>Dictionary with system ids mapped to host names.</returns>
+    protected IDictionary<string, string> ReadAttachedClients()
+    {
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        int attachedClientsIndex;
+        int lastHostNameIndex;
+        IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out attachedClientsIndex,
+            out lastHostNameIndex);
+        IDataReader reader = command.ExecuteReader();
+        IDictionary<string, string> result = new Dictionary<string, string>();
+        try
+        {
+          while (reader.Read())
+            result.Add(reader.GetString(attachedClientsIndex), reader.GetString(lastHostNameIndex));
+        }
+        finally
+        {
+          reader.Close();
+        }
+        return result;
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    protected void CompleteClientConnection(ClientDescriptor client)
+    {
+      if (ValidateAttachmentState(client))
+        UpdateClientSystem(client.MPFrontendServerUUID, client.System);
+    }
+
+    protected bool ValidateAttachmentState(ClientDescriptor client)
     {
       string clientSystemId = client.MPFrontendServerUUID;
       ServiceScope.Get<ILogger>().Info("ClientManager: Validating attachment state of client '{0}' (system ID '{1}')",
@@ -85,8 +121,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           ServiceScope.Get<ILogger>().Info(
               "ClientManager: Client '{0}' is no longer attached to this server, cleaning up client data", clientSystemId);
           DetachClientAndRemoveShares(clientSystemId);
+          return false;
         }
       }
+      return true;
     }
 
     protected void SetClientConnectionState(string clientSystemId, SystemName currentSytemName, bool isOnline)
@@ -107,7 +145,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       foreach (ClientDescriptor client in _controlPoint.AvailableClients)
         if (client.MPFrontendServerUUID == clientSystemId)
           systemName = client.System;
-      UpdateClientSystem(clientSystemId, systemName);
+      if (systemName != null)
+        UpdateClientSystem(clientSystemId, systemName);
     }
 
     protected void UpdateClientSystem(string clientSystemId, SystemName system)
@@ -143,6 +182,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         throw new IllegalCallException(string.Format(
             "Unable to update the ClientManager's subschema version to expected version {0}.{1}",
             ClientManager_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, ClientManager_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
+      _controlPoint.AttachedClientSystemIds = ReadAttachedClients().Keys;
       _controlPoint.Start();
     }
 
@@ -163,11 +203,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public void AttachClient(string clientSystemId)
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      ClientConnectionSettings settings = settingsManager.Load<ClientConnectionSettings>();
-      settings.AttachedClients.Add(clientSystemId);
-      settingsManager.Save(settings);
-
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
@@ -175,7 +210,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null);
         command.ExecuteNonQuery();
         transaction.Commit();
-        UpdateClientSystem(clientSystemId);
       }
       catch (Exception e)
       {
@@ -190,11 +224,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public void DetachClientAndRemoveShares(string clientSystemId)
     {
-      ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
-      ClientConnectionSettings settings = settingsManager.Load<ClientConnectionSettings>();
-      settings.AttachedClients.Remove(clientSystemId);
-      settingsManager.Save(settings);
-
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
