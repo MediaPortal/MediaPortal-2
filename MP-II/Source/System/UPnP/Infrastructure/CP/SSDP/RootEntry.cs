@@ -44,8 +44,8 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected string _osVersion;
     protected string _productVersion;
     protected DateTime _expirationTime;
+    protected string _rootDeviceID; // UUID of the root device
     protected IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
-    protected string _rootDeviceID = null; // UID of the root device
     protected int _searchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
     protected uint _bootID = 0;
     protected uint _configID = 0;
@@ -54,17 +54,16 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// <summary>
     /// Creates a new <see cref="RootEntry"/> instance.
     /// </summary>
-    /// <param name="descriptionLocation">Description URL of the root device.</param>
+    /// <param name="deviceUUID">UUID of the root device.</param>
     /// <param name="config">UPnP endpoint where the advertisement was received.</param>
     /// <param name="upnpVersion">UPnP version the remote device is using.</param>
     /// <param name="httpVersion">HTTP version our partner is using.</param>
     /// <param name="osVersion">OS and version our partner is using.</param>
     /// <param name="productVersion">Product and version our partner is using.</param>
     /// <param name="expirationTime">Time when the advertisement will expire.</param>
-    public RootEntry(string descriptionLocation, EndpointConfiguration config, UPnPVersion upnpVersion, HTTPVersion httpVersion,
-        string osVersion, string productVersion, DateTime expirationTime)
+    public RootEntry(string deviceUUID, EndpointConfiguration config, UPnPVersion upnpVersion, HTTPVersion httpVersion, string osVersion, string productVersion, DateTime expirationTime)
     {
-      _descriptionLocation = descriptionLocation;
+      _rootDeviceID = deviceUUID;
       _endpoint = config;
       _upnpVersion = upnpVersion;
       _httpVersion = httpVersion;
@@ -74,11 +73,12 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Returns the URL of the description for this device advertisement.
+    /// Gets or sets the URL of the description for this device advertisement.
     /// </summary>
     public string DescriptionLocation
     {
       get { return _descriptionLocation; }
+      internal set { _descriptionLocation = value; }
     }
 
     /// <summary>
@@ -167,12 +167,11 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Gets or sets the root device's UUID.
+    /// Gets the root device's UUID.
     /// </summary>
     public string RootDeviceID
     {
       get { return _rootDeviceID; }
-      internal set { _rootDeviceID = value; }
     }
 
     /// <summary>

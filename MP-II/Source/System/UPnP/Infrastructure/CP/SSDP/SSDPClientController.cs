@@ -460,20 +460,20 @@ namespace UPnP.Infrastructure.CP.SSDP
       return false;
     }
 
-    protected RootEntry GetOrCreateRootEntry(string descriptionLocation, EndpointConfiguration config, UPnPVersion upnpVersion,
+    protected RootEntry GetOrCreateRootEntry(string deviceUUID, EndpointConfiguration config, UPnPVersion upnpVersion,
         HTTPVersion httpVersion, string osVersion, string productVersion, DateTime expirationTime, out bool wasAdded)
     {
       lock (_cpData.SyncObj)
       {
         RootEntry result;
-        if (_deviceEntries.TryGetValue(descriptionLocation, out result))
+        if (_deviceEntries.TryGetValue(deviceUUID, out result))
         {
           result.ExpirationTime = expirationTime;
           wasAdded = false;
           return result;
         }
         wasAdded = true;
-        return _deviceEntries[descriptionLocation] = new RootEntry(descriptionLocation, config, upnpVersion, httpVersion,
+        return _deviceEntries[deviceUUID] = new RootEntry(deviceUUID, config, upnpVersion, httpVersion,
             osVersion, productVersion, expirationTime);
       }
     }
@@ -688,7 +688,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         lock (_cpData.SyncObj)
         {
           bool rootEntryAdded;
-          rootEntry = GetOrCreateRootEntry(location, config, upnpVersion, httpVersion, versionInfos[0],
+          rootEntry = GetOrCreateRootEntry(deviceUUID, config, upnpVersion, httpVersion, versionInfos[0],
               versionInfos[2], expirationTime, out rootEntryAdded);
           rootEntry.SearchPort = searchPort;
           if (bi != null && rootEntry.BootID > bootID)
@@ -703,7 +703,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           rootEntry.BootID = bootID;
           if (messageType == "upnp:rootdevice")
           {
-            rootEntry.RootDeviceID = deviceUUID;
+            rootEntry.DescriptionLocation = location;
             rootEntry.GetOrCreateDeviceEntry(deviceUUID);
             if (rootEntryAdded)
               fireRootDeviceAdded = true;

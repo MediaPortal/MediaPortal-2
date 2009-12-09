@@ -148,6 +148,8 @@ namespace UPnP.Infrastructure.CP
     /// type and version.</returns>
     public IEnumerable<XPathNavigator> FindDeviceElements(string deviceType, int minDeviceVersion)
     {
+      if (_deviceDescription == null)
+        yield break;
       XPathNavigator nav = _deviceDescription.CreateNavigator();
       nav.MoveToChild(XPathNodeType.Element);
       XmlNamespaceManager nsmgr = new XmlNamespaceManager(nav.NameTable);
