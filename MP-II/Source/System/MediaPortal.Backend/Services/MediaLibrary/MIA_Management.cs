@@ -734,7 +734,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       command.CommandText = "INSERT INTO " + collectionAttributeTableName + " (" +
           FOREIGN_COLL_ATTR_ID_COL_NAME + ", " + COLL_ATTR_VALUE_COL_NAME + ") SELECT " +
           transaction.Database.GetSelectSequenceNextValStatement(MediaLibrary_SubSchema.MEDIA_LIBRARY_ID_SEQUENCE_NAME) +
-          ", ? FROM " + databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT ? FROM " + collectionAttributeTableName + ")";
+          ", ? FROM " + databaseManager.DummyTableName + " WHERE NOT EXISTS(SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME +
+          " FROM " + collectionAttributeTableName + " WHERE " + COLL_ATTR_VALUE_COL_NAME + " = ?)";
 
       IDbDataParameter param = command.CreateParameter();
       param.Value = value;
@@ -1334,19 +1335,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       IList<string> terms = new List<string>();
       IList<object> sqlValues = new List<object>();
       string miaTableName = GetMIATableName(miaType);
-      StringBuilder mainQueryBuilder = new StringBuilder();
-      if (insert)
-      {
-        mainQueryBuilder.Append("INSERT INTO ");
-        mainQueryBuilder.Append(miaTableName);
-        mainQueryBuilder.Append(" (");
-      }
-      else
-      {
-        mainQueryBuilder.Append("UPDATE ");
-        mainQueryBuilder.Append(miaTableName);
-        mainQueryBuilder.Append(" SET ");
-      }
+
+      // Attributes: First run
       foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
       {
         if (mia.IsIgnore(spec))
@@ -1363,7 +1353,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             sqlValues.Add(mia.GetAttributeValue(spec));
             break;
           case Cardinality.OneToMany:
-            InsertOrUpdateOneToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
+            // After main query
             break;
           case Cardinality.ManyToOne:
             attrColName = GetMIAAttributeColumnName(spec);
@@ -1387,13 +1377,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               sqlValues.Add(null);
             break;
           case Cardinality.ManyToMany:
-            InsertOrUpdateManyToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
+            // After main query
             break;
           default:
             throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
                 spec.Cardinality, miaType.AspectId, spec.AttributeName));
         }
       }
+      // Main query
+      StringBuilder mainQueryBuilder = new StringBuilder();
+      if (insert)
+      {
+        mainQueryBuilder.Append("INSERT INTO ");
+        mainQueryBuilder.Append(miaTableName);
+        mainQueryBuilder.Append(" (");
+      }
+      else
+      {
+        mainQueryBuilder.Append("UPDATE ");
+        mainQueryBuilder.Append(miaTableName);
+        mainQueryBuilder.Append(" SET ");
+      }
+
       // terms = all inline attributes
       // values = all inline attribute values
       if (terms.Count == 0)
@@ -1429,6 +1434,29 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
 
       command.ExecuteNonQuery();
+
+      // Attributes: Second run
+      foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
+      {
+        if (mia.IsIgnore(spec))
+          break;
+        switch (spec.Cardinality)
+        {
+          case Cardinality.Inline:
+            break;
+          case Cardinality.OneToMany:
+            InsertOrUpdateOneToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
+            break;
+          case Cardinality.ManyToOne:
+            break;
+          case Cardinality.ManyToMany:
+            InsertOrUpdateManyToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
+            break;
+          default:
+            throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
+                spec.Cardinality, miaType.AspectId, spec.AttributeName));
+        }
+      }
 
       CleanupAllManyToOneOrphanedAttributeValues(transaction, miaType);
     }
