@@ -822,6 +822,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             "The datatype '{0}' of attribute '{1}' in media item aspect type '{2}' (id '{3}') is not supported", type, spec.AttributeName, spec.ParentMIAM.Name, spec.ParentMIAM.AspectId));
     }
 
+    protected bool AttributeIsEmpty(object value)
+    {
+      return value == null || value as string == string.Empty;
+    }
+
     #endregion
 
     #region MIA storage management
@@ -1282,7 +1287,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             result.SetCollectionAttribute(spec, GetOneToManyMIAAttributeValues(transaction, mediaItemId, spec));
             break;
           case Cardinality.ManyToOne:
-            result.SetAttribute(spec, GetManyToOneMIAAttributeValue(transaction, mediaItemId, spec, miaTableName));
+            object value = GetManyToOneMIAAttributeValue(transaction, mediaItemId, spec, miaTableName);
+            if (!AttributeIsEmpty(value))
+              result.SetAttribute(spec, value);
             break;
           case Cardinality.ManyToMany:
             result.SetCollectionAttribute(spec, GetManyToManyMIAAttributeValues(transaction, mediaItemId, spec));
@@ -1314,7 +1321,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           foreach (MediaItemAspectMetadata.AttributeSpecification spec in miaType.AttributeSpecifications.Values)
           {
             if (spec.Cardinality == Cardinality.Inline)
-              result.SetAttribute(spec, ReadObject(reader, i, spec));
+            {
+              object value = ReadObject(reader, i, spec);
+              if (!AttributeIsEmpty(value))
+                result.SetAttribute(spec, value);
+            }
             i++;
           }
       }
@@ -1342,6 +1353,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (mia.IsIgnore(spec))
           break;
         string attrColName;
+        object attributeValue;
         switch (spec.Cardinality)
         {
           case Cardinality.Inline:
@@ -1350,16 +1362,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               terms.Add(attrColName);
             else
               terms.Add(attrColName + " = ?");
-            sqlValues.Add(mia.GetAttributeValue(spec));
+            attributeValue = mia.GetAttributeValue(spec);
+            sqlValues.Add(AttributeIsEmpty(attributeValue) ? null : attributeValue);
             break;
           case Cardinality.OneToMany:
             // After main query
             break;
           case Cardinality.ManyToOne:
             attrColName = GetMIAAttributeColumnName(spec);
-            object attributeValue = mia.GetAttributeValue(spec);
+            attributeValue = mia.GetAttributeValue(spec);
             Int64? insertValue;
-            if (attributeValue == null)
+            if (AttributeIsEmpty(attributeValue))
               insertValue = null;
             else
             {
