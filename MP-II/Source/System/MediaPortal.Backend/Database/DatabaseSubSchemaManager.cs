@@ -36,15 +36,51 @@ namespace MediaPortal.Backend.Database
   /// </summary>
   /// <remarks>
   /// <para>
-  /// Given a collectoin of update scripts from several old subschema versions to a newer version, this class
+  /// </para>
+  /// Database schemas will evolve during time. Schema versions will be updated and update scripts must be executed on
+  /// the database to bring it to the current version. Users might have systems with several old versions running.
+  /// Developers using this class can support updates of any old version or only updates of a range of old versions by
+  /// providing the appropriate update scripts to an instance of this class.
+  /// <para>
+  /// Given a collection of update scripts from several old subschema versions to a newer version, this class
   /// is able to automatically execute those update scripts which are needed to bring the active database subschema
   /// to the current version.
+  /// </para>
+  /// <para>
   /// The update script collection can either be added directly by calling <see cref="AddUpdateScript"/> or
-  /// by calling <see cref="AddDirectory"/>, this class can search update scripts itself.
+  /// by calling <see cref="AddDirectory"/>, this class can search update scripts itself. For each script, there are
+  /// metadata necessary: For the create script, its target schema version needs to be known.
+  /// For each update script, its source version and its target version needs to be known. And for deletion scripts, their
+  /// source versions are necessary. By those information, this class is able to produce a directed graph in form of a tree,
+  /// which provides for multiple (old) source database schema versions one or more database scripts producing a newer
+  /// version. Those scripts can then be executed in a sequence and will finally produce the (most recent) current database
+  /// version.
+  /// </para>
+  /// <para>
+  /// There are two ways of writing create and update scripts:
+  /// The first (and recommended) way is to provide a "chain" of update scripts which can run one after another; each of
+  /// them updates the database schema to a newer schema, until the target schema version is reached. In this approach,
+  /// for a new database schema version to support, only one single update script must be added to be able to update to
+  /// that version. But during time, if the database schema evolves, it might not be able to update each old database schema
+  /// version to the current version, or it might be necessary to do updates which are less efficient than having a single
+  /// update script which skips updates for several versions.
+  /// So it is also necessary to provide update scripts which directly contain the "delta" from old database schema versions to
+  /// the current version and a create script which provides exactly the commands to produce the new database schema.
+  /// This approach will probably produce the most qualitative update process because each script is written for exactly
+  /// hat single update. But its quite work intensive because for each new database schema, scripts need to be rewritten
+  /// to produce the new schema.
+  /// It is also necessary to mix the two approaces.
+  /// </para>
+  /// <para>
+  /// For both approaches, the scripts, which are made available, should focus the current version, to that any
+  /// older schema should be updated. That means that each way through the directed graph of schema creation/updates must
+  /// lead to a script which produces the target database version.
   /// </para>
   /// </remarks>
   public class DatabaseSubSchemaManager
   {
+    #region Inner classes
+
     protected class CreateOperation
     {
       protected int _toVersionMajor;
@@ -147,6 +183,8 @@ namespace MediaPortal.Backend.Database
         get { return _deleteScriptFilePath; }
       }
     }
+
+    #endregion
 
     protected string _subSchemaName;
     protected CreateOperation _createOperation = null;
