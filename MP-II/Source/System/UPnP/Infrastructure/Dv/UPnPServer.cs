@@ -437,12 +437,9 @@ namespace UPnP.Infrastructure.Dv
         EndpointConfiguration config = new EndpointConfiguration
           {
               EndPointIPAddress = address,
-              DescriptionURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_DESCRIPTION_URL_PREFIX),
-              ControlURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_CONTROL_URL_PREFIX),
-              EventSubURLBase = string.Format(
-                  "http://{0}/{1}", new IPEndPoint(address, port), DEFAULT_EVENT_SUB_URL_PREFIX)
+              DescriptionURLBase = new UriBuilder("http", address.ToString(), port, DEFAULT_DESCRIPTION_URL_PREFIX).ToString(),
+              ControlURLBase = new UriBuilder("http", address.ToString(), port, DEFAULT_CONTROL_URL_PREFIX).ToString(),
+              EventSubURLBase = new UriBuilder("http", address.ToString(), port, DEFAULT_EVENT_SUB_URL_PREFIX).ToString(),
           };
         GenerateObjectURLs(config);
         config.ConfigId = GenerateConfigId(config);
