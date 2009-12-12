@@ -130,20 +130,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           };
       AddStateVariable(A_ARG_TYPE_MediaItemRelocationMode);
 
-      // Used to filter requested shares.
-      DvStateVariable A_ARG_TYPE_SharesFilter = new DvStateVariable("A_ARG_TYPE_SharesFilter", new DvStandardDataType(UPnPStandardDataType.String))
-        {
-            SendEvents = false,
-            AllowedValueList = new List<string> {"All", "ConnectedShares"}
-        };
-      AddStateVariable(A_ARG_TYPE_SharesFilter);
-
       // Used to transport an argument of type MediaItemQuery
       DvStateVariable A_ARG_TYPE_MediaItemQuery = new DvStateVariable("A_ARG_TYPE_MediaItemQuery", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItemQuery))
         {
             SendEvents = false,
         };
       AddStateVariable(A_ARG_TYPE_MediaItemQuery);
+
+      // Used to transport a value indicating if only online objects are referred or all.
+      DvStateVariable A_ARG_TYPE_OnlineState = new DvStateVariable("A_ARG_TYPE_OnlineState", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            SendEvents = false,
+            AllowedValueList = new List<string> {"All", "OnlyOnline"}
+        };
+      AddStateVariable(A_ARG_TYPE_OnlineState);
 
       // Used to transport a collection of media items with some media item aspects
       DvStateVariable A_ARG_TYPE_MediaItems = new DvStateVariable("A_ARG_TYPE_MediaItems", new DvExtendedDataType(UPnPExtendedDataTypes.DtMediaItems))
@@ -208,7 +208,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       DvAction getSharesAction = new DvAction("GetShares", OnGetShares,
           new DvArgument[] {
             new DvArgument("SystemId", A_ARG_TYPE_SystemId, ArgumentDirection.In),
-            new DvArgument("SharesFilter", A_ARG_TYPE_SharesFilter, ArgumentDirection.In),
+            new DvArgument("SharesFilter", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("Shares", A_ARG_TYPE_ShareEnumeration, ArgumentDirection.Out, true)
@@ -263,6 +263,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       DvAction searchAction = new DvAction("Search", OnSearch,
           new DvArgument[] {
             new DvArgument("Query", A_ARG_TYPE_MediaItemQuery, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
@@ -275,6 +276,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("Path", A_ARG_TYPE_ResourcePath, ArgumentDirection.In),
             new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
           },
           new DvArgument[] {
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
@@ -314,6 +316,23 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddAction(deleteMediaItemOrPathAction);
 
       // More actions go here
+    }
+
+    static UPnPError ParseOnlineState(string onlineStateStr, out bool all)
+    {
+      switch (onlineStateStr)
+      {
+        case "All":
+          all = true;
+          break;
+        case "OnlyConnected":
+          all = false;
+          break;
+        default:
+          all = true;
+          return new UPnPError(600, "Argument 'OnlineState' must be of value 'All' or 'OnlyConnected'");
+      }
+      return null;
     }
 
     static UPnPError OnRegisterShare(DvAction action, IList<object> inParams, out IList<object> outParams,
@@ -366,22 +385,18 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       string systemId = (string) inParams[0];
       string sharesFilterStr = (string) inParams[1];
-      bool onlyConnected;
-      switch (sharesFilterStr)
+      bool all;
+      UPnPError error = ParseOnlineState(sharesFilterStr, out all);
+      if (error != null)
       {
-        case "All":
-          onlyConnected = false;
-          break;
-        case "ConnectedShares":
-          onlyConnected = true;
-          break;
-        default:
-          outParams = null;
-          return new UPnPError(600, "Argument 'SharesFilter' must be of value 'All' or 'ConnectedShares'");
+        outParams = null;
+        return error;
       }
       IDictionary<Guid, Share> shares = ServiceScope.Get<IMediaLibrary>().GetShares(systemId);
       ICollection<Share> result;
-      if (onlyConnected)
+      if (all)
+        result = shares.Values;
+      else
       {
         ICollection<string> connectedClientsIds = new List<string>();
         foreach (ClientConnection connection in ServiceScope.Get<IClientManager>().ConnectedClients)
@@ -391,8 +406,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           if (connectedClientsIds.Contains(share.SystemId))
             result.Add(share);
       }
-      else
-        result = shares.Values;
       outParams = new List<object> {result};
       return null;
     }
@@ -446,7 +459,15 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       MediaItemQuery query = (MediaItemQuery) inParams[0];
-      IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query);
+      string onlineStateStr = (string) inParams[1];
+      bool all;
+      UPnPError error = ParseOnlineState(onlineStateStr, out all);
+      if (error != null)
+      {
+        outParams = null;
+        return error;
+      }
+      IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query, !all);
       outParams = new List<object> {mediaItems};
       return null;
     }
@@ -458,7 +479,16 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
       IEnumerable<Guid> necessaryMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[2]);
       IEnumerable<Guid> optionalMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[3]);
-      ICollection<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Browse(systemId, path, necessaryMIATypes, optionalMIATypes);
+      string onlineStateStr = (string) inParams[4];
+      bool all;
+      UPnPError error = ParseOnlineState(onlineStateStr, out all);
+      if (error != null)
+      {
+        outParams = null;
+        return error;
+      }
+      ICollection<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Browse(systemId, path,
+          necessaryMIATypes, optionalMIATypes, !all);
       outParams = new List<object> {mediaItems};
       return null;
     }

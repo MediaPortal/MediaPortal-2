@@ -195,14 +195,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
     }
 
-    public IList<MediaItem> Search(MediaItemQuery query)
+    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
     {
-      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, query);
-      return cmiq.Execute();
+      MediaItemQuery innerQuery = new MediaItemQuery(query);
+      innerQuery.NecessaryRequestedMIATypeIDs.Add(ProviderResourceAspect.ASPECT_ID);
+      CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, innerQuery);
+      IList<MediaItem> items = cmiq.Execute();
+      IList<MediaItem> result = new List<MediaItem>(items.Count);
+      bool removeProviderAspect = !query.NecessaryRequestedMIATypeIDs.Contains(ProviderResourceAspect.ASPECT_ID);
+      foreach (MediaItem item in items)
+        if ((_systemsOnline.ContainsKey((string) item.Aspects[ProviderResourceAspect.ASPECT_ID][ProviderResourceAspect.ATTR_SYSTEM_ID])))
+        {
+          if (removeProviderAspect)
+            item.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
+          result.Add(item);
+        }
+      return result;
     }
 
     public ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs)
+        IEnumerable<Guid> optionalRequestedMIATypeIDs, bool onlyOnline)
     {
       const char ESCAPE_CHAR = '!';
       string pathStr = StringUtils.CheckSuffix(path.Serialize(), "/");
@@ -220,7 +232,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                     StringUtils.Repeat("_", pathStr.LastIndexOf('/')) + "/%/%", ESCAPE_CHAR))
           });
       MediaItemQuery query = new MediaItemQuery(necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, filter);
-      return Search(query);
+      return Search(query, onlyOnline);
     }
 
     public void AddOrUpdateMediaItem(string systemId, ResourcePath path, IEnumerable<MediaItemAspect> mediaItemAspects)

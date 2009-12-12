@@ -64,7 +64,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       public ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
           IEnumerable<Guid> optionalRequestedMIATypeIDs)
       {
-        return _contentDirectory.Browse(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+        return _contentDirectory.Browse(_localSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, false);
       }
 
       #endregion

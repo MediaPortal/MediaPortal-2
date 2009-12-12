@@ -169,6 +169,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       _filter = filter;
     }
 
+    public MediaItemQuery(MediaItemQuery other)
+    {
+      _filter = other.Filter;
+      _necessaryRequestedMIATypeIDs = new HashSet<Guid>(other._necessaryRequestedMIATypeIDs);
+      _optionalRequestedMIATypeIDs = new HashSet<Guid>(other._optionalRequestedMIATypeIDs);
+      _sortInformation = other._sortInformation;
+    }
+
     #endregion
 
     #region Public properties

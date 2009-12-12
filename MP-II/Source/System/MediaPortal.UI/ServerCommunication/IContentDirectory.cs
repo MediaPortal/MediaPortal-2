@@ -61,9 +61,9 @@ namespace MediaPortal.UI.ServerCommunication
     MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId);
 
     // Media query
-    IList<MediaItem> Search(MediaItemQuery query);
+    IList<MediaItem> Search(MediaItemQuery query, bool onlyConnected);
     ICollection<MediaItem> Browse(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes);
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyConnected);
     HomogenousCollection GetDistinctAssociatedValues(Guid aspectId, string attributeName, IFilter filter);
 
     // Media import

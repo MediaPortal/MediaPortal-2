@@ -106,19 +106,19 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction action = GetAction("GetShares");
       IList<object> inParameters = new List<object> {systemId};
-      String sharesFilterStr;
+      String onlineStateStr;
       switch (sharesFilter)
       {
         case SharesFilter.All:
-          sharesFilterStr = "All";
+          onlineStateStr = "All";
           break;
         case SharesFilter.ConnectedShares:
-          sharesFilterStr = "ConnectedShares";
+          onlineStateStr = "OnlyConnected";
           break;
         default:
           throw new NotImplementedException(string.Format("SharesFilter '{0}' is not implemented", sharesFilter));
       }
-      inParameters.Add(sharesFilterStr);
+      inParameters.Add(onlineStateStr);
       IList<object> outParameters = action.InvokeAction(inParameters);
       return new List<Share>((IEnumerable<Share>) outParameters[0]);
     }
@@ -167,19 +167,21 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     // Media query
-    public IList<MediaItem> Search(MediaItemQuery query)
+    public IList<MediaItem> Search(MediaItemQuery query, bool onlyConnected)
     {
       CpAction action = GetAction("Search");
-      IList<object> inParameters = new List<object> {query};
+      String onlineStateStr = onlyConnected ? "OnlyConnected" : "All";
+      IList<object> inParameters = new List<object> {query, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
     public ICollection<MediaItem> Browse(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyConnected)
     {
       CpAction action = GetAction("Browse");
-      IList<object> inParameters = new List<object> {systemId, path, necessaryMIATypes, optionalMIATypes};
+      String onlineStateStr = onlyConnected ? "OnlyConnected" : "All";
+      IList<object> inParameters = new List<object> {systemId, path, necessaryMIATypes, optionalMIATypes, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (ICollection<MediaItem>) outParameters[0];
     }
