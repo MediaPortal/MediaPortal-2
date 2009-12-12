@@ -1,6 +1,0 @@
-<menu>
-  <items>
-    <item text="[settings.skin]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsSkin"/>
-    <item text="[settings.theme]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsTheme"/>
-  </items>
-</menu>

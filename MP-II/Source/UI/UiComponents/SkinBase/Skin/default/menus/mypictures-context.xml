@@ -1,7 +1,0 @@
-<menu>
-  <items>
-    <item text="[pictures.edit]" image="" command="ScreenManager.ShowScreen" parameter="pictureEditting"/>
-    <item text="[pictures.picinfo]" image="" command="ScreenManager.ShowScreen" parameter="picturedetail"/>
-    <item text="[shares.shares]" image="" command="ScreenManager.ShowScreen" parameter="shares"/>
-  </items>
-</menu>

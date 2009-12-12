@@ -1,8 +1,0 @@
-<menu>
-  <items>
-    <item text="[playback.1]" image="" command="ScreenManager.CloseDialog+ScreenManager.ShowPreviousScreen" parameter=""/>
-    <item text="[playback.0]" image="" command="ScreenManager.ShowDialog" parameter="dialogZoomModes"/>
-    <item text="[playback.2]" image="" command="ScreenManager.ShowDialog" parameter="dialogCropping"/>
-  </items>
-
-</menu>

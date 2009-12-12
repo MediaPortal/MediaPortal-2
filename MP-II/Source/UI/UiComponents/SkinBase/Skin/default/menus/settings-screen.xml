@@ -1,7 +1,0 @@
-<menu>
-  <items>
-    <item text="[settings.fullscreen]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsFullscreen"/>
-    <item text="[settings.aspect]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsAspect"/>
-    <item text="[settings.refreshrate]" image="" command="ScreenManager.ShowScreen" parameter="settingsRefreshrate"/>
-  </items>
-</menu>

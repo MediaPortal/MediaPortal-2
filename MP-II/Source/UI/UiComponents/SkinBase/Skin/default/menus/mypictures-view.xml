@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[pictures.0]" image="" command="" parameter=""/>
-    <item text="[general.date]" image="" command="" parameter=""/>
-    <item text="[general.size]" image="" command="" parameter=""/>
-    <item text="[pictures.1]" image="" command="" parameter=""/>
-  </items>
-
-</menu>

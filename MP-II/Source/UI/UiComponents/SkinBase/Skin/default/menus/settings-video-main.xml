@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[settings.mpg2videocodec]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsMpg2VideoCodec"/>
-    <item text="[settings.h264videocodec]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsH264VideoCodec"/>
-    <item text="[settings.xvidvideocodec]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsDivXVideoCodec"/>
-    <item text="[settings.audiocodec]" image="" command="ScreenManager.ShowDialog" parameter="dialogSettingsAudioCodec"/>
-  </items>
-
-</menu>

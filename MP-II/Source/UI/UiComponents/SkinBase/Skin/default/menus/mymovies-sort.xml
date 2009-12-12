@@ -1,9 +1,0 @@
-<menu>
-  <items>
-    <item text="[movies.0]" image="" command="" parameter=""/>
-    <item text="[movies.1]" image="" command="" parameter=""/>
-    <item text="[movies.2]" image="" command="" parameter=""/>
-    <item text="[movies.duration]" image="" command="" parameter=""/>
-  </items>
-
-</menu>

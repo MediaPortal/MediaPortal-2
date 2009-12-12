@@ -1,6 +1,0 @@
-<menu>
-  <items>
-    <item text="[playback.35]" image="" command="Players.ResumeSession+ScreenManager.CloseDialog" parameter=""/>
-    <item text="[playback.36]" image="" command="Players.RestartSession+ScreenManager.CloseDialog" parameter=""/>
-  </items>
-</menu>
