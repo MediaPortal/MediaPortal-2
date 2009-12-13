@@ -58,7 +58,7 @@ namespace MediaPortal.Core
 #if DEBUG
       ILogger logger = new GroupLogger(new ConsoleLogger(logLevel, logMethodNames));
       FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
-      (logger as GroupLogger).Add(FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames, flushLog));
+      (logger as GroupLogger).Add(FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames, true));  // Always Flush log files in Debug Mode
 #else
       FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
       ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames);
