@@ -149,9 +149,6 @@ namespace MediaPortal.Core
       logger.Debug("ApplicationCore: Removing IRegistry service");
       ServiceScope.RemoveAndDispose<IRegistry>();
 
-      logger.Debug("ApplicationCore: Removing ILogger service");
-      ServiceScope.RemoveAndDispose<ILogger>();
-
       logger.Debug("ApplicationCore: Removing IPathManager service");
       ServiceScope.RemoveAndDispose<IPathManager>();
 
