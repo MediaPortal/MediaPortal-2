@@ -45,7 +45,7 @@ namespace MediaPortal.Core
   /// </summary>
   public class ApplicationCore
   {
-    public static void RegisterCoreServices(LogLevel logLevel, bool logMethodNames)
+    public static void RegisterCoreServices(LogLevel logLevel, bool logMethodNames, bool flushLog)
     {
       // Insert a dummy while loading the path manager to break circular dependency of logger and path manager. This should not
       // be considered as a hack - simply the logger needs a path managed by the path manager and I don't want to remove log
@@ -58,7 +58,7 @@ namespace MediaPortal.Core
 #if DEBUG
       ILogger logger = new GroupLogger(new ConsoleLogger(logLevel, logMethodNames));
       FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
-      (logger as GroupLogger).Add(FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames));
+      (logger as GroupLogger).Add(FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames, flushLog));
 #else
       FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
       ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames);

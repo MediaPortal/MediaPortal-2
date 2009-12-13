@@ -42,6 +42,7 @@ namespace MediaPortal.Core.Services.Logging
     protected static readonly object _syncObject = new object();
     protected bool _logMethodNames = false;
     protected readonly string _myClassName;
+    protected bool _alwaysFlush;
 
     /// <summary>
     /// Creates a new <see cref="DefaultLogger"/> instance and initializes it with the given
@@ -50,18 +51,21 @@ namespace MediaPortal.Core.Services.Logging
     /// <param name="writer">The writer to write the messages to.</param>
     /// <param name="level">The minimum level messages must have to be written to the file.</param>
     /// <param name="logMethodNames">Indicates whether to log the calling method's name.</param>
+    /// <param name="alwaysFlush">If set to <c>true</c>, <see cref="TextWriter.Flush"/> will be called after each
+    /// log output.</param>
     /// <remarks>
     /// <para><b><u>Warning!</u></b></para>
     /// <para>Turning on logging of method names causes a severe performance degradation. Each call to the
     /// logger will add an extra amount of time, for example 10 to 40 milliseconds for a file output,
     /// depending on the length of the stack trace.</para>
     /// </remarks>
-    public DefaultLogger(TextWriter writer, LogLevel level, bool logMethodNames)
+    public DefaultLogger(TextWriter writer, LogLevel level, bool logMethodNames, bool alwaysFlush)
     {
       _myClassName = GetType().Name;
       _writer = writer;
       _level = level;
       _logMethodNames = logMethodNames;
+      _alwaysFlush = alwaysFlush;
     }
 
     #region ILogger implementation
@@ -186,11 +190,7 @@ namespace MediaPortal.Core.Services.Logging
       messageBuilder.Append(levelShort);
       messageBuilder.Append("][");
 
-      string thread = Thread.CurrentThread.Name;
-      if (thread == null)
-      {
-        thread = Thread.CurrentThread.ManagedThreadId.ToString();
-      }
+      string thread = Thread.CurrentThread.Name ?? Thread.CurrentThread.ManagedThreadId.ToString();
       messageBuilder.Append(thread);
       messageBuilder.Append("]");
       if (_logMethodNames)
@@ -219,7 +219,7 @@ namespace MediaPortal.Core.Services.Logging
 
     protected void Write(string message)
     {
-      Write(message, false);
+      Write(message, _alwaysFlush);
     }
 
     /// <summary>

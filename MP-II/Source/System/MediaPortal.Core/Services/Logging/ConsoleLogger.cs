@@ -39,6 +39,6 @@ namespace MediaPortal.Core.Services.Logging
     /// <param name="level">The minimum level messages must have to be written to the file.</param>
     /// <param name="logMethodNames">Indicates whether to log the calling method's name.</param>
     public ConsoleLogger(LogLevel level, bool logMethodNames):
-        base(Console.Out, level, logMethodNames) { }
+        base(Console.Out, level, logMethodNames, false) { }
   }
 }

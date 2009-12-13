@@ -55,8 +55,8 @@ namespace MediaPortal
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
       ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-      if (!parser.ParseArguments(args, mpArgs))
-          Environment.Exit(1);
+      if (!parser.ParseArguments(args, mpArgs, Console.Out))
+        Environment.Exit(1);
 
 #if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP-II-Server\Log");
@@ -73,7 +73,7 @@ namespace MediaPortal
           ILogger logger = null;
           try
           {
-            ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods);
+            ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
             logger = ServiceScope.Get<ILogger>();
 
             IPathManager pathManager = ServiceScope.Get<IPathManager>();

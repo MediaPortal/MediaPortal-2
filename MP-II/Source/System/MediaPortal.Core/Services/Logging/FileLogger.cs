@@ -45,17 +45,19 @@ namespace MediaPortal.Core.Services.Logging
     /// <param name="filePath">The file path to write the messages to.</param>
     /// <param name="level">The minimum level messages must have to be written to the file.</param>
     /// <param name="logMethodNames">Indicates whether to log the calling method's name.</param>
+    /// <param name="alwaysFlush">If set to <c>true</c>, method <see cref="TextWriter.Flush"/> will be
+    /// called after each log output.</param>
     /// <remarks>
     /// <para>If the text file exists it will be truncated.</para>
     /// <para><b><u>Warning!</u></b><br/>
     /// Turning on logging of method names causes a severe performance degradation. Each call to the
     /// logger will add an extra 10 to 40 milliseconds, depending on the length of the stack trace.</para>
     /// </remarks>
-    private FileLogger(string filePath, LogLevel level, bool logMethodNames) :
-        base(new StreamWriter(filePath, true), level, logMethodNames) { }
+    protected FileLogger(string filePath, LogLevel level, bool logMethodNames, bool alwaysFlush) :
+        base(new StreamWriter(filePath, true), level, logMethodNames, alwaysFlush) { }
 
-    private FileLogger(TextWriter writer, LogLevel level, bool logMethodNames) :
-        base(writer, level, logMethodNames) { }
+    protected FileLogger(TextWriter writer, LogLevel level, bool logMethodNames, bool alwaysFlush) :
+        base(writer, level, logMethodNames, alwaysFlush) { }
 
     protected static Stream GrabFile(string filePath)
     {
@@ -92,13 +94,13 @@ namespace MediaPortal.Core.Services.Logging
       throw new IOException(string.Format("Cannot open logfile '{0}'", filePath));
     }
 
-    public static FileLogger CreateFileLogger(string filePath, LogLevel level, bool logMethodNames)
+    public static FileLogger CreateFileLogger(string filePath, LogLevel level, bool logMethodNames, bool alwaysFlush)
     {
       string dir = Path.GetDirectoryName(filePath);
       if (!Directory.Exists(dir))
         Directory.CreateDirectory(dir);
       Stream s = FindAvailableFile(filePath);
-      return new FileLogger(new StreamWriter(s), level, logMethodNames);
+      return new FileLogger(new StreamWriter(s), level, logMethodNames, alwaysFlush);
     }
 
     public static void DeleteLogFiles(string logFilePath, string searchPattern)
