@@ -366,7 +366,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       float lineHeight = _asset.Font.LineHeight(_fontSizeCache);
       float x = ActualPosition.X;
-      float y = ActualPosition.Y + 0.1f * lineHeight;
+      float y = ActualPosition.Y + 0.05f * lineHeight * SkinContext.Zoom.Height;
       float w = (float) ActualWidth;
       float h = (float) ActualHeight;
       if (_finalLayoutTransform != null)
@@ -431,7 +431,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
 
-      float y = _finalRect.Y + 0.1f * lineHeight;
+      float y = _finalRect.Y + 0.05f * lineHeight * SkinContext.Zoom.Height;
       float x = _finalRect.X;
       float w = _finalRect.Width;
       float h = _finalRect.Height;
