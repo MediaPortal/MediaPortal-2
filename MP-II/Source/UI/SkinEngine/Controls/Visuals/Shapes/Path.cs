@@ -418,30 +418,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       float scaleH;
       if (Stretch == Stretch.Fill)
       {
+        // baseRect is already zoomed, bounds are not, so scale will contain the zoom factor
         scaleW = baseRect.Width / bounds.Width;
         scaleH = baseRect.Height / bounds.Height;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       else if (Stretch == Stretch.Uniform)
       {
+        // baseRect is already zoomed, bounds are not, so scale will contain the zoom factor
         scaleW = Math.Min(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
         scaleH = scaleW;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       else if (Stretch == Stretch.UniformToFill)
       {
+        // baseRect is already zoomed, bounds are not, so scale will contain the zoom factor
         scaleW = Math.Max(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
         scaleH = scaleW;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       else
       { // Stretch == Stretch.None
-        scaleW = 1;
-        scaleH = 1;
+        scaleW = SkinContext.Zoom.Width;
+        scaleH = SkinContext.Zoom.Height;
       }
-      // In case bounds.Width or bounds.Height were 0
-      if (float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
-      if (float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
+      // In case bounds.Width or bounds.Height or baseRect.Width or baseRect.Height were 0
+      if (scaleW == 0 || float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
+      if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
       m.Scale(scaleW, scaleH, MatrixOrder.Append);
 
       if (finalTransform != null)
@@ -453,7 +456,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         LayoutTransform.GetTransform(out em);
         m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
       }
-      m.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       result.Transform(m);
       result.Flatten();
