@@ -72,12 +72,7 @@ namespace MediaPortal.Core
       ServiceScope.Add<IRegistry>(new Services.Registry.Registry());
 
       logger.Debug("ApplicationCore: Registering IThreadPool service");
-      Services.Threading.ThreadPool pool = new Services.Threading.ThreadPool();
-      pool.ErrorLog += ServiceScope.Get<ILogger>().Error;
-      pool.WarnLog += ServiceScope.Get<ILogger>().Warn;
-      pool.InfoLog += ServiceScope.Get<ILogger>().Info;
-      pool.DebugLog += ServiceScope.Get<ILogger>().Debug;
-      ServiceScope.Add<Threading.IThreadPool>(pool);
+      ServiceScope.Add<Threading.IThreadPool>(new Services.Threading.ThreadPool());
 
       logger.Debug("ApplicationCore: Registering IMessageBroker service");
       ServiceScope.Add<IMessageBroker>(new MessageBroker());

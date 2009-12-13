@@ -23,13 +23,7 @@
 
 #endregion
 
-#region Usings
-
 using System;
-using System.Text;
-using System.Collections.Generic;
-
-#endregion
 
 namespace MediaPortal.Core.Threading
 {

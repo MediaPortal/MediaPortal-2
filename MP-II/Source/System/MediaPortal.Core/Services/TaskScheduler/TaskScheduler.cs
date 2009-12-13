@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.Threading;
@@ -40,19 +39,19 @@ namespace MediaPortal.Core.Services.TaskScheduler
     #region Private fields
 
     /// <summary>
-    /// The persistent settings used by the task scheduler
+    /// The persistent settings used by the task scheduler.
     /// </summary>
-    private TaskSchedulerSettings _settings;
+    protected readonly TaskSchedulerSettings _settings;
     
     /// <summary>
-    /// interval-based work object to periodically check for due tasks.
+    /// Interval-based work object to periodically check for due tasks.
     /// </summary>
-    private IntervalWork _work;
+    protected IntervalWork _work;
     
     /// <summary>
-    /// mutex object to serialize access to the registered tasks and next TaskID
+    /// Mutex object to serialize access to the registered tasks and next TaskID.
     /// </summary>
-    private object _taskMutex = new object();
+    protected object _taskMutex = new object();
 
     #endregion
 
@@ -91,7 +90,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     private void DoStartup()
     {
       DateTime now = DateTime.Now;
-      // only use minute precision
+      // Only use minute precision
       now = now.AddSeconds(-now.Second);
       lock (_taskMutex)
       {
@@ -109,22 +108,22 @@ namespace MediaPortal.Core.Services.TaskScheduler
     }
 
     /// <summary>
-    /// Registed as delegate with the <see cref="IntervalWork"/> item to periodically check for due tasks
+    /// Registed as delegate with the <see cref="IntervalWork"/> item to periodically check for due tasks.
     /// </summary>
     private void DoWork()
     {
       bool needSort = false;
       bool saveChanges = false;
       DateTime now = DateTime.Now;
-      // only use minute precision
+      // Only use minute precision
       now = now.AddSeconds(-now.Second);
       // Exclusively get lock for task collection access
       lock (_taskMutex)
       {
-        // enumerate through all tasks
+        // Enumerate through all tasks
         foreach (Task task in _settings.TaskCollection.Tasks)
         {
-          // only process non-repeat tasks
+          // Only process non-repeat tasks
           if (task.Occurrence == Occurrence.Once || task.Occurrence == Occurrence.Repeat)
           {
             ServiceScope.Get<ILogger>().Debug("TaskScheduler: ProcessTask: {0}", task.ToString());
@@ -164,9 +163,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
     }
 
     /// <summary>
-    /// Handles expired tasks: sends out a message that a particular task is expired, removes the
-    /// task from the registered task collection and sends out a message that the task is deleted.
-    /// This method gets called from the DoWork() method.
+    /// Handles expired tasks: Sends out a message that a particular task is expired, removes the task from the
+    /// registered task collection and sends out a message that the task is deleted. This method gets called
+    /// from the DoWork() method.
     /// </summary>
     /// <param name="task">Task to expire</param>
     private void ExpireTask(Task task)
@@ -179,11 +178,10 @@ namespace MediaPortal.Core.Services.TaskScheduler
     }
 
     /// <summary>
-    /// Handles processing of due tasks. Sends out a message that a task is due, updates the tasks
-    /// properties and removes the task if it was scheduled to run only once. This method gets called
-    /// from the DoWork() method.
+    /// Handles processing of due tasks. Sends out a message that a task is due, updates the tasks properties and
+    /// removes the task if it was scheduled to run only once. This method gets called from the DoWork() method.
     /// </summary>
-    /// <param name="task">Task to process</param>
+    /// <param name="task">Task to process.</param>
     private void ProcessTask(Task task)
     {
       Task tc = (Task) task.Clone();
@@ -199,7 +197,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Saves any changes to the task configuration.
     /// </summary>
-    /// <param name="needSort">specifies whether or not the task collection needs to be resorted</param>
+    /// <param name="needSort">Specifies whether or not the task collection needs to be resorted.</param>
     private void SaveChanges(bool needSort)
     {
       if (needSort)

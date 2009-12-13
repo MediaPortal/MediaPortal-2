@@ -23,27 +23,22 @@
 
 #endregion
 
-#region Usings
-
 using System;
-using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using MediaPortal.Core.Threading;
-#endregion
 
 namespace MediaPortal.Core.Services.Threading
 {
-
   public class WorkQueue
   {
     #region Variables
 
-    private object _queueMutex = new object();
-    private Queue<IWork> _lowQueue = new Queue<IWork>();
-    private Queue<IWork> _normalQueue = new Queue<IWork>();
-    private Queue<IWork> _highQueue = new Queue<IWork>();
-    private List<WorkWaiter> _workWaiters = new List<WorkWaiter>();
+    private readonly object _queueMutex = new object();
+    private readonly Queue<IWork> _lowQueue = new Queue<IWork>();
+    private readonly Queue<IWork> _normalQueue = new Queue<IWork>();
+    private readonly Queue<IWork> _highQueue = new Queue<IWork>();
+    private readonly List<WorkWaiter> _workWaiters = new List<WorkWaiter>();
     private int _queueItemCount = 0;
 
     // Thread-specific variables
@@ -93,11 +88,12 @@ namespace MediaPortal.Core.Services.Threading
     }
 
     /// <summary>
-    /// Dequeue work from the work queue
+    /// Dequeue work from the work queue.
     /// </summary>
-    /// <param name="timeoutMilliSeconds">maximum time to wait for </param>
-    /// <param name="cancelHandle"></param>
-    /// <returns>IWork work to process</returns>
+    /// <param name="timeoutMilliSeconds">Maximum time to wait for.</param>
+    /// <param name="cancelHandle">Wait handle which can be signaled when all waiting threads should stop
+    /// waiting for work.</param>
+    /// <returns>Work to process.</returns>
     public IWork Dequeue(int timeoutMilliSeconds, WaitHandle cancelHandle)
     {
       IWork work = null;
@@ -114,7 +110,7 @@ namespace MediaPortal.Core.Services.Threading
             return work;
           }
         }
-        // block the call to this method for the current thread until we receive work,
+        // Block the call to this method for the current thread until we receive work,
         // or until the given timeout has been reached
         else
         {
@@ -124,19 +120,19 @@ namespace MediaPortal.Core.Services.Threading
           _workWaiters.Add(_workWaiter);
         }
       }
-      // create array of waiters, and invoke waitany so we wait until any of the handles is signaled
+      // Create array of waiters, and invoke WaitAny so we wait until any of the handles is signaled
       WaitHandle[] waiters = new WaitHandle[] { _workWaiter.WaitHandle, cancelHandle };
       int i = WaitHandle.WaitAny(waiters, timeoutMilliSeconds, true);
       lock (_queueMutex)
       {
-        // if first WaitHandle was signaled, then this means we received some work
+        // If first WaitHandle was signaled, then this means we received some work
         if (i == 0)
         {
           work = _workWaiter.Work;
         }
         else
         {
-          // waiting has either been canceled, or timeout has been reached
+          // Waiting has either been canceled, or timeout has been reached
           if (_workWaiters.Contains(_workWaiter))
             _workWaiters.Remove(_workWaiter);
         }
@@ -146,9 +142,9 @@ namespace MediaPortal.Core.Services.Threading
 
     #endregion
 
-    #region Private methods
+    #region Protected methods
 
-    private Queue<IWork> GetQueue(QueuePriority priority)
+    protected Queue<IWork> GetQueue(QueuePriority priority)
     {
       switch (priority)
       {
@@ -163,7 +159,7 @@ namespace MediaPortal.Core.Services.Threading
       }
     }
 
-    private Queue<IWork> GetFirstQueueWithWork()
+    protected Queue<IWork> GetFirstQueueWithWork()
     {
       if (_highQueue.Count > 0)
         return _highQueue;
@@ -190,20 +186,25 @@ namespace MediaPortal.Core.Services.Threading
   public class WorkWaiter
   {
     #region Variables
-    private AutoResetEvent _waitHandle = new AutoResetEvent(false);
-    private IWork _work = null;
-    private bool _signaled = false;
-    private bool _timedout = false;
+
+    protected AutoResetEvent _waitHandle = new AutoResetEvent(false);
+    protected IWork _work = null;
+    protected bool _signaled = false;
+    protected bool _timedout = false;
+
     #endregion
 
     #region Constructor
+
     public WorkWaiter()
     {
       Reset();
     }
+
     #endregion
 
     #region Properties
+
     public WaitHandle WaitHandle
     {
       get { return _waitHandle; }
@@ -213,9 +214,11 @@ namespace MediaPortal.Core.Services.Threading
     {
       get { return _work; }
     }
+
     #endregion
 
     #region Public methods
+
     public bool Signal(IWork work)
     {
       lock (this)
@@ -230,6 +233,7 @@ namespace MediaPortal.Core.Services.Threading
       }
       return false;
     }
+
     public bool Timeout()
     {
       lock (this)
@@ -242,6 +246,7 @@ namespace MediaPortal.Core.Services.Threading
       }
       return false;
     }
+
     public void Reset()
     {
       _work = null;
@@ -249,6 +254,7 @@ namespace MediaPortal.Core.Services.Threading
       _signaled = false;
       _waitHandle.Reset();
     }
+
     public void Close()
     {
       if (_waitHandle != null)
@@ -257,6 +263,7 @@ namespace MediaPortal.Core.Services.Threading
         _waitHandle = null;
       }
     }
+
     #endregion
   }
 }

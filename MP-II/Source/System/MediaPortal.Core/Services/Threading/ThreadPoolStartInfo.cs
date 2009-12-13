@@ -23,14 +23,8 @@
 
 #endregion
 
-#region Usings
-
 using System;
-using System.Text;
 using System.Threading;
-using System.Collections.Generic;
-
-#endregion
 
 namespace MediaPortal.Core.Services.Threading
 {
@@ -39,34 +33,34 @@ namespace MediaPortal.Core.Services.Threading
     #region Public member variables
 
     /// <summary>
-    /// Name used by the threadpool (default "ThreadPool")
+    /// Name used by the threadpool (default "MediaPortal ThreadPool").
     /// </summary>
     public string Name = "MediaPortal ThreadPool";
 
     /// <summary>
-    /// Minimum number of threads in the threadpool (default 1)
+    /// Minimum number of threads in the threadpool (default <c>1</c>).
     /// </summary>
     public int MinimumThreads = 1;
 
     /// <summary>
-    /// Maximum number of threads in the threadpool (default 25)
+    /// Maximum number of threads in the threadpool (default <c>25</c>).
     /// </summary>
     public int MaximumThreads = 25;
 
     /// <summary>
     /// Timeout (in miliseconds) for idle threads (default 20 seconds).
-    /// If thread count is above MinimumThreads, threads quit when being idle this long
+    /// If thread count is above MinimumThreads, threads quit when being idle this long.
     /// </summary>
     public int ThreadIdleTimeout = 20000;
 
     /// <summary>
-    /// Indicates whether the pool waits with initialization until first work is being
-    /// received (true) or whether to initialize the pool upon pool creation (false).
+    /// Indicates whether the pool waits with initialization until first work is being received (<c>true</c>) or whether to
+    /// initialize the pool upon pool creation (<c>false</c>). The default is delayed initialization.
     /// </summary>
     public bool DelayedInit = true;
 
     /// <summary>
-    /// Default thread priority for threads in the threadpool
+    /// Default thread priority for threads in the threadpool (default <c>ThreadPriority.Normal</c>).
     /// </summary>
     public ThreadPriority DefaultThreadPriority = ThreadPriority.Normal;
 
@@ -75,50 +69,47 @@ namespace MediaPortal.Core.Services.Threading
     #region Constructors
 
     public ThreadPoolStartInfo() { }
+
     public ThreadPoolStartInfo(string name)
     {
-      this.Name = name;
+      Name = name;
     }
     public ThreadPoolStartInfo(int minThreads)
     {
-      this.MinimumThreads = minThreads;
+      MinimumThreads = minThreads;
       if (MaximumThreads < MinimumThreads)
         MaximumThreads = MinimumThreads;
     }
-    public ThreadPoolStartInfo(string name, int minThreads)
-      : this(name)
+    public ThreadPoolStartInfo(string name, int minThreads) : this(name)
     {
-      this.MinimumThreads = minThreads;
+      MinimumThreads = minThreads;
     }
-    public ThreadPoolStartInfo(int minThreads, int maxThreads)
-      : this(minThreads)
+    public ThreadPoolStartInfo(int minThreads, int maxThreads) : this(minThreads)
     {
-      this.MaximumThreads = maxThreads;
+      MaximumThreads = maxThreads;
     }
-    public ThreadPoolStartInfo(string name, int minThreads, int maxThreads)
-      : this(name, minThreads)
+    public ThreadPoolStartInfo(string name, int minThreads, int maxThreads) : this(name, minThreads)
     {
-      this.MaximumThreads = maxThreads;
+      MaximumThreads = maxThreads;
     }
-    public ThreadPoolStartInfo(int minThreads, int maxThreads, int idleTimeout)
-      : this(minThreads, maxThreads)
+    public ThreadPoolStartInfo(int minThreads, int maxThreads, int idleTimeout) : this(minThreads, maxThreads)
     {
-      this.ThreadIdleTimeout = idleTimeout;
+      ThreadIdleTimeout = idleTimeout;
     }
-    public ThreadPoolStartInfo(string name, int minThreads, int maxThreads, int idleTimeout)
-      : this(name, minThreads, maxThreads)
+    public ThreadPoolStartInfo(string name, int minThreads, int maxThreads, int idleTimeout) :
+        this(name, minThreads, maxThreads)
     {
-      this.ThreadIdleTimeout = idleTimeout;
+      ThreadIdleTimeout = idleTimeout;
     }
-    public ThreadPoolStartInfo(int minThreads, int maxThreads, int idleTimeout, bool delayedInit)
-      : this(minThreads, maxThreads, idleTimeout)
+    public ThreadPoolStartInfo(int minThreads, int maxThreads, int idleTimeout, bool delayedInit) :
+        this(minThreads, maxThreads, idleTimeout)
     {
-      this.DelayedInit = delayedInit;
+      DelayedInit = delayedInit;
     }
-    public ThreadPoolStartInfo(string name, int minThreads, int maxThreads, int idleTimeout, bool delayedInit)
-      : this(name, minThreads, maxThreads, idleTimeout)
+    public ThreadPoolStartInfo(string name, int minThreads, int maxThreads, int idleTimeout, bool delayedInit) :
+        this(name, minThreads, maxThreads, idleTimeout)
     {
-      this.DelayedInit = delayedInit;
+      DelayedInit = delayedInit;
     }
 
     #endregion
@@ -126,11 +117,11 @@ namespace MediaPortal.Core.Services.Threading
     #region Public static Methods
 
     /// <summary>
-    /// Validates the given ThreadPoolStartInfo
-    /// Throws ArgumentOutOutrangeException for MinimumThreads, MaximumThreads and
-    /// ThreadIdleTimeout if they are invalid.
+    /// Validates the given ThreadPoolStartInfo.
     /// </summary>
-    /// <param name="tpsi">ThreadPoolStartInfo to validate</param>
+    /// <param name="tpsi">ThreadPoolStartInfo to validate.</param>
+    /// <exception cref="ArgumentOutOfRangeException">If MinimumThreads, MaximumThreads or ThreadIdleTimeout
+    /// are invalid.</exception>
     public static void Validate(ThreadPoolStartInfo tpsi)
     {
       if (tpsi.MinimumThreads < 1)

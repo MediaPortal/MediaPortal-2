@@ -50,7 +50,7 @@ namespace MediaPortal.Core.TaskScheduler
   
   /// <summary>
   /// The Schedule struct represents the schedule from a particular Task. Schedule's are either time-based or
-  /// interval-based, depending on the setting of the variable Type which is a value from enum ScheduleType. Depending on this
+  /// interval-based, depending on the setting of the property Type which is a value from enum ScheduleType. Depending on this
   /// type, either the tuple Minute, Hour and Day or the Interval variable must be defined. The task scheduler will act on
   /// these depending on the schedule type. Interval is of type TimeSpan. For the tuple the following conditions must be met:
   /// 
@@ -73,7 +73,7 @@ namespace MediaPortal.Core.TaskScheduler
       set
       {
         if (value < -1 || value > 59)
-          throw new ArgumentOutOfRangeException("Minute", "should be between -1 and 59");
+          throw new ArgumentOutOfRangeException("Minute", "must be between -1 and 59");
         _minute = value;
         _type = ScheduleType.TimeBased;
       }
@@ -85,7 +85,7 @@ namespace MediaPortal.Core.TaskScheduler
       set
       {
         if (value < -1 || value > 23)
-          throw new ArgumentOutOfRangeException("Hour", "should be between -1 and 23");
+          throw new ArgumentOutOfRangeException("Hour", "must be between -1 and 23");
         _hour = value;
         _type = ScheduleType.TimeBased;
       }
@@ -97,7 +97,7 @@ namespace MediaPortal.Core.TaskScheduler
       set
       {
         if (value < -1 || value > 6)
-          throw new ArgumentOutOfRangeException("Day", "should be between -1 and 6");
+          throw new ArgumentOutOfRangeException("Day", "must be between -1 and 6");
         _day = value;
         _type = ScheduleType.TimeBased;
       }
@@ -239,7 +239,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrance">specifies when the task's schedule should occur</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence)
       : this(owner, minute, hour, day, occurrence, DateTime.MaxValue) { }
 
@@ -250,7 +250,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrance">specifies when the task's schedule should occur</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires)
       : this(owner, minute, hour, day, occurrence, expires, true) { }
@@ -262,7 +262,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrance">specifies when the task's schedule should occur</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
     public Task(string owner, int minute, int hour, int day, Occurrence occurrence, DateTime expires, bool forceRun)
@@ -275,7 +275,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="minute">specifies at which minute this task should run (-1 = every minute)</param>
     /// <param name="hour">specifies at which hour this task should run (-1 = every hour)</param>
     /// <param name="day">specifies at which day of the week this task should run (-1 = every day)</param>
-    /// <param name="occurrance">specifies when the task's schedule should occur</param>
+    /// <param name="occurrence">specifies when the task's schedule should occur</param>
     /// <param name="expires">specifies when the task's schedule should expire</param>
     /// <param name="forceRun">specifies whether a schedule should be triggered forcefully in case system was down when schedule was due (true)</param>
     /// <param name="wakeup">specifies whether the system should be woken up from standby for this task's schedule (false)</param>
@@ -489,8 +489,8 @@ namespace MediaPortal.Core.TaskScheduler
             }
             return nextDate;
           }
-        case Occurrence.EveryStartUp:
-        case Occurrence.EveryWakeUp:
+//        case Occurrence.EveryStartUp: // Default behavior
+//        case Occurrence.EveryWakeUp: // Default behavior
         default:
           return DateTime.MaxValue;
       }
@@ -503,14 +503,15 @@ namespace MediaPortal.Core.TaskScheduler
     /// <returns></returns>
     private DateTime CalculateNextTimeBasedSchedule()
     {
-      // up to 8 different time-based schedules are possible
+      // Up to 8 different time-based schedules are possible
       DateTime nextDate;
       DateTime now = DateTime.Now;
-      int min, hour, day;
-      min = _schedule.Minute; hour = _schedule.Hour; day = _schedule.Day;
+      int min = _schedule.Minute;
+      int hour = _schedule.Hour;
+      int day = _schedule.Day;
       if (min == -1 && hour == -1 && day == -1)
       {
-        // run every minute, every hour, every day (same as a TimeSpan of one minute)
+        // Run every minute, every hour, every day (same as a TimeSpan of one minute)
         if (_lastRun == DateTime.MinValue)
         {
           return new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0).AddMinutes(1);
@@ -522,7 +523,7 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else if (hour == -1 && day == -1)
       {
-        // run at xx minute, every hour, every day
+        // Run at xx minute, every hour, every day
         if (_lastRun == DateTime.MinValue)
         {
           nextDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, min, 0);
@@ -538,14 +539,14 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else if (min == -1 && hour == -1)
       {
-        // run every minute, every hour, on day x
+        // Run every minute, every hour, on day x
         int nowDay = (int)now.DayOfWeek;
         if (_lastRun == DateTime.MinValue)
         {
           nextDate = new DateTime(now.Year, now.Month, now.Day, 0, 0, 0);
           if (nowDay == day)
           {
-            if ((int)now.AddMinutes(1).DayOfWeek != nowDay)
+            if ((int) now.AddMinutes(1).DayOfWeek != nowDay)
             {
               nextDate = nextDate.AddDays(7);
             }
@@ -587,7 +588,7 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else if (min == -1 && day == -1)
       {
-        // run every minute, at hour xx, every day
+        // Run every minute, at hour xx, every day
         if (_lastRun == DateTime.MinValue)
         {
           if (now.Hour == hour && now.Minute < 59)
@@ -617,7 +618,7 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else if (day == -1)
       {
-        // run at xx minute, at hour xx, every day
+        // Run at xx minute, at hour xx, every day
         if (_lastRun == DateTime.MinValue)
         {
           if ((now.Hour == hour && now.Minute < min) || (now.Hour < hour))
@@ -637,7 +638,7 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else if (hour == -1)
       {
-        // run at xx minute, every hour, on day x
+        // Run at xx minute, every hour, on day x
         int nowDay = (int)now.DayOfWeek;
         if (_lastRun == DateTime.MinValue)
         {
@@ -693,7 +694,7 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else if (min == -1)
       {
-        // run every minute, at hour xx, on day x
+        // Run every minute, at hour xx, on day x
         int nowDay = (int)now.DayOfWeek;
         if (_lastRun == DateTime.MinValue)
         {
@@ -744,7 +745,7 @@ namespace MediaPortal.Core.TaskScheduler
       }
       else
       {
-        // run at xx minute, at hour xx, on day x
+        // Run at xx minute, at hour xx, on day x
         int nowDay = (int)now.DayOfWeek;
         if (_lastRun == DateTime.MinValue)
         {

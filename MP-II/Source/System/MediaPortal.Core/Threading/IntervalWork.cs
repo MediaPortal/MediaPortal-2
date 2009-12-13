@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using MediaPortal.Core.Threading;
 
 namespace MediaPortal.Core.Threading
 {
@@ -35,9 +34,9 @@ namespace MediaPortal.Core.Threading
   {
     #region Variables
 
-    TimeSpan _interval;
-    DateTime _lastRun = DateTime.Now;
-    bool _running = false;
+    protected readonly TimeSpan _interval;
+    protected DateTime _lastRun = DateTime.Now;
+    protected bool _running = false;
 
     #endregion
 

@@ -22,19 +22,16 @@
 
 #endregion
 
-#region usings
-using System;
 using System.Collections.Generic;
-using System.Text;
-#endregion
 
 namespace MediaPortal.Core.TaskScheduler
 {
   /// <summary>
   /// Public representation of the global <see cref="TaskScheduler"/>.
   /// The task scheduler simplifies generating events at a particular time schedule. It sends out a message
-  /// as soon as a task is due on the "taskscheduler" message queue. It sends out a <see cref="TaskMessage" />
-  /// with the particular <see cref="Task"/> as a reference to the interested listeners on this message queue.
+  /// as soon as a task is due on the message queue of name <see cref="TaskSchedulerMessaging.CHANNEL"/>. It sends out a
+  /// message of message type <see cref="TaskSchedulerMessaging.MessageType.DUE"/> with the particular <see cref="Task"/>
+  /// as a reference to the interested listeners on this message queue.
   /// Listeners then can act on the generate message to perform time or interval based tasks.
   /// </summary>
   public interface ITaskScheduler

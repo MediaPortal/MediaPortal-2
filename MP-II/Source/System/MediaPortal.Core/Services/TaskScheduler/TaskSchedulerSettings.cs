@@ -22,13 +22,7 @@
 
 #endregion
 
-#region usings
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
-#endregion
-
 using MediaPortal.Core.Settings;
 using MediaPortal.Core.TaskScheduler;
 
@@ -50,17 +44,12 @@ namespace MediaPortal.Core.Services.TaskScheduler
 
     #endregion
 
-    #region Ctor
-    public TaskSchedulerSettings()
-    {
-    }
-    #endregion
-
     #region Public methods
+
     /// <summary>
-    /// Gets the next TaskID to be assigned to a new <see cref="Task"/>.
+    /// Gets the next TaskID to be assigned to a new <see cref="Task"/> and increments the stored TaskID.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>Next task ID.</returns>
     public int GetNextTaskID()
     {
       if (_taskID == Int32.MaxValue)
@@ -72,6 +61,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Property which is used by the <see cref="ISettingsManager"/> to retrieve/set the last dealt TaskID.
     /// </summary>
@@ -104,6 +94,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
         _taskCollection = value;
       }
     }
+
     #endregion
   }
 }

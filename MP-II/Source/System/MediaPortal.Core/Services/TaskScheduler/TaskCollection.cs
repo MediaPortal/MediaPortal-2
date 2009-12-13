@@ -22,17 +22,9 @@
 
 #endregion
 
-#region usings
 using System;
-using System.IO;
-using System.Text;
-using System.Xml.Serialization;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary;
-
-using MediaPortal.Core.Settings;
 using MediaPortal.Core.TaskScheduler;
-#endregion
 
 namespace MediaPortal.Core.Services.TaskScheduler
 {
@@ -64,7 +56,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Adds a task to the TaskCollection. Maintains sorting order while adding.
     /// </summary>
-    /// <param name="task">Task to add to the TaskCollection</param>
+    /// <param name="task">Task to add to the TaskCollection.</param>
     public void Add(Task task)
     {
       if (_tasks.Contains(task))
@@ -80,9 +72,9 @@ namespace MediaPortal.Core.Services.TaskScheduler
     }
 
     /// <summary>
-    /// Removes a task from the TaskCollection
+    /// Removes a task from the TaskCollection.
     /// </summary>
-    /// <param name="task">Task to remove from the TaskCollection</param>
+    /// <param name="task">Task to remove from the TaskCollection.</param>
     public void Remove(Task task)
     {
       if (_tasks.Contains(task))
@@ -90,10 +82,10 @@ namespace MediaPortal.Core.Services.TaskScheduler
     }
 
     /// <summary>
-    /// Replaces a task in the TaskCollection
+    /// Replaces a task in the TaskCollection.
     /// </summary>
-    /// <param name="taskID">ID of the task to replace</param>
-    /// <param name="task">new task to replace the old one with</param>
+    /// <param name="taskID">ID of the task to replace.</param>
+    /// <param name="task">New task to replace the old one with.</param>
     public void Replace(int taskID, Task task)
     {
       Task oldTask = null;
@@ -121,7 +113,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
     /// <summary>
     /// Creates a clone of the TaskCollection.
     /// </summary>
-    /// <returns>a list of tasks currently in the TaskCollection</returns>
+    /// <returns>A list of tasks currently in the TaskCollection.</returns>
     public IList<Task> Clone()
     {
       List<Task> tasks = new List<Task>();
@@ -129,9 +121,11 @@ namespace MediaPortal.Core.Services.TaskScheduler
         tasks.Add(t.Clone() as Task);
       return tasks;
     }
+
     #endregion
 
     #region Properties
+
     /// <summary>
     /// Property returning a list of tasks currently in the TaskCollection.
     /// </summary>
@@ -149,12 +143,20 @@ namespace MediaPortal.Core.Services.TaskScheduler
   public class TaskComparer : IComparer<Task>
   {
     #region Public methods
+
     /// <summary>
-    /// Compares two <see cref="Task"/>s with each other. See <see cref="IComparer<T>"/> for more details.
+    /// Compares two <see cref="Task"/>s with each other.
     /// </summary>
-    /// <param name="x">first Task</param>
-    /// <param name="y">second Task</param>
-    /// <returns>comparisation result</returns>
+    /// <param name="x">First Task to compare.</param>
+    /// <param name="y">Second Task to compare.</param>
+    /// <returns>
+    /// <list type="table">
+    /// <listheader><term>Value</term><description>Condition</description></listheader>
+    /// <item><term>Less than zero</term><description>x is less than y.</description></item>
+    /// <item><term>Zero</term><description>x equals y.</description></item>
+    /// <item><term>Greater than zero</term><description>x is greater than y.</description></item>
+    /// </list>
+    /// </returns>
     public int Compare(Task x, Task y)
     {
       if (x == null && y == null)
@@ -185,6 +187,7 @@ namespace MediaPortal.Core.Services.TaskScheduler
         }
       }
     }
+
     #endregion
   }
 }

@@ -25,7 +25,6 @@
 
 using System;
 using System.Threading;
-using MediaPortal.Core.Threading;
 
 namespace MediaPortal.Core.Threading
 {
@@ -34,15 +33,23 @@ namespace MediaPortal.Core.Threading
   /// </summary>
   public class Work : IWork
   {
+    #region Consts
+
+    public static string UNKNOWN_WORK = "<Unknown work>";
+
+    #endregion
+
     #region Variables
+
     private WorkState _state;
-    private string _description;
+    private string _description = UNKNOWN_WORK;
     private ThreadPriority _priority;
     private Exception _exception;
     private WorkEventArgs _eventArgs;
     public DoWorkHandler WorkLoad;
     public WorkEventHandler WorkCompleted;
-    private bool _simpleWork = false;
+    private readonly bool _simpleWork = false;
+
     #endregion
 
     #region Constructors
@@ -86,24 +93,24 @@ namespace MediaPortal.Core.Threading
 
     public virtual void Process()
     {
-      // don't perform canceled work
+      // Don't perform canceled work
       if (_state == WorkState.CANCELED)
         return;
-      // don't perform work which is in an invalid state
+      // Don't perform work which is in an invalid state
       if (_state != WorkState.INQUEUE)
-        throw new InvalidOperationException(String.Format("WorkState for work {0} not INQUEUE, but {1}", _description, _state));
+        throw new InvalidOperationException(String.Format("WorkState for work '{0}' is {1} but should be {2}", _description, _state, WorkState.INQUEUE));
 
-      // mark work as in progress
+      // Mark work as in progress
       if (_simpleWork)
         State = WorkState.INPROGRESS;
 
-      // perform work 
+      // Perform work 
       if (WorkLoad != null)
         WorkLoad();
       else
         throw new NotImplementedException();
 
-      // mark work as finished and fire work completion delegate
+      // Mark work as finished and fire work completion delegate
       if (_simpleWork)
       {
         State = WorkState.FINISHED;
@@ -147,9 +154,9 @@ namespace MediaPortal.Core.Threading
     #region Public methods
 
     /// <summary>
-    /// Cancels processing of this work
+    /// Cancels processing of this work.
     /// </summary>
-    /// <returns></returns>
+    /// <returns><c>true</c>, if the work was cancelled, else <c>false</c>.</returns>
     public bool Cancel()
     {
       if (_state == WorkState.INIT || _state == WorkState.INQUEUE)

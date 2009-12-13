@@ -27,7 +27,7 @@ using System.Threading;
 
 namespace MediaPortal.Core.Threading
 {
-  #region enums
+  #region Enums
 
   public enum QueuePriority
   {
