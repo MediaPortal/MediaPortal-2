@@ -35,7 +35,7 @@ using MediaPortal.UI.Services.Logging;
 using System.IO;
 #endif
 using MediaPortal.UI.Shares;
-using MediaPortal.Utilities.CommandLine;
+using CommandLine;
 using MediaPortal.Core;
 using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Services.Runtime;
@@ -59,15 +59,9 @@ namespace MediaPortal
 
       // Parse Command Line options
       CommandLineOptions mpArgs = new CommandLineOptions();
-      try
-      {
-        CommandLine.Parse(args, mpArgs);
-      }
-      catch (ArgumentException)
-      {
-        mpArgs.DisplayOptions();
-        return;
-      }
+      ICommandLineParser parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
+      if (!parser.ParseArguments(args, mpArgs))
+          Environment.Exit(1);
 
 #if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP-II-Client\Log");
@@ -84,21 +78,14 @@ namespace MediaPortal
           ILogger logger = null;
           try
           {
-            //Check whether the user wants to log method names in the logger
-            //This adds an extra 10 to 40 milliseconds to the log call, depending on the length of the stack trace
-            bool logMethods = mpArgs.IsOption(CommandLineOptions.Option.LogMethods);
-            LogLevel level = LogLevel.All;
-            if (mpArgs.IsOption(CommandLineOptions.Option.LogLevel))
-              level = (LogLevel) mpArgs.GetOption(CommandLineOptions.Option.LogLevel);
-
-            ApplicationCore.RegisterCoreServices(level, logMethods);
+            ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods);
             logger = ServiceScope.Get<ILogger>();
 
             IPathManager pathManager = ServiceScope.Get<IPathManager>();
 
             // Check if user wants to override the default Application Data location.
-            if (mpArgs.IsOption(CommandLineOptions.Option.Data))
-              pathManager.SetPath("DATA", (string) mpArgs.GetOption(CommandLineOptions.Option.Data));
+            if (!string.IsNullOrEmpty(mpArgs.DataDirectory))
+              pathManager.SetPath("DATA", mpArgs.DataDirectory);
 
 #if !DEBUG
             logPath = pathManager.GetPath("<LOG>");

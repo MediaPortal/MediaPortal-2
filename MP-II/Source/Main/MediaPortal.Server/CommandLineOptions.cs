@@ -22,87 +22,27 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using MediaPortal.Core.Logging;
-using MediaPortal.Utilities.CommandLine;
+using CommandLine;
 
 namespace MediaPortal
 {
-  // TODO: Clean up
-  [Serializable]
-  public class CommandLineOptions : ICommandLineOptions
+  public class CommandLineOptions
   {
-    #region Enums
-    public enum Option
-    {
-      LogLevel,
-      LogMethods,
-      Data,
-      // put options here
-    }
-    #endregion
+    [Option("l", "loglevel", Required = false,
+        HelpText = "Sets the lowest level for log output. Log output of a lower level will be discarded.")]
+    public LogLevel LogLevel = LogLevel.All;
 
-    #region Variables
-    private readonly Dictionary<Option, object> _options;
-    #endregion
+    [Option("m", "logmethods", Required = false,
+        HelpText = "Instructs the logger to also log the name of its calling method.")]
+    public bool LogMethods = false;
 
-    #region Constructors/Destructors
-    public CommandLineOptions()
-    {
-      _options = new Dictionary<Option, object>();
-    }
-    #endregion
+    [Option("f", "flushlog", Required = false,
+        HelpText = "Makes the logger flush its output buffer to the log file after each log output.")]
+    public bool FlushLog = false;
 
-    #region Public Methods
-    public bool IsOption(Option option)
-    {
-      return _options.ContainsKey(option);
-    }
-
-    public int Count
-    {
-      get { return _options.Count; }
-    }
-
-    public object GetOption(Option option)
-    {
-      return _options[option];
-    }
-    #endregion
-
-    #region ICommandLineOptins implementation
-
-    public void SetOption(string optionName, string argument)
-    {
-      Option option = (Option) Enum.Parse(typeof(Option), optionName, true);
-      object value = argument;
-      if (option == Option.LogLevel)
-      {
-        value = (LogLevel) Enum.Parse(typeof(LogLevel), argument, true);
-      }
-      _options.Add(option, value);
-    }
-
-    public void DisplayOptions()
-    {
-      string[] logLevelNames = Enum.GetNames(typeof(LogLevel));
-      StringBuilder logLevels = new StringBuilder();
-      foreach (string level in logLevelNames)
-      {
-        if (logLevels.Length > 0)
-          logLevels.Append(", ");
-        logLevels.Append(level);
-      }
-
-      string output = "Valid options:\r\n";
-      output += "/help\t\tShows this screen\r\n";
-      output += "/LogMethod\tInstructs the logger to also log the name of its calling method\r\n";
-      output += "/LogLevel=<level>\tSets the log level.  <level> should be one of the following values:\r\n\t\t" + logLevels;
-      Console.WriteLine(output);
-    }
-
-    #endregion
+    [Option("d", "data", Required = false,
+        HelpText = "Overrides the default application data directory.")]
+    public string DataDirectory = null;
   }
 }

@@ -50,8 +50,28 @@
     <Compile Include="CdUtils.cs" />
     <Compile Include="Collections\SafeDictionary.cs" />
     <Compile Include="CollectionUtils.cs" />
-    <Compile Include="CommandLine\CommandLine.cs" />
-    <Compile Include="CommandLine\ICommandLineOptions.cs" />
+    <Compile Include="CommandLine\ArgumentParser.cs" />
+    <Compile Include="CommandLine\BaseOptionAttribute.cs" />
+    <Compile Include="CommandLine\CommandLineParser.cs" />
+    <Compile Include="CommandLine\CommandLineParserException.cs" />
+    <Compile Include="CommandLine\CommandLineParserSettings.cs" />
+    <Compile Include="CommandLine\HelpOptionAttribute.cs" />
+    <Compile Include="CommandLine\IArgumentEnumerator.cs" />
+    <Compile Include="CommandLine\ICommandLineParser.cs" />
+    <Compile Include="CommandLine\LongOptionParser.cs" />
+    <Compile Include="CommandLine\OneCharStringEnumerator.cs" />
+    <Compile Include="CommandLine\OptionArrayAttribute.cs" />
+    <Compile Include="CommandLine\OptionAttribute.cs" />
+    <Compile Include="CommandLine\OptionGroupParser.cs" />
+    <Compile Include="CommandLine\OptionInfo.cs" />
+    <Compile Include="CommandLine\OptionListAttribute.cs" />
+    <Compile Include="CommandLine\OptionMap.cs" />
+    <Compile Include="CommandLine\PairT.cs" />
+    <Compile Include="CommandLine\ParserState.cs" />
+    <Compile Include="CommandLine\ReflectionUtil.cs" />
+    <Compile Include="CommandLine\StringArrayEnumerator.cs" />
+    <Compile Include="CommandLine\TargetWrapper.cs" />
+    <Compile Include="CommandLine\ValueListAttribute.cs" />
     <Compile Include="Conversion\Conversion.cs" />
     <Compile Include="DeepCopy\CopyManager.cs" />
     <Compile Include="DeepCopy\ICopyManager.cs" />
@@ -131,6 +151,9 @@
       <SubType>Designer</SubType>
       <DependentUpon>YesNoDialogScreen.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CommandLine\Readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
