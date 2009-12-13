@@ -76,6 +76,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       MOVIE_EXTENSIONS.Add(".mpg"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".mp4"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".ts"); // Not confirmed yet
+      MOVIE_EXTENSIONS.Add(".ifo"); // Not confirmed yet
     }
 
     public MovieMetadataExtractor()
