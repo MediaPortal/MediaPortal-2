@@ -78,7 +78,11 @@ namespace MediaPortal
           ILogger logger = null;
           try
           {
+#if DEBUG
+            ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, true); // Always Flush log File in debug mode
+#else
             ApplicationCore.RegisterCoreServices(mpArgs.LogLevel, mpArgs.LogMethods, mpArgs.FlushLog);
+#endif
             logger = ServiceScope.Get<ILogger>();
 
             IPathManager pathManager = ServiceScope.Get<IPathManager>();
