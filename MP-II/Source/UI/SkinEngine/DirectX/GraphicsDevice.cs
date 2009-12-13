@@ -348,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine
 
     public static void InitializeZoom()
     {
-      SkinContext.Zoom = new SizeF(Width / (float)SkinContext.SkinWidth, Height / (float)SkinContext.SkinHeight);
+      SkinContext.Zoom = new SizeF(Width / (float) SkinContext.SkinWidth, Height / (float) SkinContext.SkinHeight);
     }
 
     /// <summary>
@@ -381,7 +381,7 @@ namespace MediaPortal.UI.SkinEngine
           _device.BeginScene();
 
           Device.VertexFormat = PositionColored2Textured.Format;
-          ScreenManager manager = (ScreenManager)ServiceScope.Get<IScreenManager>();
+          ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
           manager.Render();
           if (SkinContext.UseBatching)
             RenderPipeline.Instance.Render();

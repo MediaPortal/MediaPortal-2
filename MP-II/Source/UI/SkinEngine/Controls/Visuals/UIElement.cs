@@ -789,7 +789,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Updates the layout, i.e. calls <see cref="Measure"/> and <see cref="Arrange"/>.
     /// </summary>
-    public virtual void UpdateLayout()
+    public void UpdateLayout()
     {
       if (!IsInvalidLayout) 
         return;

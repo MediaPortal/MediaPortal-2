@@ -368,8 +368,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
+      ExtendedMatrix m = new ExtendedMatrix
+        {
+            Matrix = Matrix.Translation(-rect.X, -rect.Y, 0)
+        };
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
@@ -414,8 +416,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(-rect.X, -rect.Y, 0);
+      ExtendedMatrix m = new ExtendedMatrix
+        {
+            Matrix = Matrix.Translation(-rect.X, -rect.Y, 0)
+        };
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
       SkinContext.AddTransform(m);
