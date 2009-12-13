@@ -60,12 +60,12 @@ namespace MediaPortal.Backend.MediaLibrary
     /// Starts a search of media items.
     /// </summary>
     /// <param name="query">Query object which specifies the search parameters.</param>
-    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
     /// <returns>List of matching media items with the media item aspects of the given
     /// <see cref="MediaItemQuery.NecessaryRequestedMIATypeIDs"/> and <see cref="MediaItemQuery.OptionalRequestedMIATypeIDs"/>,
     /// in the given sorting given by <see cref="MediaItemQuery.SortInformation"/>.</returns>
-    IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline);
+    IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline);
 
     /// <summary>
     /// Lists all media items of the given location.
@@ -75,11 +75,11 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="necessaryRequestedMIATypeIDs">IDs of media item aspect types which need to be present in the result.
     /// If a media item at the given location doesn't contain at least one of those media item aspects, it won't be returned.</param>
     /// <param name="optionalRequestedMIATypeIDs">IDs of media item aspect types which will be returned if present.</param>
-    /// <param name="onlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
+    /// <param name="filterOnlyOnline">If this parameter is set to <c>true</c>, only media items which are hosted by systems which
     /// are currently online are returned.</param>
     /// <returns>Result collection of media items at the given location.</returns>
     ICollection<MediaItem> Browse(string systemId, ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs,
-        IEnumerable<Guid> optionalRequestedMIATypeIDs, bool onlyOnline);
+        IEnumerable<Guid> optionalRequestedMIATypeIDs, bool filterOnlyOnline);
 
     /// <summary>
     /// Returns a set of attribute values of the given <paramref name="attributeType"/> for the media items specified
