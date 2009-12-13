@@ -283,12 +283,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
-      SizeF childSize;
-      if (_asset != null)
-        childSize = new SizeF(_asset.Font.Width(Text, _fontSizeCache) * SkinContext.Zoom.Width,
-            _asset.Font.LineHeight(_fontSizeCache) * SkinContext.Zoom.Height);
-      else
-        childSize = new SizeF();
+      SizeF childSize = _asset == null ? new SizeF() :
+          new SizeF(_asset.Font.Width(Text, _fontSizeCache) * SkinContext.Zoom.Width,
+              _asset.Font.LineHeight(_fontSizeCache) * SkinContext.Zoom.Height);
 
       _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
 
@@ -296,7 +293,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (PreferredTextLength.HasValue)
           // We use the "W" character as the character which needs the most space in X-direction
-          _desiredSize.Width = PreferredTextLength.Value*_asset.Font.Width("W", _fontSizeCache);
+          _desiredSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache) * SkinContext.Zoom.Width;
         else
           _desiredSize.Width = childSize.Width;
       }

@@ -364,10 +364,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // and the inner rectangle, move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
 
+      float lineHeight = _asset.Font.LineHeight(_fontSizeCache);
       float x = ActualPosition.X;
-      float y = ActualPosition.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
-      float w = (float)ActualWidth;
-      float h = (float)ActualHeight;
+      float y = ActualPosition.Y + 0.1f * lineHeight;
+      float w = (float) ActualWidth;
+      float h = (float) ActualHeight;
       if (_finalLayoutTransform != null)
       {
         GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
@@ -403,7 +404,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           float totalWidth;
           _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-          rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
+          rect.Y += lineHeight;
         }
       }
 
@@ -424,11 +425,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       base.DoRender();
 
+      float lineHeight = _asset.Font.LineHeight(_fontSizeCache);
+
       // The characters fits the textbox exactly, so to get some room between the top of the characters 
       // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
       // of the value. Otherwise we will be outside of the inner rectangle.
 
-      float y = _finalRect.Y + 0.1f * _fontSizeCache * SkinContext.Zoom.Height;
+      float y = _finalRect.Y + 0.1f * lineHeight;
       float x = _finalRect.X;
       float w = _finalRect.Width;
       float h = _finalRect.Height;
@@ -468,7 +471,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           float totalWidth;
           _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-          rect.Y += _fontSizeCache * SkinContext.Zoom.Height;
+          rect.Y += lineHeight;
         }
       }
       SkinContext.RemoveTransform();
