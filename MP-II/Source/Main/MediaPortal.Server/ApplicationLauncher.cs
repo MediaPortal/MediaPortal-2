@@ -86,9 +86,6 @@ namespace MediaPortal
             logPath = pathManager.GetPath("<LOG>");
 #endif
 
-            // TODO
-            //ServiceScope.Add<IImporter>(...);
-
             BackendExtension.RegisterBackendServices();
           }
           catch (Exception e)
