@@ -124,7 +124,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
         string ext = Path.GetExtension(filePath).ToLower();
         bool isDvd = (ext == ".ifo");
         string dvdFolder = null;
-        if (isDvd && !filePath.ToLower().EndsWith("video_ts.ifo")) return false;
+        if (isDvd && !filePath.ToLower().EndsWith("\\video_ts.ifo")) return false;
         if (isDvd)
         {
           string video_ts_folderPath = Path.GetDirectoryName(filePath);
