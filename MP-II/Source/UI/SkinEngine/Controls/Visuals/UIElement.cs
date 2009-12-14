@@ -459,6 +459,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _visibilityProperty.SetValue(value); }
     }
 
+    public bool IsVisible
+    {
+      get { return Visibility == VisibilityEnum.Visible; }
+      set { Visibility = value ? VisibilityEnum.Visible : VisibilityEnum.Hidden; }
+    }
+
     public Property TriggersProperty
     {
       get { return _triggerProperty; }
@@ -506,12 +512,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
           }
       }
-    }
-
-    public bool IsVisible
-    {
-      get { return Visibility == VisibilityEnum.Visible; }
-      set { Visibility = value ? VisibilityEnum.Visible : VisibilityEnum.Hidden; }
     }
 
     public Property MarginProperty
