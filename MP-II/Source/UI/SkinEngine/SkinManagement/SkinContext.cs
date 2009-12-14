@@ -60,6 +60,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static Property _zoomProperty = new Property(typeof(SizeF), new SizeF(1, 1));
     private static float _Zorder = 1.0f;
     private static DateTime _now;
+    private static float _fps = 0;
 
     public static uint TimePassed;
 
@@ -221,6 +222,12 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static float MaxZoomWidth
     {
       get { return GraphicsDevice.DesktopWidth / (float) SkinWidth; }
+    }
+
+    public static float FPS
+    {
+      get { return _fps; }
+      set { _fps = value; }
     }
 
     public static List<ExtendedMatrix> Transforms

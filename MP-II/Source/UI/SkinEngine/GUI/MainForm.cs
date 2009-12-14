@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private Thread _renderThread;
     private GraphicsDevice _directX;
     private bool _renderThreadStopped;
-    private float _fpsCounter;
+    private int _fpsCounter;
     private DateTime _fpsTimer;
     private float _fixed_aspect_ratio = 0;
     private FormWindowState _windowState;
@@ -177,13 +177,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
           bool shouldWait = GraphicsDevice.Render();
           if (shouldWait || !_hasFocus)
             Thread.Sleep(20);
-          _fpsCounter += 1.0f;
+          _fpsCounter += 1;
           TimeSpan ts = DateTime.Now - _fpsTimer;
           if (ts.TotalSeconds >= 1.0f)
           {
             float secs = (float) ts.TotalSeconds;
-            _fpsCounter /= secs;
-            //Trace.WriteLine("fps:" + _fpsCounter.ToString("f2") + " "+ _hasFocus.ToString());
+            SkinContext.FPS = _fpsCounter / secs;
             _fpsCounter = 0;
             _fpsTimer = DateTime.Now;
             if (GraphicsDevice.DeviceLost)
