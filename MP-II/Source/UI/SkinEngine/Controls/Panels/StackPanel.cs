@@ -485,10 +485,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (_canScroll)
         { // Don't render elements which are not visible, if we can scroll
           RectangleF elementBounds = element.ActualBounds;
-          if (elementBounds.Right > bounds.Right) continue;
-          if (elementBounds.Left < bounds.Left) continue;
-          if (elementBounds.Top < bounds.Top) continue;
-          if (elementBounds.Bottom > bounds.Bottom) continue;
+          if (elementBounds.Right > bounds.Right + DELTA_DOUBLE) continue;
+          if (elementBounds.Left < bounds.Left - DELTA_DOUBLE) continue;
+          if (elementBounds.Top < bounds.Top - DELTA_DOUBLE) continue;
+          if (elementBounds.Bottom > bounds.Bottom + DELTA_DOUBLE) continue;
         }
         _renderOrder.Add(element);
       }
