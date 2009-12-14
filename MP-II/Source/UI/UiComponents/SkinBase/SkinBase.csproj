@@ -76,6 +76,8 @@
     <Compile Include="Settings\Configuration\General\HomeServerSetting.cs" />
     <Compile Include="Settings\Configuration\General\ServerListener.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
+    <Compile Include="Settings\Configuration\Shares\SharesConfigModel.cs" />
+    <Compile Include="Settings\Configuration\Shares\SharesConfigSetting.cs" />
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\Configuration\General\Autostart.cs" />
     <Compile Include="Settings\Configuration\General\Balloontips.cs" />
@@ -373,6 +375,53 @@
     <None Include="Skin\default\shaders\radialopacitygradient.fx" />
     <None Include="Skin\default\shaders\smartzoom.fx" />
     <None Include="Skin\default\shaders\solidbrush.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_choose_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_edit_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_edit_share.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_overview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\shares_config_remove_shares.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\workflow\sharesconfig-actions.xml" />
+    <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

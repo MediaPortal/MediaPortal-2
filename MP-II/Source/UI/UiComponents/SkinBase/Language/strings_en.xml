@@ -93,6 +93,39 @@
     <String Name="Regional.Language" Text="Language"/>
     <String Name="Regional.Language.Main" Text="Language"/>
     <String Name="Regional.Language.Main.Help" Text="Sets the main language used in the application"/>
+
+    <String Name="Shares" Text="Shares"/>
+    <String Name="Shares.Configure" Text="Configure shares"/>
+    <String Name="Shares.ConfigureShares.SharesConfiguration" Text="Shares configuration"/>
+    <String Name="Shares.ConfigureShares.SharesConfiguration.Help" Text="Configure all local shares"/>
+  </Section>
+  <!-- Shares configuration workflow -->
+  <Section Name="SharesConfig">
+    <String Name="Shares.Overview" Text="Shares overview"/>
+    <String Name="CancelSharesConfig" Text="Cancel shares configuration"/>
+    <String Name="RemoveShares" Text="Remove shares"/>
+    <String Name="ChooseSharesToBeRemoved" Text="Please select the shares to be removed"/>
+    <String Name="ChooseMediaProviderForShare" Text="Please select a media provider for the share"/>
+    <String Name="EditMediaProviderPathForShare" Text="Edit the path to the share"/>
+    <String Name="MediaProviderPathIsNotValid" Text="Edit a valid path in the choosen media provider. You can edit a simple path which is understandable by the media provider. You can also edit a complex path in the format {[Base-MediaProvider-ID]}://[Base-MediaProvider-Path]>{[Chained-MediaProvider-ID]}://[Chained-MediaProvider-Path]>..."/>
+    <String Name="ChooseMediaProviderPathForShare" Text="Choose the path of the share"/>
+    <String Name="EditShareName" Text="Edit the share's display name"/>
+    <String Name="ChooseShareCategories" Text="Choose the categories of media contents located in the share"/>
+    <String Name="ChooseMetadataExtractorsManually" Text="Choose metadata extractors manually"/>
+    <String Name="ChooseShareMetadataExtractors" Text="Choose the metadata extractors which should be applied to the share"/>
+    <String Name="MenuAddShare" Text="Add"/>
+    <String Name="MenuEditShares" Text="Edit"/>
+    <String Name="MenuRemoveShares" Text="Remove"/>
+    <String Name="AddShare" Text="Add share"/>
+    <String Name="EditShares" Text="Edit shares"/>
+    <String Name="EditShare" Text="Edit share"/>
+    <String Name="ChooseShareToBeEdited" Text="Please select the share to be edited"/>
+    <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
+    <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's media provider and/or path have been updated."/>
+    <String Name="UpdateShareRelocateItemsQueryText.Description" Text="The media library's information about the media items in that share can be updated (relocated) or cleared and reimported."/>
+    <String Name="UpdateShareRelocateItemsQueryText.Query" Text="Do you want to relocate or clear and reimport?"/>
+    <String Name="Relocate" Text="Relocate"/>
+    <String Name="ReImport" Text="ReImport"/>
   </Section>
   <Section Name="UPnPFrontendServer">
     <String Name="DefaultFriendlyName" Text="MediaPortal-II client"/>

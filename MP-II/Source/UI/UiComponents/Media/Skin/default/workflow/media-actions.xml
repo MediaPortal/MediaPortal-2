@@ -9,29 +9,5 @@
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         TargetState="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
         DisplayTitle="[Media.LocalMedia]"/>
-
-    <PushNavigationTransition Id="5138D8EC-A8D5-4f2b-941A-EE7BD8401A1F"
-        Name="SharesOverview->ShareAdd"
-        DisplayCategory="a-SharesConfig"
-        SortOrder="a"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        TargetState="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
-        DisplayTitle="[SharesConfig.MenuAddShare]"/>
-
-    <PushNavigationTransition Id="5B6D2739-F0FE-41d9-8522-6C797D700B58"
-        Name="SharesOverview->SharesEdit"
-        DisplayCategory="a-SharesConfig"
-        SortOrder="b"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        TargetState="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
-        DisplayTitle="[SharesConfig.MenuEditShares]"/>
-
-    <PushNavigationTransition Id="F1BCC545-5859-4a67-805F-86F9540C0F82"
-        Name="SharesOverview->SharesRemove"
-        DisplayCategory="a-SharesConfig"
-        SortOrder="c"
-        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        TargetState="900BA520-F989-48c0-B076-5DAD61945845"
-        DisplayTitle="[SharesConfig.MenuRemoveShares]"/>
   </MenuActions>
 </Workflow>

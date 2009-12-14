@@ -36,7 +36,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.Shares;
 using MediaPortal.Utilities;
 
-namespace UiComponents.Media.Settings.Configuration
+namespace UiComponents.SkinBase.Settings.Configuration.Shares
 {
   /// <summary>
   /// Provides a workflow model to attend the complex configuration process for local shares in the MP-II configuration.

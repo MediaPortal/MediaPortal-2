@@ -17,7 +17,6 @@
 
   <Register Location="/Models">
     <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" Name="MediaModel" ClassName="UiComponents.Media.MediaModel"/>
-    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SaresModel" ClassName="UiComponents.Media.Settings.Configuration.SharesConfigModel"/>
     <Model Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256" Name="VideoPlayerModel" ClassName="UiComponents.Media.VideoPlayerModel"/>
     <Model Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC" Name="AudioPlayerModel" ClassName="UiComponents.Media.AudioPlayerModel"/>
   </Register>
@@ -28,31 +27,5 @@
 
   <Register Location="/Resources/Skin">
     <Resource Id="MediaSkin" Directory="Skin" Type="Skin"/>
-  </Register>
-
-  <!-- Root Sections -->
-  <Register Location="/Configuration/Settings">
-    <ConfigSection
-        Id="Shares"
-        Redundant="true"
-        Text="[Settings.Shares]"/>
-  </Register>
-
-  <!-- Contents of '/Shares' section -->
-  <Register Location="/Configuration/Settings/Shares">
-    <ConfigGroup
-        Id="ConfigureShares"
-        Redundant="true"
-        Text="[Settings.Shares.Configure]"/>
-  </Register>
-
-  <!-- Contents of '/Shares/ConfigureShares' group -->
-  <Register Location="/Configuration/Settings/Shares/ConfigureShares">
-    <CustomConfigSetting
-        Id="SharesConfiguration"
-        Text="[Settings.Shares.ConfigureShares.SharesConfiguration]"
-        HelpText="[Settings.Shares.ConfigureShares.SharesConfiguration.Help]"
-        ClassName="UiComponents.Media.Settings.Configuration.SharesConfigSetting"
-        AdditionalData="WorkflowState=36B3F24A-29B4-4cb4-BC7D-434C51491CD2,ConfAppPanel=..."/>
   </Register>
 </Plugin>
