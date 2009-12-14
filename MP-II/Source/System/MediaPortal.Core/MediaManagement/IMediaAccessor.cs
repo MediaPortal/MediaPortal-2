@@ -104,7 +104,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <param name="mediaItemAccessor">Media item file to use as source for this metadata extraction.</param>
     /// <param name="metadataExtractors">Enumeration of metadata extractors to apply to the specified media file.</param>
     /// <returns>Dictionary of (media item aspect id; extracted media item aspect)-mappings or
-    /// <c>null</c>, if the specified provider doesn't exist or if no metadata could be extracted.
+    /// <c>null</c>, if none of the specified providers could extract any metadata.
     /// The result might not contain all media item aspects which can be extracted by the specified media provider,
     /// if it couldn't extract all of them.</returns>
     IDictionary<Guid, MediaItemAspect> ExtractMetadata(IResourceAccessor mediaItemAccessor,

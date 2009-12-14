@@ -148,8 +148,13 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
             return false;
 
-          MediaItemAspect mediaAspect = extractedAspectData[MediaAspect.ASPECT_ID];
-          MediaItemAspect movieAspect = extractedAspectData[MovieAspect.ASPECT_ID];
+          // TODO: The creation of new media item aspects could be moved to a general method
+          MediaItemAspect mediaAspect;
+          if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+            extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
+          MediaItemAspect movieAspect;
+          if (!extractedAspectData.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect))
+            extractedAspectData[MovieAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(MovieAspect.Metadata);
 
           movieAspect.SetAttribute(MovieAspect.ATTR_DURATION, info.Length);
           if (isDvd)

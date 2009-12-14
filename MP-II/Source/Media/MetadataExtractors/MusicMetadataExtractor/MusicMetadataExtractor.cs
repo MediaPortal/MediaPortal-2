@@ -191,8 +191,14 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
       if (!HasAudioExtension(humanReadablePath))
         return false;
 
-      MediaItemAspect mediaAspect = extractedAspectData[MediaAspect.ASPECT_ID];
-      MediaItemAspect musicAspect = extractedAspectData[MusicAspect.ASPECT_ID];
+      // TODO: The creation of new media item aspects could be moved to a general method
+      MediaItemAspect mediaAspect;
+      if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+        extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
+      MediaItemAspect musicAspect;
+      if (!extractedAspectData.TryGetValue(MusicAspect.ASPECT_ID, out musicAspect))
+        extractedAspectData[MusicAspect.ASPECT_ID] = musicAspect = new MediaItemAspect(MusicAspect.Metadata);
+
       try
       {
         File tag;

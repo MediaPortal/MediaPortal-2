@@ -50,10 +50,8 @@ namespace MediaPortal.Core.MediaManagement
     /// </summary>
     /// <param name="mediaItemAccessor">The media item resource accessor to open the stream to the physical media.</param>
     /// <param name="extractedAspectData">Dictionary containing a mapping of media item aspect ids to
-    /// media item aspects where this metadata extractor will fill its media item aspects with the
-    /// extracted metadata in. The dictionary will contain media items for all media item aspect types
-    /// given by the <see cref="MetadataExtractorMetadata.ExtractedAspectTypes"/> collection of the
-    /// <see cref="Metadata"/> instance.</param>
+    /// already present media item aspects, this metadata extractor should edit. If a media item aspect is not present
+    /// in this dictionary but found by this metadata extractor, it will add it to the dictionary.</param>
     /// <returns><c>true</c> if the metadata could be extracted from the specified media item, else <c>false</c>.
     /// If the return value is <c>true</c>, the extractedAspectData collection was filled by this metadata extractor.
     /// If the return value is <c>false</c>, the <paramref name="extractedAspectData"/> collection remains

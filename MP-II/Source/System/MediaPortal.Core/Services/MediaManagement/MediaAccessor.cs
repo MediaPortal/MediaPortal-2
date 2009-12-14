@@ -332,9 +332,6 @@ namespace MediaPortal.Core.Services.MediaManagement
       bool success = false;
       foreach (IMetadataExtractor extractor in metadataExtractors)
       {
-        foreach (MediaItemAspectMetadata miaMetadata in extractor.Metadata.ExtractedAspectTypes.Values)
-          if (!result.ContainsKey(miaMetadata.AspectId))
-            result.Add(miaMetadata.AspectId, new MediaItemAspect(miaMetadata));
         if (extractor.TryExtractMetadata(mediaItemAccessor, result))
           success = true;
       }
