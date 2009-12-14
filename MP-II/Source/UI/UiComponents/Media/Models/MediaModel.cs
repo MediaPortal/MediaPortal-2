@@ -35,7 +35,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.Media
+namespace UiComponents.Media.Models
 {
   /// <summary>
   /// Model which holds the GUI state for the current navigation in the media views.

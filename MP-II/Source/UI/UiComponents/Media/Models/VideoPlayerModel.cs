@@ -32,7 +32,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
-namespace UiComponents.Media
+namespace UiComponents.Media.Models
 {
   /// <summary>
   /// Attends the CurrentlyPlaying and FullscreenContent states for video players.
