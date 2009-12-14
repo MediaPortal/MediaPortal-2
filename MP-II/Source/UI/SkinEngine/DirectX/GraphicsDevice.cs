@@ -352,14 +352,9 @@ namespace MediaPortal.UI.SkinEngine
     }
 
     /// <summary>
-    /// Renders the entire scene
-    /// This method gets called normally by our own renderthread
-    /// But.. when a movie is playing, it is called from EVR/VMR9 thread
-    /// reason for this is that we need to sync the drawing with the video
-    /// the mainloop variable indicates if the method is called by our own renderthread or by the evr/vmr9 thread
+    /// Renders the entire scene.
     /// </summary>
-    /// <returns></returns>
-    /// 
+    /// <returns><c>true</c>, if the caller should wait some milliseconds before rendering the next time.</returns>
     public static bool Render()
     {
       if (_device == null || _deviceLost)
