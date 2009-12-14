@@ -722,7 +722,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           FrameworkElement fe = CollectionUtils.SafeGet(visibleChildren, i);
           if (fe == null)
             continue;
-          spaceBefore += visibleChildren[i].TotalDesiredSize().Height;
+          spaceBefore += fe.TotalDesiredSize().Height;
         }
         return spaceBefore;
       }
@@ -732,7 +732,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
-        if (Orientation == Panels.Orientation.Horizontal)
+        if (Orientation == Orientation.Horizontal)
           return true;
         return _scrollIndex == 0;
       }
@@ -742,10 +742,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
-        if (Orientation == Panels.Orientation.Horizontal)
+        if (Orientation == Orientation.Horizontal)
           return true;
-        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        return _actualLastVisibleChild == visibleChildren.Count - 1;
+        return _actualLastVisibleChild == GetVisibleChildren().Count - 1;
       }
     }
 
@@ -753,7 +752,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
-        if (Orientation == Panels.Orientation.Vertical)
+        if (Orientation == Orientation.Vertical)
           return true;
         return _scrollIndex == 0;
       }
@@ -763,10 +762,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
-        if (Orientation == Panels.Orientation.Vertical)
+        if (Orientation == Orientation.Vertical)
           return true;
-        IList<FrameworkElement> visibleChildren = GetVisibleChildren();
-        return _actualLastVisibleChild == visibleChildren.Count - 1;
+        return _actualLastVisibleChild == GetVisibleChildren().Count - 1;
       }
     }
 
