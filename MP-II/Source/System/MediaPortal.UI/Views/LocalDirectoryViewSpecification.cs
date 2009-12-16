@@ -117,7 +117,7 @@ namespace MediaPortal.UI.Views
       get { return _viewPath.IsValidLocalPath; }
     }
 
-    internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override IEnumerable<MediaItem> ReLoadItems()
     {
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
@@ -138,7 +138,7 @@ namespace MediaPortal.UI.Views
         }
     }
 
-    internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
+    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
       // Add all directories at the specified path

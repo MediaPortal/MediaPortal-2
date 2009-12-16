@@ -51,12 +51,12 @@ namespace MediaPortal.UI.Views
       get { return true; }
     }
 
-    internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override IEnumerable<MediaItem> ReLoadItems()
     {
       yield break;
     }
 
-    internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
+    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       foreach (Share share in sharesManagement.Shares.Values)

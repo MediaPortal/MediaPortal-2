@@ -64,7 +64,7 @@ namespace MediaPortal.UI.Views
     }
 
     /// <summary>
-    /// Builds a new view from this view specification, which is a root view (i.e. without a parent view).
+    /// Builds a new rooted view from this view specification (i.e. without a parent view).
     /// </summary>
     public View BuildRootView()
     {
@@ -90,8 +90,9 @@ namespace MediaPortal.UI.Views
 
     /// <summary>
     /// Returns the information if the view specified by this instance currently can be built (i.e. if all of its
-    /// providers/shares are present). If the task to check that is too complicated, implementors also can fail in the
-    /// methods <see cref="ReLoadItems"/> and/or <see cref="ReLoadSubViewSpecifications"/>.
+    /// providers/shares are present). If the task to check that completely is too complicated, implementors can also
+    /// return <c>true</c> and later fail in the methods <see cref="ReLoadItems"/> and/or
+    /// <see cref="ReLoadSubViewSpecifications"/>.
     /// </summary>
     public abstract bool CanBeBuilt { get; }
 
@@ -109,7 +110,7 @@ namespace MediaPortal.UI.Views
     /// <returns>Media items in a view specified by this specification.</returns>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view. Exceptions in reading
     /// and/or parsing media items should not be thrown; those media items should simply be ignored.</exception>
-    internal abstract IEnumerable<MediaItem> ReLoadItems();
+    protected internal abstract IEnumerable<MediaItem> ReLoadItems();
 
     /// <summary>
     /// Loads or reloads the specifications of the sub views to this specification. This will rebuild the
@@ -122,7 +123,7 @@ namespace MediaPortal.UI.Views
     /// </remarks>
     /// <returns>Sub views of a view specified by this specification.</returns>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view.</exception>
-    internal abstract IEnumerable<ViewSpecification> ReLoadSubViewSpecifications();
+    protected internal abstract IEnumerable<ViewSpecification> ReLoadSubViewSpecifications();
 
     #region Additional members for the XML serialization
 

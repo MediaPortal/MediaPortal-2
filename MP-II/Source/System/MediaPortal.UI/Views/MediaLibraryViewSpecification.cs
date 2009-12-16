@@ -78,13 +78,13 @@ namespace MediaPortal.UI.Views
       }
     }
 
-    internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override IEnumerable<MediaItem> ReLoadItems()
     {
       // TODO (Albert, 2008-11-15): Load view contents from the media library, if connected
       yield break;
     }
 
-    internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
+    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
       IList<ViewSpecification> result = new List<ViewSpecification>(_subViews.Count);
       CollectionUtils.AddAll(result, _subViews);

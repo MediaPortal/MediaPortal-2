@@ -71,12 +71,12 @@ namespace MediaPortal.UI.Views
       get { return true; }
     }
 
-    internal override IEnumerable<MediaItem> ReLoadItems()
+    protected internal override IEnumerable<MediaItem> ReLoadItems()
     {
       yield break;
     }
 
-    internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
+    protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
       return _subViews;
     }
@@ -84,9 +84,6 @@ namespace MediaPortal.UI.Views
     #endregion
 
     #region Additional members for the XML serialization
-
-    // Serialization of view collection views works like this:
-    // We simply serialize our name and all our sub views.
 
     internal ViewCollectionViewSpecification() { }
 
