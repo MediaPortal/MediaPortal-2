@@ -40,15 +40,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   public class CompiledDistinctAttributeValueQuery
   {
     protected readonly MIA_Management _miaManagement;
+    protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
     protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
     protected readonly CompiledFilter _filter;
 
     public CompiledDistinctAttributeValueQuery(
         MIA_Management miaManagement,
+        ICollection<MediaItemAspectMetadata> necessaryRequestedMIATypes,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
         CompiledFilter filter)
     {
       _miaManagement = miaManagement;
+      _necessaryRequestedMIATypes = necessaryRequestedMIATypes;
       _selectAttribute = selectedAttribute;
       _filter = filter;
     }
@@ -64,6 +67,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     }
 
     public static CompiledDistinctAttributeValueQuery Compile(MIA_Management miaManagement,
+        IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         MediaItemAspectMetadata.AttributeSpecification selectAttribute, IFilter filter)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
@@ -75,8 +79,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (!availableMIATypes.ContainsKey(miam.AspectId))
           throw new InvalidDataException("MIA type '{0}', which is contained in filter condition, is not present in the media library", miam.Name);
       }
+      ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
+      // Raise exception if necessary MIA types are not present
+      foreach (Guid miaTypeID in necessaryRequestedMIATypeIDs)
+      {
+        MediaItemAspectMetadata miam;
+        if (!availableMIATypes.TryGetValue(miaTypeID, out miam))
+          throw new InvalidDataException("Necessary requested MIA type of ID '{0}' is not present in the media library", miaTypeID);
+        necessaryMIATypes.Add(miam);
+      }
 
-      return new CompiledDistinctAttributeValueQuery(miaManagement, selectAttribute, compiledFilter);
+      return new CompiledDistinctAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, compiledFilter);
     }
 
     public HomogenousCollection Execute()
@@ -91,7 +104,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
         {
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
-          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, new List<MediaItemAspectMetadata>(),
+          MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, _necessaryRequestedMIATypes,
               new QueryAttribute[] {selectAttributeQA}, _filter, null);
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
@@ -103,7 +116,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         else
         {
           ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
-              new List<MediaItemAspectMetadata>(), _filter);
+              _necessaryRequestedMIATypes, _filter);
           string mediaItemIdAlias;
           command.CommandText = builder.GenerateSqlStatement(new Namespace(),
               true, out mediaItemIdAlias, out valueAlias);

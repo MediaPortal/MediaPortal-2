@@ -287,6 +287,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
             new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
           },
           new DvArgument[] {
@@ -477,8 +478,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       string systemId = (string) inParams[0];
       ResourcePath path = ResourcePath.Deserialize((string) inParams[1]);
-      IEnumerable<Guid> necessaryMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[2]);
-      IEnumerable<Guid> optionalMIATypes = ParserHelper.ParseCsvGuidCollection((string) inParams[3]);
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
       string onlineStateStr = (string) inParams[4];
       bool all;
       UPnPError error = ParseOnlineState(onlineStateStr, out all);
@@ -498,7 +499,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       Guid aspectId = new Guid((string) inParams[0]);
       string attributeName = (string) inParams[1];
-      IFilter filter = (IFilter) inParams[2];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      IFilter filter = (IFilter) inParams[3];
       IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
       MediaItemAspectMetadata miam;
       outParams = null;
@@ -508,7 +510,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      HomogenousCollection values = ServiceScope.Get<IMediaLibrary>().GetDistinctAssociatedValues(attributeType, filter);
+      HomogenousCollection values = ServiceScope.Get<IMediaLibrary>().GetDistinctAssociatedValues(attributeType,
+          necessaryMIATypes, filter);
       outParams = new List<object> {values};
       return null;
     }

@@ -86,14 +86,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public static CompiledMediaItemQuery Compile(MIA_Management miaManagement, MediaItemQuery query)
     {
       IDictionary<Guid, MediaItemAspectMetadata> availableMIATypes = miaManagement.ManagedMediaItemAspectTypes;
-      ICollection<MediaItemAspectMetadata> necessaryMIAs = new List<MediaItemAspectMetadata>();
+      ICollection<MediaItemAspectMetadata> necessaryMIATypes = new List<MediaItemAspectMetadata>();
       // Raise exception if necessary MIA types are not present
       foreach (Guid miaTypeID in query.NecessaryRequestedMIATypeIDs)
       {
         MediaItemAspectMetadata miam;
         if (!availableMIATypes.TryGetValue(miaTypeID, out miam))
           throw new InvalidDataException("Necessary requested MIA type '{0}' is not present in the media library", miaTypeID);
-        necessaryMIAs.Add(miam);
+        necessaryMIATypes.Add(miam);
       }
       // Raise exception if MIA types are not present, which are contained in filter condition
       CompiledFilter filter = CompiledFilter.Compile(miaManagement, query.Filter);
@@ -131,7 +131,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
       }
 
-      return new CompiledMediaItemQuery(miaManagement, necessaryMIAs,
+      return new CompiledMediaItemQuery(miaManagement, necessaryMIATypes,
           mainSelectedAttributes, explicitSelectAttributes, filter, query.SortInformation);
     }
 

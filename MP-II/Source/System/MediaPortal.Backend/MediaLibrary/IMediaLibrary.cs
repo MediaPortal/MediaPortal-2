@@ -86,10 +86,12 @@ namespace MediaPortal.Backend.MediaLibrary
     /// by the <paramref name="filter"/>.
     /// </summary>
     /// <param name="attributeType">Attribute type, whose values will be returned.</param>
+    /// <param name="necessaryMIATypeIDs">IDs of media item aspect types, which need to be present in each media item
+    /// whose attribute values are part of the result collection.</param>
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <returns>Distinct set of attribute values of the given <paramref name="attributeType"/>.</returns>
     HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IFilter filter);
+        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter);
 
     #endregion
 

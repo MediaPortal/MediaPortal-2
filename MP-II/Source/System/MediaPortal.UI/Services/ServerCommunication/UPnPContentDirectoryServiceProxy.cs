@@ -29,6 +29,7 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.UI.Services.ServerCommunication
@@ -181,15 +182,19 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction action = GetAction("Browse");
       String onlineStateStr = onlyConnected ? "OnlyConnected" : "All";
-      IList<object> inParameters = new List<object> {systemId, path, necessaryMIATypes, optionalMIATypes, onlineStateStr};
+      IList<object> inParameters = new List<object> {systemId, path,
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes), onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (ICollection<MediaItem>) outParameters[0];
     }
 
-    public HomogenousCollection GetDistinctAssociatedValues(Guid aspectId, string attributeName, IFilter filter)
+    public HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IEnumerable<Guid> necessaryMIATypes, IFilter filter)
     {
       CpAction action = GetAction("GetDistinctAssociatedValues");
-      IList<object> inParameters = new List<object> {aspectId, attributeName, filter};
+      IList<object> inParameters = new List<object> {attributeType.ParentMIAM.AspectId, attributeType.AttributeName,
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (HomogenousCollection) outParameters[0];
     }

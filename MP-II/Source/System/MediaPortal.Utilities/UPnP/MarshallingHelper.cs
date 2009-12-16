@@ -27,8 +27,13 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Utilities.UPnP
 {
-  public class ParserHelper
+  public class MarshallingHelper
   {
+    public static string SerializeGuidEnumerationToCsv(IEnumerable<Guid> guids)
+    {
+      return StringUtils.Join(",", guids);
+    }
+
     public static ICollection<Guid> ParseCsvGuidCollection(string csvGuids)
     {
       string[] guids = csvGuids.Split(',');

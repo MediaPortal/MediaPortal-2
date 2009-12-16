@@ -64,7 +64,8 @@ namespace MediaPortal.UI.ServerCommunication
     IList<MediaItem> Search(MediaItemQuery query, bool onlyConnected);
     ICollection<MediaItem> Browse(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyConnected);
-    HomogenousCollection GetDistinctAssociatedValues(Guid aspectId, string attributeName, IFilter filter);
+    HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+        IEnumerable<Guid> necessaryMIATypes, IFilter filter);
 
     // Media import
     void AddOrUpdateMediaItem(string systemId, ResourcePath path,

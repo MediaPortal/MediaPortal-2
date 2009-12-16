@@ -307,10 +307,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     }
 
     public HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        IFilter filter)
+        IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter)
     {
       CompiledDistinctAttributeValueQuery cdavq = CompiledDistinctAttributeValueQuery.Compile(
-          _miaManagement, attributeType, filter);
+          _miaManagement, necessaryMIATypeIDs, attributeType, filter);
       return cdavq.Execute();
     }
 
