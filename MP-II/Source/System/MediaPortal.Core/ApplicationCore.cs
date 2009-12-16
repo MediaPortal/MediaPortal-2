@@ -61,7 +61,7 @@ namespace MediaPortal.Core
       (logger as GroupLogger).Add(FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames, true));  // Always Flush log files in Debug Mode
 #else
       FileLogger.DeleteLogFiles(pathManager.GetPath(@"<LOG>\"), "*.log");
-      ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames);
+      ILogger logger = FileLogger.CreateFileLogger(pathManager.GetPath(@"<LOG>\MediaPortal.log"), logLevel, logMethodNames, flushLog);
 #endif
       logger.Info("ApplicationCore: Launching in AppDomain {0}...", AppDomain.CurrentDomain.FriendlyName);
 
