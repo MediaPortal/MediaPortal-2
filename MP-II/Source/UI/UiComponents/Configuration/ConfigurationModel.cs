@@ -28,7 +28,6 @@ using MediaPortal.Core.Configuration;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
-using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
@@ -80,25 +79,9 @@ namespace UiComponents.Configuration
     public const string KEY_HELPTEXT = "Help";
     public const string KEY_ENABLED = "Enabled";
 
-    /// <summary>
-    /// Holds the information about all of the (already initialized) workflow states corresponding to config
-    /// navigation locations. The dictionary maps workflow state ids to the corresponding config location.
-    /// </summary>
-    /// <remarks>
-    /// An instance of this class will be stored in our root workflow navigation context.
-    /// 
-    /// While we browse through the config location structure, the workflow states will be created
-    /// lazily on-the-fly and transient. We'll assign the relevant information for each of those lazily
-    /// created workflow states in this instance.
-    /// It is necessary to use an own data structure in this case rather than using the workflow context
-    /// data because we need to build up the mapping data structure before the navigation to those states
-    /// takes place. At that time, there is no workflow context for those transient states yet.
-    /// </remarks>
-    protected class ContextStateDataDictionary : Dictionary<Guid, string> { }
-
     #region Protected fields
 
-    protected const string CONTEXT_STATE_DATA_KEY = "ConfigurationModel: CONTEXT_STATE_DATA";
+    protected const string CONFIG_LOCATION_KEY = "ConfigurationModel: CONFIG_LOCATION";
 
     protected WorkflowConfigurationController _workflowConfigurationController;
 
@@ -215,55 +198,30 @@ namespace UiComponents.Configuration
     #region Protected methods
 
     /// <summary>
-    /// Returns the data dictionary which represents the mapping between (as the case maybe transient)
-    /// workflow navigation states and their config locations.
-    /// </summary>
-    /// <remarks>
-    /// It is not possible to store the config locations of of workflow states in navigation contexts,
-    /// because menu actions representing workflow transitions to child config locations reference transient states
-    /// which don't have a corresponding navigation context yet. So the model must pre-initialize the data
-    /// for those transient workflow states before they are navigated to.
-    /// We'll solve that problem by using a single dictionary, stored as navigation context variable which gets
-    /// inherited to successor navigation contexts, which maps those transient workflow states to their
-    /// appropriate config locations.
-    /// </remarks>
-    /// <param name="context">Current navigation context.</param>
-    /// <returns>Mapping context state data dictionary from the specified <paramref name="context"/> or
-    /// from one of its predecessors.</returns>
-    protected static ContextStateDataDictionary GetContextStateDataDictionary(NavigationContext context)
-    {
-      return (ContextStateDataDictionary) context.GetContextVariable(CONTEXT_STATE_DATA_KEY, true);
-    }
-
-    /// <summary>
-    /// Creates and initializes the data dictionary which represents the mapping between workflow navigation states to
-    /// config locations.
-    /// </summary>
-    /// <param name="context">Current navigation context.</param>
-    protected static void InitializeContextStateDataDictionary(NavigationContext context)
-    {
-      ContextStateDataDictionary dd = new ContextStateDataDictionary();
-      Guid configMainStateId = new Guid(CONFIGURATION_MAIN_STATE_ID_STR);
-      dd[configMainStateId] = "/";
-      context.SetContextVariable(CONTEXT_STATE_DATA_KEY, dd);
-    }
-
-    /// <summary>
     /// Returns the config location corresponding to the workflow state given by the specified
     /// workflow navigation <paramref name="context"/>.
     /// </summary>
-    /// <param name="context">The workflow navigation context whose workflow state will be used to lookup
-    /// the mapping context state data dictionary.</param>
-    /// <returns>Config location or <c>null</c>, if the mapping context state data dictionary was not
-    /// initialized in the context any nor in any predecessor contexts, or if the workflow state in the
-    /// given navigation <paramref name="context"/> is not available in the state data dictionary.</returns>
+    /// <param name="context">The workflow navigation context to lookup the context state.</param>
+    /// <returns>Previously initialized config location of the given navigation <paramref name="context"/> or <c>"/"</c>,
+    /// if the context wasn't initialized before.</returns>
     protected static string GetConfigLocation(NavigationContext context)
     {
-      ContextStateDataDictionary dd = GetContextStateDataDictionary(context);
-      if (dd == null)
-        return null;
-      string result;
-      return dd.TryGetValue(context.WorkflowState.StateId, out result) ? result : null;
+      string result = context.GetContextVariable(CONFIG_LOCATION_KEY, false) as string;
+      if (result == null)
+        context.SetContextVariable(CONFIG_LOCATION_KEY, result = "/");
+      return result;
+    }
+
+    /// <summary>
+    /// Returns the information whether the given navigation <paramref name="context"/> is a context which was already
+    /// visited by this model. This method checks for the existence of the context variable <see cref="CONFIG_LOCATION_KEY"/>.
+    /// </summary>
+    /// <param name="context">Workflow navigation context to check.</param>
+    /// <returns><c>true</c>, if the given <paramref name="context"/> contains the context variable
+    /// <see cref="CONFIG_LOCATION_KEY"/>, else <c>false</c>.</returns>
+    protected static bool IsInitialized(NavigationContext context)
+    {
+      return context.ContextVariables.ContainsKey(CONFIG_LOCATION_KEY);
     }
 
     /// <summary>
@@ -431,16 +389,8 @@ namespace UiComponents.Configuration
       _currentConfigController = null;
       ReleaseAllVisibleEnabledNotifications();
       string configLocation = GetConfigLocation(newContext);
-      if (configLocation == null)
-      {
-        // Should not happen - we run into this case if our internal data structures weren't initialized for
-        // the new state
-        ServiceScope.Get<ILogger>().Error("ConfigurationModel: Workflow state '{0}' was not initialized in the context of this model",
-            newContext.WorkflowState.StateId);
-        return;
-      }
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
-      bool enteringConfiguration = GetConfigLocation(oldContext) == null;
+      bool enteringConfiguration = !IsInitialized(oldContext);
       if (enteringConfiguration)
         configurationManager.Initialize();
 
@@ -485,7 +435,6 @@ namespace UiComponents.Configuration
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitializeContextStateDataDictionary(newContext);
       PrepareConfigLocation(oldContext, newContext);
     }
 
@@ -506,20 +455,10 @@ namespace UiComponents.Configuration
     {
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
       string configLocation = GetConfigLocation(context);
-      if (configLocation == null)
-      {
-        // Should never happen - we run into this case if either this method is called with a non-initialized
-        // config state or with a non-config state or if the method StartModelContext was not called before
-        ServiceScope.Get<ILogger>().Error("ConfigurationModel: Workflow state '{0}' was not initialized in the context of this model", context.WorkflowState.StateId);
-        return;
-      }
       WorkflowState mainState;
       ServiceScope.Get<IWorkflowManager>().States.TryGetValue(new Guid(CONFIGURATION_MAIN_STATE_ID_STR),
           out mainState);
       IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
-      ContextStateDataDictionary stateDataDictionary = GetContextStateDataDictionary(context);
-      if (stateDataDictionary == null)
-        throw new IllegalCallException("ConfigurationModel: Model state data dictionary is not initialized");
       foreach (IConfigurationNode childNode in currentNode.ChildNodes)
       {
         if (childNode.ConfigObj is ConfigSection)
@@ -541,11 +480,13 @@ namespace UiComponents.Configuration
                   context.WorkflowState.StateId, newState, res)
             {
                 DisplayCategory = ACTIONS_WORKFLOW_CATEGORY,
-                SortOrder = res.Evaluate()
+                SortOrder = res.Evaluate(),
+                WorkflowNavigationContextVariables = new Dictionary<string, object>
+                {
+                    {CONFIG_LOCATION_KEY, childNode.Location}
+                }
             };
           actions.Add(wa);
-          // Initialize status in internal dictionary
-          stateDataDictionary[newState.StateId] = childNode.Location;
         }
       }
     }
