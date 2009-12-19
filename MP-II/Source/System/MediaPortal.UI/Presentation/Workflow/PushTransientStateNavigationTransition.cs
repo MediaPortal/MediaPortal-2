@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 
@@ -37,6 +38,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     #region Protected fields
 
     protected WorkflowState _transientState;
+    protected IDictionary<string, object> _workflowNavigationContextVariables;
 
     #endregion
 
@@ -56,6 +58,15 @@ namespace MediaPortal.UI.Presentation.Workflow
       get { return _transientState; }
     }
 
+    /// <summary>
+    /// Additional workflow navigation context variables to be set when navigated to the transient workflow state.
+    /// </summary>
+    public IDictionary<string, object> WorkflowNavigationContextVariables
+    {
+      get { return _workflowNavigationContextVariables; }
+      set { _workflowNavigationContextVariables = value; }
+    }
+
     public override bool IsVisible
     {
       get { return true; }
@@ -71,7 +82,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     public override void Execute()
     {
-      ServiceScope.Get<IWorkflowManager>().NavigatePushTransient(TargetState);
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      if (_workflowNavigationContextVariables == null)
+        workflowManager.NavigatePushTransient(_transientState);
+      else
+        workflowManager.NavigatePushTransient(_transientState, _workflowNavigationContextVariables);
     }
   }
 }
