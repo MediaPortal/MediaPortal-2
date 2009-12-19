@@ -215,9 +215,18 @@ namespace UiComponents.Configuration
     #region Protected methods
 
     /// <summary>
-    /// Returns the data dictionary which represents the mapping between workflow navigation contexts
-    /// and config states.
+    /// Returns the data dictionary which represents the mapping between (as the case maybe transient)
+    /// workflow navigation states and their config locations.
     /// </summary>
+    /// <remarks>
+    /// It is not possible to store the config locations of of workflow states in navigation contexts,
+    /// because menu actions representing workflow transitions to child config locations reference transient states
+    /// which don't have a corresponding navigation context yet. So the model must pre-initialize the data
+    /// for those transient workflow states before they are navigated to.
+    /// We'll solve that problem by using a single dictionary, stored as navigation context variable which gets
+    /// inherited to successor navigation contexts, which maps those transient workflow states to their
+    /// appropriate config locations.
+    /// </remarks>
     /// <param name="context">Current navigation context.</param>
     /// <returns>Mapping context state data dictionary from the specified <paramref name="context"/> or
     /// from one of its predecessors.</returns>
@@ -227,12 +236,10 @@ namespace UiComponents.Configuration
     }
 
     /// <summary>
-    /// Returns the data dictionary which represents the mapping between workflow navigation contexts
-    /// and config states, or creates it if it doesn't exist in the current navigation <paramref name="context"/>.
+    /// Creates and initializes the data dictionary which represents the mapping between workflow navigation states to
+    /// config locations.
     /// </summary>
     /// <param name="context">Current navigation context.</param>
-    /// <returns>Mapping context state data dictionary from the specified <paramref name="context"/> or
-    /// from one of its predecessors.</returns>
     protected static void InitializeContextStateDataDictionary(NavigationContext context)
     {
       ContextStateDataDictionary dd = new ContextStateDataDictionary();
