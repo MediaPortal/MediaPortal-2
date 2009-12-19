@@ -28,7 +28,16 @@ namespace MediaPortal.UI.Presentation.Workflow
 {
   public enum WorkflowType
   {
+    /// <summary>
+    /// For workflow states of type <see cref="Workflow"/>, the workflow manager will show their main screen as
+    /// screen (as opposed to dialog) and prepare menu items.
+    /// </summary>
     Workflow,
+
+    /// <summary>
+    /// For workflow states of type <see cref="Dialog"/>, the workflow manager will show their main screen as
+    /// dialog (as opposed to normal screen) and it won't prepare a menu.
+    /// </summary>
     Dialog,
   }
 
