@@ -22,39 +22,7 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
-
-namespace MediaPortal.Core.Commands
+namespace MediaPortal.Core.General
 {
-  public class MethodDelegateCommand : ICommand
-  {
-    #region Protected fields
-
-    protected ParameterlessMethod _methodDelegate;
-
-    #endregion
-
-    public MethodDelegateCommand(ParameterlessMethod methodDelegate)
-    {
-      _methodDelegate = methodDelegate;
-    }
-
-    #region ICommand implementation
-
-    public void Execute()
-    {
-      try
-      {
-        _methodDelegate();
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
-      }
-    }
-
-    #endregion
-  }
+  public delegate void ParameterlessMethod();
 }

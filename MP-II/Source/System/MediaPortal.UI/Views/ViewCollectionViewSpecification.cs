@@ -23,7 +23,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 using System;
 
@@ -32,24 +31,19 @@ namespace MediaPortal.UI.Views
   /// <summary>
   /// View specification which defining a view which only contains a configurable list of subviews and no media items.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
-  /// If changed, this has to be taken into consideration.
-  /// </para>
-  /// </remarks>
   public class ViewCollectionViewSpecification : ViewSpecification
   {
     #region Protected fields
 
-    protected List<ViewSpecification> _subViews = new List<ViewSpecification>();
+    protected IList<ViewSpecification> _subViews = new List<ViewSpecification>();
 
     #endregion
 
     #region Ctor
 
-    public ViewCollectionViewSpecification(string viewDisplayName, IEnumerable<Guid> mediaItemAspectIds) :
-        base(viewDisplayName, mediaItemAspectIds) { }
+    public ViewCollectionViewSpecification(string viewDisplayName,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
 
     #endregion
 
@@ -65,7 +59,6 @@ namespace MediaPortal.UI.Views
 
     #region Base overrides
 
-    [XmlIgnore]
     public override bool CanBeBuilt
     {
       get { return true; }
@@ -79,25 +72,6 @@ namespace MediaPortal.UI.Views
     protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
       return _subViews;
-    }
-
-    #endregion
-
-    #region Additional members for the XML serialization
-
-    internal ViewCollectionViewSpecification() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlArray("SubViews", IsNullable = false)]
-    [XmlArrayItem("LocalDirectoryViewSpecification", typeof(LocalDirectoryViewSpecification))]
-    [XmlArrayItem("MediaLibraryViewSpecification", typeof(MediaLibraryViewSpecification))]
-    [XmlArrayItem("ViewCollectionViewSpecification", typeof(ViewCollectionViewSpecification))]
-    public List<ViewSpecification> XML_SubViews
-    {
-      get { return _subViews; }
-      set { _subViews = value; }
     }
 
     #endregion

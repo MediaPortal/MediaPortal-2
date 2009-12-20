@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
@@ -34,25 +33,20 @@ namespace MediaPortal.UI.Views
   /// <summary>
   /// View which is based on a media library query.
   /// </summary>
-  /// <remarks>
-  /// <para>
-  /// Note: This class is serialized/deserialized by the <see cref="XmlSerializer"/>.
-  /// If changed, this has to be taken into consideration.
-  /// </para>
-  /// </remarks>
   public class MediaLibraryViewSpecification : ViewSpecification
   {
     #region Protected fields
 
     protected MediaItemQuery _query;
-    protected List<MediaLibraryViewSpecification> _subViews;
+    protected IList<MediaLibraryViewSpecification> _subViews;
 
     #endregion
 
     #region Ctor
 
-    public MediaLibraryViewSpecification(string viewDisplayName, MediaItemQuery query, IEnumerable<Guid> mediaItemAspectIds) :
-        base(viewDisplayName, mediaItemAspectIds)
+    public MediaLibraryViewSpecification(string viewDisplayName, MediaItemQuery query,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
       _query = query;
     }
@@ -62,13 +56,11 @@ namespace MediaPortal.UI.Views
     /// <summary>
     /// Returns a list of all sub query view specifications of this view specification.
     /// </summary>
-    [XmlIgnore]
     public IList<MediaLibraryViewSpecification> SubViewSpecifications
     {
       get { return _subViews; }
     }
 
-    [XmlIgnore]
     public override bool CanBeBuilt
     {
       get
@@ -90,35 +82,5 @@ namespace MediaPortal.UI.Views
       CollectionUtils.AddAll(result, _subViews);
       return result;
     }
-
-    #region Additional members for the XML serialization
-
-    // Serialization of media library views works like this:
-    // The top media library view serializes the query hierarchy. The sub views are
-    // rebuilt dynamically.
-
-    internal MediaLibraryViewSpecification() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("Query", IsNullable = false)]
-    public MediaItemQuery XML_Query
-    {
-      get { return _query; }
-      set { _query = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlArray("SubViews", IsNullable = false)]
-    public List<MediaLibraryViewSpecification> XML_SubViews
-    {
-      get { return _subViews; }
-      set { _subViews = value; }
-    }
-
-    #endregion
   }
 }

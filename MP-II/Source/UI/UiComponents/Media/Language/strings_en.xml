@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Language>
   <Section Name="Media">
-    <String Name="LocalMedia" Text="Local media"/>
+    <String Name="LocalMediaMenuItem" Text="Local media"/>
+    <String Name="MusicMenuItem" Text="Music"/>
+    <String Name="MoviesMenuItem" Text="Movies"/>
+    <String Name="PicturesMenuItem" Text="Pictures"/>
+    <String Name="LocalMediaTitle" Text="Local media"/>
+    <String Name="MusicTitle" Text="Music"/>
+    <String Name="MoviesTitle" Text="Movies"/>
+    <String Name="PicturesTitle" Text="Pictures"/>
     <String Name="ViewInvalid" Text="This view is invalid"/>
     <String Name="ViewEmpty" Text="&lt;No contents in this view&gt;"/>
 
@@ -21,6 +28,23 @@
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
 
-    <String Name="LocalMediaViewName" Text="Local media"/>
+    <String Name="LocalMediaRootViewName" Text="Local media"/>
+    <String Name="MusicRootViewName" Text="Music"/>
+    <String Name="MoviesRootViewName" Text="Movies"/>
+    <String Name="PicturesRootViewName" Text="Pictures"/>
+
+    <String Name="FilterByArtistMode" Text="Filter by artist"/>
+    <String Name="FilterByAlbumMode" Text="Filter by album"/>
+    <String Name="FilterByMusicGenreMode" Text="Filter by genre"/>
+    <String Name="FilterByDecadeMode" Text="Filter by decade"/>
+    <String Name="FilterByYearMode" Text="Filter by year"/>
+    <String Name="FilterByActorMode" Text="Filter by actor"/>
+    <String Name="FilterByMovieGenreMode" Text="Filter by genre"/>
+    <String Name="FilterByPictureSizeMode" Text="Filter by size"/>
+    <String Name="SimpleSearchFilterMode" Text="Search"/>
+    <String Name="ExtendedSearchFilterMode" Text="Extended search"/>
+    <String Name="ShowAllMusicItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered music items -->
+    <String Name="ShowAllMovieItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered movie items -->
+    <String Name="ShowAllPictureItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered picture items -->
   </Section>
 </Language>

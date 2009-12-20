@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 
@@ -45,22 +44,21 @@ namespace MediaPortal.UI.Views
   /// Views are built on demand from a <see cref="ViewSpecification"/> which comes from a media module. Some media
   /// modules might persist their configured <see cref="ViewSpecification"/> structure by their own.
   /// </para>
-  /// <para>
-  /// Note: This class and its subclasses are serialized/deserialized by the <see cref="XmlSerializer"/>.
-  /// If changed, this has to be taken into consideration.
-  /// </para>
   /// </remarks>
   public abstract class ViewSpecification
   {
     protected string _viewDisplayName;
-    protected HashSet<Guid> _mediaItemAspectIds;
+    protected ICollection<Guid> _necessaryMIATypeIds;
+    protected ICollection<Guid> _optionalMIATypeIds;
 
-    protected ViewSpecification(string viewDisplayName, IEnumerable<Guid> mediaItemAspectIds)
+    protected ViewSpecification(string viewDisplayName,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
     {
       _viewDisplayName = viewDisplayName;
-      _mediaItemAspectIds = new HashSet<Guid>(mediaItemAspectIds);
-      if (!_mediaItemAspectIds.Contains(ProviderResourceAspect.ASPECT_ID))
-        _mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
+      _necessaryMIATypeIds = new HashSet<Guid>(necessaryMIATypeIds);
+      _optionalMIATypeIds = new HashSet<Guid>(optionalMIATypeIds);
+      if (!_necessaryMIATypeIds.Contains(ProviderResourceAspect.ASPECT_ID))
+        _necessaryMIATypeIds.Add(ProviderResourceAspect.ASPECT_ID);
     }
 
     /// <summary>
@@ -72,17 +70,24 @@ namespace MediaPortal.UI.Views
     }
 
     /// <summary>
-    /// Returns the media item aspects whose data is contained in this view.
+    /// Returns the IDs of media item aspects which need to be present in all media items contained in this view.
     /// </summary>
-    public ICollection<Guid> MediaItemAspectIds
+    public ICollection<Guid> NecessaryMIATypeIds
     {
-      get { return _mediaItemAspectIds; }
+      get { return _necessaryMIATypeIds; }
+    }
+
+    /// <summary>
+    /// Returns the IDs of media item aspects which may be present in all media items contained in this view.
+    /// </summary>
+    public ICollection<Guid> OptionalMIATypeIds
+    {
+      get { return _optionalMIATypeIds; }
     }
 
     /// <summary>
     /// Returns the display name of the created view.
     /// </summary>
-    [XmlIgnore]
     public virtual string ViewDisplayName
     {
       get { return _viewDisplayName; }
@@ -124,31 +129,5 @@ namespace MediaPortal.UI.Views
     /// <returns>Sub views of a view specified by this specification.</returns>
     /// <exception cref="Exception">If there are problems accessing the datasource of this view.</exception>
     protected internal abstract IEnumerable<ViewSpecification> ReLoadSubViewSpecifications();
-
-    #region Additional members for the XML serialization
-
-    internal ViewSpecification() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("ViewDisplayName", IsNullable = false)]
-    public string XML_ViewDisplayName
-    {
-      get { return _viewDisplayName; }
-      set { _viewDisplayName = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlArray("MediaItemAspectIds")]
-    public HashSet<Guid> XML_MediaItemAspectIds
-    {
-      get { return _mediaItemAspectIds; }
-      set { _mediaItemAspectIds = value; }
-    }
-
-    #endregion
   }
 }

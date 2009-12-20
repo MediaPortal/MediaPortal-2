@@ -62,16 +62,35 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\MediaModel.cs" />
-    <Compile Include="NavigationItem.cs" />
-    <Compile Include="PlayableItem.cs" />
+    <Compile Include="Navigation\PictureItem.cs" />
+    <Compile Include="Navigation\MovieItem.cs" />
+    <Compile Include="Navigation\MediaNavigationMode.cs" />
+    <Compile Include="Navigation\NavigationItem.cs" />
+    <Compile Include="Navigation\PlayableItem.cs" />
+    <Compile Include="Navigation\MusicItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\VideoPlayerModel.cs" />
     <Compile Include="Models\AudioPlayerModel.cs" />
+    <Compile Include="FilterCriteria\FilterByDecadeCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByPictureSizeCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterByYearCriterion.cs" />
+    <Compile Include="FilterCriteria\FilterValue.cs" />
+    <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
+    <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\screens\media.xaml" />
+    <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
+    <Content Include="Skin\default\screens\MusicShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\MoviesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\PicturesShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />

@@ -22,39 +22,33 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
-
-namespace MediaPortal.Core.Commands
+namespace UiComponents.Media.Navigation
 {
-  public class MethodDelegateCommand : ICommand
+  /// <summary>
+  /// Represents different modes, the media model can look for the user. Basically, each of those modes determines
+  /// which screen to show, for example to show media items of a special type or to show a choice of values for a
+  /// special filter criterion.
+  /// </summary>
+  public enum MediaNavigationMode
   {
-    #region Protected fields
-
-    protected ParameterlessMethod _methodDelegate;
-
-    #endregion
-
-    public MethodDelegateCommand(ParameterlessMethod methodDelegate)
-    {
-      _methodDelegate = methodDelegate;
-    }
-
-    #region ICommand implementation
-
-    public void Execute()
-    {
-      try
-      {
-        _methodDelegate();
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
-      }
-    }
-
-    #endregion
+    LocalMedia,
+    MusicShowItems,
+    MusicFilterByArtist,
+    MusicFilterByAlbum,
+    MusicFilterByGenre,
+    MusicFilterByDecade,
+    MusicSimpleSearch,
+    MusicExtendedSearch,
+    MoviesShowItems,
+    MoviesFilterByActor,
+    MoviesFilterByGenre,
+    MoviesFilterByYear,
+    MoviesSimpleSearch,
+    MoviesExtendedSearch,
+    PicturesShowItems,
+    PicturesFilterByYear,
+    PicturesFilterBySize,
+    PicturesSimpleSearch,
+    PicturesExtendedSearch,
   }
 }

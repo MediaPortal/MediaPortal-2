@@ -22,39 +22,15 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
 
-namespace MediaPortal.Core.Commands
+namespace UiComponents.Media.Navigation
 {
-  public class MethodDelegateCommand : ICommand
+  public class MusicItem : PlayableItem
   {
-    #region Protected fields
-
-    protected ParameterlessMethod _methodDelegate;
-
-    #endregion
-
-    public MethodDelegateCommand(ParameterlessMethod methodDelegate)
+    public MusicItem(MediaItem mediaItem) : base(mediaItem)
     {
-      _methodDelegate = methodDelegate;
+      // TODO: Add more properties for music media item to ListItem
     }
-
-    #region ICommand implementation
-
-    public void Execute()
-    {
-      try
-      {
-        _methodDelegate();
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
-      }
-    }
-
-    #endregion
   }
 }

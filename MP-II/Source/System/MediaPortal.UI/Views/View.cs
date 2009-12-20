@@ -98,16 +98,24 @@ namespace MediaPortal.UI.Views
     }
 
     /// <summary>
-    /// Returns the media item aspects whose data is contained in this view.
+    /// Returns the IDs of media item aspects which are present in all media items of this view.
     /// </summary>
-    public ICollection<Guid> MediaItemAspectIds
+    public ICollection<Guid> NecessaryMIATypeIds
     {
-      get { return _viewSpecification.MediaItemAspectIds; }
+      get { return _viewSpecification.NecessaryMIATypeIds; }
+    }
+
+    /// <summary>
+    /// Returns the IDs of media item aspects which may be present in media items of this view.
+    /// </summary>
+    public ICollection<Guid> OptionalMIATypeIds
+    {
+      get { return _viewSpecification.OptionalMIATypeIds; }
     }
 
     /// <summary>
     /// Returns all media item which contain the media item aspects specified by
-    /// <see cref="ViewSpecification.MediaItemAspectIds"/>.
+    /// <see cref="ViewSpecification.NecessaryMIATypeIds"/>.
     /// </summary>
     public IList<MediaItem> MediaItems
     {
@@ -174,8 +182,7 @@ namespace MediaPortal.UI.Views
       _subViews = new List<View>();
       foreach (ViewSpecification vs in _viewSpecification.ReLoadSubViewSpecifications())
       {
-        View subView = new View(this, vs);
-        subView._displayName = vs.ViewDisplayName;
+        View subView = new View(this, vs) {_displayName = vs.ViewDisplayName};
         _subViews.Add(subView);
       }
     }

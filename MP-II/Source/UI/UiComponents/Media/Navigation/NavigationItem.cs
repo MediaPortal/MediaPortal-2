@@ -25,7 +25,7 @@
 using MediaPortal.UI.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 
-namespace UiComponents.Media
+namespace UiComponents.Media.Navigation
 {
   /// <summary>
   /// Holds a GUI item which encapsulates a view to navigate to.
@@ -33,19 +33,21 @@ namespace UiComponents.Media
   /// <remarks>
   /// Instances of this class represent view items to be displayed in a GUI view's items list.
   /// View's items lists contain view items (<see cref="NavigationItem"/>s) as well as
-  /// Playable items (<see cref="PlayableItem"/>).
+  /// playable items (<see cref="PlayableItem"/>).
   /// </remarks>
   public class NavigationItem : ListItem
   {
     #region Protected fields
 
+    protected MediaNavigationMode _navigationMode;
     protected View _view;
     protected string _overrideName;
 
     #endregion
 
-    public NavigationItem(View view, string overrideName)
+    public NavigationItem(MediaNavigationMode navigationMode, View view, string overrideName)
     {
+      _navigationMode = navigationMode;
       _view = view;
       _overrideName = overrideName;
       UpdateData();
@@ -63,6 +65,11 @@ namespace UiComponents.Media
     public View View
     {
       get { return _view; }
+    }
+
+    public MediaNavigationMode NavigationMode
+    {
+      get { return _navigationMode; }
     }
   }
 }

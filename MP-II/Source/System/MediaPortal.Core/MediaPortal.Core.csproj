@@ -47,6 +47,7 @@
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\MethodDelegateCommand.cs" />
+    <Compile Include="General\ParameterlessMethod.cs" />
     <Compile Include="Configuration\ConfigBase.cs" />
     <Compile Include="Configuration\ConfigBaseMetadata.cs" />
     <Compile Include="Configuration\ConfigGroup.cs" />

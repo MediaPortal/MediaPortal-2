@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Shares;
@@ -38,14 +37,14 @@ namespace MediaPortal.UI.Views
   {
     #region Ctor
 
-    public LocalSharesViewSpecification(string viewDisplayName, IEnumerable<Guid> mediaItemAspectIds) :
-        base(viewDisplayName, mediaItemAspectIds) { }
+    public LocalSharesViewSpecification(string viewDisplayName,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds) { }
 
     #endregion
 
     #region Base overrides
 
-    [XmlIgnore]
     public override bool CanBeBuilt
     {
       get { return true; }
@@ -61,15 +60,10 @@ namespace MediaPortal.UI.Views
       ILocalSharesManagement sharesManagement = ServiceScope.Get<ILocalSharesManagement>();
       foreach (Share share in sharesManagement.Shares.Values)
       {
-        yield return new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath, _mediaItemAspectIds);
+        yield return new LocalDirectoryViewSpecification(share.Name, share.BaseResourcePath,
+            _necessaryMIATypeIds, _optionalMIATypeIds);
       }
     }
-
-    #endregion
-
-    #region Additional members for the XML serialization
-
-    internal LocalSharesViewSpecification() { }
 
     #endregion
   }

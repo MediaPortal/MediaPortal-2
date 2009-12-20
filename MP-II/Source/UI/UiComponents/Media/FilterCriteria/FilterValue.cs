@@ -22,39 +22,41 @@
 
 #endregion
 
-using System;
-using MediaPortal.Core.General;
-using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement.MLQueries;
 
-namespace MediaPortal.Core.Commands
+namespace UiComponents.Media.FilterCriteria
 {
-  public class MethodDelegateCommand : ICommand
+  public class FilterValue
   {
-    #region Protected fields
+    protected string _title;
+    protected object _value;
+    protected MLFilterCriterion _criterion;
 
-    protected ParameterlessMethod _methodDelegate;
-
-    #endregion
-
-    public MethodDelegateCommand(ParameterlessMethod methodDelegate)
+    public FilterValue(string title, object value, MLFilterCriterion criterion)
     {
-      _methodDelegate = methodDelegate;
+      _title = title;
+      _value = value;
+      _criterion = criterion;
     }
 
-    #region ICommand implementation
-
-    public void Execute()
+    public string Title
     {
-      try
-      {
-        _methodDelegate();
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("MethodDelegateCommand: Error executing method delegate", ex);
-      }
+      get { return _title; }
     }
 
-    #endregion
+    public object Value
+    {
+      get { return _value; }
+    }
+
+    public MLFilterCriterion Criterion
+    {
+      get { return _criterion; }
+    }
+
+    public IFilter Filter
+    {
+      get { return _criterion.CreateFilter(this); }
+    }
   }
 }

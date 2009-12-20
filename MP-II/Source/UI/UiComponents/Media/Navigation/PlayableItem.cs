@@ -26,7 +26,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.DataObjects;
 
-namespace UiComponents.Media
+namespace UiComponents.Media.Navigation
 {
   /// <summary>
   /// Holds a GUI item which encapsulates a playable media item.
@@ -34,7 +34,7 @@ namespace UiComponents.Media
   /// <remarks>
   /// Instances of this class represent playable items to be displayed in a GUI view's items list.
   /// View's items lists contain view items (<see cref="NavigationItem"/>s) as well as
-  /// Playable items (<see cref="PlayableItem"/>).
+  /// playable items (<see cref="PlayableItem"/>).
   /// </remarks>
   public class PlayableItem : ListItem
   {
@@ -47,13 +47,7 @@ namespace UiComponents.Media
     public PlayableItem(MediaItem mediaItem)
     {
       _mediaItem = mediaItem;
-      UpdateData();
-    }
-
-    public void UpdateData()
-    {
       SetLabel("Name", _mediaItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string);
-      // TODO: Other properties
       // TODO: Open ListItem to store ints (rating), dates (Date) and other objects in ListItems
     }
 

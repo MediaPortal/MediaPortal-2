@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
@@ -59,16 +58,16 @@ namespace MediaPortal.UI.Views
     /// <param name="overrideName">Overridden name for the view. If not set, the resource name of the specified
     /// <paramref name="viewPath"/> will be used as <see cref="ViewDisplayName"/>.</param>
     /// <param name="viewPath">Path of a directory in a local filesystem provider.</param>
-    /// <param name="mediaItemAspectIds">Ids of the media item aspects which should be extracted for all items and
+    /// <param name="necessaryMIATypeIds">Ids of the media item aspect types which should be extracted for all items and
+    /// sub views of this view.</param>
+    /// <param name="optionalMIATypeIds">Ids of the media item aspect types which may be extracted for items and
     /// sub views of this view.</param>
     internal LocalDirectoryViewSpecification(string overrideName, ResourcePath viewPath,
-        IEnumerable<Guid> mediaItemAspectIds) : base(null, mediaItemAspectIds)
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
+        base(null, necessaryMIATypeIds, optionalMIATypeIds)
     {
       _overrideName = overrideName;
       _viewPath = viewPath;
-      CollectionUtils.AddAll(_mediaItemAspectIds, mediaItemAspectIds);
-      if (!_mediaItemAspectIds.Contains(ProviderResourceAspect.ASPECT_ID))
-        _mediaItemAspectIds.Add(ProviderResourceAspect.ASPECT_ID);
       UpdateDisplayName();
     }
 
@@ -77,7 +76,6 @@ namespace MediaPortal.UI.Views
     /// <summary>
     /// Returns the resource path of the directory of this view.
     /// </summary>
-    [XmlIgnore]
     public ResourcePath ViewPath
     {
       get { return _viewPath; }
@@ -87,7 +85,6 @@ namespace MediaPortal.UI.Views
     /// Returns the display name which overrides the default (created) display name. This can be
     /// useful for shares root directories.
     /// </summary>
-    [XmlElement("OverrideName")]
     public string OverrideName
     {
       get { return _overrideName; }
@@ -100,7 +97,6 @@ namespace MediaPortal.UI.Views
 
     #region Base overrides
 
-    [XmlIgnore]
     public override string ViewDisplayName
     {
       get
@@ -111,7 +107,6 @@ namespace MediaPortal.UI.Views
       }
     }
 
-    [XmlIgnore]
     public override bool CanBeBuilt
     {
       get { return _viewPath.IsValidLocalPath; }
@@ -122,9 +117,11 @@ namespace MediaPortal.UI.Views
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       ICollection<Guid> metadataExtractorIds = new List<Guid>();
+      ICollection<Guid> miaTypeIDs = new HashSet<Guid>(_necessaryMIATypeIds);
+      CollectionUtils.AddAll(miaTypeIDs, _optionalMIATypeIds);
       foreach (KeyValuePair<Guid, IMetadataExtractor> extractor in mediaAccessor.LocalMetadataExtractors)
         // Collect all metadata extractors which fill our desired media item aspects
-        if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, _mediaItemAspectIds))
+        if (CollectionUtils.HasIntersection(extractor.Value.Metadata.ExtractedAspectTypes.Keys, miaTypeIDs))
           metadataExtractorIds.Add(extractor.Key);
       IResourceAccessor baseResourceAccessor = _viewPath.CreateLocalMediaItemAccessor();
       // Add all items at the specified path
@@ -146,7 +143,7 @@ namespace MediaPortal.UI.Views
       if (directories != null)
         foreach (IFileSystemResourceAccessor childDirectory in directories)
           yield return new LocalDirectoryViewSpecification(null, childDirectory.LocalResourcePath,
-              _mediaItemAspectIds);
+              _necessaryMIATypeIds, _optionalMIATypeIds);
     }
 
     #endregion
@@ -184,26 +181,5 @@ namespace MediaPortal.UI.Views
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, mediaItemAccessor.LocalResourcePath.Serialize());
       return new MediaItem(aspects);
     }
-
-    #region Additional members for the XML serialization
-
-    // Serialization of local share views works like this:
-    // The first (upper) local share view will be serialized by the data denoted below.
-    // The deeper views won't be serialized as they are re-created dynamically the next time
-    // the system starts.
-
-    internal LocalDirectoryViewSpecification() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("ViewPath", IsNullable = false)]
-    public string XML_ViewPath
-    {
-      get { return _viewPath.Serialize(); }
-      set { _viewPath = ResourcePath.Deserialize(value); }
-    }
-
-    #endregion
   }
 }

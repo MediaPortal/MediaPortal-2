@@ -26,38 +26,80 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
+using MediaPortal.Core.Localization;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
+using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.Views;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Utilities;
+using UiComponents.Media.Navigation;
 
 namespace UiComponents.Media.Models
 {
   /// <summary>
   /// Model which holds the GUI state for the current navigation in the media views.
   /// </summary>
+  /// <remarks>
+  /// The media model attends all media navigation workflow states. It can handle the local media navigation as well as
+  /// media library based music, movies and pictures navigation. For each of those modes, there exists an own workflow
+  /// state which represents the according root view. So when navigating to the root view state for the music navigation,
+  /// this model will show the music navigation screen with a view representing the complete music contents of the media
+  /// library, for example.
+  /// </remarks>
   public class MediaModel : IWorkflowModel
   {
     #region Consts
 
+    // Global ID definitions and references
     public const string MEDIA_MODEL_ID_STR = "4CDD601F-E280-43b9-AD0A-6D7B2403C856";
 
     public const string MUSIC_MODULE_ID_STR = "53130C0E-D19C-4972-92F4-DB6665E51CBC";
     public const string VIDEO_MODULE_ID_STR = "BB5362E4-3723-4a11-A989-A4B01ECCEB14";
     public const string PICTURE_MODULE_ID_STR = "DE0A2E53-1898-4e50-B27F-8652C3D11EDF";
 
-    public const string MEDIA_MAIN_SCREEN = "media";
+    public const string LOCAL_MEDIA_NAVIGATION_ROOT_STATE_STR = "B393C6D8-9F37-4481-B403-0D5B17F52EC8";
+    public const string MUSIC_NAVIGATION_ROOT_STATE_STR = "F2AAEBC6-BFB0-42c8-9C80-0A98BA67A7EB";
+    public const string MOVIES_NAVIGATION_ROOT_STATE_STR = "22ED8702-3887-4acb-ACB4-30965220AFF0";
+    public const string PICTURES_NAVIGATION_ROOT_STATE_STR = "76019AEB-3445-4da9-9A10-63A87549A7CF";
 
+    // ID variables
+    public static readonly Guid MUSIC_MODULE_ID = new Guid(MUSIC_MODULE_ID_STR);
+    public static readonly Guid VIDEO_MODULE_ID = new Guid(VIDEO_MODULE_ID_STR);
+    public static readonly Guid PICTURE_MODULE_ID = new Guid(PICTURE_MODULE_ID_STR);
+
+    public static readonly Guid LOCAL_MEDIA_NAVIGATION_ROOT_STATE = new Guid(LOCAL_MEDIA_NAVIGATION_ROOT_STATE_STR);
+    public static readonly Guid MUSIC_NAVIGATION_ROOT_STATE = new Guid(MUSIC_NAVIGATION_ROOT_STATE_STR);
+    public static readonly Guid MOVIES_NAVIGATION_ROOT_STATE = new Guid(MOVIES_NAVIGATION_ROOT_STATE_STR);
+    public static readonly Guid PICTURES_NAVIGATION_ROOT_STATE = new Guid(PICTURES_NAVIGATION_ROOT_STATE_STR);
+
+    public static readonly Guid CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID = VideoPlayerModel.CURRENTLY_PLAYING_STATE_ID;
+    public static readonly Guid FULLSCREEN_VIDEO_WORKFLOW_STATE_ID = VideoPlayerModel.FULLSCREEN_CONTENT_STATE_ID;
+
+    public static readonly Guid CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID = AudioPlayerModel.CURRENTLY_PLAYING_STATE_ID;
+    public static readonly Guid FULLSCREEN_AUDIO_WORKFLOW_STATE_ID = AudioPlayerModel.FULLSCREEN_CONTENT_STATE_ID;
+
+    // Keys for workflow state variables
+    protected const string NAVIGATION_MODE_KEY = "MediaModel: NAVIGATION_MODE";
     protected const string VIEW_KEY = "MediaModel: VIEW";
+    protected const string MENU_ITEMS_KEY = "MediaModel: MENU_ITEMS";
+    protected const string HAS_PARENT_DIRECTORY_KEY = "MediaModel: HAS_PARENT_DIRECTORY";
+    protected const string IS_VIEW_VALID_KEY = "MediaModel: IS_VIEW_VALID";
+    protected const string IS_VIEW_EMPTY_KEY = "MediaModel: IS_VIEW_EMPTY";
+    protected const string DYNAMIC_MODES_KEY = "MediaModel: DYNAMIC_MODES";
+    protected const string SCREEN_KEY = "MediaModel: SCREEN";
+    protected const string DYNAMIC_WORKFLOW_ACTIONS_KEY = "MediaModel: DYNAMIC_WORKFLOW_ACTIONS";
 
     // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
     public const string MEDIA_ITEM_KEY = "MediaItem";
 
+    // Localization resource identifiers
     public const string PLAY_AUDIO_ITEM_RESOURCE = "[Media.PlayAudioItem]";
     public const string ENQUEUE_AUDIO_ITEM_RESOURCE = "[Media.EnqueueAudioItem]";
     public const string MUTE_VIDEO_PLAY_AUDIO_ITEM_RESOURCE = "[Media.MuteVideoAndPlayAudioItem]";
@@ -74,63 +116,96 @@ namespace UiComponents.Media.Models
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
     public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
 
-    public const string LOCAL_MEDIA_VIEW_NAME_RESOURCE = "[Media.LocalMediaViewName]";
+    public const string LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE = "[Media.LocalMediaRootViewName]";
+    public const string MUSIC_VIEW_NAME_RESOURCE = "[Media.MusicRootViewName]";
+    public const string MOVIES_VIEW_NAME_RESOURCE = "[Media.MoviesRootViewName]";
+    public const string PICTURES_VIEW_NAME_RESOURCE = "[Media.PicturesRootViewName]";
 
+    public const string FILTER_BY_ARTIST_MODE_RESOURCE = "[Media.FilterByArtistMode]";
+    public const string FILTER_BY_ALBUM_MODE_RESOURCE = "[Media.FilterByAlbumMode]";
+    public const string FILTER_BY_MUSIC_GENRE_MODE_RESOURCE = "[Media.FilterByMusicGenreMode]";
+    public const string FILTER_BY_DECADE_MODE_RESOURCE = "[Media.FilterByDecadeMode]";
+    public const string FILTER_BY_YEAR_MODE_RESOURCE = "[Media.FilterByYearMode]";
+    public const string FILTER_BY_ACTOR_MODE_RESOURCE = "[Media.FilterByActorMode]";
+    public const string FILTER_BY_MOVIE_GENRE_MODE_RESOURCE = "[Media.FilterByMovieGenreMode]";
+    public const string FILTER_BY_PICTURE_SIZE_MODE_RESOURCE = "[Media.FilterByPictureSizeMode]";
+    public const string SIMPLE_SEARCH_FILTER_MODE_RESOURCE = "[Media.SimpleSearchFilterMode]";
+    public const string EXTENDED_SEARCH_FILTER_MODE_RESOURCE = "[Media.ExtendedSearchFilterMode]";
+    public const string SHOW_ALL_MUSIC_ITEMS_MODE_RESOURCE = "[Media.ShowAllMusicItemsMode]";
+    public const string SHOW_ALL_MOVIE_ITEMS_MODE_RESOURCE = "[Media.ShowAllMovieItemsMode]";
+    public const string SHOW_ALL_PICTURE_ITEMS_MODE_RESOURCE = "[Media.ShowAllPictureItemsMode]";
+
+    public static readonly IDictionary<MediaNavigationMode, string> DYNAMIC_ACTION_TITLES =
+        new Dictionary<MediaNavigationMode, string>
+      {
+        {MediaNavigationMode.LocalMedia, null},
+        {MediaNavigationMode.MusicShowItems, SHOW_ALL_MUSIC_ITEMS_MODE_RESOURCE},
+        {MediaNavigationMode.MusicFilterByArtist, FILTER_BY_ARTIST_MODE_RESOURCE},
+        {MediaNavigationMode.MusicFilterByAlbum, FILTER_BY_ALBUM_MODE_RESOURCE},
+        {MediaNavigationMode.MusicFilterByGenre, FILTER_BY_MUSIC_GENRE_MODE_RESOURCE},
+        {MediaNavigationMode.MusicFilterByDecade, FILTER_BY_DECADE_MODE_RESOURCE},
+        {MediaNavigationMode.MusicSimpleSearch, SIMPLE_SEARCH_FILTER_MODE_RESOURCE},
+        {MediaNavigationMode.MusicExtendedSearch, EXTENDED_SEARCH_FILTER_MODE_RESOURCE},
+        {MediaNavigationMode.MoviesShowItems, SHOW_ALL_MOVIE_ITEMS_MODE_RESOURCE},
+        {MediaNavigationMode.MoviesFilterByActor, FILTER_BY_ACTOR_MODE_RESOURCE},
+        {MediaNavigationMode.MoviesFilterByGenre, FILTER_BY_MOVIE_GENRE_MODE_RESOURCE},
+        {MediaNavigationMode.MoviesFilterByYear, FILTER_BY_YEAR_MODE_RESOURCE},
+        {MediaNavigationMode.MoviesSimpleSearch, SIMPLE_SEARCH_FILTER_MODE_RESOURCE},
+        {MediaNavigationMode.MoviesExtendedSearch, EXTENDED_SEARCH_FILTER_MODE_RESOURCE},
+        {MediaNavigationMode.PicturesShowItems, SHOW_ALL_PICTURE_ITEMS_MODE_RESOURCE},
+        {MediaNavigationMode.PicturesFilterByYear, FILTER_BY_YEAR_MODE_RESOURCE},
+        {MediaNavigationMode.PicturesFilterBySize, FILTER_BY_PICTURE_SIZE_MODE_RESOURCE},
+        {MediaNavigationMode.PicturesSimpleSearch, SIMPLE_SEARCH_FILTER_MODE_RESOURCE},
+        {MediaNavigationMode.PicturesExtendedSearch, EXTENDED_SEARCH_FILTER_MODE_RESOURCE}
+      };
+
+    public const string FILTERS_WORKFLOW_CATEGORY = "a-Filters";
+    public const string STATIC_ACTIONS_WORKFLOW_CATEGORY = "b-Static";
+
+    // Screens
+    public const string LOCAL_MEDIA_NAVIGATION_SCREEN = "LocalMediaNavigation";
+    public const string MUSIC_SHOW_ITEMS_SCREEN = "MusicShowItems";
+    public const string MUSIC_FILTER_BY_ARTIST_SCREEN = ""; // TODO
+    public const string MUSIC_FILTER_BY_ALBUM_SCREEN = ""; // TODO
+    public const string MUSIC_FILTER_BY_GENRE_SCREEN = ""; // TODO
+    public const string MUSIC_FILTER_BY_DECADE_SCREEN = ""; // TODO
+    public const string MUSIC_SIMPLE_SEARCH_SCREEN = ""; // TODO
+    public const string MUSIC_EXTENDED_SEARCH_SCREEN = ""; // TODO
+    public const string MOVIES_SHOW_ITEMS_SCREEN = "MoviesShowItems";
+    public const string MOVIES_FILTER_BY_ACTOR_SCREEN = ""; // TODO
+    public const string MOVIES_FILTER_BY_GENRE_SCREEN = ""; // TODO
+    public const string MOVIES_FILTER_BY_YEAR_SCREEN = ""; // TODO
+    public const string MOVIES_SIMPLE_SEARCH_SCREEN = ""; // TODO
+    public const string MOVIES_EXTENDED_SEARCH_SCREEN = ""; // TODO
+    public const string PICTURES_SHOW_ITEMS_SCREEN = "PicturesShowItems";
+    public const string PICTURES_FILTER_BY_YEAR_SCREEN = ""; // TODO
+    public const string PICTURES_FILTER_BY_SIZE_SCREEN = ""; // TODO
+    public const string PICTURESS_SIMPLE_SEARCH_SCREEN = ""; // TODO
+    public const string PICTURES_EXTENDED_SEARCH_SCREEN = ""; // TODO
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
-
-    public static Guid MUSIC_MODULE_ID = new Guid(MUSIC_MODULE_ID_STR);
-    public static Guid VIDEO_MODULE_ID = new Guid(VIDEO_MODULE_ID_STR);
-    public static Guid PICTURE_MODULE_ID = new Guid(PICTURE_MODULE_ID_STR);
-
-    public static Guid CURRENTLY_PLAYING_VIDEO_WORKFLOW_STATE_ID = VideoPlayerModel.CURRENTLY_PLAYING_STATE_ID;
-    public static Guid FULLSCREEN_VIDEO_WORKFLOW_STATE_ID = VideoPlayerModel.FULLSCREEN_CONTENT_STATE_ID;
-
-    public static Guid CURRENTLY_PLAYING_AUDIO_WORKFLOW_STATE_ID = AudioPlayerModel.CURRENTLY_PLAYING_STATE_ID;
-    public static Guid FULLSCREEN_AUDIO_WORKFLOW_STATE_ID = AudioPlayerModel.FULLSCREEN_CONTENT_STATE_ID;
 
     #endregion
 
     #region Protected fields
 
-    protected ViewSpecification _rootViewSpecification;
-
-    // Media screen
-    protected ItemsList _mediaItems = null;
-    protected View _currentView;
-    protected bool _hasParentDirectory;
+    // Screen data is stored in current navigation context
+    protected NavigationContext _currentNavigationContext = null;
 
     // Play menu
     protected ItemsList _playMenuItems = null;
 
     #endregion
 
-    public MediaModel()
+    public MediaNavigationMode Mode
     {
-      _rootViewSpecification = new LocalSharesViewSpecification(LOCAL_MEDIA_VIEW_NAME_RESOURCE, new Guid[]
-        {
-          ProviderResourceAspect.ASPECT_ID,
-          MediaAspect.ASPECT_ID,
-        });
-      _hasParentDirectory = false;
+      get { return GetFromCurrentContext(NAVIGATION_MODE_KEY, false, MediaNavigationMode.LocalMedia); }
+      internal set { SetInCurrentContext(NAVIGATION_MODE_KEY, value); }
     }
 
-    /// <summary>
-    /// Provides a list with the sub views and media items of the current view.
-    /// Note: This <see cref="MediaItems"/> list doesn't contain an item to navigate to the parent view.
-    /// It is job of the skin to provide a means to navigate to the parent view.
-    /// </summary>
-    public ItemsList MediaItems
+    public string Screen
     {
-      get { return _mediaItems; }
-    }
-
-    /// <summary>
-    /// Gets the information whether the current view has a navigatable parent view.
-    /// </summary>
-    public bool HasParentDirectory
-    {
-      get { return _hasParentDirectory; }
-      set { _hasParentDirectory = value; }
+      get { return GetFromCurrentContext<string>(SCREEN_KEY, false); }
+      internal set { SetInCurrentContext(SCREEN_KEY, value); }
     }
 
     /// <summary>
@@ -138,8 +213,59 @@ namespace UiComponents.Media.Models
     /// </summary>
     public View CurrentView
     {
-      get { return _currentView; }
-      set { _currentView = value; }
+      get { return GetFromCurrentContext<View>(VIEW_KEY, false); }
+      internal set { SetInCurrentContext(VIEW_KEY, value); }
+    }
+
+    /// <summary>
+    /// Provides a list with the sub views and media items of the current view.
+    /// Note: This <see cref="MediaItems"/> list doesn't contain an item to navigate to the parent view.
+    /// It is job of the skin to provide a means to navigate a level up.
+    /// </summary>
+    public ItemsList MediaItems
+    {
+      get { return GetFromCurrentContext<ItemsList>(MENU_ITEMS_KEY, false); }
+      internal set { SetInCurrentContext(MENU_ITEMS_KEY, value); }
+    }
+
+    /// <summary>
+    /// Gets the information whether the current view has a navigatable parent view.
+    /// </summary>
+    public bool HasParentDirectory
+    {
+      get { return GetFromCurrentContext(HAS_PARENT_DIRECTORY_KEY, false, false); }
+      internal set { SetInCurrentContext(HAS_PARENT_DIRECTORY_KEY, value); }
+    }
+
+    /// <summary>
+    /// Gets the information whether the current view is valid, i.e. its content could be built and <see cref="MediaItems"/>
+    /// contains the items of the current view.
+    /// </summary>
+    public bool IsViewValid
+    {
+      get { return GetFromCurrentContext(IS_VIEW_VALID_KEY, false, false); }
+      internal set { SetInCurrentContext(IS_VIEW_VALID_KEY, value); }
+    }
+
+    /// <summary>
+    /// Gets the information whether the current view is empty, i.e. <see cref="MediaItems"/>'s count is <c>0</c>.
+    /// </summary>
+    public bool IsViewEmpty
+    {
+      get { return GetFromCurrentContext(IS_VIEW_EMPTY_KEY, false, false); }
+      internal set { SetInCurrentContext(IS_VIEW_EMPTY_KEY, value); }
+    }
+
+    public ICollection<MediaNavigationMode> AvailableDynamicModes
+    {
+      get { return GetFromCurrentContext<ICollection<MediaNavigationMode>>(DYNAMIC_MODES_KEY, false); }
+      internal set { SetInCurrentContext(DYNAMIC_MODES_KEY, value); }
+    }
+
+    public ICollection<WorkflowAction> DynamicWorkflowActions
+    {
+      get { return GetFromCurrentContext<ICollection<WorkflowAction>>(DYNAMIC_WORKFLOW_ACTIONS_KEY, false); }
+      internal set { SetInCurrentContext(DYNAMIC_WORKFLOW_ACTIONS_KEY, value); }
     }
 
     /// <summary>
@@ -163,7 +289,7 @@ namespace UiComponents.Media.Models
       NavigationItem navigationItem = item as NavigationItem;
       if (navigationItem != null)
       {
-        NavigateToView(navigationItem.View);
+        NavigateToView(navigationItem.NavigationMode, navigationItem.View);
         return;
       }
       PlayableItem playableItem = item as PlayableItem;
@@ -176,28 +302,58 @@ namespace UiComponents.Media.Models
 
     #region Protected methods
 
+    protected MediaNavigationMode? GetMode()
+    {
+      return _currentNavigationContext.GetContextVariable(NAVIGATION_MODE_KEY, false) as MediaNavigationMode?;
+    }
+
+    protected T GetFromCurrentContext<T>(string contextVariableName, bool inheritFromPredecessor) where T : class
+    {
+      return _currentNavigationContext == null ? null :
+          _currentNavigationContext.GetContextVariable(contextVariableName, inheritFromPredecessor) as T;
+    }
+
+    protected T GetFromCurrentContext<T>(string contextVariableName, bool inheritFromPredecessor, T defaultValue) where T : struct
+    {
+      if (_currentNavigationContext == null)
+        return defaultValue;
+      T? result = _currentNavigationContext.GetContextVariable(contextVariableName, inheritFromPredecessor) as T?;
+      return result.HasValue ? result.Value : defaultValue;
+    }
+
+    protected void SetInCurrentContext<T>(string contextVariableName, T value)
+    {
+      if (_currentNavigationContext == null)
+        return;
+      _currentNavigationContext.SetContextVariable(contextVariableName, value);
+    }
+
     /// <summary>
     /// Does the actual work of navigating to the specifield view. This will exchange our
     /// <see cref="CurrentView"/> to the specified <paramref name="view"/> and push a state onto
     /// the workflow manager's navigation stack.
     /// </summary>
+    /// <param name="navigationMode">Mode to be used for the navigation. Determines the screen to be used.</param>
     /// <param name="view">View to navigate to.</param>
-    protected static void NavigateToView(View view)
+    protected static void NavigateToView(MediaNavigationMode navigationMode, View view)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
-          "View: " + view.DisplayName, MEDIA_MAIN_SCREEN, true, WorkflowType.Workflow);
+          "View: " + view.DisplayName, null, true, WorkflowType.Workflow);
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {
-            {VIEW_KEY, view}
+            {NAVIGATION_MODE_KEY, navigationMode},
+            {VIEW_KEY, view},
+            {DYNAMIC_MODES_KEY, null}
         };
       workflowManager.NavigatePushTransient(newState, variables);
     }
 
     /// <summary>
-    /// Checks if we need to show a menu for playing the specified <paramref name="item"/>.
+    /// Checks if we need to show a menu for playing the specified <paramref name="item"/> and shows that
+    /// menu or plays the item, if no menu must be shown.
     /// </summary>
-    /// <param name="item">The item to play.</param>
+    /// <param name="item">The item which was selected to play.</param>
     protected void CheckPlayMenu(MediaItem item)
     {
       IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
@@ -400,28 +556,400 @@ namespace UiComponents.Media.Models
       }
     }
 
-    protected void ReloadItems()
+    protected delegate PlayableItem PlayableItemCreatorDelegate(MediaItem mi);
+
+    protected void ReloadMediaItems(View view, MediaNavigationMode subViewsNavigationMode, PlayableItemCreatorDelegate picd)
     {
       // We need to create a new items list because the reloading of items takes place while the old
       // screen still shows the old items
-      _mediaItems = new ItemsList();
+      ItemsList mediaItems = new ItemsList();
       // TODO: Add the items in a separate job while the UI already shows the new screen
-      View currentView = CurrentView;
-      HasParentDirectory = currentView.ParentView != null;
-      if (currentView.IsValid)
+      HasParentDirectory = view.ParentView != null;
+      if (view.IsValid)
       {
+        IsViewValid = true;
         // Add items for sub views
-        foreach (View subView in currentView.SubViews)
-          _mediaItems.Add(new NavigationItem(subView, null));
-        foreach (MediaItem item in currentView.MediaItems)
-          _mediaItems.Add(new PlayableItem(item));
+        foreach (View subView in view.SubViews)
+          mediaItems.Add(new NavigationItem(subViewsNavigationMode, subView, null));
+        foreach (MediaItem item in view.MediaItems)
+          mediaItems.Add(picd(item));
       }
+      else
+        IsViewValid = false;
+      MediaItems = mediaItems;
     }
 
-    protected View GetViewFromContext(NavigationContext context)
+    protected void ReloadMusicItems(View view, MediaNavigationMode subViewsNavigationMode)
     {
-      View view = context.GetContextVariable(VIEW_KEY, true) as View;
-      return view ?? _rootViewSpecification.BuildRootView();
+      ReloadMediaItems(view, subViewsNavigationMode, mi => new MusicItem(mi));
+    }
+
+    protected void ReloadMovieItems(View view, MediaNavigationMode subViewsNavigationMode)
+    {
+      ReloadMediaItems(view, subViewsNavigationMode, mi => new MovieItem(mi));
+    }
+
+    protected void ReloadPictureItems(View view, MediaNavigationMode subViewsNavigationMode)
+    {
+      ReloadMediaItems(view, subViewsNavigationMode, mi => new PictureItem(mi));
+    }
+
+    protected void ReloadArtists(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadAlbums(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadMusicGenres(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadDecades(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void InitializeMusicSimpleSearch(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void InitializeMusicExtendedSearch(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadActors(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadMovieGenres(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadMovieYears(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void InitializeMoviesSimpleSearch(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void InitializeMoviesExtendedSearch(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadPictureYears(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void ReloadPictureSizes(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void InitializePicturesSimpleSearch(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void InitializePicturesExtendedSearch(ICollection<IFilter> currentFilters)
+    {
+      // TODO
+    }
+
+    protected void PrepareRootState()
+    {
+      // Initialize root media navigation state. We will set up all sub processes for each media navigation mode.
+      // For each step through the media navigation, we divide variables to be set into two categories:
+      // 1) Variables which are initialized by the previous navigation (media navigation mode, view, available dynamic modes)
+      // 2) Variables which are dependent from variables of (1): Workflow actions for filter criteria (depend on available
+      //    dynamic modes), screen and screen data like media items/filter values (depend on media model mode and view)
+      // For the first media model state, we need to initialize the variables (1).
+      Guid currentStateId = _currentNavigationContext.WorkflowState.StateId;
+      ViewSpecification rootViewSpecification;
+      MediaNavigationMode mode;
+      ICollection<MediaNavigationMode> availableDynamicModes = null;
+      // The initial state ID determines the media model mode: Local media, music, movies or pictures
+      if (currentStateId == MUSIC_NAVIGATION_ROOT_STATE)
+      {
+        mode = MediaNavigationMode.MusicFilterByAlbum; // We just initialize an arbitrary mode; maybe we should make the initial mode configurable
+        rootViewSpecification = StackedFiltersMLVS.CreateRootViewSpecification(MUSIC_VIEW_NAME_RESOURCE, new Guid[]
+          {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+          }, new Guid[]
+          {
+              MusicAspect.ASPECT_ID,
+          }, null);
+          availableDynamicModes = new List<MediaNavigationMode>
+            {
+                MediaNavigationMode.MusicFilterByArtist,
+                MediaNavigationMode.MusicFilterByAlbum,
+                MediaNavigationMode.MusicFilterByGenre,
+                MediaNavigationMode.MusicFilterByDecade,
+                MediaNavigationMode.MusicSimpleSearch,
+                MediaNavigationMode.MusicExtendedSearch,
+            };
+      }
+      else if (currentStateId == MOVIES_NAVIGATION_ROOT_STATE)
+      {
+        mode = MediaNavigationMode.MoviesShowItems; // We just initialize an arbitrary mode; maybe we should make the initial mode configurable
+        rootViewSpecification = StackedFiltersMLVS.CreateRootViewSpecification(MOVIES_VIEW_NAME_RESOURCE, new Guid[]
+          {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+          }, new Guid[]
+          {
+              MovieAspect.ASPECT_ID,
+          }, null);
+          availableDynamicModes = new List<MediaNavigationMode>
+          {
+              MediaNavigationMode.MoviesFilterByActor,
+              MediaNavigationMode.MoviesFilterByGenre,
+              MediaNavigationMode.MoviesFilterByYear,
+              MediaNavigationMode.MoviesSimpleSearch,
+              MediaNavigationMode.MoviesExtendedSearch,
+          };
+      }
+      else if (currentStateId == PICTURES_NAVIGATION_ROOT_STATE)
+      {
+        mode = MediaNavigationMode.PicturesFilterByYear; // We just initialize an arbitrary mode; maybe we should make the initial mode configurable
+        rootViewSpecification = StackedFiltersMLVS.CreateRootViewSpecification(PICTURES_VIEW_NAME_RESOURCE, new Guid[]
+          {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+          }, new Guid[]
+          {
+              PictureAspect.ASPECT_ID,
+          }, null);
+          availableDynamicModes = new List<MediaNavigationMode>
+          {
+              MediaNavigationMode.PicturesFilterByYear,
+              MediaNavigationMode.PicturesFilterBySize,
+              MediaNavigationMode.PicturesSimpleSearch,
+              MediaNavigationMode.PicturesExtendedSearch,
+          };
+      }
+      else
+      { // If we weren't called with an unsupported state, we should be in state LOCAL_MEDIA_NAVIGATION_ROOT_STATE here
+        if (currentStateId != LOCAL_MEDIA_NAVIGATION_ROOT_STATE)
+        {
+          // Error case: We cannot handle the given state
+          ServiceScope.Get<ILogger>().Warn("MediaModel: Unknown root workflow state with ID '{0}'", currentStateId);
+          // We simply use the local media mode as fallback for this case
+        }
+        mode = MediaNavigationMode.LocalMedia;
+        rootViewSpecification = new LocalSharesViewSpecification(LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE, new Guid[]
+          {
+              ProviderResourceAspect.ASPECT_ID,
+              MediaAspect.ASPECT_ID,
+          }, new Guid[]
+          {
+              MusicAspect.ASPECT_ID,
+              MovieAspect.ASPECT_ID,
+              PictureAspect.ASPECT_ID,
+          });
+        // Dynamic modes remain null
+      }
+      // Register mode, view and available filter criteria in context so we can find it again when returning
+      // to the current state
+      Mode = mode;
+      CurrentView = rootViewSpecification.BuildRootView();
+      if (availableDynamicModes != null)
+        AvailableDynamicModes = availableDynamicModes;
+    }
+
+    protected void PrepareScreenVariablesForMode()
+    {
+      // Initialize a new sub state for media navigation here.
+      // 1) Variables which need to be already set:
+      //  - Media navigation mode
+      //  - Available dynamic modes
+      // 2) Variables which will be initialized here and which depend on variables of (1):
+      //  - Screen and screen data like media items/filter values (depend on media model mode and view)
+      MediaNavigationMode? mode = GetMode();
+      if (!mode.HasValue)
+      {
+        ServiceScope.Get<ILogger>().Error("MediaModel: Media navigation mode isn't initialized; cannot prepare necessary variables");
+        return;
+      }
+
+      string screen;
+      View view = CurrentView;
+      // Prepare screen & screen data for the current media navigation mode
+      if (mode.Value == MediaNavigationMode.LocalMedia)
+      {
+        screen = LOCAL_MEDIA_NAVIGATION_SCREEN;
+        ReloadMusicItems(view, MediaNavigationMode.LocalMedia);
+      }
+      else
+      {
+        StackedFiltersMLVS sfmlvs = view.Specification as StackedFiltersMLVS;
+        if (sfmlvs == null)
+        {
+          ServiceScope.Get<ILogger>().Error("MediaModel: Wrong type of media library view '{0}'", view);
+          return;
+        }
+        ICollection<IFilter> filters = sfmlvs.Filters;
+        switch (mode.Value)
+        {
+          // case MediaNavigationMode.LocalMedia: handled in if statement above
+          case MediaNavigationMode.MusicShowItems:
+            screen = MUSIC_SHOW_ITEMS_SCREEN;
+            ReloadMusicItems(view, MediaNavigationMode.MusicShowItems);
+            break;
+          case MediaNavigationMode.MusicFilterByArtist:
+            screen = MUSIC_FILTER_BY_ARTIST_SCREEN;
+            ReloadArtists(filters);
+            break;
+          case MediaNavigationMode.MusicFilterByAlbum:
+            screen = MUSIC_FILTER_BY_ALBUM_SCREEN;
+            ReloadAlbums(filters);
+            break;
+          case MediaNavigationMode.MusicFilterByGenre:
+            screen = MUSIC_FILTER_BY_GENRE_SCREEN;
+            ReloadMusicGenres(filters);
+            break;
+          case MediaNavigationMode.MusicFilterByDecade:
+            screen = MUSIC_FILTER_BY_DECADE_SCREEN;
+            ReloadDecades(filters);
+            break;
+          case MediaNavigationMode.MusicSimpleSearch:
+            screen = MUSIC_SIMPLE_SEARCH_SCREEN;
+            InitializeMusicSimpleSearch(filters);
+            break;
+          case MediaNavigationMode.MusicExtendedSearch:
+            screen = MUSIC_EXTENDED_SEARCH_SCREEN;
+            InitializeMusicExtendedSearch(filters);
+            break;
+          case MediaNavigationMode.MoviesShowItems:
+            screen = MOVIES_SHOW_ITEMS_SCREEN;
+            ReloadMovieItems(view, MediaNavigationMode.MoviesShowItems);
+            break;
+          case MediaNavigationMode.MoviesFilterByActor:
+            screen = MOVIES_FILTER_BY_ACTOR_SCREEN;
+            ReloadActors(filters);
+            break;
+          case MediaNavigationMode.MoviesFilterByGenre:
+            screen = MOVIES_FILTER_BY_GENRE_SCREEN;
+            ReloadMovieGenres(filters);
+            break;
+          case MediaNavigationMode.MoviesFilterByYear:
+            screen = MOVIES_FILTER_BY_YEAR_SCREEN;
+            ReloadMovieYears(filters);
+            break;
+          case MediaNavigationMode.MoviesSimpleSearch:
+            screen = MOVIES_SIMPLE_SEARCH_SCREEN;
+            InitializeMoviesSimpleSearch(filters);
+            break;
+          case MediaNavigationMode.MoviesExtendedSearch:
+            screen = MOVIES_EXTENDED_SEARCH_SCREEN;
+            InitializeMoviesExtendedSearch(filters);
+            break;
+          case MediaNavigationMode.PicturesShowItems:
+            screen = PICTURES_SHOW_ITEMS_SCREEN;
+            ReloadPictureItems(view, MediaNavigationMode.PicturesShowItems);
+            break;
+          case MediaNavigationMode.PicturesFilterByYear:
+            screen = PICTURES_FILTER_BY_YEAR_SCREEN;
+            ReloadPictureYears(filters);
+            break;
+          case MediaNavigationMode.PicturesFilterBySize:
+            screen = PICTURES_FILTER_BY_SIZE_SCREEN;
+            ReloadPictureSizes(filters);
+            break;
+          case MediaNavigationMode.PicturesSimpleSearch:
+            screen = PICTURESS_SIMPLE_SEARCH_SCREEN;
+            InitializePicturesSimpleSearch(filters);
+            break;
+          case MediaNavigationMode.PicturesExtendedSearch:
+            screen = PICTURES_EXTENDED_SEARCH_SCREEN;
+            InitializePicturesExtendedSearch(filters);
+            break;
+          default:
+            ServiceScope.Get<ILogger>().Error("MediaModel: Unsupported media navigation mode '{0}'", mode.Value);
+            return;
+        }
+      }
+      Screen = screen;
+    }
+
+    protected void PrepareWorkflowActions()
+    {
+      // Initialize a new sub state for media navigation here.
+      // 1) Variables which need to be already set:
+      //  - Media navigation mode
+      //  - Available dynamic modes
+      // 2) Variables which will be initialized here and which depend on variables of (1):
+      //  - Workflow actions for filter criteria (depend on available dynamic modes)
+      ICollection<MediaNavigationMode> availableDynamicModes = AvailableDynamicModes;
+      if (availableDynamicModes == null || availableDynamicModes.Count == 0)
+        return;
+      ICollection<WorkflowAction> dynamicWorkflowActions = new List<WorkflowAction>(availableDynamicModes.Count + 1);
+      WorkflowState state = _currentNavigationContext.WorkflowState;
+      int ct = 0;
+      foreach (MediaNavigationMode mode in availableDynamicModes)
+      {
+        MediaNavigationMode newMode = mode; // Necessary to be used in closure
+        WorkflowAction action = new MethodDelegateAction(Guid.NewGuid(),
+            state.Name + "->" + mode, state.StateId,
+            LocalizationHelper.CreateResourceString(DYNAMIC_ACTION_TITLES[mode]), () =>
+              {
+                Mode = newMode;
+                PrepareScreenVariablesForMode();
+                SwitchToCurrentScreen();
+              })
+          {
+              DisplayCategory = FILTERS_WORKFLOW_CATEGORY,
+              SortOrder = ct++.ToString(), // Sort in the order we have built up the filters
+          };
+        dynamicWorkflowActions.Add(action);
+      }
+      DynamicWorkflowActions = dynamicWorkflowActions;
+    }
+
+    protected void SwitchToCurrentScreen()
+    {
+      ServiceScope.Get<IScreenManager>().ShowScreen(Screen);
+    }
+
+    /// <summary>
+    /// Prepares the given workflow navigation <paramref name="context"/>, i.e. prepares the view data and the
+    /// available filter criteria to be used in the menu.
+    /// </summary>
+    protected void PrepareState(NavigationContext context)
+    {
+      _currentNavigationContext = context;
+      MediaNavigationMode? mode = GetMode();
+      if (!mode.HasValue)
+        // If mode != null, the current state is already prepared,
+        // i.e. we have already been in the initial state or we have initialized our variables by setting them in the workflow
+        // state when navigating to it
+        PrepareRootState();
+      string screen = Screen;
+      if (screen == null)
+        // If screen != null, dependent variables of this state are already prepared
+        PrepareScreenVariablesForMode();
+      if (DynamicWorkflowActions == null)
+        PrepareWorkflowActions();
+    }
+
+    protected void DisposeData()
+    {
+      _currentNavigationContext = null;
+      _playMenuItems = null;
     }
 
     #endregion
@@ -440,36 +968,39 @@ namespace UiComponents.Media.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      CurrentView = GetViewFromContext(newContext);
-      ReloadItems();
+      PrepareState(newContext);
+      SwitchToCurrentScreen();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // We could dispose some data here when exiting media navigation context
+      DisposeData();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      CurrentView = GetViewFromContext(newContext);
-      ReloadItems();
+      PrepareState(newContext);
+      SwitchToCurrentScreen();
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
+      // Don't dispose state data here - when coming back to our last state ("oldContext"), we will restore our
+      // last screen (which is stored in the context object)
     }
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      View newView = GetViewFromContext(newContext);
-      if (newView == CurrentView)
-        return;
-      CurrentView = newView;
-      ReloadItems();
+      PrepareState(newContext);
+      SwitchToCurrentScreen();
     }
 
     public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
     {
+      PrepareState(context);
+      ICollection<WorkflowAction> dynamicWorkflowActions = DynamicWorkflowActions;
+      if (dynamicWorkflowActions != null)
+        CollectionUtils.AddAll(actions, dynamicWorkflowActions);
     }
 
     #endregion

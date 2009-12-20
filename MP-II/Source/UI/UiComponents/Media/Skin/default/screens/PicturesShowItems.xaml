@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.PicturesTitle]"/>
+
+    <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid DataContext="{Binding Source={StaticResource MediaModel}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Grid.Row="0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom"
+              Content="{Binding CurrentView.DisplayName}"/>
+
+          <!-- .. button will be replaced by navbar -->
+          <Button Grid.Row="0" Grid.Column="1" Width="60" Margin="0,0,20,0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ButtonStyle}"
+              Content=".."
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
+              IsVisible="{Binding HasParentDirectory}"/>
+        </Grid>
+        <ListView Grid.Column="0" Grid.Row="1"
+            Style="{ThemeResource ContentsMenuListViewStyle}"
+            ItemsSource="{Binding MediaItems}" IsVisible="{Binding IsViewValid}">
+          <ListView.Resources>
+            <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
+                Parameters="{LateBoundValue Value={Binding}}"/>
+          </ListView.Resources>
+        </ListView>
+        <Label Grid.Row="1" IsVisible="{Binding !IsViewValid}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
+        <Label Grid.Row="1" IsVisible="{Binding IsViewEmpty}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>
