@@ -43,10 +43,10 @@ namespace UiComponents.SkinBase.Actions
     protected const string ATTACH_TO_SERVER_STATE_STR = "E834D0E0-BC35-4397-86F8-AC78C152E693";
     protected const string DETACH_FROM_SERVER_STATE_STR = "BAC42991-5AB6-471f-A185-673D2E3B1EBA";
 
-    public static Guid ATTACH_DETACH_CONTRIBUTOR_MODEL_ID = new Guid(ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR);
+    public static readonly Guid ATTACH_DETACH_CONTRIBUTOR_MODEL_ID = new Guid(ATTACH_DETACH_CONTRIBUTOR_MODEL_ID_STR);
 
-    public static Guid ATTACH_TO_SERVER_STATE = new Guid(ATTACH_TO_SERVER_STATE_STR);
-    public static Guid DETACH_FROM_SERVER_STATE = new Guid(DETACH_FROM_SERVER_STATE_STR);
+    public static readonly Guid ATTACH_TO_SERVER_STATE = new Guid(ATTACH_TO_SERVER_STATE_STR);
+    public static readonly Guid DETACH_FROM_SERVER_STATE = new Guid(DETACH_FROM_SERVER_STATE_STR);
 
     public const string SEARCH_FOR_SERVERS_RES = "[ServerConnection.SearchForServers]";
     public const string DETACH_FROM_SERVER_RES = "[ServerConnection.DetachFromServer]";

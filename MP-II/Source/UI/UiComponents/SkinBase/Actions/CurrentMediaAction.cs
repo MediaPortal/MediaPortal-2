@@ -41,7 +41,7 @@ namespace UiComponents.SkinBase.Actions
 
     public const string CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR = "04854BDB-0933-4194-8AAE-DEC50062F37F";
 
-    public static Guid CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
+    public static readonly Guid CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID = new Guid(CURRENT_MEDIA_CONTRIBUTOR_MODEL_ID_STR);
 
     public const string CURRENT_MEDIA_RESOURCE = "[Players.CurrentMedia]";
 
