@@ -50,7 +50,7 @@
       this.label1.Name = "label1";
       this.label1.Size = new System.Drawing.Size(469, 177);
       this.label1.TabIndex = 0;
-      this.label1.Text = "This form will be created soon...";
+      this.label1.Text = "This form will be filled with life later...";
       this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
       // 
       // MainForm
