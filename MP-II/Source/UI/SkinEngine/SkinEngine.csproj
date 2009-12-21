@@ -367,6 +367,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GUI\MP2.ico" />
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\skinengine_config_skin_dialog.xaml" />
