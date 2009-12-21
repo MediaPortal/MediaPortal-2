@@ -204,8 +204,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         File tag;
         try
         {
-          tag = File.Create(new MediaProviderFileAbstraction(mediaItemAccessor),
-              Path.GetFileName(humanReadablePath), null, ReadStyle.Fast);
+          tag = File.Create(humanReadablePath);
         }
         catch (CorruptFileException)
         {

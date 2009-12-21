@@ -46,6 +46,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
+    <Reference Include="TagLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Bin\MP-II-Client\bin\x86\Debug\Plugins\TagLibPlugin\TagLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FreeDB\CDInfo.cs" />
@@ -68,10 +72,6 @@
     <ProjectReference Include="..\..\BassLibraries\BassLibraries.csproj">
       <Project>{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}</Project>
       <Name>BassLibraries</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TagLibPlugin\TagLibPlugin.csproj">
-      <Project>{6DECC1E8-9F06-4CAD-9059-6C523C8D322A}</Project>
-      <Name>TagLibPlugin</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
