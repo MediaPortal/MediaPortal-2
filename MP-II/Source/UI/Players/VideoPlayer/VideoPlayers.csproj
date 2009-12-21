@@ -54,6 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodecHandler.cs" />
+    <Compile Include="CodecInfo.cs" />
     <Compile Include="DvdPlayer.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="FilterGraphTools.cs" />

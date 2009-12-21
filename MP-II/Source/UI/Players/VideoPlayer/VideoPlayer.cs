@@ -97,6 +97,8 @@ namespace Ui.Players.Video
 
     protected const double PLAYBACK_RATE_PLAY_THRESHOLD = 0.05;
 
+    protected String PlayerTitle;
+
     #endregion
 
     #region Variables
@@ -121,9 +123,14 @@ namespace Ui.Players.Video
     protected Size _previousDisplaySize;
     protected uint _streamCount = 1;
 
+    // Filter graph related 
     protected IBaseFilter _videoh264Codec;
     protected IBaseFilter _videoCodec;
     protected IBaseFilter _audioCodec;
+
+    protected List<IBaseFilter> _filterList = new List<IBaseFilter>();
+    protected CodecHandler.CodecCapabilities _graphCapabilities;
+
     protected IGeometry _geometryOverride = null;
 
     protected PlayerState _state;
@@ -155,6 +162,7 @@ namespace Ui.Players.Video
         throw new EnvironmentException("This video player can only run on Windows Vista or above");
 
       SubscribeToMessages();
+      PlayerTitle = "VideoPlayer";
     }
 
     public void Dispose()
@@ -205,7 +213,7 @@ namespace Ui.Players.Video
               if (evCode == EventCode.Complete)
               {
                 _state = PlayerState.Ended;
-                ServiceScope.Get<ILogger>().Debug("VideoPlayer: Playback ended");
+                ServiceScope.Get<ILogger>().Debug("{0}: Playback ended", PlayerTitle);
                 // TODO: RemoveResumeData();
                 FireEnded();
                 return;
@@ -235,7 +243,7 @@ namespace Ui.Players.Video
       _state = PlayerState.Active;
       _isPaused = true;
       _vertices = new PositionColored2Textured[4];
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initializing for media file '{0}'", _resourceAccessor.LocalFileSystemPath);
+      ServiceScope.Get<ILogger>().Debug("{0}: Initializing for media file '{1}'", PlayerTitle, _resourceAccessor.LocalFileSystemPath);
 
       try
       {
@@ -244,7 +252,7 @@ namespace Ui.Players.Video
         // Create a DirectShow FilterGraph
         CreateGraphBuilder();
 
-        // Add it in ROT for debug purpose FIXME Albert -> what is ROT?
+        // Add it in ROT (Running Object Table) for debug purpose 
         _rot = new DsROTEntry(_graphBuilder);
 
         // Add a notification handler (see WndProc)
@@ -258,13 +266,13 @@ namespace Ui.Players.Video
 
         AddEvr();
 
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Adding preferred codecs");
+        ServiceScope.Get<ILogger>().Debug("{0}: Adding preferred codecs", PlayerTitle);
         AddPreferredCodecs();
 
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Adding file source");
+        ServiceScope.Get<ILogger>().Debug("{0}: Adding file source", PlayerTitle);
         AddFileSource();
 
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Run graph");
+        ServiceScope.Get<ILogger>().Debug("{0}: Run graph", PlayerTitle);
 
         ///This needs to be done here before we check if the evr pins are connected
         ///since this method gives players the chance to render the last bits of the graph
@@ -361,7 +369,7 @@ namespace Ui.Players.Video
 
     void AddEvr()
     {
-      ServiceScope.Get<ILogger>().Debug("VideoPlayer: Initialize EVR");
+      ServiceScope.Get<ILogger>().Debug("{0}: Initialize EVR", PlayerTitle);
 
       _evr = (IBaseFilter) new EnhancedVideoRenderer();
 
@@ -414,101 +422,93 @@ namespace Ui.Players.Video
     }
 
     /// <summary>
+    /// Try to add filter by name to graph.
+    /// If it succeedes it gets added to _filtersList.
+    /// </summary>
+    /// <param name="CodecName">Filter name to add</param>
+    /// <returns>true if successful</returns>
+    protected bool TryAdd(String CodecName)
+    {
+      IBaseFilter _tempFilter = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, CodecName);
+      if (_tempFilter != null)
+      {
+        _filterList.Add(_tempFilter);
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
     /// adds prefferred audio/video codecs
     /// </summary>
     protected virtual void AddPreferredCodecs()
     {
+      // Init capabilities
+      CodecHandler.CodecCapabilities requiredCapabilities = CodecHandler.CodecCapabilities.None;
+      _graphCapabilities = CodecHandler.CodecCapabilities.None;
+
+      CodecHandler codecHandler = new CodecHandler();
       VideoSettings settings = ServiceScope.Get<ISettingsManager>().Load<VideoSettings>();
+
       string ext = Path.GetExtension(_resourceAccessor.LocalFileSystemPath);
       if (ext.IndexOf(".mpg") >= 0 || ext.IndexOf(".ts") >= 0 || ext.IndexOf(".mpeg") >= 0)
       {
-        //_videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder, FilterCategory.LegacyAmFilterCategory, "CoreAVC Video Decoder");
-
-        if (!string.IsNullOrEmpty(settings.H264Codec))
-        {
-          _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, settings.H264Codec);
-        }
-        if (_videoh264Codec == null)
-        {
-          _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "Microsoft DTV-DVD Video Decoder");
-          _videoCodec = _videoh264Codec; // MS only allows one filter in graph, it handles both MPEG2+H264
-        }
-        if (_videoh264Codec == null)
-        {
-          _videoh264Codec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "CyberLink H.264/AVC Decoder (PDVD7.X)");
-        }
-        if (!string.IsNullOrEmpty(settings.Mpeg2Codec) && _videoCodec == null)
-        {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, settings.Mpeg2Codec);
-        }
-
-        if (_videoCodec == null)
-        {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "CyberLink Video/SP Decoder");
-        }
-        if (_videoCodec == null)
-        {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "Microsoft MPEG-2 Video Decoder");
-        }
-        if (_videoCodec == null)
-        {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "NVIDIA Video Decoder");
-        }
-        if (_videoCodec == null)
-        {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "MPV Decoder Filter");
-        }
-
-        if (!string.IsNullOrEmpty(settings.AudioCodec))
-        {
-          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, settings.AudioCodec);
-        }
-        if (_audioCodec == null)
-        {
-          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "Microsoft DTV-DVD Audio Decoder");
-        }
-        if (_audioCodec == null)
-        {
-          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "Microsoft MPEG-1/DD Audio Decoder");
-        }
-        if (_audioCodec == null)
-        {
-          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "MPA Decoder Filter");
-        }
+        requiredCapabilities = CodecHandler.CodecCapabilities.VideoH264 | CodecHandler.CodecCapabilities.VideoMPEG2 | CodecHandler.CodecCapabilities.AudioMPEG;
       }
       else if (ext.IndexOf(".avi") >= 0)
       {
-        if (!string.IsNullOrEmpty(settings.DivXCodec))
+        requiredCapabilities = CodecHandler.CodecCapabilities.VideoDIVX /* | CodecHandler.CodecCapabilities.AudioMPEG*/;
+      }
+
+      // set default codecs
+      if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.VideoH264) && !string.IsNullOrEmpty(settings.H264Codec)) 
+        codecHandler.SetPreferred(settings.H264Codec, CodecHandler.CodecCapabilities.VideoH264);
+
+      if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.VideoMPEG2) && !string.IsNullOrEmpty(settings.Mpeg2Codec)) 
+        codecHandler.SetPreferred(settings.Mpeg2Codec, CodecHandler.CodecCapabilities.VideoMPEG2);
+
+      if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.VideoDIVX) && !string.IsNullOrEmpty(settings.DivXCodec)) 
+          codecHandler.SetPreferred(settings.DivXCodec, CodecHandler.CodecCapabilities.VideoDIVX);
+
+      if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.AudioMPEG) &&!string.IsNullOrEmpty(settings.AudioCodec)) 
+        codecHandler.SetPreferred(settings.AudioCodec, CodecHandler.CodecCapabilities.AudioMPEG);
+
+      // Lookup all known codecs and add them to graph
+      foreach (CodecInfo currentCodec in codecHandler.CodecList)
+      {
+        // Check H264 codec
+        if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.VideoH264))
+          AddFilterByCapability(codecHandler, currentCodec, CodecHandler.CodecCapabilities.VideoH264);
+
+        // Check MPEG2 codec
+        if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.VideoMPEG2))
+          AddFilterByCapability(codecHandler, currentCodec, CodecHandler.CodecCapabilities.VideoMPEG2);
+
+        // Check Audio codec
+        if (codecHandler.Supports(requiredCapabilities, CodecHandler.CodecCapabilities.AudioMPEG))
+          AddFilterByCapability(codecHandler, currentCodec, CodecHandler.CodecCapabilities.AudioMPEG);
+
+        // Exit if all needed capabilities exist
+        if (codecHandler.Supports(_graphCapabilities, requiredCapabilities))
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Adds a codec to graph for the requested capability.
+    /// </summary>
+    /// <param name="codecHandler">Current codec handler.</param>
+    /// <param name="currentCodec">Current codec to check.</param>
+    /// <param name="requestedCapability">The capability the codec has to support.</param>
+    protected void AddFilterByCapability(CodecHandler codecHandler, CodecInfo currentCodec, CodecHandler.CodecCapabilities requestedCapability)
+    {
+      if (!codecHandler.Supports(_graphCapabilities, requestedCapability) &&
+           codecHandler.Supports(currentCodec.Capabilities, requestedCapability))
+      {
+        if (TryAdd(currentCodec.Name))
         {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, settings.DivXCodec);
-        }
-        if (_videoCodec == null)
-        {
-          _videoCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "ffdshow Video Decoder");
-        }
-        if (!string.IsNullOrEmpty(settings.AudioCodec))
-        {
-          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, settings.AudioCodec);
-        }
-        if (_audioCodec == null)
-        {
-          _audioCodec = FilterGraphTools.AddFilterByName(_graphBuilder,
-              FilterCategory.LegacyAmFilterCategory, "ffdshow Audio Decoder");
+          _graphCapabilities |= currentCodec.Capabilities; // remember all capabilities
+          ServiceScope.Get<ILogger>().Debug("{0}: Add {1} Codec {2} ", PlayerTitle, requestedCapability.ToString(), currentCodec.Name);
         }
       }
     }
@@ -530,37 +530,14 @@ namespace Ui.Players.Video
     {
       int hr;
 
-      bool SingleVideoCodec = (_videoCodec == _videoh264Codec);
-      if (_videoh264Codec != null)
+      // Iterate and free all manually added filters
+      foreach (IBaseFilter currentFilter in _filterList)
       {
-        _graphBuilder.RemoveFilter(_videoh264Codec);
-        while ((hr = Marshal.ReleaseComObject(_videoh264Codec)) > 0)
+        _graphBuilder.RemoveFilter(currentFilter);
+        while ((hr = Marshal.ReleaseComObject(currentFilter)) > 0)
         {
           ;
         }
-        _videoh264Codec = null;
-      }
-      if (_videoCodec != null)
-      {
-        // if one single codec is active, we need to free it only once
-        if (!SingleVideoCodec)
-        {
-          _graphBuilder.RemoveFilter(_videoCodec);
-        }
-        while ((hr = Marshal.ReleaseComObject(_videoCodec)) > 0)
-        {
-          ;
-        }
-        _videoCodec = null;
-      }
-      if (_audioCodec != null)
-      {
-        _graphBuilder.RemoveFilter(_audioCodec);
-        while ((hr = Marshal.ReleaseComObject(_audioCodec)) > 0)
-        {
-          ;
-        }
-        _audioCodec = null;
       }
     }
 
@@ -570,7 +547,7 @@ namespace Ui.Players.Video
       _initialized = false;
       lock (_resourceAccessor)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop playing");
+        ServiceScope.Get<ILogger>().Debug("{0}: Stop playing", PlayerTitle);
         int hr = 0;
 
         if (_graphBuilder != null)
@@ -643,9 +620,10 @@ namespace Ui.Players.Video
           _graphBuilder = null;
 
           FreeResources();
-          GC.Collect();
-          GC.Collect();
-          GC.Collect();
+          // morpheus: do we really need to force GC ???
+          //GC.Collect();
+          //GC.Collect();
+          //GC.Collect();
         }
       }
     }
@@ -668,7 +646,7 @@ namespace Ui.Players.Video
     /// </summary>
     protected void FreeResources()
     {
-      ServiceScope.Get<ILogger>().Info("VideoPlayer: FreeResources");
+      ServiceScope.Get<ILogger>().Info("{0}: FreeResources", PlayerTitle);
       // Free Managed Direct3D resources
       if (_vertexBuffer != null)
       {
@@ -777,7 +755,7 @@ namespace Ui.Players.Video
       }
       set
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Seek to {0} seconds", value.TotalSeconds);
+        ServiceScope.Get<ILogger>().Debug("{0}: Seek to {1} seconds", PlayerTitle, value.TotalSeconds);
 
         if (_state != PlayerState.Active)
           // If the player isn't active when setting its position, we will switch to pause mode to prevent the
@@ -907,7 +885,7 @@ namespace Ui.Players.Video
     {
       if (_state != PlayerState.Stopped)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Stop");
+        ServiceScope.Get<ILogger>().Debug("{0}: Stop", PlayerTitle);
         // FIXME
 //        ResetRefreshRate();
         // TODO: WriteResumeData();
@@ -922,7 +900,7 @@ namespace Ui.Players.Video
     {
       if (!_isPaused)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Pause");
+        ServiceScope.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
         IMediaControl mc = (IMediaControl) _graphBuilder;
         if (mc != null)
           mc.Pause();
@@ -937,14 +915,14 @@ namespace Ui.Players.Video
     {
       if (_isPaused || IsSeeking)
       {
-        ServiceScope.Get<ILogger>().Debug("VideoPlayer: Resume");
+        ServiceScope.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
         IMediaControl mc = (IMediaControl) _graphBuilder;
         if (mc != null)
         {
           int hr = mc.Run();
           if (hr != 0 && hr != 1)
           {
-            ServiceScope.Get<ILogger>().Error("VideoPlayer: Resume Failed to start: {0:X}", hr);
+            ServiceScope.Get<ILogger>().Error("{0}: Resume Failed to start: {0:X}", PlayerTitle, hr);
             Shutdown();
             FireStopped();
             return;

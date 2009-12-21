@@ -44,6 +44,8 @@ namespace Ui.Players.Video
       EXTENSIONS2PLAYER.Add(".mpg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mpeg", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".ts", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
       // TODO: Go on with extensions mapping
 
       MIMETYPES2PLAYER.Add("video/x-ms-wmv", typeof(VideoPlayer));
