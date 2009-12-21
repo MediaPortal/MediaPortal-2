@@ -279,11 +279,11 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     public IAsyncResult BeginInvokeAction(IList<object> inParameters, AsyncCallback callback, object state)
     {
       if (_parentService == null)
-        throw new IllegalCallException("This UPnP action isn't assigned to a service");
+        throw new IllegalCallException("Action '{0}' isn't assigned to a service", _name);
       if (!MatchesSignature(inParameters))
-        throw new IllegalCallException("The given parameters don't match this action's formal input arguments");
+        throw new IllegalCallException("The given parameters don't match the formal input arguments of action '{0}'", _name);
       if (!IsConnected)
-        throw new IllegalCallException("This UPnP action isn't connected to a UPnP network action");
+        throw new IllegalCallException("Action '{0}' isn't connected to a UPnP network action", _name);
       AsyncActionCallResult ar = new AsyncActionCallResult(callback, state);
       _connection.OnActionCalled(this, inParameters, ar);
       return ar;
@@ -303,7 +303,7 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     {
       AsyncActionCallResult ar = result as AsyncActionCallResult;
       if (ar == null)
-        throw new IllegalCallException("Provided 'result' parameter doesn't belong to a 'BeginInvokeAction' call");
+        throw new IllegalCallException("Provided 'result' parameter doesn't belong to a 'BeginInvokeAction' call (action '{0}')");
       return ar.GetOutParams();
     }
 
