@@ -26,7 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace MediaPortal.Core.MediaManagement
+namespace MediaPortal.Core.General
 {
   /// <summary>
   /// Simple container for data objects of the same type.

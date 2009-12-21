@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
