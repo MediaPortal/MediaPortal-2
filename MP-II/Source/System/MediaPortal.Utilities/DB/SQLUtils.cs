@@ -24,9 +24,8 @@
 
 using System;
 using System.Text;
-using MediaPortal.Utilities;
 
-namespace MediaPortal.Backend.Services.Database
+namespace MediaPortal.Utilities.DB
 {
   public class SqlUtils
   {
@@ -42,8 +41,8 @@ namespace MediaPortal.Backend.Services.Database
         char c = name[i];
         if (c >= 'a' && c <= 'z' ||
             c >= 'A' && c <= 'Z' ||
-            Char.IsDigit(c) ||
-            c == '_')
+                Char.IsDigit(c) ||
+                    c == '_')
           result.Append(c);
         else
           result.Append('_');
@@ -55,17 +54,17 @@ namespace MediaPortal.Backend.Services.Database
     /// Special characters in an SQL LIKE expression which need to be escaped.
     /// </summary>
     public static char[] LIKE_SPECIAL_CHARACTERS = new char[]
-        {
+      {
           '%', '_'
-        };
+      };
 
     /// <summary>
     /// Special characters in an SQL SIMILAR TO expression which need to be escaped.
     /// </summary>
     public static char[] SIMILAR_TO_SPECIAL_CHARACTERS = new char[]
-        {
+      {
           '%', '_', '|', '*', '?', '+', '{', '}', '(', ')', '[', ']', '^', '$', '.', '#'
-        };
+      };
 
     /// <summary>
     /// Escapes all characters in the given string <paramref name="str"/> which are special characters in SQL LIKE expressions.

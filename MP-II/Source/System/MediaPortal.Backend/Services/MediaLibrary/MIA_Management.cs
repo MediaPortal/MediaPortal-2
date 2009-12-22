@@ -32,9 +32,9 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Backend.Database;
-using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
@@ -185,8 +185,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           {
             while (reader.Read())
             {
-              string identifier = reader.GetString(identifierIndex);
-              string dbObjectName = reader.GetString(dbObjectNameIndex);
+              string identifier = DBUtils.ReadDBValue<string>(reader, identifierIndex);
+              string dbObjectName = DBUtils.ReadDBValue<string>(reader, dbObjectNameIndex);
               _nameAliases.Add(identifier, dbObjectName);
             }
           }
@@ -406,7 +406,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           IDictionary<Guid, string> result = new Dictionary<Guid, string>();
           while (reader.Read())
-            result.Add(new Guid(reader.GetString(miamIdIndex)), reader.GetString(serializationsIndex));
+            result.Add(new Guid(DBUtils.ReadDBValue<string>(reader, miamIdIndex)),
+                DBUtils.ReadDBValue<string>(reader, serializationsIndex));
           return result;
         }
         finally
@@ -446,7 +447,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         IList result = new ArrayList();
         while (reader.Read())
-          result.Add(reader.GetValue(0));
+          result.Add(DBUtils.ReadDBObject(reader, 0));
         return result;
       }
       finally
@@ -473,7 +474,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       try
       {
         if (reader.Read())
-          return reader.GetValue(0);
+          return DBUtils.ReadDBObject(reader, 0);
         return null;
       }
       finally
@@ -501,7 +502,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       {
         IList result = new ArrayList();
         while (reader.Read())
-          result.Add(reader.GetValue(0));
+          result.Add(DBUtils.ReadDBObject(reader, 0));
         return result;
       }
       finally
@@ -801,25 +802,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       // Because the IDataReader interface doesn't provide a getter method which takes the desired return type,
       // we have to write this method
       Type type = spec.AttributeType;
-      if (type == typeof(string))
-        return reader.GetString(colIndex);
-      else if (type == typeof(DateTime))
-        return reader.GetDateTime(colIndex);
-      else if (type == typeof(Char))
-        return reader.GetChar(colIndex);
-      else if (type == typeof(Boolean))
-        return reader.GetBoolean(colIndex);
-      else if (type == typeof(Single))
-        return reader.GetFloat(colIndex);
-      else if (type == typeof(Double))
-        return reader.GetDouble(colIndex);
-      else if (type == typeof(Int32))
-        return reader.GetInt32(colIndex);
-      else if (type ==typeof(Int64))
-        return reader.GetInt64(colIndex);
-      else
+      try
+      {
+        return DBUtils.ReadDBValue(type, reader, colIndex);
+      }
+      catch (ArgumentException)
+      {
         throw new NotSupportedException(string.Format(
             "The datatype '{0}' of attribute '{1}' in media item aspect type '{2}' (id '{3}') is not supported", type, spec.AttributeName, spec.ParentMIAM.Name, spec.ParentMIAM.AspectId));
+      }
     }
 
     protected bool AttributeIsEmpty(object value)

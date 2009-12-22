@@ -33,6 +33,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.Threading;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
@@ -86,7 +87,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         try
         {
           while (reader.Read())
-            result.Add(reader.GetString(attachedClientsIndex), reader.GetString(lastHostNameIndex));
+            result.Add(DBUtils.ReadDBValue<string>(reader, attachedClientsIndex),
+                DBUtils.ReadDBValue<string>(reader, lastHostNameIndex));
         }
         finally
         {

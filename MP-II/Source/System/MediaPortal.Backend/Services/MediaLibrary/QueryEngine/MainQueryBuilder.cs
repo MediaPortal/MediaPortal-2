@@ -117,7 +117,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// is set to <c>true</c>, the result set won't contain the media item ID and thus this parmeter is meaningless in that
     /// case.</param>
     /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
-    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
+    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types This
+    /// parameter will only be set to a valid value if <paramref name="distinctValue"/> is set to <c>false</c>.</param>
     /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
     /// <returns>
     /// In case of <c><paramref name="distinctValue"/> == true</c>, A query of the form
@@ -160,9 +161,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       TableQueryData miaTableQuery = new TableQueryData(MediaLibrary_SubSchema.MEDIA_ITEMS_TABLE_NAME);
       RequestedAttribute miaIdAttribute = new RequestedAttribute(miaTableQuery, MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME);
 
-      // Contains a list of aliases for the seleted attributes
-      IList<string> selectAttrAliases = new List<string>();
-
       // Contains CompiledSortInformation instances for each sort information instance
       IList<CompiledSortInformation> compiledSortInformation = null;
 
@@ -172,7 +170,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miaType, out tqd))
         {
-          tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+          tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
           miaTypeTableQueries.Add(miaType, tqd);
         }
         tableJoins.Add(new TableJoin("INNER JOIN", tqd,
@@ -190,7 +188,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         string alias;
         selectAttributeDeclarations.Add(ra.GetDeclarationWithAlias(ns, out alias));
         attributeAliases.Add(attr, alias);
-        selectAttrAliases.Add(alias);
       }
       // Build table query data for each Inline attribute which is part of a filter
       // + compile query attribute
@@ -225,34 +222,37 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         mediaItemIdAlias = null;
         result.Append("DISTINCT ");
+        miamAliases = null;
       }
       else
       {
         // Append requested attribute MEDIA_ITEMS.MEDIA_ITEM_ID only if no DISTINCT query is made
         result.Append(miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdAlias));
+
+        // System attributes: Necessary to evaluate if a requested MIA is present for the media item
+        miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+        foreach (KeyValuePair<MediaItemAspectMetadata, TableQueryData> kvp in miaTypeTableQueries)
+        {
+          result.Append(",");
+          string miamColumn = kvp.Value.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
+          result.Append(miamColumn);
+          string miamAlias = ns.GetOrCreate(miamColumn, "A");
+          result.Append(" ");
+          result.Append(miamAlias);
+          miamAliases.Add(kvp.Key, miamAlias);
+        }
+
         result.Append(", ");
       }
 
-      // Selectedattributes
-      result.Append(StringUtils.Join(", ", selectAttrAliases));
-
-      // System attributes: Necessary to evaluate if a requested MIA is present for the media item
-      miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
-      foreach (KeyValuePair<MediaItemAspectMetadata, TableQueryData> kvp in miaTypeTableQueries)
-      {
-        result.Append(",");
-        string miamColumn = kvp.Value.GetAlias(ns) + "." + MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME;
-        result.Append(miamColumn);
-        string miamAlias = ns.GetOrCreate(miamColumn, "A");
-        result.Append(" ");
-        result.Append(miamAlias);
-        miamAliases.Add(kvp.Key, miamAlias);
-      }
+      // Selected attributes
+      result.Append(StringUtils.Join(", ", selectAttributeDeclarations));
 
       result.Append(" FROM ");
       // Always request the MEDIA_ITEMS table because if no necessary aspects are given and the optional aspects aren't
       // present, we could miss the ID for requested media items
       result.Append(miaTableQuery.GetDeclarationWithAlias(ns));
+      result.Append(' ');
 
       // Other joined tables
       foreach (TableJoin tableJoin in tableJoins)
@@ -261,9 +261,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      result.Append(" WHERE ");
-      result.Append(_filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns)));
+      string whereStr = _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns));
+      if (!string.IsNullOrEmpty(whereStr))
+      {
+        result.Append("WHERE ");
+        result.Append(whereStr);
+      }
       if (compiledSortInformation != null)
       {
         IList<string> sortCriteria = new List<string>();

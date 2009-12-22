@@ -34,9 +34,9 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Backend.Services.Database;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
@@ -153,7 +153,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       try
       {
         while (reader.Read())
-          result.Add(reader.GetString(mediaCategoryIndex));
+          result.Add(DBUtils.ReadDBValue<string>(reader, mediaCategoryIndex));
       }
       finally
       {
@@ -502,10 +502,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           while (reader.Read())
           {
-            Guid shareId = new Guid(reader.GetString(shareIdIndex));
+            Guid shareId = new Guid(DBUtils.ReadDBValue<string>(reader, shareIdIndex));
             ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-            result.Add(shareId, new Share(shareId, reader.GetString(systemIdIndex),
-                ResourcePath.Deserialize(reader.GetString(pathIndex)), reader.GetString(shareNameIndex),
+            result.Add(shareId, new Share(shareId, DBUtils.ReadDBValue<string>(reader, systemIdIndex),
+                ResourcePath.Deserialize(DBUtils.ReadDBValue<string>(reader, pathIndex)),
+                DBUtils.ReadDBValue<string>(reader, shareNameIndex),
                 mediaCategories));
           }
         }
@@ -538,8 +539,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           if (!reader.Read())
             return null;
           ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-          return new Share(shareId, reader.GetString(systemIdIndex), ResourcePath.Deserialize(reader.GetString(pathIndex)),
-              reader.GetString(shareNameIndex), mediaCategories);
+          return new Share(shareId, DBUtils.ReadDBValue<string>(reader, systemIdIndex), ResourcePath.Deserialize(
+              DBUtils.ReadDBValue<string>(reader, pathIndex)),
+              DBUtils.ReadDBValue<string>(reader, shareNameIndex), mediaCategories);
         }
         finally
         {

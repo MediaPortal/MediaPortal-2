@@ -31,6 +31,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -161,8 +162,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           {
             while (reader.Read())
             {
-              long mediaItemId = reader.GetInt64(reader.GetOrdinal(mediaItemIdAlias));
-              object value = reader.GetValue(reader.GetOrdinal(valueAlias));
+              Int64 mediaItemId = DBUtils.ReadDBValue<Int64>(reader, reader.GetOrdinal(mediaItemIdAlias));
+              object value = DBUtils.ReadDBObject(reader, reader.GetOrdinal(valueAlias));
               IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
               if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                 attributeValues = complexAttributeValues[mediaItemId] =
@@ -202,7 +203,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           IList<MediaItem> result = new List<MediaItem>();
           while (reader2.Read())
           {
-            long mediaItemId = reader2.GetInt64(reader2.GetOrdinal(mediaItemIdAlias2));
+            long mediaItemId = DBUtils.ReadDBValue<Int64>(reader2, reader2.GetOrdinal(mediaItemIdAlias2));
             IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>> attributeValues;
             if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                 attributeValues = null;
@@ -218,7 +219,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 {
                   QueryAttribute qa = _mainSelectAttributes[attr];
                   string alias = qa2a[qa];
-                  mia.SetAttribute(attr, reader2.GetValue(reader2.GetOrdinal(alias)));
+                  mia.SetAttribute(attr, DBUtils.ReadDBObject(reader2, reader2.GetOrdinal(alias)));
                 }
                 else
                 {

@@ -67,7 +67,7 @@ namespace MediaPortal.Core.UPnP
       HomogenousCollection hc = (HomogenousCollection) value;
       writer.WriteStartElement("ValueCollection");
       Type type = hc.DataType;
-      writer.WriteAttributeString("type", type.Name);
+      writer.WriteAttributeString("type", type.FullName);
       foreach (object obj in hc)
         MediaItemAspect.SerializeValue(writer, obj, type);
     }

@@ -151,6 +151,9 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [ThreadStatic]
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
+    [ThreadStatic]
+    protected static XmlSerializer _xmlFilterSerializer = null; // Lazy initialized
+
     #endregion
 
     #region Ctor
@@ -164,8 +167,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public MediaItemQuery(IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs,
         IFilter filter)
     {
-      _necessaryRequestedMIATypeIDs = new HashSet<Guid>(necessaryRequestedMIATypeIDs);
-      _optionalRequestedMIATypeIDs = new HashSet<Guid>(optionalRequestedMIATypeIDs);
+      _necessaryRequestedMIATypeIDs = necessaryRequestedMIATypeIDs == null ? new HashSet<Guid>() : new HashSet<Guid>(necessaryRequestedMIATypeIDs);
+      _optionalRequestedMIATypeIDs = optionalRequestedMIATypeIDs == null ? new HashSet<Guid>() : new HashSet<Guid>(optionalRequestedMIATypeIDs);
       _filter = filter;
     }
 
@@ -215,14 +218,14 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public static void SerializeFilter(XmlWriter writer, IFilter filter)
     {
       FilterWrapper wrapper = new FilterWrapper(filter);
-      XmlSerializer xs = GetOrCreateXMLSerializer();
+      XmlSerializer xs = GetOrCreateXMLFilterSerializer();
       lock (xs)
         xs.Serialize(writer, wrapper);
     }
 
     public static IFilter DeserializeFilter(XmlReader reader)
     {
-      XmlSerializer xs = GetOrCreateXMLSerializer();
+      XmlSerializer xs = GetOrCreateXMLFilterSerializer();
       FilterWrapper wrapper;
       lock (xs)
         wrapper = xs.Deserialize(reader) as FilterWrapper;
@@ -271,6 +274,13 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
       if (_xmlSerializer == null)
         _xmlSerializer = new XmlSerializer(typeof(MediaItemQuery), new Type[] {typeof(FilterWrapper)});
       return _xmlSerializer;
+    }
+
+    protected static XmlSerializer GetOrCreateXMLFilterSerializer()
+    {
+      if (_xmlFilterSerializer == null)
+        _xmlFilterSerializer = new XmlSerializer(typeof(FilterWrapper));
+      return _xmlFilterSerializer;
     }
 
     /// <summary>

@@ -30,6 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -128,7 +129,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         try
         {
           while (reader.Read())
-            result.Add(reader.GetValue(reader.GetOrdinal(valueAlias)));
+            result.Add(DBUtils.ReadDBObject(reader, reader.GetOrdinal(valueAlias)));
         }
         finally
         {

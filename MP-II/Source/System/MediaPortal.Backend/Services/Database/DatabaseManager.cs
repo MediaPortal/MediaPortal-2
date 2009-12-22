@@ -28,6 +28,7 @@ using System.Data;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Backend.Database;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.Database
@@ -90,7 +91,7 @@ namespace MediaPortal.Backend.Services.Database
         {
           ICollection<string> result = new List<string>();
           while (reader.Read())
-            result.Add(reader.GetString(nameIndex));
+            result.Add(DBUtils.ReadDBValue<string>(reader, nameIndex));
           return result;
         }
         finally
@@ -121,6 +122,7 @@ namespace MediaPortal.Backend.Services.Database
         {
           if (reader.Read())
           {
+            // Versions are marked NOT NULL, so it is safe not to check for DBNull
             versionMajor = reader.GetInt32(versionMajorParameterIndex);
             versionMinor = reader.GetInt32(versionMinorParameterIndex);
             return true;
