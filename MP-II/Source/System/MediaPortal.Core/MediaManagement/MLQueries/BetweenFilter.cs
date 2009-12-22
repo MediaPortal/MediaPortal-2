@@ -78,7 +78,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlAttribute("Value1")]
+    [XmlElement("Value1")]
     public object XML_Value1
     {
       get { return _value1; }
@@ -88,7 +88,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlAttribute("Value2")]
+    [XmlElement("Value2")]
     public object XML_Value2
     {
       get { return _value2; }
