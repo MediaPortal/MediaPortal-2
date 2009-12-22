@@ -31,7 +31,6 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
@@ -349,7 +348,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnRemoveShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid shareId = new Guid((string) inParams[0]);
+      Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       ServiceScope.Get<IMediaLibrary>().RemoveShare(shareId);
       outParams = null;
       return null;
@@ -358,7 +357,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnUpdateShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid shareId = new Guid((string) inParams[0]);
+      Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       ResourcePath baseResourcePath = ResourcePath.Deserialize((string) inParams[1]);
       string shareName = (string) inParams[2];
       string[] mediaCategories = ((string) inParams[3]).Split(',');
@@ -415,7 +414,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnGetShare(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid shareId = new Guid((string) inParams[0]);
+      Guid shareId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       Share result = ServiceScope.Get<IMediaLibrary>().GetShare(shareId);
       outParams = new List<object> {result};
       return null;
@@ -433,7 +432,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnRemoveMediaItemAspectStorage(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid aspectId = new Guid((string) inParams[0]);
+      Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       ServiceScope.Get<IMediaLibrary>().RemoveMediaItemAspectStorage(aspectId);
       outParams = null;
       return null;
@@ -443,15 +442,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       ICollection<Guid> result = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata().Keys;
-      string miaTypeIDs = StringUtils.Join(",", result);
-      outParams = new List<object> {miaTypeIDs};
+      outParams = new List<object> {MarshallingHelper.SerializeGuidEnumerationToCsv(result)};
       return null;
     }
 
     static UPnPError OnGetMediaItemAspectMetadata(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid aspectId = new Guid((string) inParams[0]);
+      Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       MediaItemAspectMetadata miam = ServiceScope.Get<IMediaLibrary>().GetManagedMediaItemAspectMetadata(aspectId);
       outParams = new List<object> {miam};
       return null;
@@ -498,7 +496,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     static UPnPError OnGetDistinctAssociatedValues(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
-      Guid aspectId = new Guid((string) inParams[0]);
+      Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
       string attributeName = (string) inParams[1];
       IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
       IFilter filter = (IFilter) inParams[3];

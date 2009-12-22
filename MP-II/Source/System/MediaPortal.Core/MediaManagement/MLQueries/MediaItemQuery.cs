@@ -96,7 +96,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// <summary>
   /// Class to be used for XML serialization of <see cref="IFilter"/> values.
   /// </summary>
-  internal class FilterWrapper
+  public class FilterWrapper
   {
     protected IFilter _filter;
 

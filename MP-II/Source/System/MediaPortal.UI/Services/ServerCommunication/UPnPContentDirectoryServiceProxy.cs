@@ -72,7 +72,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public void RemoveShare(Guid shareId)
     {
       CpAction action = GetAction("RemoveShare");
-      IList<object> inParameters = new List<object> {shareId.ToString("B")};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
       action.InvokeAction(inParameters);
     }
 
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       CpAction action = GetAction("UpdateShare");
       IList<object> inParameters = new List<object>
         {
-            shareId.ToString("B"),
+            MarshallingHelper.SerializeGuid(shareId),
             baseResourcePath.Serialize(),
             shareName,
             StringUtils.Join(",", mediaCategories)
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public Share GetShare(Guid shareId)
     {
       CpAction action = GetAction("GetShare");
-      IList<object> inParameters = new List<object> {shareId.ToString("B")};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(shareId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (Share) outParameters[0];
     }
@@ -144,7 +144,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public void RemoveMediaItemAspectStorage(Guid aspectId)
     {
       CpAction action = GetAction("RemoveMediaItemAspectStorage");
-      IList<object> inParameters = new List<object> {aspectId.ToString("B")};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(aspectId)};
       action.InvokeAction(inParameters);
     }
 
@@ -156,14 +156,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
       string miaTypeIDs = (string) outParameters[0];
       ICollection<Guid> result = new List<Guid>();
       foreach (string miamIdStr in miaTypeIDs.Split(','))
-        result.Add(new Guid(miamIdStr));
+        result.Add(MarshallingHelper.DeserializeGuid(miamIdStr));
       return result;
     }
 
     public MediaItemAspectMetadata GetMediaItemAspectMetadata(Guid miamId)
     {
       CpAction action = GetAction("GetMediaItemAspectMetadata");
-      IList<object> inParameters = new List<object> {miamId.ToString("B")};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(miamId)};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (MediaItemAspectMetadata) outParameters[0];
     }

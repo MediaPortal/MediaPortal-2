@@ -42,5 +42,15 @@ namespace MediaPortal.Utilities.UPnP
         result.Add(new Guid(guidStr));
       return result;
     }
+
+    public static string SerializeGuid(Guid guid)
+    {
+      return guid.ToString("B");
+    }
+
+    public static Guid DeserializeGuid(string guidStr)
+    {
+      return new Guid(guidStr);
+    }
   }
 }
