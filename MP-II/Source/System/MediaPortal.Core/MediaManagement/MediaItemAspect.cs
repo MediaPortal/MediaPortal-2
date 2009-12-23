@@ -336,7 +336,7 @@ namespace MediaPortal.Core.MediaManagement
     public static void SerializeValue(XmlWriter writer, object obj, Type type)
     {
       writer.WriteStartElement("Value");
-      if (MediaItemAspectMetadata.SUPPORTED_BASIC_TYPES.Contains(type))
+      if (type == typeof(string) || MediaItemAspectMetadata.SUPPORTED_BASIC_TYPES.Contains(type))
       {
         if (obj == null)
           XmlSerialization.WriteNull(writer);
