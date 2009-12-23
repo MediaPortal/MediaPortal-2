@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using MediaPortal.Utilities.Xml;
 using UPnP.Infrastructure.Utils;
 
 namespace MediaPortal.Core.MediaManagement
@@ -336,13 +337,21 @@ namespace MediaPortal.Core.MediaManagement
     {
       writer.WriteStartElement("Value");
       if (MediaItemAspectMetadata.SUPPORTED_BASIC_TYPES.Contains(type))
-        writer.WriteValue(obj);
+      {
+        if (obj == null)
+          XmlSerialization.WriteNull(writer);
+        else
+          writer.WriteValue(obj);
+      }
       writer.WriteEndElement();
     }
 
     public static object DeserializeValue(XmlReader reader, Type type)
     {
-      return reader.ReadElementContentAs(type, null);
+      if (XmlSerialization.ReadNull(reader))
+        return null;
+      else
+        return reader.ReadElementContentAs(type, null);
     }
 
     protected void CheckCollectionAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
