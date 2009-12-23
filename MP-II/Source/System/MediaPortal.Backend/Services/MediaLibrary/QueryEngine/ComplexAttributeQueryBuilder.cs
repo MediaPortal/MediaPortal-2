@@ -131,7 +131,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       {
         TableQueryData tqd;
         if (!tableQueries.TryGetValue(miaType, out tqd))
-          tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
+          tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
         tableJoins.Add(new TableJoin("INNER JOIN", tqd,
             new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME), miaIdAttribute));
       }
@@ -168,6 +168,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // Always request the main join table (depending on the cardinality of query attribute)
       result.Append(mainJoinTableQuery.GetDeclarationWithAlias(ns));
+      result.Append(' ');
 
       // Other joined tables
       foreach (TableJoin tableJoin in tableJoins)
@@ -176,9 +177,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      result.Append(" WHERE ");
-      result.Append(_filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns)));
+      string whereStr = _filter.CreateSqlFilterCondition(ns, requestedAttributes,
+          miaIdAttribute.GetQualifiedName(ns));
+      if (!string.IsNullOrEmpty(whereStr))
+      {
+        result.Append(" WHERE ");
+        result.Append(whereStr);
+      }
 
       return result.ToString();
     }
