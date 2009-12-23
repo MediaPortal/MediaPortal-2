@@ -326,12 +326,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         case "All":
           all = true;
           break;
-        case "OnlyConnected":
+        case "OnlyOnline":
           all = false;
           break;
         default:
           all = true;
-          return new UPnPError(600, "Argument 'OnlineState' must be of value 'All' or 'OnlyConnected'");
+          return new UPnPError(600, "Argument 'OnlineState' must be of value 'All' or 'OnlyOnline'");
       }
       return null;
     }
