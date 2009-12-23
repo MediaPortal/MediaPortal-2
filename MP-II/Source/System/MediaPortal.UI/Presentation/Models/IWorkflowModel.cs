@@ -234,8 +234,11 @@ namespace MediaPortal.UI.Presentation.Models
     /// </remarks>
     /// <param name="context">Current navigation context, which should be enriched with additional
     /// dynamic menu actions.</param>
-    /// <param name="actions">Collection where this model can add additional menu actions valid for
-    /// the specified navigation <paramref name="context"/>.</param>
-    void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions);
+    /// <param name="actions">Dictionary of action IDs mapped to actions which are scheduled for the new state given by
+    /// <paramref name="context"/>, where this model can add additional menu actions valid for the specified navigation
+    /// <paramref name="context"/>.
+    /// As input, the workflow manager gives already scheduled actions. This workflow model can then change (add, remove)
+    /// the dictionary.</param>
+    void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions);
   }
 }

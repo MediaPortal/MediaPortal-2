@@ -995,12 +995,13 @@ namespace UiComponents.Media.Models
       SwitchToCurrentScreen();
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       PrepareState(context);
       ICollection<WorkflowAction> dynamicWorkflowActions = DynamicWorkflowActions;
       if (dynamicWorkflowActions != null)
-        CollectionUtils.AddAll(actions, dynamicWorkflowActions);
+        foreach (WorkflowAction action in dynamicWorkflowActions)
+          actions.Add(action.ActionId, action);
     }
 
     #endregion

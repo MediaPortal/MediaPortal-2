@@ -884,7 +884,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       PrepareState(newContext.WorkflowState.StateId);
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Not used yet, currently we don't show any menu during the shares configuration process.
       // Perhaps we'll add menu actions later for different convenience procedures like initializing the

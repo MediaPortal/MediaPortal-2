@@ -658,7 +658,7 @@ namespace UiComponents.SkinBase.Models
       // Nothing to do here
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do here
     }

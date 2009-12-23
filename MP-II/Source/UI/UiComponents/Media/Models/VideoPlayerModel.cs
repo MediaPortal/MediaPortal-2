@@ -243,7 +243,7 @@ namespace UiComponents.Media.Models
       _inactive = false;
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do
     }

@@ -362,12 +362,13 @@ namespace MediaPortal.UI.Services.Workflow
       {
         // Compile menu actions
         logger.Debug("WorkflowManager: Compiling menu actions for workflow state '{0}'", state.Name);
-        ICollection<WorkflowAction> menuActions =
-            new List<WorkflowAction>(FilterActionsBySourceState(state.StateId, _menuActions.Values));
+        IDictionary<Guid, WorkflowAction> menuActions = new Dictionary<Guid, WorkflowAction>();
+        foreach (WorkflowAction action in FilterActionsBySourceState(state.StateId, _menuActions.Values))
+          menuActions.Add(action.ActionId, action);
         if (workflowModel != null)
           workflowModel.UpdateMenuActions(newContext, menuActions);
 
-        newContext.SetMenuActions(menuActions);
+        newContext.SetMenuActions(menuActions.Values);
       }
 
       IterateCache();

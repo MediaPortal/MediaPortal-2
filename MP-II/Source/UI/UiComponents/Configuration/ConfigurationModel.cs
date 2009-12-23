@@ -451,7 +451,7 @@ namespace UiComponents.Configuration
         ServiceScope.Get<IConfigurationManager>().Dispose();
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       IConfigurationManager configurationManager = ServiceScope.Get<IConfigurationManager>();
       string configLocation = GetConfigLocation(context);
@@ -486,7 +486,7 @@ namespace UiComponents.Configuration
                     {CONFIG_LOCATION_KEY, childNode.Location}
                 }
             };
-          actions.Add(wa);
+          actions.Add(wa.ActionId, wa);
         }
       }
     }

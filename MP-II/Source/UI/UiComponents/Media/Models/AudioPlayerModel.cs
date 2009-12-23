@@ -116,7 +116,7 @@ namespace UiComponents.Media.Models
       // TODO
     }
 
-    public void UpdateMenuActions(NavigationContext context, ICollection<WorkflowAction> actions)
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // TODO
     }
