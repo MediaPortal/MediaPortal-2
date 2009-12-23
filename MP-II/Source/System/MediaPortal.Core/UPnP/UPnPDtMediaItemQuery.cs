@@ -25,7 +25,6 @@
 
 using System;
 using System.Xml;
-using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using UPnP.Infrastructure.Common;
 
@@ -54,7 +53,7 @@ namespace MediaPortal.Core.UPnP
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(Share).IsAssignableFrom(type);
+      return typeof(MediaItemQuery).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
