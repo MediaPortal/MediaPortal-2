@@ -38,7 +38,7 @@ using MediaPortal.UI.ServerCommunication;
 namespace UiComponents.SkinBase.Models
 {
   /// <summary>
-  /// Model which attends the workflow states "AttachToServer" and "DetachFromServer".
+  /// Model which attends the dialog workflow states "AttachToServer" and "DetachFromServer".
   /// </summary>
   public class ServerAttachmentModel : IWorkflowModel
   {
@@ -413,14 +413,11 @@ namespace UiComponents.SkinBase.Models
         object o = newContext.GetContextVariable(AUTO_CLOSE_ON_NO_SERVER_KEY, false);
         if (o != null)
           _autoCloseOnNoServer = (bool) o;
-        SynchronizeAvailableServers();
-        ShowAttachToServerDialog();
       }
       else if (newContext.WorkflowState.StateId == DETACH_FROM_SERVER_STATE)
       {
         lock (_syncObj)
           _mode = Mode.DetachFromServer;
-        ShowDetachConfirmationDialog();
       }
     }
 
@@ -449,6 +446,25 @@ namespace UiComponents.SkinBase.Models
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      Mode mode;
+      lock (_syncObj)
+        mode = _mode;
+      switch (mode)
+      {
+        case Mode.AttachToServer:
+          ShowAttachToServerDialog();
+          break;
+        case Mode.DetachFromServer:
+          ShowDetachConfirmationDialog();
+          break;
+        default:
+          return ScreenUpdateMode.AutoWorkflowManager; // Error case
+      }
+      return ScreenUpdateMode.ManualWorkflowModel;
     }
 
     #endregion

@@ -91,20 +91,6 @@ namespace UiComponents.Media.Models
       PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
     }
 
-    protected void UpdateScreen()
-    {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
-      switch (_currentVideoStateType)
-      {
-        case VideoStateType.CurrentlyPlaying:
-          screenManager.ExchangeScreen(CURRENTLY_PLAYING_SCREEN_NAME);
-          break;
-        case VideoStateType.FullscreenContent:
-          screenManager.ExchangeScreen(FULLSCREENVIDEO_SCREEN_NAME);
-          break;
-      }
-    }
-
     protected static bool CanHandlePlayer(IPlayer player)
     {
       return player is IVideoPlayer;
@@ -128,7 +114,6 @@ namespace UiComponents.Media.Models
         screenManager.BackgroundDisabled = false;
         _currentVideoStateType = VideoStateType.None;
       }
-      UpdateScreen();
     }
 
     #region Members to be accessed from the GUI
@@ -246,6 +231,20 @@ namespace UiComponents.Media.Models
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      switch (_currentVideoStateType)
+      {
+        case VideoStateType.CurrentlyPlaying:
+          screen = CURRENTLY_PLAYING_SCREEN_NAME;
+          break;
+        case VideoStateType.FullscreenContent:
+          screen = FULLSCREENVIDEO_SCREEN_NAME;
+          break;
+      }
+      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

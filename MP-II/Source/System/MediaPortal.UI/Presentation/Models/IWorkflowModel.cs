@@ -29,6 +29,22 @@ using MediaPortal.UI.Presentation.Workflow;
 namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
+  /// Mode how the screen for a workflow state should be set.
+  /// </summary>
+  public enum ScreenUpdateMode
+  {
+    /// <summary>
+    /// The screen for a workflow state will be set by the workflow manager from the configured screen automatically.
+    /// </summary>
+    AutoWorkflowManager,
+
+    /// <summary>
+    /// The screen for a workflow state will be set manually by the workflow model.
+    /// </summary>
+    ManualWorkflowModel
+  }
+
+  /// <summary>
   /// A workflow model is a special GUI model which is able to attend some states of a GUI workflow.
   /// It provides methods to track the current workflow state and to enrich the state with
   /// special state content like special menu-actions.
@@ -80,16 +96,20 @@ namespace MediaPortal.UI.Presentation.Models
   /// State 1 -> 2:
   /// <c>configurationModel.CanEnterState([Home], [Settings]);</c>
   /// <c>configurationModel.EnterModelContext([Home], [Settings]);</c>
+  /// <c>configurationModel.UpdateScreen([Settings]);</c>
   /// State 2 -> 3:
   /// <c>configurationModel.CanEnterState([Settings], [Shares]);</c>
   /// <c>configurationModel.ChangeModelContext([Settings], [Shares]);</c>
+  /// <c>configurationModel.UpdateScreen([Shares]);</c>
   /// State 3 -> 4:
   /// <c>mediaModel.CanEnterState([Shares], [New share name]);</c>
   /// <c>configurationModel.Deactivate([Shares], [New share name]);</c>
   /// <c>mediaModel.EnterModelContext([Shares], [New share name]);</c>
+  /// <c>mediaModel.UpdateScreen([New share name]);</c>
   /// State 4 -> 5:
   /// <c>mediaModel.CanEnterState([New share name], [Choose share provider]);</c>
   /// <c>mediaModel.ChangeModelContext([New share name], [Choose share provider]);</c>
+  /// <c>mediaModel.UpdateScreen([Choose share provider]);</c>
   /// ...
   /// </para>
   /// <para>
@@ -98,16 +118,21 @@ namespace MediaPortal.UI.Presentation.Models
   /// State 5 -> 4:
   /// <c>mediaModel.CanEnterState([Choose share provider], [New share name]);</c>
   /// <c>mediaModel.ChangeModelContext([Choose share provider], [New share name]);</c>
+  /// <c>mediaModel.UpdateScreen([New share name]);</c>
   /// State 4 -> 3:
   /// <c>configurationModel.CanEnterState([New share name], [Shares]);</c>
   /// <c>mediaModel.ExitModelContext([New share name], [Shares]);</c>
   /// <c>configurationModel.ReActivate([New share name], [Shares]);</c>
+  /// <c>configurationModel.UpdateScreen([Shares]);</c>
   /// State 3 -> 2:
   /// <c>configurationModel.CanEnterState([Shares], [Settings]);</c>
   /// <c>configurationModel.ChangeModelContext([Shares], [Settings]);</c>
+  /// <c>configurationModel.UpdateScreen([Settings]);</c>
   /// State 2 -> 1:
   /// <c>configurationModel.ExitModelContext([Settings], [Home]);</c>
   /// </para>
+  /// The <see cref="UpdateScreen"/> method is only called if the corresponding workflow state doesn't have
+  /// a workflow main screen set.
   /// </remarks>
   public interface IWorkflowModel
   {
@@ -240,5 +265,20 @@ namespace MediaPortal.UI.Presentation.Models
     /// As input, the workflow manager gives already scheduled actions. This workflow model can then change (add, remove)
     /// the dictionary.</param>
     void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions);
+
+    /// <summary>
+    /// Lets the workflow model modify the screen of the <see cref="WorkflowState.MainScreen"/> of the current
+    /// <paramref name="context"/> (or initialy set the screen, if the <see cref="WorkflowState.MainScreen"/> property isn't
+    /// set in the current state).
+    /// </summary>
+    /// <param name="context">Current workflow navigation context for that the screen should be updated.</param>
+    /// <param name="screen">Screen which should be set. As input, this parameter will be initialized with the
+    /// <see cref="WorkflowState.MainScreen"/> property of the <paramref name="context"/>'s workflow state,
+    /// if present. As output, if the return value is <see cref="ScreenUpdateMode.AutoWorkflowManager"/>, this parameter
+    /// must denote a valid screen. In case the return value is <see cref="ScreenUpdateMode.ManualWorkflowModel"/>,
+    /// this parameter won't be evaluated and may be ignored.</param>
+    /// <returns>Mode to configure how the screen for the current workflow navigation <paramref name="context"/> should
+    /// be set.</returns>
+    ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen);
   }
 }

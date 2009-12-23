@@ -37,7 +37,6 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Utilities;
 using UiComponents.Media.Navigation;
 
 namespace UiComponents.Media.Models
@@ -969,7 +968,6 @@ namespace UiComponents.Media.Models
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       PrepareState(newContext);
-      SwitchToCurrentScreen();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
@@ -980,7 +978,6 @@ namespace UiComponents.Media.Models
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       PrepareState(newContext);
-      SwitchToCurrentScreen();
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -992,7 +989,6 @@ namespace UiComponents.Media.Models
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
       PrepareState(newContext);
-      SwitchToCurrentScreen();
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
@@ -1002,6 +998,12 @@ namespace UiComponents.Media.Models
       if (dynamicWorkflowActions != null)
         foreach (WorkflowAction action in dynamicWorkflowActions)
           actions.Add(action.ActionId, action);
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      screen = Screen;
+      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

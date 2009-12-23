@@ -37,7 +37,8 @@ using MediaPortal.UI.Presentation.Workflow;
 namespace UiComponents.SkinBase.Models
 {
   /// <summary>
-  /// This model attends the dialogs "DialogPlayerConfiguration" and "DialogChooseAudioStream".
+  /// This model attends the dialogs "DialogPlayerConfiguration", "DialogChooseAudioStream", "DialogPlayerSlotAudio" and
+  /// "DialogPlayerChooseGeometry".
   /// </summary>
   public class PlayerConfigurationDialogModel : BaseMessageControlledUIModel, IWorkflowModel
   {
@@ -661,6 +662,11 @@ namespace UiComponents.SkinBase.Models
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
       // Nothing to do here
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

@@ -477,7 +477,7 @@ namespace UiComponents.Configuration
           IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);
           WorkflowAction wa = new PushTransientStateNavigationTransition(
               Guid.NewGuid(), context.WorkflowState.Name + "->" + childNode.Location,
-                  context.WorkflowState.StateId, newState, res)
+              context.WorkflowState.StateId, newState, res)
             {
                 DisplayCategory = ACTIONS_WORKFLOW_CATEGORY,
                 SortOrder = res.Evaluate(),
@@ -489,6 +489,11 @@ namespace UiComponents.Configuration
           actions.Add(wa.ActionId, wa);
         }
       }
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
     }
 
     #endregion

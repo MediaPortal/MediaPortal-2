@@ -212,6 +212,11 @@ namespace UiComponents.SkinBase.Models
       // Nothing to do
     }
 
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
     #endregion
   }
 }

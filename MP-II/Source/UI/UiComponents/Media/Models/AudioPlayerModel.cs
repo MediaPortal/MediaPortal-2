@@ -121,6 +121,12 @@ namespace UiComponents.Media.Models
       // TODO
     }
 
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      // TODO
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
     #endregion
 
     #region Overrides of BaseTimerControlledUIModel

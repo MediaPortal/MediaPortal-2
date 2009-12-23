@@ -33,6 +33,7 @@ using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Workflow
 {
@@ -484,16 +485,29 @@ namespace MediaPortal.UI.Services.Workflow
       ILogger logger = ServiceScope.Get<ILogger>();
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       NavigationContext currentContext = CurrentNavigationContext;
+      Guid? workflowModelId = currentContext.WorkflowModelId;
+      IWorkflowModel workflowModel = workflowModelId.HasValue ?
+          GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
       string screen = currentContext.WorkflowState.MainScreen;
+      ScreenUpdateMode updateMode = workflowModel == null ? ScreenUpdateMode.AutoWorkflowManager :
+          workflowModel.UpdateScreen(currentContext, ref screen);
       if (screen == null)
+        throw new UnexpectedStateException("WorkflowManager: No main screen available for workflow state '{0}' (id '{1}')",
+            currentContext.WorkflowState.Name, currentContext.WorkflowState.StateId);
+
+      if (updateMode == ScreenUpdateMode.ManualWorkflowModel)
+      {
+        logger.Info("WorkflowManager: Screen will be updated by workflow model");
         return true;
+      }
       bool result;
-      if (currentContext.WorkflowState.WorkflowType == WorkflowType.Workflow)
+      WorkflowType workflowType = currentContext.WorkflowState.WorkflowType;
+      if (workflowType == WorkflowType.Workflow)
       {
         logger.Info("WorkflowManager: Trying to show screen '{0}'...", screen);
         result = screenManager.ShowScreen(screen);
       }
-      else if (currentContext.WorkflowState.WorkflowType == WorkflowType.Dialog)
+      else if (workflowType == WorkflowType.Dialog)
       {
         logger.Info("WorkflowManager: Trying to open dialog screen '{0}'...", screen);
         result = screenManager.ShowDialog(screen, dialogName =>
@@ -503,7 +517,7 @@ namespace MediaPortal.UI.Services.Workflow
           });
       }
       else
-        result = true;
+        throw new NotImplementedException(string.Format("WorkflowManager: WorkflowType '{0}' is not implemented", workflowType));
 
       if (result)
         logger.Info("WorkflowManager: Screen '{0}' successfully shown", screen);

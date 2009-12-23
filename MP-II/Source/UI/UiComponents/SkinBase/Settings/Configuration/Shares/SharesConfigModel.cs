@@ -891,6 +891,11 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       // shares to their default setting, ...
     }
 
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
     #endregion
   }
 }
