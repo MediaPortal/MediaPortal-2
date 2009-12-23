@@ -115,7 +115,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
           onlineStateStr = "All";
           break;
         case SharesFilter.ConnectedShares:
-          onlineStateStr = "OnlyConnected";
+          onlineStateStr = "OnlyOnline";
           break;
         default:
           throw new NotImplementedException(string.Format("SharesFilter '{0}' is not implemented", sharesFilter));
@@ -169,20 +169,20 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     // Media query
-    public IList<MediaItem> Search(MediaItemQuery query, bool onlyConnected)
+    public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
     {
       CpAction action = GetAction("Search");
-      String onlineStateStr = onlyConnected ? "OnlyConnected" : "All";
+      String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
       IList<object> inParameters = new List<object> {query, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
 
     public ICollection<MediaItem> Browse(string systemId, ResourcePath path,
-        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyConnected)
+        IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyOnline)
     {
       CpAction action = GetAction("Browse");
-      String onlineStateStr = onlyConnected ? "OnlyConnected" : "All";
+      String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
       IList<object> inParameters = new List<object> {systemId, path,
           MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
           MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes), onlineStateStr};
@@ -194,8 +194,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         IEnumerable<Guid> necessaryMIATypes, IFilter filter)
     {
       CpAction action = GetAction("GetDistinctAssociatedValues");
-      IList<object> inParameters = new List<object> {attributeType.ParentMIAM.AspectId, attributeType.AttributeName,
-          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter};
+      IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
+          attributeType.AttributeName, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (HomogenousCollection) outParameters[0];
     }
