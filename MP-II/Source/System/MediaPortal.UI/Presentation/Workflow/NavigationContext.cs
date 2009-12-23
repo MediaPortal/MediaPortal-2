@@ -155,6 +155,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// Sets the menu actions which belong to this navigation context. The collection of actions
     /// which will be bound to the system in this method and unbound when this navigation context is disposed.
     /// </summary>
+    /// <param name="actions">Actions to be set on this navigation context. Existing actions will be cleared first.</param>
     public void SetMenuActions(IEnumerable<WorkflowAction> actions)
     {
       UninitializeMenuActions();
@@ -219,8 +220,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     public object GetContextVariable(string key, bool inheritFromPredecessor)
     {
       lock (_syncObj)
-        return _contextVariables.ContainsKey(key) ? _contextVariables[key] :
+      {
+        object value;
+        return _contextVariables.TryGetValue(key, out value) ? value :
           (inheritFromPredecessor && _predecessor != null ? _predecessor.GetContextVariable(key, true) : null);
+      }
     }
 
     /// <summary>
