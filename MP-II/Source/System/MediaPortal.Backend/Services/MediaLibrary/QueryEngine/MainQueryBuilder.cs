@@ -267,12 +267,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append("WHERE ");
         result.Append(whereStr);
       }
-      if (compiledSortInformation != null)
+      if (compiledSortInformation != null && compiledSortInformation.Count > 0)
       {
         IList<string> sortCriteria = new List<string>();
         foreach (CompiledSortInformation csi in compiledSortInformation)
           sortCriteria.Add(csi.GetSortDeclaration(ns));
-        result.Append(" ORDER BY ");
+        result.Append("ORDER BY ");
         result.Append(StringUtils.Join(", ", sortCriteria));
       }
 
