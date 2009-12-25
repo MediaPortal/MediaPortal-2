@@ -44,15 +44,16 @@ namespace MediaPortal.UI.Services.MediaManagement
       get { return _locallyKnownMediaItemAspectTypes; }
     }
 
-    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miam)
+    public void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType)
     {
-      if (_locallyKnownMediaItemAspectTypes.ContainsKey(miam.AspectId))
+      if (_locallyKnownMediaItemAspectTypes.ContainsKey(miaType.AspectId))
         return;
+      _locallyKnownMediaItemAspectTypes.Add(miaType.AspectId, miaType);
       IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
       IContentDirectory cd = serverConnectionManager == null ? null :
           serverConnectionManager.ContentDirectory;
       if (cd != null)
-        cd.AddMediaItemAspectStorage(miam);
+        cd.AddMediaItemAspectStorage(miaType);
     }
   }
 }
