@@ -47,6 +47,7 @@ namespace MediaPortal.Core.MediaManagement
     /// data of that type (extracted by a metadata extractor) to the MediaPortal server and 2) for the deserialization
     /// system.
     /// </remarks>
-    void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miam);
+    /// <param name="miaType">Media item aspect type to register.</param>
+    void RegisterLocallyKnownMediaItemAspectType(MediaItemAspectMetadata miaType);
   }
 }
