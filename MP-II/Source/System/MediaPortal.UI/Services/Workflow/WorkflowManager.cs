@@ -491,15 +491,15 @@ namespace MediaPortal.UI.Services.Workflow
       string screen = currentContext.WorkflowState.MainScreen;
       ScreenUpdateMode updateMode = workflowModel == null ? ScreenUpdateMode.AutoWorkflowManager :
           workflowModel.UpdateScreen(currentContext, ref screen);
-      if (screen == null)
-        throw new UnexpectedStateException("WorkflowManager: No main screen available for workflow state '{0}' (id '{1}')",
-            currentContext.WorkflowState.Name, currentContext.WorkflowState.StateId);
 
       if (updateMode == ScreenUpdateMode.ManualWorkflowModel)
       {
         logger.Info("WorkflowManager: Screen will be updated by workflow model");
         return true;
       }
+      if (screen == null)
+        throw new UnexpectedStateException("WorkflowManager: No main screen available for workflow state '{0}' (id '{1}')",
+            currentContext.WorkflowState.Name, currentContext.WorkflowState.StateId);
       bool result;
       WorkflowType workflowType = currentContext.WorkflowState.WorkflowType;
       if (workflowType == WorkflowType.Workflow)
