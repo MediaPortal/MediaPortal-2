@@ -77,11 +77,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (boolFilter != null)
       {
         IList<object> result = new List<object>();
+        int numOperands = boolFilter.Operands.Length;
         IEnumerator enumOperands = boolFilter.Operands.GetEnumerator();
         if (!enumOperands.MoveNext())
           return result;
-        result.Add("(");
-        result.Add(enumOperands.Current);
+        if (numOperands > 1)
+          result.Add("(");
+        CollectionUtils.AddAll(result,
+            CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder));
         while (enumOperands.MoveNext())
         {
           switch (boolFilter.Operator)
@@ -96,21 +99,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          result.Add(CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder));
+          CollectionUtils.AddAll(result,
+              CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, outerMIIDJoinVariablePlaceHolder));
         }
-        result.Add(")");
+        if (numOperands > 1)
+          result.Add(")");
         return result;
       }
 
       NotFilter notFilter = filter as NotFilter;
       if (notFilter != null)
       {
-        IList<object> result = new List<object>
-        {
-          "NOT (",
-          CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder),
-          ")"
-        };
+        IList<object> result = new List<object> {"NOT ("};
+        CollectionUtils.AddAll(result,
+            CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder));
+        result.Add(")");
         return result;
       }
 
@@ -224,6 +227,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 "Relational filter operator '{0}' isn't supported by the media library", relationalFilter.Operator));
         }
         result.Add(relationalFilter.FilterValue);
+        return result;
       }
 
       LikeFilter likeFilter = filter as LikeFilter;
@@ -235,6 +239,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Add(" ESCAPE '");
         result.Add(likeFilter.EscapeChar);
         result.Add("'");
+        return result;
       }
 
       SimilarToFilter similarToFilter = filter as SimilarToFilter;
@@ -246,6 +251,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Add(" ESCAPE '");
         result.Add(similarToFilter.EscapeChar);
         result.Add("'");
+        return result;
       }
 
       BetweenFilter betweenFilter = filter as BetweenFilter;
@@ -256,6 +262,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Add(betweenFilter.Value1);
         result.Add(" AND ");
         result.Add(betweenFilter.Value2);
+        return result;
       }
 
       InFilter inFilter = filter as InFilter;
@@ -273,6 +280,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           result.Add(valueEnum.Current);
         }
         result.Add(")");
+        return result;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
     }

@@ -29,24 +29,16 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// <summary>
   /// Abstract super class for all filters providing an filter expression and an escape char, like LIKE and SIMILAR TO.
   /// </summary>
-  public abstract class AbstractExpressionFilter : IAttributeFilter
+  public abstract class AbstractExpressionFilter : AbstractAttributeFilter
   {
-    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
     protected string _expression;
     protected char _escapeChar;
 
     protected AbstractExpressionFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        string expression, char escapeChar)
+        string expression, char escapeChar) : base(attributeType)
     {
-      _attributeType = attributeType;
       _expression = expression;
       _escapeChar = escapeChar;
-    }
-
-    [XmlIgnore]
-    public MediaItemAspectMetadata.AttributeSpecification AttributeType
-    {
-      get { return _attributeType; }
     }
 
     [XmlIgnore]
@@ -64,16 +56,6 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     #region Additional members for the XML serialization
 
     internal AbstractExpressionFilter() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("AttributeType", IsNullable = false)]
-    public MediaItemAspectMetadata.AttributeSpecification XML_AttributeType
-    {
-      get { return _attributeType; }
-      set { _attributeType = value; }
-    }
 
     /// <summary>
     /// For internal use of the XML serialization system only.

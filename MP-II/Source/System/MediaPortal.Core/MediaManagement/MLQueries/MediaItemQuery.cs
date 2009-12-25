@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
-using MediaPortal.Core.Logging;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
@@ -73,21 +72,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlElement("AttributeType", IsNullable=false)]
     public string XML_AttributeType
     {
-      get { return _attributeType.ParentMIAM.AspectId + ":" + _attributeType.AttributeName; }
-      set
-      {
-        int index = value.IndexOf(':');
-        IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
-        Guid aspectId = new Guid(value.Substring(0, index));
-        string attributeName = value.Substring(index + 1);
-        MediaItemAspectMetadata miam;
-        if (!miatr.LocallyKnownMediaItemAspectTypes.TryGetValue(aspectId, out miam) ||
-            !miam.AttributeSpecifications.TryGetValue(attributeName, out _attributeType))
-        {
-          ServiceScope.Get<ILogger>().Warn("SortInformation: Could not deserialize SortInformation '{0}'", value);
-          _attributeType = null;
-        }
-      }
+      get { return SerializationHelper.SerializeAttributeTypeReference(_attributeType); }
+      set { _attributeType = SerializationHelper.DeserializeAttributeTypeReference(value); }
     }
 
     #endregion

@@ -181,7 +181,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           miaIdAttribute.GetQualifiedName(ns));
       if (!string.IsNullOrEmpty(whereStr))
       {
-        result.Append(" WHERE ");
+        result.Append("WHERE ");
         result.Append(whereStr);
       }
 

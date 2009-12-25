@@ -26,55 +26,33 @@ using System.Xml.Serialization;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
 {
-  /// <summary>
-  /// Specifies an expression which filters media items by an attribute between two given values.
-  /// </summary>
-  public class BetweenFilter : AbstractAttributeFilter
+  public abstract class AbstractAttributeFilter : IAttributeFilter
   {
-    protected object _value1;
-    protected object _value2;
+    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
 
-    public BetweenFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        object value1, object value2) : base(attributeType)
+    protected AbstractAttributeFilter(MediaItemAspectMetadata.AttributeSpecification attributeType)
     {
-      _value1 = value1;
-      _value2 = value2;
+      _attributeType = attributeType;
     }
 
     [XmlIgnore]
-    public object Value1
+    public MediaItemAspectMetadata.AttributeSpecification AttributeType
     {
-      get { return _value1; }
-    }
-
-    [XmlIgnore]
-    public object Value2
-    {
-      get { return _value2; }
+      get { return _attributeType; }
     }
 
     #region Additional members for the XML serialization
 
-    internal BetweenFilter() { }
+    internal AbstractAttributeFilter() { }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("Value1")]
-    public object XML_Value1
+    [XmlElement("AttributeType", IsNullable = false)]
+    public string XML_AttributeType
     {
-      get { return _value1; }
-      set { _value1 = value; }
-    }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("Value2")]
-    public object XML_Value2
-    {
-      get { return _value2; }
-      set { _value2 = value; }
+      get { return SerializationHelper.SerializeAttributeTypeReference(_attributeType); }
+      set { _attributeType = SerializationHelper.DeserializeAttributeTypeReference(value); }
     }
 
     #endregion

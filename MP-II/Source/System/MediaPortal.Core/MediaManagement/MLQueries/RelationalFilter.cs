@@ -65,24 +65,16 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   /// <summary>
   /// Specifies an expression which filters media items by an attribute of one of their media item aspects.
   /// </summary>
-  public class RelationalFilter : IAttributeFilter
+  public class RelationalFilter : AbstractAttributeFilter
   {
-    protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
     protected RelationalOperator _operator;
     protected object _filterValue;
 
     public RelationalFilter(MediaItemAspectMetadata.AttributeSpecification attributeType,
-        RelationalOperator op, object filterValue)
+        RelationalOperator op, object filterValue) : base(attributeType)
     {
-      _attributeType = attributeType;
       _operator = op;
       _filterValue = filterValue;
-    }
-
-    [XmlIgnore]
-    public MediaItemAspectMetadata.AttributeSpecification AttributeType
-    {
-      get { return _attributeType; }
     }
 
     [XmlIgnore]
@@ -100,16 +92,6 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     #region Additional members for the XML serialization
 
     internal RelationalFilter() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("AttributeType", IsNullable = false)]
-    public MediaItemAspectMetadata.AttributeSpecification XML_AttributeType
-    {
-      get { return _attributeType; }
-      set { _attributeType = value; }
-    }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
