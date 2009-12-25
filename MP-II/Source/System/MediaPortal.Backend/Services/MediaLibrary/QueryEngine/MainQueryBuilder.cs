@@ -120,20 +120,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types This
     /// parameter will only be set to a valid value if <paramref name="distinctValue"/> is set to <c>false</c>.</param>
     /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-    /// <returns>
-    /// In case of <c><paramref name="distinctValue"/> == true</c>, A query of the form
-    /// <code>
-    ///   TODO
-    /// </code>
-    /// will be created. In case of <c><paramref name="distinctValue"/> == false</c>, the query will look like this:
-    /// <code>
-    ///   TODO
-    /// </code>
-    /// </returns>
-    public string GenerateSqlStatement(Namespace ns, bool distinctValue,
+    /// <param name="statementStr">SQL statement which was built by this method.</param>
+    /// <param name="values">Values to be inserted into the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlStatement(Namespace ns, bool distinctValue,
         out string mediaItemIdAlias,
         out IDictionary<MediaItemAspectMetadata, string> miamAliases,
-        out IDictionary<QueryAttribute, string> attributeAliases)
+        out IDictionary<QueryAttribute, string> attributeAliases,
+        out string statementStr, out IList<object> values)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
@@ -261,7 +254,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      string whereStr = _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns));
+      string whereStr;
+      _filter.CreateSqlFilterCondition(ns, requestedAttributes, miaIdAttribute.GetQualifiedName(ns), out whereStr, out values);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");
@@ -276,7 +270,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(StringUtils.Join(", ", sortCriteria));
       }
 
-      return result.ToString();
+      statementStr = result.ToString();
     }
 
     public override string ToString()
@@ -285,7 +279,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IDictionary<MediaItemAspectMetadata, string> miamAliases;
       Namespace mainQueryNS = new Namespace();
       IDictionary<QueryAttribute, string> qa2a;
-      return GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2a);
+      string statementStr;
+      IList<object> values;
+      GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out values);
+      return statementStr;
     }
   }
 }

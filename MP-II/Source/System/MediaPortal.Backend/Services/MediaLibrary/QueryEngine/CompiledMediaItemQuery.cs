@@ -143,6 +143,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       try
       {
         IDbCommand command;
+        string statementStr;
+        IList<object> values;
 
         // 1. Request all complex attributes
         IDictionary<long, IDictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>> complexAttributeValues =
@@ -154,8 +156,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           command = transaction.CreateCommand();
           string mediaItemIdAlias;
           string valueAlias;
-          command.CommandText = complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), false,
-              out mediaItemIdAlias, out valueAlias);
+          complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), false, out mediaItemIdAlias, out valueAlias,
+              out statementStr, out values);
+          command.CommandText = statementStr;
+          foreach (object value in values)
+          {
+            IDbDataParameter param = command.CreateParameter();
+            param.Value = value;
+            command.Parameters.Add(param);
+          }
 
           IDataReader reader = command.ExecuteReader();
           try
@@ -168,10 +177,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               if (!complexAttributeValues.TryGetValue(mediaItemId, out attributeValues))
                 attributeValues = complexAttributeValues[mediaItemId] =
                     new Dictionary<MediaItemAspectMetadata.AttributeSpecification, ICollection<object>>();
-              ICollection<object> values;
-              if (!attributeValues.TryGetValue(attr, out values))
-                values = attributeValues[attr] = new List<object>();
-              values.Add(value);
+              ICollection<object> attrValues;
+              if (!attributeValues.TryGetValue(attr, out attrValues))
+                attrValues = attributeValues[attr] = new List<object>();
+              attrValues.Add(value);
             }
           }
           finally
@@ -190,8 +199,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         Namespace mainQueryNS = new Namespace();
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
         IDictionary<QueryAttribute, string> qa2a;
-        command.CommandText = mainQueryBuilder.GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2,
-            out miamAliases, out qa2a);
+        mainQueryBuilder.GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2a,
+            out statementStr, out values);
+        command.CommandText = statementStr;
+        foreach (object value in values)
+        {
+          IDbDataParameter param = command.CreateParameter();
+          param.Value = value;
+          command.Parameters.Add(param);
+        }
 
         ICollection<MediaItemAspectMetadata> selectedMIAs = new HashSet<MediaItemAspectMetadata>();
         foreach (MediaItemAspectMetadata.AttributeSpecification attr in CollectionUtils.UnionList(_mainSelectAttributes.Keys, _explicitSelectAttributes))
@@ -223,9 +239,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
                 }
                 else
                 {
-                  ICollection<object> values;
-                  if (attributeValues != null && attributeValues.TryGetValue(attr, out values))
-                    mia.SetCollectionAttribute(attr, values);
+                  ICollection<object> attrValues;
+                  if (attributeValues != null && attributeValues.TryGetValue(attr, out attrValues))
+                    mia.SetCollectionAttribute(attr, attrValues);
                 }
               mediaItem.Aspects[miam.AspectId] = mia;
             }

@@ -111,8 +111,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
           IDictionary<QueryAttribute, string> qa2a;
-          command.CommandText = builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias,
-              out miamAliases, out qa2a);
+          string statementStr;
+          IList<object> values;
+          builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias, out miamAliases, out qa2a,
+              out statementStr, out values);
+          command.CommandText = statementStr;
+          foreach (object value in values)
+          {
+            IDbDataParameter param = command.CreateParameter();
+            param.Value = value;
+            command.Parameters.Add(param);
+          }
           valueAlias = qa2a[selectAttributeQA];
         }
         else
@@ -120,8 +129,17 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
               _necessaryRequestedMIATypes, _filter);
           string mediaItemIdAlias;
-          command.CommandText = builder.GenerateSqlStatement(new Namespace(),
-              true, out mediaItemIdAlias, out valueAlias);
+          string statementStr;
+          IList<object> values;
+          builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias, out valueAlias,
+              out statementStr, out values);
+          command.CommandText = statementStr;
+          foreach (object value in values)
+          {
+            IDbDataParameter param = command.CreateParameter();
+            param.Value = value;
+            command.Parameters.Add(param);
+          }
         }
 
         IDataReader reader = command.ExecuteReader();

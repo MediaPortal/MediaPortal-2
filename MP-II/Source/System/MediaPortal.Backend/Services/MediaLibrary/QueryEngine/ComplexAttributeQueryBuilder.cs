@@ -82,8 +82,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// the media item id and thus the output variable <paramref name="mediaItemIdAlias"/> won't have a meaningful
     /// value.</param>
     /// <param name="valueAlias">Alias for the value column.</param>
-    public string GenerateSqlStatement(Namespace ns, bool distinctValue,
-        out string mediaItemIdAlias, out string valueAlias)
+    /// <param name="statementStr">Statement which was built by this method.</param>
+    /// <param name="values">Values to be inserted into placeholders in the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlStatement(Namespace ns, bool distinctValue,
+        out string mediaItemIdAlias, out string valueAlias, out string statementStr, out IList<object> values)
     {
       // Contains a mapping of each queried (=selected or filtered) attribute to its request attribute instance
       // data (which holds its requested query table instance)
@@ -177,22 +179,26 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(' ');
       }
 
-      string whereStr = _filter.CreateSqlFilterCondition(ns, requestedAttributes,
-          miaIdAttribute.GetQualifiedName(ns));
+      string whereStr;
+      _filter.CreateSqlFilterCondition(ns, requestedAttributes,
+          miaIdAttribute.GetQualifiedName(ns), out whereStr, out values);
       if (!string.IsNullOrEmpty(whereStr))
       {
         result.Append("WHERE ");
         result.Append(whereStr);
       }
 
-      return result.ToString();
+      statementStr = result.ToString();
     }
 
     public override string ToString()
     {
       string mediaItemIdAlias;
       string valueAlias;
-      return GenerateSqlStatement(new Namespace(), false, out mediaItemIdAlias, out valueAlias);
+      string statementStr;
+      IList<object> values;
+      GenerateSqlStatement(new Namespace(), false, out mediaItemIdAlias, out valueAlias, out statementStr, out values);
+      return statementStr;
     }
   }
 }

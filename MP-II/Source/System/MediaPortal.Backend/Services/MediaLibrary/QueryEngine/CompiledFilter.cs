@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Text;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
-using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
@@ -36,6 +35,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   public class CompiledFilter
   {
     protected IList<object> _statementParts;
+    protected IList<object> _statementValues;
 
     /// <summary>
     /// Placeholder object which will be replaced by method <see cref="CreateSqlFilterCondition"/> with the
@@ -45,10 +45,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     protected readonly ICollection<QueryAttribute> _filterAttributes;
 
-    public CompiledFilter(IList<object> statementParts, ICollection<QueryAttribute> filterAttributes,
+    public CompiledFilter(IList<object> statementParts, IList<object> statementValues, ICollection<QueryAttribute> filterAttributes,
         object outerMIIDJoinVariablePlaceHolder)
     {
       _statementParts = statementParts;
+      _statementValues = statementValues;
       _filterAttributes = filterAttributes;
       _outerMIIDJoinVariablePlaceHolder = outerMIIDJoinVariablePlaceHolder;
     }
@@ -56,7 +57,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     public static CompiledFilter Compile(MIA_Management miaManagement, IFilter filter)
     {
       object outerMIIDJoinVariablePlaceHolder = new object();
-      IList<object> statementParts = CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder);
+      IList<object> statementParts = new List<object>();
+      IList<object> statementValues = new List<object>();
+      CompileStatementParts(miaManagement, filter, outerMIIDJoinVariablePlaceHolder, statementParts, statementValues);
       ICollection<QueryAttribute> filterAttributes = new List<QueryAttribute>();
       foreach (object statementPart in statementParts)
       {
@@ -64,57 +67,53 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (qa != null)
           filterAttributes.Add(qa);
       }
-      return new CompiledFilter(statementParts, filterAttributes, outerMIIDJoinVariablePlaceHolder);
+      return new CompiledFilter(statementParts, statementValues, filterAttributes, outerMIIDJoinVariablePlaceHolder);
     }
 
-    protected static IList<object> CompileStatementParts(MIA_Management miaManagement, IFilter filter,
-        object outerMIIDJoinVariablePlaceHolder)
+    protected static void CompileStatementParts(MIA_Management miaManagement, IFilter filter,
+        object outerMIIDJoinVariablePlaceHolder, IList<object> resultParts, IList<object> resultValues)
     {
       if (filter == null)
-        return new List<object>();
+        return;
 
       BooleanCombinationFilter boolFilter = filter as BooleanCombinationFilter;
       if (boolFilter != null)
       {
-        IList<object> result = new List<object>();
         int numOperands = boolFilter.Operands.Length;
         IEnumerator enumOperands = boolFilter.Operands.GetEnumerator();
         if (!enumOperands.MoveNext())
-          return result;
+          return;
         if (numOperands > 1)
-          result.Add("(");
-        CollectionUtils.AddAll(result,
-            CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder));
+          resultParts.Add("(");
+        CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, resultParts, resultValues);
         while (enumOperands.MoveNext())
         {
           switch (boolFilter.Operator)
           {
             case BooleanOperator.And:
-              result.Add(" AND ");
+              resultParts.Add(" AND ");
               break;
             case BooleanOperator.Or:
-              result.Add(" OR ");
+              resultParts.Add(" OR ");
               break;
             default:
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CollectionUtils.AddAll(result,
-              CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, outerMIIDJoinVariablePlaceHolder));
+          CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, outerMIIDJoinVariablePlaceHolder, resultParts, resultValues);
         }
         if (numOperands > 1)
-          result.Add(")");
-        return result;
+          resultParts.Add(")");
+        return;
       }
 
       NotFilter notFilter = filter as NotFilter;
       if (notFilter != null)
       {
-        IList<object> result = new List<object> {"NOT ("};
-        CollectionUtils.AddAll(result,
-            CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder));
-        result.Add(")");
-        return result;
+        resultParts.Add("NOT (");
+        CompileStatementParts(miaManagement, notFilter.InnerFilter, outerMIIDJoinVariablePlaceHolder, resultParts, resultValues);
+        resultParts.Add(")");
+        return;
       }
 
       IAttributeFilter attributeFilter = filter as IAttributeFilter;
@@ -141,48 +140,47 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         //  INNER JOIN [MTM-Value-Table] VAL ON NM.ID = VAL.ID
         //  WHERE NM.MI_ID=[Outer-Join-Variable-Placeholder] AND VAL.VALUE [Operator] [Comparison-Value])
 
-        IList<object> result = new List<object>();
         MediaItemAspectMetadata.AttributeSpecification attributeType = attributeFilter.AttributeType;
         Cardinality cardinality = attributeType.Cardinality;
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
-          CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType)));
+          BuildAttributeFilterExpression(attributeFilter, new QueryAttribute(attributeType), resultParts, resultValues);
         else if (cardinality == Cardinality.OneToMany)
         {
-          result.Add("EXISTS(");
-          result.Add("SELECT VAL.");
-          result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          result.Add(" FROM ");
-          result.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
-          result.Add(" VAL WHERE VAL.");
-          result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          result.Add("=");
-          result.Add(outerMIIDJoinVariablePlaceHolder);
-          result.Add(" AND ");
-          CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, "VAL." + MIA_Management.COLL_ATTR_VALUE_COL_NAME));
-          result.Add(")");
+          resultParts.Add("EXISTS(");
+          resultParts.Add("SELECT VAL.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
+          resultParts.Add(" VAL WHERE VAL.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=");
+          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          resultParts.Add(" AND ");
+          BuildAttributeFilterExpression(attributeFilter, "VAL." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, resultParts, resultValues);
+          resultParts.Add(")");
         }
         else if (cardinality == Cardinality.ManyToMany)
         {
-          result.Add("EXISTS(");
-          result.Add("SELECT NM.");
-          result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          result.Add(" FROM ");
-          result.Add(miaManagement.GetMIACollectionAttributeNMTableName(attributeType));
-          result.Add(" NM INNER JOIN ");
-          result.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
-          result.Add(" VAL ON NM.");
-          result.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
-          result.Add(" = VAL.");
-          result.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
-          result.Add(" WHERE NM.");
-          result.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
-          result.Add("=");
-          result.Add(outerMIIDJoinVariablePlaceHolder);
-          result.Add(" AND ");
-          CollectionUtils.AddAll(result, BuildAttributeFilterExpression(attributeFilter, "VAL." + MIA_Management.COLL_ATTR_VALUE_COL_NAME));
-          result.Add(")");
+          resultParts.Add("EXISTS(");
+          resultParts.Add("SELECT NM.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIACollectionAttributeNMTableName(attributeType));
+          resultParts.Add(" NM INNER JOIN ");
+          resultParts.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
+          resultParts.Add(" VAL ON NM.");
+          resultParts.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
+          resultParts.Add(" = VAL.");
+          resultParts.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
+          resultParts.Add(" WHERE NM.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=");
+          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          resultParts.Add(" AND ");
+          BuildAttributeFilterExpression(attributeFilter, "VAL." + MIA_Management.COLL_ATTR_VALUE_COL_NAME, resultParts, resultValues);
+          resultParts.Add(")");
         }
-        return result;
+        return;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
     }
@@ -195,92 +193,96 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     /// <param name="attributeOperand">Comparison attribute to be used. Depending on the cardinality of the
     /// to-be-filtered attribute, this will be the inline attribute alias or the attribute alias of the collection
     /// attribute table.</param>
-    protected static IList<object> BuildAttributeFilterExpression(IAttributeFilter filter, object attributeOperand)
+    /// <param name="resultParts">Statement parts for the attribute filter.</param>
+    /// <param name="resultValues">Statement values for the attribute filter.</param>
+    protected static void BuildAttributeFilterExpression(IAttributeFilter filter, object attributeOperand,
+        IList<object> resultParts, IList<object> resultValues)
     {
-      IList<object> result = new List<object>();
       RelationalFilter relationalFilter = filter as RelationalFilter;
       if (relationalFilter != null)
       {
-        result.Add(attributeOperand);
+        resultParts.Add(attributeOperand);
         switch (relationalFilter.Operator)
         {
           case RelationalOperator.EQ:
-            result.Add("=");
+            resultParts.Add("=");
             break;
           case RelationalOperator.NEQ:
-            result.Add("<>");
+            resultParts.Add("<>");
             break;
           case RelationalOperator.LT:
-            result.Add("<");
+            resultParts.Add("<");
             break;
           case RelationalOperator.LE:
-            result.Add("<=");
+            resultParts.Add("<=");
             break;
           case RelationalOperator.GT:
-            result.Add(">");
+            resultParts.Add(">");
             break;
           case RelationalOperator.GE:
-            result.Add(">=");
+            resultParts.Add(">=");
             break;
           default:
             throw new NotImplementedException(string.Format(
                 "Relational filter operator '{0}' isn't supported by the media library", relationalFilter.Operator));
         }
-        result.Add(relationalFilter.FilterValue);
-        return result;
+        resultParts.Add("?");
+        resultValues.Add(relationalFilter.FilterValue);
+        return;
       }
 
       LikeFilter likeFilter = filter as LikeFilter;
       if (likeFilter != null)
       {
-        result.Add(attributeOperand);
-        result.Add(" LIKE ");
-        result.Add(likeFilter.Expression);
-        result.Add(" ESCAPE '");
-        result.Add(likeFilter.EscapeChar);
-        result.Add("'");
-        return result;
+        resultParts.Add(attributeOperand);
+        resultParts.Add(" LIKE ?");
+        resultValues.Add(likeFilter.Expression);
+        resultParts.Add(" ESCAPE '");
+        resultParts.Add(likeFilter.EscapeChar);
+        resultParts.Add("'");
+        return;
       }
 
       SimilarToFilter similarToFilter = filter as SimilarToFilter;
       if (similarToFilter != null)
       {
-        result.Add(attributeOperand);
-        result.Add(" SIMILAR TO ");
-        result.Add(similarToFilter.Expression);
-        result.Add(" ESCAPE '");
-        result.Add(similarToFilter.EscapeChar);
-        result.Add("'");
-        return result;
+        resultParts.Add(attributeOperand);
+        resultParts.Add(" SIMILAR TO ?");
+        resultValues.Add(similarToFilter.Expression);
+        resultParts.Add(" ESCAPE '");
+        resultParts.Add(similarToFilter.EscapeChar);
+        resultParts.Add("'");
+        return;
       }
 
       BetweenFilter betweenFilter = filter as BetweenFilter;
       if (betweenFilter != null)
       {
-        result.Add(attributeOperand);
-        result.Add(" BETWEEN ");
-        result.Add(betweenFilter.Value1);
-        result.Add(" AND ");
-        result.Add(betweenFilter.Value2);
-        return result;
+        resultParts.Add(attributeOperand);
+        resultParts.Add(" BETWEEN ?");
+        resultValues.Add(betweenFilter.Value1);
+        resultParts.Add(" AND ?");
+        resultValues.Add(betweenFilter.Value2);
+        return;
       }
 
       InFilter inFilter = filter as InFilter;
       if (inFilter != null)
       {
-        result.Add(attributeOperand);
-        result.Add(" IN (");
+        resultParts.Add(attributeOperand);
+        resultParts.Add(" IN (");
         IEnumerator valueEnum = inFilter.Values.GetEnumerator();
         if (!valueEnum.MoveNext())
           throw new InvalidDataException("IN-filter doesn't provide any comparison values");
-        result.Add(valueEnum.Current);
+        resultParts.Add("?");
+        resultValues.Add(valueEnum.Current);
         while (valueEnum.MoveNext())
         {
-          result.Add(",");
-          result.Add(valueEnum.Current);
+          resultParts.Add(",?");
+          resultValues.Add(valueEnum.Current);
         }
-        result.Add(")");
-        return result;
+        resultParts.Add(")");
+        return;
       }
       throw new InvalidDataException("Filter type '{0}' isn't supported by the media library", filter.GetType().Name);
     }
@@ -292,22 +294,23 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
     // outerMIIDJoinVariable is MEDIA_ITEMS.MEDIA_ITEM_ID (or its alias) for simple selects,
     // MIAM_TABLE_XXX.MEDIA_ITEM_ID (or alias) for complex selects, used for join conditions in complex filters
-    public string CreateSqlFilterCondition(Namespace ns,
+    public void CreateSqlFilterCondition(Namespace ns,
         IDictionary<QueryAttribute, RequestedAttribute> requestedAttributes,
-        string outerMIIDJoinVariable)
+        string outerMIIDJoinVariable, out string filterStr, out IList<object> values)
     {
-      StringBuilder result = new StringBuilder(1000);
+      StringBuilder filterBuilder = new StringBuilder(1000);
       foreach (object statementPart in _statementParts)
       {
         QueryAttribute qa = statementPart as QueryAttribute;
         if (qa != null)
-          result.Append(requestedAttributes[qa].GetQualifiedName(ns));
+          filterBuilder.Append(requestedAttributes[qa].GetQualifiedName(ns));
         else if (statementPart == _outerMIIDJoinVariablePlaceHolder)
-          result.Append(outerMIIDJoinVariable);
+          filterBuilder.Append(outerMIIDJoinVariable);
         else
-          result.Append(statementPart.ToString());
+          filterBuilder.Append(statementPart.ToString());
       }
-      return result.ToString();
+      filterStr = filterBuilder.ToString();
+      values = _statementValues;
     }
   }
 }
