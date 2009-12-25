@@ -179,12 +179,22 @@ namespace UPnP.Infrastructure.CP
 
         _httpListenerV4 = HttpListener.Create(IPAddress.Any, 0);
         _httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-        _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        _cpData.HttpPortV4 = (uint) _httpListenerV4.LocalEndpoint.Port;
+        if (Configuration.USE_IPV4)
+        {
+          _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
+          _cpData.HttpPortV4 = (uint) _httpListenerV4.LocalEndpoint.Port;
+        }
+        else
+          _cpData.HttpPortV4 = 0;
         _httpListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
         _httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-        _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        _cpData.HttpPortV6 = (uint) _httpListenerV6.LocalEndpoint.Port;
+        if (Configuration.USE_IPV6)
+        {
+          _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
+          _cpData.HttpPortV6 = (uint)_httpListenerV6.LocalEndpoint.Port;
+        }
+        else
+          _cpData.HttpPortV6 = 0;
         _networkTracker.RootDeviceRemoved += OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted += OnDeviceRebooted;
 
@@ -205,9 +215,11 @@ namespace UPnP.Infrastructure.CP
         _isActive = false;
 
         DisconnectAll();
-        _httpListenerV4.Stop();
+        if (Configuration.USE_IPV4)
+          _httpListenerV4.Stop();
         _httpListenerV4 = null;
-        _httpListenerV6.Stop();
+        if (Configuration.USE_IPV6)
+          _httpListenerV6.Stop();
         _httpListenerV6 = null;
         _networkTracker.RootDeviceRemoved -= OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted -= OnDeviceRebooted;

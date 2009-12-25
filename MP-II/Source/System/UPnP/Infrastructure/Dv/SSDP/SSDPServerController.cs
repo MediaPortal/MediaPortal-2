@@ -63,7 +63,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
 
     protected Timer _advertisementTimer = null;
     protected Timer _searchResponseTimer = null;
-    protected static Random rnd = new Random();
+    protected static Random _rnd = new Random();
     protected ServerData _serverData;
 
     protected class UDPAsyncReceiveState
@@ -199,7 +199,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         _searchResponseTimer = new Timer(OnSearchResponseTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
         // Wait a random time from 0 to 100 milliseconds, as proposed in the UPnP device architecture specification
         _advertisementTimer = new Timer(OnAdvertisementTimerElapsed, null,
-            rnd.Next(INITIAL_ADVERTISEMENT_MAX_WAIT_MS), Timeout.Infinite);
+            _rnd.Next(INITIAL_ADVERTISEMENT_MAX_WAIT_MS), Timeout.Infinite);
       }
     }
 
@@ -401,9 +401,8 @@ namespace UPnP.Infrastructure.Dv.SSDP
     {
       int advertisementTime = _serverData.AdvertisementExpirationTime;
       if (advertisementTime / 2 < MIN_ADVERTISEMENT_INTERVAL)
-        return rnd.Next((advertisementTime/2)*1000);
-      else
-        return MIN_ADVERTISEMENT_INTERVAL * 1000 + rnd.Next((advertisementTime/2 - MIN_ADVERTISEMENT_INTERVAL)*1000);
+        return _rnd.Next((advertisementTime/2)*1000);
+      return MIN_ADVERTISEMENT_INTERVAL * 1000 + _rnd.Next((advertisementTime/2 - MIN_ADVERTISEMENT_INTERVAL)*1000);
     }
 
     protected void ReconfigureAdvertisementTimer()
@@ -493,7 +492,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
       lock (_serverData.SyncObj)
       {
         _serverData.PendingSearches.Add(ps);
-        ReconfigureSearchResponseTimer(rnd.Next(maxDelaySeconds * 1000));
+        ReconfigureSearchResponseTimer(_rnd.Next(maxDelaySeconds * 1000));
       }
     }
 

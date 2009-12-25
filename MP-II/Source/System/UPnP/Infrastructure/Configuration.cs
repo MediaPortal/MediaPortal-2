@@ -37,6 +37,9 @@ namespace UPnP.Infrastructure
   {
     #region Configuration settings
 
+    public static bool USE_IPV4 = true;
+    public static bool USE_IPV6 = false;
+
     /// <summary>
     /// Seconds a search response may be delayed. MUST be >=1 and SHOULD be <=5. This setting is relevant for the
     /// UPnP control point.

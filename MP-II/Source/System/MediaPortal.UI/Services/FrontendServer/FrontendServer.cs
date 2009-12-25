@@ -41,62 +41,86 @@ namespace MediaPortal.UI.Services.FrontendServer
     {
       public void Debug(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Debug(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Debug(format, args);
       }
 
       public void Debug(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Debug(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Debug(format, ex, args);
       }
 
       public void Info(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Info(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info(format, args);
       }
 
       public void Info(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Info(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info(format, ex, args);
       }
 
       public void Warn(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Warn(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Warn(format, args);
       }
 
       public void Warn(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Warn(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Warn(format, ex, args);
       }
 
       public void Error(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Error(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Error(format, args);
       }
 
       public void Error(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Error(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Error(format, ex, args);
       }
 
       public void Error(Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error(ex);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Error(ex);
       }
 
       public void Critical(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Critical(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Critical(format, args);
       }
 
       public void Critical(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Critical(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Critical(format, ex, args);
       }
 
       public void Critical(Exception ex)
       {
-        ServiceScope.Get<ILogger>().Critical(ex);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Critical(ex);
       }
     }
 

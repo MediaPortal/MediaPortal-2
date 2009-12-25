@@ -46,62 +46,86 @@ namespace MediaPortal.Backend.Services.BackendServer
     {
       public void Debug(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Debug(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Debug(format, args);
       }
 
       public void Debug(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Debug(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Debug(format, ex, args);
       }
 
       public void Info(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Info(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info(format, args);
       }
 
       public void Info(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Info(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Info(format, ex, args);
       }
 
       public void Warn(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Warn(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Warn(format, args);
       }
 
       public void Warn(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Warn(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Warn(format, ex, args);
       }
 
       public void Error(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Error(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Error(format, args);
       }
 
       public void Error(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Error(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Error(format, ex, args);
       }
 
       public void Error(Exception ex)
       {
-        ServiceScope.Get<ILogger>().Error(ex);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Error(ex);
       }
 
       public void Critical(string format, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Critical(format, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Critical(format, args);
       }
 
       public void Critical(string format, Exception ex, params object[] args)
       {
-        ServiceScope.Get<ILogger>().Critical(format, ex, args);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Critical(format, ex, args);
       }
 
       public void Critical(Exception ex)
       {
-        ServiceScope.Get<ILogger>().Critical(ex);
+        ILogger logger = ServiceScope.Get<ILogger>(false);
+        if (logger != null)
+          logger.Critical(ex);
       }
     }
 
@@ -141,10 +165,13 @@ namespace MediaPortal.Backend.Services.BackendServer
 
     public BackendServer()
     {
+      BackendServerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BackendServerSettings>();
       _httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
       _httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
       Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
       Configuration.LOGGER = new UPnPLoggerDelegate();
+      Configuration.USE_IPV4 = settings.UseIPv4;
+      Configuration.USE_IPV6 = settings.UseIPv6;
 
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       _upnpServer = new UPnPBackendServer(systemResolver.LocalSystemId);
@@ -160,15 +187,20 @@ namespace MediaPortal.Backend.Services.BackendServer
     public void Startup()
     {
       BackendServerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BackendServerSettings>();
-      _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
-      _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
+      if (settings.UseIPv4)
+        _httpServerV4.Start(IPAddress.Any, settings.HttpServerPort);
+      if (settings.UseIPv6)
+        _httpServerV6.Start(IPAddress.IPv6Any, settings.HttpServerPort);
       _upnpServer.Start();
     }
 
     public void Shutdown()
     {
-      _httpServerV4.Stop();
-      _httpServerV6.Stop();
+      BackendServerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BackendServerSettings>();
+      if (settings.UseIPv4)
+        _httpServerV4.Stop();
+      if (settings.UseIPv6)
+        _httpServerV6.Stop();
       _upnpServer.Stop();
     }
 

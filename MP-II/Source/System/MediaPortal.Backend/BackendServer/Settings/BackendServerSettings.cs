@@ -30,6 +30,8 @@ namespace MediaPortal.Backend.BackendServer.Settings
   {
     protected string _friendlyName = null;
     protected int _httpServerPort = 80;
+    protected bool _useIPv4 = true;
+    protected bool _useIPv6 = true;
 
     [Setting(SettingScope.Global)]
     public string FriendlyName
@@ -45,5 +47,18 @@ namespace MediaPortal.Backend.BackendServer.Settings
       set { _httpServerPort = value; }
     }
 
+    [Setting(SettingScope.Global)]
+    public bool UseIPv4
+    {
+      get { return _useIPv4; }
+      set { _useIPv4 = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public bool UseIPv6
+    {
+      get { return _useIPv6; }
+      set { _useIPv6 = value; }
+    }
   }
 }

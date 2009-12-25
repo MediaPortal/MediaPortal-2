@@ -183,15 +183,25 @@ namespace UPnP.Infrastructure.Dv
 
         _serverData.HTTPListenerV4 = HttpListener.Create(IPAddress.Any, 0);
         _serverData.HTTPListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-        _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        _serverData.HTTP_PORTv4 = (uint) _serverData.HTTPListenerV4.LocalEndpoint.Port;
+        if (Configuration.USE_IPV4)
+        {
+          _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
+          _serverData.HTTP_PORTv4 = (uint) _serverData.HTTPListenerV4.LocalEndpoint.Port;
+        }
+        else
+          _serverData.HTTP_PORTv4 = 0;
 
         Configuration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
 
-        _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
+        _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0); // Might fail if IPv6 isn't installed
         _serverData.HTTPListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-        _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-        _serverData.HTTP_PORTv6 = (uint) _serverData.HTTPListenerV6.LocalEndpoint.Port;
+        if (Configuration.USE_IPV6)
+        {
+          _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
+          _serverData.HTTP_PORTv6 = (uint) _serverData.HTTPListenerV6.LocalEndpoint.Port;
+        }
+        else
+          _serverData.HTTP_PORTv6 = 0;
 
         Configuration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
 
@@ -247,8 +257,10 @@ namespace UPnP.Infrastructure.Dv
         _serverData.IsActive = false;
         _serverData.GENAController.Close();
         _serverData.SSDPController.Close();
-        _serverData.HTTPListenerV4.Stop();
-        _serverData.HTTPListenerV6.Stop();
+        if (Configuration.USE_IPV4)
+          _serverData.HTTPListenerV4.Stop();
+        if (Configuration.USE_IPV6)
+          _serverData.HTTPListenerV6.Stop();
         _serverData.UPnPEndPoints.Clear();
       }
     }
