@@ -456,6 +456,7 @@ namespace UiComponents.SkinBase.Models
       switch (mode)
       {
         case Mode.AttachToServer:
+          SynchronizeAvailableServers();
           ShowAttachToServerDialog();
           break;
         case Mode.DetachFromServer:
