@@ -162,7 +162,8 @@ namespace UPnP.Infrastructure.CP.SSDP
       catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
-        Configuration.LOGGER.Info("SSDPClientController: Stopping listening for multicast messages at address '{0}'", config.SSDPMulticastAddress);
+        Configuration.LOGGER.Info("SSDPClientController: Stopping listening for multicast messages at IP endpoint '{0}', multicast IP address '{1}'",
+            config.EndPointIPAddress, config.SSDPMulticastAddress);
       }
     }
 
@@ -530,7 +531,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       {
         foreach (EndpointConfiguration config in _endpoints)
         {
-          if (config.EndPointIPAddress.AddressFamily != endPoint.AddressFamily)
+          if (config.AddressFamily != endPoint.AddressFamily)
             continue;
           Socket socket = config.UnicastSocket;
           if (socket == null)

@@ -445,6 +445,7 @@ namespace UPnP.Infrastructure.Dv
       {
         if (oldEndpoints.ContainsKey(address))
           continue;
+        Configuration.LOGGER.Debug("UPnPServer: Initializing IP endpoint '{0}'", address);
         int port = (int) (address.AddressFamily == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6);
         EndpointConfiguration config = new EndpointConfiguration
           {
@@ -460,11 +461,12 @@ namespace UPnP.Infrastructure.Dv
         _serverData.GENAController.InitializeGENAEndpoint(config);
       }
       // Remove obsolete endpoints
-      foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
+      foreach (EndpointConfiguration config in new List<EndpointConfiguration>(_serverData.UPnPEndPoints))
         if (!addresses.Contains(config.EndPointIPAddress))
         {
+          Configuration.LOGGER.Debug("UPnPServer: Removing obsolete IP endpoint IP '{0}'", config.EndPointIPAddress);
           _serverData.GENAController.CloseGENAEndpoint(config);
-          _serverData.SSDPController.CloseSSDPEndpoint(config);
+          _serverData.SSDPController.CloseSSDPEndpoint(config, false);
           _serverData.UPnPEndPoints.Remove(config);
         }
     }

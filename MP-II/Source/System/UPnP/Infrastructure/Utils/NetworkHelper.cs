@@ -73,36 +73,22 @@ namespace UPnP.Infrastructure.Utils
     }
 
     /// <summary>
-    /// Broadcasts the given message <paramref name="data"/> to the given SSDP multicast address using the given
-    /// <paramref name="localAddress"/>.
+    /// Broadcasts the given message <paramref name="data"/> to the given SSDP multicast address.
     /// </summary>
-    /// <param name="localAddress">IP address to use as local ip adddress.</param>
+    /// <param name="family">Address family specifying the protocol type to use (IPv4/IPv6).</param>
     /// <param name="multicastAddress">Multicast address to use. The port will be <see cref="UPnPConsts.SSDP_MULTICAST_PORT"/>.</param>
     /// <param name="data">Message data to multicast.</param>
-    public static void MulticastMessage(IPAddress localAddress, IPAddress multicastAddress, byte[] data)
+    public static void MulticastMessage(AddressFamily family, IPAddress multicastAddress, byte[] data)
     {
-      Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+      Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
       try
       {
-        socket.Bind(new IPEndPoint(localAddress, 0));
-        AddressFamily family = localAddress.AddressFamily;
         if (family == AddressFamily.InterNetwork)
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, Configuration.DEFAULT_SSDP_UDP_TTL_V4);
-        if (localAddress != IPAddress.Loopback && localAddress != IPAddress.IPv6Loopback)
-        {
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback, 1);
-          if (family == AddressFamily.InterNetwork)
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-                new MulticastOption(multicastAddress, localAddress));
-          else
-            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-                new IPv6MulticastOption(multicastAddress));
-        }
-        // Add membership to multicast group here?
+        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback, 0);
         IPEndPoint multicastEndpoint = new IPEndPoint(multicastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
         socket.SendTo(data, multicastEndpoint);
         socket.SendTo(data, multicastEndpoint);
-        // Drop member to multicast group, if appropriate
         socket.Close();
       }
       // Simply ignore if we cannot send a multicast message

@@ -269,13 +269,13 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <param name="config">The endpoint configuration which should be initialized.</param>
     public void InitializeGENAEndpoint(EndpointConfiguration config)
     {
-      config.GENA_UDPClient = new UdpClient(config.EndPointIPAddress.AddressFamily)
+      config.GENA_UDPClient = new UdpClient(config.AddressFamily)
         {
           Ttl = Configuration.DEFAULT_GENA_UDP_TTL_V4
         };
-      if (config.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork)
+      if (config.AddressFamily == AddressFamily.InterNetwork)
         config.GENAMulticastAddress = GENA_MULTICAST_ADDRESS_V4;
-      else if (config.EndPointIPAddress.AddressFamily == AddressFamily.InterNetworkV6)
+      else if (config.AddressFamily == AddressFamily.InterNetworkV6)
         config.GENAMulticastAddress = GENA_MULTICAST_ADDRESS_V6;
       else
         return;

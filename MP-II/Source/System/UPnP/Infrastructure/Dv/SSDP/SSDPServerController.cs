@@ -146,7 +146,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
       try
       {
         EndPoint remoteEP = new IPEndPoint(
-            state.Endpoint.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork ?
+            state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
             IPAddress.Any : IPAddress.IPv6Any, 0);
         Stream stream = new MemoryStream(state.Buffer, 0, socket.EndReceiveFrom(ar, ref remoteEP));
         try
@@ -157,7 +157,8 @@ namespace UPnP.Infrastructure.Dv.SSDP
         }
         catch (Exception e)
         {
-          Configuration.LOGGER.Debug("SSDPServerController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
+          Configuration.LOGGER.Debug("SSDPServerController: Problem parsing incoming packet at IP endpoint '{0}'. Error message: '{1}'",
+              config.EndPointIPAddress, e.Message);
           NetworkHelper.DiscardInput(stream);
         }
         StartReceive(state);
@@ -165,7 +166,8 @@ namespace UPnP.Infrastructure.Dv.SSDP
       catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
-        Configuration.LOGGER.Info("SSDPServerController: Stopping listening for multicast messages at address '{0}'", config.SSDPMulticastAddress);
+        Configuration.LOGGER.Info("SSDPServerController: Stopping listening for multicast messages at IP endpoint '{0}', multicast IP address '{1}'",
+            config.EndPointIPAddress, config.SSDPMulticastAddress);
       }
     }
 
@@ -270,7 +272,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
     /// <param name="config">The endpoint configuration which should be started.</param>
     public void StartSSDPEndpoint(EndpointConfiguration config)
     {
-      AddressFamily family = config.EndPointIPAddress.AddressFamily;
+      AddressFamily family = config.AddressFamily;
       if (family == AddressFamily.InterNetwork)
         config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V4;
       else if (family == AddressFamily.InterNetworkV6)
@@ -327,7 +329,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
           // ... which will be stored in the SSDPSearchPort variable which will be used for the SEARCHPORT.UPNP.ORG SSDP header.
           config.SSDPSearchPort = ((IPEndPoint) socket.LocalEndPoint).Port;
         }
-        Configuration.LOGGER.Info("UPnP server: SSDP enabled for IP endpoint '{0}', search port is {1}", config.EndPointIPAddress, config.SSDPSearchPort);
+        Configuration.LOGGER.Info("UPnPServerController: SSDP enabled for IP endpoint '{0}', search port is {1}", config.EndPointIPAddress, config.SSDPSearchPort);
         if (family == AddressFamily.InterNetwork)
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
         else
@@ -348,38 +350,50 @@ namespace UPnP.Infrastructure.Dv.SSDP
     public void CloseSSDPEndpoints()
     {
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
-        CloseSSDPEndpoint(config);
+        CloseSSDPEndpoint(config, true);
     }
 
     /// <summary>
     /// Closes the SSDP listener for the given network endpoint.
     /// </summary>
     /// <param name="config">The endpoint configuration which should be closed.</param>
-    public void CloseSSDPEndpoint(EndpointConfiguration config)
+    /// <param name="exitMulticastGroup">If set to <c>true</c>, this method exits the multicast group
+    /// before closing the given endpoint <paramref name="config"/>. This should only be done if the
+    /// endpoint is still available. If this parameter is set to <c>true</c> and the endpoint is not available
+    /// any more, we'll produce a socket error at the socket API, which will be caught by this method.</param>
+    public void CloseSSDPEndpoint(EndpointConfiguration config, bool exitMulticastGroup)
     {
       Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
       if (socket != null)
       {
-        if (config.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork)
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
-              new MulticastOption(config.SSDPMulticastAddress));
-        else
-          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
-              new IPv6MulticastOption(config.SSDPMulticastAddress));
+        Configuration.LOGGER.Info("UPnPServerController: SSDP disabled for IP endpoint '{0}'", config.EndPointIPAddress);
+        try
+        {
+          if (config.AddressFamily == AddressFamily.InterNetwork)
+            socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
+                new MulticastOption(config.SSDPMulticastAddress));
+          else
+            socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
+                new IPv6MulticastOption(config.SSDPMulticastAddress));
+        }
+        catch (ObjectDisposedException)
+        { }
+        catch (SocketException)
+        { }
         socket.Close();
         config.SSDP_UDP_MulticastReceiveSocket = null;
       }
       socket = config.SSDP_UDP_UnicastSocket;
       if (socket != null)
       {
-        config.SSDP_UDP_UnicastSocket.Close();
+        socket.Close();
         config.SSDP_UDP_UnicastSocket = null;
       }
     }
 
     protected void StartReceive(UDPAsyncReceiveState state)
     {
-      EndPoint remoteEP = new IPEndPoint(state.Endpoint.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork ?
+      EndPoint remoteEP = new IPEndPoint(state.Endpoint.AddressFamily == AddressFamily.InterNetwork ?
           IPAddress.Any : IPAddress.IPv6Any, 0);
       try
       {

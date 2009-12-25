@@ -30,6 +30,11 @@ namespace UPnP.Infrastructure.CP
 {
   public class EndpointConfiguration
   {
+    public AddressFamily AddressFamily
+    {
+      get { return EndPointIPAddress.AddressFamily; }
+    }
+
     public IPAddress EndPointIPAddress;
 
     public Socket MulticastReceiveSocket;

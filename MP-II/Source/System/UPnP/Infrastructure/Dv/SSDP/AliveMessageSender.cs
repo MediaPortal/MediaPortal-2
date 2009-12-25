@@ -68,7 +68,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
           response.SetHeader("SEARCHPORT.UPNP.ORG", config.SSDPSearchPort.ToString());
         response.SetHeader("LOCATION", config.RootDeviceDescriptionURLs[rootDevice]);
         byte[] bytes = response.Encode();
-        NetworkHelper.MulticastMessage(config.EndPointIPAddress, config.SSDPMulticastAddress, bytes);
+        NetworkHelper.MulticastMessage(config.AddressFamily, config.SSDPMulticastAddress, bytes);
       }
     }
   }

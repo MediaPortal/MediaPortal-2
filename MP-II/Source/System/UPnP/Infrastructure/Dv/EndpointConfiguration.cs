@@ -108,6 +108,14 @@ namespace UPnP.Infrastructure.Dv
     }
 
     /// <summary>
+    /// Address family (IPv4/IPv6) of this endpoint.
+    /// </summary>
+    public AddressFamily AddressFamily
+    {
+      get { return _endpointIPAddress.AddressFamily; }
+    }
+
+    /// <summary>
     /// The local IP address of this endpoint.
     /// </summary>
     public IPAddress EndPointIPAddress
