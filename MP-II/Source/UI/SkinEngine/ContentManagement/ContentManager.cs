@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.Fonts;
 using MediaPortal.Core.Messaging;
