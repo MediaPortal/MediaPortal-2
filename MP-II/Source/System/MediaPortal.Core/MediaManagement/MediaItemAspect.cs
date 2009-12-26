@@ -26,6 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.Xml;
 using UPnP.Infrastructure.Utils;
 
@@ -341,7 +342,14 @@ namespace MediaPortal.Core.MediaManagement
         if (obj == null)
           XmlSerialization.WriteNull(writer);
         else
-          writer.WriteValue(obj);
+          try
+          {
+            writer.WriteValue(obj);
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("MediaItemAspect: Unable to serialize value '{0}', setting to null", e, obj);
+          }
       }
       writer.WriteEndElement();
     }
