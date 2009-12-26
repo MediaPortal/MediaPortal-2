@@ -33,7 +33,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class BrushTexture : ITextureAsset
+  public class BrushTexture : ITextureAsset, IDisposable
   {
     Texture _texture;
     DateTime _lastTimeUsed;
@@ -51,6 +51,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _name = String.Format("brush#{0} {1} {2}", _assetId, mgr.ActiveScreenName, name);
       _assetId++;
       ContentManager.Add(this);
+    }
+
+    public void Dispose()
+    {
+      if (_texture != null)
+      {
+        _texture.Dispose();
+        _texture = null;
+      }
     }
 
     public void Allocate()

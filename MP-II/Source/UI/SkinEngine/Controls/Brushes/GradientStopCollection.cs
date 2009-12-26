@@ -47,6 +47,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Init();
     }
 
+    public void Dispose()
+    {
+      foreach (GradientStop s in _elements)
+        s.Dispose();
+    }
+
     public GradientStopCollection(GradientStopCollection source)
     {
       _parent = null;
@@ -90,6 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _orderedGradientStopList = null;
         _elements.Remove(element);
         element.ObjectChanged -= OnStopChanged;
+        element.Dispose();
       }
       if (_parent != null)
         _parent.OnGradientsChanged();
@@ -99,7 +106,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _orderedGradientStopList = null;
       foreach (GradientStop stop in _elements)
+      {
         stop.ObjectChanged -= OnStopChanged;
+        stop.Dispose();
+      }
       _elements.Clear();
       if (_parent != null)
         _parent.OnGradientsChanged();
@@ -119,6 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         {
           _orderedGradientStopList = null;
           _elements[index].ObjectChanged -= OnStopChanged;
+          _elements[index].Dispose();
           _elements[index] = value;
           _elements[index].ObjectChanged += OnStopChanged;
           if (_parent != null)

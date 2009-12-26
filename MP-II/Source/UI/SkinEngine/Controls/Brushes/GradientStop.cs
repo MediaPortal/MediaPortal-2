@@ -46,6 +46,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+    }
+
     public GradientStop(double offset, Color color)
     {
       Init();

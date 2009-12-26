@@ -50,6 +50,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      Free();
+    }
+
     void Init()
     {
       _imageSourceProperty = new Property(typeof(string), null);

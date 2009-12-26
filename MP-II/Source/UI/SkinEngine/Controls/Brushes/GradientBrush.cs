@@ -70,6 +70,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+    }
+
     void Init()
     {
       _gradientStopsProperty = new Property(typeof(GradientStopCollection), new GradientStopCollection(this));

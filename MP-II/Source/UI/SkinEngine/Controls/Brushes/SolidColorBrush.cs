@@ -53,6 +53,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+    }
+
     void Init()
     {
       _colorProperty = new Property(typeof(Color), Color.White);

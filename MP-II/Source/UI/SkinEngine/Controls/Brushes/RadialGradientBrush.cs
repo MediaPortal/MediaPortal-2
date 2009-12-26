@@ -76,6 +76,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      Free(false);
+    }
+
     void Init()
     {
       _centerProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
@@ -483,7 +490,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_cacheTexture != null)
       {
-        Trace.WriteLine("RadialGradientBrush:free cached texture");
+        Trace.WriteLine("RadialGradientBrush: Free cached texture");
         _cacheTexture.Dispose();
         _cacheTexture = null;
         return true;
@@ -497,7 +504,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_cacheTexture != null)
       {
-        Trace.WriteLine("RadialGradientBrush:Deallocate cached texture");
+        Trace.WriteLine("RadialGradientBrush: Deallocate cached texture");
         _cacheTexture.Dispose();
         _cacheTexture = null;
         ContentManager.Remove(this);

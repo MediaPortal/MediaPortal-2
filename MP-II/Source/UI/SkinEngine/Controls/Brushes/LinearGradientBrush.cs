@@ -69,6 +69,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      Free(false);
+    }
+
     void Init()
     {
       _startPointProperty = new Property(typeof(Vector2), new Vector2(0.0f, 0.0f));
@@ -413,7 +420,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_cacheTexture != null)
       {
-        Trace.WriteLine("LinearGradientBrush:free cached texture");
+        Trace.WriteLine("LinearGradientBrush: Free cached texture");
         _cacheTexture.Dispose();
         _cacheTexture = null;
         return true;
