@@ -49,7 +49,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       MediaItemAspectMetadata.AttributeSpecification spec = queryAttribute.Attr;
       MediaItemAspectMetadata miaType = spec.ParentMIAM;
       TableQueryData tqd;
-      string joinType = miaJoinType;
       switch (spec.Cardinality)
       {
         case Cardinality.Inline:
@@ -60,7 +59,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
             tqd = tableQueries[miaType] = TableQueryData.CreateTableQueryOfMIATable(_miaManagement, miaType);
             if (miaTypeTableQueries != null)
               miaTypeTableQueries.Add(miaType, tqd);
-            tableJoins.Add(new TableJoin(joinType, tqd, miaIdAttribute,
+            tableJoins.Add(new TableJoin(miaJoinType, tqd, miaIdAttribute,
                 new RequestedAttribute(tqd, MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME)));
           }
           requestedAttribute = new RequestedAttribute(tqd, _miaManagement.GetMIAAttributeColumnName(queryAttribute.Attr));

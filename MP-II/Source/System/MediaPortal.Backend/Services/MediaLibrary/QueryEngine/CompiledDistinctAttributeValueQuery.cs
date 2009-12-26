@@ -103,6 +103,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDbCommand command = transaction.CreateCommand();
 
         string valueAlias;
+        string statementStr;
+        IList<object> values;
         if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
         {
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
@@ -111,17 +113,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           string mediaItemIdAlias;
           IDictionary<MediaItemAspectMetadata, string> miamAliases;
           IDictionary<QueryAttribute, string> qa2a;
-          string statementStr;
-          IList<object> values;
           builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias, out miamAliases, out qa2a,
               out statementStr, out values);
-          command.CommandText = statementStr;
-          foreach (object value in values)
-          {
-            IDbDataParameter param = command.CreateParameter();
-            param.Value = value;
-            command.Parameters.Add(param);
-          }
           valueAlias = qa2a[selectAttributeQA];
         }
         else
@@ -129,17 +122,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
               _necessaryRequestedMIATypes, _filter);
           string mediaItemIdAlias;
-          string statementStr;
-          IList<object> values;
           builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias, out valueAlias,
               out statementStr, out values);
-          command.CommandText = statementStr;
-          foreach (object value in values)
-          {
-            IDbDataParameter param = command.CreateParameter();
-            param.Value = value;
-            command.Parameters.Add(param);
-          }
+        }
+        command.CommandText = statementStr;
+        foreach (object value in values)
+        {
+          IDbDataParameter param = command.CreateParameter();
+          param.Value = value;
+          command.Parameters.Add(param);
         }
 
         IDataReader reader = command.ExecuteReader();

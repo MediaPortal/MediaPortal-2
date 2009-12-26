@@ -93,8 +93,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 
       // Dictionary containing as key the requested MIAM instance OR attribute specification of cardinality MTO,
       // mapped to the table query data to request its contents.
-      IDictionary<object, TableQueryData> tableQueries =
-          new Dictionary<object, TableQueryData>();
+      IDictionary<object, TableQueryData> tableQueries = new Dictionary<object, TableQueryData>();
 
       // Contains the same tables as the tableQueries variable, but in order and enriched with table join data
       IList<TableJoin> tableJoins = new List<TableJoin>();

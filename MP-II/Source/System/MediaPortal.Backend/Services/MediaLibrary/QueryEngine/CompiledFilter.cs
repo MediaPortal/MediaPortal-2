@@ -126,7 +126,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
         {
           resultParts.Add(new QueryAttribute(attributeType));
-          resultParts.Add(" IS NULL");
+          resultParts.Add(" IS NULL"); // MTO attributes are joined with left outer joins and thus can also be checked for NULL
         }
         else if (cardinality == Cardinality.OneToMany)
         {
@@ -160,6 +160,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add(outerMIIDJoinVariablePlaceHolder);
           resultParts.Add(")");
         }
+        return;
       }
 
       IAttributeFilter attributeFilter = filter as IAttributeFilter;
