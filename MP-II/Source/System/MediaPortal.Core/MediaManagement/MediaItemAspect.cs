@@ -26,7 +26,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
-using MediaPortal.Core.Logging;
+using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Xml;
 using UPnP.Infrastructure.Utils;
 
@@ -344,15 +344,14 @@ namespace MediaPortal.Core.MediaManagement
         else
           writer.WriteValue(obj);
       }
+      else
+        throw new IllegalCallException("Media item aspect values of type '{0}' cannot be serialized", type);
       writer.WriteEndElement();
     }
 
     public static object DeserializeValue(XmlReader reader, Type type)
     {
-      if (XmlSerialization.ReadNull(reader))
-        return null;
-      else
-        return reader.ReadElementContentAs(type, null);
+      return XmlSerialization.ReadNull(reader) ? null : reader.ReadElementContentAs(type, null);
     }
 
     protected void CheckCollectionAttribute(MediaItemAspectMetadata.AttributeSpecification attributeSpecification)
