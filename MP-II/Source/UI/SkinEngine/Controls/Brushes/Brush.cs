@@ -49,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     Property _opacityProperty;
     Property _relativeTransformProperty;
-    Transform _transformProperty;
+    Transform _transform;
     Property _freezableProperty;
     bool _isOpacity;
     protected RectangleF _bounds;
@@ -70,6 +70,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
+      if (_transform != null)
+        _transform.Dispose();
     }
 
     void Init()
@@ -77,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _isOpacity = false;
       _opacityProperty = new Property(typeof(double), 1.0);
       _relativeTransformProperty = new Property(typeof(TransformGroup), new TransformGroup());
-      _transformProperty = null;
+      _transform = null;
       _freezableProperty = new Property(typeof(bool), false);
       _bounds = new RectangleF(0, 0, 0, 0);
       _orginalPosition = new PointF(0, 0);
@@ -165,8 +167,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Transform Transform
     {
-      get { return _transformProperty; }
-      set { _transformProperty = value; }
+      get { return _transform; }
+      set { _transform = value; }
     }
 
     public bool IsOpacityBrush
