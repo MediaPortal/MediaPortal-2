@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -117,9 +118,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_syncObject)
       {
-        AnimationContext context = new AnimationContext();
-        context.Timeline = board;
-        context.TimelineContext = board.CreateTimelineContext(element);
+        AnimationContext context = new AnimationContext
+          {
+              Timeline = board,
+              TimelineContext = board.CreateTimelineContext(element)
+          };
 
         IDictionary<IDataDescriptor, object> conflictingProperties;
         ICollection<AnimationContext> conflictingAnimations;
@@ -177,9 +180,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void SetValue(IDataDescriptor dataDescriptor, object value)
     {
       lock (_syncObject)
-      {
         _valuesToSet[dataDescriptor] = value;
-      }
     }
 
     /// <summary>
@@ -195,9 +196,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public bool TryGetPendingValue(IDataDescriptor dataDescriptor, out object value)
     {
       lock (_syncObject)
-      {
         return _valuesToSet.TryGetValue(dataDescriptor, out value);
-      }
     }
 
     /// <summary>
@@ -206,6 +205,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Animate()
     {
+      // We need to copy the values dictionary, because the setting of each value could cause changes to the
+      // values dictionary
+      IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>();
       lock (_syncObject)
       {
         foreach (AnimationContext ac in _scheduledAnimations)
@@ -226,13 +228,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         stoppedAnimations.Clear();
 
-        // We need to copy the values dictionary, because the setting of each value could cause changes to the
-        // values dictionary
-        IDictionary<IDataDescriptor, object> values = new Dictionary<IDataDescriptor, object>(_valuesToSet);
+        CollectionUtils.AddAll(values, _valuesToSet);
         _valuesToSet.Clear();
-        foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values)
-          valueToSet.Key.Value = valueToSet.Value;
       }
+      foreach (KeyValuePair<IDataDescriptor, object> valueToSet in values) // Outside the lock - will change properties in the screen
+        valueToSet.Key.Value = valueToSet.Value;
     }
 
     protected void ResetAllValues(AnimationContext ac)
@@ -246,10 +246,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected AnimationContext GetContext(Timeline line, UIElement element)
     {
       lock (_syncObject)
-      {
         foreach (AnimationContext context in _scheduledAnimations)
-          if (context.Timeline == line && context.TimelineContext.VisualParent == element) return context;
-      }
+          if (context.Timeline == line && context.TimelineContext.VisualParent == element)
+            return context;
       return null;
     }
 

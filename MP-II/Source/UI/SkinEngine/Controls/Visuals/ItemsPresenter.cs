@@ -47,9 +47,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Ctor
 
-    public ItemsPresenter()
-    { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);

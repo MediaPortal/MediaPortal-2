@@ -26,6 +26,7 @@ using System.Collections.Generic;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
+  // TODO Albert: Cleanup brushes, when not used any more
   public class BrushCache
   {
     static BrushCache _instance;

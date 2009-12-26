@@ -221,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_image == null && Source != null)
       {
         _image = ContentManager.Load(Source, Thumbnail);
-        _image.Texture.UseThumbNail = Thumbnail;
+        _image.Texture.UseThumbnail = Thumbnail;
         _image.Texture.Allocate();
 
         if (SkinContext.UseBatching)
@@ -231,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_fallbackImage == null && FallbackSource != null)
       {
         _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
-        _fallbackImage.Texture.UseThumbNail = Thumbnail;
+        _fallbackImage.Texture.UseThumbnail = Thumbnail;
         _fallbackImage.Texture.Allocate();
 
         if (SkinContext.UseBatching)

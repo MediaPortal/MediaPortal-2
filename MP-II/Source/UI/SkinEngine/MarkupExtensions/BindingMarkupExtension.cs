@@ -196,6 +196,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public override void Dispose()
     {
+      Detach();
       if (_bindingDependency != null)
       {
         _bindingDependency.Detach();

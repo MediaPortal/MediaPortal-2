@@ -31,7 +31,6 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.Thumbnails;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -40,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public class TextureAsset : ITextureAsset
   {
-    #region variables
+    #region Variables
 
     private enum State
     {
@@ -91,58 +90,38 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// Gets or sets a value indicating whether to use a thumbnail or the original image
     /// </summary>
     /// <value><c>true</c> if using thumbnail; otherwise, <c>false</c>.</value>
-    public bool UseThumbNail
+    public bool UseThumbnail
     {
       get { return _useThumbnail; }
       set { _useThumbnail = value; }
     }
 
-    /// <summary>
-    /// Gets the name of the texture
-    /// </summary>
-    /// <value>The name.</value>
     public string Name
     {
       get { return _textureName; }
     }
 
-    /// <summary>
-    /// Gets the width.
-    /// </summary>
-    /// <value>The width.</value>
     public int Width
     {
       get { return _width; }
     }
 
-    /// <summary>
-    /// Gets the height.
-    /// </summary>
-    /// <value>The height.</value>
     public int Height
     {
       get { return _height; }
     }
 
-    /// <summary>
-    /// Gets the max U of the textire.
-    /// </summary>
-    /// <value>The max U.</value>
     public float MaxU
     {
       get { return _maxU; }
     }
 
-    /// <summary>
-    /// Gets the max V of the texture
-    /// </summary>
-    /// <value>The max V.</value>
     public float MaxV
     {
       get { return _maxV; }
     }
 
-    public bool DoesExists
+    public bool Exists
     {
       get
       {
@@ -197,7 +176,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           if (uri.IsFile)
           {
             _sourceFileName = uri.LocalPath;
-            if (UseThumbNail)
+            if (UseThumbnail)
             {
               if (generator.GetThumbnail(_sourceFileName, out thumbData, out imageType))
                 _state = State.Created;
@@ -274,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           try
           {
             //ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from thumbdata:{0}", _textureName);
-            if (UseThumbNail)
+            if (UseThumbnail)
             {
               info = ImageInformation.FromStream(stream);
               stream.Seek(0, SeekOrigin.Begin);
@@ -315,7 +294,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         //        ServiceScope.Get<ILogger>().Debug("TEXTURE alloc from file:{0}", _sourceFileName);
         try
         {
-          if (UseThumbNail)
+          if (UseThumbnail)
           {
             info = ImageInformation.FromFile(_sourceFileName);
             _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0);
@@ -371,9 +350,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _state = State.Created;
     }
 
-    /// <summary>
-    /// Draws the image.
-    /// </summary>
     public void Draw(int streamNumber)
     {
       if (!IsAllocated)
@@ -416,21 +392,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       _lastTimeUsed = SkinContext.Now;
     }
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
+
     public bool IsAllocated
     {
       get { return (_texture != null); }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -440,7 +407,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           return false;
         }
         TimeSpan ts = SkinContext.Now - _lastTimeUsed;
-        if (UseThumbNail)
+        if (UseThumbnail)
         {
           if (ts.TotalSeconds >= 5)
           {
@@ -456,9 +423,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
     public bool Free(bool force)
     {
       //      Trace.WriteLine(String.Format("  Dispose texture:{0}", _textureName));
