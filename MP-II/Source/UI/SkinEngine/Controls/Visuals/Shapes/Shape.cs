@@ -94,6 +94,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      // Fill and Stroke are disposed by the BrushCache
+    }
+
     void Init()
     {
       _fillProperty = new Property(typeof(Brush), null);

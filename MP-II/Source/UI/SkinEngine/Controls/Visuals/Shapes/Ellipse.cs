@@ -23,7 +23,6 @@
 #endregion
 
 using System.Drawing.Drawing2D;
-using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
@@ -37,9 +36,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Ellipse : Shape
   {
-    public Ellipse()
-    { }
-
     protected override void PerformLayout()
     {
       if (!_performLayout)

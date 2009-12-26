@@ -39,9 +39,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Polygon : Shape
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _pointsProperty;
+    protected Property _pointsProperty;
 
     #endregion
 

@@ -39,10 +39,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Path : Shape
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _dataProperty;
-    bool _fillDisabled;
+    protected Property _dataProperty;
+    protected bool _fillDisabled;
 
     #endregion
 
