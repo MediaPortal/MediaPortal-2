@@ -1327,7 +1327,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return result;
     }
 
-    public void InsertOrUpdateMIA(ITransaction transaction, Int64 mediaItemId, MediaItemAspect mia, bool insert)
+    public void AddOrUpdateMIA(ITransaction transaction, Int64 mediaItemId, MediaItemAspect mia, bool add)
     {
       MediaItemAspectMetadata miaType;
       if (!_managedMIATypes.TryGetValue(mia.Metadata.AspectId, out miaType) || miaType == null)
@@ -1349,7 +1349,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         {
           case Cardinality.Inline:
             attrColName = GetMIAAttributeColumnName(spec);
-            if (insert)
+            if (add)
               terms.Add(attrColName);
             else
               terms.Add(attrColName + " = ?");
@@ -1368,10 +1368,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             else
             {
               Int64 valuePk;
-              GetOrCreateManyToOneMIAAttributeValue(transaction, spec, mediaItemId, mia.GetAttributeValue(spec), insert, out valuePk);
+              GetOrCreateManyToOneMIAAttributeValue(transaction, spec, mediaItemId, mia.GetAttributeValue(spec), add, out valuePk);
               insertValue = valuePk;
             }
-            if (insert)
+            if (add)
               terms.Add(attrColName);
             else
               terms.Add(attrColName + " = ?");
@@ -1390,7 +1390,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       // Main query
       StringBuilder mainQueryBuilder = new StringBuilder();
-      if (insert)
+      if (add)
       {
         mainQueryBuilder.Append("INSERT INTO ");
         mainQueryBuilder.Append(miaTableName);
@@ -1410,7 +1410,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       mainQueryBuilder.Append(StringUtils.Join(", ", terms));
       sqlValues.Add(mediaItemId);
       // values = all inline attribute values plus media item ID
-      if (insert)
+      if (add)
       {
         mainQueryBuilder.Append(", ");
         mainQueryBuilder.Append(MIA_MEDIA_ITEM_ID_COL_NAME); // Append the ID column as a normal attribute
@@ -1449,12 +1449,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           case Cardinality.Inline:
             break;
           case Cardinality.OneToMany:
-            InsertOrUpdateOneToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
+            InsertOrUpdateOneToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), add);
             break;
           case Cardinality.ManyToOne:
             break;
           case Cardinality.ManyToMany:
-            InsertOrUpdateManyToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), insert);
+            InsertOrUpdateManyToManyMIAAttributeValues(transaction, spec, mediaItemId, mia.GetCollectionAttribute(spec), add);
             break;
           default:
             throw new NotImplementedException(string.Format("Cardinality '{0}' for attribute '{1}.{2}' is not implemented",
@@ -1467,7 +1467,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void AddOrUpdateMIA(ITransaction transaction, Int64 mediaItemId, MediaItemAspect mia)
     {
-      InsertOrUpdateMIA(transaction, mediaItemId, mia, !MIAExists(transaction, mediaItemId, mia.Metadata.AspectId));
+      AddOrUpdateMIA(transaction, mediaItemId, mia, !MIAExists(transaction, mediaItemId, mia.Metadata.AspectId));
     }
 
     public bool RemoveMIA(ITransaction transaction, Int64 mediaItemId, Guid aspectId)

@@ -116,6 +116,52 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         return;
       }
 
+      // Must be done before checking IAttributeFilter - EmptyFilter is also an IAttributeFilter but must be
+      // compiled in a different way
+      EmptyFilter emptyFilter = filter as EmptyFilter;
+      if (emptyFilter != null)
+      {
+        MediaItemAspectMetadata.AttributeSpecification attributeType = emptyFilter.AttributeType;
+        Cardinality cardinality = attributeType.Cardinality;
+        if (cardinality == Cardinality.Inline || cardinality == Cardinality.ManyToOne)
+        {
+          resultParts.Add(new QueryAttribute(attributeType));
+          resultParts.Add(" IS NULL");
+        }
+        else if (cardinality == Cardinality.OneToMany)
+        {
+          resultParts.Add("NOT EXISTS(");
+          resultParts.Add("SELECT VAL.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
+          resultParts.Add(" VAL WHERE VAL.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=");
+          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          resultParts.Add(")");
+        }
+        else if (cardinality == Cardinality.ManyToMany)
+        {
+          resultParts.Add("NOT EXISTS(");
+          resultParts.Add("SELECT NM.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIACollectionAttributeNMTableName(attributeType));
+          resultParts.Add(" NM INNER JOIN ");
+          resultParts.Add(miaManagement.GetMIACollectionAttributeTableName(attributeType));
+          resultParts.Add(" VAL ON NM.");
+          resultParts.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
+          resultParts.Add(" = VAL.");
+          resultParts.Add(MIA_Management.FOREIGN_COLL_ATTR_ID_COL_NAME);
+          resultParts.Add(" WHERE NM.");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add("=");
+          resultParts.Add(outerMIIDJoinVariablePlaceHolder);
+          resultParts.Add(")");
+        }
+      }
+
       IAttributeFilter attributeFilter = filter as IAttributeFilter;
       if (attributeFilter != null)
       {

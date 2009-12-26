@@ -84,6 +84,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlArrayItem("SimilarTo", typeof(SimilarToFilter))]
     [XmlArrayItem("Not", typeof(NotFilter))]
     [XmlArrayItem("Relational", typeof(RelationalFilter))]
+    [XmlArrayItem("Empty", typeof(EmptyFilter))]
     public object[] XML_Operands
     {
       get { return _operands; }

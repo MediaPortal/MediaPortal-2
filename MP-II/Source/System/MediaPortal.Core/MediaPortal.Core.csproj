@@ -115,6 +115,7 @@
     <Compile Include="MediaManagement\IBaseMediaProvider.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractAttributeFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AbstractExpressionFilter.cs" />
+    <Compile Include="MediaManagement\MLQueries\EmptyFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\SerializationHelper.cs" />
     <Compile Include="MediaManagement\MLQueries\SimilarToFilter.cs" />
     <Compile Include="MediaManagement\ProviderPathSegment.cs" />

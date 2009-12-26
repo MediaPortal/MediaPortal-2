@@ -253,7 +253,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           MediaItemAspect providerResourceAspect = new MediaItemAspect(ProviderResourceAspect.Metadata);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, systemId);
           providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, path.Serialize());
-          _miaManagement.InsertOrUpdateMIA(transaction, mediaItemId.Value, providerResourceAspect, true);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, providerResourceAspect, true);
 
           importerAspect = new MediaItemAspect(ImporterAspect.Metadata);
           importerAspect.SetAttribute(ImporterAspect.ATTR_DATEADDED, now);
@@ -263,9 +263,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, false);
         importerAspect.SetAttribute(ImporterAspect.ATTR_LAST_IMPORT_DATE, now);
         if (wasCreated)
-          _miaManagement.InsertOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, true);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, true);
         else
-          _miaManagement.InsertOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, false);
+          _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, importerAspect, false);
 
         // Update
         foreach (MediaItemAspect mia in mediaItemAspects)
@@ -274,7 +274,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             // Simply skip unknown MIA types. All types should have been added before import.
             continue;
           if (wasCreated)
-            _miaManagement.InsertOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
+            _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia, true);
           else
             _miaManagement.AddOrUpdateMIA(transaction, mediaItemId.Value, mia);
         }
