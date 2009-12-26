@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Ctor
 
-    public ValueKeyFrame()
+    protected ValueKeyFrame()
     {
       Init();
     }

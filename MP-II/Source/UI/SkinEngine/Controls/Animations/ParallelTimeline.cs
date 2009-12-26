@@ -22,13 +22,10 @@
 
 #endregion
 
-
 namespace MediaPortal.UI.SkinEngine.Controls.Animations
 {
   public class ParallelTimeline: TimelineGroup
   {
-    public ParallelTimeline() { }
-
     public override void Start(TimelineContext context, uint timePassed)
     {
       base.Start(context, timePassed);

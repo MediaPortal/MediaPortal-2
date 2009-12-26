@@ -134,7 +134,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     }
 
     #endregion
-
   }
 }
 

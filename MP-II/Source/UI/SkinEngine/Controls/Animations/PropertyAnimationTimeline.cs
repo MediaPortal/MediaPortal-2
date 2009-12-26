@@ -137,8 +137,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     public override TimelineContext CreateTimelineContext(UIElement element)
     {
-      PropertyAnimationTimelineContext result = new PropertyAnimationTimelineContext(element);
-      result.DataDescriptor = GetDataDescriptor(element);
+      PropertyAnimationTimelineContext result = new PropertyAnimationTimelineContext(element)
+        {DataDescriptor = GetDataDescriptor(element)};
       return result;
     }
 
@@ -158,10 +158,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null)
         return;
-      if (propertyConfigurations.ContainsKey(patc.DataDescriptor))
-        patc.OriginalValue = propertyConfigurations[patc.DataDescriptor];
-      else
-        patc.OriginalValue = patc.DataDescriptor.Value;
+      object value;
+      patc.OriginalValue = propertyConfigurations.TryGetValue(patc.DataDescriptor, out value) ? value :
+          patc.DataDescriptor.Value;
       patc.StartValue = patc.DataDescriptor.Value;
     }
 

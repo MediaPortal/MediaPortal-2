@@ -122,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       SetValue(context, new Vector2((float) distx, (float) disty));
     }
 
-    Vector2 GetValue(TimelineContext context)
+    protected Vector2 GetValue(TimelineContext context)
     {
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return new Vector2(0, 0);
@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     }
 
-    void SetValue(TimelineContext context,Vector2 vector)
+    protected static void SetValue(TimelineContext context,Vector2 vector)
     {
       PropertyAnimationTimelineContext patc = (PropertyAnimationTimelineContext) context;
       if (patc.DataDescriptor == null) return;

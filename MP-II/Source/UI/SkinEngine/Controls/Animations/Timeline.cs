@@ -296,8 +296,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// <param name="context">The animation context.</param>
     /// <param name="result">Dictionary to add all animated properties mapped to their original
     /// values from this animation.</param>
-    public abstract void AddAllAnimatedProperties(TimelineContext context,
-        IDictionary<IDataDescriptor, object> result);
+    public abstract void AddAllAnimatedProperties(TimelineContext context, IDictionary<IDataDescriptor, object> result);
 
     /// <summary>
     /// Sets up the specified <paramref name="context"/> object with all necessary
@@ -308,8 +307,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// predecessor animation, mapped to their original values.
     /// The original value for all data descriptors contained in this map should be
     /// initialized with the mapped value instead of the current value.</param>
-    public virtual void Setup(TimelineContext context,
-        IDictionary<IDataDescriptor, object> propertyConfigurations)
+    public virtual void Setup(TimelineContext context, IDictionary<IDataDescriptor, object> propertyConfigurations)
     {
       context.State = State.Setup;
     }
@@ -348,7 +346,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
           {
             DoAnimation(context, passed);
             if (HasEnded(context)) // Check the state of the children and propagate it to this timeline
-              if (FillBehavior == Animations.FillBehavior.Stop)
+              if (FillBehavior == FillBehavior.Stop)
                 Stop(context);
               else
                 Ended(context);
@@ -374,7 +372,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
             else
             {
               DoAnimation(context, (uint) Duration.TotalMilliseconds);
-              if (FillBehavior == Animations.FillBehavior.Stop)
+              if (FillBehavior == FillBehavior.Stop)
                 Stop(context);
               else
                 Ended(context);
@@ -398,7 +396,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
             else
             {
               DoAnimation(context, 0);
-              if (FillBehavior == Animations.FillBehavior.Stop)
+              if (FillBehavior == FillBehavior.Stop)
                 Stop(context);
               else
                 Ended(context);

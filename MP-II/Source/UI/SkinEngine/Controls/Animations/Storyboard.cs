@@ -32,9 +32,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     protected const string TARGET_NAME_ATTACHED_PROPERTY = "StoryBoard.TargetName";
     protected const string TARGET_PROPERTY_ATTACHED_PROPERTY = "StoryBoard.TargetProperty";
 
-    public Storyboard()
-    { }
-    
     #region Attached properties
 
     /// <summary>
