@@ -58,7 +58,7 @@ namespace UPnP.Infrastructure.CP.SOAP
     {
       bool targetSupportsUPnP11 = upnpVersion.VerMin >= 1;
       StringBuilder result = new StringBuilder(5000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
       SoapHelper.WriteSoapEnvelopeStart(writer, true);
       writer.WriteStartElement("u", action.Name, action.ParentService.ServiceTypeVersion_URN);
 
@@ -138,7 +138,7 @@ namespace UPnP.Infrastructure.CP.SOAP
 
     protected static void ParseFaultDocument(TextReader textReader, out uint errorCode, out string errorDescription)
     {
-      using(XmlReader reader = XmlReader.Create(textReader))
+      using(XmlReader reader = XmlReader.Create(textReader, Configuration.DEFAULT_XML_READER_SETTINGS))
       {
         reader.MoveToContent();
         // Parse SOAP envelope
@@ -163,7 +163,7 @@ namespace UPnP.Infrastructure.CP.SOAP
     protected static IList<object> ParseResult(TextReader textReader, CpAction action, bool sourceSupportsUPnP11)
     {
       IList<object> outParameterValues = new List<object>();
-      using(XmlReader reader = XmlReader.Create(textReader))
+      using(XmlReader reader = XmlReader.Create(textReader, Configuration.DEFAULT_XML_READER_SETTINGS))
       {
         reader.MoveToContent();
         // Parse SOAP envelope

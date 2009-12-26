@@ -214,7 +214,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildSCPDDocument(EndpointConfiguration config, ServerData serverData)
     {
       StringBuilder result = new StringBuilder(10000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
       writer.WriteStartDocument();
       writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
       // Default namespaces

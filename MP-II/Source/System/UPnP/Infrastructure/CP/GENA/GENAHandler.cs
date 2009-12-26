@@ -42,7 +42,7 @@ namespace UPnP.Infrastructure.CP.GENA
       {
         // Parse XML document
         using (StreamReader streamReader = new StreamReader(stream, streamEncoding))
-          using (XmlReader reader = XmlReader.Create(streamReader))
+          using (XmlReader reader = XmlReader.Create(streamReader, Configuration.DEFAULT_XML_READER_SETTINGS))
           {
             reader.MoveToContent();
             reader.ReadStartElement("propertyset", UPnPConsts.NS_UPNP_EVENT);

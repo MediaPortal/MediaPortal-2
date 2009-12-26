@@ -97,7 +97,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
         IList<object> inParameterValues = null; // Default to null if there aren't parameters, will be lazily initialized later
         DvAction action;
         using (StreamReader streamReader = new StreamReader(messageStream, streamEncoding))
-          using(XmlReader reader = XmlReader.Create(streamReader))
+          using(XmlReader reader = XmlReader.Create(streamReader, Configuration.DEFAULT_XML_READER_SETTINGS))
           {
             reader.MoveToContent();
             // Parse SOAP envelope
@@ -193,7 +193,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     protected static string CreateResultDocument(DvAction action, IList<OutParameter> outParameters, bool forceSimpleValues)
     {
       StringBuilder result = new StringBuilder(2000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
       SoapHelper.WriteSoapEnvelopeStart(writer, true);
       writer.WriteStartElement("u", action.Name + "Response", action.ParentService.ServiceTypeVersion_URN);
       foreach (OutParameter parameter in outParameters)
@@ -210,7 +210,7 @@ namespace UPnP.Infrastructure.Dv.SOAP
     public static string CreateFaultDocument(uint errorCode, string errorDescription)
     {
       StringBuilder result = new StringBuilder(2000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8));
+      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
       SoapHelper.WriteSoapEnvelopeStart(writer, false);
       writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
       string soapNamespacePrefix = writer.LookupPrefix(UPnPConsts.NS_SOAP_ENVELOPE);

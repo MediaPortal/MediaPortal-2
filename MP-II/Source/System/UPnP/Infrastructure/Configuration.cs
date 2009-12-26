@@ -23,6 +23,8 @@
 
 #endregion
 
+using System.Text;
+using System.Xml;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace UPnP.Infrastructure
@@ -66,6 +68,25 @@ namespace UPnP.Infrastructure
     /// Logger instance used in all future calls of the UPnP system. Must not be <c>null</c>!
     /// </summary>
     public static ILogger LOGGER = new ConsoleLogger();
+
+    /// <summary>
+    /// Default settins to be used by XML writers.
+    /// </summary>
+    public static XmlWriterSettings DEFAULT_XML_WRITER_SETTINGS = new XmlWriterSettings
+      {
+          CheckCharacters = false,
+          Encoding = Encoding.UTF8,
+          Indent = false
+      };
+
+    /// <summary>
+    /// Default settins to be used by XML readers.
+    /// </summary>
+    public static XmlReaderSettings DEFAULT_XML_READER_SETTINGS = new XmlReaderSettings
+      {
+          CheckCharacters = false,
+          IgnoreComments = true
+      };
 
     #endregion
 

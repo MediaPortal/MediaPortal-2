@@ -342,14 +342,7 @@ namespace MediaPortal.Core.MediaManagement
         if (obj == null)
           XmlSerialization.WriteNull(writer);
         else
-          try
-          {
-            writer.WriteValue(obj);
-          }
-          catch (Exception e)
-          {
-            ServiceScope.Get<ILogger>().Warn("MediaItemAspect: Unable to serialize value '{0}', setting to null", e, obj);
-          }
+          writer.WriteValue(obj);
       }
       writer.WriteEndElement();
     }
