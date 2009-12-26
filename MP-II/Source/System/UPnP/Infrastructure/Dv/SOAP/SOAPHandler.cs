@@ -193,37 +193,41 @@ namespace UPnP.Infrastructure.Dv.SOAP
     protected static string CreateResultDocument(DvAction action, IList<OutParameter> outParameters, bool forceSimpleValues)
     {
       StringBuilder result = new StringBuilder(2000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
-      SoapHelper.WriteSoapEnvelopeStart(writer, true);
-      writer.WriteStartElement("u", action.Name + "Response", action.ParentService.ServiceTypeVersion_URN);
-      foreach (OutParameter parameter in outParameters)
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
       {
-        writer.WriteStartElement(parameter.Argument.Name);
-        parameter.Argument.SoapSerializeArgument(parameter.Value, forceSimpleValues, writer);
-        writer.WriteEndElement(); // parameter.Argument.Name
+        SoapHelper.WriteSoapEnvelopeStart(writer, true);
+        writer.WriteStartElement("u", action.Name + "Response", action.ParentService.ServiceTypeVersion_URN);
+        foreach (OutParameter parameter in outParameters)
+        {
+          writer.WriteStartElement(parameter.Argument.Name);
+          parameter.Argument.SoapSerializeArgument(parameter.Value, forceSimpleValues, writer);
+          writer.WriteEndElement(); // parameter.Argument.Name
+        }
+        writer.WriteEndElement(); // u:[action.Name]Response
+        SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
       }
-      writer.WriteEndElement(); // u:[action.Name]Response
-      SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
       return result.ToString();
     }
 
     public static string CreateFaultDocument(uint errorCode, string errorDescription)
     {
       StringBuilder result = new StringBuilder(2000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
-      SoapHelper.WriteSoapEnvelopeStart(writer, false);
-      writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
-      string soapNamespacePrefix = writer.LookupPrefix(UPnPConsts.NS_SOAP_ENVELOPE);
-      writer.WriteElementString("faultcode", soapNamespacePrefix + ":Client");
-      writer.WriteElementString("faultstring", "UPnPError");
-      writer.WriteStartElement("detail");
-      writer.WriteStartElement(string.Empty, "UPnPError", UPnPConsts.NS_UPNP_CONTROL);
-      writer.WriteElementString("errorCode", errorCode.ToString());
-      writer.WriteElementString("errorDescription", errorDescription);
-      writer.WriteEndElement(); // UPnPError
-      writer.WriteEndElement(); // detail
-      writer.WriteEndElement(); // s:Fault
-      SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
+      {
+        SoapHelper.WriteSoapEnvelopeStart(writer, false);
+        writer.WriteStartElement("Fault", UPnPConsts.NS_SOAP_ENVELOPE);
+        string soapNamespacePrefix = writer.LookupPrefix(UPnPConsts.NS_SOAP_ENVELOPE);
+        writer.WriteElementString("faultcode", soapNamespacePrefix + ":Client");
+        writer.WriteElementString("faultstring", "UPnPError");
+        writer.WriteStartElement("detail");
+        writer.WriteStartElement(string.Empty, "UPnPError", UPnPConsts.NS_UPNP_CONTROL);
+        writer.WriteElementString("errorCode", errorCode.ToString());
+        writer.WriteElementString("errorDescription", errorDescription);
+        writer.WriteEndElement(); // UPnPError
+        writer.WriteEndElement(); // detail
+        writer.WriteEndElement(); // s:Fault
+        SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
+      }
       return result.ToString();
     }
   }

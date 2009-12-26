@@ -285,19 +285,21 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildRootDeviceDescription(ServerData serverData, EndpointConfiguration config, CultureInfo culture)
     {
       StringBuilder result = new StringBuilder(10000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
-      writer.WriteStartDocument();
-      writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
+      {
+        writer.WriteStartDocument();
+        writer.WriteStartElement(string.Empty, "root", UPnPConsts.NS_DEVICE_DESCRIPTION);
 
-      writer.WriteAttributeString("configId", config.ConfigId.ToString());
-      writer.WriteStartElement("specVersion");
-      writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
-      writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
-      writer.WriteEndElement(); // specVersion
-      
-      AddDeviceDescriptionsRecursive(writer, config, culture);
-      writer.WriteEndElement(); // root
-      writer.Close();
+        writer.WriteAttributeString("configId", config.ConfigId.ToString());
+        writer.WriteStartElement("specVersion");
+        writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
+        writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
+        writer.WriteEndElement(); // specVersion
+
+        AddDeviceDescriptionsRecursive(writer, config, culture);
+        writer.WriteEndElement(); // root
+        writer.Close();
+      }
       return result.ToString();
     }
 

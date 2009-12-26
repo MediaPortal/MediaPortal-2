@@ -36,21 +36,23 @@ namespace UPnP.Infrastructure.Dv.GENA
     public static string BuildEventNotificationMessage(IEnumerable<DvStateVariable> variables, bool forceSimpleValue)
     {
       StringBuilder result = new StringBuilder(1000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
-      writer.WriteStartDocument();
-      writer.WriteStartElement("e", "propertyset", UPnPConsts.NS_UPNP_EVENT);
-      writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
-      foreach (DvStateVariable variable in variables)
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
       {
-        writer.WriteStartElement("property", UPnPConsts.NS_UPNP_EVENT);
-        writer.WriteStartElement(variable.Name);
-        variable.DataType.SoapSerializeValue(variable.Value, forceSimpleValue, writer);
-        writer.WriteEndElement(); // variable.Name
-        writer.WriteEndElement(); // property
+        writer.WriteStartDocument();
+        writer.WriteStartElement("e", "propertyset", UPnPConsts.NS_UPNP_EVENT);
+        writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
+        foreach (DvStateVariable variable in variables)
+        {
+          writer.WriteStartElement("property", UPnPConsts.NS_UPNP_EVENT);
+          writer.WriteStartElement(variable.Name);
+          variable.DataType.SoapSerializeValue(variable.Value, forceSimpleValue, writer);
+          writer.WriteEndElement(); // variable.Name
+          writer.WriteEndElement(); // property
+        }
+        writer.WriteEndElement(); // propertyset
+        writer.WriteEndDocument();
+        writer.Close();
       }
-      writer.WriteEndElement(); // propertyset
-      writer.WriteEndDocument();
-      writer.Close();
       return result.ToString();
     }
   }

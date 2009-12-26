@@ -58,25 +58,27 @@ namespace UPnP.Infrastructure.CP.SOAP
     {
       bool targetSupportsUPnP11 = upnpVersion.VerMin >= 1;
       StringBuilder result = new StringBuilder(5000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
-      SoapHelper.WriteSoapEnvelopeStart(writer, true);
-      writer.WriteStartElement("u", action.Name, action.ParentService.ServiceTypeVersion_URN);
-
-      // Check input parameters
-      IList<CpArgument> formalArguments = action.InArguments;
-      if (inParamValues == null)
-        inParamValues = EMPTY_OBJECT_LIST;
-      if (inParamValues.Count != formalArguments.Count)
-        throw new ArgumentException("Invalid argument count");
-      for (int i = 0; i < formalArguments.Count; i++)
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
       {
-        CpArgument argument = formalArguments[i];
-        object value = inParamValues[i];
-        writer.WriteStartElement(argument.Name);
-        argument.SoapSerializeArgument(value, !targetSupportsUPnP11, writer);
-        writer.WriteEndElement(); // argument.Name
+        SoapHelper.WriteSoapEnvelopeStart(writer, true);
+        writer.WriteStartElement("u", action.Name, action.ParentService.ServiceTypeVersion_URN);
+
+        // Check input parameters
+        IList<CpArgument> formalArguments = action.InArguments;
+        if (inParamValues == null)
+          inParamValues = EMPTY_OBJECT_LIST;
+        if (inParamValues.Count != formalArguments.Count)
+          throw new ArgumentException("Invalid argument count");
+        for (int i = 0; i < formalArguments.Count; i++)
+        {
+          CpArgument argument = formalArguments[i];
+          object value = inParamValues[i];
+          writer.WriteStartElement(argument.Name);
+          argument.SoapSerializeArgument(value, !targetSupportsUPnP11, writer);
+          writer.WriteEndElement(); // argument.Name
+        }
+        SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
       }
-      SoapHelper.WriteSoapEnvelopeEndAndClose(writer);
       return result.ToString();
     }
 

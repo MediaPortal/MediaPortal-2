@@ -214,43 +214,45 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildSCPDDocument(EndpointConfiguration config, ServerData serverData)
     {
       StringBuilder result = new StringBuilder(10000);
-      XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS);
-      writer.WriteStartDocument();
-      writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
-      // Default namespaces
-      writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
-      // Datatype schema namespaces
-      uint ct = 0;
-      foreach (DvStateVariable stateVariable in _stateVariables.Values)
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
       {
-        DvDataType dataType = stateVariable.DataType;
-        if (dataType is DvExtendedDataType)
+        writer.WriteStartDocument();
+        writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
+        // Default namespaces
+        writer.WriteAttributeString("xmlns", "xsi", null, UPnPConsts.NS_XSI);
+        // Datatype schema namespaces
+        uint ct = 0;
+        foreach (DvStateVariable stateVariable in _stateVariables.Values)
         {
-          string schemaURI = ((DvExtendedDataType) dataType).SchemaURI;
-          writer.WriteAttributeString("xmlns", "dt" + ct++, null, schemaURI);
+          DvDataType dataType = stateVariable.DataType;
+          if (dataType is DvExtendedDataType)
+          {
+            string schemaURI = ((DvExtendedDataType) dataType).SchemaURI;
+            writer.WriteAttributeString("xmlns", "dt" + ct++, null, schemaURI);
+          }
         }
-      }
-      writer.WriteAttributeString("configId", config.ConfigId.ToString());
-      writer.WriteStartElement("specVersion");
-      writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
-      writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
-      writer.WriteEndElement(); // specVersion
+        writer.WriteAttributeString("configId", config.ConfigId.ToString());
+        writer.WriteStartElement("specVersion");
+        writer.WriteElementString("major", UPnPConsts.UPNP_VERSION_MAJOR.ToString());
+        writer.WriteElementString("minor", UPnPConsts.UPNP_VERSION_MINOR.ToString());
+        writer.WriteEndElement(); // specVersion
 
-      ICollection<DvAction> actions = _actions.Values;
-      if (actions.Count > 0)
-      {
-        writer.WriteStartElement("actionList");
-        foreach (DvAction action in actions)
-          action.AddSCPDDescriptionForAction(writer);
-        writer.WriteEndElement(); // actionList
+        ICollection<DvAction> actions = _actions.Values;
+        if (actions.Count > 0)
+        {
+          writer.WriteStartElement("actionList");
+          foreach (DvAction action in actions)
+            action.AddSCPDDescriptionForAction(writer);
+          writer.WriteEndElement(); // actionList
+        }
+        writer.WriteStartElement("serviceStateTable");
+        foreach (DvStateVariable stateVariable in _stateVariables.Values)
+          stateVariable.AddSCPDDescriptionForStateVariable(writer);
+        writer.WriteEndElement(); // serviceStateTable
+        writer.WriteEndElement(); // scpd
+        writer.WriteEndDocument();
+        writer.Close();
       }
-      writer.WriteStartElement("serviceStateTable");
-      foreach (DvStateVariable stateVariable in _stateVariables.Values)
-        stateVariable.AddSCPDDescriptionForStateVariable(writer);
-      writer.WriteEndElement(); // serviceStateTable
-      writer.WriteEndElement(); // scpd
-      writer.WriteEndDocument();
-      writer.Close();
       return result.ToString();
     }
 
