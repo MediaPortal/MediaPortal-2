@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     Texture _texture;
     DateTime _lastTimeUsed;
-    GradientStopCollection _stops;
+    readonly GradientStopCollection _stops;
     readonly bool _opacityBrush;
     readonly string _name;
     static int _assetId = 0;
