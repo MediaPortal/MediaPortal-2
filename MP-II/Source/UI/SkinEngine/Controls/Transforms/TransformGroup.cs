@@ -45,6 +45,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+      Children.Dispose();
+    }
+
     void Init()
     {
       _childrenProperty = new Property(typeof(TransformCollection), new TransformCollection());

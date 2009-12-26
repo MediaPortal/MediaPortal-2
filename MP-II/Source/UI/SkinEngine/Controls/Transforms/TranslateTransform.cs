@@ -46,6 +46,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+    }
+
     void Init()
     {
       _YProperty = new Property(typeof(double), 0.0);

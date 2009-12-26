@@ -34,8 +34,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
   {
     public class TransformEnumerator : IEnumerator<Transform>
     {
-      int index = -1;
-      IList<Transform> _elements;
+      protected int index = -1;
+      protected readonly IList<Transform> _elements;
 
       public TransformEnumerator(IList<Transform> elements)
       {
@@ -74,13 +74,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       }
     }
 
-    IList<Transform> _elements;
+    protected readonly IList<Transform> _elements = new List<Transform>();
 
     public event ObjectChangedHandler ObjectChanged;
 
-    public TransformCollection()
+    public override void Dispose()
     {
-      _elements = new List<Transform>();
+      base.Dispose();
+      Clear();
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -96,10 +97,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Fire();
     }
 
-    /// <summary>
-    /// Adds the specified element.
-    /// </summary>
-    /// <param name="element">The element.</param>
     public void Add(Transform element)
     {
       _elements.Add(element);
@@ -116,6 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       {
         _elements.Remove(element);
         element.ObjectChanged -= OnChildChanged;
+        element.Dispose();
       }
     }
 
@@ -124,23 +122,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     /// </summary>
     public void Clear()
     {
-      foreach (Transform e in _elements)
+      foreach (Transform element in _elements)
       {
-        e.ObjectChanged -= OnChildChanged;
+        element.ObjectChanged -= OnChildChanged;
+        element.Dispose();
       }
       _elements.Clear();
     }
 
-    /// <summary>
-    /// Gets the count.
-    /// </summary>
-    /// <value>The count.</value>
     public int Count
     {
-      get
-      {
-        return _elements.Count;
-      }
+      get { return _elements.Count; }
     }
 
     /// <summary>
@@ -149,15 +141,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     /// <value></value>
     public Transform this[int index]
     {
-      get
-      {
-        return _elements[index];
-      }
+      get { return _elements[index]; }
       set
       {
         if (value != _elements[index])
         {
           _elements[index].ObjectChanged -= OnChildChanged;
+          _elements[index].Dispose();
           _elements[index] = value;
           _elements[index].ObjectChanged += OnChildChanged;
         }

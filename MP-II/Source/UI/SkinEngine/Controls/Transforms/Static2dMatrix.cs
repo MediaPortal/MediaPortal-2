@@ -37,9 +37,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #region Ctor
 
-    public Static2dMatrix()
-    { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);

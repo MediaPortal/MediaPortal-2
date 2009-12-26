@@ -48,6 +48,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+    }
+
     void Attach()
     {
       SkinContext.ZoomProperty.Attach(OnZoomChanged);
