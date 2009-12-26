@@ -40,10 +40,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   /// </summary>
   public class WrapPanel : Panel
   {
-    #region Private fields
+    #region Protected fields
 
-    Property _orientationProperty;
-    IList<float> _sizeCol;
+    protected Property _orientationProperty;
+    protected IList<float> _sizeCol;
 
     #endregion
 
@@ -53,6 +53,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       Init();
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
     }
 
     void Init()

@@ -61,6 +61,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Attach();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
+    }
+
     void Init()
     {
       _orientationProperty = new Property(typeof(Orientation), Orientation.Vertical);

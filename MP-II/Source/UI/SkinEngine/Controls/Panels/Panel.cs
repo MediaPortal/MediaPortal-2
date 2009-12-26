@@ -67,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
   public class Panel : FrameworkElement, IAddChild<UIElement>, IUpdateEventHandler
   {
-    #region Private/protected fields
+    #region Protected fields
 
     protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
 
@@ -89,6 +89,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       Init();
       Attach();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      Detach();
     }
 
     void Init()
