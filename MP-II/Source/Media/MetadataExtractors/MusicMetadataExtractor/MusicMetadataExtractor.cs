@@ -204,6 +204,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         File tag;
         try
         {
+          ByteVector.UseBrokenLatin1Behavior = true;  // Otherwise we have problems retrieving non-latin1 chars
           tag = File.Create(new MediaProviderFileAbstraction(mediaItemAccessor));
           
         }
