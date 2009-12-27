@@ -49,8 +49,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public void Dispose()
     {
-      foreach (GradientStop s in _elements)
-        s.Dispose();
+      _parent = null; // To avoid OnGradientsChanged callback
+      Clear();
     }
 
     public GradientStopCollection(GradientStopCollection source)
