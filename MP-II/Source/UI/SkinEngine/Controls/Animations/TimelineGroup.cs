@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Ctor
 
-    public TimelineGroup()
+    protected TimelineGroup()
     {
       Init();
     }
