@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Core.Services.Messaging
@@ -33,26 +35,26 @@ namespace MediaPortal.Core.Services.Messaging
         new Dictionary<string, ICollection<IMessageReceiver>>();
     protected object _syncObj = new object();
 
-    public void RegisterMessageQueue(string channel, IMessageReceiver queue)
+    public void RegisterMessageQueue(string channel, IMessageReceiver receiver)
     {
       lock (_syncObj)
       {
-        ICollection<IMessageReceiver> queues;
-        if (!_registeredQueues.TryGetValue(channel, out queues))
-          _registeredQueues[channel] = queues = new List<IMessageReceiver>();
-        queues.Add(queue);
+        ICollection<IMessageReceiver> receivers;
+        if (!_registeredQueues.TryGetValue(channel, out receivers))
+          _registeredQueues[channel] = receivers = new List<IMessageReceiver>();
+        receivers.Add(receiver);
       }
     }
 
-    public void UnregisterMessageQueue(string channel, IMessageReceiver queue)
+    public void UnregisterMessageQueue(string channel, IMessageReceiver receiver)
     {
       lock (_syncObj)
       {
-        ICollection<IMessageReceiver> queues;
-        if (_registeredQueues.TryGetValue(channel, out queues))
+        ICollection<IMessageReceiver> receivers;
+        if (_registeredQueues.TryGetValue(channel, out receivers))
         {
-          queues.Remove(queue);
-          if (queues.Count == 0)
+          receivers.Remove(receiver);
+          if (receivers.Count == 0)
             _registeredQueues.Remove(channel);
         }
       }
@@ -61,10 +63,19 @@ namespace MediaPortal.Core.Services.Messaging
     public void Send(string channelName, QueueMessage msg)
     {
       msg.ChannelName = channelName;
-      ICollection<IMessageReceiver> queues;
-      if (_registeredQueues.TryGetValue(channelName, out queues))
-        foreach (IMessageReceiver queue in queues)
-          queue.Receive(msg);
+      ICollection<IMessageReceiver> receivers;
+      lock (_syncObj)
+        receivers = _registeredQueues.TryGetValue(channelName, out receivers) ? new List<IMessageReceiver>(receivers) : null;
+      if (receivers != null)
+        foreach (IMessageReceiver messageReceiver in receivers)
+          try
+          {
+            messageReceiver.Receive(msg);
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Error("MessageBroker: Unable to send message to message receiver of channel '{0}'", e, channelName);
+          }
     }
   }
 }

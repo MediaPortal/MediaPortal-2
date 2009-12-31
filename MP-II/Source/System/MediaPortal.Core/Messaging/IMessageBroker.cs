@@ -38,16 +38,23 @@ namespace MediaPortal.Core.Messaging
   public interface IMessageBroker
   {
     /// <summary>
-    /// Registers the specified message <paramref name="queue"/> to receive messages of the specified messages
+    /// Registers the specified message <paramref name="receiver"/> to receive messages of the specified messages
     /// <paramref name="channel"/>.
     /// </summary>
-    void RegisterMessageQueue(string channel, IMessageReceiver queue);
+    /// <param name="channel">Name of the channel whose messages should be sent to the given
+    /// <paramref name="receiver"/>.</param>
+    /// <param name="receiver">Receiver instance which will receive all messages of the given message
+    /// <paramref name="channel"/>.</param>
+    void RegisterMessageQueue(string channel, IMessageReceiver receiver);
 
     /// <summary>
-    /// Unregisters the specified message <paramref name="queue"/> from receiving messages of the specified messages
+    /// Unregisters the specified message <paramref name="receiver"/> from receiving messages of the specified messages
     /// <paramref name="channel"/>.
     /// </summary>
-    void UnregisterMessageQueue(string channel, IMessageReceiver queue);
+    /// <param name="channel">Name of the channel where the given <paramref name="receiver"/> should be removed.</param>
+    /// <param name="receiver">Receiver instance which will be removed from the given message
+    /// <paramref name="channel"/>.</param>
+    void UnregisterMessageQueue(string channel, IMessageReceiver receiver);
 
     /// <summary>
     /// Sends the specified message in the message channel of the specified <paramref name="channelName"/>.
