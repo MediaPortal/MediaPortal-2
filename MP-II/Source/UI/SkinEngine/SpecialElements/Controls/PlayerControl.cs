@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Timers;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
@@ -490,6 +491,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           else
             IsVisible = isVisible;
         }
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Warn("PlayerControl: Error updating properties", e);
       }
       finally
       {
