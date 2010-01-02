@@ -11,8 +11,16 @@
     <Assembly FileName="Weather.dll"/>
   </Runtime>
 
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+  </DependsOn>
+  
   <Register Location="/Models">
-    <Model Id="{92BDB53F-4159-4dc2-B212-6083C820A214}" Name="WeatherModel" ClassName="Models.Weather.WeatherViewModel"/>
-	  <Model Id="{CF0434F2-B319-48ff-A700-0BB7F0C2CD2A}" Name="WeatherSetupModel" ClassName="Models.Weather.WeatherSetupViewModel"/>
+    <Model Id="92BDB53F-4159-4dc2-B212-6083C820A214" Name="WeatherModel" ClassName="UiComponents.Weather.WeatherViewModel"/>
+    <Model Id="CF0434F2-B319-48ff-A700-0BB7F0C2CD2A" Name="WeatherSetupModel" ClassName="UiComponents.Weather.WeatherSetupViewModel"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id = "DefaultSkin" Directory = "Skin" Type = "Skin"/>
   </Register>
 </Plugin>

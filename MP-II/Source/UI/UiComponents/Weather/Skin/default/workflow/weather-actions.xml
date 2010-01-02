@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Media workflow state actions -->
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5"
+        Name="Home->Weather"
+        DisplayCategory="a-Weather"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="44E1CF89-66D0-4850-A076-E1B602432983"
+        DisplayTitle="[Weather.0]"/>
+  </MenuActions>
+  <!--MenuActions>
+    <PushNavigationTransition Id="D997CAD9-A254-463b-A5AC-E101B6D930DD"
+        Name="Home->Weather Config"
+        DisplayCategory="a-WeatherConfig"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="F1CE62B4-32CA-46e8-BCFB-250FE07911B2"
+        DisplayTitle="Weather config"/>
+  </MenuActions-->
+</Workflow>

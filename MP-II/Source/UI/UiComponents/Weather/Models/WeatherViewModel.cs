@@ -22,14 +22,15 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
-
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Workflow;
 using UiComponents.Weather.Grabbers;
 
 
@@ -38,8 +39,10 @@ namespace UiComponents.Weather
   /// <summary>
   /// ViewModel Class for weather.xml
   /// </summary>
-  public class WeatherViewModel
+  public class WeatherViewModel: IWorkflowModel, IDisposable
   {
+    public const string WEATHER_MODEL_ID_STR = "92BDB53F-4159-4dc2-B212-6083C820A214";
+
     private Property _currentLocation;
     private readonly List<City> _locations = new List<City>();
 
@@ -65,29 +68,20 @@ namespace UiComponents.Weather
       _locations.Clear();
       // add citys from settings to the locations list
       WeatherSettings settings = ServiceScope.Get<ISettingsManager>().Load<WeatherSettings>();
-      ListItem buffItem;
+
+      // temporary dummy record until settings are implemented
+      AddCityToLocations(new CitySetupInfo("Berlin, Germany", "GMXX0007"), "GMXX0007");
+
+      if (settings == null || settings.LocationsList == null)
+      {
+        return;
+      }
+
       foreach (CitySetupInfo loc in settings.LocationsList)
       {
-        if (loc != null)
-        {
-          City buffLoc = new City(loc);
-          _locations.Add(buffLoc);
-
-          buffItem = new ListItem();
-          buffItem.SetLabel("Name", loc.Name);
-          buffItem.SetLabel("Id", loc.Id);
-          _locationsList.Add(buffItem);
-
-          // Is this the setting?
-          if (loc.Id.Equals(settings.LocationCode))
-          {
-            // Fetch data
-            RefreshData(buffLoc);
-            // Copy the data to the skin property.
-            CurrentLocation.Copy(buffLoc);
-          }
-        }
+        AddCityToLocations(loc, settings.LocationCode);
       }
+
       // if there is no city selected until yet, choose the first one
       if (settings.LocationCode.Equals("<none>"))
       {
@@ -108,6 +102,30 @@ namespace UiComponents.Weather
       if (shouldFire)
       {
         _locationsList.FireChange();
+      }
+    }
+
+    private void AddCityToLocations(CitySetupInfo loc, String LocationCode)
+    {
+      if (loc != null)
+      {
+        ListItem buffItem;
+        City buffLoc = new City(loc);
+        _locations.Add(buffLoc);
+
+        buffItem = new ListItem();
+        buffItem.SetLabel("Name", loc.Name);
+        buffItem.SetLabel("Id", loc.Id);
+        _locationsList.Add(buffItem);
+
+        // Is this the setting?
+        if (loc.Id.Equals(LocationCode))
+        {
+          // Fetch data
+          RefreshData(buffLoc);
+          // Copy the data to the skin property.
+          CurrentLocation.Copy(buffLoc);
+        }
       }
     }
 
@@ -206,5 +224,70 @@ namespace UiComponents.Weather
         return _locationsList;
       }
     }
+
+    #region IWorkflowModel Member
+
+    public Guid ModelId
+    {
+      get { return new Guid(WEATHER_MODEL_ID_STR); }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // We're temporary stepping out of our model context... We just hold our state
+      // until we step in again.
+    }
+
+    public void EnterModelContext(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext)
+    {
+      //throw new NotImplementedException();
+    }
+
+    public void ExitModelContext(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext)
+    {
+      //throw new NotImplementedException();
+    }
+
+    public void ChangeModelContext(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext, bool push)
+    {
+      //throw new NotImplementedException();
+    }
+
+    public void ReActivate(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext)
+    {
+      //throw new NotImplementedException();
+    }
+
+    public void UpdateMenuActions(MediaPortal.UI.Presentation.Workflow.NavigationContext context, ICollection<MediaPortal.UI.Presentation.Workflow.WorkflowAction> actions)
+    {
+      //throw new NotImplementedException();
+    }
+
+    #endregion
+
+    #region IDisposable Member
+
+    public void Dispose()
+    {
+      //throw new NotImplementedException();
+    }
+
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+      throw new NotImplementedException();
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      throw new NotImplementedException();
+    }
+
+    #endregion
   }
 }
