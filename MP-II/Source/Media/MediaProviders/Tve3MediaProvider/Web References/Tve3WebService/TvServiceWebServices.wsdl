@@ -1,0 +1,3179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="GetAllChannels">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetAllChannelsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllChannelsResult" type="tns:ArrayOfWebChannel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebChannel">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebChannel" nillable="true" type="tns:WebChannel" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebChannel">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="displayName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="freeToAir" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="grabEPG" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="isRadio" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="isTv" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="isWebStream" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChannelResult" type="tns:WebChannel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelsInTvGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idGroup" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelsInTvGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChannelsInTvGroupResult" type="tns:ArrayOfWebChannel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelsInRadioGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idGroup" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetChannelsInRadioGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetChannelsInRadioGroupResult" type="tns:ArrayOfWebChannel" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTvChannelGroups">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetTvChannelGroupsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTvChannelGroupsResult" type="tns:ArrayOfWebChannelGroup" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebChannelGroup">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebChannelGroup" nillable="true" type="tns:WebChannelGroup" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebChannelGroup">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idGroup" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetTvMiniEPGForGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idGroup" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTvMiniEPGForGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTvMiniEPGForGroupResult" type="tns:ArrayOfWebMiniEPG" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebMiniEPG">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebMiniEPG" nillable="true" type="tns:WebMiniEPG" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebMiniEPG">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="isWebStream" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="epgNow" type="tns:WebShortProgram" />
+          <s:element minOccurs="0" maxOccurs="1" name="epgNext" type="tns:WebShortProgram" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebShortProgram">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="endTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRadioChannelGroups">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetRadioChannelGroupsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRadioChannelGroupsResult" type="tns:ArrayOfWebChannelGroup" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRadioMiniEPGForGroup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idGroup" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRadioMiniEPGForGroupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRadioMiniEPGForGroupResult" type="tns:ArrayOfWebMiniEPG" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTodayEPGForChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTodayEPGForChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTodayEPGForChannelResult" type="tns:ArrayOfWebProgram" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebProgram">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebProgram" nillable="true" type="tns:WebProgram" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebProgram">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="classification" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="endTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeNum" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodePart" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="genre" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="idProgram" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="originalAirDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="parentalRating" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="seriesNum" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="starRating" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="Title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="channelName" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetEPGForChannel">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="idChannel" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="startTime" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="endTime" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEPGForChannelResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEPGForChannelResult" type="tns:ArrayOfWebProgram" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEPG">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idProgram" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetEPGResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetEPGResult" type="tns:WebProgram" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllSchedules">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetAllSchedulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllSchedulesResult" type="tns:ArrayOfWebSchedule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebSchedule">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebSchedule" nillable="true" type="tns:WebSchedule" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebSchedule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="bitrateMode" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="canceled" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="directory" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="doesUseEpisodeManagement" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="endTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="channelName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="idSchedule" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="isManual" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="keepDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="keepMethod" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="maxAirings" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="postRecordInterval" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="preRecordInterval" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="priority" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="programName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="quality" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="qualityType" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="recommendedCard" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="scheduleType" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="scheduleTypeStr" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="series" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetSchedule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idSchedule" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetScheduleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetScheduleResult" type="tns:WebSchedule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddSchedule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="programName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="endTime" type="s:dateTime" />
+            <s:element minOccurs="1" maxOccurs="1" name="scheduleType" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddScheduleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="AddScheduleResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteSchedule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idSchedule" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteScheduleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteScheduleResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllRecordings">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllRecordingsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllRecordingsResult" type="tns:ArrayOfWebRecording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebRecording">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebRecording" nillable="true" type="tns:WebRecording" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebRecording">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="endTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeNum" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeNumber" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodePart" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="fileName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="genre" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="idRecording" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="isManual" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="keepUntil" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="keepUntilDate" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="seriesNum" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="shouldBeDeleted" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="startTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="stopTime" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="timesWatched" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="channelName" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetRecording">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idRecording" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRecordingResult" type="tns:WebRecording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingURL">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idRecording" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingURLResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRecordingURLResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteRecording">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idRecording" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteRecordingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DeleteRecordingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetReceptionDetails">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetReceptionDetailsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetReceptionDetailsResult" type="tns:WebReceptionDetails" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="WebReceptionDetails">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="signalLevel" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="signalQuality" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetTvServerStatus">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetTvServerStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTvServerStatusResult" type="tns:ArrayOfWebTvServerStatus" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebTvServerStatus">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebTvServerStatus" nillable="true" type="tns:WebTvServerStatus" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebTvServerStatus">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idCard" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardName" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="cardType" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="cardTypeStr" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="status" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="statusStr" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="channel" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetSupportedMPFunctions">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetSupportedMPFunctionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSupportedMPFunctionsResult" type="tns:SupportedMPFunctions" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="SupportedMPFunctions">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="myVideos" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="myMusic" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="myPictures" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="myTvSeries" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="movingPictures" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMovie">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idMovie" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMovieResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMovieResult" type="tns:WebMovie" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="WebMovie">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idMovie" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="genre" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="plot" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="file" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAllMovies">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllMoviesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllMoviesResult" type="tns:ArrayOfWebMovie" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebMovie">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebMovie" nillable="true" type="tns:WebMovie" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetMusicTrack">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idTrack" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMusicTrackResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMusicTrackResult" type="tns:WebMusicTrack" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="WebMusicTrack">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idTrack" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="album" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="artist" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="trackno" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="file" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="duration" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAllMusicTracks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="album" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="artist" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllMusicTracksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllMusicTracksResult" type="tns:ArrayOfWebMusicTrack" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebMusicTrack">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebMusicTrack" nillable="true" type="tns:WebMusicTrack" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAllPicturePaths">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetAllPicturePathsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllPicturePathsResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetAllPicturesByPath">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="path" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllPicturesByPathResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllPicturesByPathResult" type="tns:ArrayOfWebPicture" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebPicture" nillable="true" type="tns:WebPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebPicture">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idPicture" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="file" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="rotation" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="taken" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetPicture">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idPicture" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPictureResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPictureResult" type="tns:WebPicture" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllTvSeries">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="seriesName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="episode" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllTvSeriesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllTvSeriesResult" type="tns:ArrayOfWebSeries" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebSeries">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebSeries" nillable="true" type="tns:WebSeries" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebSeries">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="season" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="episode" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="seriesName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodeName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="episodePlot" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="filename" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="compositeId" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetTvSeries">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="compositeId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTvSeriesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTvSeriesResult" type="tns:WebSeries" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllMovingPictures">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetAllMovingPicturesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetAllMovingPicturesResult" type="tns:ArrayOfWebMovingPicture" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfWebMovingPicture">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="WebMovingPicture" nillable="true" type="tns:WebMovingPicture" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebMovingPicture">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="plot" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="filename" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="genre" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="parentalRating" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="year" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="StartTimeShifting">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StartTimeShiftingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="StartTimeShiftingResult" type="tns:WebTvResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="WebTvResult">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="result" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="rtspURL" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="user" type="tns:WebTvServerUser" />
+          <s:element minOccurs="0" maxOccurs="1" name="timeshiftFile" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="WebTvServerUser">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="idCard" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="StopTimeShifting">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="idCard" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StopTimeShiftingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="StopTimeShiftingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StopRecording">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="idCard" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="StopRecordingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="StopRecordingResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendHeartBeat">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idChannel" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="idCard" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendHeartBeatResponse">
+        <s:complexType />
+      </s:element>
+      <s:element name="ArrayOfWebChannel" nillable="true" type="tns:ArrayOfWebChannel" />
+      <s:element name="WebChannel" nillable="true" type="tns:WebChannel" />
+      <s:element name="ArrayOfWebChannelGroup" nillable="true" type="tns:ArrayOfWebChannelGroup" />
+      <s:element name="ArrayOfWebMiniEPG" nillable="true" type="tns:ArrayOfWebMiniEPG" />
+      <s:element name="ArrayOfWebProgram" nillable="true" type="tns:ArrayOfWebProgram" />
+      <s:element name="WebProgram" nillable="true" type="tns:WebProgram" />
+      <s:element name="ArrayOfWebSchedule" nillable="true" type="tns:ArrayOfWebSchedule" />
+      <s:element name="WebSchedule" nillable="true" type="tns:WebSchedule" />
+      <s:element name="boolean" type="s:boolean" />
+      <s:element name="ArrayOfWebRecording" nillable="true" type="tns:ArrayOfWebRecording" />
+      <s:element name="WebRecording" nillable="true" type="tns:WebRecording" />
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="WebReceptionDetails" nillable="true" type="tns:WebReceptionDetails" />
+      <s:element name="ArrayOfWebTvServerStatus" nillable="true" type="tns:ArrayOfWebTvServerStatus" />
+      <s:element name="SupportedMPFunctions" nillable="true" type="tns:SupportedMPFunctions" />
+      <s:element name="WebMovie" nillable="true" type="tns:WebMovie" />
+      <s:element name="ArrayOfWebMovie" nillable="true" type="tns:ArrayOfWebMovie" />
+      <s:element name="WebMusicTrack" nillable="true" type="tns:WebMusicTrack" />
+      <s:element name="ArrayOfWebMusicTrack" nillable="true" type="tns:ArrayOfWebMusicTrack" />
+      <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
+      <s:element name="ArrayOfWebPicture" nillable="true" type="tns:ArrayOfWebPicture" />
+      <s:element name="WebPicture" nillable="true" type="tns:WebPicture" />
+      <s:element name="ArrayOfWebSeries" nillable="true" type="tns:ArrayOfWebSeries" />
+      <s:element name="WebSeries" nillable="true" type="tns:WebSeries" />
+      <s:element name="ArrayOfWebMovingPicture" nillable="true" type="tns:ArrayOfWebMovingPicture" />
+      <s:element name="WebTvResult" nillable="true" type="tns:WebTvResult" />
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetAllChannelsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllChannels" />
+  </wsdl:message>
+  <wsdl:message name="GetAllChannelsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllChannelsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInTvGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChannelsInTvGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInTvGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChannelsInTvGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInRadioGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:GetChannelsInRadioGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInRadioGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:GetChannelsInRadioGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTvChannelGroupsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTvChannelGroups" />
+  </wsdl:message>
+  <wsdl:message name="GetTvChannelGroupsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTvChannelGroupsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTvMiniEPGForGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTvMiniEPGForGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetTvMiniEPGForGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTvMiniEPGForGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioChannelGroupsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRadioChannelGroups" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioChannelGroupsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRadioChannelGroupsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioMiniEPGForGroupSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRadioMiniEPGForGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioMiniEPGForGroupSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRadioMiniEPGForGroupResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTodayEPGForChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTodayEPGForChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetTodayEPGForChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTodayEPGForChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGForChannelSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEPGForChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGForChannelSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEPGForChannelResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGSoapIn">
+    <wsdl:part name="parameters" element="tns:GetEPG" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGSoapOut">
+    <wsdl:part name="parameters" element="tns:GetEPGResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllSchedulesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllSchedules" />
+  </wsdl:message>
+  <wsdl:message name="GetAllSchedulesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllSchedulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduleSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSchedule" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduleSoapOut">
+    <wsdl:part name="parameters" element="tns:GetScheduleResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddScheduleSoapIn">
+    <wsdl:part name="parameters" element="tns:AddSchedule" />
+  </wsdl:message>
+  <wsdl:message name="AddScheduleSoapOut">
+    <wsdl:part name="parameters" element="tns:AddScheduleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteScheduleSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteSchedule" />
+  </wsdl:message>
+  <wsdl:message name="DeleteScheduleSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteScheduleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllRecordingsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllRecordings" />
+  </wsdl:message>
+  <wsdl:message name="GetAllRecordingsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllRecordingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRecording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingURLSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRecordingURL" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingURLSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRecordingURLResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordingSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteRecording" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordingSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetReceptionDetailsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetReceptionDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetReceptionDetailsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetReceptionDetailsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTvServerStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTvServerStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetTvServerStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTvServerStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSupportedMPFunctionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSupportedMPFunctions" />
+  </wsdl:message>
+  <wsdl:message name="GetSupportedMPFunctionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSupportedMPFunctionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMovieSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMovie" />
+  </wsdl:message>
+  <wsdl:message name="GetMovieSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMovieResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMoviesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllMovies" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMoviesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllMoviesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMusicTrackSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMusicTrack" />
+  </wsdl:message>
+  <wsdl:message name="GetMusicTrackSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMusicTrackResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMusicTracksSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllMusicTracks" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMusicTracksSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllMusicTracksResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturePathsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllPicturePaths" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturePathsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllPicturePathsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturesByPathSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllPicturesByPath" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturesByPathSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllPicturesByPathResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPictureSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPicture" />
+  </wsdl:message>
+  <wsdl:message name="GetPictureSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPictureResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllTvSeriesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllTvSeries" />
+  </wsdl:message>
+  <wsdl:message name="GetAllTvSeriesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllTvSeriesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTvSeriesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTvSeries" />
+  </wsdl:message>
+  <wsdl:message name="GetTvSeriesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTvSeriesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMovingPicturesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetAllMovingPictures" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMovingPicturesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetAllMovingPicturesResponse" />
+  </wsdl:message>
+  <wsdl:message name="StartTimeShiftingSoapIn">
+    <wsdl:part name="parameters" element="tns:StartTimeShifting" />
+  </wsdl:message>
+  <wsdl:message name="StartTimeShiftingSoapOut">
+    <wsdl:part name="parameters" element="tns:StartTimeShiftingResponse" />
+  </wsdl:message>
+  <wsdl:message name="StopTimeShiftingSoapIn">
+    <wsdl:part name="parameters" element="tns:StopTimeShifting" />
+  </wsdl:message>
+  <wsdl:message name="StopTimeShiftingSoapOut">
+    <wsdl:part name="parameters" element="tns:StopTimeShiftingResponse" />
+  </wsdl:message>
+  <wsdl:message name="StopRecordingSoapIn">
+    <wsdl:part name="parameters" element="tns:StopRecording" />
+  </wsdl:message>
+  <wsdl:message name="StopRecordingSoapOut">
+    <wsdl:part name="parameters" element="tns:StopRecordingResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendHeartBeatSoapIn">
+    <wsdl:part name="parameters" element="tns:SendHeartBeat" />
+  </wsdl:message>
+  <wsdl:message name="SendHeartBeatSoapOut">
+    <wsdl:part name="parameters" element="tns:SendHeartBeatResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetAllChannelsHttpGetIn" />
+  <wsdl:message name="GetAllChannelsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInTvGroupHttpGetIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInTvGroupHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInRadioGroupHttpGetIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInRadioGroupHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetTvChannelGroupsHttpGetIn" />
+  <wsdl:message name="GetTvChannelGroupsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannelGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetTvMiniEPGForGroupHttpGetIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTvMiniEPGForGroupHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMiniEPG" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioChannelGroupsHttpGetIn" />
+  <wsdl:message name="GetRadioChannelGroupsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannelGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioMiniEPGForGroupHttpGetIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioMiniEPGForGroupHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMiniEPG" />
+  </wsdl:message>
+  <wsdl:message name="GetTodayEPGForChannelHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTodayEPGForChannelHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebProgram" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGForChannelHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="endTime" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGForChannelHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebProgram" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGHttpGetIn">
+    <wsdl:part name="idProgram" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebProgram" />
+  </wsdl:message>
+  <wsdl:message name="GetAllSchedulesHttpGetIn" />
+  <wsdl:message name="GetAllSchedulesHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebSchedule" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduleHttpGetIn">
+    <wsdl:part name="idSchedule" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduleHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebSchedule" />
+  </wsdl:message>
+  <wsdl:message name="AddScheduleHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="programName" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="endTime" type="s:string" />
+    <wsdl:part name="scheduleType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddScheduleHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="DeleteScheduleHttpGetIn">
+    <wsdl:part name="idSchedule" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteScheduleHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetAllRecordingsHttpGetIn">
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllRecordingsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebRecording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingHttpGetIn">
+    <wsdl:part name="idRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebRecording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingURLHttpGetIn">
+    <wsdl:part name="idRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingURLHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordingHttpGetIn">
+    <wsdl:part name="idRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordingHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetReceptionDetailsHttpGetIn" />
+  <wsdl:message name="GetReceptionDetailsHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebReceptionDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetTvServerStatusHttpGetIn" />
+  <wsdl:message name="GetTvServerStatusHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebTvServerStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetSupportedMPFunctionsHttpGetIn" />
+  <wsdl:message name="GetSupportedMPFunctionsHttpGetOut">
+    <wsdl:part name="Body" element="tns:SupportedMPFunctions" />
+  </wsdl:message>
+  <wsdl:message name="GetMovieHttpGetIn">
+    <wsdl:part name="idMovie" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMovieHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebMovie" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMoviesHttpGetIn">
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMoviesHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMovie" />
+  </wsdl:message>
+  <wsdl:message name="GetMusicTrackHttpGetIn">
+    <wsdl:part name="idTrack" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMusicTrackHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebMusicTrack" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMusicTracksHttpGetIn">
+    <wsdl:part name="album" type="s:string" />
+    <wsdl:part name="artist" type="s:string" />
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMusicTracksHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMusicTrack" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturePathsHttpGetIn" />
+  <wsdl:message name="GetAllPicturePathsHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturesByPathHttpGetIn">
+    <wsdl:part name="path" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturesByPathHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebPicture" />
+  </wsdl:message>
+  <wsdl:message name="GetPictureHttpGetIn">
+    <wsdl:part name="idPicture" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPictureHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebPicture" />
+  </wsdl:message>
+  <wsdl:message name="GetAllTvSeriesHttpGetIn">
+    <wsdl:part name="seriesName" type="s:string" />
+    <wsdl:part name="episode" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllTvSeriesHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebSeries" />
+  </wsdl:message>
+  <wsdl:message name="GetTvSeriesHttpGetIn">
+    <wsdl:part name="compositeId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTvSeriesHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebSeries" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMovingPicturesHttpGetIn">
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMovingPicturesHttpGetOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMovingPicture" />
+  </wsdl:message>
+  <wsdl:message name="StartTimeShiftingHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="StartTimeShiftingHttpGetOut">
+    <wsdl:part name="Body" element="tns:WebTvResult" />
+  </wsdl:message>
+  <wsdl:message name="StopTimeShiftingHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="idCard" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="StopTimeShiftingHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="StopRecordingHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="idCard" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="StopRecordingHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="SendHeartBeatHttpGetIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="idCard" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendHeartBeatHttpGetOut" />
+  <wsdl:message name="GetAllChannelsHttpPostIn" />
+  <wsdl:message name="GetAllChannelsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInTvGroupHttpPostIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInTvGroupHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInRadioGroupHttpPostIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetChannelsInRadioGroupHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannel" />
+  </wsdl:message>
+  <wsdl:message name="GetTvChannelGroupsHttpPostIn" />
+  <wsdl:message name="GetTvChannelGroupsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannelGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetTvMiniEPGForGroupHttpPostIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTvMiniEPGForGroupHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMiniEPG" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioChannelGroupsHttpPostIn" />
+  <wsdl:message name="GetRadioChannelGroupsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebChannelGroup" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioMiniEPGForGroupHttpPostIn">
+    <wsdl:part name="idGroup" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRadioMiniEPGForGroupHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMiniEPG" />
+  </wsdl:message>
+  <wsdl:message name="GetTodayEPGForChannelHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTodayEPGForChannelHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebProgram" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGForChannelHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="endTime" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGForChannelHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebProgram" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGHttpPostIn">
+    <wsdl:part name="idProgram" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetEPGHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebProgram" />
+  </wsdl:message>
+  <wsdl:message name="GetAllSchedulesHttpPostIn" />
+  <wsdl:message name="GetAllSchedulesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebSchedule" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduleHttpPostIn">
+    <wsdl:part name="idSchedule" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetScheduleHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebSchedule" />
+  </wsdl:message>
+  <wsdl:message name="AddScheduleHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="programName" type="s:string" />
+    <wsdl:part name="startTime" type="s:string" />
+    <wsdl:part name="endTime" type="s:string" />
+    <wsdl:part name="scheduleType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="AddScheduleHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="DeleteScheduleHttpPostIn">
+    <wsdl:part name="idSchedule" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteScheduleHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetAllRecordingsHttpPostIn">
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllRecordingsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebRecording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingHttpPostIn">
+    <wsdl:part name="idRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebRecording" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingURLHttpPostIn">
+    <wsdl:part name="idRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingURLHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordingHttpPostIn">
+    <wsdl:part name="idRecording" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetReceptionDetailsHttpPostIn" />
+  <wsdl:message name="GetReceptionDetailsHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebReceptionDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetTvServerStatusHttpPostIn" />
+  <wsdl:message name="GetTvServerStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebTvServerStatus" />
+  </wsdl:message>
+  <wsdl:message name="GetSupportedMPFunctionsHttpPostIn" />
+  <wsdl:message name="GetSupportedMPFunctionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:SupportedMPFunctions" />
+  </wsdl:message>
+  <wsdl:message name="GetMovieHttpPostIn">
+    <wsdl:part name="idMovie" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMovieHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebMovie" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMoviesHttpPostIn">
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMoviesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMovie" />
+  </wsdl:message>
+  <wsdl:message name="GetMusicTrackHttpPostIn">
+    <wsdl:part name="idTrack" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetMusicTrackHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebMusicTrack" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMusicTracksHttpPostIn">
+    <wsdl:part name="album" type="s:string" />
+    <wsdl:part name="artist" type="s:string" />
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMusicTracksHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMusicTrack" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturePathsHttpPostIn" />
+  <wsdl:message name="GetAllPicturePathsHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfString" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturesByPathHttpPostIn">
+    <wsdl:part name="path" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllPicturesByPathHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebPicture" />
+  </wsdl:message>
+  <wsdl:message name="GetPictureHttpPostIn">
+    <wsdl:part name="idPicture" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPictureHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebPicture" />
+  </wsdl:message>
+  <wsdl:message name="GetAllTvSeriesHttpPostIn">
+    <wsdl:part name="seriesName" type="s:string" />
+    <wsdl:part name="episode" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllTvSeriesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebSeries" />
+  </wsdl:message>
+  <wsdl:message name="GetTvSeriesHttpPostIn">
+    <wsdl:part name="compositeId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetTvSeriesHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebSeries" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMovingPicturesHttpPostIn">
+    <wsdl:part name="title" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetAllMovingPicturesHttpPostOut">
+    <wsdl:part name="Body" element="tns:ArrayOfWebMovingPicture" />
+  </wsdl:message>
+  <wsdl:message name="StartTimeShiftingHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="StartTimeShiftingHttpPostOut">
+    <wsdl:part name="Body" element="tns:WebTvResult" />
+  </wsdl:message>
+  <wsdl:message name="StopTimeShiftingHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="idCard" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="StopTimeShiftingHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="StopRecordingHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="idCard" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="StopRecordingHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="SendHeartBeatHttpPostIn">
+    <wsdl:part name="idChannel" type="s:string" />
+    <wsdl:part name="idCard" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendHeartBeatHttpPostOut" />
+  <wsdl:portType name="ServiceInterfaceSoap">
+    <wsdl:operation name="GetAllChannels">
+      <wsdl:input message="tns:GetAllChannelsSoapIn" />
+      <wsdl:output message="tns:GetAllChannelsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <wsdl:input message="tns:GetChannelSoapIn" />
+      <wsdl:output message="tns:GetChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <wsdl:input message="tns:GetChannelsInTvGroupSoapIn" />
+      <wsdl:output message="tns:GetChannelsInTvGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <wsdl:input message="tns:GetChannelsInRadioGroupSoapIn" />
+      <wsdl:output message="tns:GetChannelsInRadioGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <wsdl:input message="tns:GetTvChannelGroupsSoapIn" />
+      <wsdl:output message="tns:GetTvChannelGroupsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <wsdl:input message="tns:GetTvMiniEPGForGroupSoapIn" />
+      <wsdl:output message="tns:GetTvMiniEPGForGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <wsdl:input message="tns:GetRadioChannelGroupsSoapIn" />
+      <wsdl:output message="tns:GetRadioChannelGroupsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <wsdl:input message="tns:GetRadioMiniEPGForGroupSoapIn" />
+      <wsdl:output message="tns:GetRadioMiniEPGForGroupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <wsdl:input message="tns:GetTodayEPGForChannelSoapIn" />
+      <wsdl:output message="tns:GetTodayEPGForChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <wsdl:input message="tns:GetEPGForChannelSoapIn" />
+      <wsdl:output message="tns:GetEPGForChannelSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <wsdl:input message="tns:GetEPGSoapIn" />
+      <wsdl:output message="tns:GetEPGSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <wsdl:input message="tns:GetAllSchedulesSoapIn" />
+      <wsdl:output message="tns:GetAllSchedulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <wsdl:input message="tns:GetScheduleSoapIn" />
+      <wsdl:output message="tns:GetScheduleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <wsdl:input message="tns:AddScheduleSoapIn" />
+      <wsdl:output message="tns:AddScheduleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <wsdl:input message="tns:DeleteScheduleSoapIn" />
+      <wsdl:output message="tns:DeleteScheduleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <wsdl:input message="tns:GetAllRecordingsSoapIn" />
+      <wsdl:output message="tns:GetAllRecordingsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <wsdl:input message="tns:GetRecordingSoapIn" />
+      <wsdl:output message="tns:GetRecordingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <wsdl:input message="tns:GetRecordingURLSoapIn" />
+      <wsdl:output message="tns:GetRecordingURLSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <wsdl:input message="tns:DeleteRecordingSoapIn" />
+      <wsdl:output message="tns:DeleteRecordingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <wsdl:input message="tns:GetReceptionDetailsSoapIn" />
+      <wsdl:output message="tns:GetReceptionDetailsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <wsdl:input message="tns:GetTvServerStatusSoapIn" />
+      <wsdl:output message="tns:GetTvServerStatusSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <wsdl:input message="tns:GetSupportedMPFunctionsSoapIn" />
+      <wsdl:output message="tns:GetSupportedMPFunctionsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <wsdl:input message="tns:GetMovieSoapIn" />
+      <wsdl:output message="tns:GetMovieSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <wsdl:input message="tns:GetAllMoviesSoapIn" />
+      <wsdl:output message="tns:GetAllMoviesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <wsdl:input message="tns:GetMusicTrackSoapIn" />
+      <wsdl:output message="tns:GetMusicTrackSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <wsdl:input message="tns:GetAllMusicTracksSoapIn" />
+      <wsdl:output message="tns:GetAllMusicTracksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <wsdl:input message="tns:GetAllPicturePathsSoapIn" />
+      <wsdl:output message="tns:GetAllPicturePathsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <wsdl:input message="tns:GetAllPicturesByPathSoapIn" />
+      <wsdl:output message="tns:GetAllPicturesByPathSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <wsdl:input message="tns:GetPictureSoapIn" />
+      <wsdl:output message="tns:GetPictureSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <wsdl:input message="tns:GetAllTvSeriesSoapIn" />
+      <wsdl:output message="tns:GetAllTvSeriesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <wsdl:input message="tns:GetTvSeriesSoapIn" />
+      <wsdl:output message="tns:GetTvSeriesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <wsdl:input message="tns:GetAllMovingPicturesSoapIn" />
+      <wsdl:output message="tns:GetAllMovingPicturesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <wsdl:input message="tns:StartTimeShiftingSoapIn" />
+      <wsdl:output message="tns:StartTimeShiftingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <wsdl:input message="tns:StopTimeShiftingSoapIn" />
+      <wsdl:output message="tns:StopTimeShiftingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <wsdl:input message="tns:StopRecordingSoapIn" />
+      <wsdl:output message="tns:StopRecordingSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <wsdl:input message="tns:SendHeartBeatSoapIn" />
+      <wsdl:output message="tns:SendHeartBeatSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ServiceInterfaceHttpGet">
+    <wsdl:operation name="GetAllChannels">
+      <wsdl:input message="tns:GetAllChannelsHttpGetIn" />
+      <wsdl:output message="tns:GetAllChannelsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <wsdl:input message="tns:GetChannelHttpGetIn" />
+      <wsdl:output message="tns:GetChannelHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <wsdl:input message="tns:GetChannelsInTvGroupHttpGetIn" />
+      <wsdl:output message="tns:GetChannelsInTvGroupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <wsdl:input message="tns:GetChannelsInRadioGroupHttpGetIn" />
+      <wsdl:output message="tns:GetChannelsInRadioGroupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <wsdl:input message="tns:GetTvChannelGroupsHttpGetIn" />
+      <wsdl:output message="tns:GetTvChannelGroupsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <wsdl:input message="tns:GetTvMiniEPGForGroupHttpGetIn" />
+      <wsdl:output message="tns:GetTvMiniEPGForGroupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <wsdl:input message="tns:GetRadioChannelGroupsHttpGetIn" />
+      <wsdl:output message="tns:GetRadioChannelGroupsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <wsdl:input message="tns:GetRadioMiniEPGForGroupHttpGetIn" />
+      <wsdl:output message="tns:GetRadioMiniEPGForGroupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <wsdl:input message="tns:GetTodayEPGForChannelHttpGetIn" />
+      <wsdl:output message="tns:GetTodayEPGForChannelHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <wsdl:input message="tns:GetEPGForChannelHttpGetIn" />
+      <wsdl:output message="tns:GetEPGForChannelHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <wsdl:input message="tns:GetEPGHttpGetIn" />
+      <wsdl:output message="tns:GetEPGHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <wsdl:input message="tns:GetAllSchedulesHttpGetIn" />
+      <wsdl:output message="tns:GetAllSchedulesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <wsdl:input message="tns:GetScheduleHttpGetIn" />
+      <wsdl:output message="tns:GetScheduleHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <wsdl:input message="tns:AddScheduleHttpGetIn" />
+      <wsdl:output message="tns:AddScheduleHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <wsdl:input message="tns:DeleteScheduleHttpGetIn" />
+      <wsdl:output message="tns:DeleteScheduleHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <wsdl:input message="tns:GetAllRecordingsHttpGetIn" />
+      <wsdl:output message="tns:GetAllRecordingsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <wsdl:input message="tns:GetRecordingHttpGetIn" />
+      <wsdl:output message="tns:GetRecordingHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <wsdl:input message="tns:GetRecordingURLHttpGetIn" />
+      <wsdl:output message="tns:GetRecordingURLHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <wsdl:input message="tns:DeleteRecordingHttpGetIn" />
+      <wsdl:output message="tns:DeleteRecordingHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <wsdl:input message="tns:GetReceptionDetailsHttpGetIn" />
+      <wsdl:output message="tns:GetReceptionDetailsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <wsdl:input message="tns:GetTvServerStatusHttpGetIn" />
+      <wsdl:output message="tns:GetTvServerStatusHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <wsdl:input message="tns:GetSupportedMPFunctionsHttpGetIn" />
+      <wsdl:output message="tns:GetSupportedMPFunctionsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <wsdl:input message="tns:GetMovieHttpGetIn" />
+      <wsdl:output message="tns:GetMovieHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <wsdl:input message="tns:GetAllMoviesHttpGetIn" />
+      <wsdl:output message="tns:GetAllMoviesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <wsdl:input message="tns:GetMusicTrackHttpGetIn" />
+      <wsdl:output message="tns:GetMusicTrackHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <wsdl:input message="tns:GetAllMusicTracksHttpGetIn" />
+      <wsdl:output message="tns:GetAllMusicTracksHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <wsdl:input message="tns:GetAllPicturePathsHttpGetIn" />
+      <wsdl:output message="tns:GetAllPicturePathsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <wsdl:input message="tns:GetAllPicturesByPathHttpGetIn" />
+      <wsdl:output message="tns:GetAllPicturesByPathHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <wsdl:input message="tns:GetPictureHttpGetIn" />
+      <wsdl:output message="tns:GetPictureHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <wsdl:input message="tns:GetAllTvSeriesHttpGetIn" />
+      <wsdl:output message="tns:GetAllTvSeriesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <wsdl:input message="tns:GetTvSeriesHttpGetIn" />
+      <wsdl:output message="tns:GetTvSeriesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <wsdl:input message="tns:GetAllMovingPicturesHttpGetIn" />
+      <wsdl:output message="tns:GetAllMovingPicturesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <wsdl:input message="tns:StartTimeShiftingHttpGetIn" />
+      <wsdl:output message="tns:StartTimeShiftingHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <wsdl:input message="tns:StopTimeShiftingHttpGetIn" />
+      <wsdl:output message="tns:StopTimeShiftingHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <wsdl:input message="tns:StopRecordingHttpGetIn" />
+      <wsdl:output message="tns:StopRecordingHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <wsdl:input message="tns:SendHeartBeatHttpGetIn" />
+      <wsdl:output message="tns:SendHeartBeatHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="ServiceInterfaceHttpPost">
+    <wsdl:operation name="GetAllChannels">
+      <wsdl:input message="tns:GetAllChannelsHttpPostIn" />
+      <wsdl:output message="tns:GetAllChannelsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <wsdl:input message="tns:GetChannelHttpPostIn" />
+      <wsdl:output message="tns:GetChannelHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <wsdl:input message="tns:GetChannelsInTvGroupHttpPostIn" />
+      <wsdl:output message="tns:GetChannelsInTvGroupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <wsdl:input message="tns:GetChannelsInRadioGroupHttpPostIn" />
+      <wsdl:output message="tns:GetChannelsInRadioGroupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <wsdl:input message="tns:GetTvChannelGroupsHttpPostIn" />
+      <wsdl:output message="tns:GetTvChannelGroupsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <wsdl:input message="tns:GetTvMiniEPGForGroupHttpPostIn" />
+      <wsdl:output message="tns:GetTvMiniEPGForGroupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <wsdl:input message="tns:GetRadioChannelGroupsHttpPostIn" />
+      <wsdl:output message="tns:GetRadioChannelGroupsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <wsdl:input message="tns:GetRadioMiniEPGForGroupHttpPostIn" />
+      <wsdl:output message="tns:GetRadioMiniEPGForGroupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <wsdl:input message="tns:GetTodayEPGForChannelHttpPostIn" />
+      <wsdl:output message="tns:GetTodayEPGForChannelHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <wsdl:input message="tns:GetEPGForChannelHttpPostIn" />
+      <wsdl:output message="tns:GetEPGForChannelHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <wsdl:input message="tns:GetEPGHttpPostIn" />
+      <wsdl:output message="tns:GetEPGHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <wsdl:input message="tns:GetAllSchedulesHttpPostIn" />
+      <wsdl:output message="tns:GetAllSchedulesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <wsdl:input message="tns:GetScheduleHttpPostIn" />
+      <wsdl:output message="tns:GetScheduleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <wsdl:input message="tns:AddScheduleHttpPostIn" />
+      <wsdl:output message="tns:AddScheduleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <wsdl:input message="tns:DeleteScheduleHttpPostIn" />
+      <wsdl:output message="tns:DeleteScheduleHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <wsdl:input message="tns:GetAllRecordingsHttpPostIn" />
+      <wsdl:output message="tns:GetAllRecordingsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <wsdl:input message="tns:GetRecordingHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <wsdl:input message="tns:GetRecordingURLHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingURLHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <wsdl:input message="tns:DeleteRecordingHttpPostIn" />
+      <wsdl:output message="tns:DeleteRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <wsdl:input message="tns:GetReceptionDetailsHttpPostIn" />
+      <wsdl:output message="tns:GetReceptionDetailsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <wsdl:input message="tns:GetTvServerStatusHttpPostIn" />
+      <wsdl:output message="tns:GetTvServerStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <wsdl:input message="tns:GetSupportedMPFunctionsHttpPostIn" />
+      <wsdl:output message="tns:GetSupportedMPFunctionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <wsdl:input message="tns:GetMovieHttpPostIn" />
+      <wsdl:output message="tns:GetMovieHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <wsdl:input message="tns:GetAllMoviesHttpPostIn" />
+      <wsdl:output message="tns:GetAllMoviesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <wsdl:input message="tns:GetMusicTrackHttpPostIn" />
+      <wsdl:output message="tns:GetMusicTrackHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <wsdl:input message="tns:GetAllMusicTracksHttpPostIn" />
+      <wsdl:output message="tns:GetAllMusicTracksHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <wsdl:input message="tns:GetAllPicturePathsHttpPostIn" />
+      <wsdl:output message="tns:GetAllPicturePathsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <wsdl:input message="tns:GetAllPicturesByPathHttpPostIn" />
+      <wsdl:output message="tns:GetAllPicturesByPathHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <wsdl:input message="tns:GetPictureHttpPostIn" />
+      <wsdl:output message="tns:GetPictureHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <wsdl:input message="tns:GetAllTvSeriesHttpPostIn" />
+      <wsdl:output message="tns:GetAllTvSeriesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <wsdl:input message="tns:GetTvSeriesHttpPostIn" />
+      <wsdl:output message="tns:GetTvSeriesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <wsdl:input message="tns:GetAllMovingPicturesHttpPostIn" />
+      <wsdl:output message="tns:GetAllMovingPicturesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <wsdl:input message="tns:StartTimeShiftingHttpPostIn" />
+      <wsdl:output message="tns:StartTimeShiftingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <wsdl:input message="tns:StopTimeShiftingHttpPostIn" />
+      <wsdl:output message="tns:StopTimeShiftingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <wsdl:input message="tns:StopRecordingHttpPostIn" />
+      <wsdl:output message="tns:StopRecordingHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <wsdl:input message="tns:SendHeartBeatHttpPostIn" />
+      <wsdl:output message="tns:SendHeartBeatHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceInterfaceSoap" type="tns:ServiceInterfaceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAllChannels">
+      <soap:operation soapAction="http://tempuri.org/GetAllChannels" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <soap:operation soapAction="http://tempuri.org/GetChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <soap:operation soapAction="http://tempuri.org/GetChannelsInTvGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <soap:operation soapAction="http://tempuri.org/GetChannelsInRadioGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <soap:operation soapAction="http://tempuri.org/GetTvChannelGroups" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <soap:operation soapAction="http://tempuri.org/GetTvMiniEPGForGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <soap:operation soapAction="http://tempuri.org/GetRadioChannelGroups" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <soap:operation soapAction="http://tempuri.org/GetRadioMiniEPGForGroup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <soap:operation soapAction="http://tempuri.org/GetTodayEPGForChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <soap:operation soapAction="http://tempuri.org/GetEPGForChannel" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <soap:operation soapAction="http://tempuri.org/GetEPG" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <soap:operation soapAction="http://tempuri.org/GetAllSchedules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <soap:operation soapAction="http://tempuri.org/GetSchedule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <soap:operation soapAction="http://tempuri.org/AddSchedule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <soap:operation soapAction="http://tempuri.org/DeleteSchedule" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <soap:operation soapAction="http://tempuri.org/GetAllRecordings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <soap:operation soapAction="http://tempuri.org/GetRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <soap:operation soapAction="http://tempuri.org/GetRecordingURL" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <soap:operation soapAction="http://tempuri.org/DeleteRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <soap:operation soapAction="http://tempuri.org/GetReceptionDetails" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <soap:operation soapAction="http://tempuri.org/GetTvServerStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <soap:operation soapAction="http://tempuri.org/GetSupportedMPFunctions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <soap:operation soapAction="http://tempuri.org/GetMovie" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <soap:operation soapAction="http://tempuri.org/GetAllMovies" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <soap:operation soapAction="http://tempuri.org/GetMusicTrack" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <soap:operation soapAction="http://tempuri.org/GetAllMusicTracks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <soap:operation soapAction="http://tempuri.org/GetAllPicturePaths" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <soap:operation soapAction="http://tempuri.org/GetAllPicturesByPath" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <soap:operation soapAction="http://tempuri.org/GetPicture" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <soap:operation soapAction="http://tempuri.org/GetAllTvSeries" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <soap:operation soapAction="http://tempuri.org/GetTvSeries" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <soap:operation soapAction="http://tempuri.org/GetAllMovingPictures" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <soap:operation soapAction="http://tempuri.org/StartTimeShifting" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <soap:operation soapAction="http://tempuri.org/StopTimeShifting" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <soap:operation soapAction="http://tempuri.org/StopRecording" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <soap:operation soapAction="http://tempuri.org/SendHeartBeat" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceInterfaceSoap12" type="tns:ServiceInterfaceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetAllChannels">
+      <soap12:operation soapAction="http://tempuri.org/GetAllChannels" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <soap12:operation soapAction="http://tempuri.org/GetChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <soap12:operation soapAction="http://tempuri.org/GetChannelsInTvGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <soap12:operation soapAction="http://tempuri.org/GetChannelsInRadioGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <soap12:operation soapAction="http://tempuri.org/GetTvChannelGroups" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <soap12:operation soapAction="http://tempuri.org/GetTvMiniEPGForGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <soap12:operation soapAction="http://tempuri.org/GetRadioChannelGroups" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <soap12:operation soapAction="http://tempuri.org/GetRadioMiniEPGForGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <soap12:operation soapAction="http://tempuri.org/GetTodayEPGForChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <soap12:operation soapAction="http://tempuri.org/GetEPGForChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <soap12:operation soapAction="http://tempuri.org/GetEPG" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <soap12:operation soapAction="http://tempuri.org/GetAllSchedules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <soap12:operation soapAction="http://tempuri.org/GetSchedule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <soap12:operation soapAction="http://tempuri.org/AddSchedule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <soap12:operation soapAction="http://tempuri.org/DeleteSchedule" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <soap12:operation soapAction="http://tempuri.org/GetAllRecordings" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <soap12:operation soapAction="http://tempuri.org/GetRecording" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <soap12:operation soapAction="http://tempuri.org/GetRecordingURL" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <soap12:operation soapAction="http://tempuri.org/DeleteRecording" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <soap12:operation soapAction="http://tempuri.org/GetReceptionDetails" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <soap12:operation soapAction="http://tempuri.org/GetTvServerStatus" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <soap12:operation soapAction="http://tempuri.org/GetSupportedMPFunctions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <soap12:operation soapAction="http://tempuri.org/GetMovie" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <soap12:operation soapAction="http://tempuri.org/GetAllMovies" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <soap12:operation soapAction="http://tempuri.org/GetMusicTrack" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <soap12:operation soapAction="http://tempuri.org/GetAllMusicTracks" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <soap12:operation soapAction="http://tempuri.org/GetAllPicturePaths" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <soap12:operation soapAction="http://tempuri.org/GetAllPicturesByPath" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <soap12:operation soapAction="http://tempuri.org/GetPicture" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <soap12:operation soapAction="http://tempuri.org/GetAllTvSeries" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <soap12:operation soapAction="http://tempuri.org/GetTvSeries" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <soap12:operation soapAction="http://tempuri.org/GetAllMovingPictures" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <soap12:operation soapAction="http://tempuri.org/StartTimeShifting" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <soap12:operation soapAction="http://tempuri.org/StopTimeShifting" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <soap12:operation soapAction="http://tempuri.org/StopRecording" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <soap12:operation soapAction="http://tempuri.org/SendHeartBeat" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceInterfaceHttpGet" type="tns:ServiceInterfaceHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="GetAllChannels">
+      <http:operation location="/GetAllChannels" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <http:operation location="/GetChannel" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <http:operation location="/GetChannelsInTvGroup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <http:operation location="/GetChannelsInRadioGroup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <http:operation location="/GetTvChannelGroups" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <http:operation location="/GetTvMiniEPGForGroup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <http:operation location="/GetRadioChannelGroups" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <http:operation location="/GetRadioMiniEPGForGroup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <http:operation location="/GetTodayEPGForChannel" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <http:operation location="/GetEPGForChannel" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <http:operation location="/GetEPG" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <http:operation location="/GetAllSchedules" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <http:operation location="/GetSchedule" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <http:operation location="/AddSchedule" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <http:operation location="/DeleteSchedule" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <http:operation location="/GetAllRecordings" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <http:operation location="/GetRecording" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <http:operation location="/GetRecordingURL" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <http:operation location="/DeleteRecording" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <http:operation location="/GetReceptionDetails" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <http:operation location="/GetTvServerStatus" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <http:operation location="/GetSupportedMPFunctions" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <http:operation location="/GetMovie" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <http:operation location="/GetAllMovies" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <http:operation location="/GetMusicTrack" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <http:operation location="/GetAllMusicTracks" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <http:operation location="/GetAllPicturePaths" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <http:operation location="/GetAllPicturesByPath" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <http:operation location="/GetPicture" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <http:operation location="/GetAllTvSeries" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <http:operation location="/GetTvSeries" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <http:operation location="/GetAllMovingPictures" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <http:operation location="/StartTimeShifting" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <http:operation location="/StopTimeShifting" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <http:operation location="/StopRecording" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <http:operation location="/SendHeartBeat" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceInterfaceHttpPost" type="tns:ServiceInterfaceHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="GetAllChannels">
+      <http:operation location="/GetAllChannels" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannel">
+      <http:operation location="/GetChannel" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInTvGroup">
+      <http:operation location="/GetChannelsInTvGroup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetChannelsInRadioGroup">
+      <http:operation location="/GetChannelsInRadioGroup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvChannelGroups">
+      <http:operation location="/GetTvChannelGroups" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvMiniEPGForGroup">
+      <http:operation location="/GetTvMiniEPGForGroup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioChannelGroups">
+      <http:operation location="/GetRadioChannelGroups" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRadioMiniEPGForGroup">
+      <http:operation location="/GetRadioMiniEPGForGroup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTodayEPGForChannel">
+      <http:operation location="/GetTodayEPGForChannel" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPGForChannel">
+      <http:operation location="/GetEPGForChannel" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetEPG">
+      <http:operation location="/GetEPG" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllSchedules">
+      <http:operation location="/GetAllSchedules" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSchedule">
+      <http:operation location="/GetSchedule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddSchedule">
+      <http:operation location="/AddSchedule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteSchedule">
+      <http:operation location="/DeleteSchedule" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllRecordings">
+      <http:operation location="/GetAllRecordings" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecording">
+      <http:operation location="/GetRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingURL">
+      <http:operation location="/GetRecordingURL" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteRecording">
+      <http:operation location="/DeleteRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetReceptionDetails">
+      <http:operation location="/GetReceptionDetails" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvServerStatus">
+      <http:operation location="/GetTvServerStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSupportedMPFunctions">
+      <http:operation location="/GetSupportedMPFunctions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMovie">
+      <http:operation location="/GetMovie" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovies">
+      <http:operation location="/GetAllMovies" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMusicTrack">
+      <http:operation location="/GetMusicTrack" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMusicTracks">
+      <http:operation location="/GetAllMusicTracks" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturePaths">
+      <http:operation location="/GetAllPicturePaths" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllPicturesByPath">
+      <http:operation location="/GetAllPicturesByPath" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPicture">
+      <http:operation location="/GetPicture" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllTvSeries">
+      <http:operation location="/GetAllTvSeries" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTvSeries">
+      <http:operation location="/GetTvSeries" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMovingPictures">
+      <http:operation location="/GetAllMovingPictures" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StartTimeShifting">
+      <http:operation location="/StartTimeShifting" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopTimeShifting">
+      <http:operation location="/StopTimeShifting" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="StopRecording">
+      <http:operation location="/StopRecording" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendHeartBeat">
+      <http:operation location="/SendHeartBeat" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output />
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ServiceInterface">
+    <wsdl:port name="ServiceInterfaceSoap" binding="tns:ServiceInterfaceSoap">
+      <soap:address location="http://127.0.0.1:8080/TvServiceWebServices.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceInterfaceSoap12" binding="tns:ServiceInterfaceSoap12">
+      <soap12:address location="http://127.0.0.1:8080/TvServiceWebServices.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceInterfaceHttpGet" binding="tns:ServiceInterfaceHttpGet">
+      <http:address location="http://127.0.0.1:8080/TvServiceWebServices.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceInterfaceHttpPost" binding="tns:ServiceInterfaceHttpPost">
+      <http:address location="http://127.0.0.1:8080/TvServiceWebServices.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

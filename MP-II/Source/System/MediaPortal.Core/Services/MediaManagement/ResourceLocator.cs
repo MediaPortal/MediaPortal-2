@@ -42,6 +42,16 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// </summary>
     public static Guid LOCAL_FS_MEDIA_PROVIDER_ID = new Guid(LOCAL_FS_MEDIA_PROVIDER_ID_STR);
 
+    /// <summary>
+    /// GUID string for the Tve3 media provider.
+    /// </summary>
+    protected const string TVE3_MEDIA_PROVIDER_ID_STR = "{DE191DC6-9E95-41b2-8459-36099E2C2774}";
+
+    /// <summary>
+    /// Tve3 media provider GUID.
+    /// </summary>
+    public static Guid TVE3_MEDIA_PROVIDER_ID = new Guid(TVE3_MEDIA_PROVIDER_ID_STR);
+
     #endregion
 
     #region Protected fields
@@ -87,11 +97,17 @@ namespace MediaPortal.Core.Services.MediaManagement
         // TODO: Resource accessor for remote systems: create temporary SMB connection or other mapping to a local file path
         // and return a local FS accessor to that mapped local file path
         throw new NotImplementedException("ResourceLocator.CreateLocalFsAccessor for remote media items is not implemented yet");
+      
       if (_nativeResourcePath.PathSegments.Count != 1 ||
-          _nativeResourcePath.BasePathSegment.ProviderId != LOCAL_FS_MEDIA_PROVIDER_ID)
+          (
+          _nativeResourcePath.BasePathSegment.ProviderId != LOCAL_FS_MEDIA_PROVIDER_ID &&
+          _nativeResourcePath.BasePathSegment.ProviderId != TVE3_MEDIA_PROVIDER_ID
+          )
+        )
         // TODO: Create mapping of the complex resource path to a local file and return a local FS accessor to that
         // mapped local file path
         throw new NotImplementedException("ResourceLocator.CreateLocalFsAccessor for complex paths to media items is not implemented yet");
+
       // Simple case: The media item is located in the local file system - we don't have to do anything
       return _nativeResourcePath.CreateLocalMediaItemAccessor() as ILocalFsResourceAccessor;
     }

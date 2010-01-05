@@ -46,6 +46,7 @@ namespace Ui.Players.Video
       EXTENSIONS2PLAYER.Add(".ts", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mp4", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mkv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
       // TODO: Go on with extensions mapping
 
       MIMETYPES2PLAYER.Add("video/x-ms-wmv", typeof(VideoPlayer));
@@ -54,6 +55,11 @@ namespace Ui.Players.Video
 
     protected static Type GetPlayerTypeForMediaItem(ILocalFsResourceAccessor accessor, string mimeType)
     {
+      // HACK: emulate Tve3 as valid MetaData source
+      if (accessor != null && accessor.GetType().ToString().EndsWith("Tve3ResourceAccessor"))
+      {
+        return typeof(VideoPlayer);
+      }
       string path = accessor.ResourcePathName;
       string extension = Path.GetExtension(path).ToLowerInvariant();
       Type playerType;
