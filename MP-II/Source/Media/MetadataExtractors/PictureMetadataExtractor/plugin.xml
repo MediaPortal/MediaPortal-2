@@ -1,13 +1,23 @@
 <Plugin
     DescriptorVersion="1.0"
-    Name="PictureImporter"
+    Name="PictureMetadataExtractor"
     PluginId="{059F49E5-E7FB-43bd-B859-49BAAD497FFA}"
-    Author="Frodo"
+    Author="Frodo, Morpheus_xx"
     Copyright="GPL"
-    Description="Picture Importer"
+    Description="Picture metadata extractor"
     PluginVersion="1.0">
 
   <Runtime>
+    <Assembly FileName="PictureMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="PictureMetadataExtractor"
+        ClassName="MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor.PictureMetadataExtractor"/>
+  </Register>
+  
+  <!--Runtime>
     <Assembly FileName="PictureImporter.dll"/>
     <PluginStateTracker ClassName="Media.Importers.PictureImporter.Importer"/>
   </Runtime>
@@ -17,5 +27,5 @@
         Id="PictureImporter"
         ClassName="Media.Importers.PictureImporter.PictureImporter"
         Extensions=".jpg,.jpeg,.png,.gif,.tga"/>
-  </Register>
+  </Register-->
 </Plugin>
