@@ -39,7 +39,7 @@ namespace MediaPortal.UI.Services.Players
   {
     #region Consts
 
-    protected const string KEY_PLAYER_CONTEXT = "PlayerContextManager: PlayerContext";
+    public const string KEY_PLAYER_CONTEXT = "PlayerContextManager: PlayerContext";
 
     #endregion
 
