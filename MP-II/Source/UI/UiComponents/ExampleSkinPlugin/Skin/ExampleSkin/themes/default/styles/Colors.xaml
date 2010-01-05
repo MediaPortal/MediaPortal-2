@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- ************************** Blue theme colors **************************** -->
+
+  <!-- Button colors -->
+  <ResourceWrapper x:Key="ButtonTextColor" Resource="#FF9FFFFF"/>
+  <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#33EBEBF5"/>
+  <ResourceWrapper x:Key="ButtonGradientLightColor" Resource="#22F2EEEE"/>
+  <ResourceWrapper x:Key="ButtonGradientDarkColor" Resource="#11D5D1D1"/>
+
+  <!-- Button focused colors -->
+  <ResourceWrapper x:Key="FocusedButtonGradientLightColor" Resource="#AAF2EEEE"/>
+  <ResourceWrapper x:Key="FocusedButtonGradientLighterColor" Resource="#FFF8F8F8"/>
+  <ResourceWrapper x:Key="FocusedButtonGradientDarkColor" Resource="#FFD5D1D1"/>
+  <ResourceWrapper x:Key="HighlightButtonStrokeColor" Resource="#AAEBEBF5"/>
+
+  <!-- Background colors -->
+  <ResourceWrapper x:Key="BackgroundGradientLightColor" Resource="#FF213663"/>
+  <ResourceWrapper x:Key="BackgroundGradientDarkColor" Resource="#FF000a22"/>
+
+  <!-- Dialog colors -->
+  <ResourceWrapper x:Key="DialogBackgroundGradientLightColor" Resource="#F1213663"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradientDarkColor" Resource="#F1000a22"/>
+  <ResourceWrapper x:Key="DialogBorderColor" Resource="#33EBEBF5"/>
+  <ResourceWrapper x:Key="DialogHeaderColor" Resource="#FFADADAD"/>
+
+
+  <!-- White -->
+  <ResourceWrapper x:Key="WindowHeaderColor" Resource="White"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="TextColor" Resource="#FFFFFFFF"/>
+  <ResourceWrapper x:Key="TextShadowColor" Resource="#66000000"/>
+
+  <!-- Red -->
+  <ResourceWrapper x:Key="ErrorTextColor" Resource="Red"/>
+
+  <!-- Light blue progressbar border -->
+  <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#FF8DA7CD"/>
+
+  <!-- Green progressbar fill -->
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#FF19A05D"/>
+
+  <!-- Very light green -->
+  <ResourceWrapper x:Key="PressedButtonGradientLight1Color" Resource="#AAF2EEEE"/>
+  <!-- Darker light green -->
+  <ResourceWrapper x:Key="PressedButtonGradientLight2Color" Resource="#99F2EEEE"/>
+  <!-- Dark green -->
+  <ResourceWrapper x:Key="PressedButtonGradientDark1Color" Resource="#FFD5D1D1"/>
+  <!-- Darker dark green -->
+  <ResourceWrapper x:Key="PressedButtonGradientDark2Color" Resource="#AAD5D1D1"/>
+  <!-- Button focused stroke color -->
+  <ResourceWrapper x:Key="PressedButtonStrokeColor" Resource="#FFEBEBF5"/>
+
+
+  <!-- Light gray -->
+  <ResourceWrapper x:Key="DisabledButtonColor" Resource="#FF696969"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="PlusMinusButtonCrossColor" Resource="White"/>
+
+  <!-- Blue, a bit purple -->
+  <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="#FF213F9E"/>
+
+  <!-- A bit darker than normal -->
+  <ResourceWrapper x:Key="DisabledArrowButtonArrowColor" Resource="#FF1B3483"/>
+
+  <!-- Very light blue, almost green -->
+  <ResourceWrapper x:Key="ArrowButtonFillGradientLightColor" Resource="#FFE3E9F2"/>
+
+  <!-- Dirty dark blue -->
+  <ResourceWrapper x:Key="ArrowButtonFillGradientDarkColor" Resource="#FF0B3A88"/>
+
+  <!-- Light green, a little bit blue -->
+  <ResourceWrapper x:Key="FocusedArrowButtonFillGradientLightColor" Resource="#FFE3F2E9"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="FocusedArrowButtonFillGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="PressedArrowButtonFillGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Grey, a little bit blue, a bit transparent -->
+  <ResourceWrapper x:Key="DisabledArrowButtonFillGradientLightColor" Resource="#7FE3E9F2"/>
+
+  <!-- Blue, a little bit green, a bit transparent -->
+  <ResourceWrapper x:Key="DisabledArrowButtonFillGradientDarkColor" Resource="#7F2A5EB4"/>
+
+  <!-- Light green, almost grey -->
+  <ResourceWrapper x:Key="ArrowButtonStrokeGradientLightColor" Resource="#FFCCCED1"/>
+
+  <!-- Dark blue, a little bit green -->
+  <ResourceWrapper x:Key="ArrowButtonStrokeGradientDarkColor" Resource="#FF113F88"/>
+
+  <!-- Grey, darker than the unfocused color -->
+  <ResourceWrapper x:Key="FocusedArrowButtonStrokeGradientLightColor" Resource="#FFCCD1CD"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="FocusedArrowButtonStrokeGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Rich green -->
+  <ResourceWrapper x:Key="PressedArrowButtonStrokeGradientDarkColor" Resource="#FF19A05D"/>
+
+  <!-- Light violet -->
+  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius1Color" Resource="#FF173D6D"/>
+
+  <!-- Dirty light blue -->
+  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius2Color" Resource="#FF1A5196"/>
+
+  <!-- Rich light blue, a bit transparent -->
+  <ResourceWrapper x:Key="DialogCloseButtonBackgroundRadius3Color" Resource="#E5105EB9"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="DialogCloseButtonShape1Color" Resource="#FFFFFFFF"/>
+
+  <!-- Light grey -->
+  <ResourceWrapper x:Key="DialogCloseButtonShape2Color" Resource="#FFECF2F8"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="DialogCloseButtonShape2HighlightColor" Resource="#FFFFFFFF"/>
+
+  <!-- Light blue -->
+  <ResourceWrapper x:Key="DialogCloseButtonShape3Color" Resource="#FF5F8FC9"/>
+
+  <!-- Very light blue, almost grey -->
+  <ResourceWrapper x:Key="DialogCloseButtonShape3HighlightColor" Resource="#FFC7D3E4"/>
+
+  <!-- Dirty light blue -->
+  <ResourceWrapper x:Key="DialogCloseButtonShape4Color" Resource="#FF0F529F"/>
+
+  <!-- Dirty blue -->
+  <ResourceWrapper x:Key="DialogCloseButtonCrossColor" Resource="#FF17488B"/>
+
+  <!-- Light blue with some green -->
+  <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="#FF5CB5E6"/>
+
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Black with background shining through -->
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#10000000"/>
+
+  <!-- Blue, a bit lighter than the background -->
+  <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="#FF2866BD"/>
+
+  <!-- Light blue -->
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#20000000"/>
+
+  <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
+
+  <!-- White, little bit transparent -->
+  <ResourceWrapper x:Key="RadioButtonDotColor" Resource="#AAFFFFFF"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="CheckBoxCheckColor" Resource="#FFFFFFFF"/>
+
+  <!-- Black -->
+  <ResourceWrapper x:Key="VideoPreviewBorderDarkColor" Resource="#FF000000"/>
+
+  <!-- Dark green -->
+  <ResourceWrapper x:Key="VideoPreviewBorderLightColor" Resource="#FF045935"/>
+
+  <!-- White -->
+  <ResourceWrapper x:Key="CurrentMediaItemTitleColor" Resource="White"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="CurrentMediaItemArtistColor" Resource="#A0FFFFFF"/>
+
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="CurrentMediaItemTimeColor" Resource="#A0FFFFFF"/>
+
+  <!-- Black, almost transparent -->
+  <ResourceWrapper x:Key="ItemsControlShadowBackgroundColor" Resource="#20000000"/>
+
+</ResourceDictionary>

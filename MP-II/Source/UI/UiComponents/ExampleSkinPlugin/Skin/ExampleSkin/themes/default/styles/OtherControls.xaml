@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    DependsOnStyleResources="Colors,Buttons"
+    >
+
+  <!-- ************************** Default conversions ****************************** -->
+<!-- Example:
+  <DataTemplate DataType="{x:Type system:String}">
+    <Label Content="{Binding}"/>
+  </DataTemplate>
+-->
+  <!-- ***************************** Storyboards ******************************** -->
+
+  <!-- Storyboard which shows an animation when a Button has focus -->
+  <Storyboard x:Key="MoveSpotlight" FillBehavior="Stop">
+	<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight1" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+		<SplineDoubleKeyFrame KeyTime="00:00:00" Value="-0.3"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="-0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:20" Value="0.3"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:30" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="-0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:40" Value="-0.3"/>
+	</DoubleAnimationUsingKeyFrames>
+	<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight1" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+		<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:20" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="-0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:30" Value="-0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="-0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:40" Value="0.0"/>
+	</DoubleAnimationUsingKeyFrames>
+	<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight2" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].X">
+		<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.3"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="-0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:20" Value="-0.3"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="-0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:30" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="0.2"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:40" Value="0.3"/>
+	</DoubleAnimationUsingKeyFrames>
+	<DoubleAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" Storyboard.TargetName="SpotLight2" Storyboard.TargetProperty="Fill.RelativeTransform.Children[3].Y">
+		<SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:03.5000000" Value="0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:10" Value="0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:17.5000000" Value="0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:20" Value="0.0"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:23.5000000" Value="-0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:30" Value="-0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:37.5000000" Value="-0.15"/>
+		<SplineDoubleKeyFrame KeyTime="00:00:40" Value="0.0"/>
+	</DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+
+  <!-- ***************************** Brushes ******************************** -->
+
+  <!-- default brush used to paint the background of a dialog -->
+  <ResourceWrapper x:Key="DialogBackgroundBrush" Freezable="true">
+    <RadialGradientBrush GradientOrigin="0.186,0.311">
+      <RadialGradientBrush.RelativeTransform>
+        <TransformGroup>
+          <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.071" ScaleY="1.29"/>
+          <SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+          <RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+          <TranslateTransform X="-0.036" Y="-0.146"/>
+        </TransformGroup>
+      </RadialGradientBrush.RelativeTransform>
+      <GradientStop Color="{ThemeResource DialogBackgroundGradientLightColor}" Offset="0"/>
+      <GradientStop Color="{ThemeResource DialogBackgroundGradientDarkColor}" Offset="1"/>
+    </RadialGradientBrush>
+  </ResourceWrapper>
+
+
+  <!-- ***************************** Background style ******************************** -->
+
+  <Style x:Key="BackgroundControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+	        <Grid>
+			    <Grid.ColumnDefinitions>
+			      <ColumnDefinition Width="*"/>
+			    </Grid.ColumnDefinitions>  
+			    <Grid.RowDefinitions>
+			      <RowDefinition Height="*"/>
+			    </Grid.RowDefinitions>  
+		        <Grid.Triggers>
+		            <EventTrigger RoutedEvent="UIElement.Loaded">
+		                <BeginStoryboard x:Name="MoveSpotlight_BeginStoryboard" HandoffBehavior="SnapshotAndReplace" Storyboard="{StaticResource MoveSpotlight}"/>
+		            </EventTrigger>
+		        </Grid.Triggers>
+				<Rectangle x:Name="Background">
+		           <Rectangle.Fill>
+					<LinearGradientBrush EndPoint="0.5,0" StartPoint="0.5,1">
+						<!--
+						<GradientStop Color="#FF162958" Offset="0"/>
+						<GradientStop Color="#FF1b3669" Offset="0.2"/>
+						<GradientStop Color="#FF1b3669" Offset="0.25"/>
+						<GradientStop Color="#FF132349" Offset="0.5"/>
+						<GradientStop Color="#FF020d28" Offset="0.85"/>
+						<GradientStop Color="#FF000a22" Offset="1"/>-->
+						<GradientStop Color="#FF8A8AD0" Offset="0.0"/>
+						<GradientStop Color="#FF4E4E89" Offset="0.219"/>
+						<GradientStop Color="#FF35356C" Offset="0.353"/>
+						<GradientStop Color="#FF232355" Offset="0.5"/>
+						<GradientStop Color="#FF0D0D28" Offset="0.85"/>
+						<GradientStop Color="#FF0A0A14" Offset="1"/>
+
+					</LinearGradientBrush>
+		           </Rectangle.Fill>
+				</Rectangle>
+				<Rectangle x:Name="DarkenCorners">
+		           <Rectangle.Fill>
+		             <RadialGradientBrush GradientOrigin="0.60,0.5">
+		               <RadialGradientBrush.RelativeTransform>
+		             		<TransformGroup>
+		             			<ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="1.45" ScaleY="1.45"/>
+		             			<SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+		             			<RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+		             		</TransformGroup>
+		             	</RadialGradientBrush.RelativeTransform>
+					   <!--
+		               <GradientStop Color="#00000000" Offset="0.518"/>
+		               <GradientStop Color="#33000000" Offset="1"/>
+		               -->
+		               <GradientStop Color="#00000000" Offset="0"/>
+		               <GradientStop Color="#00000000" Offset="0.518"/>
+		               <GradientStop Color="#2D000000" Offset="0.643"/>
+		               <GradientStop Color="#7F00001E" Offset="0.777"/>
+		               <GradientStop Color="#F3000028" Offset="1"/>
+		             </RadialGradientBrush>
+		           </Rectangle.Fill>
+				</Rectangle>
+				<Rectangle Margin="246,510,0,0" Height="140" Width="900" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SpotLight1">
+					<Rectangle.Fill>
+						<RadialGradientBrush>
+							<RadialGradientBrush.RelativeTransform>
+								<TransformGroup>
+									<ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.828" ScaleY="0.902"/>
+									<SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+									<RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+									<TranslateTransform X="-0.3" Y="0.0"/>
+								</TransformGroup>
+							</RadialGradientBrush.RelativeTransform>
+							<GradientStop Color="#3FFFFFFF" Offset="0"/>
+							<GradientStop Color="#14FFFFFF" Offset="0.344"/>
+							<GradientStop Color="#07FFFFFF" Offset="0.442"/>
+							<GradientStop Color="#00FFFFFF" Offset="0.549"/>
+						</RadialGradientBrush>
+					</Rectangle.Fill>
+				</Rectangle>
+				<Rectangle Margin="246,530,0,0" Height="140" Width="900" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="SpotLight2">
+					<Rectangle.Fill>
+						<RadialGradientBrush>
+							<RadialGradientBrush.RelativeTransform>
+								<TransformGroup>
+									<ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.828" ScaleY="0.902"/>
+									<SkewTransform AngleX="0" AngleY="0" CenterX="0.5" CenterY="0.5"/>
+									<RotateTransform Angle="0" CenterX="0.5" CenterY="0.5"/>
+									<TranslateTransform X="0.3" Y="0.0"/>
+								</TransformGroup>
+							</RadialGradientBrush.RelativeTransform>
+							<GradientStop Color="#3FFFFFFF" Offset="0"/>
+							<GradientStop Color="#14FFFFFF" Offset="0.344"/>
+							<GradientStop Color="#07FFFFFF" Offset="0.442"/>
+							<GradientStop Color="#00FFFFFF" Offset="0.549"/>
+						</RadialGradientBrush>
+					</Rectangle.Fill>
+				</Rectangle>
+			</Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+
+  <!-- ***************************** Progress bar ******************************** -->
+
+  <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid>
+            <Rectangle x:Name="PART_Track" Margin="2,0,2,0" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarBorderColor}"/>
+            <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{ThemeResource ProgressBarFillColor}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ***************************** ScrollViewer styles ********************************* -->
+
+  <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="2"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="2"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
+            <!-- ScrollBar X -->
+            <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="2" Grid.Column="0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4">
+                <Rectangle.Fill>
+                  <SolidColorBrush Color="{ThemeResource ScrollBarBackgroundColor}"/>
+                </Rectangle.Fill>
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarWidth}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4">
+                  <Rectangle.Fill>
+                    <SolidColorBrush Color="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <!-- ScrollBar Y -->
+            <Grid x:Name="ScrollBarY" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                  Stroke="{ThemeResource ScrollBarStrokeColor}" RadiusX="4" RadiusY="4">
+                <Rectangle.Fill>
+                  <SolidColorBrush Color="{ThemeResource ScrollBarBackgroundColor}"/>
+                </Rectangle.Fill>
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="4" RadiusY="4">
+                  <Rectangle.Fill>
+                    <SolidColorBrush Color="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ************************* ListView Item container styles ************************** -->
+
+  <!-- An item list container represented by a standard "ButtonStyle", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="DefaultMenuItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{StaticResource ButtonStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+              IsEnabled="{Binding Enabled}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Container style for a simple list -->
+  <Style x:Key="DefaultItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <ContentPresenter x:Name="ContentPresenter" HorizontalAlignment="Stretch"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- An item list container for usage as playlist, DOESN'T WORK YET (because of the commands which won't work) -->
+  <Style x:Key="ItemPlayListContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <StackPanel Orientation="Horizontal">
+            <Button Style="{StaticResource ButtonStyle}" Height="46" Width="360">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button Style="{StaticResource ArrowButtonDownStyle}" Command="{Command PlayList:PlayList.MoveDown}" Height="46" Width="46" />
+            <Button Style="{StaticResource ArrowButtonUpStyle}" Command="{Command PlayList:PlayList.MoveUp}" Height="46" Width="46" />
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <!-- Container style for dialog buttons which have a command associated in the ListItem -->
+  <Style x:Key="DialogButtonContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonStyle}" Margin="5,0,5,0" Command="{Binding Command}" IsDefault="{Binding AdditionalProperties[IsDefault]}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- *************************** ListView item data templates ****************************** -->
+
+ <!-- A simple data template to show the Name of the ListItem in a Label -->
+  <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid>
+      <Label x:Name="ItemLabelShadow" Margin="11,5,0,0" FontSize="28" Content="{Binding [Name]}" Color="{ThemeResource TextShadowColor}"/>
+      <Label x:Name="ItemLabel" Margin="10,4,0,0" FontSize="28" Content="{Binding [Name]}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- A data template which shows the CoverArt/defaulticon, the Name and the Size of the ListItem -->
+  <DataTemplate x:Key="ContentsMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid Height="46">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [DefaultIcon]}" Source="{Binding [ImageSrc]}"/>
+      <Label x:Name="ItemLabelShadow" Grid.Row="0" Grid.Column="1" Margin="11,2,0,0" Height="32" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextShadowColor}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Height="32" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+    </Grid>
+  </DataTemplate>
+
+   <!-- A data template for a dialog menu item in list mode (each row has an image and a label) -->
+  <DataTemplate x:Key="ImageDialogItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabelShadow" Grid.Row="0" Grid.Column="1" Margin="11,6,0,0" Content="{Binding [Name]}" FontSize="28" Color="{ThemeResource TextShadowColor}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,0" Content="{Binding [Name]}" FontSize="28"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a simple share entry in the shares list -->
+  <DataTemplate x:Key="ShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Control Focusable="true">
+      <Control.Template>
+        <ControlTemplate>
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="200"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+		    <Label x:Name="ShareNameShadow" Grid.Column="0" Margin="6,1,0,0" Content="{Binding [Name]}" FontSize="22" Color="{ThemeResource TextShadowColor}"/>
+            <Label x:Name="ShareName" Grid.Column="0" Margin="5,0,0,0" Content="{Binding [Name]}" FontSize="22"/>
+		    <Label x:Name="SharePathShadow" Grid.Column="1" Margin="1,1,0,0" Content="{Binding [Path]}" FontSize="22" Color="{ThemeResource TextShadowColor}"/>
+            <Label x:Name="SharePath" Grid.Column="1" Margin="0,0,0,0" Content="{Binding [Path]}" FontSize="22"/>
+          </Grid>
+        </ControlTemplate>
+      </Control.Template>
+      <Control.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Setter TargetName="ShareNameShadow" Property="Scroll" Value="True"/>
+          <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
+          <Setter TargetName="SharePathShadow" Property="Scroll" Value="True"/>
+          <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Control.Triggers>
+    </Control>
+  </DataTemplate>
+
+  <!-- Data template for a share entry markable with a checkbox in the shares list -->
+  <DataTemplate x:Key="MultiMarkableShareItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="200"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <CheckBox x:Name="ShareNameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
+      <Label x:Name="SharePathShadow" Grid.Column="1" Margin="1,1,0,0" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center" Color="{ThemeResource TextShadowColor}"/>
+      <Label x:Name="SharePath" Grid.Column="1" Margin="0,0,0,0" Content="{Binding [Path]}" FontSize="22" VerticalAlignment="Center"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="SharePathShadow" Property="Scroll" Value="True"/>
+          <Setter TargetName="SharePath" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a share entry markable with a checkbox -->
+  <DataTemplate x:Key="DefaultMultiMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <CheckBox x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding [Name]}"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a share entry markable with a radio button -->
+  <DataTemplate x:Key="DafaultSingleMarkableItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <RadioButton x:Name="Marker" Grid.Column="0" Margin="2,1,0,1" Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+          IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+          Content="{Binding [Name]}"/>
+      <Grid.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
+          <Setter TargetName="ParentPanel" Property="Background">
+            <Setter.Value>
+              <SolidColorBrush Color="{StaticResource PassiveFocusBackgroundColor}"/>
+            </Setter.Value>
+          </Setter>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </DataTemplate>
+
+  <!-- A data template for usage in a playlist, which shows the CoverArt/defaulticon and the Name of the ListItem -->
+  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid Height="46">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+        <ColumnDefinition/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition/>
+      </Grid.RowDefinitions>
+      <Image Thumbnail="True" Grid.Row="0" Grid.Column="0" Height="32" Width="32" FallbackSource="{Binding [defaulticon]}" Source="{Binding [CoverArt]}"/>
+      <Label x:Name="ItemLabelShadow" Margin="11,1,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Content="{Binding [Name]}" FontSize="28" Color="{ThemeResource TextShadowColor}"/>
+      <Label x:Name="ItemLabel" Margin="10,0,0,0" Grid.Row="0" Height="32" Grid.Column="1" Grid.ColumnSpan="8" Content="{Binding [Name]}" FontSize="28"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ***************************** ListView styles ********************************* -->
+
+  <!-- Standard ListView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
+  <Style x:Key="DefaultListViewStyle" TargetType="{x:Type ListView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+            <ItemsPresenter VerticalAlignment="Top"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" VerticalAlignment="Top"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
+  <Style x:Key="MenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="ContentsMenuListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ContentsMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="SharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource MultiMarkableShareItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="MultiMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultMultiMarkableItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="SingleMarkableListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DafaultSingleMarkableItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <!-- ListView style to be used for playlists (NOT WORKING YET -> see ItemPlayListContainerStyle) -->
+  <Style x:Key="PlayListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource PlayListItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource ItemPlayListContainerStyle}"/>
+  </Style>
+
+  <!-- ListView style to be used for menus which display an image with a label -->
+  <Style x:Key="ImageDialogListViewStyle" BasedOn="{StaticResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource ImageDialogItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMenuItemContainerStyle}"/>
+  </Style>
+
+  <!-- *************************** TreeView Item data templates ****************************** -->
+
+  <!-- A data template for a TreeItem -->
+  <HierarchicalDataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
+      ItemsSource="{Binding SubItems}" DataString="{Binding [Name]}">
+    <Grid>
+      <Label x:Name="ItemLabel" Height="32" Content="{Binding [Name]}" FontSize="28"/>
+      <Grid.Triggers>
+        <Trigger Property="HasFocus" Value="True">
+          <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+        </Trigger>
+      </Grid.Triggers>
+    </Grid>
+  </HierarchicalDataTemplate>
+
+  <!-- ************************** TreeView item container styles ***************************** -->
+
+  <Style x:Key="DefaultMultiMarkableTreeItemContainerStyle" TargetType="{x:Type HeaderedItemsControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
+          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}"
+                IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                VerticalAlignment="Top"/>
+            <CheckBox x:Name="Checker" Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" VerticalAlignment="Top"
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1" IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
+              <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+  </Style>
+
+  <Style x:Key="DefaultSingleMarkableTreeItemContainerStyle" TargetType="{x:Type HeaderedItemsControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
+          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{StaticResource PlusMinusButtonStyle}"
+                IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                VerticalAlignment="Top"/>
+            <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
+                Style="{StaticResource RadioButtonStyle}" VerticalAlignment="Center"
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1" IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
+              <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+  </Style>
+
+  <!-- ****************************** TreeView styles ********************************** -->
+
+  <!-- Standard TreeView properties. The properties "ItemTemplate" and "ItemContainerStyle" have to be completed. -->
+  <Style x:Key="DefaultTreeViewStyle" TargetType="{x:Type TreeView}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TreeView}">
+          <ScrollViewer Style="{StaticResource DefaultScrollViewerStyle}">
+            <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel x:Name="TreeItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="DefaultMultiMarkableTreeViewStyle" BasedOn="{StaticResource DefaultTreeViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultTreeItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultMultiMarkableTreeItemContainerStyle}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+  <Style x:Key="DefaultSingleMarkableTreeViewStyle" BasedOn="{StaticResource DefaultTreeViewStyle}">
+    <Setter Property="ItemTemplate" Value="{StaticResource DefaultTreeItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{StaticResource DefaultSingleMarkableTreeItemContainerStyle}"/>
+    <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
+  </Style>
+
+</ResourceDictionary>
