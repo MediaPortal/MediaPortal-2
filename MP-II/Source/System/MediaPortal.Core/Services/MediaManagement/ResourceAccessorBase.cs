@@ -37,7 +37,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       Dispose();
     }
 
-    public virtual void Dispose()
+    public void Dispose()
     {
       if (_tidyUpExecutors == null)
         return;

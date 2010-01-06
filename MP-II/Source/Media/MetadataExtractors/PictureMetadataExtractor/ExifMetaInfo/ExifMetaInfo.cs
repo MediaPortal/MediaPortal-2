@@ -28,7 +28,7 @@ using System.Text;
 using System.Drawing;
 using System.IO;
 
-namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
+namespace Media.Importers.PictureImporter
 {
   public class ExifMetaInfo : IDisposable
   {

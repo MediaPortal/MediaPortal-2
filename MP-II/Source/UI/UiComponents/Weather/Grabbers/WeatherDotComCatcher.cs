@@ -33,7 +33,6 @@ using System.Xml.XPath;
 using MediaPortal.Core;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.PathManager;
 using MediaPortal.Core.Settings;
 
 namespace UiComponents.Weather.Grabbers
@@ -186,7 +185,7 @@ namespace UiComponents.Weather.Grabbers
       _temperatureFarenheit = settings.TemperatureFahrenheit;
       _windSpeed = settings.WindSpeed;
       _skipConnectionTest = settings.SkipConnectionTest;
-      _parsefileLocation = ServiceScope.Get<IPathManager>().GetPath(settings.ParsefileLocation);
+      _parsefileLocation = settings.ParsefileLocation;
     }
 
     /// <summary>
@@ -228,8 +227,8 @@ namespace UiComponents.Weather.Grabbers
         units = 'm';
       }
 
-      url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&dayf=5&link=xoap&prod=xoap&par={1}&key={2}&unit={3}", 
-                          locationCode, PARTNER_ID, PARTNER_KEY, units);
+      url = String.Format("http://xoap.weather.com/weather/local/{0}?cc=*&unit={1}&dayf=4",
+                          locationCode, units);
 
       using (WebClient client = new WebClient())
       {

@@ -620,9 +620,10 @@ namespace Ui.Players.Video
           _graphBuilder = null;
 
           FreeResources();
-
-          // Dispose the resource accessor; i.e. to stop the Tve3 provider's timeshifting
-          _resourceAccessor.Dispose();
+          // morpheus: do we really need to force GC ???
+          //GC.Collect();
+          //GC.Collect();
+          //GC.Collect();
         }
       }
     }

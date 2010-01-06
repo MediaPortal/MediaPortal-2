@@ -25,7 +25,7 @@
 // All this Enums are besed on MSDN Article Property Item Descriptions
 // MSDN Home >  MSDN Library >  Graphics and Multimedia >  GDI+ >  GDI+ Reference >  Constants >  Image Property Tag Constants 
 
-namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
+namespace Media.Importers.PictureImporter
 {
 	///<summary>
 	///Unit of measure used for the horizontal resolution and the vertical resolution.

@@ -324,19 +324,6 @@ namespace MediaPortal.UI.Services.Players
             psc.AssignPlayerAndBuilderRegistration(player, builderRegistration);
             return true;
           }
-          else
-          {
-            object opc;
-            if (psc.ContextVariables.TryGetValue(PlayerContextManager.KEY_PLAYER_CONTEXT, out opc))
-            {
-              PlayerContext pc = (PlayerContext) opc;
-              // check if there is a playlist with more items. If only one, then close the player slot.
-              if (pc.Playlist.ItemList.Count == 1)
-              {
-                CloseSlot(psc);
-              }
-            }
-          }
         }
         return false;
       }

@@ -2,13 +2,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{47B09A95-16F2-4B96-A9FE-4A96363442B0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor</RootNamespace>
-    <AssemblyName>PictureMetadataExtractor</AssemblyName>
+    <RootNamespace>PictureImporter</RootNamespace>
+    <AssemblyName>PictureImporter</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -53,7 +53,6 @@
     <Compile Include="ExifMetaInfo\Fraction.cs" />
     <Compile Include="ExifMetaInfo\PropertyTag.cs" />
     <Compile Include="PictureImporter.cs" />
-    <Compile Include="PictureMetadataExtractor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -64,10 +63,6 @@
     <ProjectReference Include="..\..\..\System\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MediaInfoPlugin\MediaInfoPlugin.csproj">
-      <Project>{7280C551-DCE2-46B7-943E-8C0D90CDC22C}</Project>
-      <Name>MediaInfoPlugin</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -84,9 +79,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)"
-xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
-xcopy /Y "$(TargetDir)PictureMetadataExtractor.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\"
+    <PostBuildEvent>
+xcopy /Y "$(ProjectDir)plugin.xml" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
+xcopy /Y "$(TargetDir)pictureimporter.dll"  "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\Media.Importers.$(ProjectName)\"
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

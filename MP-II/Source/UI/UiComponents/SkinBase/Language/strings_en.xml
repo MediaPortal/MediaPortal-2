@@ -173,7 +173,7 @@
   
   
   <Section Name="weather">
-    <String Name="0" Text="Weather"/>
+    <String Name="0" Text="My Weather"/>
     <String Name="1" Text="Location"/>
     <String Name="2" Text="Refresh"/>
     <String Name="3" Text="Weather"/>

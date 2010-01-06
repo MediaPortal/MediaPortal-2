@@ -1,9 +1,0 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MediaPortal.Media.MediaProviders.Tve3MediaProvider.Properties" GeneratedClassName="Settings">
-  <Profiles />
-  <Settings>
-    <Setting Name="Tve3MediaProvider_Tve3WebService_ServiceInterface" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://127.0.0.1:8080/TvServiceWebServices.asmx</Value>
-    </Setting>
-  </Settings>
-</SettingsFile>

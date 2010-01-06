@@ -2,7 +2,6 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
     Source="screens\master_menu.xaml"
     >
   <Include.Resources>
@@ -11,8 +10,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[weather.0]"/>
 
     <!-- DataContext -->
-    <Model x:Key="DataContext" Id="92BDB53F-4159-4dc2-B212-6083C820A214"/>
-    <!--Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherModel"/-->
+    <Model x:Key="DataContext" RegistrationLocation="Weather" Id="WeatherModel"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">

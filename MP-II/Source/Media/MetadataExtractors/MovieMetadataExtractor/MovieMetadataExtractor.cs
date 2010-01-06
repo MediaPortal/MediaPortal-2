@@ -77,7 +77,6 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
       MOVIE_EXTENSIONS.Add(".mp4"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".ts"); // Not confirmed yet
       MOVIE_EXTENSIONS.Add(".ifo"); // Not confirmed yet
-      MOVIE_EXTENSIONS.Add(".flv"); // Not confirmed yet
     }
 
     public MovieMetadataExtractor()
@@ -118,22 +117,6 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
     public bool TryExtractMetadata(IResourceAccessor mediaItemAccessor, IDictionary<Guid, MediaItemAspect> extractedAspectData)
     {
       string filePath = mediaItemAccessor.ResourcePathName;
-
-      // HACK: emulate Tve3 as valid MetaData source
-      if (mediaItemAccessor != null && mediaItemAccessor.GetType().ToString().EndsWith("Tve3ResourceAccessor"))
-      {
-        MediaItemAspect mediaAspect;
-        if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-          extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
-        MediaItemAspect movieAspect;
-        if (!extractedAspectData.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect))
-          extractedAspectData[MovieAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(MovieAspect.Metadata);
-
-        mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, mediaItemAccessor.ResourceName);
-        movieAspect.SetAttribute(MovieAspect.ATTR_ISDVD, false);
-        return true;
-      }
-
       if (!HasMovieExtension(filePath))
         return false;
       try
@@ -162,7 +145,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
               stream.Close();
           }
           // Before we start evaluating the file, check if it is a video at all
-          if (!mediaInfo.IsValid || mediaInfo.GetVideoCount() == 0)
+          if (mediaInfo.IsValid && mediaInfo.GetVideoCount() == 0)
             return false;
 
           // TODO: The creation of new media item aspects could be moved to a general method

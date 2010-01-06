@@ -24,7 +24,7 @@
 
 using System;
 
-namespace MediaPortal.Media.MetadataExtractors.PictureMetadataExtractor
+namespace Media.Importers.PictureImporter
 {
 	///<summary>Some values according EXIF specifications are stored as Fraction numbers.
  	///This Class helps to manipulate and display those numbers.</summary>

@@ -22,23 +22,19 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Workflow;
+
 using UiComponents.Weather.Grabbers;
 
 
 namespace UiComponents.Weather
 {
-  public class WeatherSetupViewModel : IWorkflowModel
+  public class WeatherSetupViewModel
   {
-    public const string WEATHER_SETUP_MODEL_ID_STR = "CF0434F2-B319-48ff-A700-0BB7F0C2CD2A";
-
     // locations that are already in the list
     private List<CitySetupInfo> _locations;
     // locations that return as result of searching for a city
@@ -236,60 +232,5 @@ namespace UiComponents.Weather
     {
       get { return _locationsSearchExposed; }
     }
-
-    #region IWorkflowModel Member
-
-    public Guid ModelId
-    {
-      get { return new Guid(WEATHER_SETUP_MODEL_ID_STR); }
-    }
-
-    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
-    {
-      return true;
-    }
-
-    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
-    {
-      // We're temporary stepping out of our model context... We just hold our state
-      // until we step in again.
-    }
-
-    public void EnterModelContext(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ExitModelContext(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ChangeModelContext(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext, bool push)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void ReActivate(MediaPortal.UI.Presentation.Workflow.NavigationContext oldContext, MediaPortal.UI.Presentation.Workflow.NavigationContext newContext)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void UpdateMenuActions(MediaPortal.UI.Presentation.Workflow.NavigationContext context, ICollection<MediaPortal.UI.Presentation.Workflow.WorkflowAction> actions)
-    {
-      throw new NotImplementedException();
-    }
-
-    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
-    {
-      throw new NotImplementedException();
-    }
-
-    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
   }
 }

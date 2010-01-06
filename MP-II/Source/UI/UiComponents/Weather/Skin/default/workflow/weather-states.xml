@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Workflow states for the Weather screen -->
-<Workflow DescriptorVersion="1.0">
-  <States>
-    <WorkflowState Id="44E1CF89-66D0-4850-A076-E1B602432983" Name="Weather" MainScreen="Weather"/> <!-- No workflow model -->
-    <WorkflowState Id="F1CE62B4-32CA-46e8-BCFB-250FE07911B2" Name="Weather" MainScreen="WeatherSetup"/> <!-- No workflow model -->
-  </States>
-</Workflow>
