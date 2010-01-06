@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MediaPortal.UI.SkinEngine.Controls.Visuals
+namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
   public class ItemsPanelTemplate : FrameworkTemplate
   {

@@ -84,6 +84,7 @@
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
+    <Compile Include="Controls\Visuals\Templates\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\GroupBox.cs" />
     <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />
     <Compile Include="Controls\Visuals\ISearchableItem.cs" />
@@ -224,11 +225,10 @@
     <Compile Include="Controls\Visuals\ContentPresenter.cs" />
     <Compile Include="Controls\Visuals\Control.cs" />
     <Compile Include="Controls\Visuals\FrameworkElement.cs" />
-    <Compile Include="Controls\Visuals\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\HeaderedItemsControl.cs" />
     <Compile Include="Controls\Visuals\Image.cs" />
     <Compile Include="Controls\Visuals\ItemsControl.cs" />
-    <Compile Include="Controls\Visuals\ItemsPanelTemplate.cs" />
+    <Compile Include="Controls\Visuals\Templates\ItemsPanelTemplate.cs" />
     <Compile Include="Controls\Visuals\ItemsPresenter.cs" />
     <Compile Include="Controls\Visuals\KeyBinding.cs" />
     <Compile Include="Controls\Visuals\Label.cs" />
