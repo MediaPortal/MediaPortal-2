@@ -47,7 +47,7 @@ namespace MediaPortal.UI.Services.Players
         _playIndexList = new List<int>(_itemList.Count);
         for (int i = 0; i < _itemList.Count; i++)
           _playIndexList.Add(i);
-        if (_playMode == Presentation.Players.PlayMode.Shuffle)
+        if (_playMode == PlayMode.Shuffle)
         {
           for (int i = 0; i < _itemList.Count; i++)
           {
@@ -79,7 +79,7 @@ namespace MediaPortal.UI.Services.Players
             return;
           int currentItemIndex = _currentPlayIndex > -1 ? _playIndexList[_currentPlayIndex] : -1;
           InitializePlayIndexList();
-          if (_playMode == Presentation.Players.PlayMode.Shuffle && currentItemIndex > -1)
+          if (_playMode == PlayMode.Shuffle && currentItemIndex > -1)
             // Find current played item in shuffled index list
             foreach (int i in _playIndexList)
               if (_playIndexList[i] == currentItemIndex)
@@ -313,16 +313,18 @@ namespace MediaPortal.UI.Services.Players
         _itemList.Insert(index, mediaItem);
         if (_playIndexList == null)
           return true;
-        // Adapt play index list
+        // Adapt play index list...
+        // ... patch old play indices
+        for (int i = 0; i < _playIndexList.Count; i++)
+          if (_playIndexList[i] >= index)
+            _playIndexList[i] += 1;
+        // ... and add new item
         if (_playMode == PlayMode.Shuffle)
           // Shuffle mode: insert an index entry for the new item at a random position
           _playIndexList.Insert(rnd.Next(_itemList.Count-1), index);
         else
           // Continuous mode: Simply add an index entry at the end of the index list
           _playIndexList.Add(index);
-        for (int i = 0; i < _playIndexList.Count; i++)
-          if (_playIndexList[i] >= index)
-            _playIndexList[i] += 1;
         // Adapt current play index
         if (index <= _currentPlayIndex)
           _currentPlayIndex += 1;
