@@ -77,7 +77,7 @@ namespace MediaPortal.Backend.ClientCommunication
     /// <param name="client">Descriptor describing the client which is affected.</param>
     public static void SendConnectionStateChangedMessage(MessageType messageType, ClientDescriptor client)
     {
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[CLIENT_DESCRIPTOR] = client;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

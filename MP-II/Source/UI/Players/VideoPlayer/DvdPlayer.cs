@@ -130,7 +130,7 @@ namespace Ui.Players.Video
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == WindowsMessaging.CHANNEL)
       {

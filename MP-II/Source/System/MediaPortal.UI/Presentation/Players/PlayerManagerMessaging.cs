@@ -128,7 +128,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="psc">Player slot controller of the player which was changed.</param>
     public static void SendPlayerMessage(MessageType type, IPlayerSlotController psc)
     {
-      QueueMessage msg = new QueueMessage(type);
+      SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PARAM] = psc;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
@@ -141,7 +141,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="psc">Player slot controller of the player which is involved.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type, IPlayerSlotController psc)
     {
-      QueueMessage msg = new QueueMessage(type);
+      SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PARAM] = psc;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="type">Type of the message.</param>
     public static void SendPlayerManagerPlayerMessage(MessageType type)
     {
-      QueueMessage msg = new QueueMessage(type);
+      SystemMessage msg = new SystemMessage(type);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

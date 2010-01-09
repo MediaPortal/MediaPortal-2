@@ -80,7 +80,7 @@ namespace UiComponents.SkinBase.Actions
       _messageQueue = null;
     }
 
-    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {

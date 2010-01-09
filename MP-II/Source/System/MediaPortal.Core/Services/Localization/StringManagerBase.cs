@@ -135,7 +135,7 @@ namespace MediaPortal.Core.Services.Localization
     /// </summary>
     /// <param name="queue">Queue which sent the message.</param>
     /// <param name="message">Message containing the notification data.</param>
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PluginManagerMessaging.CHANNEL)
       {

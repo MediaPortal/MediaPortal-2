@@ -59,7 +59,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <param name="mediaProviderId">Media provider which is affected.</param>
     public static void SendMediaProviderMessage(MessageType messageType, Guid mediaProviderId)
     {
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[PARAM] = mediaProviderId;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
@@ -71,7 +71,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <param name="metadataExtractorId">Metadata extractor which is affected.</param>
     public static void SendMetadataExtractorMessage(MessageType messageType, Guid metadataExtractorId)
     {
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[PARAM] = metadataExtractorId;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

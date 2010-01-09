@@ -376,7 +376,7 @@ namespace Media.Players.BassPlayer
       {
         Log.Debug("Sending message \"{0}\"", action);
 
-        QueueMessage msg = new QueueMessage();
+        SystemMessage msg = new SystemMessage();
         msg.MessageData["player"] = this;
         msg.MessageData["action"] = action;
 

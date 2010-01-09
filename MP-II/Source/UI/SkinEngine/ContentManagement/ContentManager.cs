@@ -61,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       _messageQueue = null;
     }
 
-    static void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    static void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == "contentmanager")
       {

@@ -111,7 +111,7 @@ namespace MediaPortal.UI.Presentation.Models
       }
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SystemMessaging.CHANNEL)
       {

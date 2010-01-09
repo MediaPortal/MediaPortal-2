@@ -50,7 +50,7 @@ namespace MediaPortal.Core.TaskScheduler
     /// <param name="task">The task of the message to send.</param>
     public static void SendTaskSchedulerMessage(MessageType type, Task task)
     {
-      QueueMessage msg = new QueueMessage(type);
+      SystemMessage msg = new SystemMessage(type);
       msg.MessageData[TASK] = task;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

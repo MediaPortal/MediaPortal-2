@@ -30,7 +30,7 @@ using MediaPortal.Core.Runtime;
 
 namespace MediaPortal.Core.Messaging
 {
-  public delegate void MessageReceivedHandler(AsynchronousMessageQueue queue, QueueMessage message);
+  public delegate void MessageReceivedHandler(AsynchronousMessageQueue queue, SystemMessage message);
 
   /// <summary>
   /// Synchronous message queue to be used by message receivers.
@@ -61,7 +61,7 @@ namespace MediaPortal.Core.Messaging
         broker.RegisterMessageQueue(SystemMessaging.CHANNEL, new ShutdownWatcher(owner));
       }
 
-      public void Receive(QueueMessage message)
+      public void Receive(SystemMessage message)
       {
         if (message.ChannelName == SystemMessaging.CHANNEL)
         {
@@ -111,7 +111,7 @@ namespace MediaPortal.Core.Messaging
     {
       while (true)
       {
-        QueueMessage message = Dequeue();
+        SystemMessage message = Dequeue();
         if (message != null)
         {
           MessageReceivedHandler handler = MessageReceived;
@@ -143,7 +143,7 @@ namespace MediaPortal.Core.Messaging
       }
     }
 
-    protected override void HandleMessageAvailable(QueueMessage message)
+    protected override void HandleMessageAvailable(SystemMessage message)
     {
       lock (_syncObj)
         Monitor.PulseAll(_syncObj); // Awake the possibly sleeping message delivery thread

@@ -79,7 +79,7 @@ namespace MediaPortal.UI.Services.Players
       _messageQueue = null;
     }
 
-    void OnPreviewMessage(IMessageReceiver queue, QueueMessage message)
+    void OnPreviewMessage(IMessageReceiver queue, SystemMessage message)
     {
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {

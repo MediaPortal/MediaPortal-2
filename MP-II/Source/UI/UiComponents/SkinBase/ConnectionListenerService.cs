@@ -60,7 +60,7 @@ namespace UiComponents.SkinBase
       _messageQueue.Shutdown();
     }
 
-    private static void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    private static void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       if (workflowManager.CurrentNavigationContext.WorkflowState.StateId == ATTACH_TO_SERVER_STATE_ID)

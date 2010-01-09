@@ -90,18 +90,18 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
-    public void RegisterMessageQueue(string channel, IMessageReceiver queue)
+    public void RegisterMessageQueue(string channel, IMessageReceiver receiver)
     {
       lock (_syncObj)
       {
         IList<WeakReference> receivers;
         if (!_registeredChannels.TryGetValue(channel, out receivers))
           _registeredChannels[channel] = receivers = new List<WeakReference>();
-        receivers.Add(new WeakReference(queue));
+        receivers.Add(new WeakReference(receiver));
       }
     }
 
-    public void UnregisterMessageQueue(string channel, IMessageReceiver queue)
+    public void UnregisterMessageQueue(string channel, IMessageReceiver receiver)
     {
       lock (_syncObj)
       {
@@ -109,7 +109,7 @@ namespace MediaPortal.Core.Services.Messaging
         if (_registeredChannels.TryGetValue(channel, out receivers))
         {
           foreach (WeakReference r in receivers)
-            if (r.Target == queue)
+            if (r.Target == receiver)
             {
               receivers.Remove(r);
               break;
@@ -120,7 +120,7 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
-    public void Send(string channelName, QueueMessage msg)
+    public void Send(string channelName, SystemMessage msg)
     {
       msg.ChannelName = channelName;
       IList<WeakReference> receivers;

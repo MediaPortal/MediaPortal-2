@@ -224,7 +224,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
         //  if (scraper.SearchResults.Count > 0)
         //  {
 
-        //    QueueMessage msgc = new QueueMessage();
+        //    SystemMessage msgc = new SystemMessage();
         //    msgc.MessageData["action"] = "imdbchoiceneeded";
         //    msgc.MessageData["file"] = filePath;
         //    msgc.MessageData["title"] = (string)movie["title"];

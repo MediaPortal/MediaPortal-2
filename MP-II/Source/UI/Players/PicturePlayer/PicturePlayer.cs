@@ -52,7 +52,7 @@ namespace Media.Players.PicturePlayer
       _state = PlaybackState.Playing;
       _mediaItem = item;
       ServiceScope.Get<IScreenManager>().PrepareScreen("pictureviewer");
-      QueueMessage msg = new QueueMessage();
+      SystemMessage msg = new SystemMessage();
       msg.MessageData["action"] = "show";
       msg.MessageData["mediaitem"] = item;
       ServiceScope.Get<IMessageBroker>().Send(PICTUREVIEWERQUEUE_NAME, msg);

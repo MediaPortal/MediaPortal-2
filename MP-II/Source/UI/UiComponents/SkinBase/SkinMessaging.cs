@@ -47,7 +47,7 @@ namespace UiComponents.SkinBase
     public static void SendSkinMessage(MessageType messageType)
     {
       // Send Startup Finished Message.
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

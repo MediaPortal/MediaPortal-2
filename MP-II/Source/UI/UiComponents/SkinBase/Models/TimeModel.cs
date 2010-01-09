@@ -76,7 +76,7 @@ namespace UiComponents.SkinBase.Models
       _timeFormat = settings.TimeFormat;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SkinMessaging.CHANNEL)
       {

@@ -79,7 +79,7 @@ namespace UiComponents.SkinBase.Actions
       _messageQueue = null;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {

@@ -71,7 +71,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       // Message queue will be started in method Start()
     }
 
-    private void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SystemMessaging.CHANNEL)
       {

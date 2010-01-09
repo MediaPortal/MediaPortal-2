@@ -155,7 +155,7 @@
     <Compile Include="Messaging\AsynchronousMessageQueue.cs" />
     <Compile Include="Messaging\IMessageBroker.cs" />
     <Compile Include="Messaging\MessageQueueBase.cs" />
-    <Compile Include="Messaging\QueueMessage.cs" />
+    <Compile Include="Messaging\SystemMessage.cs" />
     <Compile Include="Messaging\SynchronousMessageQueue.cs" />
     <Compile Include="PathManager\IPathManager.cs" />
     <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />

@@ -45,7 +45,7 @@ namespace MediaPortal.Core.Services.MediaManagement
 
     internal static void SendImportStatusMessage(ResourcePath path)
     {
-      QueueMessage msg = new QueueMessage(MessageType.ImportStatus);
+      SystemMessage msg = new SystemMessage(MessageType.ImportStatus);
       msg.MessageData[RESOURCE_PATH] = path;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

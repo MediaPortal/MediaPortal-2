@@ -92,7 +92,7 @@ namespace UiComponents.SkinBase.Models
       // Message queue will be started in method EnterModelContext
     }
 
-    private void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {

@@ -62,7 +62,7 @@ namespace MediaPortal.Core.PluginManager
 
     public static void SendPluginManagerMessage(MessageType messageType)
     {
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

@@ -54,7 +54,7 @@ namespace MediaPortal.UI.Presentation.SkinResources
     /// <param name="type">Type of the message.</param>
     public static void SendSkinResourcesMessage(MessageType type)
     {
-      QueueMessage msg = new QueueMessage(type);
+      SystemMessage msg = new SystemMessage(type);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

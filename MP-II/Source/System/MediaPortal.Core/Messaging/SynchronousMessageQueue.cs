@@ -49,7 +49,7 @@ namespace MediaPortal.Core.Messaging
 
     #region Protected methods
 
-    protected override void HandleMessageAvailable(QueueMessage message)
+    protected override void HandleMessageAvailable(SystemMessage message)
     {
       MessagesAvailableHandler handler = MessagesAvailable;
       if (handler == null)

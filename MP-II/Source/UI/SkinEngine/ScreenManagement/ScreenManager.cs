@@ -231,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == ScreenManagerMessaging.CHANNEL)
       {

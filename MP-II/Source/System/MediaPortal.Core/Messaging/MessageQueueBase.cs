@@ -33,7 +33,7 @@ namespace MediaPortal.Core.Messaging
 
     protected ICollection<string> _registeredChannels;
     protected string _queueName = null;
-    protected Queue<QueueMessage> _messages = new Queue<QueueMessage>();
+    protected Queue<SystemMessage> _messages = new Queue<SystemMessage>();
     protected object _syncObj = new object();
 
     #endregion
@@ -62,7 +62,7 @@ namespace MediaPortal.Core.Messaging
 
     #region Protected members
 
-    protected abstract void HandleMessageAvailable(QueueMessage message);
+    protected abstract void HandleMessageAvailable(SystemMessage message);
 
     public void RegisterAtAllMessageChannels()
     {
@@ -159,7 +159,7 @@ namespace MediaPortal.Core.Messaging
     /// by the <see cref="IMessageBroker"/> service.
     /// </summary>
     /// <param name="message">Message to be enqueued in this message queue.</param>
-    public void Receive(QueueMessage message)
+    public void Receive(SystemMessage message)
     {
       lock (_syncObj)
       {
@@ -168,7 +168,7 @@ namespace MediaPortal.Core.Messaging
       }
     }
 
-    public QueueMessage Dequeue()
+    public SystemMessage Dequeue()
     {
       lock (_syncObj)
         if (_messages.Count > 0)
@@ -177,7 +177,7 @@ namespace MediaPortal.Core.Messaging
           return null;
     }
 
-    public QueueMessage Peek()
+    public SystemMessage Peek()
     {
       lock (_syncObj)
         return _messages.Peek();

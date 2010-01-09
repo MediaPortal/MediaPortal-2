@@ -269,7 +269,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         _timer.Enabled = false;
     }
 
-    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {

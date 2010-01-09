@@ -50,7 +50,7 @@ namespace MediaPortal.UI.Presentation.Players
 
     public static void SendPlayerContextManagerMessage(MessageType type, int playerSlot)
     {
-      QueueMessage msg = new QueueMessage(type);
+      SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PARAM] = playerSlot;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

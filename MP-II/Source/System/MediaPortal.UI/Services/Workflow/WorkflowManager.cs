@@ -171,7 +171,7 @@ namespace MediaPortal.UI.Services.Workflow
       _messageQueue = null;
     }
 
-    protected void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SkinResourcesMessaging.CHANNEL)
       {

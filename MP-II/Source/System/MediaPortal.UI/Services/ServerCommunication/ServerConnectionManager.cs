@@ -107,7 +107,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         _controlPoint = BuildClientControlPoint(homeServerSystemId);
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == SharesMessaging.CHANNEL)
       {

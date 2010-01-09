@@ -59,14 +59,14 @@ namespace MediaPortal.UI.Services.Shares
     /// <param name="share">Share which is affected.</param>
     public static void SendShareMessage(MessageType messageType, Share share)
     {
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[SHARE] = share;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     public static void SendShareChangedMessage(Share share, RelocationMode relocationMode)
     {
-      QueueMessage msg = new QueueMessage(MessageType.ShareChanged);
+      SystemMessage msg = new SystemMessage(MessageType.ShareChanged);
       msg.MessageData[SHARE] = share;
       msg.MessageData[RELOCATION_MODE] = relocationMode;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);

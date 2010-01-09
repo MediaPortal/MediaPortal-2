@@ -59,7 +59,7 @@ namespace MediaPortal.UI.Presentation.Geometries
     /// <see cref="PlayerGeometryMessaging.ALL_PLAYERS"/>, all player slots are affected.</param>
     public static void SendGeometryChangedMessage(int playerSlot)
     {
-      QueueMessage msg = new QueueMessage(MessageType.GeometryChanged);
+      SystemMessage msg = new SystemMessage(MessageType.GeometryChanged);
       msg.MessageData[PLAYER_SLOT] = playerSlot;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }

@@ -228,7 +228,7 @@ namespace Media.Players.BassPlayer
 
     private void SendInternalMessage(string action)
     {
-      QueueMessage msg = new QueueMessage();
+      SystemMessage msg = new SystemMessage();
       msg.MessageData["action"] = action;
 
       Thread asyncMsgThread = new Thread(new ParameterizedThreadStart(AsyncMessageSend));
@@ -237,7 +237,7 @@ namespace Media.Players.BassPlayer
 
     private void AsyncMessageSend(object message)
     {
-      QueueMessage msg = (QueueMessage)message;
+      SystemMessage msg = (SystemMessage)message;
       ServiceScope.Get<IMessageBroker>().Send("bass", msg);
     }
     #endregion

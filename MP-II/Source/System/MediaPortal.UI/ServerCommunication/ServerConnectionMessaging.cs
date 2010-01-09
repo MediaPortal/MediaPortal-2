@@ -44,7 +44,7 @@ namespace MediaPortal.UI.ServerCommunication
     {
       /// <summary>
       /// A new MediaPortal server is available in the network or was removed from the network.
-      /// The <see cref="QueueMessage.MessageData"/> contains an entry for
+      /// The <see cref="SystemMessage.MessageData"/> contains an entry for
       /// <see cref="ServerConnectionMessaging.AVAILABLE_SERVERS"/> containing a collection of server descriptors currently
       /// available in the local network and an entry for <see cref="ServerConnectionMessaging.SERVERS_WERE_ADDED"/> containing
       /// a bool which indicates that new servers were added to that collection until the last message of this type.
@@ -83,7 +83,7 @@ namespace MediaPortal.UI.ServerCommunication
     /// <see cref="MessageType.HomeServerDisconnected"/> messages.</param>
     public static void SendConnectionStateChangedMessage(MessageType messageType)
     {
-      QueueMessage msg = new QueueMessage(messageType);
+      SystemMessage msg = new SystemMessage(messageType);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
@@ -94,7 +94,7 @@ namespace MediaPortal.UI.ServerCommunication
     /// <param name="serversWereAdded"><c>true</c> if new servers are present from the last notification.</param>
     public static void SendAvailableServersChangedMessage(ICollection<ServerDescriptor> availableServers, bool serversWereAdded)
     {
-      QueueMessage msg = new QueueMessage(MessageType.AvailableServersChanged);
+      SystemMessage msg = new SystemMessage(MessageType.AvailableServersChanged);
       msg.MessageData[SERVERS_WERE_ADDED] = serversWereAdded;
       msg.MessageData[AVAILABLE_SERVERS] = availableServers;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);

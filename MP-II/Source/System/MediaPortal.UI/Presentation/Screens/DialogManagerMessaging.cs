@@ -57,7 +57,7 @@ namespace MediaPortal.UI.Presentation.Screens
 
     public static void SendDialogManagerMessage(Guid dialogHandle, DialogResult result)
     {
-      QueueMessage msg = new QueueMessage(MessageType.DialogClosed);
+      SystemMessage msg = new SystemMessage(MessageType.DialogClosed);
       msg.MessageData[DIALOG_HANDLE] = dialogHandle;
       msg.MessageData[DIALOG_RESULT] = result;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);

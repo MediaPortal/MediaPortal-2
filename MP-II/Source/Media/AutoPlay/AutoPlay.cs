@@ -249,7 +249,7 @@ namespace Components.Services.AutoPlay
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
       Logger.Info("AutoPlay: Media inserted in drive {0}", driveLetter);
 
-      QueueMessage msg = new QueueMessage("Inserted");
+      SystemMessage msg = new SystemMessage("Inserted");
       msg.MessageData["drive"] = driveLetter;
       ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
 
@@ -264,7 +264,7 @@ namespace Components.Services.AutoPlay
       string driveLetter = _deviceMonitor.MaskToLogicalPaths(bitMask);
       Logger.Info("AutoPlay: Media removed from drive {0}", driveLetter);
 
-      QueueMessage msg = new QueueMessage("Removed");
+      SystemMessage msg = new SystemMessage("Removed");
       msg.MessageData["drive"] = driveLetter;
       ServiceScope.Get<IMessageBroker>().Send("autoplay", msg);
     }
@@ -414,7 +414,7 @@ namespace Components.Services.AutoPlay
     /// </summary>
     /// <param name="queue">Queue which sent the message.</param>
     /// <param name="message">Message containing the notification data.</param>
-    void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == PluginManagerMessaging.CHANNEL)
       {

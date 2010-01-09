@@ -78,7 +78,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <param name="context">Navigation context of the workflow state which was pushed onto the navigation context stack.</param>
     public static void SendStatePushedMessage(NavigationContext context)
     {
-      QueueMessage msg = new QueueMessage(MessageType.StatePushed);
+      SystemMessage msg = new SystemMessage(MessageType.StatePushed);
       msg.MessageData[CONTEXT] = context;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
@@ -90,14 +90,14 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// navigation context stack.</param>
     public static void SendStatesPoppedMessage(IDictionary<Guid, NavigationContext> contexts)
     {
-      QueueMessage msg = new QueueMessage(MessageType.StatesPopped);
+      SystemMessage msg = new SystemMessage(MessageType.StatesPopped);
       msg.MessageData[CONTEXTS] = contexts;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
     public static void SendNavigationCompleteMessage()
     {
-      QueueMessage msg = new QueueMessage(MessageType.NavigationComplete);
+      SystemMessage msg = new SystemMessage(MessageType.NavigationComplete);
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

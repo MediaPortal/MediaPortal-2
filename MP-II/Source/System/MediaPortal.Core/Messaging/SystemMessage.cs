@@ -29,19 +29,19 @@ namespace MediaPortal.Core.Messaging
   /// <summary>
   /// Message to be sent via <see cref="IMessageBroker"/>
   /// </summary>
-  public class QueueMessage
+  public class SystemMessage
   {
     #region Protected fields
 
     protected object _messageType;
     protected string _channelName = null;
-    protected IDictionary<string, object> _metaData = new Dictionary<string, object>();
+    protected IDictionary<string, object> _messageData = new Dictionary<string, object>();
 
     #endregion
 
     #region Ctor
 
-    public QueueMessage(object messageType)
+    public SystemMessage(object messageType)
     {
       _messageType = messageType;
     }
@@ -71,11 +71,10 @@ namespace MediaPortal.Core.Messaging
     /// Gets or sets the message data. The message data is a generic dictionary special
     /// data entries defined by the message queue.
     /// </summary>
-    /// <value>The meta data.</value>
     public IDictionary<string, object> MessageData
     {
-      get { return _metaData; }
-      set { _metaData = value; }
+      get { return _messageData; }
+      set { _messageData = value; }
     }
 
     #endregion
