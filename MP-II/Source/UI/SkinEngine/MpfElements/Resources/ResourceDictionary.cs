@@ -132,9 +132,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public void Merge(ResourceDictionary dict)
     {
       IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>) dict).GetEnumerator();
+      bool wasChanged = false;
       while (enumer.MoveNext())
+      {
         this[enumer.Current.Key] = enumer.Current.Value;
-      FireChanged();
+        wasChanged = true;
+      }
+      if (wasChanged)
+        FireChanged();
     }
 
     public void FireChanged()
