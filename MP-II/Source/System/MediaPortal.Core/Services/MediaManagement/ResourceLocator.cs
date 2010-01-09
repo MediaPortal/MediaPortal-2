@@ -30,20 +30,6 @@ namespace MediaPortal.Core.Services.MediaManagement
 {
   public class ResourceLocator : IResourceLocator
   {
-    #region Public constants
-
-    /// <summary>
-    /// GUID string for the local filesystem media provider.
-    /// </summary>
-    public const string LOCAL_FS_MEDIA_PROVIDER_ID_STR = "{E88E64A8-0233-4fdf-BA27-0B44C6A39AE9}";
-
-    /// <summary>
-    /// Local filesystem media provider GUID.
-    /// </summary>
-    public static Guid LOCAL_FS_MEDIA_PROVIDER_ID = new Guid(LOCAL_FS_MEDIA_PROVIDER_ID_STR);
-
-    #endregion
-
     #region Protected fields
 
     protected SystemName _nativeSystem;
@@ -87,13 +73,18 @@ namespace MediaPortal.Core.Services.MediaManagement
         // TODO: Resource accessor for remote systems: create temporary SMB connection or other mapping to a local file path
         // and return a local FS accessor to that mapped local file path
         throw new NotImplementedException("ResourceLocator.CreateLocalFsAccessor for remote media items is not implemented yet");
-      if (_nativeResourcePath.PathSegments.Count != 1 ||
-          _nativeResourcePath.BasePathSegment.ProviderId != LOCAL_FS_MEDIA_PROVIDER_ID)
-        // TODO: Create mapping of the complex resource path to a local file and return a local FS accessor to that
-        // mapped local file path
-        throw new NotImplementedException("ResourceLocator.CreateLocalFsAccessor for complex paths to media items is not implemented yet");
-      // Simple case: The media item is located in the local file system - we don't have to do anything
-      return _nativeResourcePath.CreateLocalMediaItemAccessor() as ILocalFsResourceAccessor;
+      IResourceAccessor accessor = _nativeResourcePath.CreateLocalMediaItemAccessor();
+      // Try to get an ILocalFsResourceAccessor
+      ILocalFsResourceAccessor result = accessor as ILocalFsResourceAccessor;
+      if (result != null)
+        // Simple case: The media item is located in the local file system or the media provider returns
+        // an ILocalFsResourceAccessor from elsewhere - simply return it
+        return result;
+      if (accessor != null)
+        accessor.Dispose();
+      // TODO: Create mapping of the complex resource path to a local file and return a local FS accessor to that
+      // mapped local file path
+      throw new NotImplementedException("ResourceLocator.CreateLocalFsAccessor for complex paths to media items is not implemented yet");
     }
   }
 }
