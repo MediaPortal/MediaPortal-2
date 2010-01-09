@@ -38,6 +38,12 @@ namespace UiComponents.Media.Navigation
   /// </remarks>
   public class PlayableItem : ListItem
   {
+    #region Public consts
+
+    public const string KEY_NAME = "Name";
+
+    #endregion
+
     #region Protected fields
 
     protected MediaItem _mediaItem;
@@ -47,7 +53,7 @@ namespace UiComponents.Media.Navigation
     public PlayableItem(MediaItem mediaItem)
     {
       _mediaItem = mediaItem;
-      SetLabel("Name", _mediaItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string);
+      SetLabel(KEY_NAME, _mediaItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string);
       // TODO: Open ListItem to store ints (rating), dates (Date) and other objects in ListItems
     }
 

@@ -37,6 +37,12 @@ namespace UiComponents.Media.Navigation
   /// </remarks>
   public class NavigationItem : ListItem
   {
+    #region Public consts
+
+    public const string KEY_NAME = "Name";
+
+    #endregion
+
     #region Protected fields
 
     protected MediaNavigationMode _navigationMode;
@@ -56,9 +62,9 @@ namespace UiComponents.Media.Navigation
     public void UpdateData()
     {
       if (string.IsNullOrEmpty(_overrideName))
-        SetLabel("Name", _view.DisplayName);
+        SetLabel(KEY_NAME, _view.DisplayName);
       else
-        SetLabel("Name", _overrideName);
+        SetLabel(KEY_NAME, _overrideName);
       // TODO: Other properties
     }
 

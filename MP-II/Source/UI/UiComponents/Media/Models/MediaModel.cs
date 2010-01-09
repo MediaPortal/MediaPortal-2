@@ -38,6 +38,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Utilities;
 using UiComponents.Media.FilterCriteria;
 using UiComponents.Media.Navigation;
 
@@ -587,21 +588,27 @@ namespace UiComponents.Media.Models
       {
         IsItemsValid = true;
         // Add items for sub views
+        List<ListItem> viewsList = new List<ListItem>();
         foreach (View subView in view.SubViews)
         {
           NavigationItem item = new NavigationItem(subViewsNavigationMode, subView, null);
           View sv = subView;
           item.Command = new MethodDelegateCommand(() => NavigateToView(subViewsNavigationMode, sv));
-          items.Add(item);
+          viewsList.Add(item);
         }
+        viewsList.Sort((v1, v2) => string.Compare(v1[NavigationItem.KEY_NAME], v2[NavigationItem.KEY_NAME]));
+        CollectionUtils.AddAll(items, viewsList);
+        List<ListItem> itemsList = new List<ListItem>();
         foreach (MediaItem childItem in view.MediaItems)
         {
           PlayableItem item = picd(childItem);
           if (item == null)
             continue;
           item.Command = new MethodDelegateCommand(() => CheckPlayMenu(item.MediaItem));
-          items.Add(item);
+          itemsList.Add(item);
         }
+        itemsList.Sort((i1, i2) => string.Compare(i1[PlayableItem.KEY_NAME], i2[PlayableItem.KEY_NAME]));
+        CollectionUtils.AddAll(items, itemsList);
       }
       else
         IsItemsValid = false;
@@ -618,8 +625,10 @@ namespace UiComponents.Media.Models
 
       try
       {
-        foreach (FilterValue filterValue in criterion.GetAvailableValues(NECESSARY_MUSIC_MIAS,
-            new BooleanCombinationFilter(BooleanOperator.And, currentVS.Filters.ToArray())))
+        List<FilterValue> filterValues = new List<FilterValue>(criterion.GetAvailableValues(NECESSARY_MUSIC_MIAS,
+            new BooleanCombinationFilter(BooleanOperator.And, currentVS.Filters.ToArray())));
+        filterValues.Sort((f1, f2) => string.Compare(f1.Title, f2.Title));
+        foreach (FilterValue filterValue in filterValues)
         {
           string filterTitle = filterValue.Title;
           StackedFiltersMLVS subVS = currentVS.CreateSubViewSpecification(filterTitle, filterValue.Filter);
