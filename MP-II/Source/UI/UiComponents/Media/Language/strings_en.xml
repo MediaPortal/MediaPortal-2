@@ -46,5 +46,7 @@
     <String Name="ShowAllMusicItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered music items -->
     <String Name="ShowAllMovieItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered movie items -->
     <String Name="ShowAllPictureItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered picture items -->
+
+    <String Name="ValueEmptyTitle" Text="&lt;Empty&gt;"/>
   </Section>
 </Language>

@@ -6,8 +6,7 @@
     >
   <Include.Resources>
 
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.LocalMediaTitle]"/>
+    <!-- Header_Text resource has to be added by including screen -->
 
     <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
 

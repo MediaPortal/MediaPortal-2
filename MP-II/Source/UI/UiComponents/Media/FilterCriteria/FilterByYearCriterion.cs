@@ -43,6 +43,8 @@ namespace UiComponents.Media.FilterCriteria
       // There is currently no way to get all available years from the content directory...
       ICollection<FilterValue> result = new List<FilterValue>
         {
+            new FilterValue(VALUE_EMPTY_TITLE,
+                new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), this),
             new FilterValue(string.Format("< {0}", MIN_YEAR),
                 new RelationalFilter(
                     MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(MIN_YEAR, 1, 1)), this),

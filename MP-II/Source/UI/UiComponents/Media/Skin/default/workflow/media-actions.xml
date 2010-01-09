@@ -2,12 +2,29 @@
 <!-- Media workflow state actions -->
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
-    <PushNavigationTransition Id="17D2390E-5B05-4fbd-89F6-24D60CEB427F"
-        Name="Home->MediaNavigation"
+    <WorkflowContributorAction Id="17D2390E-5B05-4fbd-89F6-24D60CEB427F"
+        Name="Home->LocalMedia"
         DisplayCategory="a-Media"
         SortOrder="a"
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
-        TargetState="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
-        DisplayTitle="[Media.LocalMediaMenuItem]"/>
+        ContributorModelId="6455D863-CCF2-403d-8C36-754299B61319"/> <!-- LocalMedia action -->
+    <WorkflowContributorAction Id="30715D73-4205-417f-80AA-E82F0834171F"
+        Name="Home->Music"
+        DisplayCategory="a-Media"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="D8922F2B-5B56-4218-93B1-570616BAAEAD"/> <!-- Music action -->
+    <WorkflowContributorAction Id="A4DF2DF6-8D66-479a-9930-D7106525EB07"
+        Name="Home->Movies"
+        DisplayCategory="a-Media"
+        SortOrder="b"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="598F813D-D575-4229-A8E6-5ABCE0EDCDB8"/> <!-- Movies action -->
+    <WorkflowContributorAction Id="55556593-9FE9-436c-A3B6-A971E10C9D44"
+        Name="Home->Pictures"
+        DisplayCategory="a-Media"
+        SortOrder="c"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        ContributorModelId="7190C5BB-430E-48be-A6B2-C651A840C54A"/> <!-- Pictures action -->
   </MenuActions>
 </Workflow>

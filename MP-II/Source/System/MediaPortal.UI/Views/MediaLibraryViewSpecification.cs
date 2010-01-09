@@ -22,10 +22,11 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
+using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
+using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Views
@@ -38,20 +39,26 @@ namespace MediaPortal.UI.Views
     #region Protected fields
 
     protected MediaItemQuery _query;
-    protected IList<MediaLibraryViewSpecification> _subViews;
+    protected bool _onlyOnline;
+    protected IList<MediaLibraryViewSpecification> _subViews = new List<MediaLibraryViewSpecification>();
 
     #endregion
 
     #region Ctor
 
-    public MediaLibraryViewSpecification(string viewDisplayName, MediaItemQuery query,
-        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
-        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
+    public MediaLibraryViewSpecification(string viewDisplayName, MediaItemQuery query, bool onlyOnline) :
+        base(viewDisplayName, query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs)
     {
       _query = query;
+      _onlyOnline = onlyOnline;
     }
 
     #endregion
+
+    public bool OnlyOnline
+    {
+      get { return _onlyOnline; }
+    }
 
     /// <summary>
     /// Returns a list of all sub query view specifications of this view specification.
@@ -65,15 +72,18 @@ namespace MediaPortal.UI.Views
     {
       get
       {
-        // TODO (Albert 2009-01-10): Return true if the media library is present
-        return false;
+        IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
+        return scm.IsHomeServerConnected;
       }
     }
 
     protected internal override IEnumerable<MediaItem> ReLoadItems()
     {
-      // TODO (Albert, 2008-11-15): Load view contents from the media library, if connected
-      yield break;
+      IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      if (cd == null)
+        yield break;
+      foreach (MediaItem mediaItem in cd.Search(_query, _onlyOnline))
+        yield return mediaItem;
     }
 
     protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()

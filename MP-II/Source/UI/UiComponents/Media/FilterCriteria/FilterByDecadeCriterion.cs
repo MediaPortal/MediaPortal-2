@@ -43,6 +43,8 @@ namespace UiComponents.Media.FilterCriteria
     {
       ICollection<FilterValue> result = new List<FilterValue>(10)
         {
+            new FilterValue(VALUE_EMPTY_TITLE,
+                new EmptyFilter(MediaAspect.ATTR_RECORDINGTIME), this),
             new FilterValue("< 1950",
                 new RelationalFilter(
                     MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(1950, 1, 1)), this),

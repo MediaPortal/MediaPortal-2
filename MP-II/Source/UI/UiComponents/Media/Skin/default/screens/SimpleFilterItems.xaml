@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- This screen acts as a simple base screen for each special filter screen which doesn't bring in special
+     images/controls/etc. -->
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,8 +8,7 @@
     >
   <Include.Resources>
 
-    <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Media.LocalMediaTitle]"/>
+    <!-- Header_Text resource has to be added by including screen -->
 
     <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
 

@@ -47,10 +47,9 @@ namespace MediaPortal.UI.Views
     protected ICollection<IFilter> _filters;
 
     public StackedFiltersMLVS(string viewDisplayName, ICollection<IFilter> filters,
-        IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs) :
+        IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs,
-            new BooleanCombinationFilter(BooleanOperator.And, filters.ToArray())),
-        necessaryMIATypeIDs, optionalMIATypeIDs)
+            new BooleanCombinationFilter(BooleanOperator.And, filters.ToArray())), onlyOnline)
     {
       _filters = filters;
     }
@@ -63,14 +62,16 @@ namespace MediaPortal.UI.Views
     public StackedFiltersMLVS CreateSubViewSpecification(string viewDisplayName, IFilter filter)
     {
       ICollection<IFilter> filters = new List<IFilter>(_filters) {filter};
-      return new StackedFiltersMLVS(viewDisplayName, filters, NecessaryMIATypeIds, OptionalMIATypeIds);
+      return new StackedFiltersMLVS(viewDisplayName, filters, NecessaryMIATypeIds, OptionalMIATypeIds, OnlyOnline);
     }
 
     public static StackedFiltersMLVS CreateRootViewSpecification(string viewDisplayName,
-        ICollection<Guid> necessaryRequestedMIATypeIDs, ICollection<Guid> optionalRequestedMIATypeIDs, IFilter baseFilter)
+        ICollection<Guid> necessaryRequestedMIATypeIDs, ICollection<Guid> optionalRequestedMIATypeIDs,
+        IFilter baseFilter, bool onlyOnline)
     {
-      return new StackedFiltersMLVS(viewDisplayName, new IFilter[] {baseFilter},
-          necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs);
+      IFilter[] filters = baseFilter == null ? new IFilter[0] : new IFilter[] {baseFilter};
+      return new StackedFiltersMLVS(viewDisplayName, filters,
+          necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, onlyOnline);
     }
   }
 }

@@ -55,8 +55,8 @@ namespace MediaPortal.UI.Views
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds)
     {
       _viewDisplayName = viewDisplayName;
-      _necessaryMIATypeIds = new HashSet<Guid>(necessaryMIATypeIds);
-      _optionalMIATypeIds = new HashSet<Guid>(optionalMIATypeIds);
+      _necessaryMIATypeIds = necessaryMIATypeIds == null ? new HashSet<Guid>() : new HashSet<Guid>(necessaryMIATypeIds);
+      _optionalMIATypeIds = optionalMIATypeIds == null ? new HashSet<Guid>() : new HashSet<Guid>(optionalMIATypeIds);
       if (!_necessaryMIATypeIds.Contains(ProviderResourceAspect.ASPECT_ID))
         _necessaryMIATypeIds.Add(ProviderResourceAspect.ASPECT_ID);
     }

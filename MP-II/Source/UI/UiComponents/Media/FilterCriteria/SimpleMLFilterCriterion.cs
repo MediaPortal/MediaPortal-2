@@ -54,13 +54,19 @@ namespace UiComponents.Media.FilterCriteria
       HomogenousCollection distinctValues = cd.GetDistinctAssociatedValues(_attributeType, necessaryMIATypeIds, filter);
       ICollection<FilterValue> result = new List<FilterValue>(distinctValues.Count);
       foreach (object value in distinctValues)
-        result.Add(new FilterValue(value.ToString(), value, this));
+      {
+        if (value == null || string.Empty == value as string)
+          result.Add(new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), this));
+        else
+          result.Add(new FilterValue(value.ToString(),
+              new RelationalFilter(_attributeType, RelationalOperator.EQ, value), this));
+      }
       return result;
     }
 
     public override IFilter CreateFilter(FilterValue filterValue)
     {
-      return new RelationalFilter(_attributeType, RelationalOperator.EQ, filterValue.Value);
+      return (IFilter) filterValue.Value;
     }
 
     #endregion

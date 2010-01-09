@@ -57,6 +57,11 @@ namespace UiComponents.Media.FilterCriteria
     {
       ICollection<FilterValue> result = new List<FilterValue>(10)
         {
+            new FilterValue(VALUE_EMPTY_TITLE, new BooleanCombinationFilter(BooleanOperator.Or, new IFilter[]
+                {
+                    new EmptyFilter(PictureAspect.ATTR_WIDTH),
+                    new EmptyFilter(PictureAspect.ATTR_HEIGHT)
+                }), this),
             new FilterValue(string.Format("< {0}x{1}", MIN_SIZE.X, MIN_SIZE.Y), new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
               {
                   new RelationalFilter(

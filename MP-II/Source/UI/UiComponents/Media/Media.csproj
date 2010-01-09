@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -61,6 +61,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\PicturesAction.cs" />
+    <Compile Include="Actions\MoviesAction.cs" />
+    <Compile Include="Actions\MusicAction.cs" />
+    <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
+    <Compile Include="Actions\LocalMediaAction.cs" />
     <Compile Include="Models\MediaModel.cs" />
     <Compile Include="Navigation\PictureItem.cs" />
     <Compile Include="Navigation\MovieItem.cs" />
@@ -82,15 +87,20 @@
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
-    <Content Include="Skin\default\screens\MusicShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\MoviesShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\default\screens\PicturesShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\MusicShowItems.xaml" />
+    <Content Include="Skin\default\screens\MoviesShowItems.xaml" />
+    <Content Include="Skin\default\screens\PicturesShowItems.xaml" />
+    <Content Include="Skin\default\screens\SimpleFilterItems.xaml" />
+    <Content Include="Skin\default\screens\SimpleShowItems.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterByActor.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterByGenre.xaml" />
+    <Content Include="Skin\default\screens\MoviesFilterByYear.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByAlbum.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByArtist.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByDecade.xaml" />
+    <Content Include="Skin\default\screens\MusicFilterByGenre.xaml" />
+    <Content Include="Skin\default\screens\PicturesFilterBySize.xaml" />
+    <Content Include="Skin\default\screens\PicturesFilterByYear.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />

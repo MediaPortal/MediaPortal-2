@@ -33,6 +33,8 @@ namespace UiComponents.Media.FilterCriteria
   /// </summary>
   public abstract class MLFilterCriterion
   {
+    public const string VALUE_EMPTY_TITLE = "[Media.ValueEmptyTitle]";
+
     /// <summary>
     /// Gets the values which are available in the media library which can be used as a filter for this filter criterion.
     /// </summary>
