@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
   {
     #region Private fields
 
-    protected Property _routedEventProperty;
+    protected AbstractProperty _routedEventProperty;
     protected IList<TriggerAction> _actions;
 
     #endregion
@@ -47,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _routedEventProperty = new Property(typeof(string), "");
+      _routedEventProperty = new SProperty(typeof(string), "");
       _actions = new List<TriggerAction>();
     }
 
@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #region Public properties
 
-    public Property RoutedEventProperty
+    public AbstractProperty RoutedEventProperty
     {
       get { return _routedEventProperty; }
     }

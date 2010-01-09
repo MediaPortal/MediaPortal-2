@@ -34,19 +34,19 @@ namespace UiComponents.SkinBase.Models
   /// <summary>
   /// This model provides information about the screen saver and mouse controls state. It provides a copy of the
   /// <see cref="IScreenControl.IsScreenSaverActive"/> and <see cref="IInputManager.IsMouseUsed"/> data, but as
-  /// <see cref="Property"/> to enable the screen controls to bind to the data.
+  /// <see cref="AbstractProperty"/> to enable the screen controls to bind to the data.
   /// </summary>
   public class ScreenSaverModel : BaseTimerControlledUIModel
   {
     public const string SCREENSAVER_MODEL_ID_STR = "D4B7FEDD-243F-4afc-A8BE-28BBBF17D799";
 
-    protected Property _isScreenSaverActiveProperty;
-    protected Property _isMouseUsedProperty;
+    protected AbstractProperty _isScreenSaverActiveProperty;
+    protected AbstractProperty _isMouseUsedProperty;
 
     public ScreenSaverModel() : base(100)
     {
-      _isScreenSaverActiveProperty = new Property(typeof(bool), false);
-      _isMouseUsedProperty = new Property(typeof(bool), false);
+      _isScreenSaverActiveProperty = new WProperty(typeof(bool), false);
+      _isMouseUsedProperty = new WProperty(typeof(bool), false);
 
       Update();
     }
@@ -64,7 +64,7 @@ namespace UiComponents.SkinBase.Models
       IsMouseUsed = inputManager.IsMouseUsed;
     }
   
-    public Property IsScreenSaverActiveProperty
+    public AbstractProperty IsScreenSaverActiveProperty
     {
       get { return _isScreenSaverActiveProperty; }
     }
@@ -75,7 +75,7 @@ namespace UiComponents.SkinBase.Models
       internal set { _isScreenSaverActiveProperty.SetValue(value); }
     }
 
-    public Property IsMouseUsedProperty
+    public AbstractProperty IsMouseUsedProperty
     {
       get { return _isMouseUsedProperty; }
     }

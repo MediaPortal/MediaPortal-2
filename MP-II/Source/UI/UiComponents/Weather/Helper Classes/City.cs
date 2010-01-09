@@ -35,7 +35,7 @@ namespace UiComponents.Weather
   public class CitySetupInfo
   {
     private string id, grabber;
-    protected Property _name = new Property(typeof(string), "");
+    protected AbstractProperty _name = new WProperty(typeof(string), "");
 
     public CitySetupInfo(string name, string id, string grabber)
     {
@@ -94,9 +94,9 @@ namespace UiComponents.Weather
   /// </summary>
   public class City : CitySetupInfo
   {
-    private Property _locationInfo = new Property(typeof(LocInfo), new LocInfo());
-    private Property _currCondition = new Property(typeof(CurrentCondition), new CurrentCondition());
-    private Property _dayForecastCollection = new Property(typeof(DayForeCastCollection), new DayForeCastCollection());
+    private AbstractProperty _locationInfo = new WProperty(typeof(LocInfo), new LocInfo());
+    private AbstractProperty _currCondition = new WProperty(typeof(CurrentCondition), new CurrentCondition());
+    private AbstractProperty _dayForecastCollection = new WProperty(typeof(DayForeCastCollection), new DayForeCastCollection());
     private bool _updateSuccessful;
 
     /// <summary>
@@ -167,7 +167,7 @@ namespace UiComponents.Weather
 
     #region properties
 
-    public Property NameProperty
+    public AbstractProperty NameProperty
     {
       get { return _name; }
       set { _name = value; }
@@ -182,7 +182,7 @@ namespace UiComponents.Weather
       set { _locationInfo.SetValue(value); }
     }
 
-    public Property LocationInfoProperty
+    public AbstractProperty LocationInfoProperty
     {
       get { return _locationInfo; }
       set { _locationInfo = value; }
@@ -197,7 +197,7 @@ namespace UiComponents.Weather
       set { _currCondition.SetValue(value); }
     }
 
-    public Property ConditionProperty
+    public AbstractProperty ConditionProperty
     {
       get { return _currCondition; }
       set { _currCondition = value; }
@@ -212,7 +212,7 @@ namespace UiComponents.Weather
       set { _dayForecastCollection.SetValue(value); }
     }
 
-    public Property ForecastCollectionProperty
+    public AbstractProperty ForecastCollectionProperty
     {
       get { return _dayForecastCollection; }
       set { _dayForecastCollection = value; }
@@ -241,12 +241,12 @@ namespace UiComponents.Weather
   /// </summary>
   public class LocInfo // <loc>
   {
-    private Property _time = new Property(typeof(string), ""); // <tm>1:12 AM</tm>
-    private Property _lat = new Property(typeof(string), ""); // <lat>49.02</lat>
-    private Property _lon = new Property(typeof(string), ""); // <lon>12.1</lon>
-    private Property _sunRise = new Property(typeof(string), ""); // <sunr>7:14 AM</sunr> 
-    private Property _sunSet = new Property(typeof(string), ""); // <suns>5:38 PM</suns>
-    private Property _zone = new Property(typeof(string), ""); // <zone>1</zone>
+    private AbstractProperty _time = new WProperty(typeof(string), ""); // <tm>1:12 AM</tm>
+    private AbstractProperty _lat = new WProperty(typeof(string), ""); // <lat>49.02</lat>
+    private AbstractProperty _lon = new WProperty(typeof(string), ""); // <lon>12.1</lon>
+    private AbstractProperty _sunRise = new WProperty(typeof(string), ""); // <sunr>7:14 AM</sunr> 
+    private AbstractProperty _sunSet = new WProperty(typeof(string), ""); // <suns>5:38 PM</suns>
+    private AbstractProperty _zone = new WProperty(typeof(string), ""); // <zone>1</zone>
     // Getters
 
     public string Time
@@ -285,37 +285,37 @@ namespace UiComponents.Weather
       set { _zone.SetValue(value); }
     }
 
-    public Property TimeProperty
+    public AbstractProperty TimeProperty
     {
       get { return _time; }
       set { _time = value; }
     }
 
-    public Property LatProperty
+    public AbstractProperty LatProperty
     {
       get { return _lat; }
       set { _lat = value; }
     }
 
-    public Property LonProperty
+    public AbstractProperty LonProperty
     {
       get { return _lon; }
       set { _lon = value; }
     }
 
-    public Property SunRiseProperty
+    public AbstractProperty SunRiseProperty
     {
       get { return _sunRise; }
       set { _sunRise = value; }
     }
 
-    public Property SunSetProperty
+    public AbstractProperty SunSetProperty
     {
       get { return _sunSet; }
       set { _sunSet = value; }
     }
 
-    public Property ZoneProperty
+    public AbstractProperty ZoneProperty
     {
       get { return _zone; }
       set { _zone = value; }
@@ -345,17 +345,17 @@ namespace UiComponents.Weather
       DewPoint = "30%";
     }
 
-    private Property _city = new Property(typeof(string), ""); // <obst>
-    private Property _lastUpdate = new Property(typeof(string), ""); // <lsup>
-    private Property _temperature = new Property(typeof(string), ""); // <temp> 
-    private Property _feelsLikeTemp = new Property(typeof(string), ""); // <flik>
-    private Property _condition = new Property(typeof(string), ""); // <t>
-    private Property _bigIcon = new Property(typeof(string), ""); // <icon> 
-    private Property _smallIcon = new Property(typeof(string), ""); // <icon> 
-    private Property _humidity = new Property(typeof(string), ""); // <hmid>
-    private Property _wind = new Property(typeof(string), ""); // <wind>
-    private Property _uVindex = new Property(typeof(string), ""); // <uv> 
-    private Property _dewPoint = new Property(typeof(string), ""); // <dewp>
+    private AbstractProperty _city = new WProperty(typeof(string), ""); // <obst>
+    private AbstractProperty _lastUpdate = new WProperty(typeof(string), ""); // <lsup>
+    private AbstractProperty _temperature = new WProperty(typeof(string), ""); // <temp> 
+    private AbstractProperty _feelsLikeTemp = new WProperty(typeof(string), ""); // <flik>
+    private AbstractProperty _condition = new WProperty(typeof(string), ""); // <t>
+    private AbstractProperty _bigIcon = new WProperty(typeof(string), ""); // <icon> 
+    private AbstractProperty _smallIcon = new WProperty(typeof(string), ""); // <icon> 
+    private AbstractProperty _humidity = new WProperty(typeof(string), ""); // <hmid>
+    private AbstractProperty _wind = new WProperty(typeof(string), ""); // <wind>
+    private AbstractProperty _uVindex = new WProperty(typeof(string), ""); // <uv> 
+    private AbstractProperty _dewPoint = new WProperty(typeof(string), ""); // <dewp>
     // Getters :P
     public string City
     {
@@ -423,61 +423,61 @@ namespace UiComponents.Weather
       set { _smallIcon.SetValue(value); }
     }
 
-    public Property CityProperty
+    public AbstractProperty CityProperty
     {
       get { return _city; }
       set { _city = value; }
     }
 
-    public Property LastUpdateProperty
+    public AbstractProperty LastUpdateProperty
     {
       get { return _lastUpdate; }
       set { _lastUpdate = value; }
     }
 
-    public Property TemperatureProperty
+    public AbstractProperty TemperatureProperty
     {
       get { return _temperature; }
       set { _temperature = value; }
     }
 
-    public Property FeelsLikeTempProperty
+    public AbstractProperty FeelsLikeTempProperty
     {
       get { return _feelsLikeTemp; }
       set { _feelsLikeTemp = value; }
     }
 
-    public Property ConditionProperty
+    public AbstractProperty ConditionProperty
     {
       get { return _condition; }
       set { _condition = value; }
     }
 
-    public Property HumidityProperty
+    public AbstractProperty HumidityProperty
     {
       get { return _humidity; }
       set { _humidity = value; }
     }
 
-    public Property WindProperty
+    public AbstractProperty WindProperty
     {
       get { return _wind; }
       set { _wind = value; }
     }
 
-    public Property UVIndexProperty
+    public AbstractProperty UVIndexProperty
     {
       get { return _uVindex; }
       set { _uVindex = value; }
     }
 
-    public Property DewPointProperty
+    public AbstractProperty DewPointProperty
     {
       get { return _dewPoint; }
       set { _dewPoint = value; }
     }
 
-    public Property BigIconProperty
+    public AbstractProperty BigIconProperty
     {
       get { return _bigIcon; }
       set { _bigIcon = value; }
@@ -493,17 +493,17 @@ namespace UiComponents.Weather
   /// </summary>
   public class DayForeCast
   {
-    private Property _smallIcon = new Property(typeof(string), "");
-    private Property _bigIcon= new Property(typeof(string), ""); 
-    private Property _overview = new Property(typeof(string), ""); 
-    private Property _day = new Property(typeof(string), "");
-    private Property _high = new Property(typeof(string), "");
-    private Property _low = new Property(typeof(string), ""); 
-    private Property _sunRise = new Property(typeof(string), "");
-    private Property _sunSet = new Property(typeof(string), "");
-    private Property _precipitation = new Property(typeof(string), "");
-    private Property _humidity = new Property(typeof(string), "");
-    private Property _wind = new Property(typeof(string), ""); 
+    private AbstractProperty _smallIcon = new WProperty(typeof(string), "");
+    private AbstractProperty _bigIcon= new WProperty(typeof(string), ""); 
+    private AbstractProperty _overview = new WProperty(typeof(string), ""); 
+    private AbstractProperty _day = new WProperty(typeof(string), "");
+    private AbstractProperty _high = new WProperty(typeof(string), "");
+    private AbstractProperty _low = new WProperty(typeof(string), ""); 
+    private AbstractProperty _sunRise = new WProperty(typeof(string), "");
+    private AbstractProperty _sunSet = new WProperty(typeof(string), "");
+    private AbstractProperty _precipitation = new WProperty(typeof(string), "");
+    private AbstractProperty _humidity = new WProperty(typeof(string), "");
+    private AbstractProperty _wind = new WProperty(typeof(string), ""); 
 
 
    
@@ -577,69 +577,69 @@ namespace UiComponents.Weather
       set { _wind.SetValue(value); }
     }
 
-    public Property SmallIconProperty
+    public AbstractProperty SmallIconProperty
     {
       get { return _smallIcon; }
       set { _smallIcon = value; }
     }
 
 
-    public Property BigIconProperty
+    public AbstractProperty BigIconProperty
     {
       get { return _bigIcon; }
       set { _bigIcon = value; }
     }
 
 
-    public Property OverviewProperty
+    public AbstractProperty OverviewProperty
     {
       get { return _overview; }
       set { _overview = value; }
     }
 
-    public Property DayProperty
+    public AbstractProperty DayProperty
     {
       get { return _day; }
       set { _day = value; }
     }
 
-    public Property HighProperty
+    public AbstractProperty HighProperty
     {
       get { return _high; }
       set { _high = value; }
     }
 
-    public Property LowProperty
+    public AbstractProperty LowProperty
     {
       get { return _low; }
       set { _low = value; }
     }
 
-    public Property SunRiseProperty
+    public AbstractProperty SunRiseProperty
     {
       get { return _sunRise; }
       set { _sunRise = value; }
     }
 
-    public Property SunSetProperty
+    public AbstractProperty SunSetProperty
     {
       get { return _sunSet; }
       set { _sunSet = value; }
     }
 
-    public Property PrecipitationProperty
+    public AbstractProperty PrecipitationProperty
     {
       get { return _precipitation; }
       set { _precipitation = value; }
     }
 
-    public Property HumidityProperty
+    public AbstractProperty HumidityProperty
     {
       get { return _humidity; }
       set { _humidity = value; }
     }
 
-    public Property WindProperty
+    public AbstractProperty WindProperty
     {
       get { return _wind; }
       set { _wind = value; }

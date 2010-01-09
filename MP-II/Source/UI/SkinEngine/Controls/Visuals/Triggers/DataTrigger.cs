@@ -33,8 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
   {
     #region Private fields
 
-    protected Property _bindingProperty;
-    protected Property _valueProperty;
+    protected AbstractProperty _bindingProperty;
+    protected AbstractProperty _valueProperty;
 
     #endregion
 
@@ -48,8 +48,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _bindingProperty = new Property(typeof(object), "");
-      _valueProperty = new Property(typeof(object));
+      _bindingProperty = new SProperty(typeof(object), "");
+      _valueProperty = new SProperty(typeof(object));
     }
 
     void Attach()
@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #region Public properties
 
-    public Property BindingProperty
+    public AbstractProperty BindingProperty
     {
       get { return _bindingProperty; }
     }
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _bindingProperty.SetValue(value); }
     }
 
-    public Property ValueProperty
+    public AbstractProperty ValueProperty
     {
       get { return _valueProperty; }
     }
@@ -109,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     /// <summary>
     /// Listens for changes of our trigger property data descriptor.
     /// </summary>
-    void OnBindingValueChanged(Property bindingValue, object oldValue)
+    void OnBindingValueChanged(AbstractProperty bindingValue, object oldValue)
     {
       if (!IsInitialized)
         return;

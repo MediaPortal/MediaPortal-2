@@ -46,11 +46,11 @@ namespace UiComponents.SkinBase.Models
     protected string _dateFormat = "D";
     protected string _timeFormat = "t";
 
-    protected Property _currentTimeProperty = new Property(typeof(string), string.Empty);
-    protected Property _currentDateProperty = new Property(typeof(string), string.Empty);
+    protected AbstractProperty _currentTimeProperty = new WProperty(typeof(string), string.Empty);
+    protected AbstractProperty _currentDateProperty = new WProperty(typeof(string), string.Empty);
 
-    protected Property _hourAngleProperty = new Property(typeof(double), 0.0);
-    protected Property _minuteAngleProperty = new Property(typeof(double), 0.0);
+    protected AbstractProperty _hourAngleProperty = new WProperty(typeof(double), 0.0);
+    protected AbstractProperty _minuteAngleProperty = new WProperty(typeof(double), 0.0);
 
     #endregion
 
@@ -109,7 +109,7 @@ namespace UiComponents.SkinBase.Models
       CurrentDate = now.ToString(_dateFormat, culture);
     }
 
-    public Property CurrentDateProperty
+    public AbstractProperty CurrentDateProperty
     {
       get { return _currentDateProperty; }
     }
@@ -120,7 +120,7 @@ namespace UiComponents.SkinBase.Models
       set { _currentDateProperty.SetValue(value); }
     }
 
-    public Property CurrentTimeProperty
+    public AbstractProperty CurrentTimeProperty
     {
       get { return _currentTimeProperty; }
     }
@@ -131,7 +131,7 @@ namespace UiComponents.SkinBase.Models
       set { _currentTimeProperty.SetValue(value); }
     }
 
-    public Property HourAngleProperty
+    public AbstractProperty HourAngleProperty
     {
       get { return _hourAngleProperty; }
     }
@@ -142,7 +142,7 @@ namespace UiComponents.SkinBase.Models
       set { _hourAngleProperty.SetValue(value); }
     }
 
-    public Property MinuteAngleProperty
+    public AbstractProperty MinuteAngleProperty
     {
       get { return _minuteAngleProperty; }
     }

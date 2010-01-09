@@ -33,10 +33,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
   {
     #region Private fields
 
-    Property _centerXProperty;
-    Property _centerYProperty;
-    Property _angleXProperty;
-    Property _angleYProperty;
+    AbstractProperty _centerXProperty;
+    AbstractProperty _centerYProperty;
+    AbstractProperty _angleXProperty;
+    AbstractProperty _angleYProperty;
 
     #endregion
 
@@ -56,10 +56,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      _centerYProperty = new Property(typeof(double), 0.0);
-      _centerXProperty = new Property(typeof(double), 0.0);
-      _angleXProperty = new Property(typeof(double), 0.0);
-      _angleYProperty = new Property(typeof(double), 0.0);
+      _centerYProperty = new SProperty(typeof(double), 0.0);
+      _centerXProperty = new SProperty(typeof(double), 0.0);
+      _angleXProperty = new SProperty(typeof(double), 0.0);
+      _angleYProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -92,7 +92,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #endregion
 
-    public Property CenterXProperty
+    public AbstractProperty CenterXProperty
     {
       get { return _centerXProperty; }
     }
@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       set { _centerXProperty.SetValue(value); }
     }
 
-    public Property CenterYProperty
+    public AbstractProperty CenterYProperty
     {
       get { return _centerYProperty; }
     }
@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       set { _centerYProperty.SetValue(value); }
     }
 
-    public Property AngleXProperty
+    public AbstractProperty AngleXProperty
     {
       get { return _angleXProperty; }
     }
@@ -125,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       set { _angleXProperty.SetValue(value); }
     }
 
-    public Property AngleYProperty
+    public AbstractProperty AngleYProperty
     {
       get { return _angleYProperty; }
     }

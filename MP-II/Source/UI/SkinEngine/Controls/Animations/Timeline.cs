@@ -114,13 +114,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   {
     #region Protected fields
 
-    protected Property _beginTimeProperty;
-    protected Property _accellerationProperty;
-    protected Property _autoReverseProperty;
-    protected Property _decelerationRatioProperty;
-    protected Property _durationProperty;
-    protected Property _repeatBehaviourProperty;
-    protected Property _fillBehaviourProperty;
+    protected AbstractProperty _beginTimeProperty;
+    protected AbstractProperty _accellerationProperty;
+    protected AbstractProperty _autoReverseProperty;
+    protected AbstractProperty _decelerationRatioProperty;
+    protected AbstractProperty _durationProperty;
+    protected AbstractProperty _repeatBehaviourProperty;
+    protected AbstractProperty _fillBehaviourProperty;
 
     #endregion
 
@@ -133,13 +133,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _beginTimeProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 0));
-      _accellerationProperty = new Property(typeof(double), 1.0);
-      _autoReverseProperty = new Property(typeof(bool), false);
-      _decelerationRatioProperty = new Property(typeof(double), 1.0);
-      _durationProperty = new Property(typeof(TimeSpan?), null);
-      _repeatBehaviourProperty = new Property(typeof(RepeatBehavior), RepeatBehavior.None);
-      _fillBehaviourProperty = new Property(typeof(FillBehavior), FillBehavior.HoldEnd);
+      _beginTimeProperty = new SProperty(typeof(TimeSpan), new TimeSpan(0, 0, 0));
+      _accellerationProperty = new SProperty(typeof(double), 1.0);
+      _autoReverseProperty = new SProperty(typeof(bool), false);
+      _decelerationRatioProperty = new SProperty(typeof(double), 1.0);
+      _durationProperty = new SProperty(typeof(TimeSpan?), null);
+      _repeatBehaviourProperty = new SProperty(typeof(RepeatBehavior), RepeatBehavior.None);
+      _fillBehaviourProperty = new SProperty(typeof(FillBehavior), FillBehavior.HoldEnd);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -159,7 +159,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Public properties
 
-    public Property BeginTimeProperty
+    public AbstractProperty BeginTimeProperty
     {
       get { return _beginTimeProperty; }
     }
@@ -170,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _beginTimeProperty.SetValue(value); }
     }
 
-    public Property AccellerationProperty
+    public AbstractProperty AccellerationProperty
     {
       get { return _accellerationProperty; }
     }
@@ -181,7 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _accellerationProperty.SetValue(value); }
     }
 
-    public Property AutoReverseProperty
+    public AbstractProperty AutoReverseProperty
     {
       get { return _autoReverseProperty; }
     }
@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _autoReverseProperty.SetValue(value); }
     }
 
-    public Property DecelerationRatioProperty
+    public AbstractProperty DecelerationRatioProperty
     {
       get { return _decelerationRatioProperty; }
       set { _decelerationRatioProperty = value; }
@@ -204,7 +204,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _decelerationRatioProperty.SetValue(value); }
     }
 
-    public Property DurationProperty
+    public AbstractProperty DurationProperty
     {
       get { return _durationProperty; }
     }
@@ -220,7 +220,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       get { return ((TimeSpan?) _durationProperty.GetValue()).HasValue; }
     }
 
-    public Property RepeatBehaviorProperty
+    public AbstractProperty RepeatBehaviorProperty
     {
       get { return _repeatBehaviourProperty; }
     }
@@ -231,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _repeatBehaviourProperty.SetValue(value); }
     }
 
-    public Property FillBehaviourProperty
+    public AbstractProperty FillBehaviourProperty
     {
       get { return _fillBehaviourProperty; }
     }

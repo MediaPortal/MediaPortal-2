@@ -49,8 +49,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Protected fields
 
-    protected Property _rowDefinitionsProperty;
-    protected Property _columnDefinitionsProperty;
+    protected AbstractProperty _rowDefinitionsProperty;
+    protected AbstractProperty _columnDefinitionsProperty;
 
     #endregion
 
@@ -63,8 +63,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _rowDefinitionsProperty = new Property(typeof(RowDefinitionsCollection), new RowDefinitionsCollection());
-      _columnDefinitionsProperty = new Property(typeof(ColumnDefinitionsCollection), new ColumnDefinitionsCollection());
+      _rowDefinitionsProperty = new SProperty(typeof(RowDefinitionsCollection), new RowDefinitionsCollection());
+      _columnDefinitionsProperty = new SProperty(typeof(ColumnDefinitionsCollection), new ColumnDefinitionsCollection());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -81,7 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Properties
 
-    public Property RowDefinitionsProperty
+    public AbstractProperty RowDefinitionsProperty
     {
       get { return _rowDefinitionsProperty; }
     }
@@ -91,7 +91,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _rowDefinitionsProperty.GetValue() as RowDefinitionsCollection; }
     }
 
-    public Property ColumnDefinitionsProperty
+    public AbstractProperty ColumnDefinitionsProperty
     {
       get { return _columnDefinitionsProperty; }
     }
@@ -259,7 +259,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Row</c> property.</returns>
-    public static Property GetRowAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetRowAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<int>(ROW_ATTACHED_PROPERTY, 0);
     }
@@ -297,7 +297,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Column</c> property.</returns>
-    public static Property GetColumnAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetColumnAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<int>(COLUMN_ATTACHED_PROPERTY, 0);
     }
@@ -335,7 +335,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>RowSpan</c> property.</returns>
-    public static Property GetRowSpanAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetRowSpanAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<int>(ROWSPAN_ATTACHED_PROPERTY, 0);
     }
@@ -373,7 +373,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>ColumnSpan</c> property.</returns>
-    public static Property GetColumnSpanAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetColumnSpanAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<int>(COLUMNSPAN_ATTACHED_PROPERTY, 0);
     }

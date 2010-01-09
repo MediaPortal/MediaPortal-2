@@ -37,7 +37,7 @@ namespace UiComponents.SkinBase
   /// <summary>
   /// Service listening for MP server connections and showing the connection screen.
   /// </summary>
-  public class ConnectionListenerService : IConnectionListenerService
+  public class ConnectionListenerService : IConnectionListenerService, IDisposable
   {
     public const string ATTACH_TO_SERVER_STATE_ID_STR = "E834D0E0-BC35-4397-86F8-AC78C152E693";
     public static Guid ATTACH_TO_SERVER_STATE_ID = new Guid(ATTACH_TO_SERVER_STATE_ID_STR);
@@ -53,6 +53,11 @@ namespace UiComponents.SkinBase
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
+    }
+
+    public void Dispose()
+    {
+      _messageQueue.Shutdown();
     }
 
     private static void OnMessageReceived(AsynchronousMessageQueue queue, QueueMessage message)

@@ -30,7 +30,6 @@ using System.Timers;
 // Conflict between System.Timers.Timer and System.Threading.Timer
 using SystemTimer = System.Timers.Timer;
 
-using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.FileEventNotification;
 

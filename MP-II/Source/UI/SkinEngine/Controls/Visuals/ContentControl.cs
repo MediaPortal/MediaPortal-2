@@ -33,8 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _contentProperty;
-    protected Property _contentTemplateProperty;
+    protected AbstractProperty _contentProperty;
+    protected AbstractProperty _contentTemplateProperty;
 
     #endregion
 
@@ -48,8 +48,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new Property(typeof(object), null);
-      _contentTemplateProperty = new Property(typeof(DataTemplate), null);
+      _contentProperty = new SProperty(typeof(object), null);
+      _contentTemplateProperty = new SProperty(typeof(DataTemplate), null);
     }
 
     void Attach()
@@ -86,17 +86,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeContentPresenter();
     }
 
-    void OnTemplateControlChanged(Property property, object oldValue)
+    void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       InitializeContentPresenter();
     }
 
-    void OnContentChanged(Property property, object oldValue)
+    void OnContentChanged(AbstractProperty property, object oldValue)
     {
       InitializeContentPresenter();
     }
 
-    void OnContentTemplateChanged(Property property, object oldValue)
+    void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
       InitializeContentPresenter();
     }
@@ -115,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    public Property ContentProperty
+    public AbstractProperty ContentProperty
     {
       get { return _contentProperty; }
     }
@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentProperty.SetValue(value); }
     }
 
-    public Property ContentTemplateProperty
+    public AbstractProperty ContentTemplateProperty
     {
       get { return _contentTemplateProperty; }
     }

@@ -40,11 +40,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _caretIndexProperty;
-    protected Property _textProperty;
-    protected Property _colorProperty;
-    protected Property _preferredTextLengthProperty;
-    protected Property _textAlignProperty;
+    protected AbstractProperty _caretIndexProperty;
+    protected AbstractProperty _textProperty;
+    protected AbstractProperty _colorProperty;
+    protected AbstractProperty _preferredTextLengthProperty;
+    protected AbstractProperty _textAlignProperty;
     protected FontBufferAsset _asset;
     protected FontRender _renderer;
     protected int _fontSizeCache;
@@ -65,12 +65,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _caretIndexProperty = new Property(typeof(int), 0);
-      _textProperty = new Property(typeof(string), "");
-      _colorProperty = new Property(typeof(Color), Color.Black);
+      _caretIndexProperty = new SProperty(typeof(int), 0);
+      _textProperty = new SProperty(typeof(string), "");
+      _colorProperty = new SProperty(typeof(Color), Color.Black);
 
-      _preferredTextLengthProperty = new Property(typeof(int?), null);
-      _textAlignProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
+      _preferredTextLengthProperty = new SProperty(typeof(int?), null);
+      _textAlignProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
 
       // Yes, we can have focus
       Focusable = true;
@@ -105,19 +105,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnColorChanged(Property prop, object oldValue)
+    void OnColorChanged(AbstractProperty prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
-    void OnTextAlignChanged(Property prop, object oldValue)
+    void OnTextAlignChanged(AbstractProperty prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
-    void OnTextChanged(Property prop, object oldValue)
+    void OnTextChanged(AbstractProperty prop, object oldValue)
     {
       // The skin is setting the text, also update the caret
       if (!_editText)
@@ -126,12 +126,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
-    void OnPreferredTextLengthChanged(Property prop, object oldValue)
+    void OnPreferredTextLengthChanged(AbstractProperty prop, object oldValue)
     {
       Invalidate();
     }
 
-    protected override void OnFontChanged(Property prop, object oldValue)
+    protected override void OnFontChanged(AbstractProperty prop, object oldValue)
     {
       if (_asset != null)
       {
@@ -201,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _editText = false;
     }
 
-    public Property PreferredTextLengthProperty
+    public AbstractProperty PreferredTextLengthProperty
     {
       get { return _preferredTextLengthProperty; }
     }
@@ -215,7 +215,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _preferredTextLengthProperty.SetValue(value); }
     }
 
-    public Property CaretIndexProperty
+    public AbstractProperty CaretIndexProperty
     {
       get { return _caretIndexProperty; }
     }
@@ -226,7 +226,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _caretIndexProperty.SetValue(value); }
     }
 
-    public Property TextProperty
+    public AbstractProperty TextProperty
     {
       get { return _textProperty; }
     }
@@ -237,7 +237,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _textProperty.SetValue(value); }
     }
 
-    public Property ColorProperty
+    public AbstractProperty ColorProperty
     {
       get { return _colorProperty; }
     }
@@ -248,7 +248,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _colorProperty.SetValue(value); }
     }
 
-    public Property TextAlignProperty
+    public AbstractProperty TextAlignProperty
     {
       get { return _textAlignProperty; }
     }

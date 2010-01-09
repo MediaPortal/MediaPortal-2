@@ -24,38 +24,98 @@
 
 using System;
 using System.Collections.Generic;
-using MediaPortal.Core.Logging;
+using System.Threading;
 using MediaPortal.Core.Messaging;
 
 namespace MediaPortal.Core.Services.Messaging
 {
   public class MessageBroker : IMessageBroker
   {
-    protected IDictionary<string, ICollection<IMessageReceiver>> _registeredQueues =
-        new Dictionary<string, ICollection<IMessageReceiver>>();
-    protected object _syncObj = new object();
+    protected const int GC_INTERVAL = 5000;
 
-    public void RegisterMessageQueue(string channel, IMessageReceiver receiver)
+    protected IDictionary<string, IList<WeakReference>> _registeredChannels =
+        new Dictionary<string, IList<WeakReference>>();
+    protected object _syncObj = new object();
+    protected Thread _garbageCollectorThread;
+
+    public MessageBroker()
+    {
+      _garbageCollectorThread = new Thread(DoBackgroundWork)
+        {
+            Name = typeof(MessageBroker).Name + " garbage collector thread",
+            Priority = ThreadPriority.Lowest,
+            IsBackground = true
+        };
+      _garbageCollectorThread.Start();
+    }
+
+    protected void GarbageCollectHandlers()
     {
       lock (_syncObj)
       {
-        ICollection<IMessageReceiver> receivers;
-        if (!_registeredQueues.TryGetValue(channel, out receivers))
-          _registeredQueues[channel] = receivers = new List<IMessageReceiver>();
-        receivers.Add(receiver);
+        foreach (string channel in new List<string>(_registeredChannels.Keys))
+        {
+          IList<WeakReference> receivers = _registeredChannels[channel];
+          bool needCleanup = false;
+          foreach (WeakReference receiver in receivers)
+            if (receiver.Target == null)
+            {
+              needCleanup = true;
+              break;
+            }
+          if (needCleanup)
+          {
+            IList<WeakReference> oldReceivers = receivers;
+            _registeredChannels[channel] = receivers = new List<WeakReference>(oldReceivers.Count);
+            foreach (WeakReference r in oldReceivers)
+            {
+              IMessageReceiver receiver = (IMessageReceiver) r.Target;
+              if (receiver == null)
+                continue;
+              receivers.Add(new WeakReference(receiver));
+            }
+            if (receivers.Count == 0)
+              _registeredChannels.Remove(channel);
+          }
+        }
       }
     }
 
-    public void UnregisterMessageQueue(string channel, IMessageReceiver receiver)
+    protected void DoBackgroundWork()
+    {
+      while (true)
+      {
+        GarbageCollectHandlers();
+        Thread.Sleep(GC_INTERVAL);
+      }
+    }
+
+    public void RegisterMessageQueue(string channel, IMessageReceiver queue)
     {
       lock (_syncObj)
       {
-        ICollection<IMessageReceiver> receivers;
-        if (_registeredQueues.TryGetValue(channel, out receivers))
+        IList<WeakReference> receivers;
+        if (!_registeredChannels.TryGetValue(channel, out receivers))
+          _registeredChannels[channel] = receivers = new List<WeakReference>();
+        receivers.Add(new WeakReference(queue));
+      }
+    }
+
+    public void UnregisterMessageQueue(string channel, IMessageReceiver queue)
+    {
+      lock (_syncObj)
+      {
+        IList<WeakReference> receivers;
+        if (_registeredChannels.TryGetValue(channel, out receivers))
         {
-          receivers.Remove(receiver);
+          foreach (WeakReference r in receivers)
+            if (r.Target == queue)
+            {
+              receivers.Remove(r);
+              break;
+            }
           if (receivers.Count == 0)
-            _registeredQueues.Remove(channel);
+            _registeredChannels.Remove(channel);
         }
       }
     }
@@ -63,19 +123,19 @@ namespace MediaPortal.Core.Services.Messaging
     public void Send(string channelName, QueueMessage msg)
     {
       msg.ChannelName = channelName;
-      ICollection<IMessageReceiver> receivers;
+      IList<WeakReference> receivers;
       lock (_syncObj)
-        receivers = _registeredQueues.TryGetValue(channelName, out receivers) ? new List<IMessageReceiver>(receivers) : null;
-      if (receivers != null)
-        foreach (IMessageReceiver messageReceiver in receivers)
-          try
-          {
-            messageReceiver.Receive(msg);
-          }
-          catch (Exception e)
-          {
-            ServiceScope.Get<ILogger>().Error("MessageBroker: Unable to send message to message receiver of channel '{0}'", e, channelName);
-          }
+      {
+        if (!_registeredChannels.TryGetValue(channelName, out receivers))
+          return;
+        receivers = new List<WeakReference>(receivers);
+      }
+      foreach (WeakReference r in receivers)
+      {
+        IMessageReceiver receiver = (IMessageReceiver) r.Target;
+        if (receiver != null)
+          receiver.Receive(msg);
+      }
     }
   }
 }

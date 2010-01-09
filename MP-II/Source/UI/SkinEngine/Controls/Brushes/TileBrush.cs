@@ -48,11 +48,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private fields
 
-    Property _alignmentXProperty;
-    Property _alignmentYProperty;
-    Property _stretchProperty;
-    Property _viewPortProperty;
-    Property _tileModeProperty;
+    AbstractProperty _alignmentXProperty;
+    AbstractProperty _alignmentYProperty;
+    AbstractProperty _stretchProperty;
+    AbstractProperty _viewPortProperty;
+    AbstractProperty _tileModeProperty;
 
     #endregion
 
@@ -72,11 +72,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _alignmentXProperty = new Property(typeof(AlignmentX), AlignmentX.Center);
-      _alignmentYProperty = new Property(typeof(AlignmentY), AlignmentY.Center);
-      _stretchProperty = new Property(typeof(Stretch), Stretch.Fill);
-      _tileModeProperty = new Property(typeof(TileMode), TileMode.None);
-      _viewPortProperty = new Property(typeof(Vector4), new Vector4(0, 0, 1, 1));
+      _alignmentXProperty = new SProperty(typeof(AlignmentX), AlignmentX.Center);
+      _alignmentYProperty = new SProperty(typeof(AlignmentY), AlignmentY.Center);
+      _stretchProperty = new SProperty(typeof(Stretch), Stretch.Fill);
+      _tileModeProperty = new SProperty(typeof(TileMode), TileMode.None);
+      _viewPortProperty = new SProperty(typeof(Vector4), new Vector4(0, 0, 1, 1));
     }
 
     void Attach()
@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property AlignmentXProperty
+    public AbstractProperty AlignmentXProperty
     {
       get { return _alignmentXProperty; }
     }
@@ -125,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _alignmentXProperty.SetValue(value); }
     }
 
-    public Property AlignmentYProperty
+    public AbstractProperty AlignmentYProperty
     {
       get { return _alignmentYProperty; }
     }
@@ -136,7 +136,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _alignmentYProperty.SetValue(value); }
     }
 
-    public Property StretchProperty
+    public AbstractProperty StretchProperty
     {
       get { return _stretchProperty; }
     }
@@ -147,7 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _stretchProperty.SetValue(value); }
     }
 
-    public Property ViewPortProperty
+    public AbstractProperty ViewPortProperty
     {
       get { return _viewPortProperty; }
     }
@@ -158,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _viewPortProperty.SetValue(value); }
     }
 
-    public Property TileProperty
+    public AbstractProperty TileProperty
     {
       get { return _tileModeProperty; }
     }

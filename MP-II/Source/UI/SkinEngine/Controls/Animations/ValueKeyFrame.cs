@@ -33,8 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   {
     #region Private fields
 
-    Property _keyTimeProperty;
-    Property _keyValueProperty;
+    AbstractProperty _keyTimeProperty;
+    AbstractProperty _keyValueProperty;
 
     #endregion
 
@@ -47,8 +47,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _keyTimeProperty = new Property(typeof(TimeSpan), new TimeSpan(0, 0, 0));
-      _keyValueProperty = new Property(typeof(T), null); // Will be initialized in subclasses
+      _keyTimeProperty = new SProperty(typeof(TimeSpan), new TimeSpan(0, 0, 0));
+      _keyValueProperty = new SProperty(typeof(T), null); // Will be initialized in subclasses
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -63,12 +63,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region properties
 
-    public Property KeyTimeProperty
+    public AbstractProperty KeyTimeProperty
     {
       get { return _keyTimeProperty; }
     }
 
-    public Property ValueProperty
+    public AbstractProperty ValueProperty
     {
       get { return _keyValueProperty; }
     }

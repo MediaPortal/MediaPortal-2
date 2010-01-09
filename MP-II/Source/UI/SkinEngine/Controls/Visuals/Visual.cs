@@ -36,9 +36,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _visualParentProperty;
-    protected Property _focusedElement;
-    protected Property _screenProperty;
+    protected AbstractProperty _visualParentProperty;
+    protected AbstractProperty _focusedElement;
+    protected AbstractProperty _screenProperty;
 
     #endregion
 
@@ -51,9 +51,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _visualParentProperty = new Property(typeof(Visual), null);
-      _focusedElement = new Property(typeof(FrameworkElement), null);
-      _screenProperty = new Property(typeof(Screen), null);
+      _visualParentProperty = new SProperty(typeof(Visual), null);
+      _focusedElement = new SProperty(typeof(FrameworkElement), null);
+      _screenProperty = new SProperty(typeof(Screen), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public Property VisualParentProperty
+    public AbstractProperty VisualParentProperty
     {
       get { return _visualParentProperty; }
     }
@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _visualParentProperty.SetValue(value); }
     }
 
-    public Property FocusedElementProperty
+    public AbstractProperty FocusedElementProperty
     {
       get { return _focusedElement; }
     }
@@ -122,7 +122,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _focusedElement.SetValue(value); }
     }
 
-    public Property ScreenProperty
+    public AbstractProperty ScreenProperty
     {
       get { return _screenProperty; }
     }

@@ -34,9 +34,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _dataStringProperty;
-    protected Property _contentProperty;
-    protected Property _contentTemplateProperty;
+    protected AbstractProperty _dataStringProperty;
+    protected AbstractProperty _contentProperty;
+    protected AbstractProperty _contentTemplateProperty;
 
     #endregion
 
@@ -50,9 +50,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _dataStringProperty = new Property(typeof(string), "");
-      _contentProperty = new Property(typeof(object), null);
-      _contentTemplateProperty = new Property(typeof(DataTemplate), null);
+      _dataStringProperty = new SProperty(typeof(string), "");
+      _contentProperty = new SProperty(typeof(object), null);
+      _contentTemplateProperty = new SProperty(typeof(DataTemplate), null);
     }
 
     void Attach()
@@ -86,14 +86,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Eventhandlers
 
-    void OnContentChanged(Property property, object oldValue)
+    void OnContentChanged(AbstractProperty property, object oldValue)
     {
       ContentPresenter presenter = FindContentPresenter();
       if (presenter != null)
         presenter.Content = Content;
     }
 
-    void OnContentTemplateChanged(Property property, object oldValue)
+    void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
       if (oldValue is HierarchicalDataTemplate)
         ((HierarchicalDataTemplate) oldValue).ItemsSourceProperty.Detach(OnTemplateItemsSourceChanged);
@@ -111,19 +111,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnTemplateItemsSourceChanged(Property property, object oldValue)
+    void OnTemplateItemsSourceChanged(AbstractProperty property, object oldValue)
     {
       ItemsSource = (IEnumerable) property.GetValue();
     }
 
-    void OnTemplateDataStringChanged(Property property, object oldValue)
+    void OnTemplateDataStringChanged(AbstractProperty property, object oldValue)
     {
       DataString = (string) property.GetValue();
     }
 
     #region Public properties
 
-    public Property ContentProperty
+    public AbstractProperty ContentProperty
     {
       get { return _contentProperty; }
     }
@@ -134,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentProperty.SetValue(value); }
     }
 
-    public Property ContentTemplateProperty
+    public AbstractProperty ContentTemplateProperty
     {
       get { return _contentTemplateProperty; }
     }
@@ -145,7 +145,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentTemplateProperty.SetValue(value); }
     }
 
-    public Property DataStringProperty
+    public AbstractProperty DataStringProperty
     {
       get { return _dataStringProperty; }
     }

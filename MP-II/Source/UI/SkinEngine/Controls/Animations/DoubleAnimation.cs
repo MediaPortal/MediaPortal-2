@@ -31,9 +31,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   {
     #region Private fields
 
-    Property _fromProperty;
-    Property _toProperty;
-    Property _byProperty;
+    AbstractProperty _fromProperty;
+    AbstractProperty _toProperty;
+    AbstractProperty _byProperty;
 
     #endregion
 
@@ -46,9 +46,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     
     void Init()
     {
-      _fromProperty = new Property(typeof(double?), null);
-      _toProperty = new Property(typeof(double?), null);
-      _byProperty = new Property(typeof(double?), null);
+      _fromProperty = new SProperty(typeof(double?), null);
+      _toProperty = new SProperty(typeof(double?), null);
+      _byProperty = new SProperty(typeof(double?), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Public properties
 
-    public Property FromProperty
+    public AbstractProperty FromProperty
     {
       get { return _fromProperty; }
     }
@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     }
 
 
-    public Property ToProperty
+    public AbstractProperty ToProperty
     {
       get { return _toProperty; }
     }
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
       set { _toProperty.SetValue(value); }
     }
 
-    public Property ByProperty
+    public AbstractProperty ByProperty
     {
       get { return _byProperty; }
     }

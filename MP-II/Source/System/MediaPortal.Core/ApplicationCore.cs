@@ -105,6 +105,7 @@ namespace MediaPortal.Core
     public static void StopCoreServices()
     {
       ServiceScope.Get<IImporterWorker>().Shutdown();
+      ServiceScope.Get<Threading.IThreadPool>().Stop();
     }
 
     public static void RegisterDefaultMediaItemAspectTypes()

@@ -57,12 +57,12 @@ namespace MediaPortal.UI.Presentation.DataObjects
   {
     #region Protected fields
 
-    protected Property _commandProperty = new Property(typeof(ICommand), null);
+    protected AbstractProperty _commandProperty = new WProperty(typeof(ICommand), null);
     protected IDictionary<string, IResourceString> _labels = new SafeDictionary<string, IResourceString>();
     protected IDictionary<string, object> _additionalProperties = new SafeDictionary<string, object>();
-    protected Property _selectedProperty = new Property(typeof(bool), false);
-    protected Property _enabledProperty = new Property(typeof(bool), true);
-    protected Property _isVisibleProperty = new Property(typeof(bool), true);
+    protected AbstractProperty _selectedProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _enabledProperty = new WProperty(typeof(bool), true);
+    protected AbstractProperty _isVisibleProperty = new WProperty(typeof(bool), true);
 
     /// <summary>
     /// Event to track changes to this item.
@@ -226,7 +226,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
         Command.Execute();
     }
 
-    public Property CommandProperty
+    public AbstractProperty CommandProperty
     {
       get { return _commandProperty; }
     }
@@ -240,7 +240,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
       set { _commandProperty.SetValue(value); }
     }
 
-    public Property SelectedProperty
+    public AbstractProperty SelectedProperty
     {
       get { return _selectedProperty; }
       set { _selectedProperty = value; }
@@ -255,7 +255,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
       set { _selectedProperty.SetValue(value); }
     }
 
-    public Property EnabledProperty
+    public AbstractProperty EnabledProperty
     {
       get { return _enabledProperty; }
       set { _enabledProperty = value; }
@@ -270,7 +270,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
       set { _enabledProperty.SetValue(value); }
     }
 
-    public Property IsVisibleProperty
+    public AbstractProperty IsVisibleProperty
     {
       get { return _isVisibleProperty; }
       set { _isVisibleProperty = value; }

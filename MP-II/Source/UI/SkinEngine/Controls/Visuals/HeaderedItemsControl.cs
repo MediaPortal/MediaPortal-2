@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _isExpandedProperty;
+    protected AbstractProperty _isExpandedProperty;
 
     #endregion
 
@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _isExpandedProperty = new Property(typeof(bool), false);
+      _isExpandedProperty = new SProperty(typeof(bool), false);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _isExpandedProperty.SetValue(value); }
     }
 
-    public Property IsExpandedProperty
+    public AbstractProperty IsExpandedProperty
     {
       get { return _isExpandedProperty; }
     }

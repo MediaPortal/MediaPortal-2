@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Globalization;
 
 namespace MediaPortal.Core.Localization
 {
@@ -104,8 +103,6 @@ namespace MediaPortal.Core.Localization
     {
       _section = section;
       _name = name;
-
-      ServiceScope.Get<ILocalization>().LanguageChange += LanguageChange;
     }
 
     /// <summary>
@@ -117,9 +114,7 @@ namespace MediaPortal.Core.Localization
     public StringId(string label)
     {
       // Parse string example [section.name]
-      if (ExtractSectionAndName(label, out _section, out _name))
-        ServiceScope.Get<ILocalization>().LanguageChange += LanguageChange;
-      else
+      if (!ExtractSectionAndName(label, out _section, out _name))
       {
         // Should we raise an exception here?
         _section = "system";
@@ -128,24 +123,9 @@ namespace MediaPortal.Core.Localization
       }
     }
 
-    ~StringId()
-    {
-      Dispose();
-    }
-
     #endregion
 
     #region Public methods
-
-    /// <summary>
-    /// Disposes the instance.
-    /// </summary>
-    public void Dispose()
-    {
-      ILocalization localization = ServiceScope.Get<ILocalization>(false);
-      if (localization != null)
-        localization.LanguageChange -= LanguageChange;
-    }
 
     /// <summary>
     /// Returns the localised string,
@@ -160,15 +140,6 @@ namespace MediaPortal.Core.Localization
       if (_localised == null)
         return Label;
       return _localised;
-    }
-
-    #endregion
-
-    #region Private methods
-
-    private void LanguageChange(ILocalization localization, CultureInfo newCulture)
-    {
-      _localised = null;
     }
 
     #endregion

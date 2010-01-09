@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   {
     #region Protected fields
 
-    protected Property _pointsProperty;
+    protected AbstractProperty _pointsProperty;
 
     #endregion
 
@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _pointsProperty = new Property(typeof(IList<Point>), new List<Point>());
+      _pointsProperty = new SProperty(typeof(IList<Point>), new List<Point>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     #region Public properties
 
-    public Property PointsProperty
+    public AbstractProperty PointsProperty
     {
       get { return _pointsProperty; }
     }

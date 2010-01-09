@@ -43,12 +43,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _selectionChangedProperty;
-    protected Property _itemsSourceProperty;
-    protected Property _itemTemplateProperty;
-    protected Property _itemContainerStyleProperty;
-    protected Property _itemsPanelProperty;
-    protected Property _currentItemProperty;
+    protected AbstractProperty _selectionChangedProperty;
+    protected AbstractProperty _itemsSourceProperty;
+    protected AbstractProperty _itemTemplateProperty;
+    protected AbstractProperty _itemContainerStyleProperty;
+    protected AbstractProperty _itemsPanelProperty;
+    protected AbstractProperty _currentItemProperty;
 
     protected bool _prepare = false;
     protected bool _templateApplied = false;
@@ -66,12 +66,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
-      _itemTemplateProperty = new Property(typeof(DataTemplate), null);
-      _itemContainerStyleProperty = new Property(typeof(Style), null);
-      _itemsPanelProperty = new Property(typeof(ItemsPanelTemplate), null);
-      _currentItemProperty = new Property(typeof(object), null);
-      _selectionChangedProperty = new Property(typeof(ICommandStencil), null);
+      _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
+      _itemTemplateProperty = new SProperty(typeof(DataTemplate), null);
+      _itemContainerStyleProperty = new SProperty(typeof(Style), null);
+      _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
+      _currentItemProperty = new SProperty(typeof(object), null);
+      _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
     }
 
     void Attach()
@@ -125,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         coll.ObjectChanged += OnCollectionChanged;
     }
 
-    void OnItemsSourceChanged(Property property, object oldValue)
+    void OnItemsSourceChanged(AbstractProperty property, object oldValue)
     {
       DetachFromItemsSource(oldValue as IEnumerable);
       AttachToItemsSource(ItemsSource);
@@ -137,18 +137,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvalidateItems();
     }
 
-    void OnItemTemplateChanged(Property property, object oldValue)
+    void OnItemTemplateChanged(AbstractProperty property, object oldValue)
     {
       InvalidateItems();
     }
 
-    void OnItemsPanelChanged(Property property, object oldValue)
+    void OnItemsPanelChanged(AbstractProperty property, object oldValue)
     {
       _templateApplied = false;
       InvalidateItems();
     }
 
-    void OnItemContainerStyleChanged(Property property, object oldValue)
+    void OnItemContainerStyleChanged(AbstractProperty property, object oldValue)
     {
       InvalidateItems();
     }
@@ -157,7 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Events
 
-    public Property SelectionChangedProperty
+    public AbstractProperty SelectionChangedProperty
     {
       get { return _selectionChangedProperty; }
     }
@@ -172,7 +172,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    public Property ItemsPanelProperty
+    public AbstractProperty ItemsPanelProperty
     {
       get { return _itemsPanelProperty; }
     }
@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _itemsPanelProperty.SetValue(value); }
     }
 
-    public Property ItemsSourceProperty
+    public AbstractProperty ItemsSourceProperty
     {
       get { return _itemsSourceProperty; }
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _itemsSourceProperty.SetValue(value); }
     }
 
-    public Property ItemContainerStyleProperty
+    public AbstractProperty ItemContainerStyleProperty
     {
       get { return _itemContainerStyleProperty; }
     }
@@ -214,7 +214,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _itemContainerStyleProperty.SetValue(value); }
     }
 
-    public Property ItemTemplateProperty
+    public AbstractProperty ItemTemplateProperty
     {
       get { return _itemTemplateProperty; }
     }
@@ -229,7 +229,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _itemTemplateProperty.SetValue(value); }
     }
 
-    public Property CurrentItemProperty
+    public AbstractProperty CurrentItemProperty
     {
       get { return _currentItemProperty; }
     }

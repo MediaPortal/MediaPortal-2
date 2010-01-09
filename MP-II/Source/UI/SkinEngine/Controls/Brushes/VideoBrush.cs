@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private fields
 
-    Property _streamProperty;
+    AbstractProperty _streamProperty;
     EffectAsset _effect;
     Size _videoSize;
     Size _videoAspectRatio;
@@ -61,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _streamProperty = new Property(typeof(int), 0);
+      _streamProperty = new SProperty(typeof(int), 0);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -75,7 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property StreamProperty
+    public AbstractProperty StreamProperty
     {
       get { return _streamProperty; }
     }

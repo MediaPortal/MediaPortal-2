@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
   {
     #region Private fields
 
-    Property _childrenProperty;
+    AbstractProperty _childrenProperty;
 
     #endregion
 
@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      _childrenProperty = new Property(typeof(TransformCollection), new TransformCollection());
+      _childrenProperty = new SProperty(typeof(TransformCollection), new TransformCollection());
     }
 
     void Attach()
@@ -88,14 +88,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Fire();
     }
 
-    protected void OnPropertyChanged(Property property)
+    protected void OnPropertyChanged(AbstractProperty property)
     {
       _needUpdate = true;
       _needUpdateRel = true;
       Fire();
     }
 
-    public Property ChildrenProperty
+    public AbstractProperty ChildrenProperty
     {
       get { return _childrenProperty; }
     }

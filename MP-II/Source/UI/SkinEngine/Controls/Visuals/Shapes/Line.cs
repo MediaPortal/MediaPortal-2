@@ -41,10 +41,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   {
     #region Private fields
 
-    Property _x1Property;
-    Property _y1Property;
-    Property _x2Property;
-    Property _y2Property;
+    AbstractProperty _x1Property;
+    AbstractProperty _y1Property;
+    AbstractProperty _x2Property;
+    AbstractProperty _y2Property;
 
     #endregion
 
@@ -64,10 +64,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _x1Property = new Property(typeof(double), 0.0);
-      _y1Property = new Property(typeof(double), 0.0);
-      _x2Property = new Property(typeof(double), 0.0);
-      _y2Property = new Property(typeof(double), 0.0);
+      _x1Property = new SProperty(typeof(double), 0.0);
+      _y1Property = new SProperty(typeof(double), 0.0);
+      _x2Property = new SProperty(typeof(double), 0.0);
+      _y2Property = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -100,13 +100,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    void OnCoordinateChanged(Property property, object oldValue)
+    void OnCoordinateChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public Property X1Property
+    public AbstractProperty X1Property
     {
       get { return _x1Property; }
     }
@@ -117,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _x1Property.SetValue(value); }
     }
 
-    public Property Y1Property
+    public AbstractProperty Y1Property
     {
       get { return _y1Property; }
     }
@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _y1Property.SetValue(value); }
     }
 
-    public Property X2Property
+    public AbstractProperty X2Property
     {
       get { return _x2Property; }
     }
@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _x2Property.SetValue(value); }
     }
 
-    public Property Y2Property
+    public AbstractProperty Y2Property
     {
       get { return _y2Property; }
     }

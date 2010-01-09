@@ -55,10 +55,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     #region Private fields
 
     protected PositionColored2Textured[] _verts;
-    Property _colorInterpolationModeProperty;
-    Property _gradientStopsProperty;
-    Property _spreadMethodProperty;
-    Property _mappingModeProperty;
+    AbstractProperty _colorInterpolationModeProperty;
+    AbstractProperty _gradientStopsProperty;
+    AbstractProperty _spreadMethodProperty;
+    AbstractProperty _mappingModeProperty;
 
     #endregion
 
@@ -78,12 +78,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _gradientStopsProperty = new Property(typeof(GradientStopCollection), new GradientStopCollection(this));
+      _gradientStopsProperty = new SProperty(typeof(GradientStopCollection), new GradientStopCollection(this));
       _colorInterpolationModeProperty =
-        new Property(typeof(ColorInterpolationMode),
+        new SProperty(typeof(ColorInterpolationMode),
                      ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
-      _spreadMethodProperty = new Property(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
-      _mappingModeProperty = new Property(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
+      _spreadMethodProperty = new SProperty(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
+      _mappingModeProperty = new SProperty(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
     }
 
     void Attach()
@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property ColorInterpolationModeProperty
+    public AbstractProperty ColorInterpolationModeProperty
     {
       get { return _colorInterpolationModeProperty; }
     }
@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _colorInterpolationModeProperty.SetValue(value); }
     }
 
-    public Property GradientStopsProperty
+    public AbstractProperty GradientStopsProperty
     {
       get { return _gradientStopsProperty; }
     }
@@ -148,7 +148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return (GradientStopCollection)_gradientStopsProperty.GetValue(); }
     }
 
-    public Property MappingModeProperty
+    public AbstractProperty MappingModeProperty
     {
       get { return _mappingModeProperty; }
     }
@@ -159,7 +159,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _mappingModeProperty.SetValue(value); }
     }
 
-    public Property SpreadMethodProperty
+    public AbstractProperty SpreadMethodProperty
     {
       get { return _spreadMethodProperty; }
     }

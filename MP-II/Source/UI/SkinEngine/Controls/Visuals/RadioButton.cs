@@ -38,8 +38,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected const string GROUPCONTEXT_ATTACHED_PROPERTY = "RadioButton.GroupContext";
 
     protected ICollection<RadioButton> _radioButtonGroup = null;
-    protected Property _isCheckedProperty;
-    protected Property _groupNameProperty;
+    protected AbstractProperty _isCheckedProperty;
+    protected AbstractProperty _groupNameProperty;
 
     #endregion
 
@@ -53,8 +53,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _groupNameProperty = new Property(typeof(string), null);
-      _isCheckedProperty = new Property(typeof(bool), false);
+      _groupNameProperty = new SProperty(typeof(string), null);
+      _isCheckedProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Private/protected methods
 
-    void OnButtonPressedChanged(Property property, object oldValue)
+    void OnButtonPressedChanged(AbstractProperty property, object oldValue)
     {
       // Copy the "IsPressed" status to "IsChecked". This will automatically clear the
       // "IsChecked" status at other radio buttons.
@@ -94,12 +94,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         IsChecked = IsPressed;
     }
 
-    void OnGroupNameChanged(Property property, object oldValue)
+    void OnGroupNameChanged(AbstractProperty property, object oldValue)
     {
       InitializeGroup();
     }
 
-    void OnCheckChanged(Property property, object oldValue)
+    void OnCheckChanged(AbstractProperty property, object oldValue)
     {
       if (IsChecked)
       {
@@ -158,7 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    public Property GroupNameProperty
+    public AbstractProperty GroupNameProperty
     {
       get { return _groupNameProperty; }
     }
@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _groupNameProperty.SetValue(value); }
     }
 
-    public Property IsCheckedProperty
+    public AbstractProperty IsCheckedProperty
     {
       get { return _isCheckedProperty; }
     }
@@ -243,7 +243,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>GroupContext</c> property.</returns>
-    public static Property GetGroupContextAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetGroupContextAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<string>(GROUPCONTEXT_ATTACHED_PROPERTY, string.Empty);
     }

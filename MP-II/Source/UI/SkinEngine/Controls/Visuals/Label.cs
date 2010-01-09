@@ -43,12 +43,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    protected Property _contentProperty;
-    protected Property _colorProperty;
-    protected Property _scrollProperty;
-    protected Property _wrapProperty;
-    protected Property _textAlignProperty;
-    protected Property _maxDesiredWidthProperty;
+    protected AbstractProperty _contentProperty;
+    protected AbstractProperty _colorProperty;
+    protected AbstractProperty _scrollProperty;
+    protected AbstractProperty _wrapProperty;
+    protected AbstractProperty _textAlignProperty;
+    protected AbstractProperty _maxDesiredWidthProperty;
     protected FontBufferAsset _asset;
     protected FontRender _renderer;
     protected IResourceString _resourceString;
@@ -66,12 +66,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new Property(typeof(string), "");
-      _colorProperty = new Property(typeof(Color), Color.White);
-      _scrollProperty = new Property(typeof(bool), false);
-      _wrapProperty = new Property(typeof(bool), false);
-      _textAlignProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
-      _maxDesiredWidthProperty = new Property(typeof(double), double.NaN);
+      _contentProperty = new SProperty(typeof(string), "");
+      _colorProperty = new SProperty(typeof(Color), Color.White);
+      _scrollProperty = new SProperty(typeof(bool), false);
+      _wrapProperty = new SProperty(typeof(bool), false);
+      _textAlignProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
+      _maxDesiredWidthProperty = new SProperty(typeof(double), double.NaN);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
     }
@@ -113,24 +113,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnContentChanged(Property prop, object oldValue)
+    void OnContentChanged(AbstractProperty prop, object oldValue)
     {
       _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
       Invalidate();
     }
 
-    void OnRenderAttributeChanged(Property prop, object oldValue)
+    void OnRenderAttributeChanged(AbstractProperty prop, object oldValue)
     {
       if (Screen != null)
         Screen.Invalidate(this);
     }
 
-    void OnLayoutPropertyChanged(Property prop, object oldValue)
+    void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
     {
       Invalidate();
     }
 
-    protected override void OnFontChanged(Property prop, object oldValue)
+    protected override void OnFontChanged(AbstractProperty prop, object oldValue)
     {
       if (_asset != null)
       {
@@ -142,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Screen.Invalidate(this);
     }
 
-    public Property ContentProperty
+    public AbstractProperty ContentProperty
     {
       get { return _contentProperty; }
     }
@@ -153,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentProperty.SetValue(value); }
     }
 
-    public Property ColorProperty
+    public AbstractProperty ColorProperty
     {
       get { return _colorProperty; }
     }
@@ -164,7 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _colorProperty.SetValue(value); }
     }
 
-    public Property ScrollProperty
+    public AbstractProperty ScrollProperty
     {
       get { return _scrollProperty; }
     }
@@ -175,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollProperty.SetValue(value); }
     }
 
-    public Property WrapProperty
+    public AbstractProperty WrapProperty
     {
       get { return _wrapProperty; }
     }
@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _wrapProperty.SetValue(value); }
     }
 
-    public Property MaxDesiredWidthProperty
+    public AbstractProperty MaxDesiredWidthProperty
     {
       get { return _maxDesiredWidthProperty; }
     }
@@ -202,7 +202,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _maxDesiredWidthProperty.SetValue(value); }
     }
 
-    public Property TextAlignProperty
+    public AbstractProperty TextAlignProperty
     {
       get { return _textAlignProperty; }
     }

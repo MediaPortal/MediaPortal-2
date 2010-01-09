@@ -163,6 +163,7 @@ namespace MediaPortal.Core.Services.PluginManager
 
     public void Shutdown()
     {
+      ServiceScope.RemoveAndDisposePluginServices();
       ServiceScope.Get<ILogger>().Info("PluginManager: Shutdown");
       ICollection<PluginRuntime> availablePlugins;
       lock (_syncObj)

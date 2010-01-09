@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     #region Private fields
 
     KeySpline _spline; // Derived property, will be adjusted automatically when the KeySpline property is changed
-    Property _keySplineProperty;
+    AbstractProperty _keySplineProperty;
 
     #endregion
 
@@ -47,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     void Init()
     {
       _spline = new KeySpline();
-      _keySplineProperty = new Property(typeof(Vector4), new Vector4());
+      _keySplineProperty = new SProperty(typeof(Vector4), new Vector4());
     }
 
     void Attach()
@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #endregion
 
-    void OnSplineChanged(Property prop, object oldValue)
+    void OnSplineChanged(AbstractProperty prop, object oldValue)
     {
       InvalidateSpline();
     }
@@ -85,7 +85,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Public properties
 
-    public Property KeySplineProperty
+    public AbstractProperty KeySplineProperty
     {
       get { return _keySplineProperty; }
     }

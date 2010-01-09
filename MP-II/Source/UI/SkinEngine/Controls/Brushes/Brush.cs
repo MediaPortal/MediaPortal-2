@@ -47,10 +47,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private fields
 
-    Property _opacityProperty;
-    Property _relativeTransformProperty;
+    AbstractProperty _opacityProperty;
+    AbstractProperty _relativeTransformProperty;
     Transform _transform;
-    Property _freezableProperty;
+    AbstractProperty _freezableProperty;
     bool _isOpacity;
     protected RectangleF _bounds;
     protected PointF _orginalPosition;
@@ -77,10 +77,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void Init()
     {
       _isOpacity = false;
-      _opacityProperty = new Property(typeof(double), 1.0);
-      _relativeTransformProperty = new Property(typeof(TransformGroup), new TransformGroup());
+      _opacityProperty = new SProperty(typeof(double), 1.0);
+      _relativeTransformProperty = new SProperty(typeof(TransformGroup), new TransformGroup());
       _transform = null;
-      _freezableProperty = new Property(typeof(bool), false);
+      _freezableProperty = new SProperty(typeof(bool), false);
       _bounds = new RectangleF(0, 0, 0, 0);
       _orginalPosition = new PointF(0, 0);
     }
@@ -125,14 +125,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// </summary>
     /// <param name="prop">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    protected virtual void OnPropertyChanged(Property prop, object oldValue)
+    protected virtual void OnPropertyChanged(AbstractProperty prop, object oldValue)
     { }
 
     #endregion
 
     #region Public properties
 
-    public Property FreezableProperty
+    public AbstractProperty FreezableProperty
     {
       get { return _freezableProperty; }
     }
@@ -143,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _freezableProperty.SetValue(value); }
     }
 
-    public Property OpacityProperty
+    public AbstractProperty OpacityProperty
     {
       get { return _opacityProperty; }
     }
@@ -154,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _opacityProperty.SetValue(value); }
     }
 
-    public Property RelativeTransformProperty
+    public AbstractProperty RelativeTransformProperty
     {
       get { return _relativeTransformProperty; }
     }

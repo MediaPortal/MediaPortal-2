@@ -46,8 +46,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
-    protected Property _headerProperty;
-    protected Property _headerColorProperty;
+    protected AbstractProperty _headerProperty;
+    protected AbstractProperty _headerColorProperty;
     protected Label _headerLabel;
     protected RectangleF _headerLabelRect;
     
@@ -63,8 +63,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _headerProperty = new Property(typeof(string), string.Empty);
-      _headerColorProperty = new Property(typeof(Color), Color.White);
+      _headerProperty = new SProperty(typeof(string), string.Empty);
+      _headerColorProperty = new SProperty(typeof(Color), Color.White);
       _headerLabel = new Label();
       _headerLabel.VisualParent = this;
     }
@@ -94,7 +94,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnHeaderChanged(Property prop, object oldValue)
+    void OnHeaderChanged(AbstractProperty prop, object oldValue)
     {
       _headerLabel.Content = Header;
       _headerLabel.Color = HeaderColor;
@@ -103,7 +103,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Properties
 
-    public Property HeaderProperty
+    public AbstractProperty HeaderProperty
     {
       get { return _headerProperty; }
     }
@@ -114,7 +114,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _headerProperty.SetValue(value); }
     }
 
-    public Property HeaderColorProperty
+    public AbstractProperty HeaderColorProperty
     {
       get { return _headerColorProperty; }
     }

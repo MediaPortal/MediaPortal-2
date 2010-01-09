@@ -97,10 +97,10 @@ namespace UiComponents.SkinBase.Models
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
     protected ItemsList _availableServers;
-    protected Property _singleServerProperty;
-    protected Property _isNoServerAvailableProperty;
-    protected Property _isMultipleServersAvailableProperty;
-    protected Property _isSingleServerAvailableProperty;
+    protected AbstractProperty _singleServerProperty;
+    protected AbstractProperty _isNoServerAvailableProperty;
+    protected AbstractProperty _isMultipleServersAvailableProperty;
+    protected AbstractProperty _isSingleServerAvailableProperty;
     protected ServerDescriptor _singleAvailableServer;
     protected Guid? _attachInfoDialogHandle = null; // null = no dialog shown, Guid.Empty = don't leave WF, attach info dialog will be shown, some GUID = dialog with that id is open
     protected Guid _detachConfirmDialogHandle = Guid.Empty;
@@ -111,10 +111,10 @@ namespace UiComponents.SkinBase.Models
 
     public ServerAttachmentModel()
     {
-      _singleServerProperty = new Property(typeof(string), string.Empty);
-      _isNoServerAvailableProperty = new Property(typeof(bool), false);
-      _isSingleServerAvailableProperty = new Property(typeof(bool), false);
-      _isMultipleServersAvailableProperty = new Property(typeof(bool), false);
+      _singleServerProperty = new WProperty(typeof(string), string.Empty);
+      _isNoServerAvailableProperty = new WProperty(typeof(bool), false);
+      _isSingleServerAvailableProperty = new WProperty(typeof(bool), false);
+      _isMultipleServersAvailableProperty = new WProperty(typeof(bool), false);
       _availableServers = new ItemsList();
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
@@ -314,7 +314,7 @@ namespace UiComponents.SkinBase.Models
       set { _singleServerProperty.SetValue(value); }
     }
 
-    public Property SingleServerProperty
+    public AbstractProperty SingleServerProperty
     {
       get { return _singleServerProperty; }
     }
@@ -325,7 +325,7 @@ namespace UiComponents.SkinBase.Models
       set { _isNoServerAvailableProperty.SetValue(value); }
     }
 
-    public Property IsNoServerAvailableProperty
+    public AbstractProperty IsNoServerAvailableProperty
     {
       get { return _isNoServerAvailableProperty; }
     }
@@ -336,7 +336,7 @@ namespace UiComponents.SkinBase.Models
       set { _isSingleServerAvailableProperty.SetValue(value); }
     }
 
-    public Property IsSingleServerAvailableProperty
+    public AbstractProperty IsSingleServerAvailableProperty
     {
       get { return _isSingleServerAvailableProperty; }
     }
@@ -347,7 +347,7 @@ namespace UiComponents.SkinBase.Models
       set { _isMultipleServersAvailableProperty.SetValue(value); }
     }
 
-    public Property IsMultipleServersAvailableProperty
+    public AbstractProperty IsMultipleServersAvailableProperty
     {
       get { return _isMultipleServersAvailableProperty; }
     }

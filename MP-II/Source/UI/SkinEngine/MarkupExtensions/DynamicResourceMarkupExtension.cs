@@ -95,11 +95,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     #region Protected fields
 
     protected IList<ResourceDictionary> _attachedResources = new List<ResourceDictionary>(); // To which resources are we attached?
-    protected IList<Property> _attachedPropertiesList = new List<Property>(); // To which properties are we attached?
+    protected IList<AbstractProperty> _attachedPropertiesList = new List<AbstractProperty>(); // To which properties are we attached?
     protected bool _attachedToSkinResources = false; // Are we attached to skin resources?
-    protected Property _resourceKeyProperty; // Resource key to resolve
-    protected Property _treeSearchModeProperty;
-    protected Property _assignmentModeProperty;
+    protected AbstractProperty _resourceKeyProperty; // Resource key to resolve
+    protected AbstractProperty _treeSearchModeProperty;
+    protected AbstractProperty _assignmentModeProperty;
 
     #endregion
 
@@ -127,9 +127,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     void Init()
     {
-      _resourceKeyProperty = new Property(typeof(string), null);
-      _treeSearchModeProperty = new Property(typeof (TreeSearchMode), MarkupExtensions.TreeSearchMode.LogicalTree);
-      _assignmentModeProperty = new Property(typeof(AssignmentMode), AssignmentMode.Reference);
+      _resourceKeyProperty = new SProperty(typeof(string), null);
+      _treeSearchModeProperty = new SProperty(typeof (TreeSearchMode), MarkupExtensions.TreeSearchMode.LogicalTree);
+      _assignmentModeProperty = new SProperty(typeof(AssignmentMode), AssignmentMode.Reference);
     }
 
     void Attach()
@@ -161,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Public properties
 
-    public Property ResourceKeyProperty
+    public AbstractProperty ResourceKeyProperty
     {
       get { return _resourceKeyProperty; }
     }
@@ -172,7 +172,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { _resourceKeyProperty.SetValue(value); }
     }
 
-    public Property TreeSearchModeProperty
+    public AbstractProperty TreeSearchModeProperty
     {
       get { return _treeSearchModeProperty; }
     }
@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { _treeSearchModeProperty.SetValue(value); }
     }
 
-    public Property AssignmentModeProperty
+    public AbstractProperty AssignmentModeProperty
     {
       get { return _assignmentModeProperty; }
     }
@@ -205,7 +205,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Protected methods & properties
 
-    protected void OnPropertyChanged(Property property, object oldValue)
+    protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
         UpdateTarget();
@@ -223,7 +223,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         UpdateTarget();
     }
 
-    protected void OnSourcePathChanged(Property property, object oldValue)
+    protected void OnSourcePathChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
         UpdateTarget();
@@ -241,7 +241,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _attachedToSkinResources = true;
     }
 
-    protected void AttachToSourcePathProperty(Property sourcePathProperty)
+    protected void AttachToSourcePathProperty(AbstractProperty sourcePathProperty)
     {
       if (sourcePathProperty != null)
       {
@@ -260,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         SkinContext.SkinResourcesChanged -= OnSkinResourcesChanged;
         _attachedToSkinResources = false;
       }
-      foreach (Property property in _attachedPropertiesList)
+      foreach (AbstractProperty property in _attachedPropertiesList)
         property.Detach(OnSourcePathChanged);
       _attachedPropertiesList.Clear();
     }
@@ -298,7 +298,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected bool FindParent(DependencyObject obj, out DependencyObject parent)
     {
       parent = null;
-      Property parentProperty;
+      AbstractProperty parentProperty;
       if (TreeSearchMode == MarkupExtensions.TreeSearchMode.LogicalTree)
         parentProperty = obj.LogicalParentProperty;
       else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.VisualTree)

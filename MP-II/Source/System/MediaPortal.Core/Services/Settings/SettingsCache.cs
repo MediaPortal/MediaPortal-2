@@ -107,6 +107,7 @@ namespace MediaPortal.Core.Services.Settings
       lock (_syncObj)
       {
         _timer.Stop();
+        _timer.Dispose();
         _timer = null;
       }
     }

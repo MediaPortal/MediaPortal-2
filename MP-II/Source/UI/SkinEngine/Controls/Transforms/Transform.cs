@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #region Protected methods
 
-    protected void OnPropertyChanged(Property property, object oldValue)
+    protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       _needUpdate = true;
       _needUpdateRel = true;
@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #endregion
 
-    void OnZoomChanged(Property prop, object oldValue)
+    void OnZoomChanged(AbstractProperty prop, object oldValue)
     {
       _needUpdate = true;
       _needUpdateRel = true; // Albert: Is this line necessary?

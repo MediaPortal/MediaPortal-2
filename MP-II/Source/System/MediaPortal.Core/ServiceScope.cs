@@ -98,6 +98,7 @@ namespace MediaPortal.Core
   /// }
   /// </code>
   /// </example>
+  /// TODO: Remove the stacking functionality; rename ServiceScope to ServiceRegistration
   public sealed class ServiceScope : IDisposable, IStatus
   {
     public const string PLUGIN_TREE_SERVICES_LOCATION = "/Services";
@@ -111,14 +112,14 @@ namespace MediaPortal.Core
     /// This pointer is only static for the current thread.
     /// </remarks>
     [ThreadStatic]
-    private static ServiceScope current;
+    private static ServiceScope _current;
 
     /// <summary>
     /// Pointer to the global <see cref="ServiceScope"/>.  This is the 
     /// </summary>
-    private static ServiceScope global;
+    private static ServiceScope _global;
 
-    private static bool isRunning = false;
+    private static bool _isRunning = false;
     private static bool _isShuttingDown = false;
 
     /// <summary>
@@ -126,34 +127,38 @@ namespace MediaPortal.Core
     /// to be able to restore the previous ServiceScope when the <see cref="Dispose()"/>
     /// method is called, and to ask it for services that we do not contain ourselves.
     /// </summary>
-    private readonly ServiceScope oldInstance;
+    private readonly ServiceScope _oldInstance;
 
     /// <summary>
-    /// Holds the list of services.
+    /// Holds the dictionary of services.
     /// </summary>
-    private readonly Dictionary<Type, object> services;
+    private readonly IDictionary<Type, object> _services = new Dictionary<Type, object>();
+
+    /// <summary>
+    /// Holds the collection of services which were loaded from the plugin tree.
+    /// </summary>
+    private readonly ICollection<Type> _pluginServices = new List<Type>();
 
     /// <summary>
     /// Keeps track whether the instance is already disposed
     /// </summary>
-    private bool isDisposed = false;
+    private bool _isDisposed = false;
 
 
     public ServiceScope(bool isFirst)
     {
       lock (_syncObj)
       {
-        bool updateGlobal = global == current;
-        oldInstance = current;
-        services = new Dictionary<Type, object>();
-        current = this;
+        bool updateGlobal = _global == _current;
+        _oldInstance = _current;
+        _current = this;
         if (updateGlobal)
         {
-          global = this;
+          _global = this;
         }
         if (isFirst)
         {
-          isRunning = true;
+          _isRunning = true;
         }
       }
     }
@@ -163,6 +168,11 @@ namespace MediaPortal.Core
     /// </summary>
     public ServiceScope() : this(false) { }
 
+    public static void RemoveAndDisposePluginServices()
+    {
+      Current.DoRemoveAndDisposePluginServices();
+    }
+
     /// <summary>
     /// Gets or sets the current <see cref="ServiceScope"/>
     /// </summary>
@@ -170,22 +180,22 @@ namespace MediaPortal.Core
     {
       get
       {
-        if (current == null)
+        if (_current == null)
         {
-          if (global == null)
+          if (_global == null)
           {
             new ServiceScope();
           }
-          current = global;
+          _current = _global;
         }
-        return current;
+        return _current;
       }
-      set { current = value; }
+      set { _current = value; }
     }
 
     internal static bool IsRunning
     {
-      get { return isRunning; }
+      get { return _isRunning; }
     }
 
     public static bool IsShuttingDown
@@ -217,18 +227,18 @@ namespace MediaPortal.Core
 
     private void Dispose(bool alsoManaged)
     {
-      if (isDisposed) // already disposed?
+      if (_isDisposed) // already disposed?
         return;
       if (alsoManaged)
       {
-        bool updateGlobal = current == global;
-        current = oldInstance; //set current scope to previous one
+        bool updateGlobal = _current == _global;
+        _current = _oldInstance; //set current scope to previous one
         if (updateGlobal)
         {
-          global = current;
+          _global = _current;
         }
       }
-      isDisposed = true;
+      _isDisposed = true;
     }
 
     /// <summary>
@@ -238,34 +248,32 @@ namespace MediaPortal.Core
     /// <param name="service">The service implementation to add.</param>
     public static void Add<T>(T service) where T : class
     {
-      Current.AddService<T>(service);
+      Current.AddService(typeof(T), service);
     }
 
     public static void Replace<T>(T service) where T : class
     {
-      Current.ReplaceService<T>(service);
+      Current.ReplaceService(typeof(T), service);
     }
 
     public static void Remove<T>() where T : class
     {
-      Current.RemoveService<T>();
+      Current.RemoveService(typeof(T));
     }
 
     public static void RemoveAndDispose<T>() where T : class
     {
-      T service = Get<T>(false);
-      if (service != null)
-      {
-        Remove<T>();
-        IDisposable disposableService = service as IDisposable;
-        if (disposableService != null)
-          disposableService.Dispose();
-      }
+      Current.RemoveAndDispose(typeof(T));
     }
 
     public static bool IsRegistered<T>() where T : class
     {
-      return Current.IsServiceRegistered<T>();
+      return Current.IsServiceRegistered(typeof(T));
+    }
+
+    public static bool IsPluginService<T>() where T : class
+    {
+      return Current.IsPluginService(typeof(T));
     }
 
     /// <summary>
@@ -277,7 +285,7 @@ namespace MediaPortal.Core
     /// <exception cref="ServiceNotFoundException">when the requested service type is not found.</exception>
     public static T Get<T>() where T : class
     {
-      return Current.GetService<T>(true);
+      return (T) Current.GetService(typeof(T), true);
     }
 
     /// <summary>
@@ -293,23 +301,51 @@ namespace MediaPortal.Core
     /// is <b>true</b> andthe requested service type is not found.</exception>
     public static T Get<T>(bool throwIfNotFound) where T : class
     {
-      return Current.GetService<T>(throwIfNotFound);
+      return (T) Current.GetService(typeof(T), throwIfNotFound);
     }
 
-    private void AddService<T>(T service) where T : class
+    private void AddService(Type type, object service)
     {
-      services[typeof(T)] = service;
+      if (service == null)
+        throw new ArgumentException("Service argument must not be null", "service");
+      if (!type.IsAssignableFrom(service.GetType()))
+        throw new ArgumentException("Given service registration type must be assignable from the type of the given service");
+      _services[type] = service;
     }
 
-    private void RemoveService<T>() where T : class
+    private void RemoveService(Type type)
     {
-      services.Remove(typeof(T));
+      _services.Remove(type);
     }
 
-    private bool IsServiceRegistered<T>() where T : class
+    private void RemoveAndDispose(Type type)
     {
-      Type type = typeof(T);
-      return services.ContainsKey(type);
+      object service = GetService(type, false);
+      if (service != null)
+      {
+        Current.RemoveService(type);
+        IDisposable disposableService = service as IDisposable;
+        if (disposableService != null)
+          disposableService.Dispose();
+      }
+    }
+
+    private void DoRemoveAndDisposePluginServices()
+    {
+      foreach (Type serviceType in _pluginServices)
+        RemoveAndDispose(serviceType);
+      if (_oldInstance != null)
+        _oldInstance.DoRemoveAndDisposePluginServices();
+    }
+
+    private bool IsServiceRegistered(Type type)
+    {
+      return _services.ContainsKey(type);
+    }
+
+    private bool IsPluginService(Type type)
+    {
+      return _pluginServices.Contains(type);
     }
 
     public static void LoadServicesFromPlugins()
@@ -327,39 +363,34 @@ namespace MediaPortal.Core
           Get<ILogger>().Warn("ServiceScope: Could not register dynamic service with id '{0}'", itemMetadata.Id);
           continue;
         }
-        Current.services.Add(item.RegistrationType, item.ServiceInstance);
+        Current._services.Add(item.RegistrationType, item.ServiceInstance);
+        Current._pluginServices.Add(item.RegistrationType);
       }
     }
 
-    private T GetService<T>(bool throwIfNotFound) where T : class
+    private object GetService(Type type, bool throwIfNotFound)
     {
-      Type type = typeof(T);
-      if (services.ContainsKey(type))
-      {
-        ServiceCreatorCallback<T> callback = services[type] as ServiceCreatorCallback<T>;
-        if (callback != null)
-          return callback(this);
-        return (T) services[type];
-      }
-      if (oldInstance == null)
+      if (_services.ContainsKey(type))
+        return _services[type];
+      if (_oldInstance == null)
         if (throwIfNotFound)
           throw new ServiceNotFoundException(type);
         else
           return null;
-      return oldInstance.GetService<T>(throwIfNotFound);
+      return _oldInstance.GetService(type, throwIfNotFound);
     }
 
-    private void ReplaceService<T>(T service) where T : class
+    private void ReplaceService(Type type, object service)
     {
-      RemoveService<T>();
-      AddService<T>(service);
+      RemoveService(type);
+      AddService(type, service);
     }
 
     internal static void Reset()
     {
-      current = null;
-      global = null;
-      isRunning = false;
+      _current = null;
+      _global = null;
+      _isRunning = false;
     }
 
     #region IStatus implementation
@@ -367,7 +398,7 @@ namespace MediaPortal.Core
     public IList<string> GetStatus()
     {
       List<string> status = new List<string> { "== ServiceScope List Start" };
-      foreach (KeyValuePair<Type, object> service in services)
+      foreach (KeyValuePair<Type, object> service in _services)
       {
         status.Add(String.Format("=== Service = {0}, {1}", service.Key.Name, service.Value));
         IStatus info = service.Value as IStatus;

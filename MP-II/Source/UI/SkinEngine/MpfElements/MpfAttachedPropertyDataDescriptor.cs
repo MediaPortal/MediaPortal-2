@@ -41,12 +41,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _propertyProvider = propertyProvider;
     }
 
-    internal static Property GetAttachedProperty(string propertyProvider, string propertyName,
+    internal static AbstractProperty GetAttachedProperty(string propertyProvider, string propertyName,
         object targetObject)
     {
       MethodInfo mi = MpfNamespaceHandler.GetAttachedPropertyGetter(propertyProvider, propertyName);
       if (mi != null)
-        return (Property) mi.Invoke(targetObject, new object[] {targetObject});
+        return (AbstractProperty) mi.Invoke(targetObject, new object[] {targetObject});
       else
         throw new InvalidOperationException(string.Format(
             "Attached property '{0}.{1}' is not available on new target object '{2}'",

@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   {
     #region Protected fields
 
-    protected Property _itemsSourceProperty;
+    protected AbstractProperty _itemsSourceProperty;
 
     #endregion
 
@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     void Init()
     {
-      _itemsSourceProperty = new Property(typeof(IEnumerable), null);
+      _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -59,7 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     #region Public properties
 
-    public Property ItemsSourceProperty
+    public AbstractProperty ItemsSourceProperty
     {
       get { return _itemsSourceProperty; }
     }

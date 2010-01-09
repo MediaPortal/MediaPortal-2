@@ -34,9 +34,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
   {
     #region Private fields
 
-    Property _centerXProperty;
-    Property _centerYProperty;
-    Property _angleProperty;
+    AbstractProperty _centerXProperty;
+    AbstractProperty _centerYProperty;
+    AbstractProperty _angleProperty;
 
     #endregion
 
@@ -56,9 +56,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      _centerYProperty = new Property(typeof(double), 0.0);
-      _centerXProperty = new Property(typeof(double), 0.0);
-      _angleProperty = new Property(typeof(double), 0.0);
+      _centerYProperty = new SProperty(typeof(double), 0.0);
+      _centerXProperty = new SProperty(typeof(double), 0.0);
+      _angleProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #region Public properties
 
-    public Property CenterXProperty
+    public AbstractProperty CenterXProperty
     {
       get { return _centerXProperty; }
     }
@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       set { _centerXProperty.SetValue(value); }
     }
 
-    public Property CenterYProperty
+    public AbstractProperty CenterYProperty
     {
       get { return _centerYProperty; }
     }
@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       set { _centerYProperty.SetValue(value); }
     }
 
-    public Property AngleProperty
+    public AbstractProperty AngleProperty
     {
       get { return _angleProperty; }
     }

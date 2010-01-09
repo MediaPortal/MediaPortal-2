@@ -35,13 +35,13 @@ namespace UiComponents.Configuration.ConfigurationControllers
   {
     #region Protected fields
 
-    protected Property _yesProperty;
+    protected AbstractProperty _yesProperty;
 
     #endregion
 
     public YesNoController()
     {
-      _yesProperty = new Property(typeof(bool), false);
+      _yesProperty = new WProperty(typeof(bool), false);
     }
 
     public override Type ConfigSettingType
@@ -70,7 +70,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       base.UpdateSetting();
     }
 
-    public Property YesProperty
+    public AbstractProperty YesProperty
     {
       get { return _yesProperty; }
     }

@@ -29,7 +29,7 @@ using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
 {
-  public class ThumbDatabaseCache
+  public class ThumbDatabaseCache : IDisposable
   {
     /// <summary>
     /// Timespan in seconds after that an unused thumb db gets released.
@@ -47,6 +47,11 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator.Database
       _timer = new Timer(1000);
       _timer.Elapsed += _timer_Elapsed;
       _timer.Start();
+    }
+
+    public void Dispose()
+    {
+      _timer.Dispose();
     }
 
     /// <summary>

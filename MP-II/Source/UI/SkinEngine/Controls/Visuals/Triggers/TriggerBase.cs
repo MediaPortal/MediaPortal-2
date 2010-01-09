@@ -36,9 +36,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     #region Protected fields
 
     protected UIElement _element;
-    protected Property _enterActionsProperty;
-    protected Property _exitActionsProperty;
-    protected Property _settersProperty;
+    protected AbstractProperty _enterActionsProperty;
+    protected AbstractProperty _exitActionsProperty;
+    protected AbstractProperty _settersProperty;
 
     #endregion
 
@@ -51,9 +51,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _enterActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
-      _exitActionsProperty = new Property(typeof(IList<TriggerAction>), new List<TriggerAction>());
-      _settersProperty = new Property(typeof(IList<Setter>), new List<Setter>());
+      _enterActionsProperty = new SProperty(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _exitActionsProperty = new SProperty(typeof(IList<TriggerAction>), new List<TriggerAction>());
+      _settersProperty = new SProperty(typeof(IList<Setter>), new List<Setter>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return _element != null; }
     }
 
-    public Property EnterActionsProperty
+    public AbstractProperty EnterActionsProperty
     {
       get { return _enterActionsProperty; }
     }
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return (IList<TriggerAction>) _enterActionsProperty.GetValue(); }
     }
 
-    public Property ExitActionsProperty
+    public AbstractProperty ExitActionsProperty
     {
       get { return _exitActionsProperty; }
     }
@@ -106,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       get { return (IList<TriggerAction>) _exitActionsProperty.GetValue(); }
     }
 
-    public Property SettersProperty
+    public AbstractProperty SettersProperty
     {
       get { return _settersProperty; }
     }

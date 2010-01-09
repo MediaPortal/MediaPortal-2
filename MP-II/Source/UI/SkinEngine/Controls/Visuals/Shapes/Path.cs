@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   {
     #region Protected fields
 
-    protected Property _dataProperty;
+    protected AbstractProperty _dataProperty;
     protected bool _fillDisabled;
 
     #endregion
@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _dataProperty = new Property(typeof(string), "");
+      _dataProperty = new SProperty(typeof(string), "");
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -67,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    public Property DataProperty
+    public AbstractProperty DataProperty
     {
       get { return _dataProperty; }
     }

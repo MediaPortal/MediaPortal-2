@@ -175,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// Given the instance <paramref name="obj"/> and the <paramref name="memberName"/>,
     /// this method searches the best matching member on the instance. It first searches
     /// a property with name [PropertyName]Property, casts it to
-    /// <see cref="Property"/> and returns a <see cref="DependencyPropertyDataDescriptor"/>
+    /// <see cref="AbstractProperty"/> and returns a <see cref="DependencyPropertyDataDescriptor"/>
     /// for it in the parameter <paramref name="dd"/>. If there is no such property, this method
     /// searches a simple property with the given name, returning a property descriptor for it.
     /// Then, the method will search for a field with the specified name, returning a

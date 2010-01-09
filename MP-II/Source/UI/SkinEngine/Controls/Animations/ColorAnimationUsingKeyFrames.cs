@@ -35,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   {
     #region Private fields
 
-    Property _keyFramesProperty;
+    AbstractProperty _keyFramesProperty;
 
     #endregion
 
@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _keyFramesProperty = new Property(typeof(IList<ColorKeyFrame>), new List<ColorKeyFrame>());
+      _keyFramesProperty = new SProperty(typeof(IList<ColorKeyFrame>), new List<ColorKeyFrame>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Public properties
 
-    public Property KeyFramesProperty
+    public AbstractProperty KeyFramesProperty
     {
       get { return _keyFramesProperty; }
     }

@@ -67,7 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>TargetName</c> property.</returns>
-    public static Property GetTargetNameAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetTargetNameAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<string>(TARGET_NAME_ATTACHED_PROPERTY, null);
     }
@@ -105,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>TargetProperty</c> property.</returns>
-    public static Property GetTargetPropertyAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetTargetPropertyAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<string>(TARGET_PROPERTY_ATTACHED_PROPERTY, null);
     }

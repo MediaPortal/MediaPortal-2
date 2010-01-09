@@ -260,10 +260,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
                 false, out convertedIndices);
         if (!indicesOnProperty)
           convertedIndices = null;
-        if (pi.PropertyType == typeof(Property))
+        if (pi.PropertyType == typeof(AbstractProperty))
         { // Property value -> request value and return DependencyPropertyDataDescriptor
           object val = pi.GetValue(obj, convertedIndices);
-          result = new DependencyPropertyDataDescriptor(obj, _memberName, (Property) val);
+          result = new DependencyPropertyDataDescriptor(obj, _memberName, (AbstractProperty) val);
         }
         else
         { // Simple property

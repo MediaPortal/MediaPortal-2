@@ -42,22 +42,22 @@ namespace Ui.Players.Video
     readonly ItemsList _defaultAudioLanguages;
     readonly ItemsList _defaultSubtitleLanguages;
     AudioSettings _audioSettings;
-    Property _propertyIsDigital;
-    Property _propertyIsAnalog;
-    Property _propertyIsBuildIn;
-    Property _propertyIsStereo;
-    Property _propertyIs51;
-    Property _propertyIs71;
+    AbstractProperty _propertyIsDigital;
+    AbstractProperty _propertyIsAnalog;
+    AbstractProperty _propertyIsBuildIn;
+    AbstractProperty _propertyIsStereo;
+    AbstractProperty _propertyIs51;
+    AbstractProperty _propertyIs71;
 
     public Settings()
     {
 
-      _propertyIsDigital = new Property(typeof(bool), false);
-      _propertyIsAnalog = new Property(typeof(bool), false);
-      _propertyIsBuildIn = new Property(typeof(bool), false);
-      _propertyIsStereo = new Property(typeof(bool), false);
-      _propertyIs51 = new Property(typeof(bool), false);
-      _propertyIs71 = new Property(typeof(bool), false);
+      _propertyIsDigital = new WProperty(typeof(bool), false);
+      _propertyIsAnalog = new WProperty(typeof(bool), false);
+      _propertyIsBuildIn = new WProperty(typeof(bool), false);
+      _propertyIsStereo = new WProperty(typeof(bool), false);
+      _propertyIs51 = new WProperty(typeof(bool), false);
+      _propertyIs71 = new WProperty(typeof(bool), false);
 
 
       _audioSettings = ServiceScope.Get<ISettingsManager>().Load<AudioSettings>();
@@ -359,7 +359,7 @@ namespace Ui.Players.Video
         _propertyIsDigital.SetValue(value);
       }
     }
-    public Property IsDigitalProperty
+    public AbstractProperty IsDigitalProperty
     {
       get
       {
@@ -381,7 +381,7 @@ namespace Ui.Players.Video
         _propertyIsAnalog.SetValue(value);
       }
     }
-    public Property IsAnalogProperty
+    public AbstractProperty IsAnalogProperty
     {
       get
       {
@@ -403,7 +403,7 @@ namespace Ui.Players.Video
         _propertyIsBuildIn.SetValue(value);
       }
     }
-    public Property IsBuildInProperty
+    public AbstractProperty IsBuildInProperty
     {
       get
       {
@@ -427,7 +427,7 @@ namespace Ui.Players.Video
         _propertyIsStereo.SetValue(value);
       }
     }
-    public Property IsStereoProperty
+    public AbstractProperty IsStereoProperty
     {
       get
       {
@@ -449,7 +449,7 @@ namespace Ui.Players.Video
         _propertyIs51.SetValue(value);
       }
     }
-    public Property Is51Property
+    public AbstractProperty Is51Property
     {
       get
       {
@@ -471,7 +471,7 @@ namespace Ui.Players.Video
         _propertyIs71.SetValue(value);
       }
     }
-    public Property Is71Property
+    public AbstractProperty Is71Property
     {
       get
       {
@@ -486,7 +486,7 @@ namespace Ui.Players.Video
 
     #endregion
 
-    void OnSpeakerConnectionChanged(Property prop, object oldValue)
+    void OnSpeakerConnectionChanged(AbstractProperty prop, object oldValue)
     {
       if ((bool)prop.GetValue() == false) return;
       if (prop == IsBuildInProperty)
@@ -510,7 +510,7 @@ namespace Ui.Players.Video
       ServiceScope.Get<ISettingsManager>().Save(_audioSettings);
     }
 
-    void OnSpeakerAmountChanged(Property prop, object oldValue)
+    void OnSpeakerAmountChanged(AbstractProperty prop, object oldValue)
     {
       if ((bool)prop.GetValue() == false) return;
       if (prop == IsStereoProperty)

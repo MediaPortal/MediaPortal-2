@@ -71,8 +71,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
 
-    protected Property _childrenProperty;
-    protected Property _backgroundProperty;
+    protected AbstractProperty _childrenProperty;
+    protected AbstractProperty _backgroundProperty;
     protected bool _isItemsHost = false;
     protected bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
     protected List<UIElement> _renderOrder; // Cache for the render order of our children
@@ -99,8 +99,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _childrenProperty = new Property(typeof(UIElementCollection), new UIElementCollection(this));
-      _backgroundProperty = new Property(typeof(Brush), null);
+      _childrenProperty = new SProperty(typeof(UIElementCollection), new UIElementCollection(this));
+      _backgroundProperty = new SProperty(typeof(Brush), null);
       _renderOrder = new List<UIElement>();
     }
 
@@ -141,12 +141,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    protected void OnLayoutPropertyChanged(Property property, object oldValue)
+    protected void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
     }
 
-    protected void OnBackgroundPropertyChanged(Property property, object oldValue)
+    protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_backgroundAsset != null)
       {
@@ -163,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public Property BackgroundProperty
+    public AbstractProperty BackgroundProperty
     {
       get { return _backgroundProperty; }
     }
@@ -174,7 +174,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _backgroundProperty.SetValue(value); }
     }
 
-    public Property ChildrenProperty
+    public AbstractProperty ChildrenProperty
     {
       get { return _childrenProperty; }
     }
@@ -477,7 +477,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>ZIndex</c> property.</returns>
-    public static Property GetZIndexAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetZIndexAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty(ZINDEX_ATTACHED_PROPERTY, -1.0);
     }

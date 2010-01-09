@@ -31,8 +31,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _valueProperty;
-    Property _partIndicatorWidthProperty;
+    AbstractProperty _valueProperty;
+    AbstractProperty _partIndicatorWidthProperty;
 
     #endregion
 
@@ -47,8 +47,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       Focusable = false;
-      _valueProperty = new Property(typeof(float), 0.0f);
-      _partIndicatorWidthProperty = new Property(typeof(float), 0.0f);
+      _valueProperty = new SProperty(typeof(float), 0.0f);
+      _partIndicatorWidthProperty = new SProperty(typeof(float), 0.0f);
     }
 
     void Attach()
@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnValueChanged(Property property, object oldValue)
+    void OnValueChanged(AbstractProperty property, object oldValue)
     {
       CalcPartIndicatorWidth();
     }
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       CalcPartIndicatorWidth();
     }
 
-    public Property ValueProperty
+    public AbstractProperty ValueProperty
     {
       get { return _valueProperty; }
     }
@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _valueProperty.SetValue(value); }
     }
 
-    public Property PartIndicatorWidthProperty
+    public AbstractProperty PartIndicatorWidthProperty
     {
       get { return _partIndicatorWidthProperty; }
     }

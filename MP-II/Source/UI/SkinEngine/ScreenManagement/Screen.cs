@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     protected FrameworkElement _focusedElement = null;
 
-    protected Property _opened;
+    protected AbstractProperty _opened;
     public event EventHandler Closed;
     protected UIElement _visual;
     protected bool _setFocusedElement = false;
@@ -94,7 +94,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         throw new ArgumentOutOfRangeException("name");
       }
 
-      _opened = new Property(typeof(bool), true);
+      _opened = new SProperty(typeof(bool), true);
       _name = name;
       _animator = new Animator();
     }
@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       set { _opened.SetValue(value); }
     }
 
-    public Property IsOpenedProperty
+    public AbstractProperty IsOpenedProperty
     {
       get { return _opened; }
       set { _opened = value; }

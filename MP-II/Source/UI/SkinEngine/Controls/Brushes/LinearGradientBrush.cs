@@ -47,8 +47,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     EffectAsset _effect;
     DateTime _lastTimeUsed;
 
-    Property _startPointProperty;
-    Property _endPointProperty;
+    AbstractProperty _startPointProperty;
+    AbstractProperty _endPointProperty;
     bool _refresh = false;
     bool _singleColor = true;
     EffectHandleAsset _handleRelativeTransform;
@@ -78,8 +78,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _startPointProperty = new Property(typeof(Vector2), new Vector2(0.0f, 0.0f));
-      _endPointProperty = new Property(typeof(Vector2), new Vector2(1.0f, 1.0f));
+      _startPointProperty = new SProperty(typeof(Vector2), new Vector2(0.0f, 0.0f));
+      _endPointProperty = new SProperty(typeof(Vector2), new Vector2(1.0f, 1.0f));
     }
 
     void Attach()
@@ -106,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    protected override void OnPropertyChanged(Property prop, object oldValue)
+    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
       FireChanged();
@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           }
     }
 
-    public Property StartPointProperty
+    public AbstractProperty StartPointProperty
     {
       get { return _startPointProperty; }
     }
@@ -138,7 +138,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _startPointProperty.SetValue(value); }
     }
 
-    public Property EndPointProperty
+    public AbstractProperty EndPointProperty
     {
       get { return _endPointProperty; }
     }

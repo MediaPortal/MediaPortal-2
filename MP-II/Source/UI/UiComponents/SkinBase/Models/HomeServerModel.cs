@@ -73,17 +73,17 @@ namespace UiComponents.SkinBase.Models
 
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
-    protected Property _homeServerProperty;
-    protected Property _homeServerConnectedProperty;
-    protected Property _isHomeServerAttachedProperty;
+    protected AbstractProperty _homeServerProperty;
+    protected AbstractProperty _homeServerConnectedProperty;
+    protected AbstractProperty _isHomeServerAttachedProperty;
 
     #endregion
 
     public HomeServerModel()
     {
-      _homeServerProperty = new Property(typeof(string), string.Empty);
-      _homeServerConnectedProperty = new Property(typeof(bool), false);
-      _isHomeServerAttachedProperty = new Property(typeof(bool), false);
+      _homeServerProperty = new WProperty(typeof(string), string.Empty);
+      _homeServerConnectedProperty = new WProperty(typeof(bool), false);
+      _isHomeServerAttachedProperty = new WProperty(typeof(bool), false);
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
             ServerConnectionMessaging.CHANNEL
@@ -138,7 +138,7 @@ namespace UiComponents.SkinBase.Models
       set { _isHomeServerAttachedProperty.SetValue(value); }
     }
 
-    public Property IsHomeServerAttachedProperty
+    public AbstractProperty IsHomeServerAttachedProperty
     {
       get { return _isHomeServerAttachedProperty; }
     }
@@ -149,7 +149,7 @@ namespace UiComponents.SkinBase.Models
       set { _homeServerProperty.SetValue(value); }
     }
 
-    public Property HomeServerProperty
+    public AbstractProperty HomeServerProperty
     {
       get { return _homeServerProperty; }
     }
@@ -160,7 +160,7 @@ namespace UiComponents.SkinBase.Models
       set { _homeServerConnectedProperty.SetValue(value); }
     }
 
-    public Property HomeServerConnectedProperty
+    public AbstractProperty HomeServerConnectedProperty
     {
       get { return _homeServerConnectedProperty; }
     }

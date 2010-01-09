@@ -45,14 +45,14 @@ namespace UiComponents.Weather
     private readonly ItemsList _locationsSearchExposed = new ItemsList();
 
 
-    private Property _searchCity;
+    private AbstractProperty _searchCity;
 
     /// <summary>
     /// constructor
     /// </summary>
     public WeatherSetupViewModel()
     {
-      _searchCity = new Property(typeof(string), "");
+      _searchCity = new WProperty(typeof(string), "");
       // see if we already have a weather catcher in servicescope, if not, add one (for testing purposes)
       if (!ServiceScope.IsRegistered<IWeatherCatcher>())
       {
@@ -71,7 +71,7 @@ namespace UiComponents.Weather
       set { _searchCity.SetValue(value); }
     }
 
-    public Property SearchCityProperty
+    public AbstractProperty SearchCityProperty
     {
       get { return _searchCity; }
     }

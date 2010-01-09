@@ -58,13 +58,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _fallbackSourceProperty;
-    Property _imageSourceProperty;
-    Property _stretchDirectionProperty;
-    Property _thumbnailProperty;
+    AbstractProperty _fallbackSourceProperty;
+    AbstractProperty _imageSourceProperty;
+    AbstractProperty _stretchDirectionProperty;
+    AbstractProperty _thumbnailProperty;
     private VertextBufferAsset _image;
     private VertextBufferAsset _fallbackImage;
-    Property _stretchProperty;
+    AbstractProperty _stretchProperty;
     TextureRender _renderImage;
     TextureRender _renderFallback;
 
@@ -84,11 +84,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _imageSourceProperty = new Property(typeof(string), null);
-      _fallbackSourceProperty = new Property(typeof(string), null);
-      _stretchDirectionProperty = new Property(typeof(StretchDirection), StretchDirection.Both);
-      _thumbnailProperty = new Property(typeof(bool), false);
-      _stretchProperty = new Property(typeof(Stretch), Stretch.None);
+      _imageSourceProperty = new SProperty(typeof(string), null);
+      _fallbackSourceProperty = new SProperty(typeof(string), null);
+      _stretchDirectionProperty = new SProperty(typeof(StretchDirection), StretchDirection.Both);
+      _thumbnailProperty = new SProperty(typeof(bool), false);
+      _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
     }
 
     void Attach()
@@ -124,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    void OnPropertyChanged(Property property, object oldValue)
+    void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       _performImageLayout = true;
       if (Screen != null) Screen.Invalidate(this);
@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    void OnImageChanged(Property property, object oldValue)
+    void OnImageChanged(AbstractProperty property, object oldValue)
     {
       if (_image != null)
       {
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public Property StretchProperty
+    public AbstractProperty StretchProperty
     {
       get { return _stretchProperty; }
     }
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _stretchProperty.SetValue(value); }
     }
 
-    public Property ThumbnailProperty
+    public AbstractProperty ThumbnailProperty
     {
       get { return _thumbnailProperty; }
     }
@@ -177,7 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _thumbnailProperty.SetValue(value); }
     }
 
-    public Property SourceProperty
+    public AbstractProperty SourceProperty
     {
       get { return _imageSourceProperty; }
       set { _imageSourceProperty = value; }
@@ -189,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _imageSourceProperty.SetValue(value); }
     }
 
-    public Property FallbackSourceProperty
+    public AbstractProperty FallbackSourceProperty
     {
       get { return _fallbackSourceProperty; }
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _fallbackSourceProperty.SetValue(value); }
     }
 
-    public Property StretchDirectionProperty
+    public AbstractProperty StretchDirectionProperty
     {
       get { return _stretchDirectionProperty; }
     }

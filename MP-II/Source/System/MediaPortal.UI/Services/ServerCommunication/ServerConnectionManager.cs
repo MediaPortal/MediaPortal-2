@@ -359,6 +359,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         if (_controlPoint != null)
           _controlPoint.Stop();
       }
+      _messageQueue.Shutdown();
     }
 
     public void DetachFromHomeServer()

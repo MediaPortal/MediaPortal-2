@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private fields
 
-    Property _visualProperty;
+    AbstractProperty _visualProperty;
     EffectAsset _effect;
     Texture _textureOpacity;
 
@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _visualProperty = new Property(typeof(FrameworkElement), null);
+      _visualProperty = new SProperty(typeof(FrameworkElement), null);
       _effect = ContentManager.GetEffect("normal");
     }
 
@@ -70,7 +70,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property VisualProperty
+    public AbstractProperty VisualProperty
     {
       get { return _visualProperty; }
     }

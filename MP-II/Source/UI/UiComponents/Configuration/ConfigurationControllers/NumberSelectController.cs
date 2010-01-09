@@ -195,23 +195,23 @@ namespace UiComponents.Configuration.ConfigurationControllers
 
     #region Protected fields
 
-    protected Property _valueProperty;
-    protected Property _isValueValidProperty;
-    protected Property _errorTextProperty;
+    protected AbstractProperty _valueProperty;
+    protected AbstractProperty _isValueValidProperty;
+    protected AbstractProperty _errorTextProperty;
     protected INumberModel _numberModel = null;
 
     #endregion
 
     public NumberSelectController()
     {
-      _valueProperty = new Property(typeof(string), "0");
-      _isValueValidProperty = new Property(typeof(bool), true);
-      _errorTextProperty = new Property(typeof(string), string.Empty);
+      _valueProperty = new WProperty(typeof(string), "0");
+      _isValueValidProperty = new WProperty(typeof(bool), true);
+      _errorTextProperty = new WProperty(typeof(string), string.Empty);
 
       _valueProperty.Attach(OnValueChanged);
     }
 
-    protected void OnValueChanged(Property prop, object oldValue)
+    protected void OnValueChanged(AbstractProperty prop, object oldValue)
     {
       string errorText;
       if (_numberModel.TrySetValue(Value, out errorText))
@@ -263,7 +263,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       base.UpdateSetting();
     }
 
-    public Property ValueProperty
+    public AbstractProperty ValueProperty
     {
       get { return _valueProperty; }
     }
@@ -274,7 +274,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       set { _valueProperty.SetValue(value); }
     }
 
-    public Property IsValueValidProperty
+    public AbstractProperty IsValueValidProperty
     {
       get { return _isValueValidProperty; }
     }
@@ -285,7 +285,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       set { _isValueValidProperty.SetValue(value); }
     }
 
-    public Property ErrorTextProperty
+    public AbstractProperty ErrorTextProperty
     {
       get { return _errorTextProperty; }
     }

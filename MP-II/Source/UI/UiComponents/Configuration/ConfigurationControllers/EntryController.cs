@@ -35,15 +35,15 @@ namespace UiComponents.Configuration.ConfigurationControllers
   {
     #region Protected fields
 
-    protected Property _valueProperty;
-    protected Property _displayLengthProperty;
+    protected AbstractProperty _valueProperty;
+    protected AbstractProperty _displayLengthProperty;
 
     #endregion
 
     public EntryController()
     {
-      _valueProperty = new Property(typeof(string), string.Empty);
-      _displayLengthProperty = new Property(typeof(int), 0);
+      _valueProperty = new WProperty(typeof(string), string.Empty);
+      _displayLengthProperty = new WProperty(typeof(int), 0);
     }
 
     public override Type ConfigSettingType
@@ -73,7 +73,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       base.UpdateSetting();
     }
 
-    public Property ValueProperty
+    public AbstractProperty ValueProperty
     {
       get { return _valueProperty; }
     }
@@ -84,7 +84,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       set { _valueProperty.SetValue(value); }
     }
 
-    public Property DisplayLengthProperty
+    public AbstractProperty DisplayLengthProperty
     {
       get { return _displayLengthProperty; }
       internal set { _displayLengthProperty.SetValue(value); }

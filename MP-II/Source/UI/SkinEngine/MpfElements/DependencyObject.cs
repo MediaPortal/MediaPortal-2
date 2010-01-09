@@ -43,9 +43,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     #region Protected fields
 
     protected ICollection<BindingBase> _bindings = null;
-    protected IDictionary<string, Property> _attachedProperties = null; // Lazy initialized
-    protected Property _dataContextProperty;
-    protected Property _logicalParentProperty;
+    protected IDictionary<string, AbstractProperty> _attachedProperties = null; // Lazy initialized
+    protected AbstractProperty _dataContextProperty;
+    protected AbstractProperty _logicalParentProperty;
 
     #endregion
 
@@ -58,15 +58,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     void Init()
     {
-      _dataContextProperty = new Property(typeof(BindingMarkupExtension), null);
-      _logicalParentProperty = new Property(typeof(DependencyObject), null);
+      _dataContextProperty = new SProperty(typeof(BindingMarkupExtension), null);
+      _logicalParentProperty = new SProperty(typeof(DependencyObject), null);
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       DependencyObject d = (DependencyObject) source;
       if (d._attachedProperties != null)
-        foreach (KeyValuePair<string, Property> kvp in d._attachedProperties)
+        foreach (KeyValuePair<string, AbstractProperty> kvp in d._attachedProperties)
           AddAttachedProperty(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()), kvp.Value.PropertyType);
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     #region Public properties
 
-    public Property DataContextProperty
+    public AbstractProperty DataContextProperty
     {
       get { return _dataContextProperty; }
     }
@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       set { _dataContextProperty.SetValue(value); }
     }
 
-    public Property LogicalParentProperty
+    public AbstractProperty LogicalParentProperty
     {
       get { return _logicalParentProperty; }
     }
@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public void SetAttachedPropertyValue<T>(string name, T value)
     {
-      Property result = GetAttachedProperty(name);
+      AbstractProperty result = GetAttachedProperty(name);
       if (result == null)
         AddAttachedProperty(name, value, typeof(T));
       else
@@ -148,20 +148,20 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public T GetAttachedPropertyValue<T>(string name, T defaultValue)
     {
-      Property property = GetAttachedProperty(name);
+      AbstractProperty property = GetAttachedProperty(name);
       return property == null ? defaultValue : (T) property.GetValue();
     }
 
-    public Property GetAttachedProperty(string name)
+    public AbstractProperty GetAttachedProperty(string name)
     {
       if (_attachedProperties != null && _attachedProperties.ContainsKey(name))
         return _attachedProperties[name];
       return null;
     }
 
-    public Property GetOrCreateAttachedProperty<T>(string name, T defaultValue)
+    public AbstractProperty GetOrCreateAttachedProperty<T>(string name, T defaultValue)
     {
-      Property result = GetAttachedProperty(name);
+      AbstractProperty result = GetAttachedProperty(name);
       if (result == null)
         result = AddAttachedProperty(name, defaultValue, typeof(T));
       return result;
@@ -174,11 +174,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       _attachedProperties.Remove(name);
     }
 
-    private Property AddAttachedProperty(string name, object value, Type t)
+    private AbstractProperty AddAttachedProperty(string name, object value, Type t)
     {
       if (_attachedProperties == null)
-        _attachedProperties = new Dictionary<string, Property>();
-      Property result = new Property(t);
+        _attachedProperties = new Dictionary<string, AbstractProperty>();
+      AbstractProperty result = new SProperty(t);
       result.SetValue(value);
       _attachedProperties[name] = result;
       return result;

@@ -64,17 +64,17 @@ namespace UiComponents.Media.Models
     protected bool _inactive = false;
     protected VideoStateType _currentVideoStateType = VideoStateType.None;
 
-    protected Property _isOSDVisibleProperty;
-    protected Property _pipWidthProperty;
-    protected Property _pipHeightProperty;
-    protected Property _isPipProperty;
+    protected AbstractProperty _isOSDVisibleProperty;
+    protected AbstractProperty _pipWidthProperty;
+    protected AbstractProperty _pipHeightProperty;
+    protected AbstractProperty _isPipProperty;
 
     public VideoPlayerModel() : base(300)
     {
-      _isOSDVisibleProperty = new Property(typeof(bool), false);
-      _pipWidthProperty = new Property(typeof(float), 0f);
-      _pipHeightProperty = new Property(typeof(float), 0f);
-      _isPipProperty = new Property(typeof(bool), false);
+      _isOSDVisibleProperty = new WProperty(typeof(bool), false);
+      _pipWidthProperty = new WProperty(typeof(float), 0f);
+      _pipHeightProperty = new WProperty(typeof(float), 0f);
+      _isPipProperty = new WProperty(typeof(bool), false);
       // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
@@ -118,7 +118,7 @@ namespace UiComponents.Media.Models
 
     #region Members to be accessed from the GUI
 
-    public Property IsOSDVisibleProperty
+    public AbstractProperty IsOSDVisibleProperty
     {
       get { return _isOSDVisibleProperty; }
     }
@@ -129,7 +129,7 @@ namespace UiComponents.Media.Models
       set { _isOSDVisibleProperty.SetValue(value); }
     }
 
-    public Property IsPipProperty
+    public AbstractProperty IsPipProperty
     {
       get { return _isPipProperty; }
     }
@@ -140,7 +140,7 @@ namespace UiComponents.Media.Models
       set { _isPipProperty.SetValue(value); }
     }
 
-    public Property PipWidthProperty
+    public AbstractProperty PipWidthProperty
     {
       get { return _pipWidthProperty; }
     }
@@ -151,7 +151,7 @@ namespace UiComponents.Media.Models
       set { _pipWidthProperty.SetValue(value); }
     }
 
-    public Property PipHeightProperty
+    public AbstractProperty PipHeightProperty
     {
       get { return _pipHeightProperty; }
     }

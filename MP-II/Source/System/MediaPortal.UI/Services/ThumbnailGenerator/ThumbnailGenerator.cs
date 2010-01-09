@@ -39,7 +39,7 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
   /// files and folders to execute asynchronously. There are also methods to query the execution
   /// state for input files.
   /// </summary>
-  public class ThumbnailGenerator : IAsyncThumbnailGenerator
+  public class ThumbnailGenerator : IAsyncThumbnailGenerator, IDisposable
   {
     public const string FOLDER_THUMB_NAME = "folder.jpg";
     public const int DEFAULT_THUMB_WIDTH = 192;
@@ -55,6 +55,11 @@ namespace MediaPortal.UI.Services.ThumbnailGenerator
     public ThumbnailGenerator()
     {
       _thumbDatabaseCache = new ThumbDatabaseCache();
+    }
+
+    public void Dispose()
+    {
+      _thumbDatabaseCache.Dispose();
     }
 
     private bool IsInQueue(string fileOrFolderPath)

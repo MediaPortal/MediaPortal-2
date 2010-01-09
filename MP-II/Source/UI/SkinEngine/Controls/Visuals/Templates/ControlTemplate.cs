@@ -38,8 +38,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   {
     #region Private fields
 
-    Property _triggerProperty;
-    Property _targetTypeProperty;
+    AbstractProperty _triggerProperty;
+    AbstractProperty _targetTypeProperty;
 
     #endregion
 
@@ -52,8 +52,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     void Init()
     {
-      _triggerProperty = new Property(typeof(IList<TriggerBase>), new List<TriggerBase>());
-      _targetTypeProperty = new Property(typeof(Type), null);
+      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _targetTypeProperty = new SProperty(typeof(Type), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     #region Public properties
 
-    public Property TargetTypeProperty
+    public AbstractProperty TargetTypeProperty
     {
       get { return _targetTypeProperty; }
     }
@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       set { _targetTypeProperty.SetValue(value); }
     }
 
-    public Property TriggersProperty
+    public AbstractProperty TriggersProperty
     {
       get { return _triggerProperty; }
     }

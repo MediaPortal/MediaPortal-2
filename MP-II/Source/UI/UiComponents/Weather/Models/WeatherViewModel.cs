@@ -40,7 +40,7 @@ namespace UiComponents.Weather
   /// </summary>
   public class WeatherViewModel
   {
-    private Property _currentLocation;
+    private AbstractProperty _currentLocation;
     private readonly List<City> _locations = new List<City>();
 
     private readonly ItemsList _locationsList = new ItemsList();
@@ -48,7 +48,7 @@ namespace UiComponents.Weather
 
     public WeatherViewModel()
     {
-      _currentLocation = new Property(typeof(City), new City("No Data", "No Data"));
+      _currentLocation = new WProperty(typeof(City), new City("No Data", "No Data"));
       // for testing purposes add a weathercatcher
       ServiceScope.Add<IWeatherCatcher>(new WeatherDotComCatcher());
       // add citys from settings to the locations list
@@ -183,7 +183,7 @@ namespace UiComponents.Weather
       get { return (City)_currentLocation.GetValue(); }
     }
 
-    public Property CurrentLocationProperty
+    public AbstractProperty CurrentLocationProperty
     {
       get { return _currentLocation; }
     }

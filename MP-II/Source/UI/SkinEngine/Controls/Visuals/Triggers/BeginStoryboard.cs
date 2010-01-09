@@ -32,9 +32,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
   {
     #region Private fields
 
-    protected Property _storyBoardProperty;
-    protected Property _nameProperty;
-    protected Property _handoffBehaviorProperty;
+    protected AbstractProperty _storyBoardProperty;
+    protected AbstractProperty _nameProperty;
+    protected AbstractProperty _handoffBehaviorProperty;
 
     #endregion
 
@@ -47,9 +47,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _storyBoardProperty = new Property(typeof(Storyboard), null);
-      _nameProperty = new Property(typeof(string), "");
-      _handoffBehaviorProperty = new Property(typeof(HandoffBehavior), Animations.HandoffBehavior.SnapshotAndReplace);
+      _storyBoardProperty = new SProperty(typeof(Storyboard), null);
+      _nameProperty = new SProperty(typeof(string), "");
+      _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), Animations.HandoffBehavior.SnapshotAndReplace);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #region Public properties
 
-    public Property StoryboardProperty
+    public AbstractProperty StoryboardProperty
     {
       get { return _storyBoardProperty; }
     }
@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     }
 
 
-    public Property NameProperty
+    public AbstractProperty NameProperty
     {
       get { return _nameProperty; }
     }
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _nameProperty.SetValue(value); }
     }
 
-    public Property HandoffBehaviorProperty
+    public AbstractProperty HandoffBehaviorProperty
     {
       get { return _handoffBehaviorProperty; }
     }

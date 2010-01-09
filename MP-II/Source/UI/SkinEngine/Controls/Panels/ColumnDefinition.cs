@@ -28,7 +28,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
   public class ColumnDefinition : DefinitionBase
   {
-    public Property WidthProperty
+    public AbstractProperty WidthProperty
     {
       get { return LengthProperty; }
     }

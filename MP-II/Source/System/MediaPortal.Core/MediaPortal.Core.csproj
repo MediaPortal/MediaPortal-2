@@ -47,6 +47,8 @@
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\MethodDelegateCommand.cs" />
+    <Compile Include="General\AbstractProperty.cs" />
+    <Compile Include="General\SProperty.cs" />
     <Compile Include="General\ParameterlessMethod.cs" />
     <Compile Include="Configuration\ConfigBase.cs" />
     <Compile Include="Configuration\ConfigBaseMetadata.cs" />
@@ -78,9 +80,10 @@
     <Compile Include="FileEventNotification\IFileWatchEventArgs.cs" />
     <Compile Include="FileEventNotification\InvalidFileWatchInfoException.cs" />
     <Compile Include="FileEventNotification\NotSupportedDriveTypeException.cs" />
+    <Compile Include="General\WeakEventMulticastDelegate.cs" />
     <Compile Include="General\HomogenousCollection.cs" />
     <Compile Include="General\IObservable.cs" />
-    <Compile Include="General\Property.cs" />
+    <Compile Include="General\WProperty.cs" />
     <Compile Include="General\SmallLRUCache.cs" />
     <Compile Include="General\SystemName.cs" />
     <Compile Include="IStatus.cs" />

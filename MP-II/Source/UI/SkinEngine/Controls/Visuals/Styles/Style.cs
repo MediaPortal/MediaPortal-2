@@ -37,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     protected Style _basedOn = null;
     protected IList<SetterBase> _setters = new List<SetterBase>();
-    protected Property _targetTypeProperty;
+    protected AbstractProperty _targetTypeProperty;
     protected ResourceDictionary _resources;
 
     #endregion
@@ -51,7 +51,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     void Init()
     {
-      _targetTypeProperty = new Property(typeof(Type), null);
+      _targetTypeProperty = new SProperty(typeof(Type), null);
       _resources = new ResourceDictionary();
     }
 
@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
       set { _basedOn = value; }
     }
 
-    public Property TargetTypeProperty
+    public AbstractProperty TargetTypeProperty
     {
       get { return _targetTypeProperty; }
     }

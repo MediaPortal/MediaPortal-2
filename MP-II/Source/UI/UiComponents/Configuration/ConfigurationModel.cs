@@ -90,8 +90,8 @@ namespace UiComponents.Configuration
     protected ItemsList _configSettingsList = null;
     protected string _currentLocation = null;
     protected ConfigurationController _currentConfigController = null;
-    protected Property _headerTextProperty;
-    protected ICollection<Property> _trackedVisibleEnabledProperties = new List<Property>();
+    protected AbstractProperty _headerTextProperty;
+    protected ICollection<AbstractProperty> _trackedVisibleEnabledProperties = new List<AbstractProperty>();
 
     #endregion
 
@@ -108,7 +108,7 @@ namespace UiComponents.Configuration
 
     public ConfigurationModel()
     {
-      _headerTextProperty = new Property(typeof(string), null);
+      _headerTextProperty = new WProperty(typeof(string), null);
       Initialize();
     }
 
@@ -136,7 +136,7 @@ namespace UiComponents.Configuration
 
     #region Common properties for screens
 
-    public Property HeaderTextProperty
+    public AbstractProperty HeaderTextProperty
     {
       get { return _headerTextProperty; }
     }
@@ -349,7 +349,7 @@ namespace UiComponents.Configuration
       }
     }
 
-    protected void TrackItemVisibleEnabledProperty(Property property)
+    protected void TrackItemVisibleEnabledProperty(AbstractProperty property)
     {
       property.Attach(OnVisibleEnabledChanged);
       _trackedVisibleEnabledProperties.Add(property);
@@ -357,12 +357,12 @@ namespace UiComponents.Configuration
 
     protected void ReleaseAllVisibleEnabledNotifications()
     {
-      foreach (Property property in _trackedVisibleEnabledProperties)
+      foreach (AbstractProperty property in _trackedVisibleEnabledProperties)
         property.Detach(OnVisibleEnabledChanged);
       _trackedVisibleEnabledProperties.Clear();
     }
 
-    void OnVisibleEnabledChanged(Property visibleOrEnabledProperty, object oldValue)
+    void OnVisibleEnabledChanged(AbstractProperty visibleOrEnabledProperty, object oldValue)
     {
       UpdateConfigSettings();
     }

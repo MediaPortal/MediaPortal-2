@@ -38,14 +38,14 @@ namespace UiComponents.Login
   public class LoginModel
   {
     private ItemsList _usersExposed = new ItemsList();
-    private Property _currentUser;
+    private AbstractProperty _currentUser;
 
     /// <summary>
     /// constructor
     /// </summary>
     public LoginModel()
     {
-      _currentUser = new Property(null);
+      _currentUser = new WProperty(null);
       LoadUsers();
     }
 
@@ -121,7 +121,7 @@ namespace UiComponents.Login
     /// <summary>
     /// exposes the current user to the skin
     /// </summary>
-    public Property CurrentUserProperty
+    public AbstractProperty CurrentUserProperty
     {
       get { return _currentUser; }
       set { _currentUser = value; }

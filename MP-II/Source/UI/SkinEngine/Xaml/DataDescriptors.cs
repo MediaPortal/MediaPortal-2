@@ -766,7 +766,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     protected object _obj;
     protected string _propertyName;
-    protected Property _prop;
+    protected AbstractProperty _prop;
     protected event DataChangedHandler _valueChanged;
     protected bool _attachedToProperty = false;
 
@@ -774,7 +774,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     #region Ctor & static methods
 
-    public DependencyPropertyDataDescriptor(object obj, string propertyName, Property prop)
+    public DependencyPropertyDataDescriptor(object obj, string propertyName, AbstractProperty prop)
     {
       if (obj == null)
         throw new ArgumentNullException("obj", "Target object for dependency property access cannot be null");
@@ -791,14 +791,14 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       result = null;
       if (targetObj == null)
         throw new NullReferenceException("Target object 'null' is not supported");
-      Property prop;
+      AbstractProperty prop;
       if (!FindDependencyProperty(targetObj, ref propertyName, out prop))
         return false;
       result = new DependencyPropertyDataDescriptor(targetObj, propertyName, prop);
       return true;
     }
 
-    public static bool FindDependencyProperty(object obj, ref string propertyName, out Property prop)
+    public static bool FindDependencyProperty(object obj, ref string propertyName, out AbstractProperty prop)
     {
       prop = null;
       PropertyInfo pi;
@@ -807,9 +807,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           obj.GetType(), name = (propertyName + "Property"), out pi))
         if (!SimplePropertyDataDescriptor.FindSimpleProperty(obj.GetType(), name = propertyName, out pi))
           return false;
-      if (typeof(Property).IsAssignableFrom(pi.PropertyType))
+      if (typeof(AbstractProperty).IsAssignableFrom(pi.PropertyType))
       {
-        prop = pi.GetValue(obj, null) as Property;
+        prop = pi.GetValue(obj, null) as AbstractProperty;
         if (prop == null)
           throw new XamlBindingException("Member {0}.{1} doesn't return a Property instance on object '{2}'",
             obj.GetType().Name, name, obj.ToString());
@@ -823,7 +823,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     #region Protected methods
 
-    protected void OnPropertyChanged(Property property, object oldValue)
+    protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_valueChanged != null)
         // Delegate to our handlers

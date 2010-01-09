@@ -95,23 +95,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Private fields
 
-    Property _widthProperty;
-    Property _heightProperty;
+    AbstractProperty _widthProperty;
+    AbstractProperty _heightProperty;
 
-    Property _actualWidthProperty;
-    Property _actualHeightProperty;
-    Property _horizontalAlignmentProperty;
-    Property _verticalAlignmentProperty;
-    Property _styleProperty;
-    Property _focusableProperty;
-    Property _hasFocusProperty;
-    Property _isMouseOverProperty;
+    AbstractProperty _actualWidthProperty;
+    AbstractProperty _actualHeightProperty;
+    AbstractProperty _horizontalAlignmentProperty;
+    AbstractProperty _verticalAlignmentProperty;
+    AbstractProperty _styleProperty;
+    AbstractProperty _focusableProperty;
+    AbstractProperty _hasFocusProperty;
+    AbstractProperty _isMouseOverProperty;
     bool _updateOpacityMask;
     VisualAssetContext _opacityMaskContext;
-    Property _fontSizeProperty;
-    Property _fontFamilyProperty;
+    AbstractProperty _fontSizeProperty;
+    AbstractProperty _fontFamilyProperty;
 
-    Property _contextMenuCommandProperty;
+    AbstractProperty _contextMenuCommandProperty;
 
     #endregion
 
@@ -126,32 +126,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       // Default is not set
-      _widthProperty = new Property(typeof(double), Double.NaN);
-      _heightProperty = new Property(typeof(double), Double.NaN);
+      _widthProperty = new SProperty(typeof(double), Double.NaN);
+      _heightProperty = new SProperty(typeof(double), Double.NaN);
 
       // Default is not set
-      _actualWidthProperty = new Property(typeof(double), Double.NaN);
-      _actualHeightProperty = new Property(typeof(double), Double.NaN);
+      _actualWidthProperty = new SProperty(typeof(double), Double.NaN);
+      _actualHeightProperty = new SProperty(typeof(double), Double.NaN);
 
       // Default is not set
-      _styleProperty = new Property(typeof(Style), null);
+      _styleProperty = new SProperty(typeof(Style), null);
 
       // Default is stretch
-      _horizontalAlignmentProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
-      _verticalAlignmentProperty = new Property(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Stretch);
+      _horizontalAlignmentProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Stretch);
+      _verticalAlignmentProperty = new SProperty(typeof(VerticalAlignmentEnum), VerticalAlignmentEnum.Stretch);
 
       // Focus properties
-      _focusableProperty = new Property(typeof(bool), false);
-      _hasFocusProperty = new Property(typeof(bool), false);
+      _focusableProperty = new SProperty(typeof(bool), false);
+      _hasFocusProperty = new SProperty(typeof(bool), false);
 
-      _isMouseOverProperty = new Property(typeof(bool), false);
+      _isMouseOverProperty = new SProperty(typeof(bool), false);
 
       // Context menu
-      _contextMenuCommandProperty = new Property(typeof(IExecutableCommand), null);
+      _contextMenuCommandProperty = new SProperty(typeof(IExecutableCommand), null);
 
       // Font properties
-      _fontFamilyProperty = new Property(typeof(string), String.Empty);
-      _fontSizeProperty = new Property(typeof(int), -1);
+      _fontFamilyProperty = new SProperty(typeof(string), String.Empty);
+      _fontSizeProperty = new SProperty(typeof(int), -1);
     }
 
     void Attach()
@@ -198,24 +198,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    protected virtual void OnFontChanged(Property property, object oldValue)
+    protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
     }
 
-    protected virtual void OnStyleChanged(Property property, object oldValue)
+    protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
       ///@optimize: 
       Style.Set(this);
       Invalidate();
     }
 
-    void OnActualSizeChanged(Property property, object oldValue)
+    void OnActualSizeChanged(AbstractProperty property, object oldValue)
     {
       _updateOpacityMask = true;
     }
 
-    void OnFocusPropertyChanged(Property property, object oldValue)
+    void OnFocusPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (HasFocus)
       {
@@ -237,14 +237,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    void OnLayoutPropertyChanged(Property property, object oldValue)
+    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
     }
 
     #region Public properties
 
-    public Property WidthProperty
+    public AbstractProperty WidthProperty
     {
       get { return _widthProperty; }
     }
@@ -255,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _widthProperty.SetValue(value); }
     }
 
-    public Property HeightProperty
+    public AbstractProperty HeightProperty
     {
       get { return _heightProperty; }
     }
@@ -266,7 +266,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _heightProperty.SetValue(value); }
     }
 
-    public Property ActualWidthProperty
+    public AbstractProperty ActualWidthProperty
     {
       get { return _actualWidthProperty; }
     }
@@ -277,7 +277,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _actualWidthProperty.SetValue(value); }
     }
 
-    public Property ActualHeightProperty
+    public AbstractProperty ActualHeightProperty
     {
       get { return _actualHeightProperty; }
     }
@@ -320,7 +320,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public Property HorizontalAlignmentProperty
+    public AbstractProperty HorizontalAlignmentProperty
     {
       get { return _horizontalAlignmentProperty; }
     }
@@ -331,7 +331,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _horizontalAlignmentProperty.SetValue(value); }
     }
 
-    public Property VerticalAlignmentProperty
+    public AbstractProperty VerticalAlignmentProperty
     {
       get { return _verticalAlignmentProperty; }
     }
@@ -342,7 +342,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _verticalAlignmentProperty.SetValue(value);  }
     }
 
-    public Property StyleProperty
+    public AbstractProperty StyleProperty
     {
       get { return _styleProperty; }
     }
@@ -357,7 +357,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _styleProperty.SetValue(value); }
     }
 
-    public Property HasFocusProperty
+    public AbstractProperty HasFocusProperty
     {
       get { return _hasFocusProperty; }
     }
@@ -368,7 +368,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set { _hasFocusProperty.SetValue(value); }
     }
 
-    public Property FocusableProperty
+    public AbstractProperty FocusableProperty
     {
       get { return _focusableProperty; }
     }
@@ -379,7 +379,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _focusableProperty.SetValue(value); }
     }
 
-    public Property IsMouseOverProperty
+    public AbstractProperty IsMouseOverProperty
     {
       get { return _isMouseOverProperty; }
     }
@@ -390,7 +390,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set { _isMouseOverProperty.SetValue(value); }
     }
 
-    public Property ContextMenuCommandProperty
+    public AbstractProperty ContextMenuCommandProperty
     {
       get { return _contextMenuCommandProperty; }
     }
@@ -401,7 +401,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set { _contextMenuCommandProperty.SetValue(value); }
     }
 
-    public Property FontFamilyProperty
+    public AbstractProperty FontFamilyProperty
     {
       get { return _fontFamilyProperty; }
     }
@@ -414,7 +414,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _fontFamilyProperty.SetValue(value); }
     }
 
-    public Property FontSizeProperty
+    public AbstractProperty FontSizeProperty
     {
       get { return _fontSizeProperty; }
     }

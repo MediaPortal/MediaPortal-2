@@ -61,7 +61,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       return result;
     }
 
-    protected void OnSelectionChanged(Property property, object oldValue)
+    protected void OnSelectionChanged(AbstractProperty property, object oldValue)
     {
       MultipleSelectionList msl = (MultipleSelectionList) _setting;
       _selectedIndices = FindSelectedIndices();

@@ -38,12 +38,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Private/protected fields
 
-    Property _templateProperty;
-    Property _templateControlProperty;
-    Property _backgroundProperty;
-    Property _borderProperty;
-    Property _borderThicknessProperty;
-    Property _cornerRadiusProperty;
+    AbstractProperty _templateProperty;
+    AbstractProperty _templateControlProperty;
+    AbstractProperty _backgroundProperty;
+    AbstractProperty _borderProperty;
+    AbstractProperty _borderThicknessProperty;
+    AbstractProperty _cornerRadiusProperty;
     protected UIEvent _lastEvent = UIEvent.None;
     protected bool _hidden = false;
 
@@ -59,12 +59,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _templateProperty = new Property(typeof(ControlTemplate), null);
-      _templateControlProperty = new Property(typeof(FrameworkElement), null);
-      _borderProperty = new Property(typeof(Brush), null);
-      _backgroundProperty = new Property(typeof(Brush), null);
-      _borderThicknessProperty = new Property(typeof(double), 1.0);
-      _cornerRadiusProperty = new Property(typeof(double), 0.0);
+      _templateProperty = new SProperty(typeof(ControlTemplate), null);
+      _templateControlProperty = new SProperty(typeof(FrameworkElement), null);
+      _borderProperty = new SProperty(typeof(Brush), null);
+      _backgroundProperty = new SProperty(typeof(Brush), null);
+      _borderThicknessProperty = new SProperty(typeof(double), 1.0);
+      _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Change handlers
 
-    void OnTemplateChanged(Property property, object oldValue)
+    void OnTemplateChanged(AbstractProperty property, object oldValue)
     {
       if (Template != null)
       {
@@ -111,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         TemplateControl = null;
     }
 
-    void OnTemplateControlChanged(Property property, object oldValue)
+    void OnTemplateControlChanged(AbstractProperty property, object oldValue)
     {
       FrameworkElement oldTemplateControl = oldValue as FrameworkElement;
       if (oldTemplateControl != null)
@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Public properties
 
-    public Property TemplateControlProperty
+    public AbstractProperty TemplateControlProperty
     {
       get { return _templateControlProperty; }
     }
@@ -141,7 +141,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _templateControlProperty.SetValue(value); }
     }
 
-    public Property BackgroundProperty
+    public AbstractProperty BackgroundProperty
     {
       get { return _backgroundProperty; }
     }
@@ -152,7 +152,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _backgroundProperty.SetValue(value); }
     }
 
-    public Property BorderBrushProperty
+    public AbstractProperty BorderBrushProperty
     {
       get { return _borderProperty; }
     }
@@ -163,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _borderProperty.SetValue(value); }
     }
 
-    public Property BorderThicknessProperty
+    public AbstractProperty BorderThicknessProperty
     {
       get { return _borderThicknessProperty; }
     }
@@ -174,7 +174,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _borderThicknessProperty.SetValue(value); }
     }
 
-    public Property CornerRadiusProperty
+    public AbstractProperty CornerRadiusProperty
     {
       get { return _cornerRadiusProperty; }
     }
@@ -185,7 +185,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _cornerRadiusProperty.SetValue(value); }
     }
 
-    public Property TemplateProperty
+    public AbstractProperty TemplateProperty
     {
       get { return _templateProperty; }
     }

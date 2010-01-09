@@ -35,8 +35,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
   {
     #region Protected fields
 
-    protected Property _propertyProperty;
-    protected Property _valueProperty;
+    protected AbstractProperty _propertyProperty;
+    protected AbstractProperty _valueProperty;
     protected IDataDescriptor _dataDescriptor;
 
     #endregion
@@ -50,8 +50,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _propertyProperty = new Property(typeof(string), "");
-      _valueProperty = new Property(typeof(object), false);
+      _propertyProperty = new SProperty(typeof(string), "");
+      _valueProperty = new SProperty(typeof(object), false);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #region Public properties
 
-    public Property PropertyProperty
+    public AbstractProperty PropertyProperty
     {
       get { return _propertyProperty; }
     }
@@ -77,7 +77,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       set { _propertyProperty.SetValue(value); }
     }
 
-    public Property ValueProperty
+    public AbstractProperty ValueProperty
     {
       get { return _valueProperty; }
     }

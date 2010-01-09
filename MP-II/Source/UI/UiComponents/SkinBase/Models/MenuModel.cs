@@ -57,7 +57,7 @@ namespace UiComponents.SkinBase.Models
       SubscribeToMessages();
     }
 
-    #region Protected methods
+    #region Private & protected methods
 
     void SubscribeToMessages()
     {

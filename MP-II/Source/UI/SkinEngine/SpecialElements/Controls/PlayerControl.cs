@@ -78,8 +78,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     #region Protected fields
 
     // Direct properties/fields
-    protected Property _slotIndexProperty;
-    protected Property _autoVisibilityProperty;
+    protected AbstractProperty _slotIndexProperty;
+    protected AbstractProperty _autoVisibilityProperty;
     protected bool _stickToPlayerContext;
     protected float _fixedVideoWidth;
     protected float _fixedVideoHeight;
@@ -89,33 +89,33 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AsynchronousMessageQueue _messageQueue = null;
 
     // Derived properties/fields
-    protected Property _isPlayerPresentProperty;
-    protected Property _titleProperty;
-    protected Property _mediaItemTitleProperty;
-    protected Property _isAudioProperty;
-    protected Property _isMutedProperty;
-    protected Property _isPlayingProperty;
-    protected Property _isPausedProperty;
-    protected Property _isSeekingForwardProperty;
-    protected Property _isSeekingBackwardProperty;
-    protected Property _seekHintProperty;
-    protected Property _isCurrentPlayerProperty;
-    protected Property _percentPlayedProperty;
-    protected Property _currentTimeProperty;
-    protected Property _durationProperty;
-    protected Property _playerStateTextProperty;
-    protected Property _showMouseControlsProperty;
-    protected Property _canPlayProperty;
-    protected Property _canPauseProperty;
-    protected Property _canStopProperty;
-    protected Property _canSkipForwardProperty;
-    protected Property _canSkipBackProperty;
-    protected Property _canSeekForwardProperty;
-    protected Property _canSeekBackwardProperty;
-    protected Property _isPlayerActiveProperty;
-    protected Property _isPipProperty;
-    protected Property _videoWidthProperty;
-    protected Property _videoHeightProperty;
+    protected AbstractProperty _isPlayerPresentProperty;
+    protected AbstractProperty _titleProperty;
+    protected AbstractProperty _mediaItemTitleProperty;
+    protected AbstractProperty _isAudioProperty;
+    protected AbstractProperty _isMutedProperty;
+    protected AbstractProperty _isPlayingProperty;
+    protected AbstractProperty _isPausedProperty;
+    protected AbstractProperty _isSeekingForwardProperty;
+    protected AbstractProperty _isSeekingBackwardProperty;
+    protected AbstractProperty _seekHintProperty;
+    protected AbstractProperty _isCurrentPlayerProperty;
+    protected AbstractProperty _percentPlayedProperty;
+    protected AbstractProperty _currentTimeProperty;
+    protected AbstractProperty _durationProperty;
+    protected AbstractProperty _playerStateTextProperty;
+    protected AbstractProperty _showMouseControlsProperty;
+    protected AbstractProperty _canPlayProperty;
+    protected AbstractProperty _canPauseProperty;
+    protected AbstractProperty _canStopProperty;
+    protected AbstractProperty _canSkipForwardProperty;
+    protected AbstractProperty _canSkipBackProperty;
+    protected AbstractProperty _canSeekForwardProperty;
+    protected AbstractProperty _canSeekBackwardProperty;
+    protected AbstractProperty _isPlayerActiveProperty;
+    protected AbstractProperty _isPipProperty;
+    protected AbstractProperty _videoWidthProperty;
+    protected AbstractProperty _videoHeightProperty;
 
     protected IResourceString _headerNormalResource;
     protected IResourceString _headerPipResource;
@@ -135,38 +135,38 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     void Init()
     {
-      _slotIndexProperty = new Property(typeof(int), 0);
-      _autoVisibilityProperty = new Property(typeof(bool), false);
-      _isPlayerPresentProperty = new Property(typeof(bool), false);
-      _titleProperty = new Property(typeof(string), null);
-      _mediaItemTitleProperty = new Property(typeof(string), null);
-      _isAudioProperty = new Property(typeof(bool), false);
-      _isMutedProperty = new Property(typeof(bool), false);
-      _isPlayingProperty = new Property(typeof(bool), false);
-      _isPausedProperty = new Property(typeof(bool), false);
-      _isSeekingForwardProperty = new Property(typeof(bool), false);
-      _isSeekingBackwardProperty = new Property(typeof(bool), false);
-      _seekHintProperty = new Property(typeof(string), string.Empty);
-      _isCurrentPlayerProperty = new Property(typeof(bool), false);
-      _percentPlayedProperty = new Property(typeof(float), 0f);
-      _currentTimeProperty = new Property(typeof(string), string.Empty);
-      _durationProperty = new Property(typeof(string), string.Empty);
-      _playerStateTextProperty = new Property(typeof(string), string.Empty);
-      _showMouseControlsProperty = new Property(typeof(bool), false);
-      _canPlayProperty = new Property(typeof(bool), false);
-      _canPauseProperty = new Property(typeof(bool), false);
-      _canStopProperty = new Property(typeof(bool), false);
-      _canSkipForwardProperty = new Property(typeof(bool), false);
-      _canSkipBackProperty = new Property(typeof(bool), false);
-      _canSeekForwardProperty = new Property(typeof(bool), false);
-      _canSeekBackwardProperty = new Property(typeof(bool), false);
-      _isPlayerActiveProperty = new Property(typeof(bool), false);
-      _isPipProperty = new Property(typeof(bool), false);
+      _slotIndexProperty = new SProperty(typeof(int), 0);
+      _autoVisibilityProperty = new SProperty(typeof(bool), false);
+      _isPlayerPresentProperty = new SProperty(typeof(bool), false);
+      _titleProperty = new SProperty(typeof(string), null);
+      _mediaItemTitleProperty = new SProperty(typeof(string), null);
+      _isAudioProperty = new SProperty(typeof(bool), false);
+      _isMutedProperty = new SProperty(typeof(bool), false);
+      _isPlayingProperty = new SProperty(typeof(bool), false);
+      _isPausedProperty = new SProperty(typeof(bool), false);
+      _isSeekingForwardProperty = new SProperty(typeof(bool), false);
+      _isSeekingBackwardProperty = new SProperty(typeof(bool), false);
+      _seekHintProperty = new SProperty(typeof(string), string.Empty);
+      _isCurrentPlayerProperty = new SProperty(typeof(bool), false);
+      _percentPlayedProperty = new SProperty(typeof(float), 0f);
+      _currentTimeProperty = new SProperty(typeof(string), string.Empty);
+      _durationProperty = new SProperty(typeof(string), string.Empty);
+      _playerStateTextProperty = new SProperty(typeof(string), string.Empty);
+      _showMouseControlsProperty = new SProperty(typeof(bool), false);
+      _canPlayProperty = new SProperty(typeof(bool), false);
+      _canPauseProperty = new SProperty(typeof(bool), false);
+      _canStopProperty = new SProperty(typeof(bool), false);
+      _canSkipForwardProperty = new SProperty(typeof(bool), false);
+      _canSkipBackProperty = new SProperty(typeof(bool), false);
+      _canSeekForwardProperty = new SProperty(typeof(bool), false);
+      _canSeekBackwardProperty = new SProperty(typeof(bool), false);
+      _isPlayerActiveProperty = new SProperty(typeof(bool), false);
+      _isPipProperty = new SProperty(typeof(bool), false);
       _stickToPlayerContext = false;
       _fixedVideoWidth = 0f;
       _fixedVideoHeight = 0f;
-      _videoWidthProperty = new Property(typeof(float), 0f);
-      _videoHeightProperty = new Property(typeof(float), 0f);
+      _videoWidthProperty = new SProperty(typeof(float), 0f);
+      _videoHeightProperty = new SProperty(typeof(float), 0f);
 
       _timer = new Timer(200) {Enabled = false};
       _timer.Elapsed += OnTimerElapsed;
@@ -206,18 +206,19 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       base.Dispose();
       UnsubscribeFromMessages();
       StopTimer();
+      _timer.Dispose();
     }
 
     #endregion
 
     #region Private & protected methods
 
-    void OnPropertyChanged(Property prop, object oldValue)
+    void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       UpdateProperties();
     }
 
-    void OnMuteChanged(Property prop, object oldValue)
+    void OnMuteChanged(AbstractProperty prop, object oldValue)
     {
       if (!_initialized)
         // Avoid changing the player manager's mute state in the initialization phase
@@ -521,7 +522,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #region Configuration properties, to be set from the outside
 
-    public Property SlotIndexProperty
+    public AbstractProperty SlotIndexProperty
     {
       get { return _slotIndexProperty; }
     }
@@ -536,7 +537,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       set { _slotIndexProperty.SetValue(value); }
     }
 
-    public Property AutoVisibilityProperty
+    public AbstractProperty AutoVisibilityProperty
     {
       get { return _autoVisibilityProperty; }
     }
@@ -589,7 +590,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 
     #region Derived properties to update the GUI
 
-    public Property IsPlayerPresentProperty
+    public AbstractProperty IsPlayerPresentProperty
     {
       get { return _isPlayerPresentProperty; }
     }
@@ -603,7 +604,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isPlayerPresentProperty.SetValue(value); }
     }
 
-    public Property TitleProperty
+    public AbstractProperty TitleProperty
     {
       get { return _titleProperty; }
     }
@@ -617,7 +618,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _titleProperty.SetValue(value); }
     }
 
-    public Property MediaItemTitleProperty
+    public AbstractProperty MediaItemTitleProperty
     {
       get { return _mediaItemTitleProperty; }
     }
@@ -631,7 +632,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _mediaItemTitleProperty.SetValue(value); }
     }
 
-    public Property IsAudioProperty
+    public AbstractProperty IsAudioProperty
     {
       get { return _isAudioProperty; }
     }
@@ -645,7 +646,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isAudioProperty.SetValue(value); }
     }
 
-    public Property IsMutedProperty
+    public AbstractProperty IsMutedProperty
     {
       get { return _isMutedProperty; }
     }
@@ -659,7 +660,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isMutedProperty.SetValue(value); }
     }
 
-    public Property IsCurrentPlayerProperty
+    public AbstractProperty IsCurrentPlayerProperty
     {
       get { return _isCurrentPlayerProperty; }
     }
@@ -673,7 +674,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isPlayingProperty.SetValue(value); }
     }
 
-    public Property IsPlayingProperty
+    public AbstractProperty IsPlayingProperty
     {
       get { return _isPlayingProperty; }
     }
@@ -687,7 +688,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isPausedProperty.SetValue(value); }
     }
 
-    public Property IsPausedProperty
+    public AbstractProperty IsPausedProperty
     {
       get { return _isPausedProperty; }
     }
@@ -701,7 +702,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isSeekingForwardProperty.SetValue(value); }
     }
 
-    public Property IsSeekingForwardProperty
+    public AbstractProperty IsSeekingForwardProperty
     {
       get { return _isSeekingForwardProperty; }
     }
@@ -715,7 +716,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isSeekingBackwardProperty.SetValue(value); }
     }
 
-    public Property IsSeekingBackwardProperty
+    public AbstractProperty IsSeekingBackwardProperty
     {
       get { return _isSeekingBackwardProperty; }
     }
@@ -729,7 +730,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _seekHintProperty.SetValue(value); }
     }
 
-    public Property SeekHintProperty
+    public AbstractProperty SeekHintProperty
     {
       get { return _seekHintProperty; }
     }
@@ -743,7 +744,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isCurrentPlayerProperty.SetValue(value); }
     }
 
-    public Property PercentPlayedProperty
+    public AbstractProperty PercentPlayedProperty
     {
       get { return _percentPlayedProperty; }
     }
@@ -757,7 +758,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _percentPlayedProperty.SetValue(value); }
     }
 
-    public Property CurrentTimeProperty
+    public AbstractProperty CurrentTimeProperty
     {
       get { return _currentTimeProperty; }
     }
@@ -771,7 +772,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _currentTimeProperty.SetValue(value); }
     }
 
-    public Property DurationProperty
+    public AbstractProperty DurationProperty
     {
       get { return _durationProperty; }
     }
@@ -785,7 +786,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _durationProperty.SetValue(value); }
     }
 
-    public Property PlayerStateTextProperty
+    public AbstractProperty PlayerStateTextProperty
     {
       get { return _playerStateTextProperty; }
     }
@@ -799,7 +800,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _playerStateTextProperty.SetValue(value); }
     }
 
-    public Property ShowMouseControlsProperty
+    public AbstractProperty ShowMouseControlsProperty
     {
       get { return _showMouseControlsProperty; }
     }
@@ -813,7 +814,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _showMouseControlsProperty.SetValue(value); }
     }
 
-    public Property CanPlayProperty
+    public AbstractProperty CanPlayProperty
     {
       get { return _canPlayProperty; }
     }
@@ -828,7 +829,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canPlayProperty.SetValue(value); }
     }
 
-    public Property CanPauseProperty
+    public AbstractProperty CanPauseProperty
     {
       get { return _canPauseProperty; }
     }
@@ -843,7 +844,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canPauseProperty.SetValue(value); }
     }
 
-    public Property CanStopProperty
+    public AbstractProperty CanStopProperty
     {
       get { return _canStopProperty; }
     }
@@ -858,7 +859,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canStopProperty.SetValue(value); }
     }
 
-    public Property CanSkipForwardProperty
+    public AbstractProperty CanSkipForwardProperty
     {
       get { return _canSkipForwardProperty; }
     }
@@ -873,7 +874,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canSkipForwardProperty.SetValue(value); }
     }
 
-    public Property CanSkipBackProperty
+    public AbstractProperty CanSkipBackProperty
     {
       get { return _canSkipBackProperty; }
     }
@@ -888,7 +889,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canSkipBackProperty.SetValue(value); }
     }
 
-    public Property CanSeekForwardProperty
+    public AbstractProperty CanSeekForwardProperty
     {
       get { return _canSeekForwardProperty; }
     }
@@ -903,7 +904,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canSeekForwardProperty.SetValue(value); }
     }
 
-    public Property CanSeekBackwardProperty
+    public AbstractProperty CanSeekBackwardProperty
     {
       get { return _canSeekBackwardProperty; }
     }
@@ -918,7 +919,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _canSeekBackwardProperty.SetValue(value); }
     }
 
-    public Property IsPlayerActiveProperty
+    public AbstractProperty IsPlayerActiveProperty
     {
       get { return _isPlayerActiveProperty; }
     }
@@ -933,7 +934,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isPlayerActiveProperty.SetValue(value); }
     }
 
-    public Property IsPipProperty
+    public AbstractProperty IsPipProperty
     {
       get { return _isPipProperty; }
     }
@@ -947,7 +948,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _isPipProperty.SetValue(value); }
     }
 
-    public Property VideoWidthProperty
+    public AbstractProperty VideoWidthProperty
     {
       get { return _videoWidthProperty; }
     }
@@ -961,7 +962,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       internal set { _videoWidthProperty.SetValue(value); }
     }
 
-    public Property VideoHeightProperty
+    public AbstractProperty VideoHeightProperty
     {
       get { return _videoHeightProperty; }
     }

@@ -53,10 +53,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _backgroundProperty;
-    protected Property _borderProperty;
-    protected Property _borderThicknessProperty;
-    protected Property _cornerRadiusProperty;
+    protected AbstractProperty _backgroundProperty;
+    protected AbstractProperty _borderProperty;
+    protected AbstractProperty _borderThicknessProperty;
+    protected AbstractProperty _cornerRadiusProperty;
     protected FrameworkElement _content;
     protected VisualAssetContext _backgroundAsset;
     protected int _verticesCountFill;
@@ -80,10 +80,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _borderProperty = new Property(typeof(Brush), null);
-      _backgroundProperty = new Property(typeof(Brush), null);
-      _borderThicknessProperty = new Property(typeof(double), 1.0);
-      _cornerRadiusProperty = new Property(typeof(double), 0.0);
+      _borderProperty = new SProperty(typeof(Brush), null);
+      _backgroundProperty = new SProperty(typeof(Brush), null);
+      _borderThicknessProperty = new SProperty(typeof(double), 1.0);
+      _cornerRadiusProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -120,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Change event handlers
 
-    void OnBackgroundBrushPropertyChanged(Property property, object oldValue)
+    void OnBackgroundBrushPropertyChanged(AbstractProperty property, object oldValue)
     {
       Brush oldBrush = oldValue as Brush;
       if (oldBrush != null)
@@ -131,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OnBackgroundBrushChanged(brush);
     }
 
-    void OnBorderBrushPropertyChanged(Property property, object oldValue)
+    void OnBorderBrushPropertyChanged(AbstractProperty property, object oldValue)
     {
       Brush oldBrush = oldValue as Brush;
       if (oldBrush != null)
@@ -156,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _performLayout = true;
     }
 
-    void OnLayoutPropertyChanged(Property property, object oldValue)
+    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
       if (Screen != null) Screen.Invalidate(this);
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Properties
 
-    public Property BackgroundProperty
+    public AbstractProperty BackgroundProperty
     {
       get { return _backgroundProperty; }
     }
@@ -177,7 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _backgroundProperty.SetValue(value); }
     }
 
-    public Property BorderBrushProperty
+    public AbstractProperty BorderBrushProperty
     {
       get { return _borderProperty; }
       set { _borderProperty = value; }
@@ -189,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _borderProperty.SetValue(value); }
     }
 
-    public Property BorderThicknessProperty
+    public AbstractProperty BorderThicknessProperty
     {
       get { return _borderThicknessProperty; }
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _borderThicknessProperty.SetValue(value); }
     }
 
-    public Property CornerRadiusProperty
+    public AbstractProperty CornerRadiusProperty
     {
       get { return _cornerRadiusProperty; }
     }

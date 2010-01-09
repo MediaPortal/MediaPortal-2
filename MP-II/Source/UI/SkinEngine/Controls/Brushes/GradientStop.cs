@@ -33,8 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private fields
 
-    Property _colorProperty;
-    Property _offsetProperty;
+    AbstractProperty _colorProperty;
+    AbstractProperty _offsetProperty;
 
     #endregion
 
@@ -62,8 +62,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _colorProperty = new Property(typeof(Color), Color.White);
-      _offsetProperty = new Property(typeof(double), 0.0);
+      _colorProperty = new SProperty(typeof(Color), Color.White);
+      _offsetProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         ObjectChanged(this);
     }
 
-    protected void OnPropertyChanged(Property prop, object oldValue)
+    protected void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       Fire();
     }
@@ -109,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property ColorProperty
+    public AbstractProperty ColorProperty
     {
       get { return _colorProperty; }
     }
@@ -120,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _colorProperty.SetValue(value); }
     }
 
-    public Property OffsetProperty
+    public AbstractProperty OffsetProperty
     {
       get { return _offsetProperty; }
     }

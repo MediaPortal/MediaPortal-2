@@ -63,8 +63,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       #region Protected fields
 
-      protected Property _headerTextProperty;
-      protected Property _textProperty;
+      protected AbstractProperty _headerTextProperty;
+      protected AbstractProperty _textProperty;
       protected ItemsList _dialogButtonsList;
       protected Guid _dialogHandle;
 
@@ -72,13 +72,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       internal GenericDialogData(string headerText, string text, ItemsList dialogButtons, Guid dialogHandle)
       {
-        _headerTextProperty = new Property(typeof(string), headerText);
-        _textProperty = new Property(typeof(string), text);
+        _headerTextProperty = new SProperty(typeof(string), headerText);
+        _textProperty = new SProperty(typeof(string), text);
         _dialogButtonsList = dialogButtons;
         _dialogHandle = dialogHandle;
       }
 
-      public Property HeaderTextProperty
+      public AbstractProperty HeaderTextProperty
       {
         get { return _headerTextProperty; }
       }
@@ -89,7 +89,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         set { _headerTextProperty.SetValue(value); }
       }
 
-      public Property TextProperty
+      public AbstractProperty TextProperty
       {
         get { return _textProperty; }
       }

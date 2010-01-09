@@ -33,7 +33,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Private fields
 
-    Property _isCheckedProperty;
+    AbstractProperty _isCheckedProperty;
     IExecutableCommand _checkedCommand;
     IExecutableCommand _unCheckedCommand;
 
@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _isCheckedProperty = new Property(typeof(bool), false);
+      _isCheckedProperty = new SProperty(typeof(bool), false);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public Property IsCheckedProperty
+    public AbstractProperty IsCheckedProperty
     {
       get { return _isCheckedProperty; }
     }

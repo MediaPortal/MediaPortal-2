@@ -43,17 +43,17 @@ namespace UiComponents.Configuration
     public const string CONFIGURATION_MODEL_ID_STR = "545674F1-D92A-4383-B6C1-D758CECDBDF5";
 
     protected ConfigSetting _setting;
-    protected Property _helpProperty;
-    protected Property _textProperty;
-    protected Property _visibleProperty;
-    protected Property _enabledProperty;
+    protected AbstractProperty _helpProperty;
+    protected AbstractProperty _textProperty;
+    protected AbstractProperty _visibleProperty;
+    protected AbstractProperty _enabledProperty;
 
     protected ConfigurationController()
     {
-      _helpProperty = new Property(typeof(IResourceString), null);
-      _textProperty = new Property(typeof(IResourceString), null);
-      _visibleProperty = new Property(typeof(bool), true);
-      _enabledProperty = new Property(typeof(bool), true);
+      _helpProperty = new WProperty(typeof(IResourceString), null);
+      _textProperty = new WProperty(typeof(IResourceString), null);
+      _visibleProperty = new WProperty(typeof(bool), true);
+      _enabledProperty = new WProperty(typeof(bool), true);
     }
 
     protected void OnSettingChanged(ConfigSetting sender)
@@ -106,7 +106,7 @@ namespace UiComponents.Configuration
       get { return _setting; }
     }
 
-    public Property HelpProperty
+    public AbstractProperty HelpProperty
     {
       get { return _helpProperty; }
     }
@@ -117,7 +117,7 @@ namespace UiComponents.Configuration
       set { _helpProperty.SetValue(value); }
     }
 
-    public Property TextProperty
+    public AbstractProperty TextProperty
     {
       get { return _textProperty; }
     }
@@ -128,7 +128,7 @@ namespace UiComponents.Configuration
       set { _textProperty.SetValue(value); }
     }
 
-    public Property VisibleProperty
+    public AbstractProperty VisibleProperty
     {
       get { return _visibleProperty; }
     }
@@ -139,7 +139,7 @@ namespace UiComponents.Configuration
       set { _visibleProperty.SetValue(value); }
     }
 
-    public Property EnabledProperty
+    public AbstractProperty EnabledProperty
     {
       get { return _enabledProperty; }
     }

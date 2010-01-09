@@ -43,11 +43,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected IList<BindingMarkupExtension> _childBindings = new List<BindingMarkupExtension>();
     protected IMultiValueConverter _converter = null;
     protected object _converterParameter = null;
-    protected Property _modeProperty = new Property(typeof(BindingMode), BindingMode.Default);
+    protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
 
     // State variables
     protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
-    protected Property _sourceValueValidProperty = new Property(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
+    protected AbstractProperty _sourceValueValidProperty = new SProperty(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected bool _isUpdatingSourceValue = false; // Avoid recursive calls to method UpdateSourceValue
     protected ICollection<IDataDescriptor> _attachedDataDescriptors = new List<IDataDescriptor>();
@@ -170,7 +170,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
     }
 
-    public Property ModeProperty
+    public AbstractProperty ModeProperty
     {
       get { return _modeProperty; }
     }
@@ -191,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _evaluatedSourceValue; }
     }
 
-    public Property IsSourceValueValidProperty
+    public AbstractProperty IsSourceValueValidProperty
     {
       get { return _sourceValueValidProperty; }
     }
@@ -216,7 +216,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     /// <param name="property">The binding property which changed.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    protected void OnBindingPropertyChanged(Property property, object oldValue)
+    protected void OnBindingPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
         UpdateSourceValue();

@@ -40,15 +40,15 @@ namespace MediaPortal.Core.Configuration
     /// Text to display for the current ConfigBase.
     /// </summary>
     protected IResourceString _text = null;
-    protected Property _visibleProperty;
-    protected Property _enabledProperty;
+    protected AbstractProperty _visibleProperty;
+    protected AbstractProperty _enabledProperty;
 
     #endregion
 
     protected ConfigBase()
     {
-      _visibleProperty = new Property(typeof(bool), true);
-      _enabledProperty = new Property(typeof(bool), true);
+      _visibleProperty = new WProperty(typeof(bool), true);
+      _enabledProperty = new WProperty(typeof(bool), true);
     }
 
     #region Public properties
@@ -67,7 +67,7 @@ namespace MediaPortal.Core.Configuration
       set { _text = value; }
     }
 
-    public Property VisibleProperty
+    public AbstractProperty VisibleProperty
     {
        get { return _visibleProperty; }
     }
@@ -84,7 +84,7 @@ namespace MediaPortal.Core.Configuration
       set { _visibleProperty.SetValue(value); }
     }
 
-    public Property EnabledProperty
+    public AbstractProperty EnabledProperty
     {
        get { return _enabledProperty; }
     }

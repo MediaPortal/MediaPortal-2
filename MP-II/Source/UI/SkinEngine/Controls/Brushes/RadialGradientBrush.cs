@@ -48,10 +48,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     EffectAsset _effect;
     DateTime _lastTimeUsed;
 
-    Property _centerProperty;
-    Property _gradientOriginProperty;
-    Property _radiusXProperty;
-    Property _radiusYProperty;
+    AbstractProperty _centerProperty;
+    AbstractProperty _gradientOriginProperty;
+    AbstractProperty _radiusXProperty;
+    AbstractProperty _radiusYProperty;
     bool _refresh = false;
     bool _singleColor = true;
     EffectHandleAsset _handleRelativeTransform;
@@ -85,10 +85,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _centerProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
-      _gradientOriginProperty = new Property(typeof(Vector2), new Vector2(0.5f, 0.5f));
-      _radiusXProperty = new Property(typeof(double), 0.5);
-      _radiusYProperty = new Property(typeof(double), 0.5);
+      _centerProperty = new SProperty(typeof(Vector2), new Vector2(0.5f, 0.5f));
+      _gradientOriginProperty = new SProperty(typeof(Vector2), new Vector2(0.5f, 0.5f));
+      _radiusXProperty = new SProperty(typeof(double), 0.5);
+      _radiusYProperty = new SProperty(typeof(double), 0.5);
     }
 
     void Attach()
@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Protected methods
 
-    protected override void OnPropertyChanged(Property prop, object oldValue)
+    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       _refresh = true;
       FireChanged();
@@ -133,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property CenterProperty
+    public AbstractProperty CenterProperty
     {
       get { return _centerProperty; }
     }
@@ -144,7 +144,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _centerProperty.SetValue(value); }
     }
 
-    public Property GradientOriginProperty
+    public AbstractProperty GradientOriginProperty
     {
       get { return _gradientOriginProperty; }
     }
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _gradientOriginProperty.SetValue(value); }
     }
 
-    public Property RadiusXProperty
+    public AbstractProperty RadiusXProperty
     {
       get { return _radiusXProperty; }
     }
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _radiusXProperty.SetValue(value); }
     }
 
-    public Property RadiusYProperty
+    public AbstractProperty RadiusYProperty
     {
       get { return _radiusYProperty; }
     }

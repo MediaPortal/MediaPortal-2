@@ -45,17 +45,17 @@ namespace UiComponents.SkinBase.Models
     public const float DEFAULT_PIP_HEIGHT = 108;
     public const float DEFAULT_PIP_WIDTH = 192;
 
-    protected Property _isPipVisibleProperty;
-    protected Property _pipWidthProperty;
-    protected Property _pipHeightProperty;
-    protected Property _isMutedProperty;
+    protected AbstractProperty _isPipVisibleProperty;
+    protected AbstractProperty _pipWidthProperty;
+    protected AbstractProperty _pipHeightProperty;
+    protected AbstractProperty _isMutedProperty;
 
     public PlayerModel()
     {
-      _isPipVisibleProperty = new Property(typeof(bool), false);
-      _pipWidthProperty = new Property(typeof(float), 0f);
-      _pipHeightProperty = new Property(typeof(float), 0f);
-      _isMutedProperty = new Property(typeof(bool), false);
+      _isPipVisibleProperty = new WProperty(typeof(bool), false);
+      _pipWidthProperty = new WProperty(typeof(float), 0f);
+      _pipHeightProperty = new WProperty(typeof(float), 0f);
+      _isMutedProperty = new WProperty(typeof(bool), false);
 
       SubscribeToMessages();
       Update();
@@ -107,7 +107,7 @@ namespace UiComponents.SkinBase.Models
 
     #region Members to be accessed from the GUI
 
-    public Property IsPipVisibleProperty
+    public AbstractProperty IsPipVisibleProperty
     {
       get { return _isPipVisibleProperty; }
     }
@@ -118,7 +118,7 @@ namespace UiComponents.SkinBase.Models
       set { _isPipVisibleProperty.SetValue(value); }
     }
 
-    public Property PipWidthProperty
+    public AbstractProperty PipWidthProperty
     {
       get { return _pipWidthProperty; }
     }
@@ -129,7 +129,7 @@ namespace UiComponents.SkinBase.Models
       set { _pipWidthProperty.SetValue(value); }
     }
 
-    public Property PipHeightProperty
+    public AbstractProperty PipHeightProperty
     {
       get { return _pipHeightProperty; }
     }
@@ -140,7 +140,7 @@ namespace UiComponents.SkinBase.Models
       set { _pipHeightProperty.SetValue(value); }
     }
 
-    public Property IsMutedProperty
+    public AbstractProperty IsMutedProperty
     {
       get { return _isMutedProperty; }
     }

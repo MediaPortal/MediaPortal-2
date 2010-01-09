@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   {
     #region Protected fields
 
-    protected Property _orientationProperty;
+    protected AbstractProperty _orientationProperty;
     protected float _totalHeight;
     protected float _totalWidth;
 
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _orientationProperty = new Property(typeof(Orientation), Orientation.Vertical);
+      _orientationProperty = new SProperty(typeof(Orientation), Orientation.Vertical);
     }
 
     void Attach()
@@ -96,7 +96,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Public properties & events
 
-    public Property OrientationProperty
+    public AbstractProperty OrientationProperty
     {
       get { return _orientationProperty; }
     }

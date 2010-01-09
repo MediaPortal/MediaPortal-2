@@ -227,19 +227,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
-    protected Property _nameProperty;
-    protected Property _acutalPositionProperty;
-    protected Property _marginProperty;
-    protected Property _triggerProperty;
-    protected Property _renderTransformProperty;
-    protected Property _renderTransformOriginProperty;
-    protected Property _layoutTransformProperty;
-    protected Property _visibilityProperty;
-    protected Property _isEnabledProperty;
-    protected Property _opacityMaskProperty;
-    protected Property _opacityProperty;
-    protected Property _freezableProperty;
-    protected Property _templateNameScopeProperty;
+    protected AbstractProperty _nameProperty;
+    protected AbstractProperty _acutalPositionProperty;
+    protected AbstractProperty _marginProperty;
+    protected AbstractProperty _triggerProperty;
+    protected AbstractProperty _renderTransformProperty;
+    protected AbstractProperty _renderTransformOriginProperty;
+    protected AbstractProperty _layoutTransformProperty;
+    protected AbstractProperty _visibilityProperty;
+    protected AbstractProperty _isEnabledProperty;
+    protected AbstractProperty _opacityMaskProperty;
+    protected AbstractProperty _opacityProperty;
+    protected AbstractProperty _freezableProperty;
+    protected AbstractProperty _templateNameScopeProperty;
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
     protected ResourceDictionary _resources;
@@ -261,21 +261,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _nameProperty = new Property(typeof(string), "");
-      _acutalPositionProperty = new Property(typeof(Vector3), new Vector3(0, 0, 1));
-      _marginProperty = new Property(typeof(Thickness), new Thickness(0, 0, 0, 0));
+      _nameProperty = new SProperty(typeof(string), "");
+      _acutalPositionProperty = new SProperty(typeof(Vector3), new Vector3(0, 0, 1));
+      _marginProperty = new SProperty(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
-      _triggerProperty = new Property(typeof(IList<TriggerBase>), new List<TriggerBase>());
-      _renderTransformProperty = new Property(typeof(Transform), null);
-      _layoutTransformProperty = new Property(typeof(Transform), null);
-      _renderTransformOriginProperty = new Property(typeof(Vector2), new Vector2(0, 0));
-      _visibilityProperty = new Property(typeof(VisibilityEnum), VisibilityEnum.Visible);
-      _isEnabledProperty = new Property(typeof(bool), true);
-      _freezableProperty = new Property(typeof(bool), false);
-      _opacityProperty = new Property(typeof(double), 1.0);
-      _templateNameScopeProperty = new Property(typeof(INameScope), null);
+      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+      _renderTransformProperty = new SProperty(typeof(Transform), null);
+      _layoutTransformProperty = new SProperty(typeof(Transform), null);
+      _renderTransformOriginProperty = new SProperty(typeof(Vector2), new Vector2(0, 0));
+      _visibilityProperty = new SProperty(typeof(VisibilityEnum), VisibilityEnum.Visible);
+      _isEnabledProperty = new SProperty(typeof(bool), true);
+      _freezableProperty = new SProperty(typeof(bool), false);
+      _opacityProperty = new SProperty(typeof(double), 1.0);
+      _templateNameScopeProperty = new SProperty(typeof(INameScope), null);
 
-      _opacityMaskProperty = new Property(typeof(Brushes.Brush), null);
+      _opacityMaskProperty = new SProperty(typeof(Brushes.Brush), null);
     }
 
     void Attach()
@@ -336,12 +336,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnOpacityPropertyChanged(Property property, object oldValue)
+    void OnOpacityPropertyChanged(AbstractProperty property, object oldValue)
     {
       FireUIEvent(UIEvent.OpacityChange, this);
     }
 
-    void OnVisibilityPropertyChanged(Property property, object oldValue)
+    void OnVisibilityPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (VisualParent is UIElement)
         ((UIElement) VisualParent).Invalidate();
@@ -357,7 +357,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     /// <param name="property">The property which was changed.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    void OnLayoutPropertyChanged(Property property, object oldValue)
+    void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
     }
@@ -367,7 +367,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Invalidate();
     }
 
-    void OnLayoutTransformPropertyChanged(Property property, object oldValue)
+    void OnLayoutTransformPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (oldValue is Transform)
         ((Transform) oldValue).ObjectChanged -= OnLayoutTransformChanged;
@@ -404,7 +404,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _finalLayoutTransform; }
     }
 
-    public Property OpacityProperty
+    public AbstractProperty OpacityProperty
     {
       get { return _opacityProperty; }
     }
@@ -415,7 +415,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _opacityProperty.SetValue(value); }
     }
 
-    public Property FreezableProperty
+    public AbstractProperty FreezableProperty
     {
       get { return _freezableProperty; }
     }
@@ -426,7 +426,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _freezableProperty.SetValue(value); }
     }
 
-    public Property OpacityMaskProperty
+    public AbstractProperty OpacityMaskProperty
     {
       get { return _opacityMaskProperty; }
     }
@@ -437,7 +437,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _opacityMaskProperty.SetValue(value); }
     }
 
-    public Property IsEnabledProperty
+    public AbstractProperty IsEnabledProperty
     {
       get { return _isEnabledProperty; }
     }
@@ -448,7 +448,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _isEnabledProperty.SetValue(value); }
     }
 
-    public Property VisibilityProperty
+    public AbstractProperty VisibilityProperty
     {
       get { return _visibilityProperty; }
     }
@@ -465,7 +465,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { Visibility = value ? VisibilityEnum.Visible : VisibilityEnum.Hidden; }
     }
 
-    public Property TriggersProperty
+    public AbstractProperty TriggersProperty
     {
       get { return _triggerProperty; }
     }
@@ -475,7 +475,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return (IList<TriggerBase>) _triggerProperty.GetValue(); }
     }
 
-    public Property ActualPositionProperty
+    public AbstractProperty ActualPositionProperty
     {
       get { return _acutalPositionProperty; }
     }
@@ -486,7 +486,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _acutalPositionProperty.SetValue(value); }
     }
 
-    public Property NameProperty
+    public AbstractProperty NameProperty
     {
       get { return _nameProperty; }
     }
@@ -514,7 +514,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public Property MarginProperty
+    public AbstractProperty MarginProperty
     {
       get { return _marginProperty; }
     }
@@ -525,7 +525,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _marginProperty.SetValue(value); }
     }
 
-    public Property LayoutTransformProperty
+    public AbstractProperty LayoutTransformProperty
     {
       get { return _layoutTransformProperty; }
     }
@@ -536,7 +536,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _layoutTransformProperty.SetValue(value); }
     }
 
-    public Property RenderTransformProperty
+    public AbstractProperty RenderTransformProperty
     {
       get { return _renderTransformProperty; }
     }
@@ -547,7 +547,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _renderTransformProperty.SetValue(value); }
     }
 
-    public Property RenderTransformOriginProperty
+    public AbstractProperty RenderTransformOriginProperty
     {
       get { return _renderTransformOriginProperty; }
     }
@@ -578,7 +578,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return TemplateNameScope != null; }
     }
 
-    public Property TemplateNameScopeProperty
+    public AbstractProperty TemplateNameScopeProperty
     {
       get { return _templateNameScopeProperty; }
     }

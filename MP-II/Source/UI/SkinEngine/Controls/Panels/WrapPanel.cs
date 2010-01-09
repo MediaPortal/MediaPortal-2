@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   {
     #region Protected fields
 
-    protected Property _orientationProperty;
+    protected AbstractProperty _orientationProperty;
     protected IList<float> _sizeCol;
 
     #endregion
@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _orientationProperty = new Property(typeof(Orientation), Orientation.Horizontal);
+      _orientationProperty = new SProperty(typeof(Orientation), Orientation.Horizontal);
       _sizeCol = new List<float>();
     }
 
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
-    public Property OrientationProperty
+    public AbstractProperty OrientationProperty
     {
       get { return _orientationProperty; }
     }

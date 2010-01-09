@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -44,12 +45,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
     protected IDictionary<object, object> _resources = new Dictionary<object, object>();
+    protected WeakEventMulticastDelegate _resourcesChangedDelegate = new WeakEventMulticastDelegate();
 
     #endregion
 
     #region Ctor
-
-    public ResourceDictionary() { }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -69,7 +69,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region Public properties & events
 
-    public event ResourcesChangedHandler ResourcesChanged;
+    public event ResourcesChangedHandler ResourcesChanged
+    {
+      add { _resourcesChangedDelegate.Attach(value); }
+      remove { _resourcesChangedDelegate.Detach(value); }
+    }
 
     /// <summary>
     /// Gets or sets the source file for a dictionary to be merged into this dictionary.
@@ -135,8 +139,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void FireChanged()
     {
-      if (ResourcesChanged != null)
-        ResourcesChanged(this);
+      _resourcesChangedDelegate.Fire(new object[] {this});
     }
 
     #endregion

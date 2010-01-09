@@ -32,11 +32,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _caretIndexProperty;
-    protected Property _textProperty;
-    protected Property _colorProperty;
-    protected Property _preferredTextLengthProperty;
-    protected Property _textAlignProperty;
+    protected AbstractProperty _caretIndexProperty;
+    protected AbstractProperty _textProperty;
+    protected AbstractProperty _colorProperty;
+    protected AbstractProperty _preferredTextLengthProperty;
+    protected AbstractProperty _textAlignProperty;
 
     #endregion
 
@@ -49,12 +49,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _caretIndexProperty = new Property(typeof(int), 0);
-      _textProperty = new Property(typeof(string), "");
-      _colorProperty = new Property(typeof(Color), Color.Black);
+      _caretIndexProperty = new SProperty(typeof(int), 0);
+      _textProperty = new SProperty(typeof(string), "");
+      _colorProperty = new SProperty(typeof(Color), Color.Black);
 
-      _preferredTextLengthProperty = new Property(typeof(int?), null);
-      _textAlignProperty = new Property(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
+      _preferredTextLengthProperty = new SProperty(typeof(int?), null);
+      _textAlignProperty = new SProperty(typeof(HorizontalAlignmentEnum), HorizontalAlignmentEnum.Left);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -68,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public Property PreferredTextLengthProperty
+    public AbstractProperty PreferredTextLengthProperty
     {
       get { return _preferredTextLengthProperty; }
     }
@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _preferredTextLengthProperty.SetValue(value); }
     }
 
-    public Property CaretIndexProperty
+    public AbstractProperty CaretIndexProperty
     {
       get { return _caretIndexProperty; }
     }
@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _caretIndexProperty.SetValue(value); }
     }
 
-    public Property TextProperty
+    public AbstractProperty TextProperty
     {
       get { return _textProperty; }
     }
@@ -108,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _textProperty.SetValue(value); }
     }
 
-    public Property ColorProperty
+    public AbstractProperty ColorProperty
     {
       get { return _colorProperty; }
     }
@@ -119,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _colorProperty.SetValue(value); }
     }
 
-    public Property TextAlignProperty
+    public AbstractProperty TextAlignProperty
     {
       get { return _textAlignProperty; }
     }

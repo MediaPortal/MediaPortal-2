@@ -133,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
   {
     #region Private fields
 
-    Property _childrenProperty;
+    AbstractProperty _childrenProperty;
 
     #endregion
 
@@ -146,7 +146,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     void Init()
     {
-      _childrenProperty = new Property(typeof(IList<Timeline>), new List<Timeline>());
+      _childrenProperty = new SProperty(typeof(IList<Timeline>), new List<Timeline>());
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -161,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
 
     #region Public properties
 
-    public Property ChildrenProperty
+    public AbstractProperty ChildrenProperty
     {
       get { return _childrenProperty; }
     }

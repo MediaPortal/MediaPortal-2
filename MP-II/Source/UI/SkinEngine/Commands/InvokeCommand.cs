@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Commands
     #region Protected fields
 
     protected IList<object> _commandParameters = new List<object>();
-    protected Property _commandStencilProperty = new Property(typeof(ICommandStencil), null);
+    protected AbstractProperty _commandStencilProperty = new SProperty(typeof(ICommandStencil), null);
 
     #endregion
 
@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Commands
 
     #region Public properties
 
-    public Property CommandStencilProperty
+    public AbstractProperty CommandStencilProperty
     {
       get { return _commandStencilProperty; }
     }

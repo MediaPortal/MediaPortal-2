@@ -114,21 +114,21 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     // Binding configuration properties
     protected SourceType _typeOfSource = SourceType.DataContext;
-    protected Property _sourceProperty = new Property(typeof(object), null);
-    protected Property _elementNameProperty = new Property(typeof(string), null);
-    protected Property _relativeSourceProperty = new Property(typeof(RelativeSource), null);
-    protected Property _pathProperty = new Property(typeof(string), null);
-    protected Property _modeProperty = new Property(typeof(BindingMode), BindingMode.Default);
-    protected Property _updateSourceTriggerProperty =
-        new Property(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
+    protected AbstractProperty _sourceProperty = new SProperty(typeof(object), null);
+    protected AbstractProperty _elementNameProperty = new SProperty(typeof(string), null);
+    protected AbstractProperty _relativeSourceProperty = new SProperty(typeof(RelativeSource), null);
+    protected AbstractProperty _pathProperty = new SProperty(typeof(string), null);
+    protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
+    protected AbstractProperty _updateSourceTriggerProperty =
+        new SProperty(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
     protected ITypeConverter _typeConverter = null;
 
     // State variables
     protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
-    protected Property _sourceValueValidProperty = new Property(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
+    protected AbstractProperty _sourceValueValidProperty = new SProperty(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
-    protected ICollection<Property> _attachedPropertiesCollection = new List<Property>(); // To which data contexts and other properties are we attached?
+    protected ICollection<AbstractProperty> _attachedPropertiesCollection = new List<AbstractProperty>(); // To which data contexts and other properties are we attached?
 
     // Derived properties
     protected PathExpression _compiledPath = null;
@@ -255,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Properties
 
-    public Property SourceProperty
+    public AbstractProperty SourceProperty
     {
       get { return _sourceProperty; }
     }
@@ -271,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { SourceProperty.SetValue(value); }
     }
 
-    public Property @RelativeSourceProperty
+    public AbstractProperty @RelativeSourceProperty
     {
       get { return _relativeSourceProperty; }
     }
@@ -292,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 //    public string XPath // TODO: Not implemented yet
 //    { }
 
-    public Property ElementNameProperty
+    public AbstractProperty ElementNameProperty
     {
       get { return _elementNameProperty; }
     }
@@ -308,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { ElementNameProperty.SetValue(value); }
     }
 
-    public Property PathProperty
+    public AbstractProperty PathProperty
     {
       get { return _pathProperty; }
     }
@@ -329,7 +329,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
     }
 
-    public Property ModeProperty
+    public AbstractProperty ModeProperty
     {
       get { return _modeProperty; }
     }
@@ -340,7 +340,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { _modeProperty.SetValue(value); }
     }
 
-    public Property UpdateSourceTriggerProperty
+    public AbstractProperty UpdateSourceTriggerProperty
     {
       get { return _updateSourceTriggerProperty; }
     }
@@ -374,7 +374,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       get { return _evaluatedSourceValue; }
     }
 
-    public Property IsSourceValueValidProperty
+    public AbstractProperty IsSourceValueValidProperty
     {
       get { return _sourceValueValidProperty; }
     }
@@ -399,7 +399,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     /// <param name="property">The binding property which changed.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    protected void OnBindingPropertyChanged(Property property, object oldValue)
+    protected void OnBindingPropertyChanged(AbstractProperty property, object oldValue)
     {
       CheckTypeOfSource();
       if (_active)
@@ -423,7 +423,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     /// <param name="property">The data context property which changed its value.</param>
     /// <param name="oldValue">The old value of the property.</param>
-    protected void OnDataContextChanged(Property property, object oldValue)
+    protected void OnDataContextChanged(AbstractProperty property, object oldValue)
     {
       if (_active)
         UpdateSourceValue();
@@ -507,7 +507,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// a change handler to every property, whose change will potentially affect
     /// the object evaluated as binding source.
     /// </summary>
-    protected void AttachToSourcePathProperty(Property sourcePathProperty)
+    protected void AttachToSourcePathProperty(AbstractProperty sourcePathProperty)
     {
       if (sourcePathProperty != null)
       {
@@ -523,7 +523,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     protected void ResetChangeHandlerAttachments()
     {
-      foreach (Property property in _attachedPropertiesCollection)
+      foreach (AbstractProperty property in _attachedPropertiesCollection)
         property.Detach(OnDataContextChanged);
       _attachedPropertiesCollection.Clear();
       if (_attachedSource != null)
@@ -552,7 +552,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         dataContext = null;
         return false;
       }
-      Property dataContextProperty = current.DataContextProperty;
+      AbstractProperty dataContextProperty = current.DataContextProperty;
       AttachToSourcePathProperty(dataContextProperty);
       dataContext = dataContextProperty.GetValue() as BindingMarkupExtension;
       return dataContext != null;
@@ -625,7 +625,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Visual v = obj as Visual;
       if (v == null)
         return false;
-      Property parentProperty = v.VisualParentProperty;
+      AbstractProperty parentProperty = v.VisualParentProperty;
       AttachToSourcePathProperty(parentProperty);
       parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
@@ -633,7 +633,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected bool FindParent_LT(DependencyObject obj, out DependencyObject parent)
     {
-      Property parentProperty = obj.LogicalParentProperty;
+      AbstractProperty parentProperty = obj.LogicalParentProperty;
       AttachToSourcePathProperty(parentProperty);
       parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
@@ -699,7 +699,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         else if (current is UIElement)
         {
           UIElement uiElement = (UIElement) current;
-          Property templateNameScopeProperty = uiElement.TemplateNameScopeProperty;
+          AbstractProperty templateNameScopeProperty = uiElement.TemplateNameScopeProperty;
           AttachToSourcePathProperty(templateNameScopeProperty);
           if ((result = ((INameScope) templateNameScopeProperty.GetValue())) != null)
             return true;

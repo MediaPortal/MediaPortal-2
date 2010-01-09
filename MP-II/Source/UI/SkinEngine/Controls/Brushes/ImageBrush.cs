@@ -36,8 +36,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private fields
 
-    Property _imageSourceProperty;
-    Property _downloadProgressProperty;
+    AbstractProperty _imageSourceProperty;
+    AbstractProperty _downloadProgressProperty;
     TextureAsset _tex;
 
     #endregion
@@ -59,8 +59,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _imageSourceProperty = new Property(typeof(string), null);
-      _downloadProgressProperty = new Property(typeof(double), 0.0);
+      _imageSourceProperty = new SProperty(typeof(string), null);
+      _downloadProgressProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Public properties
 
-    public Property ImageSourceProperty
+    public AbstractProperty ImageSourceProperty
     {
       get { return _imageSourceProperty; }
     }
@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _imageSourceProperty.SetValue(value); }
     }
 
-    public Property DownloadProgressProperty
+    public AbstractProperty DownloadProgressProperty
     {
       get { return _downloadProgressProperty; }
     }
@@ -113,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #region Protected methods
 
-    protected override void OnPropertyChanged(Property prop, object oldValue)
+    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       Free();
     }

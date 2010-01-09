@@ -31,7 +31,7 @@ namespace MediaPortal.UI.Presentation.Models
   /// Base class for UI models which are registered to messages from the system.
   /// This class provides virtual initialization and disposal methods for system message queue registrations.
   /// </summary>
-  public abstract class BaseMessageControlledUIModel
+  public abstract class BaseMessageControlledUIModel : IDisposable
   {
     protected AsynchronousMessageQueue _messageQueue;
 
@@ -41,6 +41,12 @@ namespace MediaPortal.UI.Presentation.Models
     protected BaseMessageControlledUIModel()
     {
       SubscribeToMessages();
+    }
+
+    public virtual void Dispose()
+    {
+      _messageQueue.UnsubscribeFromAllMessageChannels();
+      _messageQueue.Shutdown();
     }
 
     /// <summary>

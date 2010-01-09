@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
   {
     #region Private properties
 
-    Property _colorProperty;
+    AbstractProperty _colorProperty;
     EffectAsset _effect;
     EffectHandleAsset _effectHandleColor;
 
@@ -61,7 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _colorProperty = new Property(typeof(Color), Color.White);
+      _colorProperty = new SProperty(typeof(Color), Color.White);
     }
 
     void Attach()
@@ -85,12 +85,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    protected override void OnPropertyChanged(Property prop, object oldValue)
+    protected override void OnPropertyChanged(AbstractProperty prop, object oldValue)
     {
       FireChanged();
     }
 
-    public Property ColorProperty
+    public AbstractProperty ColorProperty
     {
       get { return _colorProperty; }
     }

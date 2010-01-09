@@ -37,14 +37,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Visual v = obj as Visual;
       if (v == null)
         return false;
-      Property parentProperty = v.VisualParentProperty;
+      AbstractProperty parentProperty = v.VisualParentProperty;
       parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
     }
 
     public static bool FindParent_LT(DependencyObject obj, out DependencyObject parent)
     {
-      Property parentProperty = obj.LogicalParentProperty;
+      AbstractProperty parentProperty = obj.LogicalParentProperty;
       parent = parentProperty.GetValue() as DependencyObject;
       return parent != null;
     }

@@ -104,16 +104,16 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
     protected ItemsList _sharesList;
     protected ShareEditMode _editMode;
     protected ItemsList _allBaseMediaProvidersList;
-    protected Property _isSharesSelectedProperty;
-    protected Property _isMediaProviderSelectedProperty;
-    protected Property _mediaProviderProperty;
-    protected Property _choosenResourcePathStrProperty;
-    protected Property _choosenResourcePathProperty;
-    protected Property _isChoosenPathValidProperty;
-    protected Property _choosenResourcePathDisplayNameProperty;
+    protected AbstractProperty _isSharesSelectedProperty;
+    protected AbstractProperty _isMediaProviderSelectedProperty;
+    protected AbstractProperty _mediaProviderProperty;
+    protected AbstractProperty _choosenResourcePathStrProperty;
+    protected AbstractProperty _choosenResourcePathProperty;
+    protected AbstractProperty _isChoosenPathValidProperty;
+    protected AbstractProperty _choosenResourcePathDisplayNameProperty;
     protected ItemsList _mediaProviderPathsTree;
-    protected Property _shareNameProperty;
-    protected Property _isShareNameEmptyProperty;
+    protected AbstractProperty _shareNameProperty;
+    protected AbstractProperty _isShareNameEmptyProperty;
     protected ItemsList _allMediaCategoriesList;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Guid _currentShareId;
@@ -126,19 +126,19 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
     {
       _sharesList = new ItemsList();
       _allBaseMediaProvidersList = new ItemsList();
-      _isSharesSelectedProperty = new Property(typeof(bool), false);
-      _isMediaProviderSelectedProperty = new Property(typeof(bool), false);
-      _mediaProviderProperty = new Property(typeof(IBaseMediaProvider), null);
-      _choosenResourcePathStrProperty = new Property(typeof(string), string.Empty);
+      _isSharesSelectedProperty = new WProperty(typeof(bool), false);
+      _isMediaProviderSelectedProperty = new WProperty(typeof(bool), false);
+      _mediaProviderProperty = new WProperty(typeof(IBaseMediaProvider), null);
+      _choosenResourcePathStrProperty = new WProperty(typeof(string), string.Empty);
       _choosenResourcePathStrProperty.Attach(OnChoosenResourcePathStrChanged);
-      _choosenResourcePathProperty = new Property(typeof(ResourcePath), null);
+      _choosenResourcePathProperty = new WProperty(typeof(ResourcePath), null);
       _choosenResourcePathProperty.Attach(OnChoosenResourcePathChanged);
-      _isChoosenPathValidProperty = new Property(typeof(bool), false);
-      _choosenResourcePathDisplayNameProperty = new Property(typeof(string), string.Empty);
+      _isChoosenPathValidProperty = new WProperty(typeof(bool), false);
+      _choosenResourcePathDisplayNameProperty = new WProperty(typeof(string), string.Empty);
       _mediaProviderPathsTree = new ItemsList();
-      _shareNameProperty = new Property(typeof(string), string.Empty);
+      _shareNameProperty = new WProperty(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
-      _isShareNameEmptyProperty = new Property(typeof(bool), true);
+      _isShareNameEmptyProperty = new WProperty(typeof(bool), true);
       _allMediaCategoriesList = new ItemsList();
       _mediaCategories = new HashSet<string>();
     }
@@ -172,7 +172,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       get { return _allBaseMediaProvidersList; }
     }
 
-    public Property IsSharesSelectedProperty
+    public AbstractProperty IsSharesSelectedProperty
     {
       get { return _isSharesSelectedProperty; }
     }
@@ -186,7 +186,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _isSharesSelectedProperty.SetValue(value); }
     }
 
-    public Property IsMediaProviderSelectedProperty
+    public AbstractProperty IsMediaProviderSelectedProperty
     {
       get { return _isMediaProviderSelectedProperty; }
     }
@@ -200,7 +200,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _isMediaProviderSelectedProperty.SetValue(value); }
     }
 
-    public Property MediaProviderProperty
+    public AbstractProperty MediaProviderProperty
     {
       get { return _mediaProviderProperty; }
     }
@@ -214,7 +214,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _mediaProviderProperty.SetValue(value); }
     }
 
-    public Property ChoosenResourcePathStrProperty
+    public AbstractProperty ChoosenResourcePathStrProperty
     {
       get { return _choosenResourcePathStrProperty; }
     }
@@ -228,7 +228,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _choosenResourcePathStrProperty.SetValue(value); }
     }
 
-    public Property ChoosenResourcePathProperty
+    public AbstractProperty ChoosenResourcePathProperty
     {
       get { return _choosenResourcePathProperty; }
     }
@@ -242,7 +242,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _choosenResourcePathProperty.SetValue(value); }
     }
 
-    public Property IsChoosenPathValidProperty
+    public AbstractProperty IsChoosenPathValidProperty
     {
       get { return _isChoosenPathValidProperty; }
     }
@@ -257,7 +257,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _isChoosenPathValidProperty.SetValue(value); }
     }
 
-    public Property ChoosenResourcePathDisplayNameProperty
+    public AbstractProperty ChoosenResourcePathDisplayNameProperty
     {
       get { return _choosenResourcePathDisplayNameProperty; }
     }
@@ -280,7 +280,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       get { return _mediaProviderPathsTree; }
     }
 
-    public Property ShareNameProperty
+    public AbstractProperty ShareNameProperty
     {
       get { return _shareNameProperty; }
     }
@@ -294,7 +294,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _shareNameProperty.SetValue(value); }
     }
 
-    public Property IsShareNameEmptyProperty
+    public AbstractProperty IsShareNameEmptyProperty
     {
       get { return _isShareNameEmptyProperty; }
     }
@@ -457,17 +457,17 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
 
     #region Protected methods
 
-    void OnShareItemSelectionChanged(Property shareItem, object oldValue)
+    void OnShareItemSelectionChanged(AbstractProperty shareItem, object oldValue)
     {
       UpdateIsSharesSelected();
     }
 
-    void OnMediaProviderItemSelectionChanged(Property shareItem, object oldValue)
+    void OnMediaProviderItemSelectionChanged(AbstractProperty shareItem, object oldValue)
     {
       UpdateIsMediaProviderSelected();
     }
 
-    void OnChoosenResourcePathStrChanged(Property mediaProviderURL, object oldValue)
+    void OnChoosenResourcePathStrChanged(AbstractProperty mediaProviderURL, object oldValue)
     {
       string str = ChoosenResourcePathStr;
       ResourcePath result = null;
@@ -493,24 +493,24 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       ChoosenResourcePath = result;
     }
 
-    void OnChoosenResourcePathChanged(Property mediaProviderURL, object oldValue)
+    void OnChoosenResourcePathChanged(AbstractProperty mediaProviderURL, object oldValue)
     {
       // Don't update ChoosenResourcePathStr - the string is the master and can be written in several formats
       UpdateIsChoosenPathValid();
       UpdateChoosenPathDisplayName();
     }
 
-    void OnTreePathSelectionChanged(Property property, object oldValue)
+    void OnTreePathSelectionChanged(AbstractProperty property, object oldValue)
     {
       UpdateChoosenResourcePath();
     }
 
-    void OnShareNameChanged(Property shareName, object oldValue)
+    void OnShareNameChanged(AbstractProperty shareName, object oldValue)
     {
       UpdateIsShareNameEmpty();
     }
 
-    void OnMediaCategoryItemSelectionChanged(Property property, object oldValue)
+    void OnMediaCategoryItemSelectionChanged(AbstractProperty property, object oldValue)
     {
       UpdateMediaCategories();
     }

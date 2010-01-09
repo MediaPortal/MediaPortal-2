@@ -219,7 +219,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         throw new ArgumentNullException("importNamespace", "The ImportNamespace delegate must not be null");
       _importCustomNamespace = importNamespace;
       if (getEventHandler == null)
-        throw new ArgumentNullException("The GetEventHandler delegate must not be null");
+        throw new ArgumentNullException("getEventHandler", "The GetEventHandler delegate must not be null");
       _getEventHandler = getEventHandler;
       _reader = reader;
       _xmlDocument = new XmlDocument();
@@ -429,8 +429,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// Handles nodes for member or event assignment to the currently processed
     /// element in both attribute syntax and member element syntax.
     /// This method ignores attributes from the <c>x:</c> namespace, which
-    /// will be handled in method
-    /// <see cref="CheckNameOrKey(XmlNode,string,object)"/>.
+    /// will be handled in method <see cref="CheckNameOrKey"/>.
     /// </summary>
     /// <param name="memberDeclarationNode">Node containing a member or
     /// event assignment for the current element. This node can either

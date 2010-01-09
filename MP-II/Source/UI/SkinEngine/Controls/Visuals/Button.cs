@@ -33,10 +33,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _isDefaultProperty;
-    protected Property _isPressedProperty;
+    protected AbstractProperty _isDefaultProperty;
+    protected AbstractProperty _isPressedProperty;
 
-    protected Property _commandProperty;
+    protected AbstractProperty _commandProperty;
 
     #endregion
 
@@ -49,9 +49,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _isDefaultProperty = new Property(typeof(bool), false);
-      _isPressedProperty = new Property(typeof(bool), false);
-      _commandProperty = new Property(typeof(IExecutableCommand), null);
+      _isDefaultProperty = new SProperty(typeof(bool), false);
+      _isPressedProperty = new SProperty(typeof(bool), false);
+      _commandProperty = new SProperty(typeof(IExecutableCommand), null);
       Focusable = true;
     }
 
@@ -113,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
-    public Property IsPressedProperty
+    public AbstractProperty IsPressedProperty
     {
       get { return _isPressedProperty; }
     }
@@ -124,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _isPressedProperty.SetValue(value); }
     }
 
-    public Property IsDefaultProperty
+    public AbstractProperty IsDefaultProperty
     {
       get { return _isDefaultProperty; }
     }
@@ -135,7 +135,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _isDefaultProperty.SetValue(value); }
     }
 
-    public Property CommandProperty
+    public AbstractProperty CommandProperty
     {
       get { return _commandProperty; }
       set { _commandProperty = value; }

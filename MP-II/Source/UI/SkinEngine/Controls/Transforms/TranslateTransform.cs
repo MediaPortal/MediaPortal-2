@@ -33,8 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
   {
     #region Private fields
 
-    Property _XProperty;
-    Property _YProperty;
+    AbstractProperty _XProperty;
+    AbstractProperty _YProperty;
 
     #endregion
 
@@ -54,8 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      _YProperty = new Property(typeof(double), 0.0);
-      _XProperty = new Property(typeof(double), 0.0);
+      _YProperty = new SProperty(typeof(double), 0.0);
+      _XProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -82,13 +82,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #endregion
 
-    protected void OnPropertyChanged(Property property)
+    protected void OnPropertyChanged(AbstractProperty property)
     {
       _needUpdate = true;
       Fire();
     }
 
-    public Property XProperty
+    public AbstractProperty XProperty
     {
       get { return _XProperty; }
     }
@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       set { _XProperty.SetValue(value); }
     }
 
-    public Property YProperty
+    public AbstractProperty YProperty
     {
       get { return _YProperty; }
     }

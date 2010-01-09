@@ -59,7 +59,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       return -1;
     }
 
-    protected void OnSelectionChanged(Property property, object oldValue)
+    protected void OnSelectionChanged(AbstractProperty property, object oldValue)
     {
       _selectedIndex = FindSelectedIndex();
     }

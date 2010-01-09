@@ -36,14 +36,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Protected fields
 
-    protected Property _scrollBarXKnobPosProperty;
-    protected Property _scrollBarXKnobWidthProperty;
-    protected Property _scrollBarXVisibleProperty;
-    protected Property _scrollBarYKnobPosProperty;
-    protected Property _scrollBarYKnobHeightProperty;
-    protected Property _scrollBarYVisibleProperty;
+    protected AbstractProperty _scrollBarXKnobPosProperty;
+    protected AbstractProperty _scrollBarXKnobWidthProperty;
+    protected AbstractProperty _scrollBarXVisibleProperty;
+    protected AbstractProperty _scrollBarYKnobPosProperty;
+    protected AbstractProperty _scrollBarYKnobHeightProperty;
+    protected AbstractProperty _scrollBarYVisibleProperty;
 
-    protected Property _canContentScrollProperty;
+    protected AbstractProperty _canContentScrollProperty;
 
     #endregion
 
@@ -58,14 +58,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _scrollBarXKnobPosProperty = new Property(typeof(float), 0f);
-      _scrollBarXKnobWidthProperty = new Property(typeof(float), 30f);
-      _scrollBarXVisibleProperty = new Property(typeof(bool), false);
-      _scrollBarYKnobPosProperty = new Property(typeof(float), 0f);
-      _scrollBarYKnobHeightProperty = new Property(typeof(float), 30f);
-      _scrollBarYVisibleProperty = new Property(typeof(bool), false);
+      _scrollBarXKnobPosProperty = new SProperty(typeof(float), 0f);
+      _scrollBarXKnobWidthProperty = new SProperty(typeof(float), 30f);
+      _scrollBarXVisibleProperty = new SProperty(typeof(bool), false);
+      _scrollBarYKnobPosProperty = new SProperty(typeof(float), 0f);
+      _scrollBarYKnobHeightProperty = new SProperty(typeof(float), 30f);
+      _scrollBarYVisibleProperty = new SProperty(typeof(bool), false);
 
-      _canContentScrollProperty = new Property(typeof(bool), false);
+      _canContentScrollProperty = new SProperty(typeof(bool), false);
     }
 
     void Attach()
@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ConfigureContentScrollFacility();
     }
 
-    void OnContentChanged(Property property, object oldValue)
+    void OnContentChanged(AbstractProperty property, object oldValue)
     {
       UpdateScrollBars();
       ConfigureContentScrollFacility();
@@ -189,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
-    public Property ScrollBarXKnobPosProperty
+    public AbstractProperty ScrollBarXKnobPosProperty
     {
       get { return _scrollBarXKnobPosProperty; }
     }
@@ -200,7 +200,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollBarXKnobPosProperty.SetValue(value); }
     }
 
-    public Property ScrollBarXKnobWidthProperty
+    public AbstractProperty ScrollBarXKnobWidthProperty
     {
       get { return _scrollBarXKnobWidthProperty; }
     }
@@ -217,12 +217,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollBarXVisibleProperty.SetValue(value); }
     }
 
-    public Property ScrollBarXVisibleProperty
+    public AbstractProperty ScrollBarXVisibleProperty
     {
       get { return _scrollBarXVisibleProperty; }
     }
 
-    public Property ScrollBarYKnobPosProperty
+    public AbstractProperty ScrollBarYKnobPosProperty
     {
       get { return _scrollBarYKnobPosProperty; }
     }
@@ -233,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollBarYKnobPosProperty.SetValue(value); }
     }
 
-    public Property ScrollBarYKnobHeightProperty
+    public AbstractProperty ScrollBarYKnobHeightProperty
     {
       get { return _scrollBarYKnobHeightProperty; }
     }
@@ -244,7 +244,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollBarYKnobHeightProperty.SetValue(value); }
     }
 
-    public Property ScrollBarYVisibleProperty
+    public AbstractProperty ScrollBarYVisibleProperty
     {
       get { return _scrollBarYVisibleProperty; }
     }
@@ -255,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _scrollBarYVisibleProperty.SetValue(value); }
     }
 
-    public Property CanContentScrollProperty
+    public AbstractProperty CanContentScrollProperty
     {
       get { return _canContentScrollProperty; }
     }

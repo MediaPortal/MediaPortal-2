@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
   {
     #region Private fields
 
-    Property _beginStoryBoardProperty;
+    AbstractProperty _beginStoryBoardProperty;
 
     #endregion
 
@@ -45,7 +45,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _beginStoryBoardProperty = new Property(typeof(string), null);
+      _beginStoryBoardProperty = new SProperty(typeof(string), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     #endregion
 
-    public Property BeginStoryboardNameProperty
+    public AbstractProperty BeginStoryboardNameProperty
     {
       get { return _beginStoryBoardProperty; }
       set { _beginStoryBoardProperty = value; }

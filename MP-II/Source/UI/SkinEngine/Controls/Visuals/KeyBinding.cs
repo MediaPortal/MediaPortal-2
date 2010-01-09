@@ -34,8 +34,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _keyProperty;
-    protected Property _commandProperty;
+    protected AbstractProperty _keyProperty;
+    protected AbstractProperty _commandProperty;
 
     protected Screen _registeredScreen = null;
     protected Key _registeredKey = null;
@@ -52,8 +52,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _keyProperty = new Property(typeof(Key), null);
-      _commandProperty = new Property(typeof(IExecutableCommand), null);
+      _keyProperty = new SProperty(typeof(Key), null);
+      _commandProperty = new SProperty(typeof(IExecutableCommand), null);
     }
 
     void Attach()
@@ -88,7 +88,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnBindingConcerningPropertyChanged(Property prop, object oldValue)
+    void OnBindingConcerningPropertyChanged(AbstractProperty prop, object oldValue)
     {
       UnregisterKeyBinding();
       RegisterKeyBinding();
@@ -132,12 +132,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _keyProperty.SetValue(value); }
     }
 
-    public Property KeyProperty
+    public AbstractProperty KeyProperty
     {
       get { return _keyProperty; }
     }
 
-    public Property CommandProperty
+    public AbstractProperty CommandProperty
     {
       get { return _commandProperty; }
       set { _commandProperty = value; }

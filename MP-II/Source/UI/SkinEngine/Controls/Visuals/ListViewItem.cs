@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     #region Protected fields
 
-    protected Property _dataStringProperty;
+    protected AbstractProperty _dataStringProperty;
 
     #endregion
 
@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _dataStringProperty = new Property(typeof(string), "");
+      _dataStringProperty = new SProperty(typeof(string), "");
     }
 
     void Attach()
@@ -69,21 +69,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    void OnContentTemplateChanged(Property property, object oldValue)
+    void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
       DataTemplate dt = ContentTemplate;
       dt.DataStringProperty.Attach(OnTemplateDataStringChanged);
       DataString = dt.DataString;
     }
 
-    void OnTemplateDataStringChanged(Property property, object oldValue)
+    void OnTemplateDataStringChanged(AbstractProperty property, object oldValue)
     {
       DataString = (string) property.GetValue();
     }
 
     #region Public properties
 
-    public Property DataStringProperty
+    public AbstractProperty DataStringProperty
     {
       get { return _dataStringProperty; }
     }

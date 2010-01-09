@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
   {
     protected const string DOCK_ATTACHED_PROPERTY = "DockPanel.Dock";
 
-    protected Property _lastChildFillProperty;
+    protected AbstractProperty _lastChildFillProperty;
 
     #region Ctor
 
@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected void Init()
     {
-      _lastChildFillProperty = new Property(typeof(bool), true);
+      _lastChildFillProperty = new SProperty(typeof(bool), true);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #endregion
 
-    public Property LastChildFillProperty
+    public AbstractProperty LastChildFillProperty
     {
       get { return _lastChildFillProperty; }
     }
@@ -343,7 +343,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Dock</c> property.</returns>
-    public static Property GetDockAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetDockAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<Dock>(DOCK_ATTACHED_PROPERTY, Dock.Left);
     }

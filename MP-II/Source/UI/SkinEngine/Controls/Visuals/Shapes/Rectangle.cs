@@ -39,8 +39,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   {
     #region Protected fields
 
-    protected Property _radiusXProperty;
-    protected Property _radiusYProperty;
+    protected AbstractProperty _radiusXProperty;
+    protected AbstractProperty _radiusYProperty;
 
     #endregion
 
@@ -60,8 +60,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _radiusXProperty = new Property(typeof(double), 0.0);
-      _radiusYProperty = new Property(typeof(double), 0.0);
+      _radiusXProperty = new SProperty(typeof(double), 0.0);
+      _radiusYProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -88,13 +88,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    void OnRadiusChanged(Property property, object oldValue)
+    void OnRadiusChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public Property RadiusXProperty
+    public AbstractProperty RadiusXProperty
     {
       get { return _radiusXProperty; }
     }
@@ -105,7 +105,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _radiusYProperty.SetValue(value); }
     }
 
-    public Property RadiusYProperty
+    public AbstractProperty RadiusYProperty
     {
       get { return _radiusYProperty; }
     }

@@ -174,7 +174,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Left</c> property.</returns>
-    public static Property GetLeftAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetLeftAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<double>(LEFT_ATTACHED_PROPERTY, 0.0);
     }
@@ -212,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Right</c> property.</returns>
-    public static Property GetRightAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetRightAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<double>(RIGHT_ATTACHED_PROPERTY, 0.0);
     }
@@ -250,7 +250,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Top</c> property.</returns>
-    public static Property GetTopAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetTopAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<double>(TOP_ATTACHED_PROPERTY, 0.0);
     }
@@ -288,7 +288,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     /// <param name="targetObject">The object whose attached
     /// property should be returned.</param>
     /// <returns>Attached <c>Bottom</c> property.</returns>
-    public static Property GetBottomAttachedProperty(DependencyObject targetObject)
+    public static AbstractProperty GetBottomAttachedProperty(DependencyObject targetObject)
     {
       return targetObject.GetOrCreateAttachedProperty<double>(BOTTOM_ATTACHED_PROPERTY, 0.0);
     }

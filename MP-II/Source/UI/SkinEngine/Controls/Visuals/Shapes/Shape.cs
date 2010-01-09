@@ -66,10 +66,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
   {
     #region Protected fields
 
-    protected Property _stretchProperty;
-    protected Property _fillProperty;
-    protected Property _strokeProperty;
-    protected Property _strokeThicknessProperty;
+    protected AbstractProperty _stretchProperty;
+    protected AbstractProperty _fillProperty;
+    protected AbstractProperty _strokeProperty;
+    protected AbstractProperty _strokeThicknessProperty;
 
     // Albert: We should rework the system how vertex buffers (together with their vertex counts) are stored.
     // We should implement a "typed vertexbuffer" class, holding the vertices, their count and their primitivetype.
@@ -103,10 +103,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _fillProperty = new Property(typeof(Brush), null);
-      _strokeProperty = new Property(typeof(Brush), null);
-      _strokeThicknessProperty = new Property(typeof(double), 1.0);
-      _stretchProperty = new Property(typeof(Stretch), Stretch.None);
+      _fillProperty = new SProperty(typeof(Brush), null);
+      _strokeProperty = new SProperty(typeof(Brush), null);
+      _strokeThicknessProperty = new SProperty(typeof(double), 1.0);
+      _stretchProperty = new SProperty(typeof(Stretch), Stretch.None);
     }
 
     void Attach()
@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     #endregion
 
-    void OnStrokeThicknessChanged(Property property, object oldValue)
+    void OnStrokeThicknessChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
       if (Screen != null) Screen.Invalidate(this);
@@ -157,7 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    void OnFillBrushPropertyChanged(Property property, object oldValue)
+    void OnFillBrushPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (oldValue is Brush)
         ((Brush) oldValue).ObjectChanged -= OnFillBrushChanged;
@@ -166,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       OnFillBrushChanged(null);
     }
 
-    void OnStrokeBrushPropertyChanged(Property property, object oldValue)
+    void OnStrokeBrushPropertyChanged(AbstractProperty property, object oldValue)
     {
       if (oldValue is Brush)
         ((Brush) oldValue).ObjectChanged -= OnStrokeBrushChanged;
@@ -175,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       OnStrokeBrushChanged(null);
     }
 
-    public Property StretchProperty
+    public AbstractProperty StretchProperty
     {
       get { return _stretchProperty; }
     }
@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _stretchProperty.SetValue(value); }
     }
 
-    public Property FillProperty
+    public AbstractProperty FillProperty
     {
       get { return _fillProperty; }
     }
@@ -197,7 +197,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _fillProperty.SetValue(value); }
     }
 
-    public Property StrokeProperty
+    public AbstractProperty StrokeProperty
     {
       get { return _strokeProperty; }
     }
@@ -208,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _strokeProperty.SetValue(value); }
     }
 
-    public Property StrokeThicknessProperty
+    public AbstractProperty StrokeThicknessProperty
     {
       get { return _strokeThicknessProperty; }
     }
