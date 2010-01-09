@@ -597,6 +597,8 @@ namespace UiComponents.Media.Models
         foreach (MediaItem childItem in view.MediaItems)
         {
           PlayableItem item = picd(childItem);
+          if (item == null)
+            continue;
           item.Command = new MethodDelegateCommand(() => CheckPlayMenu(item.MediaItem));
           items.Add(item);
         }
@@ -649,6 +651,21 @@ namespace UiComponents.Media.Models
       }
       Items = items;
       ItemsListTitle = title;
+    }
+
+    protected void ReloadLocalMediaItems(View view, MediaNavigationMode subViewsNavigationMode)
+    {
+      ReloadMediaItems(view.DisplayName, view, subViewsNavigationMode, mi =>
+        {
+          if (mi.Aspects.ContainsKey(MusicAspect.ASPECT_ID))
+            return new MusicItem(mi);
+          else if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+            return new MovieItem(mi);
+          else if (mi.Aspects.ContainsKey(PictureAspect.ASPECT_ID))
+            return new PictureItem(mi);
+          else
+            return null;
+        });
     }
 
     protected void ReloadMusicItems(View view, MediaNavigationMode subViewsNavigationMode)
@@ -855,7 +872,7 @@ namespace UiComponents.Media.Models
       if (mode.Value == MediaNavigationMode.LocalMedia)
       {
         screen = LOCAL_MEDIA_NAVIGATION_SCREEN;
-        ReloadMusicItems(view, MediaNavigationMode.LocalMedia);
+        ReloadLocalMediaItems(view, MediaNavigationMode.LocalMedia);
       }
       else
       {
