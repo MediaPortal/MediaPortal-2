@@ -377,7 +377,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     internal virtual void Release()
     {
       _localResourceFilePaths = null;
-      if (_localStyleResources != null && false)
+      if (_localStyleResources != null)
         foreach (object resource in _localStyleResources.Values)
           if (resource is IDisposable)
             ((IDisposable) resource).Dispose();
@@ -484,7 +484,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         }
         catch (Exception ex)
         {
-          logger.Error("SkinResources: Error loading style resource '{0}'", ex, pr.ResourcePath);
+          _pendingStyleResources.Clear();
+          throw new EnvironmentException("Error loading style resource '{0}'", ex, pr.ResourcePath);
         }
         finally
         {

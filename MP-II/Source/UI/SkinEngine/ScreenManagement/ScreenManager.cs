@@ -40,6 +40,7 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.Settings;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
@@ -49,12 +50,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string HOME_SCREEN = "home";
 
-    public const string ERROR_DIALOG_HEADER = "[Dialogs.ErrorHeaderText]";
-    public const string ERROR_LOADING_SKIN_RESOURCE_TEXT = "[ScreenManager.ErrorLoadingSkinResource]";
-    public const string SCREEN_MISSING_TEXT = "[ScreenManager.ScreenMissing]";
-    public const string SCREEN_BROKEN_TEXT = "[ScreenManager.ScreenBroken]";
-    public const string BACKGROUND_SCREEN_MISSING_TEXT = "[ScreenManager.BackgroundScreenMissing]";
-    public const string BACKGROUND_SCREEN_BROKEN_TEXT = "[ScreenManager.BackgroundScreenBroken]";
+    public const string ERROR_DIALOG_HEADER_RES = "[Dialogs.ErrorHeaderText]";
+    public const string ERROR_LOADING_SKIN_RESOURCE_TEXT_RES = "[ScreenManager.ErrorLoadingSkinResource]";
+    public const string SCREEN_MISSING_TEXT_RES = "[ScreenManager.ScreenMissing]";
+    public const string SCREEN_BROKEN_TEXT_RES = "[ScreenManager.ScreenBroken]";
+    public const string BACKGROUND_SCREEN_MISSING_TEXT_RES = "[ScreenManager.BackgroundScreenMissing]";
+    public const string BACKGROUND_SCREEN_BROKEN_TEXT_RES = "[ScreenManager.BackgroundScreenBroken]";
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
 
@@ -322,6 +323,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// or <c>null</c> for the default theme of the skin.</param>
     protected void PrepareSkinAndTheme_NeedLocks(string skinName, string themeName)
     {
+      ServiceScope.Get<ILogger>().Error("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
+      Skin defaultSkin = _skinManager.DefaultSkin;
       lock (_syncObj)
       {
         // Release old resources
@@ -329,14 +332,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   
         Skin skin;
         Theme theme;
+        // Try to prepare new skin/theme
         try
         {
           // Prepare new skin data
           skin = _skinManager.Skins.ContainsKey(skinName) ? _skinManager.Skins[skinName] : null;
           if (skin == null)
-            skin = _skinManager.DefaultSkin;
+            skin = defaultSkin;
           if (skin == null)
-            throw new Exception(string.Format("Skin '{0}' not found", skinName));
+            throw new EnvironmentException(string.Format("Skin '{0}' not found", skinName));
           theme = themeName == null ? null :
               (skin.Themes.ContainsKey(themeName) ? skin.Themes[themeName] : null);
           if (theme == null)
@@ -350,19 +354,38 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         }
         catch (ArgumentException ex)
         {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}'", ex, skinName, themeName);
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin '{0}', theme '{1}', fallback to previous skin/theme",
+              ex, skinName, themeName);
           // Fall back to current skin/theme
           skin = _skin;
           theme = _theme;
         }
-  
-        SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
-        Fonts.FontManager.Load(skinResources);
-  
-        _skinManager.InstallSkinResources(skinResources);
-  
-        _skin = skin;
-        _theme = theme;
+
+        // Try to apply new skin/theme
+        try
+        {
+          SkinResources skinResources = theme == null ? skin : (SkinResources) theme;
+          Fonts.FontManager.Load(skinResources);
+
+          _skinManager.InstallSkinResources(skinResources);
+
+          _skin = skin;
+          _theme = theme;
+        }
+        catch (Exception ex)
+        {
+          // Didn't work - try fallback skin/theme
+          ServiceScope.Get<ILogger>().Error("ScreenManager: Error applying skin '{0}', theme '{1}'", ex,
+              skin == null ? "<undefined>" : skin.Name, theme == null ? "<undefined>" : theme.Name);
+          Skin fallbackSkin = _skin ?? defaultSkin; // Either the previous skin (_skin) or the default skin
+          Theme fallbackTheme = ((fallbackSkin == _skin) ? _theme : null) ?? fallbackSkin.DefaultTheme; // Use the previous theme if previous skin is our fallback
+          if (fallbackSkin == skin && fallbackTheme == theme)
+          {
+            ServiceScope.Get<ILogger>().Error("ScreenManager: There is no valid skin to show");
+            throw;
+          }
+          PrepareSkinAndTheme_NeedLocks(fallbackSkin.Name, fallbackTheme == null ? null : fallbackTheme.Name);
+        }
       }
     }
 
@@ -696,8 +719,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
-              LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT).Evaluate(screenName),
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
               DialogType.OkDialog, false, null);
           return null;
         }
@@ -709,8 +732,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
         try
         {
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
-              LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT).Evaluate(screenName),
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
               DialogType.OkDialog, false, null);
         }
         catch (Exception)
@@ -737,8 +760,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load background screen '{0}'", screenName);
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
-              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT).Evaluate(screenName),
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
               DialogType.OkDialog, false, null);
           return null;
         }
@@ -750,8 +773,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for background screen '{0}'", ex, screenName);
         try
         {
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT,
-              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT).Evaluate(screenName),
+          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
               DialogType.OkDialog, false, null);
         }
         catch (Exception)
