@@ -59,6 +59,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     // We could also provide the asynchronous counterparts of the following methods... do we need them?
 
     // Shares management
+
     public void RegisterShare(Share share)
     {
       CpAction action = GetAction("RegisterShare");
@@ -134,6 +135,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     // Media item aspect storage management
+
     public void AddMediaItemAspectStorage(MediaItemAspectMetadata miam)
     {
       CpAction action = GetAction("AddMediaItemAspectStorage");
@@ -169,11 +171,24 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     // Media query
+
     public IList<MediaItem> Search(MediaItemQuery query, bool onlyOnline)
     {
       CpAction action = GetAction("Search");
       String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
       IList<object> inParameters = new List<object> {query, onlineStateStr};
+      IList<object> outParameters = action.InvokeAction(inParameters);
+      return (IList<MediaItem>) outParameters[0];
+    }
+
+    public IList<MediaItem> SimpleTextSearch(string searchText, IEnumerable<Guid> necessaryMIATypes,
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs, bool onlyOnline)
+    {
+      CpAction action = GetAction("SimpleTextSearch");
+      String searchModeStr = excludeCLOBs ? "ExcludeCLOBs" : "Normal";
+      String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
+      IList<object> inParameters = new List<object> {searchText, necessaryMIATypes, optionalMIATypes,
+          filter, searchModeStr, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
     }
@@ -201,6 +216,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     }
 
     // Media import
+
     public void AddOrUpdateMediaItem(string systemId, ResourcePath path,
         IEnumerable<MediaItemAspect> mediaItemAspects)
     {

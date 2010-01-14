@@ -626,7 +626,7 @@ namespace UiComponents.Media.Models
       try
       {
         List<FilterValue> filterValues = new List<FilterValue>(criterion.GetAvailableValues(NECESSARY_MUSIC_MIAS,
-            new BooleanCombinationFilter(BooleanOperator.And, currentVS.Filters.ToArray())));
+            new BooleanCombinationFilter(BooleanOperator.And, currentVS.Filters)));
         filterValues.Sort((f1, f2) => string.Compare(f1.Title, f2.Title));
         foreach (FilterValue filterValue in filterValues)
         {

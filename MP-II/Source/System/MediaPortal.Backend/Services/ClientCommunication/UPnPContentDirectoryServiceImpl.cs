@@ -31,6 +31,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Core.UPnP;
 using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.UPnP;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
@@ -173,6 +174,21 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         };
       AddStateVariable(A_ARG_TYPE_MediaItemAspects);
 
+      // Used to transport the text to be used in a simple text search
+      DvStateVariable A_ARG_TYPE_SearchText = new DvStateVariable("A_ARG_TYPE_SearchText", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            SendEvents = false,
+        };
+      AddStateVariable(A_ARG_TYPE_SearchText);
+
+      // Used to transport a value indicating if only online objects are referred or all.
+      DvStateVariable A_ARG_TYPE_TextSearchMode = new DvStateVariable("A_ARG_TYPE_TextSearchMode", new DvStandardDataType(UPnPStandardDataType.String))
+        {
+            SendEvents = false,
+            AllowedValueList = new List<string> {"Normal", "ExcludeCLOBs"}
+        };
+      AddStateVariable(A_ARG_TYPE_TextSearchMode);
+
       // More state variables go here
 
       // Shares management
@@ -225,6 +241,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       AddAction(getShareAction);
 
       // Media item aspect storage management
+
       DvAction addMediaItemAspectStorageAction = new DvAction("AddMediaItemAspectStorage", OnAddMediaItemAspectStorage,
           new DvArgument[] {
             new DvArgument("MIAM", A_ARG_TYPE_MediaItemAspectMetadata, ArgumentDirection.In),
@@ -269,6 +286,20 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
           });
       AddAction(searchAction);
+
+      DvAction textSearchAction = new DvAction("SimpleTextSearch", OnTextSearch,
+          new DvArgument[] {
+            new DvArgument("SearchText", A_ARG_TYPE_SearchText, ArgumentDirection.In),
+            new DvArgument("NecessaryMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("OptionalMIATypes", A_ARG_TYPE_UuidEnumeration, ArgumentDirection.In),
+            new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
+            new DvArgument("SearchMode", A_ARG_TYPE_TextSearchMode, ArgumentDirection.In),
+            new DvArgument("OnlineState", A_ARG_TYPE_OnlineState, ArgumentDirection.In),
+          },
+          new DvArgument[] {
+            new DvArgument("MediaItems", A_ARG_TYPE_MediaItems, ArgumentDirection.Out, true),
+          });
+      AddAction(textSearchAction);
 
       DvAction browseAction = new DvAction("Browse", OnBrowse,
           new DvArgument[] {
@@ -319,7 +350,23 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // More actions go here
     }
 
-    static UPnPError ParseOnlineState(string onlineStateStr, out bool all)
+    public static MediaItemQuery BuildSimpleTextSearchQuery(string searchText, IEnumerable<Guid> necessaryMIATypes,
+        IEnumerable<Guid> optionalMIATypes, IFilter filter, bool excludeCLOBs)
+    {
+      IMediaItemAspectTypeRegistration miatr = ServiceScope.Get<IMediaItemAspectTypeRegistration>();
+      ICollection<IFilter> textFilters = new List<IFilter>();
+      foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
+        foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
+          if (attrType.AttributeType == typeof(string))
+            textFilters.Add(new LikeFilter(attrType, SqlUtils.LikeEscape(searchText, '\\'), '\\'));
+      return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
+          {
+            new BooleanCombinationFilter(BooleanOperator.Or, textFilters),
+            filter
+          }));
+    }
+
+    static UPnPError ParseOnlineState(string argumentName, string onlineStateStr, out bool all)
     {
       switch (onlineStateStr)
       {
@@ -331,7 +378,24 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           break;
         default:
           all = true;
-          return new UPnPError(600, "Argument 'OnlineState' must be of value 'All' or 'OnlyOnline'");
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'All' or 'OnlyOnline'", argumentName));
+      }
+      return null;
+    }
+
+    static UPnPError ParseSearchMode(string argumentName, string searchModeStr, out bool excludeCLOBs)
+    {
+      switch (searchModeStr)
+      {
+        case "Normal":
+          excludeCLOBs = false;
+          break;
+        case "ExcludeCLOBs":
+          excludeCLOBs = true;
+          break;
+        default:
+          excludeCLOBs = true;
+          return new UPnPError(600, string.Format("Argument '{0}' must be of value 'Normal' or 'ExcludeCLOBs'", argumentName));
       }
       return null;
     }
@@ -387,7 +451,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       string systemId = (string) inParams[0];
       string sharesFilterStr = (string) inParams[1];
       bool all;
-      UPnPError error = ParseOnlineState(sharesFilterStr, out all);
+      UPnPError error = ParseOnlineState("SharesFilter", sharesFilterStr, out all);
       if (error != null)
       {
         outParams = null;
@@ -461,12 +525,35 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       MediaItemQuery query = (MediaItemQuery) inParams[0];
       string onlineStateStr = (string) inParams[1];
       bool all;
-      UPnPError error = ParseOnlineState(onlineStateStr, out all);
+      UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
       if (error != null)
       {
         outParams = null;
         return error;
       }
+      IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query, !all);
+      outParams = new List<object> {mediaItems};
+      return null;
+    }
+
+    static UPnPError OnTextSearch(DvAction action, IList<object> inParams, out IList<object> outParams,
+        CallContext context)
+    {
+      string searchText = (string) inParams[0];
+      IEnumerable<Guid> necessaryMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[1]);
+      IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[2]);
+      IFilter filter = (IFilter) inParams[3];
+      string searchModeStr = (string) inParams[4];
+      string onlineStateStr = (string) inParams[5];
+      bool excludeCLOBs;
+      bool all = false;
+      UPnPError error = ParseSearchMode("SearchMode", searchModeStr, out excludeCLOBs) ?? ParseOnlineState("OnlineState", onlineStateStr, out all);
+      if (error != null)
+      {
+        outParams = null;
+        return error;
+      }
+      MediaItemQuery query = BuildSimpleTextSearchQuery(searchText, necessaryMIATypes, optionalMIATypes, filter, excludeCLOBs);
       IList<MediaItem> mediaItems = ServiceScope.Get<IMediaLibrary>().Search(query, !all);
       outParams = new List<object> {mediaItems};
       return null;
@@ -481,7 +568,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IEnumerable<Guid> optionalMIATypes = MarshallingHelper.ParseCsvGuidCollection((string) inParams[3]);
       string onlineStateStr = (string) inParams[4];
       bool all;
-      UPnPError error = ParseOnlineState(onlineStateStr, out all);
+      UPnPError error = ParseOnlineState("OnlineState", onlineStateStr, out all);
       if (error != null)
       {
         outParams = null;

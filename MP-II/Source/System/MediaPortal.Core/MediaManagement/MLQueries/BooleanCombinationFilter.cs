@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Core.MediaManagement.MLQueries
@@ -40,6 +42,12 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
   {
     protected BooleanOperator _operator;
     protected IFilter[] _operands;
+
+    public BooleanCombinationFilter(BooleanOperator op, IEnumerable<IFilter> operands)
+    {
+      _operator = op;
+      _operands = operands.ToArray();
+    }
 
     public BooleanCombinationFilter(BooleanOperator op, IFilter[] operands)
     {
