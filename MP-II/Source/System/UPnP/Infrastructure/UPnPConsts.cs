@@ -62,7 +62,7 @@ namespace UPnP.Infrastructure
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>
     /// method, for example.
     /// </summary>
-    public static TimeSpan INFINITE_TIMESPAN = new TimeSpan(0, 0, 0, 0, -1);
+    public static readonly TimeSpan INFINITE_TIMESPAN = new TimeSpan(0, 0, 0, 0, -1);
 
     #region Mutlicast event levels
 
