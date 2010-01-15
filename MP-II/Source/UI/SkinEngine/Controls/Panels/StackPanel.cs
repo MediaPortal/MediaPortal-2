@@ -555,7 +555,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           limitPosition = ActualPosition.Y;
         FrameworkElement nextElement;
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Up)) != null &&
-            (nextElement.ActualPosition.Y > limitPosition))
+            (nextElement.ActualPosition.Y > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
       }
@@ -585,7 +585,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           limitPosition = ActualPosition.Y + (float) ActualHeight;
         FrameworkElement nextElement;
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Down)) != null &&
-            (nextElement.ActualBounds.Bottom < limitPosition))
+            (nextElement.ActualBounds.Bottom < limitPosition + DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
       }
@@ -615,7 +615,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           limitPosition = ActualPosition.X;
         FrameworkElement nextElement;
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Left)) != null &&
-            (nextElement.ActualPosition.X > limitPosition))
+            (nextElement.ActualPosition.X > limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
       }
@@ -645,7 +645,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           limitPosition = ActualPosition.X + (float) ActualWidth;
         FrameworkElement nextElement;
         while ((nextElement = PredictFocus(currentElement.ActualBounds, MoveFocusDirection.Right)) != null &&
-            (nextElement.ActualBounds.Right < limitPosition))
+            (nextElement.ActualBounds.Right < limitPosition - DELTA_DOUBLE))
           currentElement = nextElement;
         return currentElement.TrySetFocus(true);
       }
