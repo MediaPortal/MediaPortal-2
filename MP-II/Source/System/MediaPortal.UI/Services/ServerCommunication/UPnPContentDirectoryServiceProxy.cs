@@ -187,7 +187,9 @@ namespace MediaPortal.UI.Services.ServerCommunication
       CpAction action = GetAction("SimpleTextSearch");
       String searchModeStr = excludeCLOBs ? "ExcludeCLOBs" : "Normal";
       String onlineStateStr = onlyOnline ? "OnlyOnline" : "All";
-      IList<object> inParameters = new List<object> {searchText, necessaryMIATypes, optionalMIATypes,
+      IList<object> inParameters = new List<object> {searchText,
+          MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes),
+          MarshallingHelper.SerializeGuidEnumerationToCsv(optionalMIATypes),
           filter, searchModeStr, onlineStateStr};
       IList<object> outParameters = action.InvokeAction(inParameters);
       return (IList<MediaItem>) outParameters[0];
