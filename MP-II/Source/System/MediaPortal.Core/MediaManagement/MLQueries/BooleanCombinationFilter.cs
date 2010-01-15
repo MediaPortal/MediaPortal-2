@@ -47,6 +47,8 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     {
       _operator = op;
       _operands = operands.ToArray();
+      if (_operands.Length == 0)
+        throw new ArgumentException("The filter operands enumeration must not be empty");
     }
 
     public BooleanCombinationFilter(BooleanOperator op, IFilter[] operands)
@@ -65,6 +67,15 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     public IFilter[] Operands
     {
       get { return _operands; }
+    }
+
+    public static IFilter CombineFilters(BooleanOperator op, IEnumerable<IFilter> filters)
+    {
+      if (filters == null)
+        return null;
+      IFilter[] filtersArray = filters.Where(fi => fi != null).ToArray();
+      return filtersArray.Length == 0 ? null :
+          (filtersArray.Length == 1 ? filtersArray[0] : new BooleanCombinationFilter(op, filters.ToArray()));
     }
 
     #region Additional members for the XML serialization
