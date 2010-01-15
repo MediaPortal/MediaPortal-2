@@ -78,6 +78,11 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
           (filtersArray.Length == 1 ? filtersArray[0] : new BooleanCombinationFilter(op, filters.ToArray()));
     }
 
+    public static IFilter CombineFilters(BooleanOperator op, params IFilter[] filters)
+    {
+      return CombineFilters(op, (IEnumerable<IFilter>) filters);
+    }
+
     #region Additional members for the XML serialization
 
     internal BooleanCombinationFilter() { }

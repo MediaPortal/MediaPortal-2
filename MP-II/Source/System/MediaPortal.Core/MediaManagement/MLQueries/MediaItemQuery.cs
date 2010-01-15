@@ -196,7 +196,7 @@ namespace MediaPortal.Core.MediaManagement.MLQueries
     [XmlIgnore]
     public IList<SortInformation> SortInformation
     {
-      get { return _sortInformation.AsReadOnly(); }
+      get { return _sortInformation; }
       set { _sortInformation = new List<SortInformation>(value); }
     }
 

@@ -36,6 +36,8 @@ namespace MediaPortal.Utilities.UPnP
 
     public static ICollection<Guid> ParseCsvGuidCollection(string csvGuids)
     {
+      if (string.IsNullOrEmpty(csvGuids))
+        return null;
       string[] guids = csvGuids.Split(',');
       ICollection<Guid> result = new List<Guid>(guids.Length);
       foreach (string guidStr in guids)

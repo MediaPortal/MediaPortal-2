@@ -358,12 +358,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       foreach (MediaItemAspectMetadata miaType in miatr.LocallyKnownMediaItemAspectTypes.Values)
         foreach (MediaItemAspectMetadata.AttributeSpecification attrType in miaType.AttributeSpecifications.Values)
           if (attrType.AttributeType == typeof(string))
-            textFilters.Add(new LikeFilter(attrType, SqlUtils.LikeEscape(searchText, '\\'), '\\'));
-      return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-          {
-            new BooleanCombinationFilter(BooleanOperator.Or, textFilters),
-            filter
-          }));
+            textFilters.Add(new LikeFilter(attrType, "%" + SqlUtils.LikeEscape(searchText, '\\') + "%", '\\'));
+      return new MediaItemQuery(necessaryMIATypes, optionalMIATypes, BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+          new BooleanCombinationFilter(BooleanOperator.Or, textFilters),
+          filter));
     }
 
     static UPnPError ParseOnlineState(string argumentName, string onlineStateStr, out bool all)

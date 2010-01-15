@@ -100,7 +100,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
               throw new NotImplementedException(string.Format(
                   "Boolean filter operator '{0}' isn't supported by the media library", boolFilter.Operator));
           }
-          CompileStatementParts(miaManagement, (IFilter)enumOperands.Current, outerMIIDJoinVariablePlaceHolder, resultParts, resultValues);
+          CompileStatementParts(miaManagement, (IFilter) enumOperands.Current, outerMIIDJoinVariablePlaceHolder, resultParts, resultValues);
         }
         if (numOperands > 1)
           resultParts.Add(")");
