@@ -57,13 +57,11 @@ namespace UiComponents.Media.FilterCriteria
         if (startDate >= now)
           break;
         result.Add(new FilterValue(string.Format("{0} - {1}", startYear, startYear + 10),
-            new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-              {
-                  new RelationalFilter(
-                      MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(startYear, 1, 1)),
-                  new RelationalFilter(
-                      MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(startYear + 10, 1, 1)),
-              }), this));
+            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                new RelationalFilter(
+                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(startYear, 1, 1)),
+                new RelationalFilter(
+                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(startYear + 10, 1, 1))), this));
         startYear += 10;
       }
       return result;

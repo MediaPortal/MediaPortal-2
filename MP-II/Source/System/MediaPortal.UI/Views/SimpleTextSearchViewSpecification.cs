@@ -22,36 +22,41 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.Utilities;
 using UPnP.Infrastructure.CP;
 
 namespace MediaPortal.UI.Views
 {
   /// <summary>
-  /// View which is based on a media library query.
+  /// View which is represents the results of a simple text search at the media library.
   /// </summary>
-  public class MediaLibraryViewSpecification : ViewSpecification
+  public class SimpleTextSearchViewSpecification : ViewSpecification
   {
     #region Protected fields
 
-    protected MediaItemQuery _query;
+    protected string _searchText;
+    protected IFilter _filter;
+    protected bool _excludeCLOBs;
     protected bool _onlyOnline;
-    protected IList<MediaLibraryViewSpecification> _subViews = new List<MediaLibraryViewSpecification>();
+    protected IList<ViewSpecification> _subViews = new List<ViewSpecification>();
 
     #endregion
 
     #region Ctor
 
-    public MediaLibraryViewSpecification(string viewDisplayName, MediaItemQuery query, bool onlyOnline) :
-        base(viewDisplayName, query.NecessaryRequestedMIATypeIDs, query.OptionalRequestedMIATypeIDs)
+    public SimpleTextSearchViewSpecification(string viewDisplayName, string searchText, IFilter filter,
+        IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds, bool excludeCLOBs, bool onlyOnline) :
+        base(viewDisplayName, necessaryMIATypeIds, optionalMIATypeIds)
     {
-      _query = query;
+      _searchText = searchText;
+      _filter = filter;
+      _excludeCLOBs = excludeCLOBs;
       _onlyOnline = onlyOnline;
     }
 
@@ -62,12 +67,19 @@ namespace MediaPortal.UI.Views
       get { return _onlyOnline; }
     }
 
-    /// <summary>
-    /// Returns a list of all sub query view specifications of this view specification.
-    /// </summary>
-    public IList<MediaLibraryViewSpecification> SubViewSpecifications
+    public bool ExcludeCLOBs
     {
-      get { return _subViews; }
+      get { return _excludeCLOBs; }
+    }
+
+    public string SearchText
+    {
+      get { return _searchText; }
+    }
+
+    public IFilter Filter
+    {
+      get { return _filter; }
     }
 
     public override bool CanBeBuilt
@@ -87,7 +99,8 @@ namespace MediaPortal.UI.Views
       IList<MediaItem> mediaItems;
       try
       {
-        mediaItems = cd.Search(_query, _onlyOnline);
+        mediaItems = cd.SimpleTextSearch(_searchText, _necessaryMIATypeIds, _optionalMIATypeIds,
+            _filter, _excludeCLOBs, _onlyOnline);
       }
       catch (UPnPRemoteException e)
       {
@@ -100,9 +113,7 @@ namespace MediaPortal.UI.Views
 
     protected internal override IEnumerable<ViewSpecification> ReLoadSubViewSpecifications()
     {
-      IList<ViewSpecification> result = new List<ViewSpecification>(_subViews.Count);
-      CollectionUtils.AddAll(result, _subViews);
-      return result;
+      return new List<ViewSpecification>(_subViews);
     }
   }
 }

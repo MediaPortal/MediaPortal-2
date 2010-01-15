@@ -57,34 +57,29 @@ namespace UiComponents.Media.FilterCriteria
     {
       ICollection<FilterValue> result = new List<FilterValue>(10)
         {
-            new FilterValue(VALUE_EMPTY_TITLE, new BooleanCombinationFilter(BooleanOperator.Or, new IFilter[]
-                {
-                    new EmptyFilter(PictureAspect.ATTR_WIDTH),
-                    new EmptyFilter(PictureAspect.ATTR_HEIGHT)
-                }), this),
-            new FilterValue(string.Format("< {0}x{1}", MIN_SIZE.X, MIN_SIZE.Y), new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-              {
-                  new RelationalFilter(
-                      PictureAspect.ATTR_WIDTH, RelationalOperator.LT, 800),
-                  new RelationalFilter(
-                      PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, 600),
-              }), this)
+            new FilterValue(VALUE_EMPTY_TITLE, BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new EmptyFilter(PictureAspect.ATTR_WIDTH),
+                new EmptyFilter(PictureAspect.ATTR_HEIGHT)), this),
+            new FilterValue(string.Format("< {0}x{1}", MIN_SIZE.X, MIN_SIZE.Y), BooleanCombinationFilter.CombineFilters(
+                BooleanOperator.And,
+                new RelationalFilter(
+                    PictureAspect.ATTR_WIDTH, RelationalOperator.LT, 800),
+                new RelationalFilter(
+                    PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, 600)), this)
         };
       Size lastSize = MIN_SIZE;
       foreach (Size size in SIZES)
       {
         result.Add(new FilterValue(string.Format("{0}x{1} - {2}x{3}", lastSize.X, lastSize.Y, size.X, size.Y),
-            new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-              {
-                  new RelationalFilter(
-                      PictureAspect.ATTR_WIDTH, RelationalOperator.GE, lastSize.X),
-                  new RelationalFilter(
-                      PictureAspect.ATTR_HEIGHT, RelationalOperator.GE, lastSize.Y),
-                  new RelationalFilter(
-                      PictureAspect.ATTR_WIDTH, RelationalOperator.LT, size.X),
-                  new RelationalFilter(
-                      PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, size.Y),
-              }), this));
+            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                new RelationalFilter(
+                    PictureAspect.ATTR_WIDTH, RelationalOperator.GE, lastSize.X),
+                new RelationalFilter(
+                    PictureAspect.ATTR_HEIGHT, RelationalOperator.GE, lastSize.Y),
+                new RelationalFilter(
+                    PictureAspect.ATTR_WIDTH, RelationalOperator.LT, size.X),
+                new RelationalFilter(
+                    PictureAspect.ATTR_HEIGHT, RelationalOperator.LT, size.Y)), this));
         lastSize = size;
       }
       return result;

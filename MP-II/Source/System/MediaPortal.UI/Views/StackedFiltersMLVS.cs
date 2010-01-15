@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.UI.Views
@@ -49,7 +48,7 @@ namespace MediaPortal.UI.Views
     public StackedFiltersMLVS(string viewDisplayName, ICollection<IFilter> filters,
         IEnumerable<Guid> necessaryMIATypeIDs, IEnumerable<Guid> optionalMIATypeIDs, bool onlyOnline) :
         base(viewDisplayName, new MediaItemQuery(necessaryMIATypeIDs, optionalMIATypeIDs,
-            new BooleanCombinationFilter(BooleanOperator.And, filters.ToArray())), onlyOnline)
+            BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters)), onlyOnline)
     {
       _filters = filters;
     }
@@ -61,17 +60,19 @@ namespace MediaPortal.UI.Views
 
     public StackedFiltersMLVS CreateSubViewSpecification(string viewDisplayName, IFilter filter)
     {
-      ICollection<IFilter> filters = new List<IFilter>(_filters) {filter};
-      return new StackedFiltersMLVS(viewDisplayName, filters, NecessaryMIATypeIds, OptionalMIATypeIds, OnlyOnline);
+      IList<IFilter> baseFilters = _filters == null ? new List<IFilter>(1) : new List<IFilter>(_filters);
+      baseFilters.Add(filter);
+      return new StackedFiltersMLVS(viewDisplayName, baseFilters, NecessaryMIATypeIds, OptionalMIATypeIds, OnlyOnline);
     }
 
     public static StackedFiltersMLVS CreateRootViewSpecification(string viewDisplayName,
         ICollection<Guid> necessaryRequestedMIATypeIDs, ICollection<Guid> optionalRequestedMIATypeIDs,
         IFilter baseFilter, bool onlyOnline)
     {
-      IFilter[] filters = baseFilter == null ? new IFilter[0] : new IFilter[] {baseFilter};
+      IFilter[] filters = baseFilter == null ? null : new IFilter[] {baseFilter};
       return new StackedFiltersMLVS(viewDisplayName, filters,
           necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, onlyOnline);
     }
+
   }
 }

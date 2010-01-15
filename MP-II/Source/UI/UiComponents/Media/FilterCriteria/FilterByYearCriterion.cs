@@ -52,13 +52,11 @@ namespace UiComponents.Media.FilterCriteria
       int maxYear = DateTime.Now.Year;
       for (int year = MIN_YEAR; year < maxYear; year++)
         result.Add(new FilterValue(string.Format("{0}", year),
-            new BooleanCombinationFilter(BooleanOperator.And, new IFilter[]
-              {
-                  new RelationalFilter(
-                      MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(year, 1, 1)),
-                  new RelationalFilter(
-                      MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(year + 1, 1, 1)),
-              }), this));
+            BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+                new RelationalFilter(
+                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.GE, new DateTime(year, 1, 1)),
+                new RelationalFilter(
+                    MediaAspect.ATTR_RECORDINGTIME, RelationalOperator.LT, new DateTime(year + 1, 1, 1))), this));
       return result;
     }
 

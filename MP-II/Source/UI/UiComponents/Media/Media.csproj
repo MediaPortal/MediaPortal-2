@@ -104,6 +104,11 @@
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
+    <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\MusicSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
+    <Content Include="Skin\default\screens\SimpleSearch.xaml" />
     <Content Include="Skin\default\themes\default\styles\VideoPlayerStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
