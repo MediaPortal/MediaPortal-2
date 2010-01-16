@@ -301,7 +301,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     }
 
     /// <summary>
-    /// Imports or refreshes the directory with the specified <paramref name="directoryAccessor"/>.
+    /// Imports or refreshes the directory with the specified <paramref name="directoryAccessor"/>. Sub directories will not
+    /// be processed in this method.
     /// </summary>
     /// <param name="importJob">The import job being processed.</param>
     /// <param name="directoryAccessor">Resource accessor for the directory to import.</param>
@@ -414,6 +415,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           CollectionUtils.AddAll(mediaItemAspectTypes, extractor.Metadata.ExtractedAspectTypes.Values);
         }
 
+        ServiceScope.Get<ILogger>().Info("ImporterWorker: Processing import job '{0}'", importJob.BasePath);
         // Prepare import
         if (state == ImportJobState.Scheduled)
         {
@@ -441,6 +443,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           IFileSystemResourceAccessor fsra;
           lock (importJob.SyncObj)
             fsra = importJob.PendingResources.FirstOrDefault();
+          ServiceScope.Get<ILogger>().Info("ImporterWorker: Processing resource '{0}'", fsra.ResourcePathName);
           if (fsra.IsFile)
             ImportFile(importJob, fsra, metadataExtractors, mediaItemAspectTypes, mediaBrowsing, resultHandler, mediaAccessor);
           else if (fsra.IsDirectory)
@@ -467,7 +470,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
       catch (ImportAbortException)
       {
-        ServiceScope.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}'", importJob);
+        ServiceScope.Get<ILogger>().Info("ImporterWorker: Aborting import job '{0}' ({1} items pending - will be continued next time)", importJob, importJob.PendingResources.Count);
         return;
       }
     }
