@@ -97,6 +97,12 @@ namespace UPnP.Infrastructure.CP.SOAP
       IList<object> outParameterValues;
       try
       {
+        if (!body.CanRead)
+        {
+          Configuration.LOGGER.Error("SOAPHandler: Empty action result document");
+          action.ActionErrorResultPresent(new UPnPError(501, "Invalid server result"), clientState);
+          return;
+        }
         TextReader textReader = new StreamReader(body, contentEncoding);
         outParameterValues = ParseResult(textReader, action, sourceSupportsUPnP11);
       }
