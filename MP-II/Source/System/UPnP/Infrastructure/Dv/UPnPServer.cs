@@ -74,7 +74,6 @@ namespace UPnP.Infrastructure.Dv
     public static string DEFAULT_EVENT_SUB_URL_PREFIX = "upnphost/eventing";
 
     protected ICollection<DvDevice> _rootDevices = new List<DvDevice>();
-    protected object _syncObj = new object();
     protected ServerData _serverData = new ServerData();
     
     /// <summary>
@@ -176,7 +175,7 @@ namespace UPnP.Infrastructure.Dv
     /// availability, this value should be short, for more durable serves, this interval can be much longer (maybe a day).</param>
     public void Bind(int advertisementInterval)
     {
-      lock (_syncObj)
+      lock (_serverData.SyncObj)
       {
         if (_serverData.IsActive)
           throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
@@ -234,7 +233,7 @@ namespace UPnP.Infrastructure.Dv
     /// </remarks>
     public void UpdateConfiguration()
     {
-      lock (_syncObj)
+      lock (_serverData.SyncObj)
       {
         foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
         {
@@ -250,7 +249,7 @@ namespace UPnP.Infrastructure.Dv
     /// </summary>
     public void Close()
     {
-      lock (_syncObj)
+      lock (_serverData.SyncObj)
       {
         if (!_serverData.IsActive)
           return;
