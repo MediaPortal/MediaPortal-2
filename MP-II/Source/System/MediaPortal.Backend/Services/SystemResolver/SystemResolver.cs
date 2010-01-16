@@ -25,12 +25,18 @@
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.Services.SystemResolver;
 
 namespace MediaPortal.Backend.Services.SystemResolver
 {
   public class SystemResolver : SystemResolverBase
   {
+    public SystemResolver()
+    {
+      ServiceScope.Get<ILogger>().Info("SystemResolver: Local system id is '{0}'", _localSystemId);
+    }
+
     #region ISystemResolver implementation
 
     public override SystemName GetSystemNameForSystemId(string systemId)
