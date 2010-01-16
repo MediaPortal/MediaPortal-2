@@ -195,7 +195,7 @@ namespace UiComponents.SkinBase.Models
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
       IDictionary<string, ServerDescriptor> availableServers = new Dictionary<string, ServerDescriptor>();
       ICollection<ServerDescriptor> systemAvailableServers = scm.AvailableServers;
-      if (systemAvailableServers != null) // AvailableServers can be null if in the meantime, a home server was attached
+      if (systemAvailableServers != null) // AvailableServers can have been null if a home server was attached in the meantime
         foreach (ServerDescriptor sd in scm.AvailableServers)
           availableServers.Add(sd.MPBackendServerUUID, sd);
       IDictionary<string, ListItem> shownServers = new Dictionary<string, ListItem>();

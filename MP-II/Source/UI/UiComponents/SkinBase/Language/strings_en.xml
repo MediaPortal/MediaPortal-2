@@ -22,6 +22,8 @@
     <String Name="AttachedText.Before" Text="This MediaPortal-II client is currently attached to home server"/>
     <String Name="AttachedText.After" Text=""/>
     <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal-II client."/>
+    <String Name="HomeServerIsConnected" Text="The home server is currently connected."/>
+    <String Name="HomeServerIsNotConnected" Text="The home server is currently disconnected."/>
     <String Name="DetachMenu" Text="Detach"/>
     <String Name="DetachConfirmDialogHeader" Text="Detach from home server"/>
     <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host {1}?"/>

@@ -37,7 +37,7 @@ namespace UiComponents.SkinBase.Models
   /// <summary>
   /// Model which attends the workflow state "ShowHomeServer".
   /// </summary>
-  public class HomeServerModel : IWorkflowModel
+  public class HomeServerModel : IWorkflowModel, IDisposable
   {
     #region Consts
 
@@ -74,22 +74,28 @@ namespace UiComponents.SkinBase.Models
     protected AsynchronousMessageQueue _messageQueue;
     protected object _syncObj = new object();
     protected AbstractProperty _homeServerProperty;
-    protected AbstractProperty _homeServerConnectedProperty;
     protected AbstractProperty _isHomeServerAttachedProperty;
+    protected AbstractProperty _isHomeServerConnectedProperty;
 
     #endregion
 
     public HomeServerModel()
     {
       _homeServerProperty = new WProperty(typeof(string), string.Empty);
-      _homeServerConnectedProperty = new WProperty(typeof(bool), false);
       _isHomeServerAttachedProperty = new WProperty(typeof(bool), false);
+      _isHomeServerConnectedProperty = new WProperty(typeof(bool), false);
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
           {
             ServerConnectionMessaging.CHANNEL
           });
       _messageQueue.MessageReceived += OnMessageReceived;
       // Message queue will be started in method EnterModelContext
+    }
+
+    public virtual void Dispose()
+    {
+      _messageQueue.UnsubscribeFromAllMessageChannels();
+      _messageQueue.Shutdown();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -117,7 +123,7 @@ namespace UiComponents.SkinBase.Models
       {
         IsHomeServerAttached = false;
         HomeServer = null;
-        HomeServerConnected = false;
+        IsHomeServerConnected = false;
       }
       else
       {
@@ -125,7 +131,7 @@ namespace UiComponents.SkinBase.Models
         SystemName system = scm.LastHomeServerSystem;
         HomeServer = LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES, serverName,
             system == null ? LocalizationHelper.Translate(UNKNOWN_SERVER_SYSTEM_RES) : system.HostName);
-        HomeServerConnected = scm.IsHomeServerConnected;
+        IsHomeServerConnected = scm.IsHomeServerConnected;
         IsHomeServerAttached = true;
       }
     }
@@ -154,15 +160,15 @@ namespace UiComponents.SkinBase.Models
       get { return _homeServerProperty; }
     }
 
-    public bool HomeServerConnected
+    public bool IsHomeServerConnected
     {
-      get { return (bool) _homeServerConnectedProperty.GetValue(); }
-      set { _homeServerConnectedProperty.SetValue(value); }
+      get { return (bool) _isHomeServerConnectedProperty.GetValue(); }
+      set { _isHomeServerConnectedProperty.SetValue(value); }
     }
 
-    public AbstractProperty HomeServerConnectedProperty
+    public AbstractProperty IsHomeServerConnectedProperty
     {
-      get { return _homeServerConnectedProperty; }
+      get { return _isHomeServerConnectedProperty; }
     }
 
     #endregion
