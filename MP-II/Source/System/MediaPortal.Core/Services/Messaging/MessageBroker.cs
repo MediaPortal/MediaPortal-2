@@ -49,6 +49,18 @@ namespace MediaPortal.Core.Services.Messaging
       _garbageCollectorThread.Start();
     }
 
+    ~MessageBroker()
+    {
+      if (_garbageCollectorThread != null)
+      {
+        if (_garbageCollectorThread.ThreadState != ThreadState.Stopped)
+        {
+          _garbageCollectorThread.Abort();
+        }
+        _garbageCollectorThread = null;
+      }
+    }
+
     protected void GarbageCollectHandlers()
     {
       lock (_syncObj)
