@@ -130,7 +130,13 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
     }
 
-    public void CheckImportStillRunning(ImportJobState state)
+    protected void CheckSuspended()
+    {
+      if (IsSuspended)
+        throw new ImportAbortException();
+    }
+
+    protected void CheckImportStillRunning(ImportJobState state)
     {
       if (IsSuspended || state == ImportJobState.Cancelled || state == ImportJobState.Erroneous)
         throw new ImportAbortException();
@@ -288,6 +294,7 @@ namespace MediaPortal.Core.Services.MediaManagement
       }
       catch (Exception e)
       {
+        CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
         ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
         importJob.State = ImportJobState.Erroneous;
       }
@@ -338,6 +345,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
           catch (Exception e)
           {
+            CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
             ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing resource '{0}'", e, fileAccessor.LocalResourcePath);
             importJob.State = ImportJobState.Erroneous;
           }
@@ -354,8 +362,13 @@ namespace MediaPortal.Core.Services.MediaManagement
           }
         }
       }
+      catch (ImportAbortException)
+      {
+        throw;
+      }
       catch (Exception e)
       {
+        CheckSuspended(); // Throw ImportAbortException if suspended - will skip warning and tagging job as erroneous
         ServiceScope.Get<ILogger>().Warn("ImporterWorker: Problem while importing directory '{0}'", e, directoryAccessor.LocalResourcePath);
         importJob.State = ImportJobState.Erroneous;
       }

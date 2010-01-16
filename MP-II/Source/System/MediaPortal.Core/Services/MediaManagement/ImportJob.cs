@@ -71,7 +71,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     protected object _syncObj = new object();
     protected ImportJobType _jobType;
     protected ResourcePath _basePath;
-    protected List<IFileSystemResourceAccessor> _pendingResources = new List<IFileSystemResourceAccessor>();
+    protected IList<IFileSystemResourceAccessor> _pendingResources = new List<IFileSystemResourceAccessor>();
     protected HashSet<Guid> _metadataExtractorIds;
     protected bool _includeSubDirectories;
     protected ImportJobState _state = ImportJobState.None;
@@ -222,14 +222,17 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("PendingDirectories", IsNullable = false)]
-    public List<string> XML_PendingDirectories
+    [XmlArray("PendingDirectories", IsNullable = false)]
+    [XmlArrayItem("Directory")]
+    // The XmlSerializer only calls our setter if we declare the property as array instead of a list
+    public string[] XML_PendingDirectories
     {
       get
       {
-        List<string> result = new List<string>(_pendingResources.Count);
+        string[] result = new string[_pendingResources.Count];
+        int ct = 0;
         foreach (IFileSystemResourceAccessor resource in _pendingResources)
-          result.Add(resource.LocalResourcePath.Serialize());
+          result[ct++] = resource.LocalResourcePath.Serialize();
         return result;
       }
       set
@@ -253,7 +256,8 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("MetadataExtractorIds", IsNullable = false)]
+    [XmlArray("MetadataExtractorIds", IsNullable = false)]
+    [XmlArrayItem("Id")]
     public HashSet<Guid> XML_MetadataExtractorIds
     {
       get { return _metadataExtractorIds; }
@@ -263,7 +267,7 @@ namespace MediaPortal.Core.Services.MediaManagement
     /// <summary>
     /// For internal use of the XML serialization system only.
     /// </summary>
-    [XmlElement("IncludeSubDirectories", IsNullable = false)]
+    [XmlAttribute("IncludeSubDirectories")]
     public bool XML_IncludeSubDirectories
     {
       get { return _includeSubDirectories; }
