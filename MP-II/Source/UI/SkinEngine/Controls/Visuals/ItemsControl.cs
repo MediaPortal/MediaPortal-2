@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsPanelProperty;
     protected AbstractProperty _currentItemProperty;
 
-    protected bool _prepare = false;
+    protected volatile bool _prepare = false;
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
 
@@ -314,10 +314,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (ItemContainerStyle == null) return false;
       if (ItemTemplate == null) return false;
       IList<object> l = new List<object>();
-      // TODO: find a way to lock out other threads potentially accessing ItemsSource while we access it
-      // (for example an interface which is implemented by ItemsList providing a member SyncRoot, which we can use
-      // here to lock)
-      CollectionUtils.AddAll(l, ItemsSource);
+      ISynchronizable sync = ItemsSource as ISynchronizable;
+      if (sync != null)
+        lock (sync)
+          CollectionUtils.AddAll(l, ItemsSource);
+      else
+          CollectionUtils.AddAll(l, ItemsSource);
       IEnumerator enumer = l.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;

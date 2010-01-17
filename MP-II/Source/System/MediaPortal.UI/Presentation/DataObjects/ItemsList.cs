@@ -32,7 +32,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
   /// List of <see cref="ListItem"/> instances to be shown in the GUI.
   /// This class is thread-safe.
   /// </summary>
-  public class ItemsList : IList<ListItem>, IObservable
+  public class ItemsList : IList<ListItem>, IObservable, ISynchronizable
   {
     protected SynchronizedCollection<ListItem> _backingList = new SynchronizedCollection<ListItem>();
     /// <summary>
