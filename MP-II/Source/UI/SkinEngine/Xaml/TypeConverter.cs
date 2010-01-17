@@ -170,6 +170,13 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         return true;
       }
 
+      // String target type must be done before enumerations are tried - else, the string will be treated as enumeration
+      if (targetType.IsAssignableFrom(typeof(string)))
+      { // * -> string
+        result = val.ToString();
+        return true;
+      }
+
       // Collection types
 
       Type enumerableType;
@@ -213,12 +220,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (tc != null && tc.CanConvertTo(targetType))
       {
         result = tc.ConvertTo(val, targetType);
-        return true;
-      }
-
-      if (targetType.IsAssignableFrom(typeof(string)))
-      { // * -> string
-        result = val.ToString();
         return true;
       }
 
