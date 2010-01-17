@@ -39,7 +39,7 @@ namespace UiComponents.Media.Actions
     protected Guid _targetWorkflowStateId;
     protected string _displayTitleResource;
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected bool _isVisible;
+    protected volatile bool _isVisible;
 
     #endregion
 
