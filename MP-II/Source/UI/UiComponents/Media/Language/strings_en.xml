@@ -10,7 +10,7 @@
     <String Name="MoviesTitle" Text="Movies"/>
     <String Name="PicturesTitle" Text="Pictures"/>
     <String Name="SimpleSearchTitle" Text="Simple search"/>
-    <String Name="ViewInvalid" Text="This view is invalid"/>
+    <String Name="ViewInvalid" Text="This view could not be built"/>
     <String Name="ViewEmpty" Text="&lt;No items to display&gt;"/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
