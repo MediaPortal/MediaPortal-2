@@ -316,7 +316,8 @@ namespace UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Gets the information whether the current view is empty, i.e. <see cref="Items"/>'s count is <c>0</c>.
+    /// Gets the information whether the current view is empty, i.e. <see cref="Items"/>'s count is <c>0</c>. If the current
+    /// view is invalid (i.e. <c><see cref="IsItemsValid"/> == false</c>), the value of this property will be <c>false</c>.
     /// </summary>
     public bool IsItemsEmpty
     {
@@ -697,10 +698,13 @@ namespace UiComponents.Media.Models
         }
         itemsList.Sort((i1, i2) => string.Compare(i1[PlayableItem.KEY_NAME], i2[PlayableItem.KEY_NAME]));
         CollectionUtils.AddAll(items, itemsList);
+        IsItemsEmpty = items.Count == 0;
       }
       else
+      {
+        IsItemsEmpty = false;
         IsItemsValid = false;
-      IsItemsEmpty = items.Count == 0;
+      }
       Items = items;
       Items.FireChange();
       ItemsListTitle = title;
