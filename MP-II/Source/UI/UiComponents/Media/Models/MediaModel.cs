@@ -98,6 +98,7 @@ namespace UiComponents.Media.Models
     protected const string OPTIONAL_MIA_TYPES_KEY = "MediaModel: OPTIONAL_MIA_TYPES";
     protected const string VIEW_KEY = "MediaModel: VIEW";
     protected const string ITEMS_KEY = "MediaModel: ITEMS";
+    protected const string NUM_ITEMS_STR_KEY = "MediaModel: NUM_ITEMS_STR";
     protected const string ITEMSLIST_TITLE_KEY = "MediaModel: ITEMSLIST_TITLE";
     protected const string SIMPLE_SEARCH_TEXT_PROPERTY_KEY = "MediaModel: SIMPLE_SEARCH_TEXT_PROPERTY";
     protected const string HAS_PARENT_DIRECTORY_KEY = "MediaModel: HAS_PARENT_DIRECTORY";
@@ -127,6 +128,10 @@ namespace UiComponents.Media.Models
 
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
     public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
+
+    public const string NO_ITEMS_RESOURCE = "[Media.NoItems]";
+    public const string ONE_ITEM_RESOURCE = "[Media.OneItem]";
+    public const string N_ITEMS_RESOURCE = "[Media.NItems]";
 
     public const string LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE = "[Media.LocalMediaRootViewName]";
     public const string MUSIC_VIEW_NAME_RESOURCE = "[Media.MusicRootViewName]";
@@ -278,16 +283,13 @@ namespace UiComponents.Media.Models
       internal set { SetInCurrentContext(ITEMS_KEY, value); }
     }
 
-    public string SimpleSearchText
+    public string NumItemsStr
     {
-      get { return (string) SimpleSearchTextProperty.GetValue(); }
-      internal set { SimpleSearchTextProperty.SetValue(value); }
-    }
-
-    public AbstractProperty SimpleSearchTextProperty
-    {
-      get { return GetFromCurrentContext<AbstractProperty>(SIMPLE_SEARCH_TEXT_PROPERTY_KEY, false); }
-      internal set { SetInCurrentContext(SIMPLE_SEARCH_TEXT_PROPERTY_KEY, value); }
+      get
+      {
+        return GetFromCurrentContext<string>(NUM_ITEMS_STR_KEY, false);
+      }
+      internal set { SetInCurrentContext(NUM_ITEMS_STR_KEY, value); }
     }
 
     public string ItemsListTitle
@@ -323,6 +325,18 @@ namespace UiComponents.Media.Models
     {
       get { return GetFromCurrentContext(IS_ITEMS_EMPTY_KEY, false, false); }
       internal set { SetInCurrentContext(IS_ITEMS_EMPTY_KEY, value); }
+    }
+
+    public string SimpleSearchText
+    {
+      get { return (string) SimpleSearchTextProperty.GetValue(); }
+      internal set { SimpleSearchTextProperty.SetValue(value); }
+    }
+
+    public AbstractProperty SimpleSearchTextProperty
+    {
+      get { return GetFromCurrentContext<AbstractProperty>(SIMPLE_SEARCH_TEXT_PROPERTY_KEY, false); }
+      internal set { SetInCurrentContext(SIMPLE_SEARCH_TEXT_PROPERTY_KEY, value); }
     }
 
     public ICollection<MediaNavigationMode> AvailableDynamicModes
@@ -646,6 +660,12 @@ namespace UiComponents.Media.Models
       }
     }
 
+    protected string BuildNumItemsStr(int numItems)
+    {
+      return numItems == 0 ? NO_ITEMS_RESOURCE : (numItems == 1 ? ONE_ITEM_RESOURCE :
+          LocalizationHelper.Translate(N_ITEMS_RESOURCE, numItems));
+    }
+
     /// <summary>
     /// Updates the GUI data for a media items view screen which reflects the data of the given <paramref name="view"/>.
     /// </summary>
@@ -706,6 +726,7 @@ namespace UiComponents.Media.Models
         IsItemsValid = false;
       }
       Items = items;
+      NumItemsStr = BuildNumItemsStr(items.Count);
       Items.FireChange();
       ItemsListTitle = title;
     }
@@ -766,6 +787,7 @@ namespace UiComponents.Media.Models
         throw;
       }
       Items = items;
+      NumItemsStr = BuildNumItemsStr(items.Count);
       ItemsListTitle = title;
     }
 

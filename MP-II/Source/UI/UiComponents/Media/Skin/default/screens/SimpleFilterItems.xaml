@@ -30,8 +30,14 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom"
-              Content="{Binding ItemsListTitle}"/>
+          <DockPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" LastChildFill="false">
+            <Label DockPanel.Dock="Left" Content="{Binding ItemsListTitle}"/>
+            <StackPanel Margin="0,0,10,0" Orientation="Horizontal" DockPanel.Dock="Right">
+              <Label Color="{ThemeResource HintTextColor}" Content=" ("/>
+              <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumItemsStr}"/>
+              <Label Color="{ThemeResource HintTextColor}" Content=")"/>
+            </StackPanel>
+          </DockPanel>
 
           <!-- .. button will be replaced by navbar -->
           <Button Grid.Row="0" Grid.Column="1" Width="60" Margin="0,0,20,0"
