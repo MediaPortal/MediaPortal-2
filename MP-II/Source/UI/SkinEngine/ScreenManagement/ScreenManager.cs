@@ -122,20 +122,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       public void Unload()
       {
-        Screen oldBackground;
         ICollection<Guid> oldModels;
         lock (_parent.SyncRoot)
         {
           if (_backgroundScreen == null)
             return;
-          oldBackground = _backgroundScreen;
-          oldBackground.ScreenState = Screen.State.Closing;
-          _backgroundScreen.Hide();
+          _backgroundScreen.ScreenState = Screen.State.Closing;
+          Screen oldBackground = _backgroundScreen;
           _backgroundScreen = null;
+          _parent.ScheduleDisposeScreen(oldBackground);
           oldModels = new List<Guid>(_models.Keys);
           _models.Clear();
         }
-        oldBackground.Hide();
         IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
         foreach (Guid modelId in oldModels)
           pluginManager.RevokePluginItem(MODELS_REGISTRATION_LOCATION, modelId.ToString(), this);
@@ -201,6 +199,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected Theme _theme = null;
 
     protected AsynchronousMessageQueue _messageQueue;
+    protected Thread _garbageCollectorThread;
+    protected Queue<Screen> _garbageScreens = new Queue<Screen>(10);
 
     #endregion
 
@@ -230,6 +230,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         screenSettings.Theme = _theme == null ? null : _theme.Name;
         ServiceScope.Get<ISettingsManager>().Save(screenSettings);
       }
+      _garbageCollectorThread = new Thread(DoGarbageCollection)
+        {
+            Name = typeof(ScreenManager).Name + " garbage collector thread",
+            Priority = ThreadPriority.Lowest,
+            IsBackground = true
+        };
+      _garbageCollectorThread.Start();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -281,6 +288,35 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         return;
       _messageQueue.Shutdown();
       _messageQueue = null;
+    }
+
+    protected void DoGarbageCollection()
+    {
+      while (true)
+      {
+        Screen screen;
+        bool active = true;
+        while (active)
+        {
+          lock (_syncObj)
+            screen = _garbageScreens.Count == 0 ? null : _garbageScreens.Dequeue();
+          if (screen == null)
+            active = false;
+          else
+            screen.Close();
+        }
+        lock (_syncObj)
+          Monitor.Wait(_syncObj);
+      }
+    }
+
+    protected void ScheduleDisposeScreen(Screen screen)
+    {
+      lock (_syncObj)
+      {
+        _garbageScreens.Enqueue(screen);
+        Monitor.PulseAll(_syncObj);
+      }
     }
 
     protected internal void IncPendingOperations()
@@ -426,19 +462,20 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialog(string dialogName)
     {
-      Screen oldDialog;
       lock(_syncObj)
       {
         // Do we have a dialog?
         if (_dialogStack.Count == 0)
           return;
-        oldDialog = _dialogStack.Pop();
+        Screen oldDialog = _dialogStack.Pop();
         if (oldDialog.Name != dialogName)
           return;
 
         oldDialog.ScreenState = Screen.State.Closing;
         oldDialog.DetachInput();
 
+        ScheduleDisposeScreen(oldDialog);
+  
         // Is this the last dialog?
         if (_dialogStack.Count == 0)
         {
@@ -448,7 +485,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         else
           _dialogStack.Peek().AttachInput();
       }
-      oldDialog.Hide();
     }
 
     protected internal void DoCloseDialogs()
@@ -468,18 +504,18 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseScreen()
     {
-      Screen screen;
       lock (_syncObj)
       {
         if (_currentScreen == null)
           return;
-        screen = _currentScreen;
+        Screen screen = _currentScreen;
         _currentScreen = null;
 
         screen.ScreenState = Screen.State.Closing;
         screen.DetachInput();
+
+        ScheduleDisposeScreen(screen);
       }
-      screen.Hide();
     }
 
     protected internal void DoCloseCurrentScreenAndDialogs(bool closeBackgroundLayer)

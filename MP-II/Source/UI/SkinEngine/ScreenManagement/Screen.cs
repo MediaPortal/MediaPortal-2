@@ -273,8 +273,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Show()
     {
-      //Trace.WriteLine("Screen Show: " + Name);
-
       lock (_visual)
       {
         _setFocusedElement = true;
@@ -284,9 +282,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       }
     }
 
-    public void Hide()
+    public void Close()
     {
-      //Trace.WriteLine("Screen Hide: " + Name);
       lock (_visual)
       {
         Animator.StopAll();
