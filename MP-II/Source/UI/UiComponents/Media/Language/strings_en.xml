@@ -46,7 +46,6 @@
     <String Name="FilterByMovieGenreMode" Text="Filter by genre"/>
     <String Name="FilterByPictureSizeMode" Text="Filter by size"/>
     <String Name="SimpleSearchFilterMode" Text="Search"/>
-    <String Name="ExtendedSearchFilterMode" Text="Extended search"/>
     <String Name="ShowAllMusicItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered music items -->
     <String Name="ShowAllMovieItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered movie items -->
     <String Name="ShowAllPictureItemsMode" Text="Show all"/> <!-- Menu entry to show all currently filtered picture items -->

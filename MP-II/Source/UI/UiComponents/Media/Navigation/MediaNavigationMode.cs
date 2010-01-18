@@ -38,17 +38,14 @@ namespace UiComponents.Media.Navigation
     MusicFilterByGenre,
     MusicFilterByDecade,
     MusicSimpleSearch,
-    MusicExtendedSearch,
     MoviesShowItems,
     MoviesFilterByActor,
     MoviesFilterByGenre,
     MoviesFilterByYear,
     MoviesSimpleSearch,
-    MoviesExtendedSearch,
     PicturesShowItems,
     PicturesFilterByYear,
     PicturesFilterBySize,
     PicturesSimpleSearch,
-    PicturesExtendedSearch,
   }
 }

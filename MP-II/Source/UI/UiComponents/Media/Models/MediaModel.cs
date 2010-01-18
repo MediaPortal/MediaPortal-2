@@ -148,7 +148,6 @@ namespace UiComponents.Media.Models
     public const string FILTER_BY_MOVIE_GENRE_MODE_RESOURCE = "[Media.FilterByMovieGenreMode]";
     public const string FILTER_BY_PICTURE_SIZE_MODE_RESOURCE = "[Media.FilterByPictureSizeMode]";
     public const string SIMPLE_SEARCH_FILTER_MODE_RESOURCE = "[Media.SimpleSearchFilterMode]";
-    public const string EXTENDED_SEARCH_FILTER_MODE_RESOURCE = "[Media.ExtendedSearchFilterMode]";
     public const string SHOW_ALL_MUSIC_ITEMS_MODE_RESOURCE = "[Media.ShowAllMusicItemsMode]";
     public const string SHOW_ALL_MOVIE_ITEMS_MODE_RESOURCE = "[Media.ShowAllMovieItemsMode]";
     public const string SHOW_ALL_PICTURE_ITEMS_MODE_RESOURCE = "[Media.ShowAllPictureItemsMode]";
@@ -163,18 +162,15 @@ namespace UiComponents.Media.Models
         {MediaNavigationMode.MusicFilterByGenre, FILTER_BY_MUSIC_GENRE_MODE_RESOURCE},
         {MediaNavigationMode.MusicFilterByDecade, FILTER_BY_DECADE_MODE_RESOURCE},
         {MediaNavigationMode.MusicSimpleSearch, SIMPLE_SEARCH_FILTER_MODE_RESOURCE},
-        {MediaNavigationMode.MusicExtendedSearch, EXTENDED_SEARCH_FILTER_MODE_RESOURCE},
         {MediaNavigationMode.MoviesShowItems, SHOW_ALL_MOVIE_ITEMS_MODE_RESOURCE},
         {MediaNavigationMode.MoviesFilterByActor, FILTER_BY_ACTOR_MODE_RESOURCE},
         {MediaNavigationMode.MoviesFilterByGenre, FILTER_BY_MOVIE_GENRE_MODE_RESOURCE},
         {MediaNavigationMode.MoviesFilterByYear, FILTER_BY_YEAR_MODE_RESOURCE},
         {MediaNavigationMode.MoviesSimpleSearch, SIMPLE_SEARCH_FILTER_MODE_RESOURCE},
-        {MediaNavigationMode.MoviesExtendedSearch, EXTENDED_SEARCH_FILTER_MODE_RESOURCE},
         {MediaNavigationMode.PicturesShowItems, SHOW_ALL_PICTURE_ITEMS_MODE_RESOURCE},
         {MediaNavigationMode.PicturesFilterByYear, FILTER_BY_YEAR_MODE_RESOURCE},
         {MediaNavigationMode.PicturesFilterBySize, FILTER_BY_PICTURE_SIZE_MODE_RESOURCE},
         {MediaNavigationMode.PicturesSimpleSearch, SIMPLE_SEARCH_FILTER_MODE_RESOURCE},
-        {MediaNavigationMode.PicturesExtendedSearch, EXTENDED_SEARCH_FILTER_MODE_RESOURCE}
       };
 
     protected static readonly Guid[] NECESSARY_MUSIC_MIAS = new Guid[]
@@ -209,18 +205,15 @@ namespace UiComponents.Media.Models
     public const string MUSIC_FILTER_BY_GENRE_SCREEN = "MusicFilterByGenre";
     public const string MUSIC_FILTER_BY_DECADE_SCREEN = "MusicFilterByDecade";
     public const string MUSIC_SIMPLE_SEARCH_SCREEN = "MusicSimpleSearch";
-    public const string MUSIC_EXTENDED_SEARCH_SCREEN = ""; // TODO
     public const string MOVIES_SHOW_ITEMS_SCREEN = "MoviesShowItems";
     public const string MOVIES_FILTER_BY_ACTOR_SCREEN = "MoviesFilterByActor";
     public const string MOVIES_FILTER_BY_GENRE_SCREEN = "MoviesFilterByGenre";
     public const string MOVIES_FILTER_BY_YEAR_SCREEN = "MoviesFilterByYear";
     public const string MOVIES_SIMPLE_SEARCH_SCREEN = "MoviesSimpleSearch";
-    public const string MOVIES_EXTENDED_SEARCH_SCREEN = ""; // TODO
     public const string PICTURES_SHOW_ITEMS_SCREEN = "PicturesShowItems";
     public const string PICTURES_FILTER_BY_YEAR_SCREEN = "PicturesFilterByYear";
     public const string PICTURES_FILTER_BY_SIZE_SCREEN = "PicturesFilterBySize";
     public const string PICTURES_SIMPLE_SEARCH_SCREEN = "PicturesSimpleSearch";
-    public const string PICTURES_EXTENDED_SEARCH_SCREEN = ""; // TODO
     public const string PLAY_MENU_DIALOG_SCREEN = "DialogPlayMenu";
 
     public static readonly TimeSpan SEARCH_TEXT_TYPE_TIMESPAN = new TimeSpan(0, 0, 0, 0, 300);
@@ -846,12 +839,6 @@ namespace UiComponents.Media.Models
       CreateFilterValuesList(FILTER_BY_DECADE_MODE_RESOURCE, MediaNavigationMode.MusicFilterByDecade, sfmlvs, new FilterByDecadeCriterion());
     }
 
-    protected void InitializeMusicExtendedSearch(View view)
-    {
-      // TODO
-      ServiceScope.Get<IDialogManager>().ShowDialog("Not implemented", "This function is not implemented yet", DialogType.OkDialog, false, null);
-    }
-
     protected void ReloadActors(StackedFiltersMLVS sfmlvs)
     {
       CreateFilterValuesList(FILTER_BY_ACTOR_MODE_RESOURCE, MediaNavigationMode.MoviesFilterByActor, sfmlvs, new SimpleMLFilterCriterion(MovieAspect.ATTR_ACTORS));
@@ -867,12 +854,6 @@ namespace UiComponents.Media.Models
       CreateFilterValuesList(FILTER_BY_YEAR_MODE_RESOURCE, MediaNavigationMode.MoviesFilterByYear, sfmlvs, new FilterByYearCriterion());
     }
 
-    protected void InitializeMoviesExtendedSearch(View view)
-    {
-      // TODO
-      ServiceScope.Get<IDialogManager>().ShowDialog("Not implemented", "This function is not implemented yet", DialogType.OkDialog, false, null);
-    }
-
     protected void ReloadPictureYears(StackedFiltersMLVS sfmlvs)
     {
       CreateFilterValuesList(FILTER_BY_YEAR_MODE_RESOURCE, MediaNavigationMode.PicturesFilterByYear, sfmlvs, new FilterByYearCriterion());
@@ -881,12 +862,6 @@ namespace UiComponents.Media.Models
     protected void ReloadPictureSizes(StackedFiltersMLVS sfmlvs)
     {
       CreateFilterValuesList(FILTER_BY_PICTURE_SIZE_MODE_RESOURCE, MediaNavigationMode.PicturesFilterBySize, sfmlvs, new FilterByPictureSizeCriterion());
-    }
-
-    protected void InitializePicturesExtendedSearch(View view)
-    {
-      // TODO
-      ServiceScope.Get<IDialogManager>().ShowDialog("Not implemented", "This function is not implemented yet", DialogType.OkDialog, false, null);
     }
 
     protected void PrepareRootState()
@@ -921,7 +896,6 @@ namespace UiComponents.Media.Models
                 MediaNavigationMode.MusicFilterByGenre,
                 MediaNavigationMode.MusicFilterByDecade,
                 MediaNavigationMode.MusicSimpleSearch,
-                MediaNavigationMode.MusicExtendedSearch,
             };
       }
       else if (currentStateId == MOVIES_NAVIGATION_ROOT_STATE)
@@ -938,7 +912,6 @@ namespace UiComponents.Media.Models
               MediaNavigationMode.MoviesFilterByGenre,
               MediaNavigationMode.MoviesFilterByYear,
               MediaNavigationMode.MoviesSimpleSearch,
-              MediaNavigationMode.MoviesExtendedSearch,
           };
       }
       else if (currentStateId == PICTURES_NAVIGATION_ROOT_STATE)
@@ -954,7 +927,6 @@ namespace UiComponents.Media.Models
               MediaNavigationMode.PicturesFilterByYear,
               MediaNavigationMode.PicturesFilterBySize,
               MediaNavigationMode.PicturesSimpleSearch,
-              MediaNavigationMode.PicturesExtendedSearch,
           };
       }
       else
@@ -1056,10 +1028,6 @@ namespace UiComponents.Media.Models
             screen = MUSIC_SIMPLE_SEARCH_SCREEN;
             InitializeSimpleSearch();
             break;
-          case MediaNavigationMode.MusicExtendedSearch:
-            screen = MUSIC_EXTENDED_SEARCH_SCREEN;
-            InitializeMusicExtendedSearch(view);
-            break;
           case MediaNavigationMode.MoviesShowItems:
             screen = MOVIES_SHOW_ITEMS_SCREEN;
             ReloadMediaItems(view, true);
@@ -1080,10 +1048,6 @@ namespace UiComponents.Media.Models
             screen = MOVIES_SIMPLE_SEARCH_SCREEN;
             InitializeSimpleSearch();
             break;
-          case MediaNavigationMode.MoviesExtendedSearch:
-            screen = MOVIES_EXTENDED_SEARCH_SCREEN;
-            InitializeMoviesExtendedSearch(view);
-            break;
           case MediaNavigationMode.PicturesShowItems:
             screen = PICTURES_SHOW_ITEMS_SCREEN;
             ReloadMediaItems(view, true);
@@ -1099,10 +1063,6 @@ namespace UiComponents.Media.Models
           case MediaNavigationMode.PicturesSimpleSearch:
             screen = PICTURES_SIMPLE_SEARCH_SCREEN;
             InitializeSimpleSearch();
-            break;
-          case MediaNavigationMode.PicturesExtendedSearch:
-            screen = PICTURES_EXTENDED_SEARCH_SCREEN;
-            InitializePicturesExtendedSearch(view);
             break;
           default:
             ServiceScope.Get<ILogger>().Error("MediaModel: Unsupported media navigation mode '{0}'", mode.Value);
