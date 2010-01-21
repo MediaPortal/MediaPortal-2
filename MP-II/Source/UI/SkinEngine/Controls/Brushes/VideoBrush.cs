@@ -46,6 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     EffectAsset _effect;
     Size _videoSize;
     Size _videoAspectRatio;
+    float _pixelAspectRatio;
     IGeometry _currentGeometry;
     PositionColored2Textured[] _verts;
     ISlimDXVideoPlayer _renderPlayer = null;
@@ -107,21 +108,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       Size size = player.VideoSize;
       Size aspectRatio = player.VideoAspectRatio;
+
+      // Correct pixelAspectRatio for anamorphic video
+      float pixelRatio = aspectRatio.IsEmpty ? 1.0f : 
+        (aspectRatio.Height * size.Width) / (float) (aspectRatio.Width * size.Height);
+
       IGeometry geometry = player.GeometryOverride;
       IGeometryManager geometryManager = ServiceScope.Get<IGeometryManager>();
       if (geometry == null)
         geometry = geometryManager.DefaultVideoGeometry;
-      if (size == _videoSize && aspectRatio == _videoAspectRatio && geometry == _currentGeometry)
+      if (size == _videoSize && aspectRatio == _videoAspectRatio && geometry == _currentGeometry && _pixelAspectRatio == pixelRatio)
           return;
 
       _videoSize = size;
       _videoAspectRatio = aspectRatio;
-
+      _pixelAspectRatio = pixelRatio;
       _currentGeometry = geometry;
       Rectangle sourceRect;
       Rectangle destinationRect;
       GeometryData gd = new GeometryData(
-          new Size(_videoSize.Width, _videoSize.Height), new Size((int) _bounds.Width, (int) _bounds.Height), 1.0f);
+          new Size(_videoSize.Width, _videoSize.Height), new Size((int)_bounds.Width, (int)_bounds.Height), _pixelAspectRatio);
+
       geometryManager.Transform(_currentGeometry, gd, out sourceRect, out destinationRect);
       string shaderName = geometry.Shader;
       _effect = string.IsNullOrEmpty(shaderName) ? ContentManager.GetEffect("normal") :
