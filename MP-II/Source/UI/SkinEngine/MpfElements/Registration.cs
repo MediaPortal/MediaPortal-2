@@ -162,7 +162,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       objectClassRegistrations.Add("InvokeCommand", typeof(SkinEngine.Commands.InvokeCommand));
 
       // Converters
-
       objectClassRegistrations.Add("ReferenceNotNull_BoolConverter", typeof(SkinEngine.MpfElements.Converters.ReferenceNotNull_BoolConverter));
       objectClassRegistrations.Add("ExpressionMultiValueConverter", typeof(SkinEngine.MpfElements.Converters.ExpressionMultiValueConverter));
       
