@@ -571,7 +571,7 @@ namespace UiComponents.SkinBase.Models
     public void OpenChooseAudioStreamDialog()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID);
+      workflowManager.NavigatePush(CHOOSE_AUDIO_STREAM_DIALOG_STATE_ID, null);
     }
 
     public void ChooseAudioStream(AudioStreamDescriptor asd)
@@ -585,7 +585,7 @@ namespace UiComponents.SkinBase.Models
     public void OpenChooseGeometryDialog(IPlayerContext playerContext)
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, new Dictionary<string, object>
+      workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, null, new Dictionary<string, object>
         {
             {KEY_PLAYER_CONTEXT, playerContext}
         });

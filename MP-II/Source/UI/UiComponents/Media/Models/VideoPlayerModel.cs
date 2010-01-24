@@ -167,7 +167,7 @@ namespace UiComponents.Media.Models
       if (IsOSDVisible)
       { // Pressing the info button twice will bring up the context menu
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE);
+        workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE, null);
       }
       _lastVideoInfoDemand = DateTime.Now;
       Update();

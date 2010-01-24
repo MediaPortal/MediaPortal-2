@@ -148,7 +148,7 @@ namespace UiComponents.SkinBase.Actions
       if (pc == null)
         return;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(pc.FullscreenContentWorkflowStateId);
+      workflowManager.NavigatePush(pc.FullscreenContentWorkflowStateId, null);
     }
 
     #endregion

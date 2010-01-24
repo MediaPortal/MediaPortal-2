@@ -143,9 +143,9 @@ namespace UiComponents.SkinBase.Actions
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IServerConnectionManager scm = ServiceScope.Get<IServerConnectionManager>();
       if (string.IsNullOrEmpty(scm.HomeServerSystemId))
-        workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE);
+        workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE, null);
       else
-        workflowManager.NavigatePush(DETACH_FROM_SERVER_STATE);
+        workflowManager.NavigatePush(DETACH_FROM_SERVER_STATE, null);
     }
 
     #endregion

@@ -138,6 +138,7 @@ namespace UiComponents.Media.Models
     public const string MOVIES_VIEW_NAME_RESOURCE = "[Media.MoviesRootViewName]";
     public const string PICTURES_VIEW_NAME_RESOURCE = "[Media.PicturesRootViewName]";
 
+    public const string MEDIA_ITEMS_VIEW_TITLE_RESOURCE = "[Media.MediaItemsViewTitle]";
     public const string SIMPLE_SEARCH_TITLE_RESOURCE = "[Media.SimpleSearchTitle]";
     public const string FILTER_BY_ARTIST_MODE_RESOURCE = "[Media.FilterByArtistMode]";
     public const string FILTER_BY_ALBUM_MODE_RESOURCE = "[Media.FilterByAlbumMode]";
@@ -435,7 +436,7 @@ namespace UiComponents.Media.Models
     protected static void NavigateToView(MediaNavigationMode navigationMode, View view)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
-          "View: " + view.DisplayName, null, true, WorkflowType.Workflow);
+          "View: " + view.DisplayName, view.DisplayName, null, true, WorkflowType.Workflow);
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {
@@ -443,7 +444,7 @@ namespace UiComponents.Media.Models
             {VIEW_KEY, view},
             {DYNAMIC_MODES_KEY, null}
         };
-      workflowManager.NavigatePushTransient(newState, variables);
+      workflowManager.NavigatePushTransient(newState, null, variables);
     }
 
     /// <summary>
@@ -757,9 +758,10 @@ namespace UiComponents.Media.Models
             {
                 Command = new MethodDelegateCommand(() =>
                     {
-                      WorkflowState state = WorkflowState.CreateTransientState(filterTitle, null, false, WorkflowType.Workflow);
+                      WorkflowState state = WorkflowState.CreateTransientState(filterTitle, filterTitle, null, false,
+                          WorkflowType.Workflow);
                       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-                      workflowManager.NavigatePushTransient(state, new Dictionary<string, object>
+                      workflowManager.NavigatePushTransient(state, null, new Dictionary<string, object>
                           {
                             {NAVIGATION_MODE_KEY, remainingDynamicModes.FirstOrDefault()},
                             {VIEW_KEY, subVS.BuildRootView()},
@@ -816,7 +818,7 @@ namespace UiComponents.Media.Models
 
     protected void ReloadMediaItems(View view, bool createNewList)
     {
-      ReloadMediaItems(view.DisplayName, view, createNewList);
+      ReloadMediaItems(MEDIA_ITEMS_VIEW_TITLE_RESOURCE, view, createNewList);
     }
 
     protected void ReloadArtists(StackedFiltersMLVS sfmlvs)

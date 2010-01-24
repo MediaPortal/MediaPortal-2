@@ -119,7 +119,7 @@ namespace MediaPortal.UI.SkinEngine
       _mainForm.Start();
 
       logger.Debug("SkinEnginePlugin: Switching workflow manager to home state");
-      ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR));
+      ServiceScope.Get<IWorkflowManager>().NavigatePush(new Guid(HOME_STATE_STR), null);
 
       logger.Debug("SkinEnginePlugin: Registering default key bindings");
       RegisterGlobalKeyBindings();

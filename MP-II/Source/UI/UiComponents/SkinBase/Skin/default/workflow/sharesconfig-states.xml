@@ -3,42 +3,60 @@
 <Workflow DescriptorVersion="1.0">
   <States>
     <WorkflowState Id="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        Name="SharesConfigurationOverview" MainScreen="shares_config_overview"
+        Name="SharesConfigurationOverview"
+        DisplayLabel="[SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_overview"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="900BA520-F989-48c0-B076-5DAD61945845"
-        Name="SharesRemove" MainScreen="shares_config_remove_shares"
+        Name="SharesRemove"
+        DisplayLabel="[SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_remove_shares"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="F68E8EB1-00B2-4951-9948-110CFCA93E8D"
-        Name="SharesEdit" MainScreen="shares_config_edit_share"
+        Name="SharesEdit"
+        DisplayLabel="[SharesConfig.SharesEditWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_edit_share"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="F3163500-3015-4a6f-91F6-A3DA5DC3593C"
-        Name="SharesEditChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
+        Name="SharesEditChooseMediaProvider"
+        DisplayLabel="[SharesConfig.SharesEditChooseMediaProviderWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_choose_media_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <!-- This additional state has a similar function like the SharesEditChooseMediaProvider state,
          but we need an additional state as target for the "Add share" transition to initialize
          the shares config model properly. -->
     <WorkflowState Id="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
-        Name="SharesAddChooseMediaProvider" MainScreen="shares_config_choose_media_provider"
+        Name="SharesAddChooseMediaProvider"
+        DisplayLabel="[SharesConfig.SharesAddChooseMediaProviderWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_choose_media_provider"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
-        Name="SharesEditEditPath" MainScreen="shares_config_edit_path"
+        Name="SharesEditEditPath"
+        DisplayLabel="[SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_edit_path"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="5652A9C9-6B20-45f0-889E-CFBF6086FB0A"
-        Name="SharesEditChoosePath" MainScreen="shares_config_choose_path"
+        Name="SharesEditChoosePath"
+        DisplayLabel="[SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_choose_path"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="ACDD705B-E60B-454a-9671-1A12A3A3985A"
-        Name="SharesEditEditName" MainScreen="shares_config_edit_name"
+        Name="SharesEditEditName"
+        DisplayLabel="[SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_edit_name"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
     <WorkflowState Id="6218FE5B-767E-48e6-9691-65E466B6020B"
-        Name="SharesEditChooseCategories" MainScreen="shares_config_choose_categories"
+        Name="SharesEditChooseCategories"
+        DisplayLabel="[SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel]"
+        MainScreen="shares_config_choose_categories"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
   </States>
 </Workflow>

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Language>
   <Section Name="Media">
+    <String Name="LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
+    <String Name="MusicNavigationRootWorkflowNavigationContextDisplayLabel" Text="Music library"/>
+    <String Name="MoviesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Movies library"/>
+    <String Name="PicturesNavigationRootWorkflowNavigationContextDisplayLabel" Text="Pictures library"/>
+    <String Name="RootWorkflowNavigationContextDisplayLabel" Text="Local media"/>
+
     <String Name="LocalMediaMenuItem" Text="Local media"/>
     <String Name="MusicMenuItem" Text="Music"/>
     <String Name="MoviesMenuItem" Text="Movies"/>
@@ -15,6 +21,7 @@
     <String Name="NoItems" Text="No items"/> <!-- Shown in a header of an items list -->
     <String Name="OneItem" Text="One item"/> <!-- Shown in a header of an items list -->
     <String Name="NItems" Text="{0} items"/> <!-- Shown in a header of an items list, e.g. "15 items" -->
+    <String Name="MediaItemsViewTitle" Text="Media items"/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
     <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>
@@ -29,6 +36,13 @@
     <String Name="VideoPlayerContextName" Text="Video"/>
     <String Name="PicturePlayerContextName" Text="Picture"/>
     <String Name="AudioPlayerContextName" Text="Audio"/>
+
+    <String Name="VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current video"/>
+    <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
+    <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
+    <String Name="AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Audio visualization"/>
+    <String Name="PictureCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current picture"/>
+    <String Name="PictureFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen picture"/>
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
 

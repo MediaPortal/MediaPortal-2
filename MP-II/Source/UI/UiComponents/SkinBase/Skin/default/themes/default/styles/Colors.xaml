@@ -251,6 +251,10 @@
   <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor2" Resource="#605050AD"/>
   <ResourceWrapper x:Key="DefaultCurrentPlayerControlBackgroundColor3" Resource="#60436EB4"/>
 
+  <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerStrokeColor" Resource="DarkGray"/>
+  <ResourceWrapper x:Key="WorkflowNavigationBarItemContainerFillColor" Resource="#A00B3364"/>
+  <ResourceWrapper x:Key="WorkflowNavigationBarFontColor" Resource="LightGray"/>
+
   <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor1" Resource="#90FFFFFF"/>
   <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor2" Resource="#F87A7673"/>
   <ResourceWrapper x:Key="OSDPlayerControlBackgroundColor3" Resource="#F87A7673"/>

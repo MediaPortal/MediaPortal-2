@@ -228,7 +228,7 @@
   <!-- *************************** ListView item data templates ****************************** -->
 
   <!-- A simple data template to show the Name of the ListItem in a Label -->
-  <DataTemplate x:Key="DefaultMenuItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+  <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Label x:Name="ItemLabel" Margin="10,7,0,7" Content="{Binding [Name]}" FontSize="28"/>
   </DataTemplate>
 
@@ -416,7 +416,7 @@
 
   <!-- ListView style to be used for all menus (main menu, dialog menus, context menus, ...) -->
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMenuItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
   </Style>
 
@@ -447,14 +447,14 @@
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
-  <!-- ListView style to be used for the shares list -->
+  <!-- ListView style to be used for lists where multiple items can be marked -->
   <Style x:Key="MultiMarkableListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMultiMarkableItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
-  <!-- ListView style to be used for the shares list -->
+  <!-- ListView style to be used for lists where a single item can be marked -->
   <Style x:Key="SingleMarkableListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultSingleMarkableItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
@@ -703,6 +703,71 @@
               </Trigger.ExitActions>
             </Trigger>
           </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ****************************** Workflow navigation bar ********************************** -->
+
+  <Style x:Key="WorkflowNavigationBarContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="15"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="10"/>
+            </Grid.ColumnDefinitions>
+            <Path x:Name="WorkflowNavigationBarItemContainer_ArrowLeft" Grid.Row="0" Grid.Column="0" Stretch="Fill"
+                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                Data="M30,0 L0,0 20,10 0,20 30,20"/>
+            <Path x:Name="WorkflowNavigationBarItemContainer_Center_Back" Grid.Row="0" Grid.Column="1" Stretch="Fill"
+                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                Data="M0,0 L100,0 L100,20 0,20 z"/>
+            <Path x:Name="WorkflowNavigationBarItemContainer_Center_Border" Grid.Row="0" Grid.Column="1" Stretch="Fill"
+                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                Data="M0,0 L100,0 M0,20 L100,20"/>
+            <Path x:Name="WorkflowNavigationBarItemContainer_ArrowRight" Grid.Row="0" Grid.Column="2" Stretch="Fill"
+                Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
+                Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
+                Data="M0,0 L20,10 0,20"/>
+            <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="ContentPresenter" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Label Margin="10,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+  </DataTemplate>
+
+  <Style x:Key="WorkflowNavigationBarStyle">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special:WorkflowNavigationBar}">
+          <ListView ItemsSource="{TemplateBinding NavigationItems}">
+            <ListView.Style>
+              <Style BasedOn="{ThemeResource DefaultListViewStyle}">
+                <Setter Property="ItemTemplate" Value="{ThemeResource WorkflowNavigationBarItemDataTemplate}"/>
+                <Setter Property="ItemContainerStyle" Value="{ThemeResource WorkflowNavigationBarContainerStyle}"/>
+                <Setter Property="ItemsPanel">
+                  <Setter.Value>
+                    <ItemsPanelTemplate>
+                      <StackPanel x:Name="WorkflowNavigationBarItemsHost" IsItemsHost="True"
+                          Margin="10" Orientation="Horizontal" VerticalAlignment="Top"/>
+                    </ItemsPanelTemplate>
+                  </Setter.Value>
+                </Setter>
+              </Style>
+            </ListView.Style>
+          </ListView>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

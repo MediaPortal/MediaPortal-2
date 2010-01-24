@@ -43,7 +43,7 @@ using MediaPortal.Core.Runtime;
 namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
 {
   /// <summary>
-  /// Visible Control providing the overview data for one player slot. This control can be decorated by different
+  /// Visible control providing the overview data for one player slot. This control can be decorated by different
   /// templates providing the player data.
   /// </summary>
   public class PlayerControl : SkinEngine.Controls.Visuals.Control
@@ -288,8 +288,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
           ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
           if (sss.CurrentState == SystemState.ShuttingDown)
+          {
             UnsubscribeFromMessages();
-          StopTimer();
+            StopTimer();
+          }
         }
       }
     }
@@ -518,7 +520,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       StopTimer();
     }
 
-    #region Public menbers, to be accessed via the GUI
+    #region Public members to be accessed via the GUI
 
     #region Configuration properties, to be set from the outside
 
@@ -999,7 +1001,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       else
       {
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, new Dictionary<string, object>
+        workflowManager.NavigatePush(PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID, null, new Dictionary<string, object>
           {
               {KEY_PLAYER_SLOT, SlotIndex},
               {KEY_SHOW_MUTE, !IsAudio}

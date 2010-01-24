@@ -3,16 +3,16 @@
 <Workflow DescriptorVersion="1.0">
   <States>
     <DialogState Id="D0B79345-69DF-4870-B80E-39050434C8B3"
-        Name="PlayerConfigurationDialog" DialogScreen="DialogPlayerConfiguration"
+        Name="PlayerConfigurationDialog" DisplayLabel="[Players.PlayerConfiguration]" DialogScreen="DialogPlayerConfiguration"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
     <DialogState Id="A3F53310-4D93-4f93-8B09-D53EE8ACD829"
-        Name="ChooseAudioStreamDialog" DialogScreen="DialogChooseAudioStream"
+        Name="ChooseAudioStreamDialog" DisplayLabel="[Players.ChooseAudioStream]" DialogScreen="DialogChooseAudioStream"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
     <DialogState Id="428326CE-9DE1-41ff-A33B-BBB80C8AFAC5"
-        Name="PlayerSlotAudioDialog" DialogScreen="DialogPlayerSlotAudio"
+        Name="PlayerSlotAudioDialog" DisplayLabel="[Players.PlayerSlotAudioMenu]" DialogScreen="DialogPlayerSlotAudio"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
     <DialogState Id="D46F66DD-9E91-4788-ADFE-EBD96F1A489E"
-        Name="PlayerChooseGeometryDialog" DialogScreen="DialogPlayerChooseGeometry"
+        Name="PlayerChooseGeometryDialog" DisplayLabel="[Players.ChoosePlayerGeometry]" DialogScreen="DialogPlayerChooseGeometry"
         WorkflowModel="58A7F9E3-1514-47af-8E83-2AD60BA8A037"/> <!-- Workflow model = PlayerConfigurationDialogModel -->
   </States>
 </Workflow>

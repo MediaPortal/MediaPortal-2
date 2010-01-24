@@ -179,6 +179,7 @@
     <Compile Include="Settings\PlayerSettings.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
     <Compile Include="SpecialElements\Controls\PlayerControl.cs" />
+    <Compile Include="SpecialElements\Controls\WorkflowNavigationBar.cs" />
     <Compile Include="Xaml\DataDescriptors.cs" />
     <Compile Include="Xaml\Exceptions\Exceptions.cs" />
     <Compile Include="MarkupExtensions\CommandBaseMarkupExtension.cs" />

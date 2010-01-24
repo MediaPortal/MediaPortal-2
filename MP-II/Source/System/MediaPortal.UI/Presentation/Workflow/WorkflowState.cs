@@ -52,6 +52,7 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     protected Guid _stateId;
     protected string _name;
+    protected string _displayLabel;
     protected string _mainScreen;
     protected bool _isTransient;
     protected bool _inheritMenu;
@@ -65,6 +66,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     /// <param name="stateId">The (unique) id of the new state.</param>
     /// <param name="name">A human-readable name for the new state.</param>
+    /// <param name="displayLabel">A human-readable label to be used in the GUI for the new state.</param>
     /// <param name="mainScreen">For states of type <see cref="Workflow.WorkflowType.Workflow"/>, this is the name of the
     /// automatically loaded starting screen of this workflow state. For states of type <see cref="Workflow.WorkflowType.Dialog"/>,
     /// this is the name of the dialog to be shown.</param>
@@ -73,10 +75,12 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <see cref="IsTransient"/> property.</param>
     /// <param name="workflowModelId">The id of the workflow model which attends the workflow state.</param>
     /// <param name="type">The type of the new workflow state.</param>
-    public WorkflowState(Guid stateId, string name, string mainScreen, bool inheritMenu, bool isTransient, Guid? workflowModelId, WorkflowType type)
+    public WorkflowState(Guid stateId, string name, string displayLabel, string mainScreen, bool inheritMenu, bool isTransient,
+        Guid? workflowModelId, WorkflowType type)
     {
       _stateId = stateId;
       _name = name;
+      _displayLabel = displayLabel;
       _mainScreen = mainScreen;
       _inheritMenu = inheritMenu;
       _isTransient = isTransient;
@@ -107,6 +111,14 @@ namespace MediaPortal.UI.Presentation.Workflow
     public string Name
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Returns a human-readable label which gets used for the workflow navigation history in the GUI.
+    /// </summary>
+    public string DisplayLabel
+    {
+      get { return _displayLabel; }
     }
 
     /// <summary>
@@ -152,14 +164,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// inherited from the parent state.
     /// </summary>
     /// <param name="name">The human-readable name of the new state.</param>
+    /// <param name="displayLabel">A human-readable label for the new state, to be used in the GUI.</param>
     /// <param name="mainScreen">The main screen to be shown in the new state.</param>
     /// <param name="inheritMenu">If set to <c>true</c>, the menu items of the parent state will be
     /// inherited.</param>
     /// <param name="workflowType">The workflow type of the new transient state.</param>
     /// <returns>New transient workflow state.</returns>
-    public static WorkflowState CreateTransientState(string name, string mainScreen, bool inheritMenu, WorkflowType workflowType)
+    public static WorkflowState CreateTransientState(string name, string displayLabel, string mainScreen, bool inheritMenu, WorkflowType workflowType)
     {
-      return new WorkflowState(Guid.NewGuid(), name, mainScreen, inheritMenu, true, null, workflowType);
+      return new WorkflowState(Guid.NewGuid(), name, displayLabel, mainScreen, inheritMenu, true, null, workflowType);
     }
   }
 }

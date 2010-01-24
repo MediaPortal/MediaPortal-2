@@ -6,36 +6,44 @@
 
     <WorkflowState Id="B393C6D8-9F37-4481-B403-0D5B17F52EC8"
         Name="LocalMediaNavigation-Root"
+        DisplayLabel="[Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="F2AAEBC6-BFB0-42c8-9C80-0A98BA67A7EB"
         Name="MusicNavigation-Root"
+        DisplayLabel="[Media.MusicNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="22ED8702-3887-4acb-ACB4-30965220AFF0"
         Name="MoviesNavigation-Root"
+        DisplayLabel="[Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <WorkflowState Id="76019AEB-3445-4da9-9A10-63A87549A7CF"
         Name="PicturesNavigation-Root"
+        DisplayLabel="[Media.PicturesNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
     <!-- Media screen states -->
 
     <WorkflowState Id="5764A810-F298-4a20-BF84-F03D16F775B1"
         Name="VideoCurrentlyPlaying"
+        DisplayLabel="[Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
 
     <WorkflowState Id="882C1142-8028-4112-A67D-370E6E483A33"
         Name="VideoFullscreenContent"
+        DisplayLabel="[Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
 
     <WorkflowState Id="4596B758-CE2B-4e31-9CB9-6C30215831ED"
         Name="AudioCurrentlyPlaying"
+        DisplayLabel="[Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
 
     <WorkflowState Id="82E8C050-0318-41a3-86B8-FC14FB85338B"
         Name="AudioFullscreenContent"
+        DisplayLabel="[Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
   </States>
 </Workflow>

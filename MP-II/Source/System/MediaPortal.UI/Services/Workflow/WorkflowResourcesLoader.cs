@@ -189,6 +189,7 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
+      string displayLabel = null;
       string dialogScreen = null;
       string workflowModelId = null;
       XPathNavigator attrNav = stateNav.Clone();
@@ -202,6 +203,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "Name":
               name = attrNav.Value;
+              break;
+            case "DisplayLabel":
+              displayLabel = attrNav.Value;
               break;
             case "DialogScreen":
               dialogScreen = attrNav.Value;
@@ -217,9 +221,11 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateNav.Name, name));
       if (string.IsNullOrEmpty(name))
         throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateNav.Name, id));
+      if (string.IsNullOrEmpty(displayLabel))
+        throw new ArgumentException(string.Format("{0} with id '{1}': 'DisplayLabel' attribute missing", stateNav.Name, id));
       if (string.IsNullOrEmpty(dialogScreen) && string.IsNullOrEmpty(workflowModelId))
         throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'DialogScreen' atrribute must be specified", stateNav.Name, name));
-      return new WorkflowState(new Guid(id), name, dialogScreen, false, false,
+      return new WorkflowState(new Guid(id), name, displayLabel, dialogScreen, false, false,
           workflowModelId == null ? (Guid?) null : new Guid(workflowModelId), WorkflowType.Dialog);
     }
 
@@ -227,6 +233,7 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
+      string displayLabel = null;
       string mainScreen = null;
       bool inheritMenu = false;
       string workflowModelId = null;
@@ -241,6 +248,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "Name":
               name = attrNav.Value;
+              break;
+            case "DisplayLabel":
+              displayLabel = attrNav.Value;
               break;
             case "MainScreen":
               mainScreen = attrNav.Value;
@@ -260,9 +270,11 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': State must be specified", stateNav.Name, name));
       if (string.IsNullOrEmpty(name))
         throw new ArgumentException(string.Format("{0} with id '{1}': 'Name' attribute missing", stateNav.Name, id));
+      if (string.IsNullOrEmpty(displayLabel))
+        throw new ArgumentException(string.Format("{0} with id '{1}': 'DisplayLabel' attribute missing", stateNav.Name, id));
       if (string.IsNullOrEmpty(mainScreen) && string.IsNullOrEmpty(workflowModelId))
         throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'MainScreen' atrribute must be specified", stateNav.Name, name));
-      return new WorkflowState(new Guid(id), name, mainScreen, inheritMenu, false,
+      return new WorkflowState(new Guid(id), name, displayLabel, mainScreen, inheritMenu, false,
           string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), WorkflowType.Workflow);
     }
 
@@ -270,6 +282,7 @@ namespace MediaPortal.UI.Services.Workflow
     {
       string id = null;
       string name = null;
+      string displayLabel = null;
       string displayCategory = null;
       string sortOrder = null;
       string sourceState = null;
@@ -286,6 +299,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "Name":
               name = attrNav.Value;
+              break;
+            case "DisplayLabel":
+              displayLabel = attrNav.Value;
               break;
             case "DisplayCategory":
               displayCategory = attrNav.Value;
@@ -314,8 +330,9 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} '{1}': 'SourceState' attribute missing", actionNav.Name, name));
       if (string.IsNullOrEmpty(targetState))
         throw new ArgumentException(string.Format("{0} '{1}': 'TargetState' attribute missing", actionNav.Name, name));
-      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, sourceState == "*" ? new Guid?() : new Guid(sourceState),
-          new Guid(targetState), LocalizationHelper.CreateResourceString(displayTitle))
+      PushNavigationTransition result = new PushNavigationTransition(new Guid(id), name, displayLabel,
+          sourceState == "*" ? new Guid?() : new Guid(sourceState), new Guid(targetState),
+          LocalizationHelper.CreateResourceString(displayTitle))
         {
             DisplayCategory = displayCategory,
             SortOrder = sortOrder

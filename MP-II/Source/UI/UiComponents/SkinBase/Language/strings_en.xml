@@ -2,6 +2,7 @@
 <Language>
   <Section Name="Home">
     <String Name="Title" Text="MediaPortal-II"/>
+    <String Name="HomeStateDisplayLabel" Text="Home"/>
   </Section>
   <Section Name="Dialogs">
     <String Name="InfoHeaderText" Text="Info"/>
@@ -19,6 +20,9 @@
     <String Name="UnknownServerName" Text="&lt;Unknown&gt;"/>
     <String Name="UnknownServerSystem" Text="&lt;Unknown&gt;"/>
     <String Name="HomeServer" Text="Home server"/>
+    <String Name="AttachToServerWorkflowStateLabel" Text="Attach to server"/>
+    <String Name="DetachFromServerWorkflowStateLabel" Text="Detach from server"/>
+    <String Name="HomeServerWorkflowStateLabel" Text="HomeServer"/>
     <String Name="AttachedText.Before" Text="This MediaPortal-II client is currently attached to home server"/>
     <String Name="AttachedText.After" Text=""/>
     <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal-II client."/>
@@ -103,6 +107,15 @@
   </Section>
   <!-- Shares configuration workflow -->
   <Section Name="SharesConfig">
+    <String Name="SharesOverviewWorkflowNavigationContextDisplayLabel" Text="Shares configuration"/>
+    <String Name="SharesRemoveWorkflowNavigationContextDisplayLabel" Text="Remove shares"/>
+    <String Name="SharesEditWorkflowNavigationContextDisplayLabel" Text="Edit shares"/>
+    <String Name="SharesEditChooseMediaProviderWorkflowNavigationContextDisplayLabel" Text="Choose media provider"/>
+    <String Name="SharesAddChooseMediaProviderWorkflowNavigationContextDisplayLabel" Text="Choose media provider"/>
+    <String Name="SharesEditEditPathWorkflowNavigationContextDisplayLabel" Text="Edit path"/>
+    <String Name="SharesEditChoosePathWorkflowNavigationContextDisplayLabel" Text="Choose path"/>
+    <String Name="SharesEditEditNameWorkflowNavigationContextDisplayLabel" Text="Edit name"/>
+    <String Name="SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel" Text="Choose categories"/>
     <String Name="Shares.Overview" Text="Shares overview"/>
     <String Name="CancelSharesConfig" Text="Cancel shares configuration"/>
     <String Name="RemoveShares" Text="Remove shares"/>

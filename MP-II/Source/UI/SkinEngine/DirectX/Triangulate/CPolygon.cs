@@ -38,7 +38,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <summary>
     /// Creates a new polygon with the polygon vertices of the <paramref name="other"/> polygon.
     /// </summary>
-    public CPolygon(CPolygon other)
+    public CPolygon(IEnumerable<CPoint2D> other)
     {
       foreach (CPoint2D point in other)
         Add(point);
@@ -307,7 +307,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
     /// <summary>
     /// Corrects the given <paramref name="pointIndex"/> to be greater or equal to <c>0</c> and lower than
-    /// <see cref="List.Count"/>.
+    /// <see cref="List{T}.Count"/>.
     /// </summary>
     public int CorrectIndex(int pointIndex)
     {

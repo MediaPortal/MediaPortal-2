@@ -41,9 +41,10 @@ namespace MediaPortal.UI.Presentation.Workflow
     #region Protected fields
 
     protected object _syncObj = new object();
-    protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
     protected NavigationContext _predecessor;
     protected WorkflowState _workflowState;
+    protected string _displayLabel = null;
+    protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
     protected IDictionary<Guid, WorkflowAction> _menuActions = new Dictionary<Guid, WorkflowAction>();
     protected Guid? _workflowModelId = null;
     protected IDictionary<Guid, object> _models = new Dictionary<Guid, object>();
@@ -55,10 +56,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <summary>
     /// This constructor has to be called from the component managing the navigation context stack.
     /// </summary>
-    public NavigationContext(WorkflowState workflowState, NavigationContext predecessor,
+    public NavigationContext(WorkflowState workflowState, string displayLabel, NavigationContext predecessor,
         IWorkflowModel workflowModel)
     {
       _workflowState = workflowState;
+      _displayLabel = displayLabel ?? workflowState.DisplayLabel;
       _predecessor = predecessor;
       if (workflowModel != null)
       {
@@ -98,6 +100,20 @@ namespace MediaPortal.UI.Presentation.Workflow
     public WorkflowState WorkflowState
     {
       get { return _workflowState; }
+    }
+
+    /// <summary>
+    /// Gets the display label for this workflow navigation context. Might be localized.
+    /// </summary>
+    public string DisplayLabel
+    {
+      get
+      {
+        string result = _displayLabel;
+        if (string.IsNullOrEmpty(result))
+          return _workflowState.DisplayLabel;
+        return result;
+      }
     }
 
     /// <summary>

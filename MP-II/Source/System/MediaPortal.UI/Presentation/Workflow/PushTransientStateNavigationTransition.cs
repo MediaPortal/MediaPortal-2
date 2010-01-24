@@ -37,15 +37,17 @@ namespace MediaPortal.UI.Presentation.Workflow
   {
     #region Protected fields
 
+    protected string _displayLabel;
     protected WorkflowState _transientState;
     protected IDictionary<string, object> _workflowNavigationContextVariables;
 
     #endregion
 
-    public PushTransientStateNavigationTransition(Guid actionId, string name, Guid sourceState,
+    public PushTransientStateNavigationTransition(Guid actionId, string name, string displayLabel, Guid sourceState,
         WorkflowState transientTargetState, IResourceString displayTitle) :
         base(actionId, name, sourceState, displayTitle)
     {
+      _displayLabel = displayLabel;
       _transientState = transientTargetState;
     }
 
@@ -84,9 +86,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       if (_workflowNavigationContextVariables == null)
-        workflowManager.NavigatePushTransient(_transientState);
+        workflowManager.NavigatePushTransient(_transientState, _displayLabel);
       else
-        workflowManager.NavigatePushTransient(_transientState, _workflowNavigationContextVariables);
+        workflowManager.NavigatePushTransient(_transientState, _displayLabel, _workflowNavigationContextVariables);
     }
   }
 }

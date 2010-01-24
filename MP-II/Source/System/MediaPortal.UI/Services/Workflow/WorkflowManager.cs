@@ -274,7 +274,7 @@ namespace MediaPortal.UI.Services.Workflow
       return current == null ? null : current.WorkflowState;
     }
 
-    protected bool DoPushNavigationContext(WorkflowState state, IDictionary<string, object> additionalContextVariables)
+    protected bool DoPushNavigationContext(WorkflowState state, string navigationContextDisplayLabel, IDictionary<string, object> additionalContextVariables)
     {
       ILogger logger = ServiceScope.Get<ILogger>();
       NavigationContext predecessor = CurrentNavigationContext;
@@ -308,7 +308,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
 
       // Create new workflow context
-      NavigationContext newContext = new NavigationContext(state, predecessor, workflowModel);
+      NavigationContext newContext = new NavigationContext(state, navigationContextDisplayLabel, predecessor, workflowModel);
       if (additionalContextVariables != null)
         lock (newContext.SyncRoot)
           CollectionUtils.AddAll(newContext.ContextVariables, additionalContextVariables);
@@ -578,35 +578,37 @@ namespace MediaPortal.UI.Services.Workflow
         context.Dispose();
     }
 
-    public void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables)
+    public void NavigatePush(Guid stateId, string navigationContextDisplayLabel,
+        IDictionary<string, object> additionalContextVariables)
     {
       WorkflowState state;
       lock (_syncObj)
         if (!_states.TryGetValue(stateId, out state))
           throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
-      if (DoPushNavigationContext(state, additionalContextVariables))
+      if (DoPushNavigationContext(state, navigationContextDisplayLabel, additionalContextVariables))
         if (!UpdateScreen())
           NavigatePop(1);
       WorkflowManagerMessaging.SendNavigationCompleteMessage();
     }
 
-    public void NavigatePush(Guid stateId)
+    public void NavigatePush(Guid stateId, string navigationContextDisplayLabel)
     {
-      NavigatePush(stateId, null);
+      NavigatePush(stateId, navigationContextDisplayLabel, null);
     }
 
-    public void NavigatePushTransient(WorkflowState state, IDictionary<string, object> additionalContextVariables)
+    public void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel,
+        IDictionary<string, object> additionalContextVariables)
     {
-      if (DoPushNavigationContext(state, additionalContextVariables))
+      if (DoPushNavigationContext(state, navigationContextDisplayLabel, additionalContextVariables))
         if (!UpdateScreen())
           NavigatePop(1);
       WorkflowManagerMessaging.SendNavigationCompleteMessage();
     }
 
-    public void NavigatePushTransient(WorkflowState state)
+    public void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel)
     {
-      NavigatePushTransient(state, null);
+      NavigatePushTransient(state, navigationContextDisplayLabel, null);
     }
 
     public void NavigatePop(int count)

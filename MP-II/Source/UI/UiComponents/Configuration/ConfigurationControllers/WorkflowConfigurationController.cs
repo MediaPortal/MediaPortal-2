@@ -41,7 +41,7 @@ namespace UiComponents.Configuration.ConfigurationControllers
       if (metadata.AdditionalData.ContainsKey("WorkflowState"))
       { // Custom configuration workflow
         IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(new Guid(metadata.AdditionalData["WorkflowState"]));
+        workflowManager.NavigatePush(new Guid(metadata.AdditionalData["WorkflowState"]), null);
         // New configuration workflow has to take over the configuration "life cycle" for the
         // current config setting object (which can be accessed in this model via CurrentConfigSetting):
         // - Configure data (providing workflow states and screens for doing that, change the data, ...)

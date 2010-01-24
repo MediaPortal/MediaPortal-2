@@ -95,7 +95,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// This is a convenience method for calling <c>NavigatePush(stateId, null);</c>.
     /// </remarks>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
-    void NavigatePush(Guid stateId);
+    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
+    /// in the GUI (in the navigation history).</param>
+    void NavigatePush(Guid stateId, string navigationContextDisplayLabel);
 
     /// <summary>
     /// Navigates to the specified non-transient state. This will push a new navigation context entry
@@ -103,10 +105,13 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// forward navigation.
     /// </summary>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
+    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
+    /// in the GUI (in the navigation history).</param>
     /// <param name="additionalContextVariables">Additional variables to be set at the
     /// <see cref="NavigationContext"/> before entering the new state. If set to <c>null</c>,
     /// no additional variables will be added to the navigation context.</param>
-    void NavigatePush(Guid stateId, IDictionary<string, object> additionalContextVariables);
+    void NavigatePush(Guid stateId, string navigationContextDisplayLabel,
+        IDictionary<string, object> additionalContextVariables);
 
     /// <summary>
     /// Navigates to the specified transient state. This will push a new navigation context entry
@@ -117,7 +122,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// This is a convenience method for calling <c>NavigatePushTransient(stateId, null);</c>.
     /// </remarks>
     /// <param name="state">Id of the new transient state to add and enter.</param>
-    void NavigatePushTransient(WorkflowState state);
+    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
+    /// in the GUI (in the navigation history).</param>
+    void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel);
 
     /// <summary>
     /// Navigates to the specified transient state. This will push a new navigation context entry
@@ -125,10 +132,13 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// forward navigation.
     /// </summary>
     /// <param name="state">Id of the new transient state to add and enter.</param>
+    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
+    /// in the GUI (in the navigation history).</param>
     /// <param name="additionalContextVariables">Additional variables to be set at the
     /// <see cref="NavigationContext"/> before entering the new state. If set to <c>null</c>,
     /// no additional variables will be added to the navigation context.</param>
-    void NavigatePushTransient(WorkflowState state, IDictionary<string, object> additionalContextVariables);
+    void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel,
+        IDictionary<string, object> additionalContextVariables);
 
     /// <summary>
     /// Removes the <paramref name="count"/> youngest navigation context levels from the

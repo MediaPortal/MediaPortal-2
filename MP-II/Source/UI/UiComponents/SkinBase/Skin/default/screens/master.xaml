@@ -32,6 +32,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <DockPanel
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     FocusedElement="{DynamicResource Focused_Element}"
     Context="{DynamicResource DataContext}"
     LastChildFill="True">
@@ -69,6 +70,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Label x:Name="Time" FontSize="{ThemeResource DateTimeFontSize}" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
     </StackPanel>
   </Grid>
+  <mp_special:WorkflowNavigationBar DockPanel.Dock="Top" Style="{ThemeResource WorkflowNavigationBarStyle}"/>
 
 <!-- Not sure if and how we should show shortcuts...
   <ListView x:Name="KeyBindingControls" DockPanel.Dock="Bottom" Style="{ThemeResource KeyBindingsListViewStyle}"

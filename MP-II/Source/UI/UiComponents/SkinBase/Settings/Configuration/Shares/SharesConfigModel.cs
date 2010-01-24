@@ -380,10 +380,10 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IResourceAccessor rootAccessor = mediaProvider.CreateMediaItemAccessor("/");
       if (rootAccessor is IFileSystemResourceAccessor)
-        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID);
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID, null);
       else // If needed, add other path navigation screens here
         // Fallback: Simple TextBox path editor screen
-        workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID);
+        workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID, null);
     }
 
     public void RefreshOrClearSubPathItems(TreeItem pathItem, bool clearSubItems)
@@ -444,7 +444,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
           break;
         }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID);
+      workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID, null);
     }
 
     public void NavigateBackToOverview()

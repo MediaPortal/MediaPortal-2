@@ -3,6 +3,6 @@
 <Workflow DescriptorVersion="1.0">
   <States>
     <WorkflowState Id="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
-        Name="Home" MainScreen="home"/> <!-- No workflow model -->
+        Name="Home" DisplayLabel="[Home.HomeStateDisplayLabel]" MainScreen="home"/> <!-- No workflow model -->
   </States>
 </Workflow>

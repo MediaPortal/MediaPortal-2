@@ -136,20 +136,6 @@ namespace UiComponents.Configuration
 
     #region Common properties for screens
 
-    public AbstractProperty HeaderTextProperty
-    {
-      get { return _headerTextProperty; }
-    }
-
-    /// <summary>
-    /// Returns the header text for the current configuration state (section name).
-    /// </summary>
-    public string HeaderText
-    {
-      get { return (string) _headerTextProperty.GetValue(); }
-      set { _headerTextProperty.SetValue(value); }
-    }
-
     /// <summary>
     /// Returns a list of config settings in the section associated with the current workflow state.
     /// </summary>
@@ -394,13 +380,6 @@ namespace UiComponents.Configuration
       if (enteringConfiguration)
         configurationManager.Initialize();
 
-      IConfigurationNode currentNode = configurationManager.GetNode(configLocation);
-      if (configLocation == "/")
-        HeaderText = "[Configuration.MainSettings]";
-      else if (currentNode.ConfigObj == null)
-        HeaderText = currentNode.Id;
-      else
-        HeaderText = currentNode.ConfigObj.Text.Evaluate();
       _currentLocation = configLocation;
       // We need to create a new items list instance because the old GUI screen is still showing the old items list and we don't
       // want to update it
@@ -471,12 +450,12 @@ namespace UiComponents.Configuration
           ConfigSection section = (ConfigSection) childNode.ConfigObj;
           // Create transient state for new config section
           WorkflowState newState = WorkflowState.CreateTransientState(
-              string.Format("Config: '{0}'", childNode.Location), CONFIGURATION_SECTION_SCREEN,
+              string.Format("Config: '{0}'", childNode.Location), section.SectionMetadata.Text, CONFIGURATION_SECTION_SCREEN,
               false, WorkflowType.Workflow);
           // Add action for menu
           IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);
           WorkflowAction wa = new PushTransientStateNavigationTransition(
-              Guid.NewGuid(), context.WorkflowState.Name + "->" + childNode.Location,
+              Guid.NewGuid(), context.WorkflowState.Name + "->" + childNode.Location, null,
               context.WorkflowState.StateId, newState, res)
             {
                 DisplayCategory = ACTIONS_WORKFLOW_CATEGORY,

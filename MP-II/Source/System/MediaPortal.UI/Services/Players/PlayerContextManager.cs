@@ -240,14 +240,14 @@ namespace MediaPortal.UI.Services.Players
         _inCurrentlyPlayingState = newCPStateId;
         log.Debug("PlayerContextManager: ... Auto-switching to new 'Currently Playing' Workflow State '{0}'",
             newCPStateId.Value);
-        workflowManager.NavigatePush(newCPStateId.Value);
+        workflowManager.NavigatePush(newCPStateId.Value, null);
       }
       if (newFSCStateId.HasValue && newFSCStateId.Value != oldFSCStateId.Value)
       {
         _inFullscreenContentState = newFSCStateId;
         log.Debug("PlayerContextManager: ... Auto-switching to new 'Fullscreen Content' Workflow State '{0}'",
             newFSCStateId.Value);
-        workflowManager.NavigatePush(newFSCStateId.Value);
+        workflowManager.NavigatePush(newFSCStateId.Value, null);
       }
     }
 
@@ -516,7 +516,7 @@ namespace MediaPortal.UI.Services.Players
         _inCurrentlyPlayingState = pc.CurrentlyPlayingWorkflowStateId;
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_inCurrentlyPlayingState.Value);
+      workflowManager.NavigatePush(_inCurrentlyPlayingState.Value, null);
     }
 
     public void ShowFullscreenContent()
@@ -532,7 +532,7 @@ namespace MediaPortal.UI.Services.Players
         _inFullscreenContentState = pc.FullscreenContentWorkflowStateId;
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_inFullscreenContentState.Value);
+      workflowManager.NavigatePush(_inFullscreenContentState.Value, null);
     }
 
     public PlayerContextType GetTypeOfMediaItem(MediaItem item)

@@ -12,9 +12,6 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[Configuration.Name]"/>
 
-    <!-- Menu header -->
-    <ResourceWrapper x:Key="Menu_Header_Text" Resource="{Binding Source={StaticResource Model},Path=HeaderText}"/>
-
     <ReferenceNotNull_BoolConverter x:Key="RefToBoolConverter"/>
 
     <!-- Contents -->
