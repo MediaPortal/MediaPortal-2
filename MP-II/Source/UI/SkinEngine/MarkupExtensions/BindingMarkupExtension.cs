@@ -749,10 +749,15 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
                 {
                   DependencyObject last = current;
                   FindParent(last, out current, FindParentMode.HybridPreferVisualTree);
-                  if (last is UIElement && ((UIElement) last).IsTemplateControlRoot)
+                  UIElement lastUIElement = last as UIElement;
+                  if (lastUIElement != null)
                   {
-                    result = new ValueDataDescriptor(current);
-                    return true;
+                    AttachToSourcePathProperty(lastUIElement.TemplateNameScopeProperty);
+                    if (lastUIElement.IsTemplateControlRoot)
+                    {
+                      result = new ValueDataDescriptor(current);
+                      return true;
+                    }
                   }
                 }
                 return false;
