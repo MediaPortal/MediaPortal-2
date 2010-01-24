@@ -38,8 +38,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     #region Ctor
 
-    public Setter() { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
