@@ -77,7 +77,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public virtual void Dispose()
     {
-      DataContext = null;
+      // Albert, 2010-01-18: The next line should not be done to avoid dependent bindings to fire, which were not disposed yet
+      //DataContext = null;
       if (_bindings != null)
         foreach (BindingBase _binding in new List<BindingBase>(_bindings))
           _binding.Dispose();
