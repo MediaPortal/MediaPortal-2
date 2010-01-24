@@ -249,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     public IndexerDataDescriptor(object target, object[] indices)
     {
       if (target == null)
-        throw new ArgumentNullException("Target object for indexer cannot be null");
+        throw new ArgumentNullException("target", "Target object for indexer cannot be null");
       _target = target;
       if (!IndicesCompatible(_target.GetType(), indices))
         throw new ArgumentException("Indices are not compatible with indexer parameters");
@@ -544,8 +544,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         throw new InvalidOperationException(string.Format(
             "Type of new target object is not compatible with this property descriptor (expected type: {0}, new target type: {1}",
             _prop.DeclaringType.Name, newTarget.GetType().Name));
-      SimplePropertyDataDescriptor result = new SimplePropertyDataDescriptor(newTarget, _prop);
-      result.Indices = _indices;
+      SimplePropertyDataDescriptor result = new SimplePropertyDataDescriptor(newTarget, _prop) {Indices = _indices};
       return result;
     }
 
