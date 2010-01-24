@@ -133,12 +133,12 @@ namespace MediaPortal.UI.Presentation.Players
     string Name { get; }
 
     /// <summary>
-    /// Returns the id of an workflow state which provides the "currently playing" functionality for this player context.
+    /// Returns the id of a workflow state which provides the "currently playing" functionality for this player context.
     /// </summary>
     Guid CurrentlyPlayingWorkflowStateId { get; }
 
     /// <summary>
-    /// Returns the id of an workflow state which provides the "fullscreen content" functionality for this player context.
+    /// Returns the id of a workflow state which provides the "fullscreen content" functionality for this player context.
     /// </summary>
     Guid FullscreenContentWorkflowStateId { get; }
 
