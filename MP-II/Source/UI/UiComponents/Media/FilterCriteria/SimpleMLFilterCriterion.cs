@@ -51,15 +51,15 @@ namespace UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      HomogenousCollection distinctValues = cd.GetDistinctAssociatedValues(_attributeType, necessaryMIATypeIds, filter);
-      ICollection<FilterValue> result = new List<FilterValue>(distinctValues.Count);
-      foreach (object value in distinctValues)
+      HomogenousDictionary valueGroups = cd.GetValueGroups(_attributeType, necessaryMIATypeIds, filter);
+      ICollection<FilterValue> result = new List<FilterValue>(valueGroups.Count);
+      foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        if (value == null || string.Empty == value as string)
+        if (group.Value == null || string.Empty == group.Value as string)
           result.Add(new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), this));
         else
-          result.Add(new FilterValue(value.ToString(),
-              new RelationalFilter(_attributeType, RelationalOperator.EQ, value), this));
+          result.Add(new FilterValue(group.Value.ToString(),
+              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Value), this));
       }
       return result;
     }

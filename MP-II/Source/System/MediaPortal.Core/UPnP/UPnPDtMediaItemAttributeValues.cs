@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
@@ -64,12 +65,15 @@ namespace MediaPortal.Core.UPnP
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      HomogenousCollection hc = (HomogenousCollection) value;
-      writer.WriteStartElement("ValueCollection");
-      Type type = hc.DataType;
+      HomogenousDictionary hd = (HomogenousDictionary) value;
+      writer.WriteStartElement("Values");
+      Type type = hd.KeyType;
       writer.WriteAttributeString("type", type.FullName);
-      foreach (object obj in hc)
-        MediaItemAspect.SerializeValue(writer, obj, type);
+      foreach (KeyValuePair<object, object> kvp in hd)
+      {
+        MediaItemAspect.SerializeValue(writer, kvp.Key, type);
+        MediaItemAspect.SerializeValue(writer, kvp.Value, typeof(int));
+      }
     }
 
     protected override object DoDeserializeValue(XmlReader reader, bool isSimpleValue)
@@ -81,11 +85,11 @@ namespace MediaPortal.Core.UPnP
       String typeStr = reader.ReadContentAsString();
       Type type = Type.GetType(typeStr);
       reader.MoveToElement();
-      HomogenousCollection result = new HomogenousCollection(type);
-      if (SoapHelper.ReadEmptyStartElement(reader, "ValueCollection"))
+      HomogenousDictionary result = new HomogenousDictionary(type, typeof(int));
+      if (SoapHelper.ReadEmptyStartElement(reader, "Values"))
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)
-        result.Add(MediaItemAspect.DeserializeValue(reader, type));
+        result.Add(MediaItemAspect.DeserializeValue(reader, type), MediaItemAspect.DeserializeValue(reader, typeof(int)));
       reader.ReadEndElement(); // End of enclosing element
       return result;
     }

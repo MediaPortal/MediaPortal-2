@@ -306,7 +306,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    public HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public IDictionary<object, int> GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter)
     {
       CompiledGroupedAttributeValueQuery cdavq = CompiledGroupedAttributeValueQuery.Compile(

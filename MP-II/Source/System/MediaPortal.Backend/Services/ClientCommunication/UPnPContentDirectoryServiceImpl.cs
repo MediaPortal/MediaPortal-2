@@ -314,7 +314,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
           });
       AddAction(browseAction);
 
-      DvAction getDistinctAssociatedValuesAction = new DvAction("GetDistinctAssociatedValues", OnGetDistinctAssociatedValues,
+      DvAction getValueGroupsAction = new DvAction("GetValueGroups", OnGetValueGroups,
           new DvArgument[] {
             new DvArgument("MIAType", A_ARG_TYPE_Uuid, ArgumentDirection.In),
             new DvArgument("AttributeName", A_ARG_TYPE_Name, ArgumentDirection.In),
@@ -322,9 +322,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             new DvArgument("Filter", A_ARG_TYPE_MediaItemFilter, ArgumentDirection.In),
           },
           new DvArgument[] {
-            new DvArgument("DistinctValues", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
+            new DvArgument("ValueGroups", A_ARG_TYPE_MediaItemAttributeValues, ArgumentDirection.Out, true),
           });
-      AddAction(getDistinctAssociatedValuesAction);
+      AddAction(getValueGroupsAction);
 
       // Media import
 
@@ -578,7 +578,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return null;
     }
 
-    static UPnPError OnGetDistinctAssociatedValues(DvAction action, IList<object> inParams, out IList<object> outParams,
+    static UPnPError OnGetValueGroups(DvAction action, IList<object> inParams, out IList<object> outParams,
         CallContext context)
     {
       Guid aspectId = MarshallingHelper.DeserializeGuid((string) inParams[0]);
@@ -594,8 +594,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      HomogenousCollection values = ServiceScope.Get<IMediaLibrary>().GetDistinctAssociatedValues(attributeType,
-          necessaryMIATypes, filter);
+      HomogenousDictionary values = HomogenousDictionary.Create(ServiceScope.Get<IMediaLibrary>().GetValueGroups(attributeType,
+          necessaryMIATypes, filter));
       outParams = new List<object> {values};
       return null;
     }

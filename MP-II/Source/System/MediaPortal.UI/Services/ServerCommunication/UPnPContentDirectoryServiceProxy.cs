@@ -207,14 +207,14 @@ namespace MediaPortal.UI.Services.ServerCommunication
       return (ICollection<MediaItem>) outParameters[0];
     }
 
-    public HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    public HomogenousDictionary GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter)
     {
-      CpAction action = GetAction("GetDistinctAssociatedValues");
+      CpAction action = GetAction("GetValueGroups");
       IList<object> inParameters = new List<object> {MarshallingHelper.SerializeGuid(attributeType.ParentMIAM.AspectId),
           attributeType.AttributeName, MarshallingHelper.SerializeGuidEnumerationToCsv(necessaryMIATypes), filter};
       IList<object> outParameters = action.InvokeAction(inParameters);
-      return (HomogenousCollection) outParameters[0];
+      return (HomogenousDictionary) outParameters[0];
     }
 
     // Media import

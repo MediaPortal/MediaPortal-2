@@ -82,15 +82,16 @@ namespace MediaPortal.Backend.MediaLibrary
         IEnumerable<Guid> optionalRequestedMIATypeIDs, bool filterOnlyOnline);
 
     /// <summary>
-    /// Returns a set of attribute values of the given <paramref name="attributeType"/> for the media items specified
-    /// by the <paramref name="filter"/>.
+    /// Returns a map of existing attribute values mapped to their occurence count for the given
+    /// <paramref name="attributeType"/> for the media items specified by the <paramref name="filter"/>.
     /// </summary>
     /// <param name="attributeType">Attribute type, whose values will be returned.</param>
     /// <param name="necessaryMIATypeIDs">IDs of media item aspect types, which need to be present in each media item
     /// whose attribute values are part of the result collection.</param>
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
-    /// <returns>Distinct set of attribute values of the given <paramref name="attributeType"/>.</returns>
-    HomogenousCollection GetDistinctAssociatedValues(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    /// <returns>Mapping set of existing attribute values to their occurence count for the given
+    /// <paramref name="attributeType"/>.</returns>
+    IDictionary<object, int> GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter);
 
     #endregion
