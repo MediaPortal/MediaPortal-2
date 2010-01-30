@@ -30,12 +30,21 @@ namespace UiComponents.Media.FilterCriteria
   {
     protected string _title;
     protected object _value;
+    protected int _numItems = -1;
     protected MLFilterCriterion _criterion;
 
     public FilterValue(string title, object value, MLFilterCriterion criterion)
     {
       _title = title;
       _value = value;
+      _criterion = criterion;
+    }
+
+    public FilterValue(string title, object value, int numItems, MLFilterCriterion criterion)
+    {
+      _title = title;
+      _value = value;
+      _numItems = numItems;
       _criterion = criterion;
     }
 
@@ -47,6 +56,16 @@ namespace UiComponents.Media.FilterCriteria
     public object Value
     {
       get { return _value; }
+    }
+
+    public bool HasNumItems
+    {
+      get { return _numItems > -1; }
+    }
+
+    public int NumItems
+    {
+      get { return _numItems; }
     }
 
     public MLFilterCriterion Criterion

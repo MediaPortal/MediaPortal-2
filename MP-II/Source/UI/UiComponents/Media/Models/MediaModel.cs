@@ -111,6 +111,7 @@ namespace UiComponents.Media.Models
     // Keys for the ListItem's Labels in the ItemsLists
     public const string NAME_KEY = "Name";
     public const string MEDIA_ITEM_KEY = "MediaItem";
+    public const string NUM_ITEMS_KEY = "NumItems";
 
     // Localization resource identifiers
     public const string PLAY_AUDIO_ITEM_RESOURCE = "[Media.PlayAudioItem]";
@@ -769,6 +770,8 @@ namespace UiComponents.Media.Models
                           });
                     })
             };
+          if (filterValue.HasNumItems)
+            filterValueItem.SetLabel(NUM_ITEMS_KEY, filterValue.NumItems.ToString());
           items.Add(filterValueItem);
         }
         IsItemsValid = true;
@@ -987,89 +990,96 @@ namespace UiComponents.Media.Models
         return;
       }
 
-      string screen;
-      View view = CurrentView;
-      // Prepare screen & screen data for the current media navigation mode
-      if (mode.Value == MediaNavigationMode.LocalMedia)
+      string screen = null;
+      try
       {
-        screen = LOCAL_MEDIA_NAVIGATION_SCREEN;
-        ReloadMediaItems(view, true);
-      }
-      else
-      {
-        StackedFiltersMLVS sfmlvs = view.Specification as StackedFiltersMLVS;
-        if (sfmlvs == null)
+        View view = CurrentView;
+        // Prepare screen & screen data for the current media navigation mode
+        if (mode.Value == MediaNavigationMode.LocalMedia)
         {
-          ServiceScope.Get<ILogger>().Error("MediaModel: Wrong type of media library view '{0}'", view);
-          return;
+          screen = LOCAL_MEDIA_NAVIGATION_SCREEN;
+          ReloadMediaItems(view, true);
         }
-        switch (mode.Value)
+        else
         {
-          // case MediaNavigationMode.LocalMedia: handled in "if" statement above
-          case MediaNavigationMode.MusicShowItems:
-            screen = MUSIC_SHOW_ITEMS_SCREEN;
-            ReloadMediaItems(view, true);
-            break;
-          case MediaNavigationMode.MusicFilterByArtist:
-            screen = MUSIC_FILTER_BY_ARTIST_SCREEN;
-            ReloadArtists(sfmlvs);
-            break;
-          case MediaNavigationMode.MusicFilterByAlbum:
-            screen = MUSIC_FILTER_BY_ALBUM_SCREEN;
-            ReloadAlbums(sfmlvs);
-            break;
-          case MediaNavigationMode.MusicFilterByGenre:
-            screen = MUSIC_FILTER_BY_GENRE_SCREEN;
-            ReloadMusicGenres(sfmlvs);
-            break;
-          case MediaNavigationMode.MusicFilterByDecade:
-            screen = MUSIC_FILTER_BY_DECADE_SCREEN;
-            ReloadDecades(sfmlvs);
-            break;
-          case MediaNavigationMode.MusicSimpleSearch:
-            screen = MUSIC_SIMPLE_SEARCH_SCREEN;
-            InitializeSimpleSearch();
-            break;
-          case MediaNavigationMode.MoviesShowItems:
-            screen = MOVIES_SHOW_ITEMS_SCREEN;
-            ReloadMediaItems(view, true);
-            break;
-          case MediaNavigationMode.MoviesFilterByActor:
-            screen = MOVIES_FILTER_BY_ACTOR_SCREEN;
-            ReloadActors(sfmlvs);
-            break;
-          case MediaNavigationMode.MoviesFilterByGenre:
-            screen = MOVIES_FILTER_BY_GENRE_SCREEN;
-            ReloadMovieGenres(sfmlvs);
-            break;
-          case MediaNavigationMode.MoviesFilterByYear:
-            screen = MOVIES_FILTER_BY_YEAR_SCREEN;
-            ReloadMovieYears(sfmlvs);
-            break;
-          case MediaNavigationMode.MoviesSimpleSearch:
-            screen = MOVIES_SIMPLE_SEARCH_SCREEN;
-            InitializeSimpleSearch();
-            break;
-          case MediaNavigationMode.PicturesShowItems:
-            screen = PICTURES_SHOW_ITEMS_SCREEN;
-            ReloadMediaItems(view, true);
-            break;
-          case MediaNavigationMode.PicturesFilterByYear:
-            screen = PICTURES_FILTER_BY_YEAR_SCREEN;
-            ReloadPictureYears(sfmlvs);
-            break;
-          case MediaNavigationMode.PicturesFilterBySize:
-            screen = PICTURES_FILTER_BY_SIZE_SCREEN;
-            ReloadPictureSizes(sfmlvs);
-            break;
-          case MediaNavigationMode.PicturesSimpleSearch:
-            screen = PICTURES_SIMPLE_SEARCH_SCREEN;
-            InitializeSimpleSearch();
-            break;
-          default:
-            ServiceScope.Get<ILogger>().Error("MediaModel: Unsupported media navigation mode '{0}'", mode.Value);
+          StackedFiltersMLVS sfmlvs = view.Specification as StackedFiltersMLVS;
+          if (sfmlvs == null)
+          {
+            ServiceScope.Get<ILogger>().Error("MediaModel: Wrong type of media library view '{0}'", view);
             return;
+          }
+          switch (mode.Value)
+          {
+            // case MediaNavigationMode.LocalMedia: handled in "if" statement above
+            case MediaNavigationMode.MusicShowItems:
+              screen = MUSIC_SHOW_ITEMS_SCREEN;
+              ReloadMediaItems(view, true);
+              break;
+            case MediaNavigationMode.MusicFilterByArtist:
+              screen = MUSIC_FILTER_BY_ARTIST_SCREEN;
+              ReloadArtists(sfmlvs);
+              break;
+            case MediaNavigationMode.MusicFilterByAlbum:
+              screen = MUSIC_FILTER_BY_ALBUM_SCREEN;
+              ReloadAlbums(sfmlvs);
+              break;
+            case MediaNavigationMode.MusicFilterByGenre:
+              screen = MUSIC_FILTER_BY_GENRE_SCREEN;
+              ReloadMusicGenres(sfmlvs);
+              break;
+            case MediaNavigationMode.MusicFilterByDecade:
+              screen = MUSIC_FILTER_BY_DECADE_SCREEN;
+              ReloadDecades(sfmlvs);
+              break;
+            case MediaNavigationMode.MusicSimpleSearch:
+              screen = MUSIC_SIMPLE_SEARCH_SCREEN;
+              InitializeSimpleSearch();
+              break;
+            case MediaNavigationMode.MoviesShowItems:
+              screen = MOVIES_SHOW_ITEMS_SCREEN;
+              ReloadMediaItems(view, true);
+              break;
+            case MediaNavigationMode.MoviesFilterByActor:
+              screen = MOVIES_FILTER_BY_ACTOR_SCREEN;
+              ReloadActors(sfmlvs);
+              break;
+            case MediaNavigationMode.MoviesFilterByGenre:
+              screen = MOVIES_FILTER_BY_GENRE_SCREEN;
+              ReloadMovieGenres(sfmlvs);
+              break;
+            case MediaNavigationMode.MoviesFilterByYear:
+              screen = MOVIES_FILTER_BY_YEAR_SCREEN;
+              ReloadMovieYears(sfmlvs);
+              break;
+            case MediaNavigationMode.MoviesSimpleSearch:
+              screen = MOVIES_SIMPLE_SEARCH_SCREEN;
+              InitializeSimpleSearch();
+              break;
+            case MediaNavigationMode.PicturesShowItems:
+              screen = PICTURES_SHOW_ITEMS_SCREEN;
+              ReloadMediaItems(view, true);
+              break;
+            case MediaNavigationMode.PicturesFilterByYear:
+              screen = PICTURES_FILTER_BY_YEAR_SCREEN;
+              ReloadPictureYears(sfmlvs);
+              break;
+            case MediaNavigationMode.PicturesFilterBySize:
+              screen = PICTURES_FILTER_BY_SIZE_SCREEN;
+              ReloadPictureSizes(sfmlvs);
+              break;
+            case MediaNavigationMode.PicturesSimpleSearch:
+              screen = PICTURES_SIMPLE_SEARCH_SCREEN;
+              InitializeSimpleSearch();
+              break;
+            default:
+              ServiceScope.Get<ILogger>().Error("MediaModel: Unsupported media navigation mode '{0}'", mode.Value);
+              return;
+          }
         }
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Error loading screen data", e);
       }
       Screen = screen;
     }

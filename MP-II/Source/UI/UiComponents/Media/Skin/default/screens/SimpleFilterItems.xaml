@@ -47,6 +47,7 @@
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"
               IsVisible="{Binding HasParentDirectory}"/>
         </Grid>
+        <!-- To support all properties of the filter items (e.g. NumItems), we need to use a special ListView style -->
         <ListView Grid.Column="0" Grid.Row="1"
             Style="{ThemeResource ContentsMenuListViewStyle}"
             ItemsSource="{Binding Items}" IsVisible="{Binding IsItemsValid}">

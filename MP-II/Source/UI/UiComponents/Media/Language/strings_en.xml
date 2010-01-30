@@ -18,9 +18,9 @@
     <String Name="SimpleSearchTitle" Text="Simple search"/>
     <String Name="ViewInvalid" Text="This view could not be built"/>
     <String Name="ViewEmpty" Text="&lt;No items to display&gt;"/>
-    <String Name="NoItems" Text="No items"/> <!-- Shown in a header of an items list -->
-    <String Name="OneItem" Text="One item"/> <!-- Shown in a header of an items list -->
-    <String Name="NItems" Text="{0} items"/> <!-- Shown in a header of an items list, e.g. "15 items" -->
+    <String Name="NoItems" Text="No items"/> <!-- Shown in the header of an items list -->
+    <String Name="OneItem" Text="One item"/> <!-- Shown in the header of an items list -->
+    <String Name="NItems" Text="{0} items"/> <!-- Shown in the header of an items list and elsewhere, e.g. "15 items" -->
     <String Name="MediaItemsViewTitle" Text="Media items"/>
 
     <String Name="PlayAudioItem" Text="Play audio item"/>

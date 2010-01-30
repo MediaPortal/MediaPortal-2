@@ -37,6 +37,8 @@ namespace UiComponents.Media.FilterCriteria
   /// </summary>
   public class SimpleMLFilterCriterion : MLFilterCriterion
   {
+    public const string NITEMS_RESOURCE = "[Media.NItems]";
+
     protected MediaItemAspectMetadata.AttributeSpecification _attributeType;
 
     public SimpleMLFilterCriterion(MediaItemAspectMetadata.AttributeSpecification attributeType)
@@ -59,7 +61,7 @@ namespace UiComponents.Media.FilterCriteria
           result.Add(new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), this));
         else
           result.Add(new FilterValue(group.Key.ToString(),
-              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), this));
+              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), (int) group.Value, this));
       }
       return result;
     }
