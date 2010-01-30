@@ -104,27 +104,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _sortInformation = sortInformation;
     }
 
-    /// <summary>
-    /// Generates the SQL statement for this query specification.
-    /// </summary>
-    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
-    /// inside another statement, the use of a common namespace prevents name collisions.</param>
-    /// <param name="distinctValue">If set to <c>true</c>, this method will create a DISTINCT result set for the requested
-    /// attributes. In that case, the media item ID won't be requested and thus the parameter <paramref name="mediaItemIdAlias"/>
-    /// won't have a meaningful result value. If <paramref name="distinctValue"/> is set to <c>false</c>, the query won't have
-    /// a DISTINCT modifier and the result set will contain also the media item ID.</param>
-    /// <param name="mediaItemIdAlias">Alias of the media item's IDs in the result set. If <paramref name="distinctValue"/>
-    /// is set to <c>true</c>, the result set won't contain the media item ID and thus this parmeter is meaningless in that
-    /// case.</param>
-    /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
-    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types This
-    /// parameter will only be set to a valid value if <paramref name="distinctValue"/> is set to <c>false</c>.</param>
-    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
-    /// <param name="statementStr">SQL statement which was built by this method.</param>
-    /// <param name="values">Values to be inserted into the returned <paramref name="statementStr"/>.</param>
-    public void GenerateSqlStatement(Namespace ns, bool distinctValue,
-        out string mediaItemIdAlias,
-        out IDictionary<MediaItemAspectMetadata, string> miamAliases,
+    protected void GenerateSqlStatement(Namespace ns, bool groupByValues,
+        IDictionary<MediaItemAspectMetadata, string> miamAliases,
+        out string mediaItemIdOrGroupSizeAlias,
         out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<object> values)
     {
@@ -211,19 +193,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       }
       StringBuilder result = new StringBuilder("SELECT ");
 
-      if (distinctValue)
+      if (groupByValues)
       {
-        mediaItemIdAlias = null;
-        result.Append("DISTINCT ");
-        miamAliases = null;
+        // Append a COUNT expression for the MEDIA_ITEMS.MEDIA_ITEM_ID for the GROUP BY-statement
+        string countAttribute = "COUNT(" + miaIdAttribute.GetQualifiedName(ns) + ")";
+        result.Append(countAttribute);
+        result.Append(" ");
+        mediaItemIdOrGroupSizeAlias = ns.GetOrCreate(countAttribute, "C");
+        result.Append(mediaItemIdOrGroupSizeAlias);
+        result.Append(", ");
       }
       else
       {
-        // Append requested attribute MEDIA_ITEMS.MEDIA_ITEM_ID only if no DISTINCT query is made
-        result.Append(miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdAlias));
+        // Append plain attribute MEDIA_ITEMS.MEDIA_ITEM_ID if no GROUP BY-statement is requested
+        result.Append(miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdOrGroupSizeAlias));
 
         // System attributes: Necessary to evaluate if a requested MIA is present for the media item
-        miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
         foreach (KeyValuePair<MediaItemAspectMetadata, TableQueryData> kvp in miaTypeTableQueries)
         {
           result.Append(",");
@@ -232,7 +217,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           string miamAlias = ns.GetOrCreate(miamColumn, "A");
           result.Append(" ");
           result.Append(miamAlias);
-          miamAliases.Add(kvp.Key, miamAlias);
+          if (miamAlias != null)
+            miamAliases.Add(kvp.Key, miamAlias);
         }
 
         result.Append(", ");
@@ -261,16 +247,61 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append("WHERE ");
         result.Append(whereStr);
       }
-      if (compiledSortInformation != null && compiledSortInformation.Count > 0)
+      if (groupByValues)
       {
-        IList<string> sortCriteria = new List<string>();
-        foreach (CompiledSortInformation csi in compiledSortInformation)
-          sortCriteria.Add(csi.GetSortDeclaration(ns));
-        result.Append("ORDER BY ");
-        result.Append(StringUtils.Join(", ", sortCriteria));
+        result.Append("GROUP BY ");
+        result.Append(StringUtils.Join(", ", attributeAliases.Values));
+      }
+      else
+      {
+        if (compiledSortInformation != null && compiledSortInformation.Count > 0)
+        {
+          IList<string> sortCriteria = new List<string>();
+          foreach (CompiledSortInformation csi in compiledSortInformation)
+            sortCriteria.Add(csi.GetSortDeclaration(ns));
+          result.Append("ORDER BY ");
+          result.Append(StringUtils.Join(", ", sortCriteria));
+        }
       }
 
       statementStr = result.ToString();
+    }
+
+    /// <summary>
+    /// Generates an SQL statement for the underlaying query specification which contains groups of the same attribute
+    /// values and a count column containing the size of each group.
+    /// </summary>
+    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
+    /// inside another statement, the use of a common namespace prevents name collisions.</param>
+    /// <param name="groupSizeAlias">Alias of the groups sizes in the result set.</param>
+    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
+    /// <param name="statementStr">SQL statement which was built by this method.</param>
+    /// <param name="values">Values to be inserted into the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlGroupByStatement(Namespace ns, out string groupSizeAlias,
+        out IDictionary<QueryAttribute, string> attributeAliases,
+        out string statementStr, out IList<object> values)
+    {
+      GenerateSqlStatement(ns, true, null, out groupSizeAlias, out attributeAliases, out statementStr, out values);
+    }
+
+    /// <summary>
+    /// Generates the SQL statement for the underlaying query specification.
+    /// </summary>
+    /// <param name="ns">Namespace used to generate the SQL statement. If the generated statement should be used
+    /// inside another statement, the use of a common namespace prevents name collisions.</param>
+    /// <param name="mediaItemIdAlias">Alias of the media item's IDs in the result set.</param>
+    /// <param name="miamAliases">Returns the aliases of the ID columns of the joined media item aspect tables. With this mapping,
+    /// the caller can check if a MIA type was requested or not. That is needed for optional requested MIA types.</param>
+    /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
+    /// <param name="statementStr">SQL statement which was built by this method.</param>
+    /// <param name="values">Values to be inserted into the returned <paramref name="statementStr"/>.</param>
+    public void GenerateSqlStatement(Namespace ns, out string mediaItemIdAlias,
+        out IDictionary<MediaItemAspectMetadata, string> miamAliases,
+        out IDictionary<QueryAttribute, string> attributeAliases,
+        out string statementStr, out IList<object> values)
+    {
+      miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+      GenerateSqlStatement(ns, false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out values);
     }
 
     public override string ToString()
@@ -281,7 +312,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IDictionary<QueryAttribute, string> qa2a;
       string statementStr;
       IList<object> values;
-      GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out values);
+      GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a, out statementStr, out values);
       return statementStr;
     }
   }

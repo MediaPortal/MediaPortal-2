@@ -156,7 +156,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           command = transaction.CreateCommand();
           string mediaItemIdAlias;
           string valueAlias;
-          complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), false, out mediaItemIdAlias, out valueAlias,
+          complexAttributeQueryBuilder.GenerateSqlStatement(new Namespace(), out mediaItemIdAlias, out valueAlias,
               out statementStr, out values);
           command.CommandText = statementStr;
           foreach (object value in values)
@@ -199,7 +199,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         Namespace mainQueryNS = new Namespace();
         // Maps (selected and filtered) QueryAttributes to CompiledQueryAttributes in the SQL query
         IDictionary<QueryAttribute, string> qa2a;
-        mainQueryBuilder.GenerateSqlStatement(mainQueryNS, false, out mediaItemIdAlias2, out miamAliases, out qa2a,
+        mainQueryBuilder.GenerateSqlStatement(mainQueryNS, out mediaItemIdAlias2, out miamAliases, out qa2a,
             out statementStr, out values);
         command.CommandText = statementStr;
         foreach (object value in values)

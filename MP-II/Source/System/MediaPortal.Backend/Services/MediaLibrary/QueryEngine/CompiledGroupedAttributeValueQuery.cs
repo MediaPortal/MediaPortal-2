@@ -39,14 +39,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
   /// Creates an SQL query for selecting a set of distinct media item aspect attribute values for a given attribute type
   /// and a given set of media items, specified by a filter.
   /// </summary>
-  public class CompiledDistinctAttributeValueQuery
+  public class CompiledGroupedAttributeValueQuery
   {
     protected readonly MIA_Management _miaManagement;
     protected readonly ICollection<MediaItemAspectMetadata> _necessaryRequestedMIATypes;
     protected readonly MediaItemAspectMetadata.AttributeSpecification _selectAttribute;
     protected readonly CompiledFilter _filter;
 
-    public CompiledDistinctAttributeValueQuery(
+    public CompiledGroupedAttributeValueQuery(
         MIA_Management miaManagement,
         ICollection<MediaItemAspectMetadata> necessaryRequestedMIATypes,
         MediaItemAspectMetadata.AttributeSpecification selectedAttribute,
@@ -68,7 +68,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       get { return _filter; }
     }
 
-    public static CompiledDistinctAttributeValueQuery Compile(MIA_Management miaManagement,
+    public static CompiledGroupedAttributeValueQuery Compile(MIA_Management miaManagement,
         IEnumerable<Guid> necessaryRequestedMIATypeIDs,
         MediaItemAspectMetadata.AttributeSpecification selectAttribute, IFilter filter)
     {
@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         necessaryMIATypes.Add(miam);
       }
 
-      return new CompiledDistinctAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, compiledFilter);
+      return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, compiledFilter);
     }
 
     public HomogenousCollection Execute()
@@ -103,6 +103,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         IDbCommand command = transaction.CreateCommand();
 
         string valueAlias;
+        string groupSizeAlias;
         string statementStr;
         IList<object> values;
         if (_selectAttribute.Cardinality == Cardinality.Inline || _selectAttribute.Cardinality == Cardinality.ManyToOne)
@@ -110,19 +111,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           QueryAttribute selectAttributeQA = new QueryAttribute(_selectAttribute);
           MainQueryBuilder builder = new MainQueryBuilder(_miaManagement, _necessaryRequestedMIATypes,
               new QueryAttribute[] {selectAttributeQA}, _filter, null);
-          string mediaItemIdAlias;
-          IDictionary<MediaItemAspectMetadata, string> miamAliases;
           IDictionary<QueryAttribute, string> qa2a;
-          builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias, out miamAliases, out qa2a,
-              out statementStr, out values);
+          builder.GenerateSqlGroupByStatement(new Namespace(), out groupSizeAlias, out qa2a, out statementStr, out values);
           valueAlias = qa2a[selectAttributeQA];
         }
         else
         {
           ComplexAttributeQueryBuilder builder = new ComplexAttributeQueryBuilder(_miaManagement, _selectAttribute,
               _necessaryRequestedMIATypes, _filter);
-          string mediaItemIdAlias;
-          builder.GenerateSqlStatement(new Namespace(), true, out mediaItemIdAlias, out valueAlias,
+          builder.GenerateSqlGroupByStatement(new Namespace(), out valueAlias, out groupSizeAlias,
               out statementStr, out values);
         }
         command.CommandText = statementStr;

@@ -73,7 +73,7 @@
     <Compile Include="Services\ClientCommunication\UPnPClientControllerServiceProxy.cs" />
     <Compile Include="Services\Database\SqlScriptPreprocessor.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledDistinctAttributeValueQuery.cs" />
+    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledGroupedAttributeValueQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
     <Compile Include="Services\MediaLibrary\QueryEngine\RequestedAttribute.cs" />
