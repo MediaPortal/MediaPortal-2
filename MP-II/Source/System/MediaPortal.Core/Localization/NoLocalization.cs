@@ -35,12 +35,19 @@ namespace MediaPortal.Core.Localization
   {
     public event LanguageChangeHandler LanguageChange;
 
+    public ICollection<CultureInfo> AvailableLanguages
+    {
+      get { return new List<CultureInfo>(new CultureInfo[] {CultureInfo.CurrentUICulture}); }
+    }
+
     public CultureInfo CurrentCulture
     {
       get { return CultureInfo.CurrentUICulture; }
     }
 
     public void Startup() { }
+
+    public void AddLanguageDirectory(string directory) {}
 
     public void ChangeLanguage(CultureInfo culture) {}
 
@@ -49,21 +56,9 @@ namespace MediaPortal.Core.Localization
       return string.Format("{0}.{1}", section, name);
     }
 
-    public ICollection<CultureInfo> AvailableLanguages
-    {
-      get { return new List<CultureInfo>(new CultureInfo[] {CultureInfo.CurrentUICulture}); }
-    }
-
     public CultureInfo GetBestAvailableLanguage()
     {
       return CultureInfo.CurrentUICulture;
-    }
-
-    private void InvokeLanguageChange()
-    {
-      LanguageChangeHandler dlgt = LanguageChange;
-      if (dlgt != null)
-        dlgt(this, CurrentCulture);
     }
   }
 }
