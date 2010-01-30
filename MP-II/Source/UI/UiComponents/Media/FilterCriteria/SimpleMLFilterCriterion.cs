@@ -51,7 +51,7 @@ namespace UiComponents.Media.FilterCriteria
       IContentDirectory cd = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
       if (cd == null)
         return new List<FilterValue>();
-      HomogenousDictionary valueGroups = cd.GetValueGroups(_attributeType, necessaryMIATypeIds, filter);
+      HomogenousMap valueGroups = cd.GetValueGroups(_attributeType, necessaryMIATypeIds, filter);
       ICollection<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       foreach (KeyValuePair<object, object> group in valueGroups)
       {

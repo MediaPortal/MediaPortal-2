@@ -60,16 +60,16 @@ namespace MediaPortal.Core.UPnP
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(HomogenousDictionary).IsAssignableFrom(type);
+      return typeof(HomogenousMap).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
     {
-      HomogenousDictionary hd = (HomogenousDictionary) value;
+      HomogenousMap map = (HomogenousMap) value;
       writer.WriteStartElement("Values");
-      Type type = hd.KeyType;
+      Type type = map.KeyType;
       writer.WriteAttributeString("type", type.FullName);
-      foreach (KeyValuePair<object, object> kvp in hd)
+      foreach (KeyValuePair<object, object> kvp in map)
       {
         MediaItemAspect.SerializeValue(writer, kvp.Key, type);
         MediaItemAspect.SerializeValue(writer, kvp.Value, typeof(int));
@@ -85,7 +85,7 @@ namespace MediaPortal.Core.UPnP
       String typeStr = reader.ReadContentAsString();
       Type type = Type.GetType(typeStr);
       reader.MoveToElement();
-      HomogenousDictionary result = new HomogenousDictionary(type, typeof(int));
+      HomogenousMap result = new HomogenousMap(type, typeof(int));
       if (SoapHelper.ReadEmptyStartElement(reader, "Values"))
         return result;
       while (reader.NodeType != XmlNodeType.EndElement)

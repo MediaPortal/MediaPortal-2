@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.MLQueries;
 using MediaPortal.Backend.Database;
@@ -93,7 +94,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       return new CompiledGroupedAttributeValueQuery(miaManagement, necessaryMIATypes, selectAttribute, compiledFilter);
     }
 
-    public IDictionary<object, int> Execute()
+    public HomogenousMap Execute()
     {
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
@@ -130,7 +131,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
 
         IDataReader reader = command.ExecuteReader();
-        IDictionary<object, int> result = new Dictionary<object, int>();
+        HomogenousMap result = new HomogenousMap(_selectAttribute.AttributeType, typeof(int));
         try
         {
           int valueCol = reader.GetOrdinal(valueAlias);

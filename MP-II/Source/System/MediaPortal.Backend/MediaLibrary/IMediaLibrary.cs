@@ -91,7 +91,7 @@ namespace MediaPortal.Backend.MediaLibrary
     /// <param name="filter">Filter specifying the media items whose attribute values will be returned.</param>
     /// <returns>Mapping set of existing attribute values to their occurence count for the given
     /// <paramref name="attributeType"/>.</returns>
-    IDictionary<object, int> GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypeIDs, IFilter filter);
 
     #endregion

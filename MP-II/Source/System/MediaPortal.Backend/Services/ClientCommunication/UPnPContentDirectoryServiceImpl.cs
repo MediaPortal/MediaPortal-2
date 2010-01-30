@@ -594,8 +594,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       if (!miam.AttributeSpecifications.TryGetValue(attributeName, out attributeType))
         return new UPnPError(600, string.Format("Media item aspect type '{0}' doesn't contain an attribute of name '{1}'",
             aspectId, attributeName));
-      HomogenousDictionary values = HomogenousDictionary.Create(ServiceScope.Get<IMediaLibrary>().GetValueGroups(attributeType,
-          necessaryMIATypes, filter));
+      HomogenousMap values = ServiceScope.Get<IMediaLibrary>().GetValueGroups(attributeType,
+          necessaryMIATypes, filter);
       outParams = new List<object> {values};
       return null;
     }

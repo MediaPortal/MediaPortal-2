@@ -67,7 +67,7 @@ namespace MediaPortal.UI.ServerCommunication
         IFilter filter, bool excludeCLOBs, bool onlyOnline);
     ICollection<MediaItem> Browse(string systemId, ResourcePath path,
         IEnumerable<Guid> necessaryMIATypes, IEnumerable<Guid> optionalMIATypes, bool onlyOnline);
-    HomogenousDictionary GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
+    HomogenousMap GetValueGroups(MediaItemAspectMetadata.AttributeSpecification attributeType,
         IEnumerable<Guid> necessaryMIATypes, IFilter filter);
 
     // Media import
