@@ -60,7 +60,7 @@ namespace MediaPortal.Core.UPnP
 
     public override bool IsAssignableFrom(Type type)
     {
-      return typeof(HomogenousCollection).IsAssignableFrom(type);
+      return typeof(HomogenousDictionary).IsAssignableFrom(type);
     }
 
     protected override void DoSerializeValue(object value, bool forceSimpleValue, XmlWriter writer)
