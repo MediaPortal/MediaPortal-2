@@ -732,7 +732,7 @@
                 Data="M0,0 L100,0 L100,20 0,20 z"/>
             <Path x:Name="WorkflowNavigationBarItemContainer_Center_Border" Grid.Row="0" Grid.Column="1" Stretch="Fill"
                 Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
-                Data="M0,0 L100,0 M0,20 L100,20"/>
+                Data="M100,0 L0,0 M0,20 L100,20"/>
             <Path x:Name="WorkflowNavigationBarItemContainer_ArrowRight" Grid.Row="0" Grid.Column="2" Stretch="Fill"
                 Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
                 Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
