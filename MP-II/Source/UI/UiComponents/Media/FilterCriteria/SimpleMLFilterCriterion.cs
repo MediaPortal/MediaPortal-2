@@ -55,11 +55,11 @@ namespace UiComponents.Media.FilterCriteria
       ICollection<FilterValue> result = new List<FilterValue>(valueGroups.Count);
       foreach (KeyValuePair<object, object> group in valueGroups)
       {
-        if (group.Value == null || string.Empty == group.Value as string)
+        if (group.Key == null || string.Empty == group.Key as string)
           result.Add(new FilterValue(VALUE_EMPTY_TITLE, new EmptyFilter(_attributeType), this));
         else
-          result.Add(new FilterValue(group.Value.ToString(),
-              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Value), this));
+          result.Add(new FilterValue(group.Key.ToString(),
+              new RelationalFilter(_attributeType, RelationalOperator.EQ, group.Key), this));
       }
       return result;
     }
