@@ -114,11 +114,12 @@ namespace MediaPortal.Core.Services.Localization
     }
 
     /// <summary>
-    /// Searches the specified <paramref name="directory"/> for all available language resource files and
+    /// Searches the specified language <paramref name="directory"/> for all available language resource files and
     /// collects the available languages.
     /// </summary>
-    /// <param name="directory">Directory to look through. Only the given directory will be searched,
-    /// the search won't lookup recursively into sub directories.</param>
+    /// <param name="directory">Directory to look through. This directory should contain language files in the form
+    /// <code>strings_en.xml</code>. Only the given directory will be searched, the search will not descend recursively
+    /// into sub directories.</param>
     /// <param name="result">Result collection to add all languages which are found in the given <paramref name="directory"/>.</param>
     /// <returns>Collection of cultures for that language resources are available in the given
     /// <paramref name="directory"/>.</returns>

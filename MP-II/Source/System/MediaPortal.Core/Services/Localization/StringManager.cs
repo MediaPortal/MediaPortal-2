@@ -104,6 +104,8 @@ namespace MediaPortal.Core.Services.Localization
 
     public event LanguageChangeHandler LanguageChange;
 
+    // ICollection<CultureInfo> AvailableLanguages { get; } -> implemented by base class
+
     public CultureInfo CurrentCulture
     {
       get { return _currentCulture; }

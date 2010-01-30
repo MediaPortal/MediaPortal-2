@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Core.Services.PluginManager;
 using MediaPortal.Core.Logging;
-using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 
 namespace MediaPortal.Core.Services.Localization
@@ -111,7 +110,7 @@ namespace MediaPortal.Core.Services.Localization
 
     #endregion
 
-    #region Constructors/Destructors
+    #region Ctor/dtor
 
     public StringManagerBase()
     {
@@ -123,26 +122,6 @@ namespace MediaPortal.Core.Services.Localization
     {
       ServiceScope.Get<IPluginManager>().RevokeAllPluginItems(LANGUAGE_RESOURCES_REGISTRATION_PATH,
           _languagePluginStateTracker);
-    }
-
-    #endregion
-
-    #region Event Handlers
-
-    /// <summary>
-    /// Called when the plugin manager notifies the system about its events.
-    /// Adds plugin language resource folders to the directory list when all plugins are initialized.
-    /// </summary>
-    /// <param name="queue">Queue which sent the message.</param>
-    /// <param name="message">Message containing the notification data.</param>
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == PluginManagerMessaging.CHANNEL)
-      {
-        if (((PluginManagerMessaging.MessageType) message.MessageType) ==
-            PluginManagerMessaging.MessageType.PluginsInitialized)
-          InitializeLanguageResources();
-      }
     }
 
     #endregion
@@ -215,7 +194,7 @@ namespace MediaPortal.Core.Services.Localization
 
     #endregion
 
-    #region Properties
+    #region Public properties
 
     public ICollection<CultureInfo> AvailableLanguages
     {
@@ -224,5 +203,15 @@ namespace MediaPortal.Core.Services.Localization
 
     #endregion
 
+    #region Public methods
+
+    public void AddLanguageDirectory(string directory)
+    {
+      lock (_syncObj)
+        _languageDirectories.Add(directory);
+      ReLoad();
+    }
+
+    #endregion
   }
 }

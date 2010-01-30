@@ -45,7 +45,7 @@ namespace MediaPortal.Core.Localization
   /// </remarks>
   public interface ILocalization
   {
-    #region events
+    #region Events
 
     /// <summary>
     /// Will be called if the language changes, which makes all former returned localized
@@ -57,6 +57,13 @@ namespace MediaPortal.Core.Localization
 
     #region Properties
 
+    /// <summary>
+    /// Returns the <see cref="CultureInfo"/>s for all installed languages.
+    /// </summary>
+    /// <returns>Collection containing all languages for which localized strings are availabe in this
+    /// application.</returns>
+    ICollection<CultureInfo> AvailableLanguages { get; }
+
     CultureInfo CurrentCulture { get; }
 
     #endregion
@@ -67,6 +74,16 @@ namespace MediaPortal.Core.Localization
     /// Starts loading all language resources. Must be called after plugins were enabled by the plugin manager.
     /// </summary>
     void Startup();
+
+    /// <summary>
+    /// Adds a static language directory to the collection of available language directories.
+    /// </summary>
+    /// <remarks>
+    /// This method should be called to add static language directories, i.e. language directories which are not
+    /// registered in the plugin tree and thus not loaded automatically in the plugin tree notification process.
+    /// </remarks>
+    /// <param name="directory">Directory with language resource files.</param>
+    void AddLanguageDirectory(string directory);
 
     /// <summary>
     /// Changes the current language, to that all strings should be translated.
@@ -85,13 +102,6 @@ namespace MediaPortal.Core.Localization
     /// String containing the translated text.
     /// </returns>
     string ToString(string section, string name, params object[] parameters);
-
-    /// <summary>
-    /// Returns the <see cref="CultureInfo"/>s for all installed languages.
-    /// </summary>
-    /// <returns>Collection containing all languages for which localized strings are availabe in this
-    /// application.</returns>
-    ICollection<CultureInfo> AvailableLanguages { get; }
 
     /// <summary>
     /// Tries to guess the best language for that localization resources are available for the current system.
