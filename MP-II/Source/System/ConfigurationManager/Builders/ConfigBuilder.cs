@@ -36,8 +36,7 @@ namespace MediaPortal.Configuration.Builders
   {
     #region Protected methods
 
-    protected static ConfigSectionMetadata BuildSection(
-      PluginItemMetadata itemData, PluginRuntime plugin)
+    protected static ConfigSectionMetadata BuildSection(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       string location = ConfigBaseMetadata.ConcatLocations(itemData.RegistrationLocation, itemData.Id);
       string text = null;
@@ -159,9 +158,11 @@ namespace MediaPortal.Configuration.Builders
       }
       if (text == null)
         throw new ArgumentException("'ConfigSetting' item needs an attribute 'Text'");
-      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, className, helpText, listenTo);
-      result.AdditionalData = additionalData;
-      result.AdditionalTypes = additionalTypes;
+      ConfigSettingMetadata result = new ConfigSettingMetadata(location, text, className, helpText, listenTo)
+        {
+            AdditionalData = additionalData,
+            AdditionalTypes = additionalTypes
+        };
       return result;
     }
 

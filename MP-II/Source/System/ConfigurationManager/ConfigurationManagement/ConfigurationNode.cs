@@ -205,7 +205,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     /// <summary>
     /// Lazy load flag. If set to <c>true</c>, this node was loaded and its direct childnodes were
     /// set (the childnodes themselves don't need to be loaded yet). If set to <c>false</c>, this
-    /// node needs to be loaded by method <see cref="Load"/>.
+    /// node needs to be loaded by method <see cref="LoadChildren"/>.
     /// </summary>
     public bool IsChildrenLoaded
     {

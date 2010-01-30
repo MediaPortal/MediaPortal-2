@@ -55,7 +55,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
 
     #endregion
 
-    #region Public Methods
+    #region Public methods
 
     /// <summary>
     /// Matches the specified config object with this search value.
@@ -83,6 +83,5 @@ namespace MediaPortal.Configuration.ConfigurationManagement
     }
 
     #endregion
-
   }
 }
