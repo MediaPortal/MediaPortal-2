@@ -641,18 +641,15 @@ namespace UiComponents.Media.Models
         return;
       if (play)
         pc.Playlist.Clear();
+
+      // Always add items to playlist. This allows audio playlists as well as video playlists.
+      pc.Playlist.Add(item);
+      // TODO: Save playlist in this model instance so that they are still able to be accessed later,
+      // after the player has closed
+      pc.Play();
+      pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
       if (mediaType == PlayerContextType.Video)
-      {
-        // We don't need a playlist when just playing a single video item
-        pc.DoPlay(item);
-        pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
         pcm.ShowFullscreenContent();
-      }
-      else
-      {
-        pc.Playlist.Add(item);
-        pc.Play();
-      }
     }
 
     protected string BuildNumItemsStr(int numItems)
