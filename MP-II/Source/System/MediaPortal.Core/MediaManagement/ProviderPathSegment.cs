@@ -112,6 +112,11 @@ namespace MediaPortal.Core.MediaManagement
 
     public static bool operator ==(ProviderPathSegment segment1, ProviderPathSegment segment2)
     {
+      bool s2null = ReferenceEquals(segment2, null);
+      if (ReferenceEquals(segment1, null))
+        return s2null;
+      if (s2null)
+        return false;
       return segment1.ToString() == segment2.ToString();
     }
 
