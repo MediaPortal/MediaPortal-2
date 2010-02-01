@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 
 namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 {
@@ -92,7 +94,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         Add(currentPoint);
         lastPoint = currentPoint;
       }
-      if (points[points.Count - 1] != points[0]) // Its necessary here to use ==, not CPoint2D.SamePoints
+      if (!points[points.Count - 1].Equals(points[0])) // Its necessary here to use ==/CPoint2D.Equals, not CPoint2D.SamePoints
         // Need to close the path
         Add(points[0]);
 
@@ -300,7 +302,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       CPolygon remainingPolygon = new CPolygon(this);
 
       while (remainingPolygon.Count > 3)
-        yield return remainingPolygon.CutEar();
+      {
+        CPolygon p = remainingPolygon.CutEar();
+        if (p == null)
+        {
+          ServiceScope.Get<ILogger>().Warn("Serious problem while triangulating polygon '{0}'", p);
+          yield break;
+        }
+        yield return p;
+      }
       // Add remaining polynom, which is convex
       yield return remainingPolygon;
     }

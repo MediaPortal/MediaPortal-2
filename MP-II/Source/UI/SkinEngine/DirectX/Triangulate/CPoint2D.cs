@@ -66,23 +66,21 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       float dDiff_Y =
         Math.Abs(Point1.Y - Point2.Y);
 
-      if ((dDiff_X < ConstantValue.SmallValue) && (dDiff_Y < ConstantValue.SmallValue))
-        return true;
-      else
-        return false;
+      return dDiff_X < ConstantValue.SmallValue && dDiff_Y < ConstantValue.SmallValue;
     }
 
-    public bool EqualsPoint(CPoint2D newPoint)
+    public bool SamePoint(CPoint2D other)
     {
 
-      float dDeff_X = Math.Abs(m_dCoordinate_X - newPoint.X);
-      float dDeff_Y = Math.Abs(m_dCoordinate_Y - newPoint.Y);
+      float dDeff_X = Math.Abs(m_dCoordinate_X - other.X);
+      float dDeff_Y = Math.Abs(m_dCoordinate_Y - other.Y);
 
-      if ((dDeff_X < ConstantValue.SmallValue) && (dDeff_Y < ConstantValue.SmallValue))
-        return true;
-      else
-        return false;
+      return dDeff_X < ConstantValue.SmallValue && dDeff_Y < ConstantValue.SmallValue;
+    }
 
+    public bool Equals(CPoint2D other)
+    {
+      return m_dCoordinate_X == other.m_dCoordinate_X && m_dCoordinate_Y == other.m_dCoordinate_Y;
     }
 
     /***To check whether the point is in a line segment***/
@@ -164,14 +162,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     {
       if (points.Length > 1)
       {
-        CPoint2D tempPt;
         for (int i = 0; i < points.Length - 2; i++)
         {
           for (int j = i + 1; j < points.Length - 1; j++)
           {
             if (points[i].X > points[j].X)
             {
-              tempPt = points[j];
+              CPoint2D tempPt = points[j];
               points[j] = points[i];
               points[i] = tempPt;
             }
@@ -185,14 +182,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     {
       if (points.Length > 1)
       {
-        CPoint2D tempPt;
         for (int i = 0; i < points.Length - 2; i++)
         {
           for (int j = i + 1; j < points.Length - 1; j++)
           {
             if (points[i].Y > points[j].Y)
             {
-              tempPt = points[j];
+              CPoint2D tempPt = points[j];
               points[j] = points[i];
               points[i] = tempPt;
             }
@@ -201,5 +197,37 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       }
     }
 
+    public static bool operator ==(CPoint2D p1, CPoint2D p2)
+    {
+      bool p2null = ReferenceEquals(p2, null);
+      if (ReferenceEquals(p1, null))
+        return p2null;
+      if (p2null)
+        return false;
+      return p1.Equals(p2);
+    }
+
+    public static bool operator !=(CPoint2D p1, CPoint2D p2)
+    {
+      return !(p1 == p2);
+    }
+
+    public override int GetHashCode()
+    {
+      return (int) (m_dCoordinate_X + m_dCoordinate_Y);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (!(obj is CPoint2D))
+        return false;
+      CPoint2D other = (CPoint2D) obj;
+      return Equals(other);
+    }
+
+    public override string ToString()
+    {
+      return string.Format("{0};{1}", m_dCoordinate_X, m_dCoordinate_Y);
+    }
   }
 }
