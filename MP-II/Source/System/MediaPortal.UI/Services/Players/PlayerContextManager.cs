@@ -107,6 +107,7 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController psc;
         switch (messageType)
         {
+          case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
             pc = GetPlayerContext(psc);
