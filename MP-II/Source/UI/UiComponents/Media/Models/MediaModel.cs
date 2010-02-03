@@ -646,8 +646,8 @@ namespace UiComponents.Media.Models
       pc.Playlist.Add(item);
       // TODO: Save playlist in this model instance so that they are still able to be accessed later,
       // after the player has closed
+      pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
       pc.Play();
-      pc.CloseWhenFinished = true; // Has to be done after starting the media item, else the slot might be closed at once
       if (mediaType == PlayerContextType.Video)
         pcm.ShowFullscreenContent();
     }

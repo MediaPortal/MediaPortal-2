@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
@@ -395,6 +396,11 @@ namespace MediaPortal.UI.Services.Players
               mpc.Resume();
             return result = true;
           }
+          return result = false;
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("Error playing item '{0}'", e, locator);
           return result = false;
         }
         finally
