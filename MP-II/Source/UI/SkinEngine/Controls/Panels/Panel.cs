@@ -181,10 +181,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public UIElementCollection Children
     {
-      get
-      {
-        return (UIElementCollection) _childrenProperty.GetValue();
-      }
+      get { return (UIElementCollection) _childrenProperty.GetValue(); }
     }
 
     public void SetChildren(UIElementCollection children)
@@ -194,6 +191,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       SetScreen(Screen);
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
+      Invalidate();
     }
 
     public bool IsItemsHost

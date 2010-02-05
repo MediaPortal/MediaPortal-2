@@ -343,7 +343,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         children.Add(container);
       }
       _itemsHostPanel.SetChildren(children);
-      _itemsHostPanel.Invalidate();
 
       return true;
     }
