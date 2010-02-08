@@ -68,6 +68,11 @@ namespace UiComponents.IrInput
       _key  = key;
       _code = code;
     }
+
+    public override string ToString()
+    {
+      return _code;
+    }
     
     #endregion Constructors
 

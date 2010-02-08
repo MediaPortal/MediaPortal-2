@@ -1,72 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Contains a default mapping of remote keys to MP-II keys.
+  For each key mapping to be interpreted by MP-II, there must be a MappedKeyCode element.
+  The Code attribute contains the key name which comes from the IRSS server. The Key_Name attribute contains
+  a reference to a MP-II key. The prefix (S: or P:) determines if the key is a special (S:) or printable (P:) key.
+  The suffix is the special key name or the printable key's character.
+
+  Each key code may only be mapped once (i.e. a key code given in the Code attribute may only be at most once).
+  It is not necessary to add a MappedKeyCode entry for each IRSS key code, but it is recommended to do so. If a remote key
+  should not be mapped to an MP-II key, the special key None (S:None) can be used.
+-->
 <ArrayOfMappedKeyCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MappedKeyCode Code="Power" Key_Name="S:None" />
 
-  <MappedKeyCode Key_Name="S:None" Code="Power" /> <!-- No assigment for PowerTV button -->
+  <MappedKeyCode Code="Power2" Key_Name="S:Power" />
+  <MappedKeyCode Code="Back" Key_Name="S:Back" />
+  <MappedKeyCode Code="OK" Key_Name="S:Ok" />
+  <MappedKeyCode Code="Start" Key_Name="S:Start" />
 
-  <MappedKeyCode Key_Name="S:Power" Code="Power2" />
-  <MappedKeyCode Key_Name="S:Back" Code="Back" />
-  <MappedKeyCode Key_Name="S:Ok" Code="OK" />
-  <MappedKeyCode Key_Name="S:Start" Code="Start" />
+  <MappedKeyCode Code="RecordedTV" Key_Name="S:RecordedTV" />
+  <MappedKeyCode Code="Guide" Key_Name="S:Guide" />
+  <MappedKeyCode Code="LiveTV" Key_Name="S:LiveTV" />
+  <MappedKeyCode Code="DVD" Key_Name="S:None" />
 
-  <MappedKeyCode Key_Name="S:RecordedTV" Code="RecordedTV" />
-  <MappedKeyCode Key_Name="S:Guide" Code="Guide" />
-  <MappedKeyCode Key_Name="S:LiveTV" Code="LiveTV" />
-  <MappedKeyCode Key_Name="S:DVDMenu" Code="DVD" />
+  <MappedKeyCode Code="VolumeUp" Key_Name="S:VolumeUp" />
+  <MappedKeyCode Code="VolumeDown" Key_Name="S:VolumeDown" />
+  <MappedKeyCode Code="Mute" Key_Name="S:Mute" />
 
-  <MappedKeyCode Key_Name="S:VolumeUp" Code="VolumeUp" />
-  <MappedKeyCode Key_Name="S:VolumeDown" Code="VolumeDown" />
-  <MappedKeyCode Key_Name="S:Mute" Code="Mute" />
+  <MappedKeyCode Code="ChannelUp" Key_Name="S:ChannelUp" />
+  <MappedKeyCode Code="ChannelDown" Key_Name="S:ChannelDown" />
 
-  <MappedKeyCode Key_Name="S:ChannelUp" Code="ChannelUp" />
-  <MappedKeyCode Key_Name="S:ChannelDown" Code="ChannelDown" />
+  <MappedKeyCode Code="Up" Key_Name="S:Up" />
+  <MappedKeyCode Code="Down" Key_Name="S:Down" />
+  <MappedKeyCode Code="Left" Key_Name="S:Left" />
+  <MappedKeyCode Code="Right" Key_Name="S:Right" />
+  <MappedKeyCode Code="Info" Key_Name="S:Info" />
 
-  <MappedKeyCode Key_Name="S:Up" Code="Up" />
-  <MappedKeyCode Key_Name="S:Down" Code="Down" />
-  <MappedKeyCode Key_Name="S:Left" Code="Left" />
-  <MappedKeyCode Key_Name="S:Right" Code="Right" />
-  <MappedKeyCode Key_Name="S:PageDown" Code="ChannelDown" />
-  <MappedKeyCode Key_Name="S:PageUp" Code="ChannelUp" />
-  <MappedKeyCode Key_Name="S:Info" Code="Info" />
+  <MappedKeyCode Code="Stop" Key_Name="S:Stop" />
+  <MappedKeyCode Code="Pause" Key_Name="S:Pause" />
+  <MappedKeyCode Code="Record" Key_Name="S:Record" />
+  <MappedKeyCode Code="Play" Key_Name="S:Play" />
+  <MappedKeyCode Code="Rewind" Key_Name="S:Rew" />
+  <MappedKeyCode Code="FastForward" Key_Name="S:Fwd" />
+  <MappedKeyCode Code="PreviousChapter" Key_Name="S:Previous" />
+  <MappedKeyCode Code="NextChapter" Key_Name="S:Next" />
 
-  <MappedKeyCode Key_Name="S:Stop" Code="Stop" />
-  <MappedKeyCode Key_Name="S:Pause" Code="Pause" />
-  <MappedKeyCode Key_Name="S:Record" Code="Record" />
-  <MappedKeyCode Key_Name="S:Play" Code="Play" />
-  <MappedKeyCode Key_Name="S:Rew" Code="Rewind" />
-  <MappedKeyCode Key_Name="S:Fwd" Code="FastForward" />
-  <MappedKeyCode Key_Name="S:Previous" Code="PreviousChapter" /> <!-- No assignment for Replay button -->
-  <MappedKeyCode Key_Name="S:Next" Code="NextChapter" /> <!-- No assignment for Skip button -->
+  <MappedKeyCode Code="Number0" Key_Name="P:0" />
+  <MappedKeyCode Code="Number1" Key_Name="P:1" />
+  <MappedKeyCode Code="Number2" Key_Name="P:2" />
+  <MappedKeyCode Code="Number3" Key_Name="P:3" />
+  <MappedKeyCode Code="Number4" Key_Name="P:4" />
+  <MappedKeyCode Code="Number5" Key_Name="P:5" />
+  <MappedKeyCode Code="Number6" Key_Name="P:6" />
+  <MappedKeyCode Code="Number7" Key_Name="P:7" />
+  <MappedKeyCode Code="Number8" Key_Name="P:8" />
+  <MappedKeyCode Code="Number9" Key_Name="P:9" />
 
-  <MappedKeyCode Key_Name="P:0" Code="Number0" />
-  <MappedKeyCode Key_Name="P:1" Code="Number1" />
-  <MappedKeyCode Key_Name="P:2" Code="Number2" />
-  <MappedKeyCode Key_Name="P:3" Code="Number3" />
-  <MappedKeyCode Key_Name="P:4" Code="Number4" />
-  <MappedKeyCode Key_Name="P:5" Code="Number5" />
-  <MappedKeyCode Key_Name="P:6" Code="Number6" />
-  <MappedKeyCode Key_Name="P:7" Code="Number7" />
-  <MappedKeyCode Key_Name="P:8" Code="Number8" />
-  <MappedKeyCode Key_Name="P:9" Code="Number9" />
-  <MappedKeyCode Key_Name="S:None" Code="Star" /> <!-- What is Oem8? -->
-  <MappedKeyCode Key_Name="S:None" Code="Hash" /> <!-- What is OemGate? -->
+  <MappedKeyCode Code="Star" Key_Name="S:None" />
+  <MappedKeyCode Code="Hash" Key_Name="S:None" />
 
-  <MappedKeyCode Key_Name="S:Clear" Code="Clear" />
-  <MappedKeyCode Key_Name="S:Enter" Code="Enter" />
+  <MappedKeyCode Code="Clear" Key_Name="S:Clear" />
+  <MappedKeyCode Code="Enter" Key_Name="S:Enter" />
 
-  <MappedKeyCode Key_Name="S:TeleText" Code="Teletext" />
+  <MappedKeyCode Code="Teletext" Key_Name="S:TeleText" />
 
-  <MappedKeyCode Key_Name="S:Red" Code="Red" />
-  <MappedKeyCode Key_Name="S:Green" Code="Green" />
-  <MappedKeyCode Key_Name="S:Yellow" Code="Yellow" />
-  <MappedKeyCode Key_Name="S:Blue" Code="Blue" />
+  <MappedKeyCode Code="Red" Key_Name="S:Red" />
+  <MappedKeyCode Code="Green" Key_Name="S:Green" />
+  <MappedKeyCode Code="Yellow" Key_Name="S:Yellow" />
+  <MappedKeyCode Code="Blue" Key_Name="S:Blue" />
 
-  <MappedKeyCode Key_Name="S:None" Code="Music" /> <!-- No assignment for MyMusic button -->
-  <MappedKeyCode Key_Name="S:None" Code="Pictures" /> <!-- No assignment for MyPictures button -->
-  <MappedKeyCode Key_Name="S:None" Code="Radio" /> <!-- No assignment for MyRadio button -->
-  <MappedKeyCode Key_Name="S:None" Code="TV" /> <!-- No assignment for MyTV button -->
-  <MappedKeyCode Key_Name="S:None" Code="Videos" /> <!-- No assignment for MyVideos button -->
-  <MappedKeyCode Key_Name="S:None" Code="Print" /> <!-- No assignment for Print button -->
-  <MappedKeyCode Key_Name="S:None" Code="31704" /> <!-- No assignment for AspectRatio button -->
-  <MappedKeyCode Key_Name="S:None" Code="31638" /> <!-- No assignment for Messenger button -->
-
+  <MappedKeyCode Code="Music" Key_Name="S:None" />
+  <MappedKeyCode Code="Pictures" Key_Name="S:None" />
+  <MappedKeyCode Code="Radio" Key_Name="S:None" />
+  <MappedKeyCode Code="TV" Key_Name="S:None" />
+  <MappedKeyCode Code="Videos" Key_Name="S:None" />
+  <MappedKeyCode Code="Print" Key_Name="S:None" />
 </ArrayOfMappedKeyCode>
