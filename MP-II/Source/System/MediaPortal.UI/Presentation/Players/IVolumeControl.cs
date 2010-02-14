@@ -34,6 +34,6 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Gets or sets the mute state of this <see cref="IPlayer"/>.
     /// </summary>
-    bool Mute { get; set;}
+    bool Mute { get; set; }
   }
 }

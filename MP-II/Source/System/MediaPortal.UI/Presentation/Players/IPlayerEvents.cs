@@ -37,7 +37,12 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="started">Event delegate to be called when the player was started.</param>
     /// <param name="stateReady">Event delegate to be called when the player state was initialized. This event
     /// is necessary to be a dedicated event which will be fired after the <paramref name="started"/> event because
-    /// some players are not done with their state initialization when the <paramref name="started"/> event is raised.</param>
+    /// some players are not done with their state initialization when the <paramref name="started"/> event is raised.
+    /// The semantics is that when this event was fired, the player is ready and all properties have sensible values.
+    /// This will be used for example by the default video player which doesn't get the video size before the first
+    /// picture was displayed.
+    /// For a simple player, the <paramref name="started"/> and the <paramref name="stateReady"/> events can be fired
+    /// directly in sequence.</param>
     /// <param name="stopped">Event delegate to be called when the player was stopped.</param>
     /// <param name="ended">Event delegate to be called when the player content has ended.</param>
     /// <param name="playbackStateChanged">Event delegate to be called when the playback state of this player

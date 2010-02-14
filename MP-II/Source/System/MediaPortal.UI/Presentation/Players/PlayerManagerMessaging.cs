@@ -42,7 +42,7 @@ namespace MediaPortal.UI.Presentation.Players
       #region Player messages. The param will denote the player slot controller (IPlayerSlotController).
 
       /// <summary>
-      /// A player started.
+      /// A player started playing a media item.
       /// </summary>
       PlayerStarted,
 
@@ -57,7 +57,7 @@ namespace MediaPortal.UI.Presentation.Players
       PlayerStopped,
 
       /// <summary>
-      /// A player has ended.
+      /// A player has ended with playing the current media item.
       /// </summary>
       PlayerEnded,
 

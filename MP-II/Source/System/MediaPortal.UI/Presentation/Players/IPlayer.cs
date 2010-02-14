@@ -50,8 +50,9 @@ namespace MediaPortal.UI.Presentation.Players
   /// Generic interface for all kinds of players.
   /// Instances, which are passed via this interface, are already prepared to play a media resource.
   /// To get a player for another resource, the player manager has to be called.
-  /// Typically, players support sub interfaces of this interface. Players typically will implement
-  /// additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>, <see cref="IMediaPlaybackControl"/>, etc.
+  /// Typically, players support sub interfaces of this interface like <see cref="IVideoPlayer"/>.
+  /// Players typically will also implement additional additive interfaces as well, like <see cref="ISubtitlePlayer"/>,
+  /// <see cref="IMediaPlaybackControl"/>, etc.
   /// </summary>
   /// <remarks>
   /// Different kinds of players have very different kinds of methods and properties.
@@ -61,7 +62,8 @@ namespace MediaPortal.UI.Presentation.Players
   public interface IPlayer
   {
     /// <summary>
-    /// Gets the Name of the Player
+    /// Gets the name of the player. This should be something like "Video" for a video player,
+    /// "DVD" for a dvd player, "Audio" for an audio player and so on.
     /// </summary>
     string Name { get; }
 
@@ -71,7 +73,8 @@ namespace MediaPortal.UI.Presentation.Players
     Guid PlayerId { get; }
 
     /// <summary>
-    /// Gets the playback state of this player.
+    /// Gets the (external) playback state of this player. If the player also supports playback control, finer-grained
+    /// playback state can be accessed via the interface <see cref="IMediaPlaybackControl"/>.
     /// </summary>
     PlayerState State { get; }
 
@@ -87,14 +90,16 @@ namespace MediaPortal.UI.Presentation.Players
     string MediaItemTitle { get; }
 
     /// <summary>
-    /// Notifies this player about the current media item's title, like it is known in the system.
+    /// Notifies this player about the current media item's title, as it is known in the system.
     /// </summary>
     /// <remarks>
     /// The player might or might not use this hint to build its <see cref="MediaItemTitle"/> property.
     /// For example a video player, which doesn't know anything about the title of its current media item,
     /// will use that hint. A TV- or radio-player will typically use extended streaming information about the
-    /// media content currently played.
+    /// media content currently played for the <see cref="MediaItemTitle"/> property and thus will ignore the
+    /// given <paramref name="title"/>.
     /// </remarks>
+    /// <param name="title">Title of the to-be-played media item as it is known to the system.</param>
     void SetMediaItemTitleHint(string title);
 
     /// <summary>

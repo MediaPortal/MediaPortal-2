@@ -42,7 +42,7 @@ namespace MediaPortal.Core.MediaManagement
   /// To get a resource accessor, get an <see cref="IResourceLocator"/> and use its
   /// <see cref="IResourceLocator.CreateAccessor"/> method.
   /// The temporary resource accessor must be disposed using its <see cref="IDisposable.Dispose"/> method
-  /// when it is not needed any more.
+  /// when it is not needed any more. This will clean up resources which were allocated to access the resource.
   /// </remarks>
   public interface IResourceAccessor : IDisposable
   {
