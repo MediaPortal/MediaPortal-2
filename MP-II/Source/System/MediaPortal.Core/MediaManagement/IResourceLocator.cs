@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Core.General;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.Core.MediaManagement
 {
@@ -81,6 +82,7 @@ namespace MediaPortal.Core.MediaManagement
     ///   }
     /// </code>
     /// </remarks>
+    /// <exception cref="IllegalCallException">If this resource locator doesn't denote a file resource.</exception>
     /// <returns>Resource accessor to a local filesystem resource containing the contents of the media item
     /// specified by this instance.</returns>
     ILocalFsResourceAccessor CreateLocalFsAccessor();
