@@ -141,7 +141,7 @@
     <Compile Include="Services\MediaManagement\ImporterWorkerMessaging.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
     <Compile Include="Services\MediaManagement\ImportJob.cs" />
-    <Compile Include="Services\MediaManagement\RemoteResourceToLocalFsAccessBridge.cs" />
+    <Compile Include="MediaManagement\RemoteResourceToLocalFsAccessBridge.cs" />
     <Compile Include="Services\MediaManagement\ResourceAccessorBase.cs" />
     <Compile Include="MediaManagement\MediaItemAspect.cs" />
     <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />

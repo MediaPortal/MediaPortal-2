@@ -25,9 +25,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Services.MediaManagement;
 
-namespace MediaPortal.Core.Services.MediaManagement
+namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
   /// Access bridge logic which maps a complex resource accessor to a local file resource.
