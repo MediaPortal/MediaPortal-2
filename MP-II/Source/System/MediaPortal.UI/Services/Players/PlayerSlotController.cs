@@ -97,8 +97,16 @@ namespace MediaPortal.UI.Services.Players
           SetSlotState(PlayerSlotState.Stopped);
           if (_player.State != PlayerState.Stopped)
             _player.Stop();
-          if (_player is IDisposable)
-            ((IDisposable) _player).Dispose();
+          IDisposable d = _player as IDisposable;
+          if (d != null)
+            try
+            {
+              d.Dispose();
+            }
+            catch (Exception e)
+            {
+              ServiceScope.Get<ILogger>().Warn("Error disposing player '{0}'", e, d);
+            }
           _player = null;
         }
         _playerManager.RevokePlayer(this);
@@ -156,15 +164,22 @@ namespace MediaPortal.UI.Services.Players
         if (_player == null)
           return;
         bool mute = !_isAudioSlot || _isMuted;
-        IVolumeControl vc = _player as IVolumeControl;
-        if (vc != null && mute && !vc.Mute)
-          // If we are switching the audio off, first disable the audio before setting the volume -
-          // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
-          vc.Mute = true;
-        if (vc != null)
-          vc.Volume = _volume;
-        if (vc != null)
-          vc.Mute = mute;
+        try
+        {
+          IVolumeControl vc = _player as IVolumeControl;
+          if (vc != null && mute && !vc.Mute)
+            // If we are switching the audio off, first disable the audio before setting the volume -
+            // perhaps both properties were changed and we want to avoid a short volume change before the audio gets disabled
+            vc.Mute = true;
+          if (vc != null)
+            vc.Volume = _volume;
+          if (vc != null)
+            vc.Mute = mute;
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("Error checking the audio state in player '{0}'", e, _player);
+        }
       }
     }
 
@@ -180,8 +195,15 @@ namespace MediaPortal.UI.Services.Players
       lock (SyncObj)
       {
         IPlayerEvents pe = (IPlayerEvents) _player;
-        pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStateReady, OnPlayerStopped, OnPlayerEnded,
-            OnPlaybackStateChanged, OnPlaybackError);
+          try
+          {
+            pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStateReady, OnPlayerStopped, OnPlayerEnded,
+                OnPlaybackStateChanged, OnPlaybackError);
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
+          }
       }
     }
 
@@ -191,7 +213,14 @@ namespace MediaPortal.UI.Services.Players
       {
         IPlayerEvents pe = _player as IPlayerEvents;
         if (pe != null)
-          pe.ResetPlayerEvents();
+          try
+          {
+            pe.ResetPlayerEvents();
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
+          }
       }
     }
 
