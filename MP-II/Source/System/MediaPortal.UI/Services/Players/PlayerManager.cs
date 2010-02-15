@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
@@ -250,9 +251,14 @@ namespace MediaPortal.UI.Services.Players
     protected void RequestPlayerBuilder(string playerBuilderId)
     {
       IPluginManager pluginManager = ServiceScope.Get<IPluginManager>();
-      PlayerBuilderRegistration registration = new PlayerBuilderRegistration(
-          pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
-              playerBuilderId, _playerBuilderPluginItemStateTracker));
+      IPlayerBuilder playerBuilder = pluginManager.RequestPluginItem<IPlayerBuilder>(PLAYERBUILDERS_REGISTRATION_PATH,
+              playerBuilderId, _playerBuilderPluginItemStateTracker);
+      if (playerBuilder == null)
+      {
+        ServiceScope.Get<ILogger>().Warn("Could not instantiate player builder with id '{0}'", playerBuilderId);
+        return;
+      }
+      PlayerBuilderRegistration registration = new PlayerBuilderRegistration(playerBuilder);
       lock (_syncObj)
         _playerBuilders.Add(playerBuilderId, registration);
     }
