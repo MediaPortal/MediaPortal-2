@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager.Exceptions;
 using MediaPortal.Core.Registry;
 
@@ -243,7 +244,16 @@ namespace MediaPortal.Core.PluginManager
         {
           IDisposable d = reference.Object as IDisposable;
           if (d != null)
-            d.Dispose();
+            try
+            {
+              d.Dispose();
+            }
+            catch (Exception e)
+            {
+              ServiceScope.Get<ILogger>().Warn("Error disposing plugin object '{0}' in plugin '{1}' (id '{2}')", e,
+                  typeName, _pluginMetadata.Name, _pluginMetadata.PluginId);
+              throw;
+            }
           _instantiatedObjects.Remove(typeName);
         }
       }

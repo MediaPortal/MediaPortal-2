@@ -176,7 +176,15 @@ namespace MediaPortal.Core.Services.PluginManager
       {
         IPluginStateTracker stateTracker = plugin.StateTracker; // Local variable to avoid necessity to lock
         if (stateTracker != null)
-          stateTracker.Shutdown();
+          try
+          {
+            stateTracker.Shutdown();
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Error shutting plugin state tracker '{0}' down in plugin '{1}' (id '{2})", e,
+                stateTracker, plugin.Metadata.Name, plugin.Metadata.PluginId);
+          }
       }
     }
 
@@ -466,7 +474,15 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         // No more state trackers present, revoke item
         IPluginItemBuilder builder = GetOrCreateBuilder(metadata.BuilderName);
-        builder.RevokeItem(itemRegistration.Item, metadata, plugin);
+        try
+        {
+          builder.RevokeItem(itemRegistration.Item, metadata, plugin);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Error("Error revoking usage of item '{0}' at location '{1}' (item builder is '{2}')", e,
+              itemRegistration.Metadata.Id, itemRegistration.Metadata.RegistrationLocation, metadata.BuilderName);
+        }
         itemRegistration.Item = null;
         // If we wanted to automatically unload plugins whose items are not accessed any more, this
         // should be done here
@@ -531,7 +547,16 @@ namespace MediaPortal.Core.Services.PluginManager
       LockPluginStateDependency(builderPlugin, PluginState.Active);
       try
       {
-        object obj = builderPlugin.InstanciatePluginObject(builderRegistration.BuilderClassName);
+        object obj = null;
+        try
+        {
+          obj = builderPlugin.InstanciatePluginObject(builderRegistration.BuilderClassName);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Error("Error instanciating plugin item builder '{0}' (id '{1}')", e,
+            builderPlugin.Metadata.Name, builderPlugin.Metadata.PluginId);
+        }
         if (obj == null)
           throw new PluginInternalException("Builder class '{0}' could not be instantiated",
               builderRegistration.BuilderClassName);
@@ -562,13 +587,50 @@ namespace MediaPortal.Core.Services.PluginManager
       return plugin.State == PluginState.EndRequest || plugin.State == PluginState.Stopping;
     }
 
+    private static bool StateTrackerRequestEnd(IPluginItemStateTracker stateTracker, PluginItemRegistration itemRegistration)
+    {
+      try
+      {
+        return stateTracker.RequestEnd(itemRegistration);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Error calling method 'RequestEnd' at plugin item state tracker '{0}'", e, stateTracker);
+        return true;
+      }
+    }
+
+    private static void StateTrackerContinue(IPluginItemStateTracker stateTracker, PluginItemRegistration itemRegistration)
+    {
+      try
+      {
+        stateTracker.Continue(itemRegistration);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Error calling method 'Continue' at plugin item state tracker '{0}'", e, stateTracker);
+      }
+    }
+
+    private static void StateTrackerStop(IPluginItemStateTracker stateTracker, PluginItemRegistration itemRegistration)
+    {
+      try
+      {
+        stateTracker.Stop(itemRegistration);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Error("Error calling method 'Stop' at plugin item state tracker '{0}'", e, stateTracker);
+      }
+    }
+
     private static void ContinueOpenEndRequests(
         IEnumerable<KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>> endRequestsToClose)
     {
       foreach (KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>
           itemStateTrackersToFinish in endRequestsToClose)
         foreach (IPluginItemStateTracker stateTracker in itemStateTrackersToFinish.Value)
-          stateTracker.Continue(itemStateTrackersToFinish.Key);
+          StateTrackerContinue(stateTracker, itemStateTrackersToFinish.Key);
     }
 
     private static void StopOpenEndRequests(
@@ -577,7 +639,7 @@ namespace MediaPortal.Core.Services.PluginManager
       foreach (KeyValuePair<PluginItemRegistration, ICollection<IPluginItemStateTracker>>
         itemStateTrackersToFinish in endRequestsToClose)
         foreach (IPluginItemStateTracker stateTracker in itemStateTrackersToFinish.Value)
-          stateTracker.Stop(itemStateTrackersToFinish.Key);
+          StateTrackerStop(stateTracker, itemStateTrackersToFinish.Key);
     }
 
     private static void PerformEndRequests(IEnumerable<PluginItemRegistration> items,
@@ -592,7 +654,7 @@ namespace MediaPortal.Core.Services.PluginManager
         succeededEndRequests.Add(itemRegistration, succeededStataTrackers);
         foreach (IPluginItemStateTracker stateTracker in itemRegistration.StateTrackers)
         {
-          if (stateTracker.RequestEnd(itemRegistration))
+          if (StateTrackerRequestEnd(stateTracker, itemRegistration))
             succeededStataTrackers.Add(stateTracker);
           else
             failedStateTrackers.Add(stateTracker);
@@ -840,7 +902,15 @@ namespace MediaPortal.Core.Services.PluginManager
             else if (stateTracker != null)
             {
               plugin.StateTracker = stateTracker;
-              stateTracker.Activated(plugin);
+              try
+              {
+                stateTracker.Activated(plugin);
+              }
+              catch (Exception e)
+              {
+                ServiceScope.Get<ILogger>().Warn("Error activating plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
+                    stateTracker, plugin.Metadata.Name, plugin.Metadata.PluginId);
+              }
             }
             else
             {
@@ -930,7 +1000,15 @@ namespace MediaPortal.Core.Services.PluginManager
             plugin.State = PluginState.Stopping;
             if (stateTracker != null)
             {
-              stateTracker.Stop();
+              try
+              {
+                stateTracker.Stop();
+              }
+              catch (Exception e)
+              {
+                ServiceScope.Get<ILogger>().Warn("Error stopping plugin state tracker '{0}' in plugin '{1}' (id '{2})", e,
+                    stateTracker, plugin.Metadata.Name, plugin.Metadata.PluginId);
+              }
               plugin.StateTracker = null;
               plugin.RevokePluginObject(stateTracker.GetType().FullName);
             }
