@@ -395,20 +395,18 @@ namespace MediaPortal.UI.Services.Players
       // Locking not necessary here. If a lock should be placed in future, be aware that the DoPlay method
       // will lock the PM as well
       int countLeft = _playlist.ItemList.Count; // Limit number of tries to current playlist size. If the PL doesn't contain any playable item, this avoids an endless loop.
-      bool itemsFailedToPlay = false;
-      bool playOk;
+      bool playOk = true;
       do // Loop: Try until we find an item which is able to play
       {
         MediaItem item;
         if (--countLeft < 0 || (item = _playlist.Next()) == null) // Break loop if we don't have any more items left
         {
-          if (itemsFailedToPlay && CloseWhenFinished)
-            // Close PSC if we failed with at least one item
+          if (!playOk && CloseWhenFinished)
+            // Close PSC if we failed to play
             Close();
           return false;
         }
         playOk = DoPlay(item);
-        itemsFailedToPlay |= !playOk;
       } while (!playOk);
       return true;
     }
