@@ -26,111 +26,108 @@
 
 using System;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.PlayerComponents
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Performs upmixing and downmixing.
+  /// </summary>
+  internal class UpDownMixer : IDisposable
   {
+    #region Static members
+
     /// <summary>
-    /// Performs upmixing and downmixing.
+    /// Creates and initializes an new instance.
     /// </summary>
-    class UpDownMixer : IDisposable
+    /// <param name="player">Reference to containing IPlayer object.</param>
+    /// <returns>The new instance.</returns>
+    public static UpDownMixer Create(BassPlayer player)
     {
-      #region Static members
-
-      /// <summary>
-      /// Creates and initializes an new instance.
-      /// </summary>
-      /// <param name="player">Reference to containing IPlayer object.</param>
-      /// <returns>The new instance.</returns>
-      public static UpDownMixer Create(BassPlayer player)
-      {
-        UpDownMixer upDownMixer = new UpDownMixer(player);
-        upDownMixer.Initialize();
-        return upDownMixer;
-      }
-
-      #endregion
-
-      #region Fields
-
-      private BassPlayer _Player;
-      private BassStream _InputStream;
-      private BassStream _OutputStream;
-      private bool _Initialized;
-
-      #endregion
-
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-      }
-
-      #endregion
-
-      #region Public members
-
-      /// <summary>
-      /// Gets the current inputstream as set with SetInputStream.
-      /// </summary>
-      public BassStream InputStream
-      {
-        get { return _InputStream; }
-      }
-
-      /// <summary>
-      /// Gets the output Bass stream.
-      /// </summary>
-      public BassStream OutputStream
-      {
-        get { return _OutputStream; }
-      }
-
-      /// <summary>
-      /// Sets the Bass inputstream.
-      /// </summary>
-      /// <param name="stream"></param>
-      public void SetInputStream(BassStream stream)
-      {
-        ResetInputStream();
-        _InputStream = stream;
-        _OutputStream = stream;
-        _Initialized = true;
-      }
-
-      /// <summary>
-      /// Resets the instance to its uninitialized state.
-      /// </summary>
-      public void ResetInputStream()
-      {
-        if (_Initialized)
-        {
-          _Initialized = false;
-
-          //_OutputStream.Dispose();
-          _OutputStream = null;
-          
-          _InputStream = null;
-        }
-      }
-
-      #endregion
-
-      #region Private members
-
-      private UpDownMixer(BassPlayer player)
-      {
-        _Player = player;
-      }
-
-      /// <summary>
-      /// Initializes a new instance.
-      /// </summary>
-      private void Initialize()
-      {
-      }
-
-      #endregion
+      UpDownMixer upDownMixer = new UpDownMixer(player);
+      upDownMixer.Initialize();
+      return upDownMixer;
     }
+
+    #endregion
+
+    #region Fields
+
+    private BassPlayer _Player;
+    private BassStream _InputStream;
+    private BassStream _OutputStream;
+    private bool _Initialized;
+
+    #endregion
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+    }
+
+    #endregion
+
+    #region Public members
+
+    /// <summary>
+    /// Gets the current inputstream as set with SetInputStream.
+    /// </summary>
+    public BassStream InputStream
+    {
+      get { return _InputStream; }
+    }
+
+    /// <summary>
+    /// Gets the output Bass stream.
+    /// </summary>
+    public BassStream OutputStream
+    {
+      get { return _OutputStream; }
+    }
+
+    /// <summary>
+    /// Sets the Bass inputstream.
+    /// </summary>
+    /// <param name="stream"></param>
+    public void SetInputStream(BassStream stream)
+    {
+      ResetInputStream();
+      _InputStream = stream;
+      _OutputStream = stream;
+      _Initialized = true;
+    }
+
+    /// <summary>
+    /// Resets the instance to its uninitialized state.
+    /// </summary>
+    public void ResetInputStream()
+    {
+      if (_Initialized)
+      {
+        _Initialized = false;
+
+        //_OutputStream.Dispose();
+        _OutputStream = null;
+          
+        _InputStream = null;
+      }
+    }
+
+    #endregion
+
+    #region Private members
+
+    private UpDownMixer(BassPlayer player)
+    {
+      _Player = player;
+    }
+
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    private void Initialize()
+    {
+    }
+
+    #endregion
   }
 }

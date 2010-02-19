@@ -23,13 +23,15 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Core.Settings;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
   /// <summary>
   /// Contains the bass player user configuration.
   /// </summary>
+  /// TODO: Write configuration classes for those settings
   public class BassPlayerSettings
   {
     public static class Constants
@@ -39,7 +41,7 @@ namespace Media.Players.BassPlayer
 
     public static class Defaults
     {
-      public const OutputMode OutputMode = Media.Players.BassPlayer.OutputMode.DirectSound;
+      public const OutputMode AudioOutputMode = OutputMode.DirectSound;
       public const string DirectSoundDevice = "";
       public const int DirectSoundBufferSizeMilliSecs = 200;
       public const string ASIODevice = "";
@@ -50,17 +52,20 @@ namespace Media.Players.BassPlayer
       public const int ASIOMinRate = Constants.Auto;
       public const int PlaybackBufferSizeMilliSecs = 500;
       public const int SeekIncrementSeconds = 20;
-      public const PlaybackMode PlaybackMode = Media.Players.BassPlayer.PlaybackMode.Normal;
+      public const PlaybackMode SongTransitionMode = PlaybackMode.Normal;
       public const int FadeDurationMilliSecs = 500;
       public const int CrossFadeDurationMilliSecs = 5;
       public const int VizStreamLatencyCorrectionMilliSecs = 0;
-      public const string SupportedExtensions =
-        ".mp3,.ogg,.wav,.flac,.cda,.asx,.dts,.mod,.mo3,.s3m,.xm,.it,.mtm,.umx,.mdz,.s3z,.itz,.xmz,.mp2,.mp1,.aiff,.m2a,.mpa,.m1a,.swa,.aif,.mp3pro,.aac,.mp4,.m4a,.m4b,.ac3,.aac,.mov,.ape,.apl,.midi,.mid,.rmi,.kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv";
+      public static readonly List<string> SupportedExtensions =
+          new List<string>(
+              (".mp3,.ogg,.wav,.flac,.cda,.asx,.dts,.mod,.mo3,.s3m,.xm,.it,.mtm,.umx,.mdz,.s3z,.itz,.xmz,.mp2,.mp1," +
+               ".aiff,.m2a,.mpa,.m1a,.swa,.aif,.mp3pro,.aac,.mp4,.m4a,.m4b,.ac3,.aac,.mov,.ape,.apl,.midi,.mid,.rmi," +
+               ".kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv").Split(','));
     }
 
     #region Fields
 
-    private OutputMode _OutputMode = Defaults.OutputMode;
+    private OutputMode _OutputMode = Defaults.AudioOutputMode;
     private string _DirectSoundDevice = Defaults.DirectSoundDevice;
     private TimeSpan _DirectSoundBufferSize = TimeSpan.FromMilliseconds(Defaults.DirectSoundBufferSizeMilliSecs);
     private string _ASIODevice = Defaults.ASIODevice;
@@ -71,17 +76,17 @@ namespace Media.Players.BassPlayer
     private bool _ASIOUseMaxBufferSize = Defaults.ASIOUseMaxBufferSize;
     private TimeSpan _PlaybackBufferSize = TimeSpan.FromMilliseconds(Defaults.PlaybackBufferSizeMilliSecs);
     private TimeSpan _SeekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
-    private PlaybackMode _PlaybackMode = Defaults.PlaybackMode;
+    private PlaybackMode _songTransitionMode = Defaults.SongTransitionMode;
     private TimeSpan _FadeDuration = TimeSpan.FromMilliseconds(Defaults.FadeDurationMilliSecs);
     private TimeSpan _CrossFadeDuration = TimeSpan.FromMilliseconds(Defaults.CrossFadeDurationMilliSecs);
     private TimeSpan _VizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
-    private string _SupportedExtensions = Defaults.SupportedExtensions;
+    private List<string> _SupportedExtensions = new List<string>(Defaults.SupportedExtensions);
 
     #endregion
 
     #region Public members
 
-    [Setting(SettingScope.Global, Defaults.OutputMode)]
+    [Setting(SettingScope.Global, Defaults.AudioOutputMode)]
     public OutputMode OutputMode
     {
       get { return _OutputMode; }
@@ -176,11 +181,11 @@ namespace Media.Players.BassPlayer
       set { _SeekIncrement = value; }
     }
 
-    [Setting(SettingScope.User, Defaults.PlaybackMode)]
-    public PlaybackMode PlaybackMode
+    [Setting(SettingScope.User, Defaults.SongTransitionMode)]
+    public PlaybackMode SongTransitionMode
     {
-      get { return _PlaybackMode; }
-      set { _PlaybackMode = value; }
+      get { return _songTransitionMode; }
+      set { _songTransitionMode = value; }
     }
 
     [Setting(SettingScope.User, Defaults.FadeDurationMilliSecs)]
@@ -209,8 +214,8 @@ namespace Media.Players.BassPlayer
       set { _CrossFadeDuration = value; }
     }
 
-    [Setting(SettingScope.Global, Defaults.SupportedExtensions)]
-    public string SupportedExtensions
+    [Setting(SettingScope.Global)]
+    public List<string> SupportedExtensions
     {
       get { return _SupportedExtensions; }
       set { _SupportedExtensions = value; }
@@ -227,10 +232,6 @@ namespace Media.Players.BassPlayer
     {
       get { return _VizStreamLatencyCorrection; }
       set { _VizStreamLatencyCorrection = value; }
-    }
-
-    public BassPlayerSettings()
-    {
     }
 
     #endregion

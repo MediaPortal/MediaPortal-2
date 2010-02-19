@@ -219,7 +219,9 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
         string title = string.IsNullOrEmpty(tag.Tag.Title) ? GuessTitle(humanReadablePath) : tag.Tag.Title;
         IEnumerable<string> artists = tag.Tag.Performers.Length == 0 ? GuessArtists(humanReadablePath) : tag.Tag.Performers;
         mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title);
-        mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
+        // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
+        // mimetype handling in the BASS player, which expects audio/xxx.
+        //mediaAspect.SetAttribute(MediaAspect.ATTR_MIME_TYPE, tag.MimeType);
         musicAspect.SetCollectionAttribute(MusicAspect.ATTR_ARTISTS, artists);
         musicAspect.SetAttribute(MusicAspect.ATTR_ALBUM, tag.Tag.Album);
         musicAspect.SetCollectionAttribute(MusicAspect.ATTR_ALBUMARTISTS, tag.Tag.AlbumArtists);

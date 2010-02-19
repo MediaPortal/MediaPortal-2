@@ -25,7 +25,7 @@
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Logger service wrapper.
@@ -45,10 +45,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public static ILogger Instance
     {
-      get
-      {
-        return ServiceScope.Get<ILogger>();
-      }
+      get { return ServiceScope.Get<ILogger>(); }
     }
 
     /// <summary>

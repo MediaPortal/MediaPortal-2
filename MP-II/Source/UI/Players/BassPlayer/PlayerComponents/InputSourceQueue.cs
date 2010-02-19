@@ -24,36 +24,26 @@
 
 using System;
 using System.Collections.Generic;
+using Ui.Players.BassPlayer.Interfaces;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.PlayerComponents
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Queue of inputsources that have to be played in sequence.
+  /// </summary>
+  public class InputSourceQueue : Queue<IInputSource>, IDisposable
   {
-    /// <summary>
-    /// Queue of inputsources that have to be played in sequence.
-    /// </summary>
-    class InputSourceQueue : Queue<IInputSource>, IDisposable
+    #region IDisposable Members
+
+    public void Dispose()
     {
-      #region Public members
-
-      public InputSourceQueue()
+      while (Count > 0)
       {
+        IInputSource item = Dequeue();
+        item.Dispose();
       }
-
-      #endregion
-
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-        while (Count > 0)
-        {
-          IInputSource item = Dequeue();
-          item.Dispose();
-        }
-      }
-
-      #endregion
     }
+
+    #endregion
   }
 }

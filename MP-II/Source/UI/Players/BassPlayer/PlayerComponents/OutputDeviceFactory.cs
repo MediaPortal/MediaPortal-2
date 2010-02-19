@@ -23,64 +23,57 @@
 #endregion
 
 using System;
+using Ui.Players.BassPlayer.Interfaces;
+using Ui.Players.BassPlayer.OutputDevices;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.PlayerComponents
 {
-  public partial class BassPlayer
+  public class OutputDeviceFactory : IDisposable
   {
-    partial class OutputDeviceManager
+    #region Protected fields
+
+    protected BassPlayer _player;
+
+    #endregion
+
+    #region IDisposable Members
+
+    public void Dispose()
     {
-      /// <summary>
-      /// 
-      /// </summary>
-      partial class OutputDeviceFactory : IDisposable
-      {
-        #region Fields
-
-        BassPlayer _Player;
-
-        #endregion
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-        }
-
-        #endregion
-
-        #region Public members
-
-        public OutputDeviceFactory(BassPlayer player)
-        {
-          _Player = player;
-        }
-
-        /// <summary>
-        /// Creates an IOutputDevice object based on usersettings.
-        /// </summary>
-        /// <returns></returns>
-        public IOutputDevice CreateOutputDevice()
-        {
-          IOutputDevice outputDevice;
-          switch (_Player.Settings.OutputMode)
-          {
-            case OutputMode.DirectSound:
-              outputDevice = DirectXOutputDevice.Create(_Player);
-              break;
-
-            case OutputMode.ASIO:
-              outputDevice = ASIOOutputDevice.Create(_Player);
-              break;
-
-            default:
-              throw new BassPlayerException(String.Format("Unknown constant OutputMode.{0}", _Player.Settings.OutputMode));
-          }
-          return outputDevice;
-        }
-
-        #endregion
-      }
     }
+
+    #endregion
+
+    #region Public members
+
+    public OutputDeviceFactory(BassPlayer player)
+    {
+      _player = player;
+    }
+
+    /// <summary>
+    /// Creates an IOutputDevice object based on usersettings.
+    /// </summary>
+    /// <returns></returns>
+    public IOutputDevice CreateOutputDevice()
+    {
+      IOutputDevice outputDevice;
+      switch (_player.Settings.OutputMode)
+      {
+        case OutputMode.DirectSound:
+          outputDevice = DirectXOutputDevice.Create(_player);
+          break;
+
+        case OutputMode.ASIO:
+          outputDevice = ASIOOutputDevice.Create(_player);
+          break;
+
+        default:
+          throw new BassPlayerException(String.Format("Unknown constant AudioOutputMode.{0}", _player.Settings.OutputMode));
+      }
+      return outputDevice;
+    }
+
+    #endregion
   }
 }

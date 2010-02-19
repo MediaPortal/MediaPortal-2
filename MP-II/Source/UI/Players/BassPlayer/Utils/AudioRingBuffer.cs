@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Fifo ringbuffer for audio data.
@@ -49,10 +49,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public TimeSpan Delay
     {
-      get
-      {
-        return TimeSpan.FromMilliseconds(_delay - ((_space / _bufferLength) * _delay));
-      }
+      get { return TimeSpan.FromMilliseconds(_delay - ((_space / _bufferLength) * _delay)); }
     }
 
     /// <summary>
@@ -60,10 +57,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public int Length
     {
-      get
-      {
-        return _bufferLength;
-      }
+      get { return _bufferLength; }
     }
 
     /// <summary>
@@ -71,10 +65,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public int BytesPerMilliSec
     {
-      get
-      {
-        return _bytesPerMilliSec;
-      }
+      get { return _bytesPerMilliSec; }
     }
 
     /// <summary>
@@ -82,10 +73,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public int Space
     {
-      get
-      {
-        return _space;
-      }
+      get { return _space; }
     }
 
     /// <summary>
@@ -93,18 +81,15 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public int Count
     {
-      get
-      {
-        return _bufferLength - _space;
-      }
+      get { return _bufferLength - _space; }
     }
 
     public AudioRingBuffer(int sampleRate, int channels, TimeSpan delay)
     {
       _Is32bit = (IntPtr.Size == 4);
       _delay = (int)delay.TotalMilliseconds;
-      _bufferLength = AudioRingBuffer.CalculateLength(sampleRate, channels, delay);
-      _bytesPerMilliSec = AudioRingBuffer.CalculateLength(sampleRate, channels, TimeSpan.FromMilliseconds(1));
+      _bufferLength = CalculateLength(sampleRate, channels, delay);
+      _bytesPerMilliSec = CalculateLength(sampleRate, channels, TimeSpan.FromMilliseconds(1));
       _buffer = new float[_bufferLength];
 
       ResetPointers(0);
@@ -343,7 +328,6 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Clears the buffer. Reset all pointers and fils the entire buffer with silence.
     /// </summary>
-    /// <param name="offset"></param>
     public void Clear()
     {
       _buffer.Initialize();
@@ -353,7 +337,7 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Resets the readpointer and sets the writepointer at the specified position.
     /// </summary>
-    /// <param name="position"></param>
+    /// <param name="initialPosition">The position to set toe writepointer to.</param>
     public void ResetPointers(int initialPosition)
     {
       _writePointer = initialPosition;

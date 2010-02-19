@@ -22,35 +22,8 @@
 
 #endregion
 
-using System;
-
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
-  public partial class BassPlayer
-  {
-    enum MediaItemType
-    {
-      Unknown,
-      WebStream,
-      MODFile,
-      AudioFile,
-      CDTrack
-    }
-
-    enum InternalPlayBackState
-    {
-      Playing,
-      Paused,
-      Stopped
-    }
-
-    enum DeviceState
-    {
-      Started,
-      Stopped
-    }
-  }
-
   public enum StreamContentType
   {
     Unknown,
@@ -72,5 +45,27 @@ namespace Media.Players.BassPlayer
     Normal,
     Gapless,
     CrossFading
+  }
+
+  public enum InternalPlaybackState
+  {
+    Playing,
+    Paused,
+    Stopped
+  }
+
+  public enum DeviceState
+  {
+    Started,
+    Stopped
+  }
+
+  public enum MediaItemType
+  {
+    Unknown,
+    WebStream,
+    MODFile,
+    AudioFile,
+    CDTrack
   }
 }

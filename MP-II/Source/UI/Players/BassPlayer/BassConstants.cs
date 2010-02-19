@@ -22,9 +22,7 @@
 
 #endregion
 
-using System;
-
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
   internal static class BassConstants
   {

@@ -23,48 +23,38 @@
 #endregion
 
 using System;
-using System.Threading;
 using System.Runtime.InteropServices;
-using Un4seen.Bass;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Utils
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Writes silence into a stream.
+  /// </summary>
+  public class Silence
   {
+    #region Fields
+
+    private byte[] _Silence = new byte[1];
+
+    #endregion
+
+    #region Public members
+
     /// <summary>
-    /// Writes silence into a stream.
+    /// Writes the requested number of bytes to a buffer.
     /// </summary>
-    class Silence
+    /// <param name="buffer">Buffer to write to</param>
+    /// <param name="requestedBytes">Number of bytes to write.</param>
+    /// <returns>Number of bytes written. Always equals requestedBytes.</returns>
+    public int Write(IntPtr buffer, int requestedBytes)
     {
-      #region Fields
-
-      private byte[] _Silence = new byte[1];
-
-      #endregion
-
-      #region Public members
-
-      public Silence()
-      {
-      }
-
-      /// <summary>
-      /// Writes the requested number of bytes to a buffer.
-      /// </summary>
-      /// <param name="buffer">Buffer to write to</param>
-      /// <param name="requestedBytes">Number of bytes to write.</param>
-      /// <returns>Number of bytes written. Always equals requestedBytes.</returns>
-      public int Write(IntPtr buffer, int requestedBytes)
-      {
-        if (_Silence.Length < requestedBytes)
-          Array.Resize<byte>(ref _Silence, requestedBytes);
+      if (_Silence.Length < requestedBytes)
+        Array.Resize(ref _Silence, requestedBytes);
         
-        Marshal.Copy(_Silence, 0, buffer, requestedBytes);
-        return requestedBytes;
-      }
-
-      #endregion
-
+      Marshal.Copy(_Silence, 0, buffer, requestedBytes);
+      return requestedBytes;
     }
+
+    #endregion
   }
 }

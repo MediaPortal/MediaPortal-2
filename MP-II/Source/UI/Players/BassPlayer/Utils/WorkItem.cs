@@ -25,19 +25,19 @@
 using System;
 using System.Threading;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Represents a single workitem to be executed on a different thread.
   /// </summary>
-  internal class WorkItem
+  public class WorkItem
   {
     #region Fields
 
-    private Delegate _Method;
-    private object[] _Args = null;
+    private readonly Delegate _Method;
+    private readonly object[] _Args = null;
     private object _Result = null;
-    private ManualResetEvent _Event = new ManualResetEvent(false);
+    private readonly ManualResetEvent _Event = new ManualResetEvent(false);
 
     #endregion
 
@@ -48,10 +48,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public WaitHandle WaitHandle
     {
-      get
-      {
-        return _Event;
-      }
+      get { return _Event; }
     }
 
     /// <summary>
@@ -59,10 +56,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public object Result
     {
-      get
-      {
-        return _Result;
-      }
+      get { return _Result; }
     }
 
     /// <summary>
@@ -70,10 +64,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public bool ResultAsBool
     {
-      get
-      {
-        return _Result == null ? false : (bool)_Result;
-      }
+      get { return _Result == null ? false : (bool)_Result; }
     }
 
     /// <summary>
@@ -81,10 +72,7 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public int ResultAsInt
     {
-      get
-      {
-        return _Result == null ? 0 : (int)_Result;
-      }
+      get { return _Result == null ? 0 : (int)_Result; }
     }
 
     /// <summary>

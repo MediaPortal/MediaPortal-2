@@ -24,48 +24,39 @@
 
 using System;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Contains information about an outputdevice.
+  /// </summary>
+  internal struct DeviceInfo
   {
-    partial class OutputDeviceManager
+    #region Fields
+
+    public string _Name;
+    public string _Driver;
+    public int _Channels;
+    public int _MinRate;
+    public int _MaxRate;
+    public TimeSpan _Latency;
+
+    #endregion
+
+    #region Public members
+
+    public override string ToString()
     {
-      partial class OutputDeviceFactory
-      {
-        /// <summary>
-        /// Contains information about an outputdevice.
-        /// </summary>
-        struct DeviceInfo
-        {
-          #region Fields
-
-          public string _Name;
-          public string _Driver;
-          public int _Channels;
-          public int _MinRate;
-          public int _MaxRate;
-          public TimeSpan _Latency;
-
-          #endregion
-
-          #region Public members
-
-          public override string ToString()
-          {
-            return
-                String.Format(
-                    "Name=\"{0}\", Driver=\"{1}\", Channels={2}, MinRate={3}, MaxRate={4}, Latency={5}ms",
-                    _Name,
-                    _Driver,
-                    _Channels,
-                    _MinRate,
-                    _MaxRate,
-                    _Latency.TotalMilliseconds);
-          }
-
-          #endregion
-        }
-      }
+      return
+          String.Format(
+              "Name=\"{0}\", Driver=\"{1}\", Channels={2}, MinRate={3}, MaxRate={4}, Latency={5}ms",
+              _Name,
+              _Driver,
+              _Channels,
+              _MinRate,
+              _MaxRate,
+              _Latency.TotalMilliseconds);
     }
+
+    #endregion
   }
 }

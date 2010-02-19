@@ -24,121 +24,72 @@
 
 using System;
 using System.IO;
-
 using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
-using MediaPortal.UI.Media.MediaManagement;
 using MediaPortal.UI.Presentation.Players;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
   public class BassPlayerPlugin : IPluginStateTracker, IPlayerBuilder
   {
-    #region Fields
+    #region Protected fields
 
-    private BassPlayer _BassPlayer;
-    private BassPlayerSettings _BassPlayerSettings;
-    private bool _Enabled = true;
+    protected string _pluginDirectory = null;
 
     #endregion
 
-    #region IPluginStateTracker Members
+    #region IPluginStateTracker implementation
 
-    void IPluginStateTracker.Activated(PluginRuntime pluginRuntime)
+    public void Activated(PluginRuntime pluginRuntime)
     {
-      if (_BassPlayerSettings == null)
-        _BassPlayerSettings = ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();
-
-      if (_BassPlayer == null)
-        _BassPlayer = BassPlayer.Create(this);
-      
-      _Enabled = true;
+      _pluginDirectory = pluginRuntime.Metadata.GetAbsolutePath(string.Empty);
     }
 
-    bool IPluginStateTracker.RequestEnd()
+    public bool RequestEnd()
     {
       return true;
     }
 
-    void IPluginStateTracker.Stop()
-    {
-      if (_BassPlayer != null)
-        _BassPlayer.Stop();
-      
-      _Enabled = false;
-    }
+    public void Stop() { }
 
-    void IPluginStateTracker.Continue()
-    {
-      _Enabled = true;
-    }
+    public void Continue() { }
 
-    void IPluginStateTracker.Shutdown()
-    {
-      if (_BassPlayer != null)
-      {
-        ServiceScope.Get<ISettingsManager>().Save(_BassPlayerSettings);
-        _BassPlayer.Dispose();
-        _BassPlayer = null;
-      }
-    }
+    void IPluginStateTracker.Shutdown() { }
 
     #endregion
 
-    #region IPlayerBuilder Members
+    #region IPlayerBuilder implementation
 
-    public bool CanPlay(IMediaItem mediaItem, Uri uri)
+    public IPlayer GetPlayer(IResourceLocator locator, string mimeType)
     {
-      return _Enabled && IsAudioFile(mediaItem, uri.AbsolutePath);
-    }
-
-    public IPlayer GetPlayer(IMediaItem mediaItem, Uri uri)
-    {
-      if (_Enabled)
-        return _BassPlayer;
-      else
-        return null;
-    }
-
-    #endregion
-
-    #region Internal Members
-
-    internal BassPlayerSettings Settings
-    {
-      get { return _BassPlayerSettings; }
-    }
-    
-    #endregion
-    
-    #region Private Members
-
-    bool IsAudioFile(IMediaItem mediaItem, string filename)
-    {
-      string ext = System.IO.Path.GetExtension(filename);
+      IResourceAccessor accessor = locator.CreateAccessor();
+      string ext = Path.GetExtension(accessor.ResourcePathName);
 
       // First check the Mime Type
-      if (mediaItem.MetaData.ContainsKey("MimeType"))
+      if (!string.IsNullOrEmpty(mimeType) && !mimeType.Contains("audio"))
+        return null;
+      BassPlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();
+      if (settings.SupportedExtensions.IndexOf(ext) > -1)
       {
-        string mimeType = mediaItem.MetaData["MimeType"] as string;
-        if (mimeType != null)
+        BassPlayer player = BassPlayer.Create(_pluginDirectory);
+        try
         {
-          if (mimeType.Contains("audio"))
-          {
-            if (_BassPlayerSettings.SupportedExtensions.IndexOf(ext) > -1)
-              return true;
-          }
+          player.SetMediaItemLocator(locator);
         }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("BassPlayer: Error playing media item '{0}'", e, locator);
+          player.Dispose();
+          return null;
+        }
+        return player;
       }
-      else if (_BassPlayerSettings.SupportedExtensions.IndexOf(ext) > -1)
-        return true;
-      
-      return false;
+      return null;
     }
 
     #endregion
-
   }
 }
-

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2010 Team MediaPortal
+#region Copyright (C) 2007-2008 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2010 Team MediaPortal
+    Copyright (C) 2007-2008 Team MediaPortal
     http://www.team-mediaportal.com
  
     This file is part of MediaPortal II
@@ -22,43 +22,31 @@
 
 #endregion
 
-// Todo: 
-// Obsolete. However we may need this again when creating the config GUI
-
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Un4seen.Bass;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
   /// <summary>
-  /// Represents Zones == Available Audio Devices
+  /// Bass Player exception.
   /// </summary>
-  class Zone
+  public class BassPlayerException : Exception
   {
-    int _id;
-    string _name;
-    
-    public Zone(int id, string name)
-    {
-      _id = id;
-      _name = name;
-    }
+    public BassPlayerException(string message) : base(message) { }
 
-    /// <summary>
-    /// Returns the ID of the Zone
-    /// </summary>
-    public int Id
-    {
-      get { return _id; }
-    }
+    public BassPlayerException(string message, Exception innerException) : base(message, innerException) { }
+  }
 
-    /// <summary>
-    /// Returns the Name of the Zone
-    /// </summary>
-    public string Name
-    {
-      get { return _name; }
-    }
+  /// <summary>
+  /// Exception due to a failing Bass library function.
+  /// </summary>
+  public class BassLibraryException : BassPlayerException
+  {
+    #region Public members
+
+    public BassLibraryException(string bassFunction) :
+        base(string.Format("Error calling function {0}(): {1}", bassFunction, Enum.GetName(typeof(BASSError), Bass.BASS_ErrorGetCode()))) { }
+
+    #endregion
   }
 }

@@ -25,148 +25,115 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
+using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.PlayerComponents
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Manages the Bass audio library and its plugins.
+  /// </summary>
+  internal class BassLibraryManager : IDisposable
   {
+    #region Static members
+
+    private static bool _BassInitialized = false;
+    private static readonly ICollection<int> _DecoderPluginHandles = new List<int>();
+
     /// <summary>
-    /// Manages the Bass audio library and its plugins.
+    /// Loads and initializes the Bass library.
     /// </summary>
-    class BassLibraryManager : IDisposable
+    /// <param name="playerPluginsDirectory">Directory where the BASS player plugins are located.</param>
+    /// <returns>The new instance.</returns>
+    public static BassLibraryManager Create(string playerPluginsDirectory)
     {
-      #region Static members
-
-      private static bool _BassInitialized;
-      private static List<int> _DecoderPluginHandles = new List<int>();
-
-      /// <summary>
-      /// Loads and initializes the Bass library.
-      /// </summary>
-      /// <returns>The new instance.</returns>
-      public static BassLibraryManager Create()
-      {
-        BassLibraryManager bassLibrary = new BassLibraryManager();
-        bassLibrary.Initialize();
-        return bassLibrary;
-      }
-
-      #endregion
-
-      #region Fields
-
-      #endregion
-
-      #region Public members
-
-      #endregion
-
-      #region Private members
-
-      private BassLibraryManager()
-      {
-      }
-
-      private void Initialize()
-      {
-        if (!BassLibraryManager._BassInitialized)
-        {
-          // Register BASS.Net
-          BassRegistration.BassRegistration.Register();
-
-          if (!Bass.BASS_Init(0, 44100, 0, IntPtr.Zero, null))
-            throw new BassLibraryException("BASS_Init");
-
-          if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_GVOL_STREAM, 10000))
-            throw new BassLibraryException("BASS_SetConfig");
-
-          if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
-            throw new BassLibraryException("BASS_SetConfig");
-
-          LoadAudioDecoderPlugins();
-
-          BassLibraryManager._BassInitialized = true;
-        }
-      }
-
-      private void LoadAudioDecoderPlugins()
-      {
-        // Bass_ofr 2.4.0.0 gives BASS_ERROR_FILEOPEN error.
-
-        string appPath = System.Windows.Forms.Application.StartupPath;
-        string decoderFolderPath = Path.Combine(appPath, InternalSettings.AudioDecoderPath);
-
-        Log.Info("Loading audio decoder add-ins from {0}", decoderFolderPath);
-
-        if (!Directory.Exists(decoderFolderPath))
-        {
-          Log.Error("Unable to find \"{0}\" folder in MediaPortal.exe path.", InternalSettings.AudioDecoderPath);
-          return;
-        }
-
-        DirectoryInfo dirInfo = new DirectoryInfo(decoderFolderPath);
-        FileInfo[] decoders = dirInfo.GetFiles();
-
-        int pluginHandle = 0;
-        int decoderCount = 0;
-        int errorCount = 0;
-
-        foreach (FileInfo file in decoders)
-        {
-          if (Path.GetExtension(file.FullName).ToLower() != ".dll")
-            continue;
-
-          Log.Debug("  Loading: {0}", file.Name);
-          pluginHandle = Bass.BASS_PluginLoad(file.FullName);
-
-          if (pluginHandle != 0)
-          {
-            BassLibraryManager._DecoderPluginHandles.Add(pluginHandle);
-            decoderCount++;
-            Log.Debug("  Added: {0}", file.Name);
-          }
-
-          else
-          {
-            BASSError error = (BASSError)Bass.BASS_ErrorGetCode();
-            if (error == BASSError.BASS_ERROR_ALREADY)
-              Log.Debug("  Already loaded: {0}", file.Name);
-            else
-            {
-              errorCount++;
-              Log.Error("  Unable to load: {0}: {1}", file.Name, error.ToString());
-            }
-          }
-        }
-
-        if (errorCount == 0)
-        {
-          if (decoderCount == 0)
-            Log.Info("No Audio Decoders loaded; probably already loaded.");
-          else
-            Log.Info("Loaded {0} Audio Decoders.", decoderCount);
-        }
-      }
-
-      #endregion
-
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-        foreach (int pluginHandle in BassLibraryManager._DecoderPluginHandles)
-        {
-          Bass.BASS_PluginFree(pluginHandle);
-        }
-
-        if (!Bass.BASS_Free())
-        {
-          throw new BassLibraryException("BASS_Free");
-        }
-      }
-
-      #endregion
+      BassLibraryManager bassLibrary = new BassLibraryManager();
+      Initialize(playerPluginsDirectory);
+      return bassLibrary;
     }
+
+    #endregion
+
+    #region Private members
+
+    private BassLibraryManager()
+    {
+    }
+
+    private static void Initialize(string playerPluginsDirectory)
+    {
+      if (!_BassInitialized)
+      {
+        // Register BASS.Net, necessary to avoid splash screen
+        BassRegistration.BassRegistration.Register();
+
+        // Initialize the NoSound device to enable calling BASS functions before our output device is properly initialized
+        if (!Bass.BASS_Init(BassConstants.BassNoSoundDevice, 44100, 0, IntPtr.Zero))
+          throw new BassLibraryException("BASS_Init");
+
+        // Set volume to linear scale as requested by the IVolumeControl interface
+        if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_CURVE_VOL, false))
+          throw new BassLibraryException("BASS_SetConfig");
+
+        // Disable update thread while the player is not running
+        if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
+          throw new BassLibraryException("BASS_SetConfig");
+
+        LoadPlugins(playerPluginsDirectory);
+
+        _BassInitialized = true;
+      }
+    }
+
+    private static void LoadPlugins(string playerPluginsDirectory)
+    {
+      Log.Info("Loading player add-ins from '{0}'", playerPluginsDirectory);
+
+      if (!Directory.Exists(playerPluginsDirectory))
+      {
+        Log.Error("Unable to find player add-ins folder '{0}'", playerPluginsDirectory);
+        return;
+      }
+
+      IDictionary<int, string> plugins = Bass.BASS_PluginLoadDirectory(playerPluginsDirectory);
+      foreach (string pluginFile in plugins.Values)
+        Log.Debug("Loaded plugin '{0}'", pluginFile);
+      CollectionUtils.AddAll(_DecoderPluginHandles, plugins.Keys);
+
+      if (plugins.Count == 0)
+        Log.Info("No audio decoders loaded; probably already loaded.");
+      else
+        Log.Info("Loaded {0} audio decoders.", plugins.Count);
+    }
+
+    #endregion
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      if (!_BassInitialized)
+        throw new IllegalCallException("BassLibraryManager: Not initialized");
+
+      Log.Debug("BassLibraryManager.Dispose()");
+
+      Log.Debug("Unloading all BASS player plugins");
+      foreach (int pluginHandle in _DecoderPluginHandles)
+        Bass.BASS_PluginFree(pluginHandle);
+      _DecoderPluginHandles.Clear();
+
+      // Free the NoSound device
+      if (!Bass.BASS_SetDevice(BassConstants.BassNoSoundDevice))
+        throw new BassLibraryException("BASS_SetDevice");
+
+      if (!Bass.BASS_Free())
+        throw new BassLibraryException("BASS_Free");
+
+      _BassInitialized = false;
+    }
+
+    #endregion
   }
 }

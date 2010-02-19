@@ -23,14 +23,15 @@
 #endregion
 
 using System;
+using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
   /// <summary>
   /// Represents a Bass stream.
   /// </summary>
-  public partial class BassStream : IDisposable
+  public class BassStream : IDisposable
   {
     #region Static members
 
@@ -129,14 +130,8 @@ namespace Media.Players.BassPlayer
     /// </summary>
     public float Volume
     {
-      get
-      {
-        return GetVolume();
-      }
-      set
-      {
-        SetVolume(value);
-      }
+      get { return GetVolume(); }
+      set { SetVolume(value); }
     }
 
     /// <summary>
@@ -343,7 +338,6 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Gets the contenttype for the stream.
     /// </summary>
-    /// <param name="stream"></param>
     /// <returns></returns>
     public StreamContentType GetStreamContentType()
     {
@@ -405,7 +399,6 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Determines if the stream contains frames with the specified syncwords. 
     /// </summary>
-    /// <param name="stream">bass stream handle</param>
     /// <param name="syncWord">Syncword to search for.</param>
     /// <returns></returns>
     private bool IsEncoded(SyncWord syncWord)
@@ -487,7 +480,6 @@ namespace Media.Players.BassPlayer
     /// <summary>
     /// Positions the stream at the start of the next frame.
     /// </summary>
-    /// <param name="stream"></param>
     /// <param name="syncWord"></param>
     /// <returns></returns>
     private void SeekNextFrame(SyncWord syncWord)

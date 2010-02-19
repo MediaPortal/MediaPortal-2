@@ -23,31 +23,22 @@
 #endregion
 
 using System;
-using MediaPortal.UI.Media.MediaManagement;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Interfaces
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Provides members to control and read an inputsource.
+  /// </summary>
+  public interface IInputSource : IDisposable
   {
     /// <summary>
-    /// Provides members to control and read an inputsource.
+    /// Gets the mediaitem type for the inputsource.
     /// </summary>
-    interface IInputSource : IDisposable
-    {
-      /// <summary>
-      /// Gets the mediaitem object that is processed by the inputsource.
-      /// </summary>
-      IMediaItem MediaItem { get; }
+    MediaItemType MediaItemType { get; }
 
-      /// <summary>
-      /// Gets the mediaitem type for the inputsource.
-      /// </summary>
-      MediaItemType MediaItemType { get; }
-
-      /// <summary>
-      /// Gets the output Bass stream.
-      /// </summary>
-      BassStream OutputStream { get; }
-    }
+    /// <summary>
+    /// Gets the output Bass stream.
+    /// </summary>
+    BassStream OutputStream { get; }
   }
 }

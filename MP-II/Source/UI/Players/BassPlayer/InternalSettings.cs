@@ -24,11 +24,11 @@
 
 using System;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer
 {
   internal static class InternalSettings
   {
     public static TimeSpan VizLatencyCorrectionRange = TimeSpan.FromMilliseconds(500);
-    public const string AudioDecoderPath = @"MusicPlayer\Plugins\Audio Decoders";
+    public const string PluginsPath = "Plugins";
   }
 }

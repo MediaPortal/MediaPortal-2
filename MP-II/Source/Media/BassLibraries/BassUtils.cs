@@ -32,7 +32,7 @@ namespace MediaPortal.Media.BassLibraries
     /// <summary>
     /// Checks, if the given Drive Letter is a Red Book (Audio) CD
     /// </summary>
-    /// <param name="driveLetter"></param>
+    /// <param name="drive"></param>
     /// <returns></returns>
     public static bool isARedBookCD(string drive)
     {

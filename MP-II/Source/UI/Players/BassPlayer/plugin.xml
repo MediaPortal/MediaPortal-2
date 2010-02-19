@@ -2,17 +2,17 @@
     DescriptorVersion="1.0"
     Name="BassPlayer"
     PluginId="{9886EB43-B3EB-4cf1-A979-8D4D8874C555}"
-    Author="hwahrmann, symphy"
+    Author="hwahrmann, Symphy, Albert"
     Copyright="GPL"
     Description="Bass Music Player"
     PluginVersion="1.0">
 
   <Runtime>
     <Assembly FileName="BassPlayer.dll"/>
-    <PluginStateTracker ClassName="Media.Players.BassPlayer.BassPlayerPlugin"/>
+    <PluginStateTracker ClassName="Ui.Players.BassPlayer.BassPlayerPlugin"/>
   </Runtime>
 
-  <Register Location="/Media/Players">
-    <Player Id="BassPlayerPlugin" ClassName="Media.Players.BassPlayer.BassPlayerPlugin" Type="audio" Extensions=".mp3,.ogg,.wav,.flac,.cda,.asx,.dts,.mod,.mo3,.s3m,.xm,.it,.mtm,.umx,.mdz,.s3z,.itz,.xmz,.mp2,.mp1,.aiff,.m2a,.mpa,.m1a,.swa,.aif,.mp3pro,.aac,.mp4,.m4a,.m4b,.ac3,.aac,.mov,.ape,.apl,.midi,.mid,.rmi,.kar,.mpc,.mpp,.mp+,.ofr,.ofs,.spx,.tta,.wma,.wv"/>
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="1CBD4219-4ABD-4543-A3FE-37F6D7DDD78D" ClassName="Ui.Players.BassPlayer.BassPlayerPlugin"/>
   </Register>
 </Plugin>

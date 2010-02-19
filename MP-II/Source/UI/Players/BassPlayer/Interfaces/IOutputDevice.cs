@@ -24,90 +24,87 @@
 
 using System;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Interfaces
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Provides members to control and write to an outputdevice.
+  /// </summary>
+  public interface IOutputDevice : IDisposable
   {
     /// <summary>
-    /// Provides members to control and write to an outputdevice.
+    /// Gets the current inputstream as set with SetInputStream.
     /// </summary>
-    interface IOutputDevice : IDisposable
-    {
-      /// <summary>
-      /// Gets the current inputstream as set with SetInputStream.
-      /// </summary>
-      BassStream InputStream { get; }
+    BassStream InputStream { get; }
 
-      /// <summary>
-      /// Gets the current state the device is in.
-      /// </summary>
-      DeviceState DeviceState { get; }
+    /// <summary>
+    /// Gets the current state the device is in.
+    /// </summary>
+    DeviceState DeviceState { get; }
 
-      /// <summary>
-      /// Gets the number of available channels.
-      /// </summary>
-      string Name { get; }
+    /// <summary>
+    /// Gets the number of available channels.
+    /// </summary>
+    string Name { get; }
 
-      /// <summary>
-      /// Gets the number of available channels.
-      /// </summary>
-      string Driver { get; }
+    /// <summary>
+    /// Gets the number of available channels.
+    /// </summary>
+    string Driver { get; }
 
-      /// <summary>
-      /// Gets the number of available channels.
-      /// </summary>
-      int Channels { get; }
+    /// <summary>
+    /// Gets the number of available channels.
+    /// </summary>
+    int Channels { get; }
 
-      /// <summary>
-      /// Gets the minimum supported samplerate.
-      /// </summary>
-      int MinRate { get; }
+    /// <summary>
+    /// Gets the minimum supported samplerate.
+    /// </summary>
+    int MinRate { get; }
 
-      /// <summary>
-      /// Gets the maximum supported samplerate.
-      /// </summary>
-      int MaxRate { get; }
+    /// <summary>
+    /// Gets the maximum supported samplerate.
+    /// </summary>
+    int MaxRate { get; }
 
-      /// <summary>
-      /// Gets the device's latency in ms.
-      /// </summary>
-      TimeSpan Latency { get; }
+    /// <summary>
+    /// Gets the device's latency in ms.
+    /// </summary>
+    TimeSpan Latency { get; }
 
-      /// <summary>
-      /// Sets the Bass inputstream and initializes the device.
-      /// </summary>
-      /// <param name="stream"></param>
-      void SetInputStream(BassStream stream);
+    /// <summary>
+    /// Sets the Bass inputstream and initializes the device.
+    /// </summary>
+    /// <param name="stream"></param>
+    void SetInputStream(BassStream stream);
 
-      /// <summary>
-      /// Prepares for a fadein; sets the volume to zero.
-      /// </summary>
-      void PrepareFadeIn();
+    /// <summary>
+    /// Prepares for a fadein; sets the volume to zero.
+    /// </summary>
+    void PrepareFadeIn();
       
-      /// <summary>
-      /// Performs a fadein.
-      /// </summary>
-      void FadeIn();
+    /// <summary>
+    /// Performs a fadein.
+    /// </summary>
+    void FadeIn();
 
-      /// <summary>
-      /// Performs a fadeout.
-      /// </summary>
-      void FadeOut();
+    /// <summary>
+    /// Performs a fadeout.
+    /// </summary>
+    void FadeOut();
 
-      /// <summary>
-      /// Starts playback.
-      /// </summary>
-      void Start();
+    /// <summary>
+    /// Starts playback.
+    /// </summary>
+    void Start();
 
-      /// <summary>
-      /// Stops playback.
-      /// </summary>
-      void Stop();
+    /// <summary>
+    /// Stops playback.
+    /// </summary>
+    void Stop();
 
-      /// <summary>
-      /// Clears playbackbuffers by overwriting them with zeros.
-      /// </summary>
-      void ClearBuffers();
-    }
+    /// <summary>
+    /// Clears playbackbuffers by overwriting them with zeros.
+    /// </summary>
+    void ClearBuffers();
   }
 }

@@ -23,25 +23,36 @@
 #endregion
 
 using System;
+using MediaPortal.Core.MediaManagement;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.InputSources
 {
-  // Todo: these will become available elsewhere sometime (Mantis 0001647).
-  static class MPMessages
+  public class AbstractBassResourceInputSource : IDisposable
   {
-    /// <summary>
-    /// Notifies MP that playback has started.
-    /// </summary>
-    public const string Started = "started";
+    #region Protected fields
 
-    /// <summary>
-    /// Notifies MP to provide the next track from its playlist.
-    /// </summary>
-    public const string NextFile = "nextfile";
-    
-    /// <summary>
-    /// Notifies MP that playback has ended.
-    /// </summary>
-    public const string Ended = "ended";
+    protected IResourceAccessor _accessor = null;
+
+    #endregion
+
+    public IResourceAccessor ResourceAccessor
+    {
+      get { return _accessor; }
+    }
+
+    protected void SetResourceAccessor(IResourceAccessor accessor)
+    {
+      _accessor = accessor;
+    }
+
+    #region IDisposable implementation
+
+    public virtual void Dispose()
+    {
+      if (_accessor != null)
+        _accessor.Dispose();
+    }
+
+    #endregion
   }
 }

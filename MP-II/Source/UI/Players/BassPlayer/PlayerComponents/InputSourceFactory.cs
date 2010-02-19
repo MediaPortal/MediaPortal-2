@@ -23,156 +23,58 @@
 #endregion
 
 using System;
-using System.IO;
-using MediaPortal.UI.Media.MediaManagement;
-using Un4seen.Bass;
+using MediaPortal.Core.MediaManagement;
+using Ui.Players.BassPlayer.InputSources;
+using Ui.Players.BassPlayer.Interfaces;
+using Ui.Players.BassPlayer.Utils;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.PlayerComponents
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Creates inputsource objects.
+  /// </summary>
+  public class InputSourceFactory : IDisposable
   {
-    /// <summary>
-    /// Creates inputsource objects.
-    /// </summary>
-    partial class InputSourceFactory : IDisposable
+    public InputSourceFactory(BassPlayer player) { }
+
+    #region IDisposable Members
+
+    public void Dispose()
     {
-      #region Fields
-
-      BassPlayer _Player;
-
-      #endregion
-
-      #region IDisposable Members
-
-      public void Dispose()
-      {
-      }
-
-      #endregion
-
-      #region Public members
-
-      public InputSourceFactory(BassPlayer player)
-      {
-        _Player = player;
-      }
-
-      /// <summary>
-      /// Creates an IInputSource object for a given mediaitem.
-      /// </summary>
-      /// <param name="mediaItem"></param>
-      /// <returns></returns>
-      public IInputSource CreateInputSource(IMediaItem mediaItem)
-      {
-        MediaItemType itemType = GetMediaItemType(mediaItem);
-        Log.Info("Media item type: {0}", itemType);
-
-        IInputSource inputSource;
-
-        switch (itemType)
-        {
-          case MediaItemType.AudioFile:
-            inputSource = BassAudioFileInputSource.Create(mediaItem);
-            break;
-          case MediaItemType.CDTrack:
-            inputSource = BassCDTrackInputSource.Create(mediaItem);
-            break;
-          case MediaItemType.MODFile:
-            inputSource = BassMODFileInputSource.Create(mediaItem);
-            break;
-          case MediaItemType.WebStream:
-            inputSource = BassWebStreamInputSource.Create(mediaItem);
-            break;
-          default:
-            throw new BassPlayerException(String.Format("Unknown constant MediaItemType.{0}", itemType));
-        }
-        return inputSource;
-      }
-
-      #endregion
-
-      #region Private members
-
-      /// <summary>
-      /// Determines the mediaitem type for a given mediaitem.
-      /// </summary>
-      /// <param name="mediaItem">Mediaitem to analize.</param>
-      /// <returns>One of the MediaItemType enumeration values.</returns>
-      private MediaItemType GetMediaItemType(IMediaItem mediaItem)
-      {
-        Uri uri = mediaItem.ContentUri;
-        MediaItemType fileType;
-
-        if (uri.IsFile)
-        {
-          string filePath = uri.LocalPath;
-          if (String.IsNullOrEmpty(filePath))
-            fileType = MediaItemType.Unknown;
-          else if (IsCDDA(filePath))
-            fileType = MediaItemType.CDTrack;
-          else if (IsASXFile(filePath))
-            fileType = MediaItemType.WebStream;
-          else if (IsMODFile(filePath))
-            fileType = MediaItemType.MODFile;
-          else
-            fileType = MediaItemType.AudioFile;
-        }
-        else
-          fileType = MediaItemType.WebStream;
-
-        return fileType;
-      }
-
-      /// <summary>
-      /// Determines if a given path represents a MOD music file.
-      /// </summary>
-      /// <param name="filePath"></param>
-      /// <returns></returns>
-      private bool IsMODFile(string path)
-      {
-        string ext = Path.GetExtension(path).ToLower();
-
-        switch (ext)
-        {
-          case ".mod":
-          case ".mo3":
-          case ".it":
-          case ".xm":
-          case ".s3m":
-          case ".mtm":
-          case ".umx":
-            return true;
-
-          default:
-            return false;
-        }
-      }
-
-      /// <summary>
-      /// Determines if a given path represents a audio CD track.
-      /// </summary>
-      /// <param name="filePath"></param>
-      /// <returns></returns>
-      private bool IsCDDA(string path)
-      {
-        path = path.ToLower();
-        return
-            (path.IndexOf("cdda:") >= 0 ||
-            path.IndexOf(".cda") >= 0);
-      }
-
-      /// <summary>
-      /// Determines if a given path represents a ASX file.
-      /// </summary>
-      /// <param name="filePath"></param>
-      /// <returns></returns>
-      private bool IsASXFile(string path)
-      {
-        return (Path.GetExtension(path).ToLower() == ".asx");
-      }
-
-      #endregion
-
     }
+
+    #endregion
+
+    #region Public members
+
+    /// <summary>
+    /// Creates an IInputSource object for a given mediaitem.
+    /// </summary>
+    /// <param name="resourceLocator">Locator instance to the media item to create the input source for.</param>
+    /// <returns>Input source object for the given <paramref name="resourceLocator"/> or <c>null</c>, if no input source
+    /// could be created.</returns>
+    public IInputSource CreateInputSource(IResourceLocator resourceLocator)
+    {
+      IResourceAccessor accessor = resourceLocator.CreateAccessor();
+      string filePath = accessor.ResourcePathName;
+      IInputSource result;
+      if (URLUtils.IsCDDA(filePath))
+      {
+        ILocalFsResourceAccessor lfra = accessor as ILocalFsResourceAccessor;
+        if (lfra == null)
+          return null;
+        result = BassCDTrackInputSource.Create(lfra.LocalFileSystemPath);
+      }
+      else if (URLUtils.IsMODFile(filePath))
+        result = BassMODFileInputSource.Create(accessor);
+      else
+        result = BassAudioFileInputSource.Create(accessor);
+      // TODO: We could cope with web streams if resource locators would be able to hold web URLs: BassWebStreamInputSource.Create(...);
+
+      Log.Debug("InputSourceFactory: Creating input source for media resource '{0}' of type '{1}'", accessor, result.GetType());
+      return result;
+    }
+
+    #endregion
   }
 }

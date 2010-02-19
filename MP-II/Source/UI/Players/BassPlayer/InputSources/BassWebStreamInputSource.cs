@@ -23,104 +23,97 @@
 #endregion
 
 using System;
-using MediaPortal.UI.Media.MediaManagement;
+using Ui.Players.BassPlayer.Interfaces;
+using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.InputSources
 {
-  public partial class BassPlayer
+  /// <summary>
+  /// Represents a file inputsource implemented by the Bass library.
+  /// </summary>
+  internal class BassWebStreamInputSource : IInputSource
   {
-    partial class InputSourceFactory
+    #region Static members
+
+    /// <summary>
+    /// Creates and initializes an new instance.
+    /// </summary>
+    /// <param name="url">The URL to be handled by the instance.</param>
+    /// <returns>The new instance.</returns>
+    public static BassWebStreamInputSource Create(string url)
     {
-      /// <summary>
-      /// Represents a file inputsource implemented by the Bass library.
-      /// </summary>
-      class BassWebStreamInputSource : IInputSource
-      {
-        #region Static members
-
-        /// <summary>
-        /// Creates and initializes an new instance.
-        /// </summary>
-        /// <param name="mediaItem">The mediaItem to be handled by the instance.</param>
-        /// <returns>The new instance.</returns>
-        public static BassWebStreamInputSource Create(IMediaItem mediaItem)
-        {
-          BassWebStreamInputSource inputSource = new BassWebStreamInputSource(mediaItem);
-          inputSource.Initialize();
-          return inputSource;
-        }
-
-        #endregion
-
-        #region Fields
-
-        private IMediaItem _MediaItem;
-        private BassStream _BassStream;
-
-        #endregion
-
-        #region IInputSource Members
-
-        public IMediaItem MediaItem
-        {
-          get { return _MediaItem; }
-        }
-
-        public MediaItemType MediaItemType
-        {
-          get { return MediaItemType.WebStream; }
-        }
-
-        public BassStream OutputStream
-        {
-          get { return _BassStream; }
-        }
-
-        #endregion
-
-        #region IDisposable Members
-
-        public void Dispose()
-        {
-          if (OutputStream != null)
-            OutputStream.Dispose();
-        }
-
-        #endregion
-
-        #region Public members
-
-        #endregion
-
-        #region Private Members
-
-        private BassWebStreamInputSource(IMediaItem mediaItem)
-        {
-          _MediaItem = mediaItem;
-        }
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        private void Initialize()
-        {
-          Log.Debug("BassWebStreamInputSource.Initialize()");
-
-          BASSFlag flags =
-              BASSFlag.BASS_STREAM_DECODE |
-              BASSFlag.BASS_SAMPLE_FLOAT;
-
-          int handle = Bass.BASS_StreamCreateURL(_MediaItem.ContentUri.PathAndQuery, 0, flags, null, new IntPtr());
-
-          if (handle == BassConstants.BassInvalidHandle)
-            throw new BassLibraryException("BASS_MusicLoad");
-
-          _BassStream = BassStream.Create(handle);
-        }
-
-        #endregion
-      }
+      BassWebStreamInputSource inputSource = new BassWebStreamInputSource(url);
+      inputSource.Initialize();
+      return inputSource;
     }
+
+    #endregion
+
+    #region Fields
+
+    private readonly string _url;
+    private BassStream _BassStream;
+
+    #endregion
+
+    public string URL
+    {
+      get { return _url; }
+    }
+
+    #region IInputSource Members
+
+    public MediaItemType MediaItemType
+    {
+      get { return MediaItemType.WebStream; }
+    }
+
+    public BassStream OutputStream
+    {
+      get { return _BassStream; }
+    }
+
+    #endregion
+
+    #region IDisposable Members
+
+    public void Dispose()
+    {
+      if (_BassStream != null)
+        _BassStream.Dispose();
+    }
+
+    #endregion
+
+    #region Public members
+
+    #endregion
+
+    #region Private Members
+
+    private BassWebStreamInputSource(string url)
+    {
+      _url = url;
+    }
+
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
+    private void Initialize()
+    {
+      Log.Debug("BassWebStreamInputSource.Initialize()");
+
+      const BASSFlag flags = BASSFlag.BASS_STREAM_DECODE | BASSFlag.BASS_SAMPLE_FLOAT;
+
+      int handle = Bass.BASS_StreamCreateURL(_url, 0, flags, null, new IntPtr());
+
+      if (handle == BassConstants.BassInvalidHandle)
+        throw new BassLibraryException("BASS_MusicLoad");
+
+      _BassStream = BassStream.Create(handle);
+    }
+
+    #endregion
   }
 }

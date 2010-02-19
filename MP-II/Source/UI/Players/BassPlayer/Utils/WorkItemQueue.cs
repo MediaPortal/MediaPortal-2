@@ -22,10 +22,9 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 
-namespace Media.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Utils
 {
   /// <summary>
   /// Workitem queue.
