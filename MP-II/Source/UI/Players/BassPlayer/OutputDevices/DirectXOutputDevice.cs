@@ -364,7 +364,7 @@ namespace Ui.Players.BassPlayer.OutputDevices
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
       int read = _InputStream.Read(buffer, requestedBytes);
-      if (read == 0)
+      if (read <= 0)
       {
         // We're done!
 
