@@ -82,7 +82,7 @@ namespace MediaPortal.UI.Builders
           return new StaticBackgroundManager(value);
         case BackgroundType.Manager:
           // The cast is necessary here to ensure the returned instance is an IBackgroundManager
-          return (IBackgroundManager) plugin.InstanciatePluginObject(value);
+          return (IBackgroundManager) plugin.InstantiatePluginObject(value);
         case BackgroundType.Remove:
           return new StaticBackgroundManager();
         default:

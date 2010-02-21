@@ -52,7 +52,7 @@ namespace MediaPortal.Core.PluginManager
 
     /// <summary>
     /// The plugin is enabled.
-    /// The plugin state tracker might not be instanciated yet in this state.
+    /// The plugin state tracker might not be instantiated yet in this state.
     /// Enabled plugins are ready to be activated at any time.
     /// Plugin items (classes, resources) may be requested from the plugin in this state.
     /// </summary>

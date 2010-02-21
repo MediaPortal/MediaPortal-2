@@ -42,7 +42,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
     public object BuildItem(PluginItemMetadata itemData, PluginRuntime plugin)
     {
       BuilderHelper.CheckParameter("ClassName", itemData);
-      return plugin.InstanciatePluginObject(itemData.Attributes["ClassName"]);
+      return plugin.InstantiatePluginObject(itemData.Attributes["ClassName"]);
     }
 
     public void RevokeItem(object item, PluginItemMetadata itemData, PluginRuntime plugin)

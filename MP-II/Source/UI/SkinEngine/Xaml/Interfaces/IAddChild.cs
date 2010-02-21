@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
     /// <summary>
     /// Adds a child element to this visual element.
     /// </summary>
-    /// <param name="o">Child instanciated by the parser. The type of <paramref name="o"/>
+    /// <param name="o">Child instantiated by the parser. The type of <paramref name="o"/>
     /// is the type the parser created for the corresponding XAML element in the XAML file.</param>
     void AddChild(T o);
   }

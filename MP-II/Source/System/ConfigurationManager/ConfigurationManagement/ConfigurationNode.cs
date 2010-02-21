@@ -169,7 +169,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
         ConfigSettingMetadata csm = (ConfigSettingMetadata) metadata;
         try
         {
-          ConfigSetting cs = (ConfigSetting) pluginRuntime.InstanciatePluginObject(csm.ClassName);
+          ConfigSetting cs = (ConfigSetting) pluginRuntime.InstantiatePluginObject(csm.ClassName);
           if (cs == null)
             throw new ArgumentException(string.Format("Configuration class '{0}' not found", csm.ClassName));
           cs.Load();

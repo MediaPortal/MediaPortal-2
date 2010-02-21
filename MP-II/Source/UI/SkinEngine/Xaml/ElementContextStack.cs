@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     #region Public properties
 
     /// <summary>
-    /// The object which was instanciated for the corresponding XAML element.
+    /// The object which was instantiated for the corresponding XAML element.
     /// This property will be initialized deferred.
     /// </summary>
     public object Instance
@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     /// <summary>
     /// The XML element corresponding to this element context information. May be <c>null</c>
-    /// in case the current context was instanciated by an attribute value instantiation syntax.
+    /// in case the current context was instantiated by an attribute value instantiation syntax.
     /// </summary>
     public XmlElement Element
     {
@@ -82,7 +82,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     /// <summary>
     /// The expression used to instantiate the current element context. May be <c>null</c>
-    /// in case the current context was instanciated by using an <see cref="XmlElement"/>.
+    /// in case the current context was instantiated by using an <see cref="XmlElement"/>.
     /// </summary>
     public string InstantiationExpression
     {

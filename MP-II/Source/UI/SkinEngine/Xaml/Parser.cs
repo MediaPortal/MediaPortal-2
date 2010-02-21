@@ -183,7 +183,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// The stack of element context information maintained during the instantiation
     /// process of the object graph.
-    /// Holds context information about objects instanciated for each of the
+    /// Holds context information about objects instantiated for each of the
     /// XML elements from root up to the current element.
     /// </summary>
     protected ElementContextStack _elementContextStack = new ElementContextStack();

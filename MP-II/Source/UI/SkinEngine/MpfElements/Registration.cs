@@ -44,9 +44,8 @@ using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {                            
   /// <summary>
-  /// This class holds a registration for all elements which can be instanciated
-  /// by a XAML file. It also holds static methods for type conversions
-  /// between special types and for copying instances.
+  /// This class holds a registration for all elements which can be instantiated  by a XAML file. It also holds
+  /// static methods for type conversions between special types and for copying instances.
   /// </summary>
   public class Registration
   {

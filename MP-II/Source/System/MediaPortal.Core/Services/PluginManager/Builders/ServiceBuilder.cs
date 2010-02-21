@@ -73,7 +73,7 @@ namespace MediaPortal.Core.Services.PluginManager.Builders
     {
       BuilderHelper.CheckParameter("ServiceClassName", itemData);
       string serviceClassName = itemData.Attributes["ServiceClassName"];
-      object serviceInstance = plugin.InstanciatePluginObject(serviceClassName);
+      object serviceInstance = plugin.InstantiatePluginObject(serviceClassName);
       if (serviceInstance == null)
       {
         ServiceScope.Get<ILogger>().Warn("ServiceBuilder: Could not instantiate service class '{0}' in plugin '{1}' (id: '{2}')",

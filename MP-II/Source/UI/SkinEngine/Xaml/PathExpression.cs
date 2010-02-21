@@ -387,7 +387,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     #region Ctor
 
     /// <summary>
-    /// PathExpression should only be instanciated by calling the factory method
+    /// PathExpression should only be instantiated by calling the factory method
     /// <see cref="PathExpression.Compile(IParserContext,string)"/>.
     /// </summary>
     protected PathExpression() { }

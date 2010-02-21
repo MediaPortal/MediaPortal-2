@@ -207,7 +207,7 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Instantiates classes from this plugin's assemblies.
     /// </summary>
-    public object InstanciatePluginObject(string typeName)
+    public object InstantiatePluginObject(string typeName)
     {
       lock (_syncObj)
       {

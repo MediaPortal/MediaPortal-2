@@ -550,7 +550,7 @@ namespace MediaPortal.Core.Services.PluginManager
         object obj = null;
         try
         {
-          obj = builderPlugin.InstanciatePluginObject(builderRegistration.BuilderClassName);
+          obj = builderPlugin.InstantiatePluginObject(builderRegistration.BuilderClassName);
         }
         catch (Exception e)
         {
@@ -894,7 +894,7 @@ namespace MediaPortal.Core.Services.PluginManager
         {
           try
           {
-            object obj = plugin.InstanciatePluginObject(plugin.Metadata.StateTrackerClassName);
+            object obj = plugin.InstantiatePluginObject(plugin.Metadata.StateTrackerClassName);
             IPluginStateTracker stateTracker = obj as IPluginStateTracker;
             if (obj == null)
               logger.Error("PluginManager: Couldn't instantiate plugin state tracker class '{0}' for plugin '{1}'",
