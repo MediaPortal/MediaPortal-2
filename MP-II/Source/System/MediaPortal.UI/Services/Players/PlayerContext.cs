@@ -39,16 +39,16 @@ namespace MediaPortal.UI.Services.Players
 
     #region Protected fields
 
-    protected bool _closeWhenFinished = false;
+    protected volatile bool _closeWhenFinished = false;
 
     protected IPlayerSlotController _slotController;
-    protected PlayerContextManager _contextManager;
-    protected IPlaylist _playlist;
-    protected Guid _mediaModuleId;
-    protected string _name;
-    protected PlayerContextType _type;
-    protected Guid _currentlyPlayingWorkflowStateId;
-    protected Guid _fullscreenContentWorkflowStateId;
+    protected readonly PlayerContextManager _contextManager;
+    protected readonly IPlaylist _playlist;
+    protected readonly Guid _mediaModuleId;
+    protected readonly string _name;
+    protected readonly PlayerContextType _type;
+    protected readonly Guid _currentlyPlayingWorkflowStateId;
+    protected readonly Guid _fullscreenContentWorkflowStateId;
 
     #endregion
 

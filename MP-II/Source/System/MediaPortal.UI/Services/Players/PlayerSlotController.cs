@@ -43,7 +43,7 @@ namespace MediaPortal.UI.Services.Players
     protected bool _isAudioSlot = false;
     protected PlayerBuilderRegistration _builderRegistration = null;
     protected IPlayer _player = null;
-    protected IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
+    protected readonly IDictionary<string, object> _contextVariables = new Dictionary<string, object>();
     protected PlayerSlotState _slotState = PlayerSlotState.Inactive;
     protected int _volume = 100;
     protected bool _isMuted = false;
@@ -308,7 +308,11 @@ namespace MediaPortal.UI.Services.Players
 
     public int SlotIndex
     {
-      get { return _slotIndex; }
+      get
+      {
+        lock (SyncObj)
+          return _slotIndex;
+      }
       internal set
       {
         lock (SyncObj)
@@ -321,10 +325,7 @@ namespace MediaPortal.UI.Services.Players
       get
       {
         lock (SyncObj)
-        {
-          CheckActive();
           return _isAudioSlot;
-        }
       }
       internal set
       {
@@ -341,7 +342,11 @@ namespace MediaPortal.UI.Services.Players
 
     public bool IsMuted
     {
-      get { return _isMuted; }
+      get
+      {
+        lock (SyncObj)
+          return _isMuted;
+      }
       internal set
       {
         lock (SyncObj)
@@ -354,7 +359,11 @@ namespace MediaPortal.UI.Services.Players
 
     public int Volume
     {
-      get { return _volume; }
+      get
+      {
+        lock (SyncObj)
+          return _volume;
+      }
       set
       {
         lock (SyncObj)
