@@ -27,9 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Services.Players.Settings;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Players
@@ -194,7 +192,8 @@ namespace MediaPortal.UI.Services.Players
     {
       lock (SyncObj)
       {
-        IPlayerEvents pe = (IPlayerEvents) _player;
+        IPlayerEvents pe = _player as IPlayerEvents;
+        if (pe != null)
           try
           {
             pe.InitializePlayerEvents(OnPlayerStarted, OnPlayerStateReady, OnPlayerStopped, OnPlayerEnded,
@@ -203,6 +202,16 @@ namespace MediaPortal.UI.Services.Players
           catch (Exception e)
           {
             ServiceScope.Get<ILogger>().Warn("Error initializing player events in player '{0}'", e, pe);
+          }
+        IReusablePlayer rp = _player as IReusablePlayer;
+        if (rp != null)
+          try
+          {
+            rp.NextItemRequest += OnNextItemRequest;
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Error initializing player NextItemRequest event in player '{0}'", e, rp);
           }
       }
     }
@@ -220,6 +229,16 @@ namespace MediaPortal.UI.Services.Players
           catch (Exception e)
           {
             ServiceScope.Get<ILogger>().Warn("Error resetting player events in player '{0}'", e, pe);
+          }
+        IReusablePlayer rp = _player as IReusablePlayer;
+        if (rp != null)
+          try
+          {
+            rp.NextItemRequest -= OnNextItemRequest;
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Error resetting player NextItemRequest event in player '{0}'", e, rp);
           }
       }
     }
@@ -252,6 +271,11 @@ namespace MediaPortal.UI.Services.Players
     internal void OnPlaybackError(IPlayer player)
     {
       PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerError, this);
+    }
+
+    internal void OnNextItemRequest(IPlayer player)
+    {
+      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.RequestNextItem, this);
     }
 
     protected void SetSlotState(PlayerSlotState slotState)
@@ -399,24 +423,18 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle)
+    public bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
     {
       bool result = false;
       lock (SyncObj)
         try
         {
           CheckActive();
-          FadingSettings settings = ServiceScope.Get<ISettingsManager>().Load<FadingSettings>();
-          if (settings.CrossFadingEnabled)
-          {
-            ICrossfadingEnabledPlayer cep = _player as ICrossfadingEnabledPlayer;
-            if (cep != null)
-              return result = cep.Crossfade(locator, mimeType, CrossFadeMode.FadeDuration,
-                  new TimeSpan((long) (10000000*settings.CrossFadeDuration)));
-          }
           IReusablePlayer rp = _player as IReusablePlayer;
           if (rp != null)
-            return result = rp.NextItem(locator, mimeType);
+            result = rp.NextItem(locator, mimeType, startTime);
+          if (result)
+            return true;
           if (CreatePlayer(locator, mimeType))
           {
             OnPlayerStarted(_player);
@@ -425,7 +443,7 @@ namespace MediaPortal.UI.Services.Players
               mpc.Resume();
             return result = true;
           }
-          return result = false;
+          return false;
         }
         catch (Exception e)
         {

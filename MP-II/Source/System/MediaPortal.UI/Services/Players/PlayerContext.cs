@@ -109,6 +109,36 @@ namespace MediaPortal.UI.Services.Players
         return psc.IsActive ? psc.CurrentPlayer : null;
     }
 
+    protected bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
+    {
+      IPlayerSlotController psc = _slotController;
+      if (psc == null)
+        return false;
+      lock (SyncObj)
+        if (!psc.IsActive)
+          return false;
+        else
+          return psc.Play(locator, mimeType, mediaItemTitle, startTime);
+    }
+
+    protected bool DoPlay(MediaItem item, StartTime startTime)
+    {
+      IResourceLocator locator;
+      string mimeType;
+      string mediaItemTitle;
+      if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
+        return false;
+      return DoPlay(locator, mimeType, mediaItemTitle, startTime);
+    }
+
+    internal bool RequestNextItem()
+    {
+      MediaItem item = _playlist.Next();
+      if (item == null)
+        return false;
+      return DoPlay(item, StartTime.Enqueue);
+    }
+
     protected void Seek(double startValue)
     {
       IMediaPlaybackControl player = GetCurrentPlayer() as IMediaPlaybackControl;
@@ -216,24 +246,12 @@ namespace MediaPortal.UI.Services.Players
 
     public bool DoPlay(MediaItem item)
     {
-      IResourceLocator locator;
-      string mimeType;
-      string mediaItemTitle;
-      if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
-        return false;
-      return DoPlay(locator, mimeType, mediaItemTitle);
+      return DoPlay(item, StartTime.AtOnce);
     }
 
     public bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle)
     {
-      IPlayerSlotController psc = _slotController;
-      if (psc == null)
-        return false;
-      lock (SyncObj)
-        if (!psc.IsActive)
-          return false;
-        else
-          return psc.Play(locator, mimeType, mediaItemTitle);
+      return DoPlay(locator, mimeType, mediaItemTitle, StartTime.AtOnce);
     }
 
     public IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors()
@@ -383,7 +401,7 @@ namespace MediaPortal.UI.Services.Players
       {
         if (--countLeft < 0 || (item = _playlist.Previous()) == null) // Break loop if we don't have any more items left
           return false;
-      } while (!DoPlay(item));
+      } while (!DoPlay(item, StartTime.AtOnce));
       return true;
     }
 
@@ -406,7 +424,7 @@ namespace MediaPortal.UI.Services.Players
             Close();
           return false;
         }
-        playOk = DoPlay(item);
+        playOk = DoPlay(item, StartTime.AtOnce);
       } while (!playOk);
       return true;
     }

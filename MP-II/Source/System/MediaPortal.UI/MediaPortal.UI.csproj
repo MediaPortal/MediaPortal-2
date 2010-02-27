@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -69,7 +69,6 @@
     <Compile Include="Presentation\Models\BaseMessageControlledUIModel.cs" />
     <Compile Include="Presentation\Players\IAudioPlayer.cs" />
     <Compile Include="Presentation\Players\AudioStreamDescriptor.cs" />
-    <Compile Include="Presentation\Players\ICrossfadingEnabledPlayer.cs" />
     <Compile Include="Presentation\Players\IDVDPlayer.cs" />
     <Compile Include="Presentation\Players\IPicturePlayer.cs" />
     <Compile Include="Presentation\Players\IPlayer.cs" />
@@ -126,7 +125,6 @@
     <Compile Include="Services\Players\PlayerManager.cs" />
     <Compile Include="Services\Players\PlayerSlotController.cs" />
     <Compile Include="Services\Players\Playlist.cs" />
-    <Compile Include="Services\Players\Settings\FadingSettings.cs" />
     <Compile Include="Services\ServerCommunication\LocalizedUPnPDeviceInformation.cs" />
     <Compile Include="Services\ServerCommunication\MP2FrontendServerDevice.cs" />
     <Compile Include="Services\ServerCommunication\ServerConnectionManager.cs" />

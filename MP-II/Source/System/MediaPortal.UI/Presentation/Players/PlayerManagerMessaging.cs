@@ -71,6 +71,14 @@ namespace MediaPortal.UI.Presentation.Players
       /// </summary>
       PlayerError,
 
+      /// <summary>
+      /// The next item is requested by the player - this enables the player for gapless playback or to crossfade the
+      /// next item, if possible.
+      /// The PlayerManager/PlayerSlotController don't process this event theirselves because they are not aware of the
+      /// playlist, which is managed by the player context.
+      /// </summary>
+      RequestNextItem,
+
       #endregion
 
       #region PlayerManager messages concerning a special player slot. The param will denote the player slot controller (IPlayerSlotController).

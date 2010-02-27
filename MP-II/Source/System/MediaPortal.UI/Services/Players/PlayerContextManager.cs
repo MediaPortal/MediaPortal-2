@@ -127,6 +127,13 @@ namespace MediaPortal.UI.Services.Players
             if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
               pc.Close();
             break;
+          case PlayerManagerMessaging.MessageType.RequestNextItem:
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+            pc = GetPlayerContext(psc);
+            if (pc == null)
+              return;
+            pc.RequestNextItem();
+            break;
           case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
             _currentPlayerIndex = 1 - _currentPlayerIndex;
             break;

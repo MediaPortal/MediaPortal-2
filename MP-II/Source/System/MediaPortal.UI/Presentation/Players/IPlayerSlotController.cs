@@ -126,8 +126,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// this method will potentially need more time to look into the given resource's content.</param>
     /// <param name="mediaItemTitle">The title of the media item. This value is necessary for some players,
     /// which don't extract metadata from the media file themselves.</param>
+    /// <param name="startTime">Tells the player slot controller when it should play the next item.
+    /// This parameter is necessary for the potential already playing player if it is about to be reused to play the
+    /// new media resource.</param>
     /// <returns><c>true</c>, if the specified media resource can be played, else <c>false</c>.</returns>
-    bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle);
+    bool Play(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime);
 
     /// <summary>
     /// Stops the player of this player slot. This won't deactivate this slot, but the current player
