@@ -173,8 +173,6 @@
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\ThemeConfigurationController.cs" />
-    <Compile Include="Settings\Configuration\Players\CrossFadeDuration.cs" />
-    <Compile Include="Settings\Configuration\Players\CrossFadingEnabled.cs" />
     <Compile Include="Settings\Configuration\Players\DefaultGeometry.cs" />
     <Compile Include="Settings\PlayerSettings.cs" />
     <Compile Include="Settings\SkinSettings.cs" />
