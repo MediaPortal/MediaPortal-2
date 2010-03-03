@@ -7,6 +7,11 @@
     Description="Bass Music Player"
     PluginVersion="1.0">
 
+  <DependsOn>
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"/> <!-- Configuration Model -->
+  </DependsOn>
+
   <Runtime>
     <Assembly FileName="BassPlayer.dll"/>
     <PluginStateTracker ClassName="Ui.Players.BassPlayer.BassPlayerPlugin"/>
@@ -14,5 +19,46 @@
 
   <Register Location="/Players/Builders">
     <PlayerBuilder Id="1CBD4219-4ABD-4543-A3FE-37F6D7DDD78D" ClassName="Ui.Players.BassPlayer.BassPlayerPlugin"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="BassPlayerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Players"
+        Redundant="true"
+        Text="[Settings.Players]"/>
+  </Register>
+
+  <!-- Contents of '/Players' section -->
+  <Register Location="/Configuration/Settings/Players">
+    <ConfigSection
+        Id="Rendering"
+        Redundant="true"
+        Text="[Settings.Players.Rendering]"/>
+  </Register>
+
+  <!-- Contents of '/Players/Rendering' section -->
+  <Register Location="/Configuration/Settings/Players/Rendering">
+    <ConfigGroup
+        Id="CrossFading"
+        Redundant="true"
+        Text="[Settings.Players.Rendering.CrossFading]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Players/Rendering/CrossFading">
+    <ConfigSetting
+        Id="CrossFadingEnabled"
+        Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
+        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
+        ClassName="Ui.Players.BassPlayer.Settings.Configuration.Players.CrossFadingEnabled"/>
+    <ConfigSetting
+        Id="CrossFadeDuration"
+        Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
+        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
+        ClassName="Ui.Players.BassPlayer.Settings.Configuration.Players.CrossFadeDuration"/>
   </Register>
 </Plugin>

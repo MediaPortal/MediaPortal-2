@@ -94,27 +94,10 @@
 
   <!-- Contents of '/Players/Rendering' section -->
   <Register Location="/Configuration/Settings/Players/Rendering">
-    <ConfigGroup
-        Id="CrossFading"
-        Redundant="true"
-        Text="[Settings.Players.Rendering.CrossFading]"/>
     <ConfigSetting
         Id="DefaultGeometry"
         Text="[Settings.Players.Rendering.DefaultGeometry]"
         HelpText="[Settings.Players.Rendering.DefaultGeometry.Help]"
         ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Players.DefaultGeometry"/>
-  </Register>
-
-  <Register Location="/Configuration/Settings/Players/Rendering/CrossFading">
-    <ConfigSetting
-        Id="CrossFadingEnabled"
-        Text="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled]"
-        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadingEnabled.Help]"
-        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Players.CrossFadingEnabled"/>
-    <ConfigSetting
-        Id="CrossFadeDuration"
-        Text="[Settings.Players.Rendering.CrossFading.CrossFadeDuration]"
-        HelpText="[Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help]"
-        ClassName="MediaPortal.UI.SkinEngine.Settings.Configuration.Players.CrossFadeDuration"/>
   </Register>
 </Plugin>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Language>
+  <Section Name="Settings">
+    <String Name="Players" Text="Players"/>
+    <String Name="Players.Rendering" Text="Rendering"/>
+    <String Name="Players.Rendering.CrossFading" Text="CrossFading"/>
+
+    <String Name="Players.Rendering.CrossFading.CrossFadingEnabled" Text="Cross fading enabled"/>
+    <String Name="Players.Rendering.CrossFading.CrossFadingEnabled.Help" Text="Determines if MediaPortal should cross-fade songs, if possible"/>
+
+    <String Name="Players.Rendering.CrossFading.CrossFadeDuration" Text="Cross fade duration"/>
+    <String Name="Players.Rendering.CrossFading.CrossFadeDuration.Help" Text="Time to cross-fade in seconds"/>
+  </Section>
+</Language>
