@@ -159,6 +159,7 @@ namespace MediaPortal.Configuration.ConfigurationManagement
 
     protected ConfigBase Instantiate(ConfigBaseMetadata metadata, PluginRuntime pluginRuntime)
     {
+      ServiceScope.Get<ILogger>().Debug("ConfigurationNode: Loading configuration item '{0}'", metadata.Location);
       ConfigBase result;
       if (metadata.GetType() == typeof(ConfigGroupMetadata))
         result = new ConfigGroup();
