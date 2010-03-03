@@ -755,7 +755,28 @@ namespace MediaPortal.Core.Services.PluginManager
           return false;
         }
 
-        // Check if builder dependencies are explicitly named
+        // Handle dependencies
+        ICollection<PluginRuntime> pendingChildRegistrations = new List<PluginRuntime>();
+        foreach (Guid parentId in plugin.Metadata.DependsOn)
+        {
+          PluginRuntime parentPlugin;
+          lock (_syncObj)
+            if (!_availablePlugins.TryGetValue(parentId, out parentPlugin))
+            {
+              logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' is not available", pluginName, pluginId, parentId);
+              return false;
+            }
+          if (!TryEnable(parentPlugin, doAutoActivate))
+          {
+            logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
+            return false;
+          }
+          LockPluginStateDependency(parentPlugin, PluginState.Enabled, PluginState.Active);
+          lockedPluginStateDependencies.Add(parentPlugin);
+          pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
+        }
+
+        // Check if builder dependencies are explicitly named (has to be done after dependencies are loaded - builders could be added by dependent plugins)
         lock (_syncObj)
           foreach (string builderName in plugin.Metadata.GetNecessaryBuilders())
           {
@@ -784,27 +805,6 @@ namespace MediaPortal.Core.Services.PluginManager
               return false;
             }
           }
-
-        // Handle dependencies
-        ICollection<PluginRuntime> pendingChildRegistrations = new List<PluginRuntime>();
-        foreach (Guid parentId in plugin.Metadata.DependsOn)
-        {
-          PluginRuntime parentPlugin;
-          lock (_syncObj)
-            if (!_availablePlugins.TryGetValue(parentId, out parentPlugin))
-            {
-              logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' is not available", pluginName, pluginId, parentId);
-              return false;
-            }
-          if (!TryEnable(parentPlugin, doAutoActivate))
-          {
-            logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
-            return false;
-          }
-          LockPluginStateDependency(parentPlugin, PluginState.Enabled, PluginState.Active);
-          lockedPluginStateDependencies.Add(parentPlugin);
-          pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
-        }
 
         // All checks passed and preconditions met, enable plugin
         ChangeReadLockToWriteLock(plugin);
