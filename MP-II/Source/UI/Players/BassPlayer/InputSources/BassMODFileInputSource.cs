@@ -89,10 +89,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Private members
 
-    private BassMODFileInputSource(IResourceAccessor resourceAccessor)
-    {
-      SetResourceAccessor(resourceAccessor); // Register accessor to be disposed later
-    }
+    private BassMODFileInputSource(IResourceAccessor resourceAccessor) : base(resourceAccessor) { }
 
     /// <summary>
     /// Initializes a new instance.

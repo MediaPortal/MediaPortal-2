@@ -31,27 +31,24 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <summary>
   /// Performs signal processing using VST plugins.
   /// </summary>
-  class VSTProcessor : IDisposable
+  public class VSTProcessor : IDisposable
   {
     #region Static members
 
     /// <summary>
     /// Creates and initializes an new instance.
     /// </summary>
-    /// <param name="player">Reference to containing IPlayer object.</param>
-    /// <returns>The new instance.</returns>
-    public static VSTProcessor Create(BassPlayer player)
+    /// <param name="controller">Containing controller instance.</param>
+    public VSTProcessor(Controller controller)
     {
-      VSTProcessor vstProcessor = new VSTProcessor(player);
-      vstProcessor.Initialize();
-      return vstProcessor;
+      _controller = controller;
     }
 
     #endregion
 
     #region Fields
 
-    BassPlayer _Player;
+    private Controller _controller;
     private BassStream _InputStream;
     private BassStream _OutputStream;
     private bool _Initialized;
@@ -110,22 +107,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
         _InputStream = null;
       }
-    }
-
-    #endregion
-
-    #region Private members
-
-    private VSTProcessor(BassPlayer player)
-    {
-      _Player = player;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    private void Initialize()
-    {
     }
 
     #endregion

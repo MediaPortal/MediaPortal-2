@@ -37,10 +37,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Media\BassLibraries\References\Bass.Net.dll</HintPath>
     </Reference>
-    <Reference Include="BassPlayer.ASIOInterop, Version=2.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\BassPlayer.ASIOInterop\Distrib\BassPlayer.ASIOInterop.dll</HintPath>
-    </Reference>
     <Reference Include="BassRegistration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Media\BassLibraries\References\BassRegistration.dll</HintPath>
@@ -59,7 +55,8 @@
     <Compile Include="BassPlayerPlugin.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="BassPlayer.cs" />
-    <Compile Include="BassPlayerSettings.cs" />
+    <Compile Include="Controller.cs" />
+    <Compile Include="Settings\BassPlayerSettings.cs" />
     <Compile Include="BassStream.cs" />
     <Compile Include="BassStreamHelperTypes.cs" />
     <Compile Include="InputSources\AbstractBassResourceInputSource.cs" />
@@ -72,20 +69,20 @@
     <Compile Include="InputSources\BassWebStreamInputSource.cs" />
     <Compile Include="Interfaces\IInputSource.cs" />
     <Compile Include="Interfaces\IOutputDevice.cs" />
-    <Compile Include="OutputDevices\ASIOOutputDevice.cs" />
     <Compile Include="OutputDevices\DirectXOutputDevice.cs" />
     <Compile Include="PlayerComponents\BassLibraryManager.cs" />
     <Compile Include="PlayerComponents\InputSourceFactory.cs" />
-    <Compile Include="PlayerComponents\InputSourceQueue.cs" />
-    <Compile Include="PlayerComponents\InputSourceSwitcher.cs" />
+    <Compile Include="PlayerComponents\PlaybackSession.cs" />
     <Compile Include="PlayerComponents\OutputDeviceFactory.cs" />
     <Compile Include="PlayerComponents\OutputDeviceManager.cs" />
     <Compile Include="PlayerComponents\PlaybackBuffer.cs" />
-    <Compile Include="PlayerComponents\PlaybackSession.cs" />
+    <Compile Include="PlayerComponents\PlaybackProcessor.cs" />
     <Compile Include="PlayerComponents\UpDownMixer.cs" />
     <Compile Include="PlayerComponents\VSTProcessor.cs" />
     <Compile Include="PlayerComponents\WinAmpDSPProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\Players\CrossFadeDuration.cs" />
+    <Compile Include="Settings\Configuration\Players\CrossFadingEnabled.cs" />
     <Compile Include="Utils\AudioRingBuffer.cs" />
     <Compile Include="Utils\BassStreamFader.cs" />
     <Compile Include="Utils\Log.cs" />

@@ -27,6 +27,7 @@ using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.Presentation.Players;
+using Ui.Players.BassPlayer.Settings;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 using Un4seen.Bass.AddOn.Mix;
@@ -36,56 +37,58 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <summary>
   /// Buffers the output stream to ensure stable playback. Also provides a synchronized stream for visualization purposes.
   /// </summary>
-  internal class PlaybackBuffer : IDisposable
+  public class PlaybackBuffer : IDisposable
   {
-    #region Static members
-
-    /// <summary>
-    /// Creates and initializes an new instance.
-    /// </summary>
-    /// <param name="player">Reference to containing IPlayer object.</param>
-    /// <returns>The new instance.</returns>
-    public static PlaybackBuffer Create(BassPlayer player)
-    {
-      PlaybackBuffer playbackBuffer = new PlaybackBuffer(player);
-      playbackBuffer.Initialize();
-      return playbackBuffer;
-    }
-
-    #endregion
-
     #region Fields
 
-    private int _BufferUpdateIntervalMS;
+    private readonly Controller _controller;
+
     private int _ReadOffsetBytes;
     private int _VizReadOffsetBytes;
 
     private volatile bool _terminated = false;
-    private volatile bool _initialized = false;
+    private volatile bool _inputStreamInitialized = false;
       
     private float[] _ReadData = new float[1];
 
-    private AutoResetEvent _BufferUpdated;
-    private AutoResetEvent _NotifyBufferUpdateThread;
+    private readonly AutoResetEvent _BufferUpdated;
+    private readonly AutoResetEvent _NotifyBufferUpdateThread;
 
     private BassStream _InputStream;
     private BassStream _OutputStream;
     private BassStream _VizRawStream;
     private BassStream _VizStream;
       
-    private TimeSpan _BufferSize;
+    private readonly TimeSpan _BufferSize;
     private TimeSpan _ReadOffset;
     private TimeSpan _VizReadOffset;
 
-    private STREAMPROC _StreamWriteProcDelegate;
-    private STREAMPROC _VizRawStreamWriteProcDelegate;
+    private readonly STREAMPROC _StreamWriteProcDelegate;
+    private readonly STREAMPROC _VizRawStreamWriteProcDelegate;
 
     private AudioRingBuffer _Buffer;
-    private BassPlayer _Player;
-    private Silence _Silence;
+    private readonly Silence _Silence;
     private Thread _BufferUpdateThread = null;
 
     #endregion
+
+    public PlaybackBuffer(Controller controller)
+    {
+      _controller = controller;
+      _Silence = new Silence();
+
+      BassPlayerSettings settings = Controller.GetSettings();
+
+      _BufferSize = settings.PlaybackBufferSize;
+
+      _ReadOffset = InternalSettings.VizLatencyCorrectionRange;
+
+      _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
+      _VizRawStreamWriteProcDelegate = new STREAMPROC(VizRawStreamWriteProc);
+
+      _NotifyBufferUpdateThread = new AutoResetEvent(false);
+      _BufferUpdated = new AutoResetEvent(false);
+    }
 
     #region IDisposable Members
 
@@ -131,7 +134,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void SetInputStream(BassStream stream)
     {
       Log.Debug("PlaybackBuffer.SetInputStream()");
-        
+
       ResetInputStream();
 
       _InputStream = stream;
@@ -146,10 +149,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       CreateOutputStream();
       CreateVizStream();
-        
+      _inputStreamInitialized = true;
+
       // Ensure prebuffering
       _BufferUpdated.Reset();
-      _initialized = true;
 
       StartBufferUpdateThread();
       _BufferUpdated.WaitOne();
@@ -172,12 +175,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       Log.Debug("PlaybackBuffer.ResetInputStream()");
 
       TerminateBufferUpdateThread();
-      if (_initialized)
+      if (_inputStreamInitialized)
       {
 
         Log.Debug("Disposing output stream");
 
-        _initialized = false;
+        _inputStreamInitialized = false;
 
         _OutputStream.Dispose();
         _OutputStream = null;
@@ -203,30 +206,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     #region Private members
 
-    private PlaybackBuffer(BassPlayer player)
-    {
-      _Player = player;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    private void Initialize()
-    {
-      _Silence = new Silence();
-
-      _BufferSize = _Player.Settings.PlaybackBufferSize;
-      _BufferUpdateIntervalMS = (int)_BufferSize.TotalMilliseconds / 5;
-
-      _ReadOffset = InternalSettings.VizLatencyCorrectionRange;
-
-      _StreamWriteProcDelegate = new STREAMPROC(OutputStreamWriteProc);
-      _VizRawStreamWriteProcDelegate = new STREAMPROC(VizRawStreamWriteProc);
-
-      _NotifyBufferUpdateThread = new AutoResetEvent(false);
-      _BufferUpdated = new AutoResetEvent(false);
-    }
-
     /// <summary>
     /// Reclculates the visualization stream byte-offset according usersettings.
     /// </summary>
@@ -234,7 +213,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     {
       Log.Debug("PlaybackBuffer.UpdateVizLatencyCorrection()");
 
-      _VizReadOffset = InternalSettings.VizLatencyCorrectionRange.Add(_Player.Settings.VizStreamLatencyCorrection);
+      BassPlayerSettings settings = Controller.GetSettings();
+
+      _VizReadOffset = InternalSettings.VizLatencyCorrectionRange.Add(settings.VizStreamLatencyCorrection);
       _VizReadOffsetBytes = AudioRingBuffer.CalculateLength(_InputStream.SampleRate, _InputStream.Channels, _VizReadOffset);
 
       Log.Debug("Vizstream reading offset: {0} ms", _VizReadOffset.TotalMilliseconds);
@@ -282,12 +263,9 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       // Todo: apply AGC
 
-      Log.Debug("Creating visualizationstream");
+      Log.Debug("Creating visualization stream");
 
-      streamFlags =
-          BASSFlag.BASS_MIXER_NONSTOP |
-              BASSFlag.BASS_SAMPLE_FLOAT |
-                  BASSFlag.BASS_STREAM_DECODE;
+      streamFlags = BASSFlag.BASS_MIXER_NONSTOP | BASSFlag.BASS_SAMPLE_FLOAT | BASSFlag.BASS_STREAM_DECODE;
 
       handle = BassMix.BASS_Mixer_StreamCreate(_InputStream.SampleRate, 2, streamFlags);
       if (handle == BassConstants.BassInvalidHandle)
@@ -295,14 +273,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       _VizStream = BassStream.Create(handle);
 
-      streamFlags =
-          BASSFlag.BASS_MIXER_NORAMPIN |
-              BASSFlag.BASS_MIXER_DOWNMIX |
-                  BASSFlag.BASS_MIXER_MATRIX;
+      streamFlags = BASSFlag.BASS_MIXER_NORAMPIN | BASSFlag.BASS_MIXER_DOWNMIX | BASSFlag.BASS_MIXER_MATRIX;
 
       if (!BassMix.BASS_Mixer_StreamAddChannel(_VizStream.Handle, _VizRawStream.Handle, streamFlags))
         throw new BassLibraryException("BASS_Mixer_StreamAddChannel");
 
+      // TODO Albert 2010-02-27: What is this?
       if (_InputStream.Channels == 1)
       {
         float[,] mixMatrix = new float[2, 1];
@@ -325,11 +301,13 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     private int OutputStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
       int read = _Buffer.Read(buffer, requestedBytes / BassConstants.FloatBytes, _ReadOffsetBytes);
-      return read * BassConstants.FloatBytes;
+      int result = read * BassConstants.FloatBytes;
+      _NotifyBufferUpdateThread.Set();
+      return result;
     }
 
     /// <summary>
-    /// Callback function for the visualizationstream.
+    /// Callback function for the visualization stream.
     /// </summary>
     /// <param name="streamHandle">Bass stream handle that requests sample data.</param>
     /// <param name="buffer">Buffer to write the sampledata in.</param>
@@ -338,7 +316,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <returns>Number of bytes read.</returns>
     private int VizRawStreamWriteProc(int streamHandle, IntPtr buffer, int requestedBytes, IntPtr userData)
     {
-      if (_Player.ExternalState == PlayerState.Active)
+      if (_controller.Player.ExternalState == PlayerState.Active)
       {
         int read = _Buffer.Peek(buffer, requestedBytes, _VizReadOffsetBytes);
         return read * BassConstants.FloatBytes;
@@ -358,6 +336,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       // instance is created.
       _BufferUpdateThread = new Thread(ThreadBufferUpdate) {Name = "PlaybackBuffer update thread"};
       _BufferUpdateThread.Start();
+      _NotifyBufferUpdateThread.Set();
     }
 
     private void TerminateBufferUpdateThread()
@@ -382,14 +361,14 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       {
         while (true)
         {
-          _NotifyBufferUpdateThread.WaitOne(_BufferUpdateIntervalMS, false);
+          _NotifyBufferUpdateThread.WaitOne();
 
           // Test for _terminated after waiting for our notify event. The TerminateBufferUpdateThread() method
           // will first set the _terminated flag before it sets the notify event.
           if (_terminated)
             return;
 
-          if (_initialized)
+          if (_inputStreamInitialized)
           {
             int requestedSamples = _Buffer.Space;
             if (requestedSamples > 0)
@@ -398,7 +377,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
                 Array.Resize(ref _ReadData, requestedSamples);
 
               int samplesRead = _InputStream.Read(_ReadData, requestedSamples);
-              _Buffer.Write(_ReadData, samplesRead);
+              if (samplesRead > 0)
+                _Buffer.Write(_ReadData, samplesRead);
             }
             _BufferUpdated.Set();
           }

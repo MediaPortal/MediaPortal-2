@@ -39,9 +39,9 @@ namespace Ui.Players.BassPlayer.Utils
   {
     #region Fields
 
-    BassStream _Stream;
-    TimeSpan _Duration;
-    int _DurationMS;
+    protected readonly BassStream _Stream;
+    protected readonly TimeSpan _Duration;
+    protected readonly int _DurationMS;
 
     #endregion
 
@@ -52,6 +52,16 @@ namespace Ui.Players.BassPlayer.Utils
       _Stream = stream;
       _Duration = duration;
       _DurationMS = Convert.ToInt32(duration.TotalMilliseconds);
+    }
+
+    public TimeSpan Duration
+    {
+      get { return _Duration; }
+    }
+
+    public int DurationMS
+    {
+      get { return _DurationMS; }
     }
 
     /// <summary>
@@ -66,12 +76,19 @@ namespace Ui.Players.BassPlayer.Utils
     /// Performs a fadein.
     /// </summary>
     /// <remarks>
-    /// If the fade duration is set to 0 in usersettings, volume is set to 100% instantly.
+    /// If the fade duration is set to 0, volume is set to 100% instantly.
     /// </remarks>
-    public void FadeIn()
+    /// <param name="async">If set to <c>true</c>, the fading process is performed asynchronously and the execution thread
+    /// returns at once. If set to <c>false</c>, the execution thread will be blocked until the fading has finished.
+    /// The fade duration is <see cref="DurationMS"/> milli seconds.</param>
+    public void FadeIn(bool async)
     {
       if (_DurationMS != 0)
+      {
         SlideVolume(1f);
+        if (!async)
+          WaitForVolumeSlide();
+      }
       else
         SetVolume(1f);
     }
@@ -80,18 +97,18 @@ namespace Ui.Players.BassPlayer.Utils
     /// Performs a fadeout.
     /// </summary>
     /// <remarks>
-    /// If the fade duration is set to 0 in usersettings, volume is set to 0% instantly.
+    /// If the fade duration is set to 0, volume is set to 0% instantly.
     /// </remarks>
-    public void FadeOut()
+    /// <param name="async">If set to <c>true</c>, the fading process is performed asynchronously and the execution thread
+    /// returns at once. If set to <c>false</c>, the execution thread will be blocked until the fading has finished.
+    /// The fade duration is <see cref="DurationMS"/> milli seconds.</param>
+    public void FadeOut(bool async)
     {
       if (_DurationMS != 0)
       {
         SlideVolume(0f);
-
-        while (Bass.BASS_ChannelIsSliding(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL))
-        {
-          Thread.Sleep(10);
-        }
+        if (!async)
+          WaitForVolumeSlide();
       }
       else
         SetVolume(0f);
@@ -99,26 +116,35 @@ namespace Ui.Players.BassPlayer.Utils
 
     #endregion
 
-    #region Private members
+    #region Protected members
+
+    /// <summary>
+    /// Blocks the calling thread until a volume slide has finished.
+    /// </summary>
+    protected void WaitForVolumeSlide()
+    {
+      while (Bass.BASS_ChannelIsSliding(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL))
+        Thread.Sleep(10);
+    }
 
     /// <summary>
     /// Sets the volume to the given value instantly.
     /// </summary>
     /// <param name="volume">0.0f-1.0f -> 0-100%</param>
-    private void SetVolume(float volume)
+    protected void SetVolume(float volume)
     {
       if (!Bass.BASS_ChannelSetAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume))
-        throw new BassPlayerException("BASS_ChannelSetAttribute");
+        throw new BassLibraryException("BASS_ChannelSetAttribute");
     }
 
     /// <summary>
-    /// Slides the volume to the given value over the period of time determined by the fadeduration usersetting.
+    /// Slides the volume to the given value over the period of time given by <see cref="Duration"/>.
     /// </summary>
     /// <param name="volume">0.0f-1.0f -> 0-100%</param>
-    private void SlideVolume(float volume)
+    protected void SlideVolume(float volume)
     {
       if (!Bass.BASS_ChannelSlideAttribute(_Stream.Handle, BASSAttribute.BASS_ATTRIB_VOL, volume, _DurationMS))
-        throw new BassPlayerException("BASS_ChannelSlideAttribute");
+        throw new BassLibraryException("BASS_ChannelSlideAttribute");
     }
 
     #endregion

@@ -85,12 +85,16 @@ namespace Ui.Players.BassPlayer.Interfaces
     /// <summary>
     /// Performs a fadein.
     /// </summary>
-    void FadeIn();
+    /// <param name="async">If set to <c>true</c>, the fading process is performed asynchronously and the execution thread
+    /// returns at once. If set to <c>false</c>, the execution thread will be blocked until the fading has finished.</param>
+    void FadeIn(bool async);
 
     /// <summary>
     /// Performs a fadeout.
     /// </summary>
-    void FadeOut();
+    /// <param name="async">If set to <c>true</c>, the fading process is performed asynchronously and the execution thread
+    /// returns at once. If set to <c>false</c>, the execution thread will be blocked until the fading has finished.</param>
+    void FadeOut(bool async);
 
     /// <summary>
     /// Starts playback.

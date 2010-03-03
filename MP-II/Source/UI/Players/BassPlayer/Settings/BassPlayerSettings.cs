@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Core.Settings;
 
-namespace Ui.Players.BassPlayer
+namespace Ui.Players.BassPlayer.Settings
 {
   /// <summary>
   /// Contains the bass player user configuration.
@@ -44,17 +44,12 @@ namespace Ui.Players.BassPlayer
       public const OutputMode AudioOutputMode = OutputMode.DirectSound;
       public const string DirectSoundDevice = "";
       public const int DirectSoundBufferSizeMilliSecs = 200;
-      public const string ASIODevice = "";
-      public const int ASIOFirstChan = Constants.Auto;
-      public const int ASIOLastChan = Constants.Auto;
-      public const bool ASIOUseMaxBufferSize = true;
-      public const int ASIOMaxRate = Constants.Auto;
-      public const int ASIOMinRate = Constants.Auto;
       public const int PlaybackBufferSizeMilliSecs = 500;
       public const int SeekIncrementSeconds = 20;
       public const PlaybackMode SongTransitionMode = PlaybackMode.Normal;
       public const int FadeDurationMilliSecs = 500;
       public const int CrossFadeDurationMilliSecs = 5;
+      public const bool CrossFadeEnabled = true;
       public const int VizStreamLatencyCorrectionMilliSecs = 0;
       public static readonly List<string> SupportedExtensions =
           new List<string>(
@@ -68,17 +63,12 @@ namespace Ui.Players.BassPlayer
     private OutputMode _OutputMode = Defaults.AudioOutputMode;
     private string _DirectSoundDevice = Defaults.DirectSoundDevice;
     private TimeSpan _DirectSoundBufferSize = TimeSpan.FromMilliseconds(Defaults.DirectSoundBufferSizeMilliSecs);
-    private string _ASIODevice = Defaults.ASIODevice;
-    private int _ASIOFirstChan = Defaults.ASIOFirstChan;
-    private int _ASIOLastChan = Defaults.ASIOLastChan;
-    private int _ASIOMaxRate = Defaults.ASIOMaxRate;
-    private int _ASIOMinRate = Defaults.ASIOMinRate;
-    private bool _ASIOUseMaxBufferSize = Defaults.ASIOUseMaxBufferSize;
     private TimeSpan _PlaybackBufferSize = TimeSpan.FromMilliseconds(Defaults.PlaybackBufferSizeMilliSecs);
     private TimeSpan _SeekIncrement = TimeSpan.FromSeconds(Defaults.SeekIncrementSeconds);
     private PlaybackMode _songTransitionMode = Defaults.SongTransitionMode;
     private TimeSpan _FadeDuration = TimeSpan.FromMilliseconds(Defaults.FadeDurationMilliSecs);
     private TimeSpan _CrossFadeDuration = TimeSpan.FromMilliseconds(Defaults.CrossFadeDurationMilliSecs);
+    private bool _CrossFadeEnabled = Defaults.CrossFadeEnabled;
     private TimeSpan _VizStreamLatencyCorrection = TimeSpan.FromMilliseconds(Defaults.VizStreamLatencyCorrectionMilliSecs);
     private List<string> _SupportedExtensions = new List<string>(Defaults.SupportedExtensions);
 
@@ -111,48 +101,6 @@ namespace Ui.Players.BassPlayer
     {
       get { return _DirectSoundBufferSize; }
       set { _DirectSoundBufferSize = value; }
-    }
-
-    [Setting(SettingScope.Global, Defaults.ASIODevice)]
-    public string ASIODevice
-    {
-      get { return _ASIODevice; }
-      set { _ASIODevice = value; }
-    }
-
-    [Setting(SettingScope.Global, Defaults.ASIOFirstChan)]
-    public int ASIOFirstChan
-    {
-      get { return _ASIOFirstChan; }
-      set { _ASIOFirstChan = value; }
-    }
-
-    [Setting(SettingScope.Global, Defaults.ASIOLastChan)]
-    public int ASIOLastChan
-    {
-      get { return _ASIOLastChan; }
-      set { _ASIOLastChan = value; }
-    }
-
-    [Setting(SettingScope.Global, Defaults.ASIOMaxRate)]
-    public int ASIOMaxRate
-    {
-      get { return _ASIOMaxRate; }
-      set { _ASIOMaxRate = value; }
-    }
-
-    [Setting(SettingScope.Global, Defaults.ASIOMinRate)]
-    public int ASIOMinRate
-    {
-      get { return _ASIOMinRate; }
-      set { _ASIOMinRate = value; }
-    }
-
-    [Setting(SettingScope.Global, Defaults.ASIOUseMaxBufferSize)]
-    public bool ASIOUseMaxBufferSize
-    {
-      get { return _ASIOUseMaxBufferSize; }
-      set { _ASIOUseMaxBufferSize = value; }
     }
 
     [Setting(SettingScope.Global, Defaults.PlaybackBufferSizeMilliSecs)]
@@ -212,6 +160,13 @@ namespace Ui.Players.BassPlayer
     {
       get { return _CrossFadeDuration; }
       set { _CrossFadeDuration = value; }
+    }
+
+    [Setting(SettingScope.User)]
+    public bool CrossFadingEnabled
+    {
+      get { return _CrossFadeEnabled; }
+      set { _CrossFadeEnabled = value; }
     }
 
     [Setting(SettingScope.Global)]

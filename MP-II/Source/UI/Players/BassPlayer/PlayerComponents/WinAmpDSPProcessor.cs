@@ -31,27 +31,22 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <summary>
   /// Performs signal processing using WinAmp DSP plugins.
   /// </summary>
-  internal class WinAmpDSPProcessor : IDisposable
+  public class WinAmpDSPProcessor : IDisposable
   {
     #region Static members
 
     /// <summary>
     /// Creates and initializes an new instance.
     /// </summary>
-    /// <param name="player">Reference to containing IPlayer object.</param>
-    /// <returns>The new instance.</returns>
-    public static WinAmpDSPProcessor Create(BassPlayer player)
+    /// <param name="controller">Containing controller instance.</param>
+    public WinAmpDSPProcessor(Controller controller)
     {
-      WinAmpDSPProcessor winAmpDSPProcessor = new WinAmpDSPProcessor(player);
-      winAmpDSPProcessor.Initialize();
-      return winAmpDSPProcessor;
     }
 
     #endregion
 
     #region Fields
 
-    BassPlayer _Player;
     private BassStream _InputStream;
     private BassStream _OutputStream;
     private bool _Initialized;
@@ -110,22 +105,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
         _InputStream = null;
       }
-    }
-
-    #endregion
-
-    #region Private members
-
-    private WinAmpDSPProcessor(BassPlayer player)
-    {
-      _Player = player;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    private void Initialize()
-    {
     }
 
     #endregion

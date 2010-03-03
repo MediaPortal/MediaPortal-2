@@ -29,7 +29,7 @@ namespace Ui.Players.BassPlayer.Utils
   /// <summary>
   /// Workitem queue.
   /// </summary>
-  internal class WorkItemQueue : Queue<WorkItem>
+  public class WorkItemQueue : Queue<WorkItem>
   {
   }
 }

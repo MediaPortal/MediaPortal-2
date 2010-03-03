@@ -33,30 +33,18 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// </summary>
   public class OutputDeviceManager : IDisposable
   {
-    #region Static members
-
-    /// <summary>
-    /// Creates and initializes an new instance.
-    /// </summary>
-    /// <param name="player">Reference to containing IPlayer object.</param>
-    /// <returns>The new instance.</returns>
-    public static OutputDeviceManager Create(BassPlayer player)
-    {
-      OutputDeviceManager outputDeviceManager = new OutputDeviceManager(player);
-      outputDeviceManager.Initialize();
-      return outputDeviceManager;
-    }
-
-    #endregion
-
     #region Fields
 
-    private readonly BassPlayer _Player;
-    private OutputDeviceFactory _OutputDeviceFactory;
+    private readonly OutputDeviceFactory _OutputDeviceFactory;
     private IOutputDevice _OutputDevice;
     private bool _Initialized;
 
     #endregion
+
+    public OutputDeviceManager(Controller controller)
+    {
+      _OutputDeviceFactory = new OutputDeviceFactory(controller);
+    }
 
     #region IDisposable Members
 
@@ -89,7 +77,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     }
 
     /// <summary>
-    /// Returns a reference to the currently used IOutputDevice object.
+    /// Returns a reference to the currently used IOutputDevice object. Can be <c>null</c> if no stream is being played.
     /// </summary>
     public IOutputDevice OutputDevice
     {
@@ -99,7 +87,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <summary>
     /// Sets the Bass inputstream and initializes the outputdevice.
     /// </summary>
-    /// <param name="stream"></param>
+    /// <param name="stream">The stream delivering the input data for this output device.</param>
     public void SetInputStream(BassStream stream)
     {
       Log.Debug("OutputDeviceManager.SetInputStream()");
@@ -117,8 +105,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <summary>
     /// Starts playback.
     /// </summary>
-    /// <param name="fadeIn"></param>
-    public void StartDevice(bool fadeIn)
+    public void StartDevice()
     {
       Log.Debug("OutputDeviceManager.StartDevice()");
 
@@ -127,27 +114,21 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         
       if (_OutputDevice.DeviceState == DeviceState.Stopped)
       {
-        if (fadeIn)
-        {
-          Log.Debug("Calling PrepareFadeIn()");
-          _OutputDevice.PrepareFadeIn();
-        }
+        Log.Debug("OutputDevice: PrepareFadeIn()");
+        _OutputDevice.PrepareFadeIn();
 
-        Log.Debug("Calling Start()");
+        Log.Debug("OutputDevice: Start()");
         _OutputDevice.Start();
 
-        if (fadeIn)
-        {
-          Log.Debug("Calling FadeIn()");
-          _OutputDevice.FadeIn();
-        }
+        Log.Debug("OutputDevice: FadeIn()");
+        _OutputDevice.FadeIn(true);
       }
     }
 
     /// <summary>
     /// Stops playback.
     /// </summary>
-    public void StopDevice()
+    public void StopDevice(bool waitForFadeOut)
     {
       Log.Debug("OutputDeviceManager.StopDevice()");
 
@@ -157,8 +138,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (_OutputDevice.DeviceState == DeviceState.Started)
       {
         Log.Debug("Calling FadeOut()");
-        _OutputDevice.FadeOut();
-          
+        _OutputDevice.FadeOut(!waitForFadeOut);
+
         Log.Debug("Calling Stop()");
         _OutputDevice.Stop();
       }
@@ -198,23 +179,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         _OutputDevice.Dispose();
         _OutputDevice = null;
       }
-    }
-
-    #endregion
-
-    #region Private members
-      
-    private OutputDeviceManager(BassPlayer player)
-    {
-      _Player = player;
-    }
-      
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    private void Initialize()
-    {
-      _OutputDeviceFactory = new OutputDeviceFactory(_Player);
     }
 
     #endregion

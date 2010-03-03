@@ -115,5 +115,10 @@ namespace Ui.Players.BassPlayer.InputSources
     }
 
     #endregion
+
+    public override string ToString()
+    {
+      return GetType().Name + ": " + _cdTrackFilePath;
+    }
   }
 }

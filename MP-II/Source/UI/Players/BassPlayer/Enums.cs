@@ -37,7 +37,7 @@ namespace Ui.Players.BassPlayer
   public enum OutputMode
   {
     DirectSound,
-    ASIO
+    // TODO: WASAPI
   }
 
   public enum PlaybackMode
@@ -51,6 +51,7 @@ namespace Ui.Players.BassPlayer
   {
     Playing,
     Paused,
+    Stopping,
     Stopped
   }
 

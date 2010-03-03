@@ -30,6 +30,5 @@ namespace Ui.Players.BassPlayer
     public const int BassDefaultDevice = -1;
     public const int BassNoSoundDevice = 0;
     public const int BassInvalidHandle = 0;
-    public const int BassErrorEnded = 45;
   }
 }

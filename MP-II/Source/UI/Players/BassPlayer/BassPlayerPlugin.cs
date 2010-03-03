@@ -30,6 +30,7 @@ using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Settings;
 using MediaPortal.UI.Presentation.Players;
+using Ui.Players.BassPlayer.Settings;
 
 namespace Ui.Players.BassPlayer
 {
@@ -74,7 +75,7 @@ namespace Ui.Players.BassPlayer
       BassPlayerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BassPlayerSettings>();
       if (settings.SupportedExtensions.IndexOf(ext) > -1)
       {
-        BassPlayer player = BassPlayer.Create(_pluginDirectory);
+        BassPlayer player = new BassPlayer(_pluginDirectory);
         try
         {
           player.SetMediaItemLocator(locator);

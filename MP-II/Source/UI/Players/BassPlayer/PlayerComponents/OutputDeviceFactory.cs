@@ -25,6 +25,7 @@
 using System;
 using Ui.Players.BassPlayer.Interfaces;
 using Ui.Players.BassPlayer.OutputDevices;
+using Ui.Players.BassPlayer.Settings;
 
 namespace Ui.Players.BassPlayer.PlayerComponents
 {
@@ -32,9 +33,14 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   {
     #region Protected fields
 
-    protected BassPlayer _player;
+    protected Controller _controller;
 
     #endregion
+
+    public OutputDeviceFactory(Controller controller)
+    {
+      _controller = controller;
+    }
 
     #region IDisposable Members
 
@@ -46,11 +52,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     #region Public members
 
-    public OutputDeviceFactory(BassPlayer player)
-    {
-      _player = player;
-    }
-
     /// <summary>
     /// Creates an IOutputDevice object based on usersettings.
     /// </summary>
@@ -58,18 +59,16 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public IOutputDevice CreateOutputDevice()
     {
       IOutputDevice outputDevice;
-      switch (_player.Settings.OutputMode)
+      BassPlayerSettings settings = Controller.GetSettings();
+
+      switch (settings.OutputMode)
       {
         case OutputMode.DirectSound:
-          outputDevice = DirectXOutputDevice.Create(_player);
-          break;
-
-        case OutputMode.ASIO:
-          outputDevice = ASIOOutputDevice.Create(_player);
+          outputDevice = new DirectXOutputDevice(_controller);
           break;
 
         default:
-          throw new BassPlayerException(String.Format("Unknown constant AudioOutputMode.{0}", _player.Settings.OutputMode));
+          throw new BassPlayerException(String.Format("Unimplemented audio output mode {0}", settings.OutputMode));
       }
       return outputDevice;
     }

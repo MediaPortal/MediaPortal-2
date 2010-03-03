@@ -26,7 +26,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
 using Ui.Players.BassPlayer.Utils;
 using Un4seen.Bass;
 
@@ -35,23 +34,29 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <summary>
   /// Manages the Bass audio library and its plugins.
   /// </summary>
-  internal class BassLibraryManager : IDisposable
+  public class BassLibraryManager : IDisposable
   {
     #region Static members
 
-    private static bool _BassInitialized = false;
-    private static readonly ICollection<int> _DecoderPluginHandles = new List<int>();
+    private static readonly object _syncObj = new object();
+    private static volatile BassLibraryManager _bassLibraryManager = null;
+    private readonly ICollection<int> _DecoderPluginHandles = new List<int>();
 
     /// <summary>
     /// Loads and initializes the Bass library.
     /// </summary>
     /// <param name="playerPluginsDirectory">Directory where the BASS player plugins are located.</param>
     /// <returns>The new instance.</returns>
-    public static BassLibraryManager Create(string playerPluginsDirectory)
+    public static BassLibraryManager Get(string playerPluginsDirectory)
     {
-      BassLibraryManager bassLibrary = new BassLibraryManager();
-      Initialize(playerPluginsDirectory);
-      return bassLibrary;
+      lock (_syncObj)
+      {
+        if (_bassLibraryManager != null)
+          return _bassLibraryManager;
+        _bassLibraryManager = new BassLibraryManager();
+        _bassLibraryManager.Initialize(playerPluginsDirectory);
+        return _bassLibraryManager;
+      }
     }
 
     #endregion
@@ -62,32 +67,27 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     {
     }
 
-    private static void Initialize(string playerPluginsDirectory)
+    private void Initialize(string playerPluginsDirectory)
     {
-      if (!_BassInitialized)
-      {
-        // Register BASS.Net, necessary to avoid splash screen
-        BassRegistration.BassRegistration.Register();
+      // Register BASS.Net, necessary to avoid splash screen
+      BassRegistration.BassRegistration.Register();
 
-        // Initialize the NoSound device to enable calling BASS functions before our output device is properly initialized
-        if (!Bass.BASS_Init(BassConstants.BassNoSoundDevice, 44100, 0, IntPtr.Zero))
-          throw new BassLibraryException("BASS_Init");
+      // Initialize the NoSound device to enable calling BASS functions before our output device is properly initialized
+      if (!Bass.BASS_Init(BassConstants.BassNoSoundDevice, 44100, 0, IntPtr.Zero))
+        throw new BassLibraryException("BASS_Init");
 
-        // Set volume to linear scale as requested by the IVolumeControl interface
-        if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_CURVE_VOL, false))
-          throw new BassLibraryException("BASS_SetConfig");
+      // Set volume to linear scale as requested by the IVolumeControl interface
+      if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_CURVE_VOL, false))
+        throw new BassLibraryException("BASS_SetConfig");
 
-        // Disable update thread while the player is not running
-        if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
-          throw new BassLibraryException("BASS_SetConfig");
+      // Disable update thread while the player is not running
+      if (!Bass.BASS_SetConfig(BASSConfig.BASS_CONFIG_UPDATEPERIOD, 0))
+        throw new BassLibraryException("BASS_SetConfig");
 
-        LoadPlugins(playerPluginsDirectory);
-
-        _BassInitialized = true;
-      }
+      LoadPlugins(playerPluginsDirectory);
     }
 
-    private static void LoadPlugins(string playerPluginsDirectory)
+    private void LoadPlugins(string playerPluginsDirectory)
     {
       Log.Info("Loading player add-ins from '{0}'", playerPluginsDirectory);
 
@@ -114,24 +114,24 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
     public void Dispose()
     {
-      if (!_BassInitialized)
-        throw new IllegalCallException("BassLibraryManager: Not initialized");
+      lock (_syncObj)
+      {
+        Log.Debug("BassLibraryManager.Dispose()");
 
-      Log.Debug("BassLibraryManager.Dispose()");
+        Log.Debug("Unloading all BASS player plugins");
+        foreach (int pluginHandle in _DecoderPluginHandles)
+          Bass.BASS_PluginFree(pluginHandle);
+        _DecoderPluginHandles.Clear();
 
-      Log.Debug("Unloading all BASS player plugins");
-      foreach (int pluginHandle in _DecoderPluginHandles)
-        Bass.BASS_PluginFree(pluginHandle);
-      _DecoderPluginHandles.Clear();
+        // Free the NoSound device
+        if (!Bass.BASS_SetDevice(BassConstants.BassNoSoundDevice))
+          throw new BassLibraryException("BASS_SetDevice");
 
-      // Free the NoSound device
-      if (!Bass.BASS_SetDevice(BassConstants.BassNoSoundDevice))
-        throw new BassLibraryException("BASS_SetDevice");
+        if (!Bass.BASS_Free())
+          throw new BassLibraryException("BASS_Free");
 
-      if (!Bass.BASS_Free())
-        throw new BassLibraryException("BASS_Free");
-
-      _BassInitialized = false;
+        _bassLibraryManager = null;
+      }
     }
 
     #endregion

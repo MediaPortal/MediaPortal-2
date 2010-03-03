@@ -32,17 +32,17 @@ namespace Ui.Players.BassPlayer.Utils
   /// </summary>
   internal class AudioRingBuffer
   {
-    private Object _locker = new Object();
+    private readonly Object _syncObj = new Object();
 
-    private int _delay;
+    private readonly int _delay;
 
-    private float[] _buffer;
+    private readonly float[] _buffer;
+    private readonly int _bufferLength;
+    private readonly int _bytesPerMilliSec;
+    private readonly bool _Is32bit = false;
     private int _writePointer;
     private int _readPointer;
     private int _space;
-    private int _bufferLength;
-    private int _bytesPerMilliSec;
-    private bool _Is32bit = false;
 
     /// <summary>
     /// Returns the current delay in milliseconds (delay for the actual filled part of the buffer).
@@ -140,15 +140,14 @@ namespace Ui.Players.BassPlayer.Utils
 
       int readPointer;
       int writePointer;
-      int space;
 
       // To minimize locking contention, reserve the space we are going to fill 
       // before we actually fill it.
-      lock (_locker)
+      lock (_syncObj)
       {
         readPointer = _readPointer;
         writePointer = _writePointer;
-        space = _space;
+        int space = _space;
 
         if (count > space)
           count = space;
@@ -189,12 +188,13 @@ namespace Ui.Players.BassPlayer.Utils
     /// <returns></returns>
     public int Peek(IntPtr buffer, int requested, int offset)
     {
+      // Same code as method Read, only without the last update of _readPointer and _space
       int read;
       int readPointer;
       int writePointer;
       int space;
 
-      lock (_locker)
+      lock (_syncObj)
       {
         readPointer = _readPointer;
         writePointer = _writePointer;
@@ -231,11 +231,7 @@ namespace Ui.Players.BassPlayer.Utils
         int count2 = Math.Min(requested - count1, writePointer);
         if (count2 > 0)
         {
-          IntPtr ptr;
-          if (_Is32bit)
-            ptr = new IntPtr(buffer.ToInt32() + (count1 * BassConstants.FloatBytes));
-          else
-            ptr = new IntPtr(buffer.ToInt64() + (count1 * BassConstants.FloatBytes));
+          IntPtr ptr = new IntPtr(_Is32bit ? buffer.ToInt32() : buffer.ToInt64() + (count1 * BassConstants.FloatBytes));
 
           Marshal.Copy(_buffer, 0, ptr, count2);
           readPointer = count2;
@@ -259,7 +255,7 @@ namespace Ui.Players.BassPlayer.Utils
       int writePointer;
       int space;
 
-      lock (_locker)
+      lock (_syncObj)
       {
         readPointer = _readPointer;
         writePointer = _writePointer;
@@ -300,12 +296,7 @@ namespace Ui.Players.BassPlayer.Utils
         {
           if (buffer != IntPtr.Zero)
           {
-            IntPtr ptr;
-            if (_Is32bit)
-              ptr = new IntPtr(buffer.ToInt32() + (count1 * BassConstants.FloatBytes));
-            else
-              ptr = new IntPtr(buffer.ToInt64() + (count1 * BassConstants.FloatBytes));
-
+            IntPtr ptr = new IntPtr(_Is32bit ? buffer.ToInt32() : buffer.ToInt64() + (count1 * BassConstants.FloatBytes));
             Marshal.Copy(_buffer, 0, ptr, count2);
           }
           readPointer = count2;
@@ -317,7 +308,7 @@ namespace Ui.Players.BassPlayer.Utils
       if (readPointer < 0)
         readPointer += _bufferLength;
 
-      lock (_locker)
+      lock (_syncObj)
       {
         _readPointer = readPointer;
         _space += read;

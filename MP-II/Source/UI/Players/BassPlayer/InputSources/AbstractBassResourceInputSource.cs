@@ -27,7 +27,7 @@ using MediaPortal.Core.MediaManagement;
 
 namespace Ui.Players.BassPlayer.InputSources
 {
-  public class AbstractBassResourceInputSource : IDisposable
+  public abstract class AbstractBassResourceInputSource : IDisposable
   {
     #region Protected fields
 
@@ -35,14 +35,14 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #endregion
 
+    protected AbstractBassResourceInputSource(IResourceAccessor resourceAccessor)
+    {
+      _accessor = resourceAccessor;
+    }
+
     public IResourceAccessor ResourceAccessor
     {
       get { return _accessor; }
-    }
-
-    protected void SetResourceAccessor(IResourceAccessor accessor)
-    {
-      _accessor = accessor;
     }
 
     #region IDisposable implementation
@@ -54,5 +54,10 @@ namespace Ui.Players.BassPlayer.InputSources
     }
 
     #endregion
+
+    public override string ToString()
+    {
+      return GetType().Name + (_accessor == null ? string.Empty : (": " + _accessor.ResourcePathName));
+    }
   }
 }

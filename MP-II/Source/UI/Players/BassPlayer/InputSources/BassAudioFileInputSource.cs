@@ -155,10 +155,7 @@ namespace Ui.Players.BassPlayer.InputSources
 
     #region Private Members
 
-    private BassAudioFileInputSource(IResourceAccessor resourceAccessor)
-    {
-      SetResourceAccessor(resourceAccessor); // Register accessor to be disposed later
-    }
+    private BassAudioFileInputSource(IResourceAccessor resourceAccessor) : base(resourceAccessor) { }
 
     /// <summary>
     /// Initializes a new instance.

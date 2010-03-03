@@ -35,12 +35,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// </summary>
   public class InputSourceFactory : IDisposable
   {
-    public InputSourceFactory(BassPlayer player) { }
-
     #region IDisposable Members
 
     public void Dispose()
     {
+      // Maybe needed in the future?
     }
 
     #endregion

@@ -31,27 +31,24 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <summary>
   /// Performs upmixing and downmixing.
   /// </summary>
-  internal class UpDownMixer : IDisposable
+  public class UpDownMixer : IDisposable
   {
     #region Static members
 
     /// <summary>
-    /// Creates and initializes an new instance.
+    /// Creates and initializes a new instance.
     /// </summary>
-    /// <param name="player">Reference to containing IPlayer object.</param>
-    /// <returns>The new instance.</returns>
-    public static UpDownMixer Create(BassPlayer player)
+    /// <param name="controller">Containing controller instance.</param>
+    public UpDownMixer(Controller controller)
     {
-      UpDownMixer upDownMixer = new UpDownMixer(player);
-      upDownMixer.Initialize();
-      return upDownMixer;
+      _controller = controller;
     }
 
     #endregion
 
     #region Fields
 
-    private BassPlayer _Player;
+    private Controller _controller;
     private BassStream _InputStream;
     private BassStream _OutputStream;
     private bool _Initialized;
@@ -69,7 +66,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     #region Public members
 
     /// <summary>
-    /// Gets the current inputstream as set with SetInputStream.
+    /// Gets the current inputstream as set by <see cref="SetInputStream"/>.
     /// </summary>
     public BassStream InputStream
     {
@@ -87,7 +84,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// <summary>
     /// Sets the Bass inputstream.
     /// </summary>
-    /// <param name="stream"></param>
+    /// <param name="stream">The stream to be used as input stream.</param>
     public void SetInputStream(BassStream stream)
     {
       ResetInputStream();
@@ -105,27 +102,12 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       {
         _Initialized = false;
 
+        // Dispose has to be done if we have our own OutputStream
         //_OutputStream.Dispose();
         _OutputStream = null;
           
         _InputStream = null;
       }
-    }
-
-    #endregion
-
-    #region Private members
-
-    private UpDownMixer(BassPlayer player)
-    {
-      _Player = player;
-    }
-
-    /// <summary>
-    /// Initializes a new instance.
-    /// </summary>
-    private void Initialize()
-    {
     }
 
     #endregion
