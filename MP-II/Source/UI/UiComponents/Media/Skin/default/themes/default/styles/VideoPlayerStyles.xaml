@@ -121,7 +121,7 @@
                     Command="{Command Stop}"/>
                 <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
                     Command="{Command SeekForward}"/>
-                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
               </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
@@ -235,7 +235,7 @@
                     Command="{Command Stop}"/>
                 <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
                     Command="{Command SeekForward}"/>
-                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,10,5,5" IsVisible="{Binding CanSkipForward}"
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
               </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
