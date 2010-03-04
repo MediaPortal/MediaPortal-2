@@ -154,9 +154,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       // Selected attributes
       result.Append(valueAttribute.GetDeclarationWithAlias(ns, out valueAlias));
       result.Append(", ");
-      string countAttribute = "COUNT(" + valueAttribute.GetDeclarationWithAlias(ns, out valueAlias) + ")";
+      string countAttribute = "COUNT(" + valueAttribute.GetQualifiedName(ns) + ") ";
       result.Append(countAttribute);
-      result.Append(") ");
       groupSizeAlias = ns.GetOrCreate(countAttribute, "C");
       result.Append(groupSizeAlias);
       result.Append(" FROM ");
@@ -180,6 +179,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append("WHERE ");
         result.Append(whereStr);
       }
+
+      result.Append(" GROUP BY ");
+      result.Append(valueAttribute.GetQualifiedName(ns));
 
       statementStr = result.ToString();
     }
