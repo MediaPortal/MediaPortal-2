@@ -338,7 +338,7 @@ namespace MediaPortal.Core.MediaManagement
             }
             catch (ArgumentException e)
             {
-              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e);
+              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e, this);
             }
           }
           else
@@ -352,7 +352,7 @@ namespace MediaPortal.Core.MediaManagement
             }
             catch (ArgumentException e)
             {
-              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e);
+              throw new IllegalCallException("ResourcePath '{0}' doesn't represent a valid resource in this system", e, this);
             }
           }
         } while (enumer.MoveNext());

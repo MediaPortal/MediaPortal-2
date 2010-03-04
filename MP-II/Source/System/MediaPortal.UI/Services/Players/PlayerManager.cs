@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
@@ -324,11 +325,18 @@ namespace MediaPortal.UI.Services.Players
           if (builderRegistration.Suspended)
             continue;
           // Build player
-          IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(locator, mimeType);
-          if (player != null)
+          try
           {
-            psc.AssignPlayerAndBuilderRegistration(player, builderRegistration);
-            return true;
+            IPlayer player = builderRegistration.PlayerBuilder.GetPlayer(locator, mimeType);
+            if (player != null)
+            {
+              psc.AssignPlayerAndBuilderRegistration(player, builderRegistration);
+              return true;
+            }
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Error("Unable to create media player for media resource '{0}'", e, locator);
           }
         }
         return false;
