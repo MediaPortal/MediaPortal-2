@@ -42,20 +42,22 @@
           <TextBox Grid.Row="1" Style="{ThemeResource TextBoxStyle}"
               Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100"/>
         </Grid>
-        <ListView Grid.Column="0" Grid.Row="1"
-            Style="{ThemeResource ContentsMenuListViewStyle}"
-            ItemsSource="{Binding Items}" IsVisible="{Binding IsItemsValid}">
-          <ListView.Resources>
-            <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
-                Parameters="{LateBoundValue Value={Binding}}"/>
-          </ListView.Resources>
-        </ListView>
-        <Label Grid.Row="1" IsVisible="{Binding !IsItemsValid}"
+        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
+          <!-- To support all properties of the media items (e.g. artist, album, etc.), we need to use a special ListView style -->
+          <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}">
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
+                  Parameters="{LateBoundValue Value={Binding}}"/>
+            </ListView.Resources>
+          </ListView>
+          <Label IsVisible="{Binding IsItemsEmpty}"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+        </StackPanel>
+        <Label Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsItemsValid}"
             HorizontalAlignment="Center" VerticalAlignment="Center"
             Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
-        <Label Grid.Row="1" IsVisible="{Binding IsItemsEmpty}"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
       </Grid>
     </ResourceWrapper>
 
