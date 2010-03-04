@@ -113,7 +113,7 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="activate">If set to <c>true</c>, the plugin will be activated at once.</param>
     /// <returns><c>true</c>, if the plugin could be enabled, else <c>false</c>. If this plugin
     /// is already enabled or activated, the return value will be <c>true</c>.</returns>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     bool TryStartPlugin(Guid pluginId, bool activate);
 
     /// <summary>
@@ -124,7 +124,7 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="pluginId">The id of the plugin to be stopped.</param>
     /// <returns><c>true</c>, if the plugin could be disabled, else <c>false</c>. If this plugin
     /// is already disabled, the return value will be <c>true</c>.</returns>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     bool TryStopPlugin(Guid pluginId);
 
     /// <summary>
@@ -197,7 +197,7 @@ namespace MediaPortal.Core.PluginManager
     /// If the requested item doesn't have type <see cref="T"/>, the item will be loaded anyhow,
     /// but in this case, the <paramref name="stateTracker"/> won't be registered at the item.
     /// </remarks>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     /// <seealso cref="RequestAllPluginItems{T}"/>
     T RequestPluginItem<T>(string location, string id, IPluginItemStateTracker stateTracker) where T : class;
 
@@ -210,7 +210,7 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="stateTracker">Instance used to track the item's state.</param>
     /// <returns>The plugin item instance or <c>null</c>, if an item with the specified
     /// criteria was not registered.</returns>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     object RequestPluginItem(string location, string id, Type type, IPluginItemStateTracker stateTracker);
 
     /// <summary>
@@ -228,7 +228,7 @@ namespace MediaPortal.Core.PluginManager
     /// All items at the specified <paramref name="location"/> will be loaded. For those items which don't have
     /// type <see cref="T"/>, the <paramref name="stateTracker"/> won't be registered.
     /// </remarks>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     ICollection<T> RequestAllPluginItems<T>(string location, IPluginItemStateTracker stateTracker) where T : class;
 
     /// <summary>
@@ -238,7 +238,7 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="type">Class of the requested items.</typeparam>
     /// <param name="stateTracker">Instance used to manage the item's state.</param>
     /// <returns>Collection of plugin items registered at the specified location in the plugin tree.</returns>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     ICollection RequestAllPluginItems(string location, Type type, IPluginItemStateTracker stateTracker);
 
     /// <summary>
@@ -250,7 +250,7 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="id">Id which was used to register the item to revoke.</param>
     /// <param name="stateTracker">State tracker instance which was registered by the call to
     /// <see cref="RequestPluginItem{T}"/> or <see cref="RequestAllPluginItems{T}"/> before.</param>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     void RevokePluginItem(string location, string id, IPluginItemStateTracker stateTracker);
 
     /// <summary>
@@ -261,7 +261,7 @@ namespace MediaPortal.Core.PluginManager
     /// <param name="location">Registration location of the items to revoke.</param>
     /// <param name="stateTracker">State tracker instance which was registered by the call to
     /// <see cref="RequestAllPluginItems{T}"/> before.</param>
-    /// <exception cref="PluginLockedException">If the plugin is locked by an ongoing plugin action.</exception>
+    /// <exception cref="PluginLockException">If the plugin is locked by an ongoing plugin action.</exception>
     void RevokeAllPluginItems(string location, IPluginItemStateTracker stateTracker);
 
     /// <summary>

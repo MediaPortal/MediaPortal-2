@@ -401,9 +401,9 @@ namespace MediaPortal.Core.Services.PluginManager
           throw new PluginInvalidStateException(string.Format(
               "Plugin '{0}' (id '{1}') cannot be activated", plugin.Metadata.Name, plugin.Metadata.PluginId));
         if (mustBeActive)
-          LockPluginStateDependency(plugin, PluginState.Active);
+          LockPluginStateDependency(plugin, false, PluginState.Active);
         else
-          LockPluginStateDependency(plugin, PluginState.Active, PluginState.Enabled);
+          LockPluginStateDependency(plugin, false, PluginState.Active, PluginState.Enabled);
         try
         {
           object item = builder.BuildItem(itemMetadata, plugin);
@@ -436,7 +436,7 @@ namespace MediaPortal.Core.Services.PluginManager
         }
         finally
         {
-          UnlockPluginStateDependency(plugin);
+          UnlockPluginState(plugin);
         }
       }
       catch (Exception e)
@@ -462,7 +462,7 @@ namespace MediaPortal.Core.Services.PluginManager
     {
       PluginItemMetadata metadata = itemRegistration.Metadata;
       PluginRuntime plugin = metadata.PluginRuntime;
-      LockPluginStateDependency(plugin, PluginState.Active, PluginState.Enabled);
+      LockPluginStateDependency(plugin, false, PluginState.Active, PluginState.Enabled);
       try
       {
         lock (_syncObj)
@@ -489,7 +489,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        UnlockPluginStateDependency(plugin);
+        UnlockPluginState(plugin);
       }
     }
 
@@ -544,7 +544,7 @@ namespace MediaPortal.Core.Services.PluginManager
       PluginRuntime builderPlugin = builderRegistration.PluginRuntime;
       if (!TryActivate(builderPlugin))
         throw new PluginInvalidStateException("Cannot activate plugin providing builder '{0}', which is necessary to build item");
-      LockPluginStateDependency(builderPlugin, PluginState.Active);
+      LockPluginStateDependency(builderPlugin, false, PluginState.Active);
       try
       {
         object obj = null;
@@ -569,7 +569,7 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        UnlockPluginStateDependency(builderPlugin);
+        UnlockPluginState(builderPlugin);
       }
     }
 
@@ -663,14 +663,16 @@ namespace MediaPortal.Core.Services.PluginManager
     }
 
     /// <summary>
-    /// Method to lock a plugin to its current state until <see cref="UnlockPluginStateDependency"/> gets called. This avoids state
+    /// Method to lock a plugin to its current state until <see cref="UnlockPluginState"/> gets called. This avoids state
     /// changes for a plugin, for example while some progress is assuming the current plugin state.
     /// State changes could happen if a component of the outside tries to trigger a state change while
     /// it is called back from a state changing method.
     /// </summary>
-    /// <param name="plugin">The plugin to be locked.</param>
+    /// <param name="plugin">The plugin whose state should be locked.</param>
+    /// <param name="upgradableToWriteLock">Set to <c>true</c>, if the acquired lock should be upgradable to a writer lock.
+    /// This enables method <see cref="UpgradeReadLockToWriteLock"/> to be called.</param>
     /// <param name="statesToLock">The plugin must be in one of those states to be locked.</param>
-    protected void LockPluginStateDependency(PluginRuntime plugin, params PluginState[] statesToLock)
+    protected void LockPluginStateDependency(PluginRuntime plugin, bool upgradableToWriteLock, params PluginState[] statesToLock)
     {
       lock (_syncObj)
       {
@@ -678,44 +680,44 @@ namespace MediaPortal.Core.Services.PluginManager
         {
           ICollection<PluginState> states = new List<PluginState>(statesToLock);
           if (!states.Contains(plugin.State))
-            throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is not in one of the desired states ('{2}')",
-                plugin.Metadata.Name, plugin.Metadata.PluginId, StringUtils.Join(", ", statesToLock));
+            throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is in state '{2}' but is supposed to be in one of the states ('{3}')",
+                plugin.Metadata.Name, plugin.Metadata.PluginId, plugin.State, StringUtils.Join(", ", statesToLock));
         }
-        plugin.LockForStateDependency();
+        plugin.LockForStateDependency(upgradableToWriteLock);
       }
     }
 
-    protected void UnlockPluginStateDependency(PluginRuntime plugin)
+    /// <summary>
+    /// Upgrades a read lock to a write lock. May only be called if parameter <c>upgradableToWriteLock</c> of method
+    /// <see cref="LockPluginStateDependency"/> was set to <c>true</c>.
+    /// </summary>
+    /// <param name="plugin">The plugin whose state should be locked.</param>
+    protected void UpgradeReadLockToWriteLock(PluginRuntime plugin)
     {
-      plugin.UnlockStateDependency();
-    }
-
-    protected void ChangeReadLockToWriteLock(PluginRuntime plugin)
-    {
-      plugin.ChangeReadLockToWriteLock();
+      plugin.UpgradeReadLockToWriteLock();
     }
 
     /// <summary>
-    /// Method to lock a plugin to its current state until <see cref="UnlockPluginStateForWrite"/> gets called. This sets
+    /// Method to lock a plugin to its current state until <see cref="UnlockPluginState"/> gets called. This sets
     /// a writer lock at the plugin's state which avoids other writer or reader locks.
     /// State changes could happen if a component of the outside tries to trigger a state change while
     /// it is called back from a state changing method.
     /// </summary>
-    /// <param name="plugin">The plugin to be locked.</param>
+    /// <param name="plugin">The plugin whose state should be locked.</param>
     protected void LockPluginStateForWrite(PluginRuntime plugin)
     {
       plugin.LockForStateWrite();
     }
 
     /// <summary>
-    /// Method to unlock a plugin's writer lock, which was set by
-    /// <see cref="LockPluginStateForWrite(MediaPortal.Core.PluginManager.PluginRuntime)"/>.
+    /// Method to unlock a plugin's reader or writer lock, which was acquired by <see cref="LockPluginStateDependency"/> or
+    /// <see cref="LockPluginStateForWrite"/>.
     /// </summary>
-    /// <param name="plugin">The plugin for that method <see cref="LockPluginStateForWrite(MediaPortal.Core.PluginManager.PluginRuntime)"/>
+    /// <param name="plugin">The plugin for that method <see cref="LockPluginStateForWrite"/>
     /// was called before.</param>
-    protected void UnlockPluginStateForWrite(PluginRuntime plugin)
+    protected void UnlockPluginState(PluginRuntime plugin)
     {
-      plugin.UnlockStateForWrite();
+      plugin.UnlockState();
     }
 
     #endregion
@@ -735,16 +737,18 @@ namespace MediaPortal.Core.Services.PluginManager
     /// be enabled, else <c>false</c>.</returns>
     public bool TryEnable(PluginRuntime plugin, bool doAutoActivate)
     {
-      bool lockedForWrite = false;
-      LockPluginStateDependency(plugin); // First lock for read
-      ICollection<PluginRuntime> lockedPluginStateDependencies = new List<PluginRuntime> {plugin};
+      LockPluginStateDependency(plugin, false); // First lock for read
+      ICollection<PluginRuntime> lockedPluginStates = new List<PluginRuntime> {plugin};
       try
       {
-        // Plugin is already available - check its current state
+        // Check current plugin state - if it's already enabled or stopping, we can break the method early
         if (IsEnabledOrActive(plugin))
           return true;
         if (IsInStoppingProcess(plugin))
           return false;
+        // Exchange pure read lock by upgradable read lock
+        UnlockPluginState(plugin);
+        LockPluginStateDependency(plugin, true, PluginState.Available, PluginState.Disabled);
         ILogger logger = ServiceScope.Get<ILogger>();
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
@@ -771,8 +775,8 @@ namespace MediaPortal.Core.Services.PluginManager
             logger.Warn("Plugin '{0}' (id '{1}'): Dependency '{2}' cannot be enabled", pluginName, pluginId, parentId);
             return false;
           }
-          LockPluginStateDependency(parentPlugin, PluginState.Enabled, PluginState.Active);
-          lockedPluginStateDependencies.Add(parentPlugin);
+          LockPluginStateDependency(parentPlugin, false, PluginState.Enabled, PluginState.Active);
+          lockedPluginStates.Add(parentPlugin);
           pendingChildRegistrations.Add(parentPlugin); // Remember parent -> have to register return value as dependent plugin later
         }
 
@@ -807,9 +811,7 @@ namespace MediaPortal.Core.Services.PluginManager
           }
 
         // All checks passed and preconditions met, enable plugin
-        ChangeReadLockToWriteLock(plugin);
-        lockedForWrite = true;
-        lockedPluginStateDependencies.Remove(plugin);
+        UpgradeReadLockToWriteLock(plugin);
         try
         {
           plugin.RegisterItems();
@@ -831,10 +833,8 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        if (lockedForWrite)
-          UnlockPluginStateForWrite(plugin);
-        foreach (PluginRuntime lockedPlugin in lockedPluginStateDependencies)
-          UnlockPluginStateDependency(lockedPlugin);
+        foreach (PluginRuntime lockedPlugin in lockedPluginStates)
+          UnlockPluginState(lockedPlugin);
       }
       if (doAutoActivate && plugin.Metadata.AutoActivate)
         TryActivate(plugin);
@@ -852,13 +852,16 @@ namespace MediaPortal.Core.Services.PluginManager
         return false;
       if (IsInStoppingProcess(plugin))
         return false;
-      bool lockedForWrite = false;
-      LockPluginStateDependency(plugin); // First lock for read
-      ICollection<PluginRuntime> lockedPluginStateDependencies = new List<PluginRuntime> {plugin};
+      LockPluginStateDependency(plugin, false); // First lock for read
+      ICollection<PluginRuntime> lockedPluginStates = new List<PluginRuntime> {plugin};
       try
       {
+        // Check current plugin state - if it's already active, we can break the method early
         if (plugin.State == PluginState.Active)
           return true;
+        // Exchange pure read lock by upgradable read lock
+        UnlockPluginState(plugin);
+        LockPluginStateDependency(plugin, true, PluginState.Disabled, PluginState.Available, PluginState.Enabled);
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         ILogger logger = ServiceScope.Get<ILogger>();
@@ -878,13 +881,11 @@ namespace MediaPortal.Core.Services.PluginManager
                 parentId, pluginName);
             return false;
           }
-          LockPluginStateDependency(parentPlugin, PluginState.Active);
-          lockedPluginStateDependencies.Add(parentPlugin);
+          LockPluginStateDependency(parentPlugin, false, PluginState.Active);
+          lockedPluginStates.Add(parentPlugin);
         }
         // All checks passed and preconditions met, activate plugin
-        ChangeReadLockToWriteLock(plugin);
-        lockedForWrite = true;
-        lockedPluginStateDependencies.Remove(plugin);
+        UpgradeReadLockToWriteLock(plugin);
         lock (_syncObj)
         {
           plugin.LoadAssemblies();
@@ -930,10 +931,8 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        if (lockedForWrite)
-          UnlockPluginStateForWrite(plugin);
-        foreach (PluginRuntime lockedPlugin in lockedPluginStateDependencies)
-          UnlockPluginStateDependency(lockedPlugin);
+        foreach (PluginRuntime lockedPlugin in lockedPluginStates)
+          UnlockPluginState(lockedPlugin);
       }
     }
 
@@ -947,15 +946,18 @@ namespace MediaPortal.Core.Services.PluginManager
     /// items usages could be stopped, else <c>false</c>.</returns>
     public bool TryDisable(PluginRuntime plugin)
     {
-      bool lockedForWrite = false;
-      LockPluginStateDependency(plugin); // First lock for read
-      ICollection<PluginRuntime> lockedPluginStateDependencies = new List<PluginRuntime> {plugin};
+      LockPluginStateDependency(plugin, false); // First lock for read
+      ICollection<PluginRuntime> lockedPluginStates = new List<PluginRuntime> {plugin};
       try
       {
+        // Check current plugin state - if it's already disabled or stopping, we can break the method early
         if (plugin.State == PluginState.Disabled)
           return true;
         if (IsInStoppingProcess(plugin))
           throw new PluginInvalidStateException("Plugin is in stopping process");
+        // Exchange pure read lock by upgradable read lock
+        UnlockPluginState(plugin);
+        LockPluginStateDependency(plugin, true, PluginState.Enabled, PluginState.Active);
         ILogger logger = ServiceScope.Get<ILogger>();
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
@@ -973,13 +975,11 @@ namespace MediaPortal.Core.Services.PluginManager
                   pluginName, childPlugin.Metadata.PluginId);
               return false;
             }
-            LockPluginStateDependency(childPlugin, PluginState.Disabled);
-            lockedPluginStateDependencies.Add(childPlugin);
+            LockPluginStateDependency(childPlugin, false, PluginState.Disabled);
+            lockedPluginStates.Add(childPlugin);
           }
         // All checks passed and preconditions met, change plugin state
-        ChangeReadLockToWriteLock(plugin);
-        lockedForWrite = true;
-        lockedPluginStateDependencies.Remove(plugin);
+        UpgradeReadLockToWriteLock(plugin);
         if (plugin.State == PluginState.Active)
         {
           plugin.State = PluginState.EndRequest;
@@ -1039,10 +1039,8 @@ namespace MediaPortal.Core.Services.PluginManager
       }
       finally
       {
-        if (lockedForWrite)
-          UnlockPluginStateForWrite(plugin);
-        foreach (PluginRuntime lockedPlugin in lockedPluginStateDependencies)
-          UnlockPluginStateDependency(lockedPlugin);
+        foreach (PluginRuntime lockedPlugin in lockedPluginStates)
+          UnlockPluginState(lockedPlugin);
       }
     }
 

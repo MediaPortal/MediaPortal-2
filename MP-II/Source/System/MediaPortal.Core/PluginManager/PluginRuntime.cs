@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.PluginManager.Exceptions;
 using MediaPortal.Core.Registry;
@@ -86,12 +87,16 @@ namespace MediaPortal.Core.PluginManager
 
     protected const string ITEMCHANGELISTENER_ID = "PLUGIN_ITEM_CHANGE_LISTENERS";
 
+    /// <summary>
+    /// Timeout until we assume a deadlock.
+    /// </summary>
+    protected static readonly TimeSpan STATE_LOCK_TIMEOUT = new TimeSpan(0, 0, 0, 2);
+
     protected object _syncObj;
     protected IPluginMetadata _pluginMetadata;
     protected PluginState _state;
 
-    protected bool _stateIsToBeChanged; // True if the plugin's state is currently to be changed
-    protected uint _numStateDependencies; // Number of concurrent readers which depend on the current plugin's state - no writer allowed if a reader is present and vice-versa
+    protected ReaderWriterLockSlim _stateReaderWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
     protected IDictionary<PluginItemMetadata, PluginItemRegistration> _itemRegistrations =
         new Dictionary<PluginItemMetadata, PluginItemRegistration>();
@@ -139,14 +144,12 @@ namespace MediaPortal.Core.PluginManager
       internal set { _state = value; }
     }
 
-    public bool IsStateToBeChanged
+    /// <summary>
+    /// Gets the lock which must be acuired when reading or writing the <see cref="State"/>.
+    /// </summary>
+    public ReaderWriterLockSlim StateRWLock
     {
-      get { return _stateIsToBeChanged; }
-    }
-
-    public bool IsStateDependencyLocked
-    {
-      get { return _numStateDependencies > 0; }
+      get { return _stateReaderWriterLock; }
     }
 
     /// <summary>
@@ -454,57 +457,70 @@ namespace MediaPortal.Core.PluginManager
       listeners.Remove(listener);
     }
 
+    #region State lock methods
+
     internal void LockForStateWrite()
     {
-      lock (_syncObj)
+      try
       {
-        if (_stateIsToBeChanged)
-          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's currently changing its state",
+        if (!_stateReaderWriterLock.TryEnterWriteLock(STATE_LOCK_TIMEOUT))
+          throw new PluginLockException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's already locked",
               _pluginMetadata.Name, _pluginMetadata.PluginId);
-        if (_numStateDependencies > 0)
-          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's locked by state readers",
-              _pluginMetadata.Name, _pluginMetadata.PluginId);
-        _stateIsToBeChanged = true;
+      }
+      catch (LockRecursionException e)
+      {
+        throw new PluginLockException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's already locked", e,
+            _pluginMetadata.Name, _pluginMetadata.PluginId);
       }
     }
 
-    internal void ChangeReadLockToWriteLock()
+    internal void UpgradeReadLockToWriteLock()
     {
-      lock (_syncObj)
+      try
       {
-        if (_numStateDependencies == 0)
-          throw new PluginLockedException("Plugin '{0}' (id: '{1}'): No read lock available",
-              _pluginMetadata.Name, _pluginMetadata.PluginId);
-        if (_numStateDependencies > 1)
-          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for changing its state - it's locked by state readers",
-              _pluginMetadata.Name, _pluginMetadata.PluginId);
-        _numStateDependencies = 0;
-        _stateIsToBeChanged = true;
+        LockForStateWrite();
+      }
+      catch (LockRecursionException e)
+      {
+        throw new PluginLockException("Plugin '{0}' (id: '{1}') cannot be locked for write - it's already locked", e,
+            _pluginMetadata.Name, _pluginMetadata.PluginId);
       }
     }
 
-    internal void UnlockStateForWrite()
+    internal void UnlockState()
     {
-      lock (_syncObj)
-        _stateIsToBeChanged = false;
-    }
-
-    internal void LockForStateDependency()
-    {
-      lock (_syncObj)
+      // By separating the control flow for the cases read lock/write + optional updateable read lock, we avoid
+      // threading issues (if we would simply list all three ifs in sequence, we could interfere with another thread which
+      // just acquired the lock after we released it)
+      if (_stateReaderWriterLock.IsReadLockHeld)
+        _stateReaderWriterLock.ExitReadLock();
+      else
       {
-        if (_stateIsToBeChanged)
-          throw new PluginLockedException("Plugin '{0}' (id: '{1}') cannot be locked for state dependency - it's currently changing its state",
-              _pluginMetadata.Name, _pluginMetadata.PluginId);
-        _numStateDependencies++;
+        // A write lock might be held together with an upgradable read lock at the same time
+        if (_stateReaderWriterLock.IsWriteLockHeld)
+          _stateReaderWriterLock.ExitWriteLock();
+        if (_stateReaderWriterLock.IsUpgradeableReadLockHeld)
+          _stateReaderWriterLock.ExitUpgradeableReadLock();
       }
     }
 
-    internal void UnlockStateDependency()
+    internal void LockForStateDependency(bool upgradableToWriteLock)
     {
-      lock (_syncObj)
-        _numStateDependencies--;
+      try
+      {
+        if (upgradableToWriteLock && !_stateReaderWriterLock.TryEnterUpgradeableReadLock(STATE_LOCK_TIMEOUT) ||
+            !upgradableToWriteLock && !_stateReaderWriterLock.TryEnterReadLock(STATE_LOCK_TIMEOUT))
+          throw new PluginLockException("Plugin '{0}' (id: '{1}') cannot be locked for state dependency - it's currently changing its state",
+              _pluginMetadata.Name, _pluginMetadata.PluginId);
+      }
+      catch (LockRecursionException e)
+      {
+        throw new PluginLockException("Plugin '{0}' (id: '{1}') cannot be locked for state dependency - it's currently changing its state", e,
+            _pluginMetadata.Name, _pluginMetadata.PluginId);
+      }
     }
+
+    #endregion
 
     #endregion
 
