@@ -32,6 +32,14 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// <summary>
   /// Management class for playback sessions and available input sources.
   /// </summary>
+  /// <remarks>
+  /// This playback processor class maintains a queue of input sources to be played and a current playback session.
+  /// Input sources with the same number of channels and the same samplerate are compatible, which means that the same
+  /// playback session instance can play and crossfade them.<br/>
+  /// The playback session will automatically move to the next input source, if it is compatible.<br/>
+  /// If the next input source is not compatible with the current playback session, the current session will notify
+  /// its containing <see cref="PlaybackProcessor"/> which then will switch to a new playback session.
+  /// </remarks>
   public class PlaybackProcessor : IDisposable
   {
     #region Protected fields

@@ -41,11 +41,23 @@ namespace Ui.Players.BassPlayer
   /// Central controller for the BASS player system.
   /// </summary>
   /// <remarks>
+  /// <para>
   /// We separate the BASS player MediaPortal interface (class <see cref="BassPlayer"/>) from this controller class because
   /// the <see cref="BassPlayer"/> class provides several functions to the outside world which we don't want to mix
   /// with central controller functions. Furthermore, the interface class needs to track an external
   /// <see cref="PlayerState">playback state</see> which should be separated from the internal process and state of this
   /// controller class.
+  /// </para>
+  /// <para>
+  /// This class manages the <see cref="PlaybackProcessor"/> which does the actual playback, the
+  /// <see cref="OutputDeviceManager"/> which is responsible for managing output devices and provides the single player thread
+  /// which is used to communicate with the underlaying BASS library.
+  /// </para>
+  /// <para>
+  /// Multithreading:
+  /// This class is multithreading safe. But all components of this class which make use of the BASS library will be used
+  /// single-threaded. To achieve this, we use a work item queue where we put all to-be-executed work items. A player thread
+  /// is responsible for executing work items from that queue.
   /// </para>
   /// </remarks>
   public class Controller : IDisposable

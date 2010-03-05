@@ -36,6 +36,21 @@ namespace Ui.Players.BassPlayer
   /// <summary>
   /// MediaPortal 2 music player based on the Un4seen Bass library. Supports several player interfaces of the MP2 player API.
   /// </summary>
+  /// <remarks>
+  /// There are several aspects which need to be understood in the architecture of this player:
+  /// <para>
+  /// This <see cref="BassPlayer"/> class is a container for a complete player system, i.e. it contains, creates and
+  /// disposes the complete system. It provides an external player state and maintains some fields for the communication
+  /// with the external world like the player event delegates. But this <see cref="BassPlayer"/> class is not necessary
+  /// for the actual player functionality; the actual player functionality is provided by the <see cref="Controller"/>
+  /// class. The <see cref="Controller"/> class maintains the core player components and only does very little communication
+  /// with this class for calling the player events.<br/>
+  /// For internal architecture docs, see the class docs of the <see cref="Controller"/> class.
+  /// </para>
+  /// <para>
+  /// Multithreading: This "external" player interface class is safe for multithreading.
+  /// </para>
+  /// </remarks>
   public class BassPlayer : IDisposable, IAudioPlayer, IMediaPlaybackControl, IPlayerEvents, IReusablePlayer
   {
     #region Consts
@@ -46,7 +61,7 @@ namespace Ui.Players.BassPlayer
 
     #endregion
 
-    #region Fields
+    #region Protected fields
 
     protected readonly object _syncObj = new object();
 
