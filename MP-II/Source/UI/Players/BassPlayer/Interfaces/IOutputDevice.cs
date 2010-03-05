@@ -74,8 +74,9 @@ namespace Ui.Players.BassPlayer.Interfaces
     /// <summary>
     /// Sets the Bass inputstream and initializes the device.
     /// </summary>
-    /// <param name="stream"></param>
-    void SetInputStream(BassStream stream);
+    /// <param name="stream">The stream to set as input stream.</param>
+    /// <param name="passThrough">Sets the passthrough mode.</param>
+    void SetInputStream(BassStream stream, bool passThrough);
 
     /// <summary>
     /// Prepares for a fadein; sets the volume to zero.

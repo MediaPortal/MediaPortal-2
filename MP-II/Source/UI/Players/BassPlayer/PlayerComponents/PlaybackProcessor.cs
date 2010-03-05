@@ -101,13 +101,20 @@ namespace Ui.Players.BassPlayer.PlayerComponents
 
       // TODO: Insert gap between tracks if we are in playback mode Normal
       IInputSource inputSource = PeekNextInputSource();
-      PlaybackSession session = _playbackSession;
-      if (session != null)
-      {
+      if (_playbackSession != null)
         // TODO: Trigger crossfading if CF is configured
-        session.End(true);
-        if (!session.MoveToNewInputSource(inputSource))
-          session.Dispose();
+        _playbackSession.End(true);
+
+      Log.Debug("Playing next input source '{0}'", inputSource);      
+      if (_playbackSession != null)
+      {
+        if (_playbackSession.MoveToNewInputSource(inputSource))
+        {
+          _playbackSession.Play();
+          return;
+        }
+        _playbackSession.Dispose();
+        _playbackSession = null;
       }
 
       if (inputSource == null)
@@ -122,6 +129,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
         _internalState = InternalPlaybackState.Stopped;
         return;
       }
+      _playbackSession.Play();
 
       _internalState = InternalPlaybackState.Playing;
       _controller.StateReady();
@@ -140,9 +148,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (session != null && session.State == SessionState.AwaitingNextInputSource)
         // In this case, the session will automatically switch to the new item
         return;
-      // We might come here if the session ran out of samples before a new input source arrived.
-      // In that case, we must continue "by hand".
-      MoveToNextInputSource_Sync();
+      if (session == null || session.State == SessionState.Ended)
+        // We might come here if the session ran out of samples before a new input source arrived.
+        // In that case, we must continue "by hand".
+        MoveToNextInputSource_Sync();
     }
 
     internal void CheckInputSourceAvailable()
@@ -167,12 +176,6 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </summary>
     internal void HandleOutputStreamEnded()
     {
-      if (_internalState == InternalPlaybackState.Stopping)
-      { // If we are already stopping, ignore this event
-        _internalState = InternalPlaybackState.Stopped;
-        return;
-      }
-
       // We are coming here if
       // 1) The playback session ended and the next media item isn't compatible with the current session
       //    => In this case we need to start a new playback session for the next item
@@ -225,11 +228,13 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     {
       if (_internalState == InternalPlaybackState.Playing || _internalState == InternalPlaybackState.Paused)
       {
-        _internalState = InternalPlaybackState.Stopping;
-
-        _playbackSession.End(false);
-        _playbackSession.Dispose();
+        PlaybackSession session = _playbackSession;
         _playbackSession = null;
+        if (session != null)
+        {
+          session.End(false);
+          session.Dispose();
+        }
 
         _internalState = InternalPlaybackState.Stopped;
       }

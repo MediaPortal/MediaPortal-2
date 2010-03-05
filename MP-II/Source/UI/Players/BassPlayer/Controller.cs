@@ -68,11 +68,6 @@ namespace Ui.Players.BassPlayer
     protected volatile BassPlayer _player; // Not owned by this instance
     protected BassLibraryManager _bassLibraryManager;
     protected PlaybackProcessor _playbackProcessor;
-
-    protected UpDownMixer _upDownMixer;
-    protected VSTProcessor _VSTProcessor;
-    protected WinAmpDSPProcessor _WinAmpDSPProcessor;
-    protected PlaybackBuffer _playbackBuffer;
     protected OutputDeviceManager _outputDeviceManager;
 
     protected volatile bool _isMuted = false;
@@ -98,10 +93,6 @@ namespace Ui.Players.BassPlayer
       _bassLibraryManager = BassLibraryManager.Get(Path.Combine(playerMainDirectory, InternalSettings.PluginsPath));
 
       _playbackProcessor = new PlaybackProcessor(this);
-      _upDownMixer = new UpDownMixer(this);
-      _VSTProcessor = new VSTProcessor(this);
-      _WinAmpDSPProcessor = new WinAmpDSPProcessor(this);
-      _playbackBuffer = new PlaybackBuffer(this);
       _outputDeviceManager = new OutputDeviceManager(this);
 
       _mainThreadTerminated = false;
@@ -120,12 +111,8 @@ namespace Ui.Players.BassPlayer
 
       lock (_syncObj)
       {
-        _outputDeviceManager.Dispose();
-        _playbackBuffer.Dispose();
-        _WinAmpDSPProcessor.Dispose();
-        _VSTProcessor.Dispose();
-        _upDownMixer.Dispose();
         _playbackProcessor.Dispose();
+        _outputDeviceManager.Dispose();
 
         _bassLibraryManager.Dispose();
       }
@@ -141,26 +128,6 @@ namespace Ui.Players.BassPlayer
     public PlaybackProcessor PlaybackProcessor
     {
       get { return _playbackProcessor; }
-    }
-
-    public UpDownMixer UpDownMixer
-    {
-      get { return _upDownMixer; }
-    }
-
-    public VSTProcessor VSTProcessor
-    {
-      get { return _VSTProcessor; }
-    }
-
-    public WinAmpDSPProcessor WinAmpDSPProcessor
-    {
-      get { return _WinAmpDSPProcessor; }
-    }
-
-    public PlaybackBuffer PlaybackBuffer
-    {
-      get { return _playbackBuffer; }
     }
 
     public OutputDeviceManager OutputDeviceManager

@@ -44,8 +44,10 @@ namespace Ui.Players.BassPlayer
   {
     #region Public members
 
-    public BassLibraryException(string bassFunction) :
-        base(string.Format("Error calling function {0}(): {1}", bassFunction, Enum.GetName(typeof(BASSError), Bass.BASS_ErrorGetCode()))) { }
+    public BassLibraryException(string bassFunction) : this(bassFunction, Bass.BASS_ErrorGetCode()) { }
+
+    public BassLibraryException(string bassFunction, BASSError errorCode) :
+        base(string.Format("Error calling function {0}(): {1}", bassFunction, Enum.GetName(typeof(BASSError), errorCode))) { }
 
     #endregion
   }

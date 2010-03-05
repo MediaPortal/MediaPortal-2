@@ -32,9 +32,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   public enum SessionState
   {
     Reset,
+    Initialized,
     Playing,
-    Ended,
-    AwaitingNextInputSource
+    AwaitingNextInputSource,
+    Ended
   }
 
   /// <summary>
@@ -44,18 +45,22 @@ namespace Ui.Players.BassPlayer.PlayerComponents
   /// TODO: Crossfading
   public class PlaybackSession : IDisposable
   {
-    #region Fields
+    #region Protected fields
 
-    private readonly Controller _controller;
-    private readonly PlaybackProcessor _playbackProcessor;
-    private readonly int _channels;
-    private readonly int _sampleRate;
-    private readonly bool _isPassThrough;
+    protected readonly Controller _controller;
+    protected readonly PlaybackProcessor _playbackProcessor;
+    protected readonly int _channels;
+    protected readonly int _sampleRate;
+    protected readonly bool _isPassThrough;
 
-    private volatile SessionState _state;
-    private volatile IInputSource _currentInputSource = null;
-    private volatile BassStream _outputStream;
-    private readonly STREAMPROC _streamWriteProcDelegate;
+    protected volatile SessionState _state;
+    protected volatile IInputSource _currentInputSource = null;
+    protected volatile BassStream _outputStream;
+    protected PlaybackBuffer _playbackBuffer;
+    protected UpDownMixer _upDownMixer;
+    protected VSTProcessor _VSTProcessor;
+    protected WinAmpDSPProcessor _WinAmpDSPProcessor;
+    protected readonly STREAMPROC _streamWriteProcDelegate;
 
     #endregion
 
@@ -80,6 +85,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     {
       _controller = controller;
       _playbackProcessor = _controller.PlaybackProcessor;
+      _playbackBuffer = new PlaybackBuffer(controller);
+      _upDownMixer = new UpDownMixer(controller);
+      _VSTProcessor = new VSTProcessor(controller);
+      _WinAmpDSPProcessor = new WinAmpDSPProcessor(controller);
       _channels = channels;
       _sampleRate = sampleRate;
       _isPassThrough = isPassThrough;
@@ -93,7 +102,11 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public void Dispose()
     {
       Log.Debug("PlaybackSession.Dispose()");
-      Reset();
+      End(true);
+      _playbackBuffer.Dispose();
+      _WinAmpDSPProcessor.Dispose();
+      _VSTProcessor.Dispose();
+      _upDownMixer.Dispose();
     }
 
     #endregion
@@ -101,7 +114,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     #region Public members
 
     /// <summary>
-    /// Gets the number of channels for the session.
+    /// Gets the number of channels for this session.
     /// </summary>
     public int Channels
     {
@@ -109,7 +122,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     }
 
     /// <summary>
-    /// Gets the samplerate for the session.
+    /// Gets the samplerate for this session.
     /// </summary>
     public int SampleRate
     {
@@ -117,7 +130,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     }
 
     /// <summary>
-    /// Gets whether the session is in AC3/DTS passthrough mode.
+    /// Gets the information whether this session is in AC3/DTS passthrough mode.
     /// </summary>
     public bool IsPassThrough
     {
@@ -135,6 +148,26 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     public BassStream OutputStream
     {
       get { return _outputStream; }
+    }
+
+    public PlaybackBuffer PlaybackBuffer
+    {
+      get { return _playbackBuffer; }
+    }
+
+    public UpDownMixer UpDownMixer
+    {
+      get { return _upDownMixer; }
+    }
+
+    public VSTProcessor VSTProcessor
+    {
+      get { return _VSTProcessor; }
+    }
+
+    public WinAmpDSPProcessor WinAmpDSPProcessor
+    {
+      get { return _WinAmpDSPProcessor; }
     }
 
     public SessionState State
@@ -156,8 +189,16 @@ namespace Ui.Players.BassPlayer.PlayerComponents
           inputSource.OutputStream.IsPassThrough == IsPassThrough;
     }
 
+    public void Play()
+    {
+      if (_state != SessionState.Initialized)
+        return;
+      _state = SessionState.Playing;
+      _controller.OutputDeviceManager.StartDevice();
+    }
+
     /// <summary>
-    /// Ends and discards the playback session.
+    /// Ends and discards this playback session.
     /// </summary>
     public void End(bool waitForFadeOut)
     {
@@ -166,10 +207,10 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       _controller.OutputDeviceManager.StopDevice(waitForFadeOut);
         
       _controller.OutputDeviceManager.ResetInputStream();
-      _controller.PlaybackBuffer.ResetInputStream();
-      _controller.WinAmpDSPProcessor.ResetInputStream();
-      _controller.VSTProcessor.ResetInputStream();
-      _controller.UpDownMixer.ResetInputStream();
+      _playbackBuffer.ResetInputStream();
+      _WinAmpDSPProcessor.ResetInputStream();
+      _VSTProcessor.ResetInputStream();
+      _upDownMixer.ResetInputStream();
       Reset();
     }
 
@@ -226,18 +267,15 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_StreamCreate");
 
-      // Is it necessary to do this before streams get connected? Or should we do it just before StartDevice() is called?
-      _state = SessionState.Playing;
-
       _outputStream = BassStream.Create(handle);
         
-      _controller.UpDownMixer.SetInputStream(_outputStream);
-      _controller.VSTProcessor.SetInputStream(_controller.UpDownMixer.OutputStream);
-      _controller.WinAmpDSPProcessor.SetInputStream(_controller.VSTProcessor.OutputStream);
-      _controller.PlaybackBuffer.SetInputStream(_controller.WinAmpDSPProcessor.OutputStream);
-      _controller.OutputDeviceManager.SetInputStream(_controller.PlaybackBuffer.OutputStream);
-        
-      _controller.OutputDeviceManager.StartDevice();
+      _upDownMixer.SetInputStream(_outputStream);
+      _VSTProcessor.SetInputStream(_upDownMixer.OutputStream);
+      _WinAmpDSPProcessor.SetInputStream(_VSTProcessor.OutputStream);
+      _playbackBuffer.SetInputStream(_WinAmpDSPProcessor.OutputStream);
+      _controller.OutputDeviceManager.SetInputStream(_playbackBuffer.OutputStream, _outputStream.IsPassThrough);
+
+      _state = SessionState.Initialized;
       return true;
     }
 

@@ -80,22 +80,24 @@ namespace Ui.Players.BassPlayer.OutputDevices
           flags,
           IntPtr.Zero);
 
+      BASSError? bassInitErrorCode = result ? null : new BASSError?(Bass.BASS_ErrorGetCode());
+
       // If the GetDeviceNo() method returned BassConstants.BassDefaultDevice, we must request the actual device number
       // of the choosen default device
       _DeviceNo = Bass.BASS_GetDevice();
 
-      if (!result)
+      if (bassInitErrorCode.HasValue)
       {
-        if (Bass.BASS_ErrorGetCode() == BASSError.BASS_ERROR_ALREADY)
+        if (bassInitErrorCode.Value == BASSError.BASS_ERROR_ALREADY)
         {
           if (!Bass.BASS_SetDevice(_DeviceNo))
             throw new BassLibraryException("BASS_SetDevice");
-          result = true;
+          bassInitErrorCode = null;
         }
       }
 
-      if (!result)
-        throw new BassLibraryException("BASS_Init");
+      if (bassInitErrorCode.HasValue)
+        throw new BassLibraryException("BASS_Init", bassInitErrorCode.Value);
 
       CollectDeviceInfo(_DeviceNo);
 
@@ -179,7 +181,7 @@ namespace Ui.Players.BassPlayer.OutputDevices
       get { return _DeviceInfos[_DeviceNo]._Latency + Controller.GetSettings().DirectSoundBufferSize; }
     }
 
-    public void SetInputStream(BassStream stream)
+    public void SetInputStream(BassStream stream, bool passThrough)
     {
       if (_DeviceState != DeviceState.Stopped)
         throw new BassPlayerException("Device state is not 'DeviceState.Stopped'");
@@ -201,8 +203,7 @@ namespace Ui.Players.BassPlayer.OutputDevices
 
       _OutputStream = BassStream.Create(handle);
 
-      BassStream initialStream = _controller.PlaybackProcessor.OutputStream;
-      if (initialStream != null && !initialStream.IsPassThrough)
+      if (passThrough)
         _Fader = new BassStreamFader(_InputStream, Controller.GetSettings().FadeDuration);
 
       ResetState();
@@ -248,10 +249,10 @@ namespace Ui.Players.BassPlayer.OutputDevices
       {
         Log.Debug("Stopping output");
 
+        _DeviceState = DeviceState.Stopped;
+
         if (!Bass.BASS_ChannelStop(_OutputStream.Handle))
           throw new BassLibraryException("BASS_ChannelStop");
-
-        _DeviceState = DeviceState.Stopped;
       }
     }
 
@@ -365,7 +366,8 @@ namespace Ui.Players.BassPlayer.OutputDevices
       if (stream != null)
         while (Bass.BASS_ChannelIsActive(stream.Handle) != BASSActive.BASS_ACTIVE_STOPPED && DateTime.Now < timeout)
           Thread.Sleep(10);
-      _controller.PlaybackProcessor.HandleOutputStreamEnded();
+      if (_DeviceState == DeviceState.Started)
+        _controller.PlaybackProcessor.HandleOutputStreamEnded();
     }
 
     /// <summary>

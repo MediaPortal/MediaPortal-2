@@ -88,7 +88,8 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// Sets the Bass inputstream and initializes the outputdevice.
     /// </summary>
     /// <param name="stream">The stream delivering the input data for this output device.</param>
-    public void SetInputStream(BassStream stream)
+    /// <param name="passThrough">Sets the passthrough mode.</param>
+    public void SetInputStream(BassStream stream, bool passThrough)
     {
       Log.Debug("OutputDeviceManager.SetInputStream()");
         
@@ -98,7 +99,7 @@ namespace Ui.Players.BassPlayer.PlayerComponents
       _OutputDevice = _OutputDeviceFactory.CreateOutputDevice();
 
       Log.Debug("Calling SetInputStream()");
-      _OutputDevice.SetInputStream(stream);
+      _OutputDevice.SetInputStream(stream, passThrough);
       _Initialized = true;
     }
 
