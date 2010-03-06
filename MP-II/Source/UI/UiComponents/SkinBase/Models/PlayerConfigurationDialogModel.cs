@@ -438,7 +438,7 @@ namespace UiComponents.SkinBase.Models
       return pcm.GetPlayerContext(currentPlayerSlot);
     }
 
-    public void EnterContext(NavigationContext newContext)
+    protected void EnterContext(NavigationContext newContext)
     {
       if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
       {
@@ -453,15 +453,9 @@ namespace UiComponents.SkinBase.Models
       else if (newContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
       {
         int? slotIndex = newContext.GetContextVariable(KEY_PLAYER_SLOT, false) as int?;
-        if (slotIndex.HasValue)
-          _playerSlotAudioMenuSlotIndex = slotIndex.Value;
-        else
-          _playerSlotAudioMenuSlotIndex = 0;
+        _playerSlotAudioMenuSlotIndex = slotIndex.HasValue ? slotIndex.Value : 0;
         bool? showToggleMute = newContext.GetContextVariable(KEY_SHOW_MUTE, false) as bool?;
-        if (showToggleMute.HasValue)
-          _showToggleMute = showToggleMute.Value;
-        else
-          _showToggleMute = true;
+        _showToggleMute = !showToggleMute.HasValue || showToggleMute.Value;
         UpdatePlayerSlotAudioMenu();
         _inPlayerSlotAudioMenuDialog = true;
       }
@@ -473,7 +467,7 @@ namespace UiComponents.SkinBase.Models
       }
     }
 
-    public void ExitContext(NavigationContext oldContext)
+    protected void ExitContext(NavigationContext oldContext)
     {
       if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
       {
@@ -495,6 +489,21 @@ namespace UiComponents.SkinBase.Models
         _inPlayerChooseGeometryMenuDialog = false;
         _playerChooseGeometryMenu.Clear();
       }
+    }
+
+    public static void OpenChooseGeometryDialog(IPlayerContext playerContext)
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, null, new Dictionary<string, object>
+        {
+            {KEY_PLAYER_CONTEXT, playerContext}
+        });
+    }
+
+    public static void OpenPlayerConfigurationDialog()
+    {
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE_ID, null);
     }
 
     #region Members to be accessed from the GUI
@@ -582,15 +591,6 @@ namespace UiComponents.SkinBase.Models
       playerManager.Muted = false;
     }
 
-    public void OpenChooseGeometryDialog(IPlayerContext playerContext)
-    {
-      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, null, new Dictionary<string, object>
-        {
-            {KEY_PLAYER_CONTEXT, playerContext}
-        });
-    }
-
     public void SetGeometry(IPlayerContext playerContext, IGeometry geometry)
     {
       if (playerContext != null)
@@ -645,7 +645,9 @@ namespace UiComponents.SkinBase.Models
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      if (!push)
+      if (push)
+        EnterModelContext(oldContext, newContext);
+      else
         ExitContext(oldContext);
     }
 
