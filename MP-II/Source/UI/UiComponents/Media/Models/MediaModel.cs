@@ -246,12 +246,23 @@ namespace UiComponents.Media.Models
       _searchTimer = new Timer(OnSearchTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
     }
 
+    /// <summary>
+    /// Gets the current media navigation mode.
+    /// </summary>
+    /// <remarks>
+    /// The media navigation mode changes during navigation through the media library or through the local media provider
+    /// structure. Each time the user chooses another kind of items filter, the mode changes and the current screen reflects
+    /// the mode.
+    /// </remarks>
     public MediaNavigationMode Mode
     {
       get { return GetFromCurrentContext(NAVIGATION_MODE_KEY, false, MediaNavigationMode.LocalMedia); }
       internal set { SetInCurrentContext(NAVIGATION_MODE_KEY, value); }
     }
 
+    /// <summary>
+    /// Gets the screen which is currently being shown by this model.
+    /// </summary>
     public string Screen
     {
       get { return GetFromCurrentContext<string>(SCREEN_KEY, false); }
@@ -278,6 +289,10 @@ namespace UiComponents.Media.Models
       internal set { SetInCurrentContext(ITEMS_KEY, value); }
     }
 
+    /// <summary>
+    /// Gets a string like "No items", "One item" or "10 items". The number reflects the number of of items in the
+    /// <see cref="Items"/> list.
+    /// </summary>
     public string NumItemsStr
     {
       get
@@ -287,6 +302,12 @@ namespace UiComponents.Media.Models
       internal set { SetInCurrentContext(NUM_ITEMS_STR_KEY, value); }
     }
 
+    /// <summary>
+    /// Gets the title to be displayed for the current <see cref="Items"/> list.
+    /// </summary>
+    /// <remarks>
+    /// The contents of this property is like "Media items" or "Simple search".
+    /// </remarks>
     public string ItemsListTitle
     {
       get { return GetFromCurrentContext<string>(ITEMSLIST_TITLE_KEY, false); }
@@ -296,6 +317,9 @@ namespace UiComponents.Media.Models
     /// <summary>
     /// Gets the information whether the current view has a navigatable parent view.
     /// </summary>
+    /// <remarks>
+    /// In case this property is <c>true</c>, the view should provide a means to navigate to the parent view.
+    /// </remarks>
     public bool HasParentDirectory
     {
       get { return GetFromCurrentContext(HAS_PARENT_DIRECTORY_KEY, false, false); }
@@ -313,8 +337,7 @@ namespace UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Gets the information whether the current view is empty, i.e. <see cref="Items"/>'s count is <c>0</c>. If the current
-    /// view is invalid (i.e. <c><see cref="IsItemsValid"/> == false</c>), the value of this property will be <c>false</c>.
+    /// Gets the information whether the current view is empty, i.e. <see cref="Items"/>'s count is <c>0</c>.
     /// </summary>
     public bool IsItemsEmpty
     {
@@ -322,6 +345,9 @@ namespace UiComponents.Media.Models
       internal set { SetInCurrentContext(IS_ITEMS_EMPTY_KEY, value); }
     }
 
+    /// <summary>
+    /// Gets the contents of the text edit field containing the current search text for the simple search.
+    /// </summary>
     public string SimpleSearchText
     {
       get { return (string) SimpleSearchTextProperty.GetValue(); }
@@ -334,12 +360,24 @@ namespace UiComponents.Media.Models
       internal set { SetInCurrentContext(SIMPLE_SEARCH_TEXT_PROPERTY_KEY, value); }
     }
 
+    /// <summary>
+    /// Gets a collection of available media navigation modes this model can be switched to in the current navigation state.
+    /// </summary>
+    /// <remarks>
+    /// During the media navigation, the user can choose several filters to narrow the result set of media items to be shown.
+    /// Once a filter is choosen, it doesn't make sense that the same kind of filter is applied again, so that media
+    /// navigation mode will be removed from the collection of available modes in derived media navigation states.
+    /// </remarks>
     public ICollection<MediaNavigationMode> AvailableDynamicModes
     {
       get { return GetFromCurrentContext<ICollection<MediaNavigationMode>>(DYNAMIC_MODES_KEY, false); }
       internal set { SetInCurrentContext(DYNAMIC_MODES_KEY, value); }
     }
 
+    /// <summary>
+    /// Gets a collection of workflow actions to be shown in the menu which reflect the current
+    /// <see cref="AvailableDynamicModes"/>.
+    /// </summary>
     public ICollection<WorkflowAction> DynamicWorkflowActions
     {
       get { return GetFromCurrentContext<ICollection<WorkflowAction>>(DYNAMIC_WORKFLOW_ACTIONS_KEY, false); }
@@ -355,7 +393,7 @@ namespace UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Provides a callable method for the skin to select an item.
+    /// Provides a callable method for the skin to select an item of the media contents view.
     /// Depending on the item type, we will navigate to the choosen view, play the choosen item or filter by the item.
     /// </summary>
     /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>

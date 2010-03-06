@@ -31,6 +31,7 @@ using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using UiComponents.SkinBase.Models;
 
 namespace UiComponents.Media.Models
 {
@@ -44,11 +45,9 @@ namespace UiComponents.Media.Models
 
     public const string CURRENTLY_PLAYING_STATE_ID_STR = "5764A810-F298-4a20-BF84-F03D16F775B1";
     public const string FULLSCREEN_CONTENT_STATE_ID_STR = "882C1142-8028-4112-A67D-370E6E483A33";
-    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3";
 
     public static readonly Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
     public static readonly Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
-    public static readonly Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID); // From SkinBase
 
     public const string FULLSCREENVIDEO_SCREEN_NAME = "FullscreenContentVideo";
     public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingVideo";
@@ -165,12 +164,17 @@ namespace UiComponents.Media.Models
     public void ShowVideoInfo()
     {
       if (IsOSDVisible)
-      { // Pressing the info button twice will bring up the context menu
-        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-        workflowManager.NavigatePush(PLAYER_CONFIGURATION_DIALOG_STATE, null);
-      }
+        // Pressing the info button twice will bring up the context menu
+        PlayerConfigurationDialogModel.OpenPlayerConfigurationDialog();
       _lastVideoInfoDemand = DateTime.Now;
       Update();
+    }
+
+    public void ShowZoomModeDialog()
+    {
+      IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = pcm.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      PlayerConfigurationDialogModel.OpenChooseGeometryDialog(pc);
     }
 
     #endregion
@@ -185,20 +189,14 @@ namespace UiComponents.Media.Models
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = null;
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
-      {
-        IPlayerContext pc = playerContextManager.CurrentPlayerContext;
         // The "currently playing" screen is always bound to the "current player"
-        return pc != null && CanHandlePlayer(pc.CurrentPlayer);
-      }
+        pc = playerContextManager.CurrentPlayerContext;
       else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
-      {
         // The "fullscreen content" screen is always bound to the "primary player"
-        IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-        return pc != null && CanHandlePlayer(pc.CurrentPlayer);
-      }
-      else
-        return false;
+        pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      return pc != null && CanHandlePlayer(pc.CurrentPlayer);
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
