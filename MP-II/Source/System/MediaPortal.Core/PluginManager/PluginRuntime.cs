@@ -212,25 +212,32 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     public object InstantiatePluginObject(string typeName)
     {
+      LockForStateDependency(false);
+      ObjectReference reference;
+      Type type = null; // Set to a type if we need to create instance
       lock (_syncObj)
       {
         LoadAssemblies();
         if (_instantiatedObjects == null)
           _instantiatedObjects = new Dictionary<string, ObjectReference>();
-        ObjectReference reference;
         if (_instantiatedObjects.ContainsKey(typeName))
           reference = _instantiatedObjects[typeName];
         else
         {
-          Type type = GetPluginType(typeName);
+          type = GetPluginType(typeName);
           if (type == null)
             return null;
           reference = _instantiatedObjects[typeName] = new ObjectReference();
-          reference.Object = Activator.CreateInstance(type);
         }
         reference.RefCounter++;
-        return reference.Object;
       }
+      if (type != null)
+      {
+        object obj = Activator.CreateInstance(type); // Must be done outside the lock because we are calling foreign code
+        lock (_syncObj)
+          reference.Object = obj;
+      }
+      return reference.Object;
     }
 
     /// <summary>
@@ -238,6 +245,7 @@ namespace MediaPortal.Core.PluginManager
     /// </summary>
     public void RevokePluginObject(string typeName)
     {
+      IDisposable d = null;
       lock (_syncObj)
       {
         ObjectReference reference;
@@ -245,21 +253,21 @@ namespace MediaPortal.Core.PluginManager
           return;
         if (--reference.RefCounter == 0)
         {
-          IDisposable d = reference.Object as IDisposable;
-          if (d != null)
-            try
-            {
-              d.Dispose();
-            }
-            catch (Exception e)
-            {
-              ServiceScope.Get<ILogger>().Warn("Error disposing plugin object '{0}' in plugin '{1}' (id '{2}')", e,
-                  typeName, _pluginMetadata.Name, _pluginMetadata.PluginId);
-              throw;
-            }
+          d = reference.Object as IDisposable;
           _instantiatedObjects.Remove(typeName);
         }
       }
+      if (d != null)
+        try
+        {
+          d.Dispose(); // Must be done outside the lock because we are calling foreign code
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("Error disposing plugin object '{0}' in plugin '{1}' (id '{2}')", e,
+              typeName, _pluginMetadata.Name, _pluginMetadata.PluginId);
+          throw;
+        }
     }
 
     #endregion
