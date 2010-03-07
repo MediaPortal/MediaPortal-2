@@ -108,6 +108,32 @@ namespace MediaPortal.UI.Services.Players
       get { return this[0]; }
     }
 
+    public bool HasPrevious
+    {
+      get
+      {
+        lock (_syncObj)
+        {
+          if (_repeatMode == RepeatMode.One)
+            return _currentPlayIndex > -1;
+          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All;
+        }
+      }
+    }
+
+    public bool HasNext
+    {
+      get
+      {
+        lock (_syncObj)
+        {
+          if (_repeatMode == RepeatMode.One)
+            return _currentPlayIndex > -1;
+          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All;
+        }
+      }
+    }
+
     public MediaItem this[int relativeIndex]
     {
       get
@@ -138,7 +164,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public MediaItem Previous()
+    public MediaItem GetPrevious()
     {
       lock (_syncObj)
       {
@@ -154,7 +180,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public MediaItem Next()
+    public MediaItem GetNext()
     {
       lock (_syncObj)
       {
@@ -165,32 +191,6 @@ namespace MediaPortal.UI.Services.Players
         if (AllPlayed && _repeatMode == RepeatMode.All)
           _currentPlayIndex = 0;
         return Current;
-      }
-    }
-
-    public bool HasPrevious
-    {
-      get
-      {
-        lock (_syncObj)
-        {
-          if (_repeatMode == RepeatMode.One)
-            return _currentPlayIndex > -1;
-          return _currentPlayIndex > 0 || _repeatMode == RepeatMode.All;
-        }
-      }
-    }
-
-    public bool HasNext
-    {
-      get
-      {
-        lock (_syncObj)
-        {
-          if (_repeatMode == RepeatMode.One)
-            return _currentPlayIndex > -1;
-          return _currentPlayIndex < _itemList.Count - 1 || _repeatMode == RepeatMode.All;
-        }
       }
     }
 

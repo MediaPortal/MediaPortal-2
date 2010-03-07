@@ -105,14 +105,14 @@ namespace MediaPortal.UI.Presentation.Players
     /// </summary>
     /// <returns>Media item instance or <c>null</c>, if there are no previous items available (i.e. the playlist is
     /// not started at all or empty or the current item is already the first one).</returns>
-    MediaItem Previous();
+    MediaItem GetPrevious();
 
     /// <summary>
     /// Noves the playlist to the next media item to be played and returns it.
     /// </summary>
     /// <returns>Media item instance or <c>null</c>, if there are no more items to be played (i.e. the playlist is
     /// not started at all or empty or has reached its end (<see cref="AllPlayed"/> is <c>true</c>)).</returns>
-    MediaItem Next();
+    MediaItem GetNext();
 
     /// <summary>
     /// Returns the information if we have a previous item.

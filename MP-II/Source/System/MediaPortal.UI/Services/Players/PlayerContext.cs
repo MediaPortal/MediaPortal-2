@@ -133,7 +133,7 @@ namespace MediaPortal.UI.Services.Players
 
     internal bool RequestNextItem()
     {
-      MediaItem item = _playlist.Next();
+      MediaItem item = _playlist.GetNext();
       if (item == null)
         return false;
       return DoPlay(item, StartTime.Enqueue);
@@ -395,13 +395,12 @@ namespace MediaPortal.UI.Services.Players
         return false;
       // Locking not necessary here. If a lock should be placed in future, be aware that the DoPlay method
       // will lock the PM as well
-      MediaItem item;
       int countLeft = _playlist.ItemList.Count; // Limit number of tries to current playlist size. If the PL doesn't contain any playable item, this avoids an endless loop.
       do // Loop: Try until we find an item which is able to play
       {
-        if (--countLeft < 0 || (item = _playlist.Previous()) == null) // Break loop if we don't have any more items left
+        if (--countLeft < 0 || !_playlist.HasPrevious) // Break loop if we don't have any more items left
           return false;
-      } while (!DoPlay(item, StartTime.AtOnce));
+      } while (!DoPlay(_playlist.GetPrevious(), StartTime.AtOnce));
       return true;
     }
 
@@ -416,15 +415,14 @@ namespace MediaPortal.UI.Services.Players
       bool playOk = true;
       do // Loop: Try until we find an item which is able to play
       {
-        MediaItem item;
-        if (--countLeft < 0 || (item = _playlist.Next()) == null) // Break loop if we don't have any more items left
+        if (--countLeft < 0 || !_playlist.HasNext) // Break loop if we don't have any more items left
         {
           if (!playOk && CloseWhenFinished)
             // Close PSC if we failed to play
             Close();
           return false;
         }
-        playOk = DoPlay(item, StartTime.AtOnce);
+        playOk = DoPlay(_playlist.GetNext(), StartTime.AtOnce);
       } while (!playOk);
       return true;
     }
