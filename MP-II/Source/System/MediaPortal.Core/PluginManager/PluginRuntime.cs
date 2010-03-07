@@ -213,31 +213,38 @@ namespace MediaPortal.Core.PluginManager
     public object InstantiatePluginObject(string typeName)
     {
       LockForStateDependency(false);
-      ObjectReference reference;
-      Type type = null; // Set to a type if we need to create instance
-      lock (_syncObj)
+      try
       {
-        LoadAssemblies();
-        if (_instantiatedObjects == null)
-          _instantiatedObjects = new Dictionary<string, ObjectReference>();
-        if (_instantiatedObjects.ContainsKey(typeName))
-          reference = _instantiatedObjects[typeName];
-        else
-        {
-          type = GetPluginType(typeName);
-          if (type == null)
-            return null;
-          reference = _instantiatedObjects[typeName] = new ObjectReference();
-        }
-        reference.RefCounter++;
-      }
-      if (type != null)
-      {
-        object obj = Activator.CreateInstance(type); // Must be done outside the lock because we are calling foreign code
+        ObjectReference reference;
+        Type type = null; // Set to a type if we need to create instance
         lock (_syncObj)
-          reference.Object = obj;
+        {
+          LoadAssemblies();
+          if (_instantiatedObjects == null)
+            _instantiatedObjects = new Dictionary<string, ObjectReference>();
+          if (_instantiatedObjects.ContainsKey(typeName))
+            reference = _instantiatedObjects[typeName];
+          else
+          {
+            type = GetPluginType(typeName);
+            if (type == null)
+              return null;
+            reference = _instantiatedObjects[typeName] = new ObjectReference();
+          }
+          reference.RefCounter++;
+        }
+        if (type != null)
+        {
+          object obj = Activator.CreateInstance(type); // Must be done outside the lock because we are calling foreign code
+          lock (_syncObj)
+            reference.Object = obj;
+        }
+        return reference.Object;
       }
-      return reference.Object;
+      finally
+      {
+        UnlockState();
+      }
     }
 
     /// <summary>
