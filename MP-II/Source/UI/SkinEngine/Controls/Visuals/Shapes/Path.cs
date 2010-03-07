@@ -83,7 +83,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (!_performLayout)
         return;
       base.PerformLayout();
-      SizeF rectSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)
@@ -94,8 +93,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         LayoutTransform.GetTransform(out em);
         m.Matrix *= em.Matrix;
       }
-      m.InvertSize(ref rectSize);
-      RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, rectSize.Width, rectSize.Height);
+      RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, (float) ActualWidth, (float) ActualHeight);
 
       //Fill brush
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
@@ -412,8 +410,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Matrix m = new Matrix();
       RectangleF bounds = result.GetBounds();
       _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
-      if (Width > 0) baseRect.Width = (float) Width;
-      if (Height > 0) baseRect.Height = (float) Height;
+      if (Width > 0) baseRect.Width = (float) Width * SkinContext.Zoom.Width;
+      if (Height > 0) baseRect.Height = (float) Height * SkinContext.Zoom.Height;
       float scaleW;
       float scaleH;
       if (Stretch == Stretch.Fill)
@@ -439,6 +437,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
       else
       { // Stretch == Stretch.None
+        // Only in this case we must apply the current zoom. In all other cases, the zoom gets implicitly applied
+        // by the alignment factor, which is based on the parent control's size, which is already zoomed.
         scaleW = SkinContext.Zoom.Width;
         scaleH = SkinContext.Zoom.Height;
       }

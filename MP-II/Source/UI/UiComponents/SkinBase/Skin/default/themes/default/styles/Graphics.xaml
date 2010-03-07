@@ -39,7 +39,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="StopControlTemplate">
-    <Rectangle x:Name="Stop" Fill="{ThemeResource PlayControlsFillColor}" Stroke="{ThemeResource PlayControlsStrokeColor}"
+    <Rectangle x:Name="Stop" Fill="{ThemeResource PlayControlsFillColor}" Stretch="Fill" Stroke="{ThemeResource PlayControlsStrokeColor}"
         Width="18" Height="18" Margin="10,5,10,5"/>
   </ControlTemplate>
 
