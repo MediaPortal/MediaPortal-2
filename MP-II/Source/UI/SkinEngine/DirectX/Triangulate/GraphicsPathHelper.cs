@@ -91,8 +91,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         { // If we should leave out a title region, we need to do it manually, because we need to start next to the
           // title.
 
+          titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * titleInset);
           // Right from the title to the upper right edge
-          result.AddLine(baseRect.Left + titleInset + titleWidth, baseRect.Top,
+          result.AddLine(baseRect.Left + 2* titleInset + titleWidth, baseRect.Top,
               baseRect.Right, baseRect.Top);
           // Upper right edge to lower right edge
           result.AddLine(baseRect.Right, baseRect.Top,
@@ -120,9 +121,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         RectangleF arc = new RectangleF(baseRect.Location, sizeF);
 
         if (withTitleRegion)
+        {
+          titleWidth = Math.Min(titleWidth, baseRect.Width - 2 * (radiusX + titleInset));
           // Right from the title to the upper right edge
-          result.AddLine(baseRect.Left + radiusX + titleInset + titleWidth, baseRect.Top,
+          result.AddLine(baseRect.Left + radiusX + 2 * titleInset + titleWidth, baseRect.Top,
               baseRect.Right - radiusX, baseRect.Top);
+        }
 
         // Top right arc 
         arc.X = baseRect.Right - radiusX * 2f;
