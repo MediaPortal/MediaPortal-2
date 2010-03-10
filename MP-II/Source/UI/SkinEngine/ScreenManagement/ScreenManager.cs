@@ -359,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// or <c>null</c> for the default theme of the skin.</param>
     protected void PrepareSkinAndTheme_NeedLocks(string skinName, string themeName)
     {
-      ServiceScope.Get<ILogger>().Error("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
+      ServiceScope.Get<ILogger>().Info("ScreenManager: Preparing skin '{0}', theme '{1}'", skinName, themeName);
       Skin defaultSkin = _skinManager.DefaultSkin;
       lock (_syncObj)
       {
