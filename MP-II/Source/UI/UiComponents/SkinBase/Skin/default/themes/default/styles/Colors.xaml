@@ -208,8 +208,11 @@
   <!-- Yellow -->
   <ResourceWrapper x:Key="TextBoxBorderFocusColor" Resource="Yellow"/>
 
-  <!-- White -->
-  <ResourceWrapper x:Key="GroupBoxBorderColor" Resource="White"/>
+  <!-- White, a bit transparent -->
+  <ResourceWrapper x:Key="ContentGroupBoxBorderColor" Resource="#88FFFFFF"/>
+
+  <!-- Black, a bit transparent -->
+  <ResourceWrapper x:Key="ContentGroupBoxBackgroundColor" Resource="#88000000"/>
 
   <!-- White -->
   <ResourceWrapper x:Key="AnalogClockHandColor" Resource="White"/>

@@ -10,33 +10,36 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
 
     <ResourceWrapper x:Key="Contents_Element">
-      <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
-        <DockPanel.Context>
-          <mp_special:PlayerControl
-              SlotIndex="{Binding Source={Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC},Path=CurrentPlayerIndex}"/>
-              <!-- Model = Audio player model -->
-        </DockPanel.Context>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Label x:Name="ArtistLabel" Content="[Media.AudioArtistLabel]"/>
-          <Label x:Name="Artist" Content="{Binding AudioArtist}"/>
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Label x:Name="TitleLabel" Content="[Media.AudioTitleLabel]"/>
-          <Label x:Name="Title" Scroll="true" Content="{Binding MediaItemTitle}"/>
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Label x:Name="YearLabel" Content="[Media.AudioYearLabel]"/>
-          <Label x:Name="Year" Content="{Binding AudioYear}"/>
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Label x:Name="DurationLabel" Content="[Media.AudioDurationLabel]"/>
-          <Label x:Name="Duration" Content="{Binding Duration}"/>
-        </StackPanel>
-      </DockPanel>
+      <GroupBox Header="[Media.AudioCurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
+        <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
+          <DockPanel.Context>
+            <mp_special:PlayerControl
+                SlotIndex="{Binding Source={Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC},Path=CurrentPlayerIndex}"/>
+                <!-- Model = Audio player model -->
+          </DockPanel.Context>
+          <Grid DockPanel.Dock="Top"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="ArtistLabel" Grid.Row="0" Grid.Column="0" Content="[Media.AudioArtistLabel]"/>
+            <Label x:Name="Artist" Grid.Row="0" Grid.Column="1" Content="{Binding AudioArtist}"/>
+            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0" Content="[Media.AudioTitleLabel]"/>
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="true" Content="{Binding MediaItemTitle}"/>
+            <Label x:Name="YearLabel" Grid.Row="2" Grid.Column="0" Content="[Media.AudioYearLabel]"/>
+            <Label x:Name="Year" Grid.Row="2" Grid.Column="1" Content="{Binding AudioYear}"/>
+            <Label x:Name="DurationLabel" Grid.Row="3" Grid.Column="0" Content="[Media.AudioDurationLabel]"/>
+            <Label x:Name="Duration" Grid.Row="3" Grid.Column="1" Content="{Binding Duration}"/>
+          </Grid>
+        </DockPanel>
+      </GroupBox>
     </ResourceWrapper>
 
   </Include.Resources>

@@ -11,8 +11,7 @@
   <ResourceWrapper x:Key="TextBoxBorderThickness" Resource="3"/>
   <ResourceWrapper x:Key="TextBoxCornerRadius" Resource="2"/>
 
-  <ResourceWrapper x:Key="GroupBoxBorderThickness" Resource="4"/>
-  <ResourceWrapper x:Key="GroupBoxCornerRadius" Resource="8"/>
+  <ResourceWrapper x:Key="ContentGroupBoxCornerRadius" Resource="15"/>
 
   <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>

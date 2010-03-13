@@ -37,9 +37,8 @@
     <String Name="PicturePlayerContextName" Text="Picture"/>
     <String Name="AudioPlayerContextName" Text="Audio"/>
 
-    <String Name="NextMediaItemLabel" Text="Next: "/>
     <String Name="VideoCurrentlyPlayingHeader" Text="Currently playing"/>
-    <String Name="ButtonOpenVideoPlaylist" Text="Video playlist"/>
+    <String Name="VideoCurrentlyPlayingInformationHeader" Text="Video information"/>
     <String Name="VideoTitleLabel" Text="Title: "/>
     <String Name="VideoGenreLabel" Text="Genre: "/>
     <String Name="VideoYearLabel" Text="Year: "/>
@@ -48,7 +47,7 @@
     <String Name="VideoStoryPlotLabel" Text="Story plot: "/>
 
     <String Name="AudioCurrentlyPlayingHeader" Text="Currently playing"/>
-    <String Name="ButtonOpenAudioPlaylist" Text="Audio playlist"/>
+    <String Name="AudioCurrentlyPlayingInformationHeader" Text="Audio information"/>
     <String Name="AudioArtistLabel" Text="Artist: "/>
     <String Name="AudioTitleLabel" Text="Title: "/>
     <String Name="AudioYearLabel" Text="Year: "/>

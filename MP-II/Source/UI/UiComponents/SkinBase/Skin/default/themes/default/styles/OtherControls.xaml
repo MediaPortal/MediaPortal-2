@@ -170,12 +170,12 @@
     </Setter>
   </Style>
 
-  <!-- *********************************** GroupBox style ********************************* -->
+  <!-- *********************************** Content GroupBox style ********************************* -->
 
-  <Style x:Key="GroupBoxStyle" TargetType="{x:Type GroupBox}">
-    <Setter Property="BorderBrush" Value="{ThemeResource GroupBoxBorderColor}"/>
-    <Setter Property="BorderThickness" Value="{ThemeResource GroupBoxBorderThickness}"/>
-    <Setter Property="CornerRadius" Value="{ThemeResource GroupBoxCornerRadius}"/>
+  <Style x:Key="ContentGroupBoxStyle" TargetType="{x:Type GroupBox}">
+    <Setter Property="BorderBrush" Value="{ThemeResource ContentGroupBoxBorderColor}"/>
+    <Setter Property="Background" Value="{ThemeResource ContentGroupBoxBackgroundColor}"/>
+    <Setter Property="CornerRadius" Value="{ThemeResource ContentGroupBoxCornerRadius}"/>
   </Style>
 
   <!-- ************************* ListView item container styles ************************** -->
@@ -592,7 +592,7 @@
 
   <!-- ****************************** PlayerControl ********************************** -->
 
-  <Style x:Key="PlayerControlGroupBoxStyle" BasedOn="{ThemeResource GroupBoxStyle}">
+  <Style x:Key="PlayerControlGroupBoxStyle">
     <Setter Property="BorderBrush">
       <Setter.Value>
         <SolidColorBrush Color="{ThemeResource DefaultPlayerControlBorderColor}"/>
