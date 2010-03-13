@@ -39,7 +39,8 @@ namespace UiComponents.SkinBase.Actions
 
     public static readonly Guid FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID = new Guid(FULLSCREEN_CONTENT_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string FULLSCREEN_CONTENT_RESOURCE = "[Players.Fullscreen]";
+    public const string FULLSCREEN_VIDEO_RESOURCE = "[Players.FullscreenVideo]";
+    public const string AUDIO_VISUALIZATION_RESOURCE = "[Players.AudioVisualization]";
 
     #endregion
 
@@ -91,13 +92,13 @@ namespace UiComponents.SkinBase.Actions
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
-      _isVisible = vp != null;
+      IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
+      _isVisible = vp != null || ap != null;
       if (vp == null)
-        _displayTitle = null;
+        _displayTitle = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
       else
-        _displayTitle =
-            LocalizationHelper.CreateStaticString(
-                LocalizationHelper.CreateResourceString(FULLSCREEN_CONTENT_RESOURCE).Evaluate(vp.Name));
+        _displayTitle = LocalizationHelper.CreateStaticString(
+            LocalizationHelper.CreateResourceString(FULLSCREEN_VIDEO_RESOURCE).Evaluate(vp.Name));
       FireStateChanged();
     }
 
@@ -106,10 +107,6 @@ namespace UiComponents.SkinBase.Actions
       ContributorStateChangeDelegate d = StateChanged;
       if (d != null) d();
     }
-
-    #region IDisposable implementation
-
-    #endregion
 
     #region IWorkflowContributor implementation
 
