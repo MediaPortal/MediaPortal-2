@@ -73,6 +73,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public const string KEY_PLAYER_SLOT = "PlayerSlot";
     public const string KEY_SHOW_MUTE = "ShowMute";
 
+    public static readonly ICollection<string> EMPTY_NAMES_COLLECTION = new List<string>().AsReadOnly();
+
     #endregion
 
     #region Protected fields
@@ -89,9 +91,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AsynchronousMessageQueue _messageQueue = null;
 
     // Derived properties/fields
+    protected MediaItem _currentMediaItem;
     protected AbstractProperty _isPlayerPresentProperty;
     protected AbstractProperty _titleProperty;
     protected AbstractProperty _mediaItemTitleProperty;
+    protected AbstractProperty _nextMediaItemTitleProperty;
+    protected AbstractProperty _hasNextMediaItem;
     protected AbstractProperty _isAudioProperty;
     protected AbstractProperty _isMutedProperty;
     protected AbstractProperty _isPlayingProperty;
@@ -116,6 +121,15 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _isPipProperty;
     protected AbstractProperty _videoWidthProperty;
     protected AbstractProperty _videoHeightProperty;
+    protected AbstractProperty _videoGenreProperty;
+    protected AbstractProperty _videoYearProperty;
+    protected AbstractProperty _videoActorsProperty;
+    protected AbstractProperty _videoStoryPlotProperty;
+    protected AbstractProperty _audioArtistsProperty;
+    protected AbstractProperty _audioYearProperty;
+
+    protected AbstractProperty _fullscreenContentWFStateIDProperty;
+    protected AbstractProperty _currentlyPlayingWFStateIDProperty;
 
     protected IResourceString _headerNormalResource;
     protected IResourceString _headerPipResource;
@@ -140,6 +154,8 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _isPlayerPresentProperty = new SProperty(typeof(bool), false);
       _titleProperty = new SProperty(typeof(string), null);
       _mediaItemTitleProperty = new SProperty(typeof(string), null);
+      _nextMediaItemTitleProperty = new SProperty(typeof(string), string.Empty);
+      _hasNextMediaItem = new SProperty(typeof(bool), false);
       _isAudioProperty = new SProperty(typeof(bool), false);
       _isMutedProperty = new SProperty(typeof(bool), false);
       _isPlayingProperty = new SProperty(typeof(bool), false);
@@ -167,6 +183,16 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _fixedVideoHeight = 0f;
       _videoWidthProperty = new SProperty(typeof(float), 0f);
       _videoHeightProperty = new SProperty(typeof(float), 0f);
+      _videoGenreProperty = new SProperty(typeof(string), string.Empty);
+      _videoYearProperty = new SProperty(typeof(int?), null);
+      _videoActorsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
+      _videoStoryPlotProperty = new SProperty(typeof(string), string.Empty);
+
+      _audioArtistsProperty = new SProperty(typeof(IEnumerable<string>), EMPTY_NAMES_COLLECTION);
+      _audioYearProperty = new SProperty(typeof(int?), null);
+
+      _fullscreenContentWFStateIDProperty = new SProperty(typeof(Guid?), null);
+      _currentlyPlayingWFStateIDProperty = new SProperty(typeof(Guid?), null);
 
       _timer = new Timer(200) {Enabled = false};
       _timer.Elapsed += OnTimerElapsed;
@@ -317,10 +343,21 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       {
         IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
         IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-        IPlayer player = playerManager[SlotIndex];
-        IPlayerContext playerContext = GetPlayerContext();
+        IPlayerContext playerContext = playerContextManager.GetPlayerContext(SlotIndex);
         IPlayerSlotController playerSlotController = playerManager.GetPlayerSlotController(SlotIndex);
-        
+        IPlayer player = playerSlotController.CurrentPlayer;
+
+        if (playerContext == null)
+        {
+          FullscreenContentWFStateID = null;
+          CurrentlyPlayingWFStateID = null;
+        }
+        else
+        {
+          FullscreenContentWFStateID = playerContext.FullscreenContentWorkflowStateId;
+          CurrentlyPlayingWFStateID = playerContext.CurrentlyPlayingWorkflowStateId;
+        }
+
         IsPlayerPresent = player != null;
         IVideoPlayer vp = player as IVideoPlayer;
         if (vp == null)
@@ -346,10 +383,22 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
             VideoWidth = FixedVideoHeight*vp.VideoAspectRatio.Width/vp.VideoAspectRatio.Height;
           }
         }
+        _currentMediaItem = playerContext == null ? null : playerContext.CurrentMediaItem;
+        MediaItemAspect mediaAspect;
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+          mediaAspect = null;
+        MediaItemAspect videoAspect;
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+          videoAspect = null;
+        MediaItemAspect audioAspect;
+        if (_currentMediaItem == null || !_currentMediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+          audioAspect = null;
         if (player == null)
         {
           Title = playerContext == null ? NO_PLAYER_RESOURCE : playerContext.Name;
           MediaItemTitle = NO_MEDIA_ITEM_RESOURCE;
+          NextMediaItemTitle = string.Empty;
+          HasNextMediaItem = false;
           IsAudio = false;
           IsPlaying = false;
           IsPaused = false;
@@ -379,13 +428,28 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           string mit = player.MediaItemTitle;
           if (mit == null)
           {
-            MediaItem mediaItem = playerContext.Playlist.Current;
-            if (mediaItem != null)
-              mit = mediaItem.Aspects[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string;
+            if (mediaAspect != null)
+              mit = mediaAspect[MediaAspect.ATTR_TITLE] as string;
             if (mit == null)
               mit = UNKNOWN_MEDIA_ITEM_RESOURCE;
           }
           MediaItemTitle = mit;
+          IPlaylist pl = playerContext.Playlist;
+          MediaItem nextMediaItem = pl.GetNext();
+          if (nextMediaItem == null)
+          {
+            NextMediaItemTitle = null;
+            HasNextMediaItem = false;
+          }
+          else
+          {
+            MediaItemAspect nextMediaAspect;
+            if (nextMediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out nextMediaAspect))
+            {
+              NextMediaItemTitle = nextMediaAspect[MediaAspect.ATTR_TITLE] as string;
+              HasNextMediaItem = !string.IsNullOrEmpty(NextMediaItemTitle);
+            }
+          }
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
           IsAudio = playerSlotController.IsAudioSlot;
           IsCurrentPlayer = playerContextManager.CurrentPlayerIndex == SlotIndex;
@@ -482,6 +546,36 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           CanSkipForward = playerContext.Playlist.HasNext;
           CanSeekBackward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekBackwards;
           CanSeekForward = mediaPlaybackControl != null && mediaPlaybackControl.CanSeekForwards;
+        }
+        if (mediaAspect == null)
+        {
+          VideoYear = null;
+          AudioYear = null;
+        }
+        else
+        {
+          VideoYear = ((DateTime) mediaAspect[MediaAspect.ATTR_RECORDINGTIME]).Year;
+          AudioYear = ((DateTime) mediaAspect[MediaAspect.ATTR_RECORDINGTIME]).Year;
+        }
+        if (videoAspect == null)
+        {
+          VideoGenre = string.Empty;
+          VideoActors = EMPTY_NAMES_COLLECTION;
+          VideoStoryPlot = string.Empty;
+        }
+        else
+        {
+          VideoGenre = (string) videoAspect[VideoAspect.ATTR_GENRE];
+          VideoActors = (IEnumerable<string>) videoAspect[VideoAspect.ATTR_ACTORS];
+          VideoStoryPlot = (string) videoAspect[VideoAspect.ATTR_STORYPLOT];
+        }
+        if (audioAspect == null)
+        {
+          AudioArtists = EMPTY_NAMES_COLLECTION;
+        }
+        else
+        {
+          AudioArtists = (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS];
         }
         IsMuted = playerManager.Muted;
         CheckShowMouseControls();
@@ -598,7 +692,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player slot currently has a player.
+    /// Gets the information if the underlaying player slot currently has a player.
     /// </summary>
     public bool IsPlayerPresent
     {
@@ -612,7 +706,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the title of this player control, i.e. the name of the player, like "Video (PiP)".
+    /// Gets the title of this player control, i.e. the name of the player, like "Video (PiP)".
     /// </summary>
     public string Title
     {
@@ -626,12 +720,41 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the title of the current media item.
+    /// Gets the title of the current media item.
     /// </summary>
     public string MediaItemTitle
     {
       get { return (string) _mediaItemTitleProperty.GetValue(); }
       internal set { _mediaItemTitleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty NextMediaItemTitleProperty
+    {
+      get { return _nextMediaItemTitleProperty; }
+    }
+
+    /// <summary>
+    /// Gets the title of the next media item in the playlist or <c>null</c>.
+    /// </summary>
+    public string NextMediaItemTitle
+    {
+      get { return (string) _nextMediaItemTitleProperty.GetValue(); }
+      set { _nextMediaItemTitleProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HasNextMediaItemProperty
+    {
+      get { return _hasNextMediaItem; }
+    }
+
+    /// <summary>
+    /// <c>true</c>, if a next media item is available in the playlist. In that case,
+    /// <see cref="NextMediaItemTitle"/> contains the title of the next media item.
+    /// <summary>
+    public bool HasNextMediaItem
+    {
+      get { return (bool) _hasNextMediaItem.GetValue(); }
+      set { _hasNextMediaItem.SetValue(value); }
     }
 
     public AbstractProperty IsAudioProperty
@@ -640,7 +763,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the slot with the <see cref="SlotIndex"/> is the audio slot.
+    /// Gets the information if the slot with the <see cref="SlotIndex"/> is the audio slot.
     /// </summary>
     public bool IsAudio
     {
@@ -654,7 +777,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is the audio player but is muted.
+    /// Gets the information if the underlaying player is the audio player but is muted.
     /// </summary>
     public bool IsMuted
     {
@@ -668,7 +791,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is currently playing.
+    /// Gets the information if the underlaying player is currently playing.
     /// </summary>
     public bool IsPlaying
     {
@@ -682,7 +805,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is currently paused.
+    /// Gets the information if the underlaying player is currently paused.
     /// </summary>
     public bool IsPaused
     {
@@ -696,7 +819,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is currently seeking forward.
+    /// Gets the information if the underlaying player is currently seeking forward.
     /// </summary>
     public bool IsSeekingForward
     {
@@ -710,7 +833,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is currently seeking backward.
+    /// Gets the information if the underlaying player is currently seeking backward.
     /// </summary>
     public bool IsSeekingBackward
     {
@@ -724,7 +847,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns a string which contains the current seeking rate (for example: "2x").
+    /// Gets a string which contains the current seeking rate (for example: "2x").
     /// </summary>
     public string SeekHint
     {
@@ -738,7 +861,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is currently focused for remote or keyboard input.
+    /// Gets the information if the underlaying player is currently focused for remote or keyboard input.
     /// </summary>
     public bool IsCurrentPlayer
     {
@@ -752,7 +875,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns a value (range 0 to 100) which denotes the current fraction of played content.
+    /// Gets a value (range 0 to 100) which denotes the current fraction of played content.
     /// </summary>
     public float PercentPlayed
     {
@@ -766,7 +889,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the current play time (or empty).
+    /// Gets the current play time (or empty).
     /// </summary>
     public string CurrentTime
     {
@@ -780,7 +903,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the duration of the current media item (or empty).
+    /// Gets the duration of the current media item (or empty).
     /// </summary>
     public string Duration
     {
@@ -794,7 +917,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns a string which denotes the current playing state, for example "Playing" or "Seeking forward (2x)".
+    /// Gets a string which denotes the current playing state, for example "Playing" or "Seeking forward (2x)".
     /// </summary>
     public string PlayerStateText
     {
@@ -808,7 +931,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the mouse is being used, i.e. if mouse controls should be shown, if appropriate.
+    /// Gets the information if the mouse is being used, i.e. if mouse controls should be shown, if appropriate.
     /// </summary>
     public bool ShowMouseControls
     {
@@ -822,7 +945,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to play in the current state, i.e. if the "Play" control
+    /// Gets the information if the underlaying player is able to play in the current state, i.e. if the "Play" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanPlay
@@ -837,7 +960,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to pause in the current state, i.e. if the "Pause" control
+    /// Gets the information if the underlaying player is able to pause in the current state, i.e. if the "Pause" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanPause
@@ -852,7 +975,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to stop in the current state, i.e. if the "Stop" control
+    /// Gets the information if the underlaying player is able to stop in the current state, i.e. if the "Stop" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanStop
@@ -867,7 +990,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to skip forward in the current state, i.e. if the "SkipForward" control
+    /// Gets the information if the underlaying player is able to skip forward in the current state, i.e. if the "SkipForward" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanSkipForward
@@ -882,7 +1005,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to skip backward in the current state, i.e. if the "SkipBackward" control
+    /// Gets the information if the underlaying player is able to skip backward in the current state, i.e. if the "SkipBackward" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanSkipBack
@@ -897,7 +1020,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to seek forward in the current state, i.e. if the "SeekForward" control
+    /// Gets the information if the underlaying player is able to seek forward in the current state, i.e. if the "SeekForward" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanSeekForward
@@ -912,7 +1035,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information if the underlaying player is able to seek backward in the current state, i.e. if the "SeekBackward" control
+    /// Gets the information if the underlaying player is able to seek backward in the current state, i.e. if the "SeekBackward" control
     /// should be shown, if appropriate.
     /// </summary>
     public bool CanSeekBackward
@@ -927,7 +1050,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the activity state of the underlaying player. When <see cref="IsPlayerActive"/> is <c>true</c>,
+    /// Gets the activity state of the underlaying player. When <see cref="IsPlayerActive"/> is <c>true</c>,
     /// the underlaying player is either playing or paused or seeking. Else, it is stopped or ended.
     /// </summary>
     public bool IsPlayerActive
@@ -942,7 +1065,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the information whether a picture-in-picture player is playing.
+    /// Gets the information whether a picture-in-picture player is playing.
     /// </summary>
     public bool IsPip
     {
@@ -956,8 +1079,14 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the fixed or calculated video width. Can be used for picture-in-picture players, for example.
+    /// Gets the fixed or calculated video width.
     /// </summary>
+    /// <remarks>
+    /// This property returns the video size returned by the video player, if neither <see cref="FixedVideoWidth"/>
+    /// nor <see cref="FixedVideoHeight"/> is set. If one of them is set, the other dimension is calculated from the
+    /// fixed dimension according to the current video's aspect ratio. This can be used for displaying a
+    /// picture-in-picture rectangle, for example.
+    /// </remarks>
     public float VideoWidth
     {
       get { return (float) _videoWidthProperty.GetValue(); }
@@ -970,19 +1099,144 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     }
 
     /// <summary>
-    /// Returns the fixed or calculated video height. Can be used for picture-in-picture players, for example.
+    /// Gets the fixed or calculated video height.
     /// </summary>
+    /// <remarks>
+    /// This property returns the video size returned by the video player, if neither <see cref="FixedVideoWidth"/>
+    /// nor <see cref="FixedVideoHeight"/> is set. If one of them is set, the other dimension is calculated from the
+    /// fixed dimension according to the current video's aspect ratio. This can be used for displaying a
+    /// picture-in-picture rectangle, for example.
+    /// </remarks>
     public float VideoHeight
     {
       get { return (float) _videoHeightProperty.GetValue(); }
       internal set { _videoHeightProperty.SetValue(value); }
     }
 
+    public AbstractProperty VideoYearProperty
+    {
+      get { return _videoYearProperty; }
+    }
+
+    /// <summary>
+    /// Gets the year of the currently playing video, if the current media item is a video item and if this
+    /// information is available.
+    /// </summary>
+    public int? VideoYear
+    {
+      get { return (int) _videoYearProperty.GetValue(); }
+      internal set { _videoYearProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VideoGenreProperty
+    {
+      get { return _videoGenreProperty; }
+    }
+
+    /// <summary>
+    /// Gets the genre string of the currently playing video, if the current media item is a video item and if this
+    /// information is available.
+    /// </summary>
+    public string VideoGenre
+    {
+      get { return (string) _videoGenreProperty.GetValue(); }
+      internal set { _videoGenreProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VideoActorsProperty
+    {
+      get { return _videoActorsProperty; }
+    }
+
+    /// <summary>
+    /// Gets an enumeration of actor names of the currently playing video, if the current media item is a video item
+    /// and if this information is available.
+    /// </summary>
+    public IEnumerable<string> VideoActors
+    {
+      get { return (IEnumerable<string>) _videoActorsProperty.GetValue(); }
+      internal set { _videoActorsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty VideoStoryPlotProperty
+    {
+      get { return _videoStoryPlotProperty; }
+    }
+
+    /// <summary>
+    /// Gets the story plot of the currently playing video, if the current media item is a video item and if this
+    /// information is available.
+    /// </summary>
+    public string VideoStoryPlot
+    {
+      get { return (string) _videoStoryPlotProperty.GetValue(); }
+      internal set { _videoStoryPlotProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioArtistsProperty
+    {
+      get { return _audioArtistsProperty; }
+    }
+
+    /// <summary>
+    /// Gets an enumeration of artist names of the currently playing audio, if the current media item is an audio item
+    /// and if this information is available.
+    /// </summary>
+    public IEnumerable<string> AudioArtists
+    {
+      get { return (IEnumerable<string>) _audioArtistsProperty.GetValue(); }
+      set { _audioArtistsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AudioYearProperty
+    {
+      get { return _audioYearProperty; }
+    }
+
+    /// <summary>
+    /// Gets the year of the currently playing audio, if the current media item is an audio item and if this
+    /// information is available.
+    /// </summary>
+    public int? AudioYear
+    {
+      get { return (int?) _audioYearProperty.GetValue(); }
+      set { _audioYearProperty.SetValue(value); }
+    }
+
+    public AbstractProperty FullscreenContentWFStateIDProperty
+    {
+      get { return _fullscreenContentWFStateIDProperty; }
+    }
+
+    /// <summary>
+    /// Gets the workflow ID of the "fullscreen content" workflow state for the current player.
+    /// </summary>
+    public Guid? FullscreenContentWFStateID
+    {
+      get { return (Guid?) _fullscreenContentWFStateIDProperty.GetValue(); }
+      internal set { _fullscreenContentWFStateIDProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentlyPlayingWFStateIDProperty
+    {
+      get { return _currentlyPlayingWFStateIDProperty; }
+    }
+
+    /// <summary>
+    /// Gets the workflow ID of the "currently playing" workflow state for the current player.
+    /// </summary>
+    public Guid? CurrentlyPlayingWFStateID
+    {
+      get { return (Guid?) _currentlyPlayingWFStateIDProperty.GetValue(); }
+      internal set { _currentlyPlayingWFStateIDProperty.SetValue(value); }
+    }
+
     #endregion
 
     /// <summary>
-    /// Called from the skin if the user presses the audio button. This will move the audio to the current player slot,
-    /// mute the player or show up the audio menu, depending on the available audio streams.
+    /// Called from the skin if the user presses the "audio" button. This will move the audio to the player slot of the
+    /// underlaying player, mute the player or show up the audio menu, depending on the current muted state and the
+    /// number of available audio streams.
     /// </summary>
     public void AudioButtonPressed()
     {
@@ -1009,6 +1263,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "play" button. This will start the underlaying player.
+    /// </summary>
     public void Play()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1020,6 +1277,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         pc.Restart();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "pause" button. This will pause the underlaying player.
+    /// </summary>
     public void Pause()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1028,6 +1288,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       pc.Pause();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "toggle pause" button. This will start or pause the underlaying
+    /// player, depending on the current play state.
+    /// </summary>
     public void TogglePause()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1046,6 +1310,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       }
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "stop" button. This will stop the underlaying player and perhaps
+    /// close its player slot, if this behaviour is configured at the player manager.
+    /// </summary>
     public void Stop()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1054,6 +1322,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       pc.Stop();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "seek backward" button. This will start the seeking process in the
+    /// underlaying player.
+    /// </summary>
     public void SeekBackward()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1062,6 +1334,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       pc.SeekBackward();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "seek forward" button. This will start the seeking process in the
+    /// underlaying player.
+    /// </summary>
     public void SeekForward()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1070,6 +1346,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       pc.SeekForward();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "previous" button. This will play the previous media item in the
+    /// playlist of the underlaying player.
+    /// </summary>
     public void Previous()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1078,6 +1358,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       pc.PreviousItem();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "next" button. This will play the next media item in the
+    /// playlist of the underlaying player.
+    /// </summary>
     public void Next()
     {
       IPlayerContext pc = GetPlayerContext();
@@ -1086,6 +1370,10 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       pc.NextItem();
     }
 
+    /// <summary>
+    /// Called from the skin if the user presses the "toggle mute" button. This will mute or unmute the player manager,
+    /// depending on the current muted state.
+    /// </summary>
     public void ToggleMute()
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
@@ -1093,16 +1381,24 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       UpdateProperties();
     }
 
+    /// <summary>
+    /// Called from the skin to make the underlaying player the current player. The current player is the player which
+    /// receives all play commands from the remote.
+    /// </summary>
     public void MakeCurrent()
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       playerContextManager.CurrentPlayerIndex = SlotIndex;
     }
 
+    /// <summary>
+    /// Called from the skin to switch the primary video player and the secondary video player. This function only
+    /// works if both players are active and both players are video players.
+    /// </summary>
     public void SwitchPip()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      playerManager.SwitchSlots();
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      playerContextManager.SwitchPipPlayers();
       // The workflow state will be changed to the new primary player's FSC- or CP-state automatically by the PCM,
       // if necessary
     }

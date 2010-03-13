@@ -128,10 +128,13 @@
     <Compile Include="MarkupExtensions\ColorMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\IMultiValueConverter.cs" />
     <Compile Include="MarkupExtensions\ITypeConverter.cs" />
+    <Compile Include="MarkupExtensions\IValueConverter.cs" />
     <Compile Include="MarkupExtensions\MultiBindingMarkupExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceMarkupExtension.cs" />
+    <Compile Include="MpfElements\Converters\CommaSeparatedValuesConverter.cs" />
     <Compile Include="MpfElements\Converters\ExpressionMultiValueConverter.cs" />
+    <Compile Include="MpfElements\Converters\ExpressionValueConverter.cs" />
     <Compile Include="MpfElements\Converters\expr\BinaryHelper.cs" />
     <Compile Include="MpfElements\Converters\expr\BinaryOp.cs" />
     <Compile Include="MpfElements\Converters\expr\BinaryOps.cs" />
@@ -247,6 +250,7 @@
     <Compile Include="DirectX\Triangulate\CPoint2D.cs" />
     <Compile Include="DirectX\Triangulate\CPolygon.cs" />
     <Compile Include="DirectX\Triangulate\Definition.cs" />
+    <Compile Include="Controls\Visuals\ARRetainingControl.cs" />
     <Compile Include="Controls\Visuals\StyleSelector.cs" />
     <Compile Include="Controls\Visuals\Styles\Setter.cs" />
     <Compile Include="Controls\Visuals\Styles\Style.cs" />

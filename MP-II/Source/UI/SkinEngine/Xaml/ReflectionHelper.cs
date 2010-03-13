@@ -259,7 +259,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Tries to find an implemented <see cref="IEnumerable{T}"/> or <see cref="IEnumerable"/>
     /// interface and returns it. If the resulting enumerable is a generic type,
-    /// the entry type (type parameter T) of this enumerable will be returned too.
+    /// the entry type (type parameter <c>T</c>) of this enumerable will be returned too.
     /// </summary>
     /// <param name="type">The type to examine.</param>
     /// <param name="enumerableType">Returns the enumerable type found. If an implemented
@@ -276,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Tries to find an implemented <see cref="ICollection{T}"/> or <see cref="ICollection"/>
     /// interface and returns it. If the resulting collection is a generic type,
-    /// the entry type (type parameter T) of this collection will be returned too.
+    /// the entry type (type parameter <c>T</c>) of this collection will be returned too.
     /// </summary>
     /// <param name="type">The type to examine.</param>
     /// <param name="collectionType">Returns the collection type found. If an implemented
@@ -293,7 +293,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Tries to find an implemented <see cref="IList{T}"/> or <see cref="IList{T}"/>
     /// interface and returns it. If the resulting list is a generic type,
-    /// the entry type (type parameter T) of this list will be returned too.
+    /// the entry type (type parameter <c>T</c>) of this list will be returned too.
     /// </summary>
     /// <param name="type">The type to examine.</param>
     /// <param name="listType">Returns the list type found. If an implemented
@@ -337,7 +337,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (nonGenericType.IsAssignableFrom(type))
       {
         resultEnumerableType = nonGenericType;
-        resultEntryType = null;
         return;
       }
     }
@@ -390,8 +389,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       if (typeof(IDictionary).IsAssignableFrom(type))
       {
         resultDictionaryType = typeof(IDictionary);
-        resultKeyType = null;
-        resultValueType = null;
         return;
       }
     }
@@ -480,7 +477,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       {
         method = entryType == null ? targetType.GetMethod("Add") : targetType.GetMethod("Add", new Type[] { entryType });
         // Have to cast to ICollection, because the type converter cannot cope with the situation corretcly if we cast to IEnumerable
-        ICollection col = (ICollection)TypeConverter.Convert(value, typeof(ICollection));
+        ICollection col = (ICollection) TypeConverter.Convert(value, typeof(ICollection));
         if (col == null)
           // The type converter converts null to null rather than to an empty collection, so we have to handle this case explicitly
           method.Invoke(maybeCollectionTarget, new object[] { null });
@@ -508,7 +505,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       // Check for IAddChild
       if (IsIAddChild(maybeCollectionTarget.GetType(), out method, out entryType))
       {
-        foreach (object child in (ICollection)TypeConverter.Convert(value, typeof(ICollection)))
+        foreach (object child in (ICollection) TypeConverter.Convert(value, typeof(ICollection)))
           method.Invoke(maybeCollectionTarget, new object[] { TypeConverter.Convert(child, entryType) });
         return true;
       }

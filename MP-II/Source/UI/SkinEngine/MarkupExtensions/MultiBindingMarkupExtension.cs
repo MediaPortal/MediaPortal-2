@@ -355,22 +355,25 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           return false;
         }
 
-        if (Mode == BindingMode.TwoWay || Mode == BindingMode.OneWayToSource)
-          throw new XamlBindingException("MultiBindingMarkupExtension doesn't support BindingMode.TwoWay and BindingMode.OneWayToSource");
-        else if (Mode == BindingMode.OneTime)
+        switch (Mode)
         {
-          _contextObject.SetBindingValue(_targetDataDescriptor, sourceDd.Value);
-          _retryBinding = false;
-          Dispose();
-          return true; // In this case, we have finished with only assigning the value
+          case BindingMode.TwoWay:
+          case BindingMode.OneWayToSource:
+            throw new XamlBindingException(
+                "MultiBindingMarkupExtension doesn't support BindingMode.TwoWay and BindingMode.OneWayToSource");
+          case BindingMode.OneTime:
+            _contextObject.SetBindingValue(_targetDataDescriptor, sourceDd.Value);
+            _retryBinding = false;
+            Dispose();
+            return true; // In this case, we have finished with only assigning the value
+          default: // Mode == BindingMode.OneWay || Mode == BindingMode.Default
+            if (_bindingDependency != null)
+              _bindingDependency.Detach();
+            _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
+                UpdateSourceTrigger.Explicit, _contextObject, null, null, null);
+            _retryBinding = false;
+            return true;
         }
-        // else Mode == BindingMode.OneWay || Mode == BindingMode.Default
-        if (_bindingDependency != null)
-          _bindingDependency.Detach();
-        _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
-            UpdateSourceTrigger.Explicit, _contextObject, null, null);
-        _retryBinding = false;
-        return true;
       }
       finally
       {

@@ -24,32 +24,12 @@
 
 using System;
 using System.Globalization;
-using MediaPortal.UI.SkinEngine.MarkupExtensions;
-using MediaPortal.UI.SkinEngine.Xaml;
 
-namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
+namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
-  public class ReferenceNotNull_BoolConverter : IValueConverter
+  public interface IValueConverter
   {
-    #region IValueConverter implementation
-
-    public bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
-    {
-      if (targetType == typeof(bool))
-      {
-        result = val != null;
-        return true;
-      }
-      return TypeConverter.Convert(val, targetType, out result);
-    }
-
-    public bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result)
-    {
-      // We cannot invert the function given by this converter
-      result = null;
-      return false;
-    }
-
-    #endregion
+    bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result);
+    bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result);
   }
 }

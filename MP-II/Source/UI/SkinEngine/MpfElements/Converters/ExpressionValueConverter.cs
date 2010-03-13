@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using Jyc.Expr;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -31,7 +32,7 @@ using Parser=Jyc.Expr.Parser;
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   /// <summary>
-  /// Multi value converter which evaluates an expression based on given values.
+  /// Value converter which evaluates an expression based on a given variable.
   /// </summary>
   /// <remarks>
   /// Supported operators:
@@ -50,27 +51,27 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
   /// <item>bool</item>
   /// </list>
   /// </remarks>
-  // Implementation comment: The code of this class is similar to ExpressionValueConverter.
+  // Implementation comment: The code of this class is similar to ExpressionMultiValueConverter.
   // If changed, the other class might also be needed to be changed.
-  public class ExpressionMultiValueConverter : IMultiValueConverter
+  public class ExpressionValueConverter : IValueConverter
   {
-    #region IMultiValueConverter implementation
+    #region IValueConverter implementation
 
     /// <summary>
     /// Evaluates a simple expression, given via the parameter <paramref name="parameter"/>.
     /// </summary>
     /// <remarks>
     /// This converter will often be used in XAML files. Note that in XAML, an attribute beginning with a '{' character
-    /// is interpreted as an invocation of a markup extension. So the expression "{0} || {1}" must be escaped like this:
-    /// "{}{0} || {1}". Note also that the boolean AND operator (&&) must be escaped too like this: "{}{0} &amp;&amp; {1}".
+    /// is interpreted as an invocation of a markup extension. So the expression "{0} + 5" must be escaped like this:
+    /// "{}{0} + 5". Note also that the boolean AND operator (&&) must be escaped too like this: "{}{0} &amp;&amp; true".
     /// </remarks>
-    /// <param name="values">The values used for the variables {0} .. {n}.</param>
+    /// <param name="val">The value used for the variable {0}.</param>
     /// <param name="targetType">Type to that the evaluated result should be converted.</param>
-    /// <param name="parameter">String containing the expression. Variables can be accessed via numbers in
-    /// curly braces, for example "!({0} || {2})". The variables are mapped to the values specified by
-    /// the <paramref name="values"/> array.</param>
+    /// <param name="parameter">String containing the expression. The input variable can be accessed via {0},
+    /// for example "{0} * 9 > 5 ? 6 : 20".</param>
+    /// <param name="culture">The current culture, which will be used for formatting.</param>
     /// <param name="result">Will return the evaluated result of the given <paramref name="targetType"/>.</param>
-    public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    public bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
     {
       result = null;
       string expression = parameter as string;
@@ -82,7 +83,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         // See http://www.codeproject.com/KB/dotnet/Expr.aspx
         // The parser was slightly adapted to our needs:
         // - To access a variable, the variable identifier has to be written in curly braces, for example:
-        //   {0} + {1}
+        //   {0} + 5
 
         Parser ep = new Parser();
         Evaluator evaluator = new Evaluator();
@@ -116,12 +117,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         //pvh.Parameters["Random"] = new Parameter(typeof(Random));
         //pvh.Parameters["TimeZone"] = new Parameter(typeof(TimeZone));
 
-        // Add child binding values
-			  for (int i = 0; i < values.Length; i++)
-			  {
-			    IDataDescriptor value = values[i];
-			    pvh.Parameters[i.ToString()] = new Parameter(value.Value, value.DataType);
-			  }
+        // Add child binding variable
+        pvh.Parameters["0"] = new Parameter(val, val == null ? null : val.GetType());
         evaluator.VariableHolder = pvh;
         Tree tree = ep.Parse(expression);
         result = evaluator.Eval(tree);
@@ -131,6 +128,13 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 			{
 			  return false;
 			}
+    }
+
+    public bool ConvertBack(object val, Type targetType, object parameter, CultureInfo culture, out object result)
+    {
+      // In general, we cannot invert the function given by the parameter
+      result = null;
+      return false;
     }
 
     #endregion

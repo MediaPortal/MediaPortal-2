@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
@@ -121,7 +122,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
     protected AbstractProperty _updateSourceTriggerProperty =
         new SProperty(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
-    protected ITypeConverter _typeConverter = null;
+    protected IValueConverter _valueConverter = null;
+    protected object _converterParameter = null;
 
     // State variables
     protected bool _retryBinding = false; // Our BindingDependency could not be established because there were problems evaluating the binding source value -> UpdateBinding has to be called again
@@ -354,12 +356,25 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <summary>
     /// Gets or sets a custom type converter.
     /// </summary>
-    public ITypeConverter Converter
+    public IValueConverter Converter
     {
-      get { return _typeConverter; }
+      get { return _valueConverter; }
       set
       {
-        _typeConverter = value;
+        _valueConverter = value;
+        OnBindingPropertyChanged(null, null);
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the parameter for the custom type converter.
+    /// </summary>
+    public object ConverterParameter
+    {
+      get { return _converterParameter; }
+      set
+      {
+        _converterParameter = value;
         OnBindingPropertyChanged(null, null);
       }
     }
@@ -838,8 +853,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected bool Convert(object val, Type targetType, out object result)
     {
-      if (_typeConverter != null)
-        return _typeConverter.Convert(val, targetType, out result);
+      if (_valueConverter != null)
+        return _valueConverter.Convert(val, targetType, _converterParameter, CultureInfo.InvariantCulture, out result);
       return TypeConverter.Convert(val, targetType, out result);
     }
 
@@ -903,7 +918,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           parent = null;
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
             attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit, _contextObject,
-            parent as UIElement, _typeConverter);
+            parent as UIElement, _valueConverter, _converterParameter);
         _retryBinding = false;
         return true;
       }

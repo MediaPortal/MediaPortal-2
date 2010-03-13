@@ -241,9 +241,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
-      Initialize();
-      InitializeTriggers();
-      IsInvalidLayout = false;
+      base.Arrange(finalRect);
     }
 
     public override void DoRender()

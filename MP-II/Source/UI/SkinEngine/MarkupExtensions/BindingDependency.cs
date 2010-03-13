@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -37,10 +38,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected IDataDescriptor _sourceDd;
     protected IDataDescriptor _targetDd;
     protected DependencyObject _targetObject;
+    protected IValueConverter _valueConverter;
+    protected object _converterParameter;
     protected bool _attachedToSource = false;
     protected bool _attachedToTarget = false;
     protected UIElement _attachedToLostFocus = null;
-    protected ITypeConverter _typeConverter = null;
 
     /// <summary>
     /// Creates a new <see cref="BindingDependency"/> object.
@@ -65,17 +67,21 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <param name="parentUiElement">The parent <see cref="UIElement"/> of the specified <paramref name="targetDd"/>
     /// data descriptor. This parameter is only used to attach to the lost focus event if
     /// <paramref name="updateSourceTrigger"/> is set to <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
-    /// <param name="customTypeConverter">Set a custom type converter with this parameter. If this parameter
+    /// <param name="customValueConverter">Set a custom value converter with this parameter. If this parameter
     /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
+    /// <param name="customValueConverterParameter">Parameter to be used in the custom value converter, if one is
+    /// set.</param>
     public BindingDependency(
         IDataDescriptor sourceDd, IDataDescriptor targetDd,
         bool autoAttachToSource, UpdateSourceTrigger updateSourceTrigger,
-        DependencyObject targetObject, UIElement parentUiElement, ITypeConverter customTypeConverter)
+        DependencyObject targetObject, UIElement parentUiElement, IValueConverter customValueConverter,
+        object customValueConverterParameter)
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
       _targetObject = targetObject;
-      _typeConverter = customTypeConverter;
+      _valueConverter = customValueConverter;
+      _converterParameter = customValueConverterParameter;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
       {
         sourceDd.Attach(OnSourceChanged);
@@ -121,18 +127,34 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     protected bool Convert(object val, Type targetType, out object result)
     {
-      if (_typeConverter != null)
-        return _typeConverter.Convert(val, targetType, out result);
+      if (_valueConverter != null)
+        return _valueConverter.Convert(val, targetType, _converterParameter, CultureInfo.InvariantCulture, out result);
+      return TypeConverter.Convert(val, targetType, out result);
+    }
+
+    protected bool ConvertBack(object val, Type targetType, out object result)
+    {
+      if (_valueConverter != null)
+        return _valueConverter.ConvertBack(val, targetType, _converterParameter, CultureInfo.InvariantCulture, out result);
       return TypeConverter.Convert(val, targetType, out result);
     }
 
     /// <summary>
-    /// Gets or sets a custom type converter.
+    /// Gets or sets a custom value converter.
     /// </summary>
-    public ITypeConverter Converter
+    public IValueConverter Converter
     {
-      get { return _typeConverter; }
-      set { _typeConverter = value; }
+      get { return _valueConverter; }
+      set { _valueConverter = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the parameter for the custom value converter.
+    /// </summary>
+    public object ConverterParameter
+    {
+      get { return _converterParameter; }
+      set { _converterParameter = value; }
     }
 
     public void Detach()
@@ -150,7 +172,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     public void UpdateSource()
     {
       object newValue;
-      if (!Convert(_targetDd.Value, _sourceDd.DataType, out newValue))
+      if (!ConvertBack(_targetDd.Value, _sourceDd.DataType, out newValue))
         return;
       if (_sourceDd.Value == newValue)
         return;
