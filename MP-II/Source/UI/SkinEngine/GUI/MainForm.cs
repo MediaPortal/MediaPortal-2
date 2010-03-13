@@ -495,8 +495,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         throw new Exception("DirectX MainForm: Render thread already running");
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Start render thread");
       _renderThreadStopped = false;
-      _renderThread = new Thread(RenderLoop);
-      _renderThread.Name = "DirectX Render Thread";
+      _renderThread = new Thread(RenderLoop) {Name = "DirectX Render Thread"};
       _renderThread.Start();
     }
 

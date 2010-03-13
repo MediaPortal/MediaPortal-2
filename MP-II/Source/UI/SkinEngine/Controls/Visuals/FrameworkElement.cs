@@ -804,10 +804,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void Render()
     {
-      UpdateLayout();
-      ExtendedMatrix matrix;
+      if (!IsVisible)
+        return;
 
+      UpdateLayout();
       RectangleF bounds = ActualBounds;
+
+      if (bounds.Width <= 0 || bounds.Height <= 0)
+        return;
 
       if (OpacityMask != null)
       {
@@ -826,7 +830,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
         List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
         SkinContext.Transforms = new List<ExtendedMatrix>();
-        matrix = new ExtendedMatrix();
+        ExtendedMatrix matrix = new ExtendedMatrix();
 
         // Apply the rendertransform
         if (RenderTransform != null)
@@ -907,7 +911,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Apply rendertransform
         if (RenderTransform != null)
         {
-          matrix = new ExtendedMatrix();
+          ExtendedMatrix matrix = new ExtendedMatrix();
           Vector2 center = new Vector2(bounds.X + bounds.Width * RenderTransformOrigin.X,
               bounds.Y + bounds.Height * RenderTransformOrigin.Y);
           matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
@@ -927,9 +931,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void BuildRenderTree()
     {
-      if (!IsVisible) 
+      if (!IsVisible)
         return;
       UpdateLayout();
+
+      RectangleF bounds = ActualBounds;
+
+      if (bounds.Width <= 0 || bounds.Height <= 0)
+        return;
+      
       SkinContext.AddOpacity(Opacity);
       if (RenderTransform != null)
       {
