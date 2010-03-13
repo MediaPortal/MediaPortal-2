@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MediaPortal.Core;
 using MediaPortal.UI.Control.InputManager;
@@ -56,14 +55,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private bool _renderThreadStopped;
     private int _fpsCounter;
     private DateTime _fpsTimer;
-    private float _fixed_aspect_ratio = 0;
     private FormWindowState _windowState;
     private Size _previousWindowClientSize;
     private Point _previousWindowPosition;
     private Point _previousMousePosition;
     private ScreenMode _mode = ScreenMode.NormalWindowed;
     private bool _hasFocus = false;
-    private ScreenManager _screenManager;
+    private readonly ScreenManager _screenManager;
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
     protected bool _mouseHidden = false;
@@ -83,7 +81,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       _previousMousePosition = new Point(-1, -1);
       ClientSize = new Size(SkinContext.SkinWidth, SkinContext.SkinHeight);
-      _fixed_aspect_ratio = SkinContext.SkinHeight/(float) SkinContext.SkinWidth;
 
       // Remember prev size
       _previousWindowClientSize = ClientSize;
@@ -141,9 +138,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
         return;
       _mouseHidden = !show;
       if (_mouseHidden)
-        System.Windows.Forms.Cursor.Hide();
+        Cursor.Hide();
       else
-        System.Windows.Forms.Cursor.Show();
+        Cursor.Show();
     }
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -249,85 +246,92 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     protected override void WndProc(ref Message m)
     {
-      const long WM_SIZING = 0x214;
-      const int WMSZ_LEFT = 1;
-      const int WMSZ_RIGHT = 2;
-      const int WMSZ_TOP = 3;
-      const int WMSZ_TOPLEFT = 4;
-      const int WMSZ_TOPRIGHT = 5;
-      const int WMSZ_BOTTOM = 6;
-      const int WMSZ_BOTTOMLEFT = 7;
-      const int WMSZ_BOTTOMRIGHT = 8;
+      //const long WM_SIZING = 0x214;
+      //const int WMSZ_LEFT = 1;
+      //const int WMSZ_RIGHT = 2;
+      //const int WMSZ_TOP = 3;
+      //const int WMSZ_TOPLEFT = 4;
+      //const int WMSZ_TOPRIGHT = 5;
+      //const int WMSZ_BOTTOM = 6;
+      //const int WMSZ_BOTTOMLEFT = 7;
+      //const int WMSZ_BOTTOMRIGHT = 8;
       const int WM_SYSCHAR = 0x106;
 
       // Hande 'beep'
       if (m.Msg == WM_SYSCHAR)
         return;
 
-      if (m.Msg == WM_SIZING && m.HWnd == Handle)
-      {
-        if (WindowState == FormWindowState.Normal)
-        {
-          Rect r = (Rect) Marshal.PtrToStructure(m.LParam, typeof(Rect));
+      // Albert, 2010-03-13: The following code can be used to make the window always maintain a fixed aspect ratio.
+      // It was commented out because it doesn't really help. At least in the fullscreen mode, the aspect ratio is determined
+      // by the screen and not by any other desired aspect ratio. I think we should not use the code, that's why I comment
+      // it out.
+      // When it should be used, the field _fixed_aspect_ratio must be initialized with a sensible value, for example
+      // the aspect ratio from the skin.
+      //if (m.Msg == WM_SIZING && m.HWnd == Handle)
+      //{
+      //  if (WindowState == FormWindowState.Normal)
+      //  {
+      //    Rect r = (Rect) Marshal.PtrToStructure(m.LParam, typeof(Rect));
 
-          // Calc the border offset
-          Size offset = new Size(Width - ClientSize.Width, Height - ClientSize.Height);
+      //    // Calc the border offset
+      //    Size offset = new Size(Width - ClientSize.Width, Height - ClientSize.Height);
 
-          // Calc the new dimensions.
-          float wid = r.Right - r.Left - offset.Width;
-          float hgt = r.Bottom - r.Top - offset.Height;
-          // Calc the new aspect ratio.
-          float new_aspect_ratio = hgt / wid;
+      //    // Calc the new dimensions.
+      //    float wid = r.Right - r.Left - offset.Width;
+      //    float hgt = r.Bottom - r.Top - offset.Height;
+      //    // Calc the new aspect ratio.
+      //    float new_aspect_ratio = hgt / wid;
 
-          // See if the aspect ratio is changing.
-          if (_fixed_aspect_ratio != new_aspect_ratio)
-          {
-            Int32 dragBorder = m.WParam.ToInt32();
-            // To decide which dimension we should preserve,
-            // see what border the user is dragging.
-            if (dragBorder == WMSZ_TOPLEFT || dragBorder == WMSZ_TOPRIGHT ||
-                dragBorder == WMSZ_BOTTOMLEFT || dragBorder == WMSZ_BOTTOMRIGHT)
-            {
-              // The user is dragging a corner.
-              // Preserve the bigger dimension.
-              if (new_aspect_ratio > _fixed_aspect_ratio)
-                // It's too tall and thin. Make it wider.
-                wid = hgt / _fixed_aspect_ratio;
-              else
-                // It's too short and wide. Make it taller.
-                hgt = wid * _fixed_aspect_ratio;
-            }
-            else if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_RIGHT)
-              // The user is dragging a side.
-              // Preserve the width.
-              hgt = wid * _fixed_aspect_ratio;
-            else if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_BOTTOM)
-              // The user is dragging the top or bottom.
-              // Preserve the height.
-              wid = hgt / _fixed_aspect_ratio;
-            // Figure out whether to reset the top/bottom
-            // and left/right.
-            // See if the user is dragging the top edge.
-            if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_TOPLEFT ||
-                dragBorder == WMSZ_TOPRIGHT)
-              // Reset the top.
-              r.Top = r.Bottom - (int)(hgt + offset.Height);
-            else
-              // Reset the bottom.
-              r.Bottom = r.Top + (int)(hgt + offset.Height);
-            // See if the user is dragging the left edge.
-            if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_TOPLEFT ||
-                dragBorder == WMSZ_BOTTOMLEFT)
-              // Reset the left.
-              r.Left = r.Right - (int)(wid + offset.Width);
-            else
-              // Reset the right.
-              r.Right = r.Left + (int)(wid + offset.Width);
-            // Update the Message object's LParam field.
-            Marshal.StructureToPtr(r, m.LParam, true);
-          }
-        }
-      }
+      //    // See if the aspect ratio is changing.
+      //    if (_fixed_aspect_ratio != new_aspect_ratio)
+      //    {
+      //      Int32 dragBorder = m.WParam.ToInt32();
+      //      // To decide which dimension we should preserve,
+      //      // see what border the user is dragging.
+      //      if (dragBorder == WMSZ_TOPLEFT || dragBorder == WMSZ_TOPRIGHT ||
+      //          dragBorder == WMSZ_BOTTOMLEFT || dragBorder == WMSZ_BOTTOMRIGHT)
+      //      {
+      //        // The user is dragging a corner.
+      //        // Preserve the bigger dimension.
+      //        if (new_aspect_ratio > _fixed_aspect_ratio)
+      //          // It's too tall and thin. Make it wider.
+      //          wid = hgt / _fixed_aspect_ratio;
+      //        else
+      //          // It's too short and wide. Make it taller.
+      //          hgt = wid * _fixed_aspect_ratio;
+      //      }
+      //      else if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_RIGHT)
+      //        // The user is dragging a side.
+      //        // Preserve the width.
+      //        hgt = wid * _fixed_aspect_ratio;
+      //      else if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_BOTTOM)
+      //        // The user is dragging the top or bottom.
+      //        // Preserve the height.
+      //        wid = hgt / _fixed_aspect_ratio;
+      //      // Figure out whether to reset the top/bottom
+      //      // and left/right.
+      //      // See if the user is dragging the top edge.
+      //      if (dragBorder == WMSZ_TOP || dragBorder == WMSZ_TOPLEFT ||
+      //          dragBorder == WMSZ_TOPRIGHT)
+      //        // Reset the top.
+      //        r.Top = r.Bottom - (int)(hgt + offset.Height);
+      //      else
+      //        // Reset the bottom.
+      //        r.Bottom = r.Top + (int)(hgt + offset.Height);
+      //      // See if the user is dragging the left edge.
+      //      if (dragBorder == WMSZ_LEFT || dragBorder == WMSZ_TOPLEFT ||
+      //          dragBorder == WMSZ_BOTTOMLEFT)
+      //        // Reset the left.
+      //        r.Left = r.Right - (int)(wid + offset.Width);
+      //      else
+      //        // Reset the right.
+      //        r.Right = r.Left + (int)(wid + offset.Width);
+      //      // Update the Message object's LParam field.
+      //      Marshal.StructureToPtr(r, m.LParam, true);
+      //    }
+      //  }
+      //}
+      // Send windows message through the system if any component needs to access windows messages
       WindowsMessaging.BroadcastWindowsMessage(ref m);
       base.WndProc(ref m);
     }
