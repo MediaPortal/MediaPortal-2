@@ -687,7 +687,7 @@ namespace UiComponents.Media.Models
       pc.CloseWhenFinished = true; // Has to be done before starting the media item, else the slot will not close in case of an error / when the media item cannot be played
       pc.Play();
       if (mediaType == PlayerContextType.Video)
-        pcm.ShowFullscreenContent();
+        pcm.ShowFullscreenContent(PlayerChoice.PrimaryPlayer);
     }
 
     protected string BuildNumItemsStr(int numItems)
