@@ -432,10 +432,7 @@ namespace UiComponents.SkinBase.Models
     protected static IPlayerContext GetCurrentPlayerContext()
     {
       IPlayerContextManager pcm = ServiceScope.Get<IPlayerContextManager>();
-      int currentPlayerSlot = pcm.CurrentPlayerIndex;
-      if (currentPlayerSlot == -1)
-        currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
-      return pcm.GetPlayerContext(currentPlayerSlot);
+      return pcm.GetPlayerContext(PlayerChoice.CurrentPlayer);
     }
 
     protected void EnterContext(NavigationContext newContext)

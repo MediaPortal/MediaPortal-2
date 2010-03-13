@@ -61,6 +61,27 @@ namespace MediaPortal.UI.Presentation.Players
   }
 
   /// <summary>
+  /// Used as a parameter for methods which can work on either player to describe which player is meant.
+  /// </summary>
+  public enum PlayerChoice
+  {
+    /// <summary>
+    /// The primary player.
+    /// </summary>
+    PrimaryPlayer,
+
+    /// <summary>
+    /// The secondary player.
+    /// </summary>
+    SecondaryPlayer,
+
+    /// <summary>
+    /// The player which is marked as "current player".
+    /// </summary>
+    CurrentPlayer,
+  }
+
+  /// <summary>
   /// Management service for active players and their integration into the UI.
   /// </summary>
   /// <remarks>
@@ -139,7 +160,8 @@ namespace MediaPortal.UI.Presentation.Players
     int CurrentPlayerIndex { get; set; }
 
     /// <summary>
-    /// Convenience property for calling <see cref="GetPlayerContext"/> with the <see cref="CurrentPlayerIndex"/>.
+    /// Convenience property for calling <see cref="GetPlayerContext(PlayerChoice)"/> with the parameter
+    /// <see cref="PlayerChoice.CurrentPlayer"/>.
     /// </summary>
     IPlayerContext CurrentPlayerContext { get; }
 
@@ -152,6 +174,14 @@ namespace MediaPortal.UI.Presentation.Players
     /// Shuts the function of this service down. This is necessary before the player manager gets closed.
     /// </summary>
     void Shutdown();
+
+    /// <summary>
+    /// Returns the player context object which is determined by the given <paramref name="player"/> parameter.
+    /// </summary>
+    /// <param name="player">Tells for which player the player context should be returned.</param>
+    /// <returns>Player context instance or <c>null</c>, if the specified slot isn't active at the moment or
+    /// has no player context assigned.</returns>
+    IPlayerContext GetPlayerContext(PlayerChoice player);
 
     /// <summary>
     /// Returns the player context object which is assigned to the player manager's slot with the specified
@@ -255,14 +285,18 @@ namespace MediaPortal.UI.Presentation.Players
     IEnumerable<IPlayerContext> GetPlayerContextsByMediaModuleId(Guid mediaModuleId);
 
     /// <summary>
-    /// Switches to the "currently playing" workflow state for the current player.
+    /// Switches to the "currently playing" workflow state for the player determined by the
+    /// <paramref name="player"/> parameter.
     /// </summary>
-    void ShowCurrentlyPlaying();
+    /// <param name="player">Tells for which player the currently playing workflow state should be moved to.</param>
+    void ShowCurrentlyPlaying(PlayerChoice player);
 
     /// <summary>
-    /// Switches to the "fullscreen content" workflow state for the primary player.
+    /// Switches to the "fullscreen content" workflow state for player determined by the
+    /// <paramref name="player"/> parameter.
     /// </summary>
-    void ShowFullscreenContent();
+    /// <param name="player">Tells for which player the fullscreen content workflow state should be moved to.</param>
+    void ShowFullscreenContent(PlayerChoice player);
 
     /// <summary>
     /// Returns the player context type of the specified media <paramref name="item"/>. The player context type of a media

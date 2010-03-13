@@ -511,14 +511,14 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public void ShowCurrentlyPlaying()
+    public void ShowCurrentlyPlaying(PlayerChoice player)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         if (_inCurrentlyPlayingState.HasValue)
           return;
-        PlayerContext pc = GetPlayerContextInternal(_currentPlayerIndex);
+        IPlayerContext pc = GetPlayerContext(player);
         if (pc == null)
           return;
         _inCurrentlyPlayingState = pc.CurrentlyPlayingWorkflowStateId;
@@ -527,14 +527,14 @@ namespace MediaPortal.UI.Services.Players
       workflowManager.NavigatePush(_inCurrentlyPlayingState.Value, null);
     }
 
-    public void ShowFullscreenContent()
+    public void ShowFullscreenContent(PlayerChoice player)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       lock (playerManager.SyncObj)
       {
         if (_inFullscreenContentState.HasValue)
           return;
-        PlayerContext pc = GetPlayerContextInternal(PlayerManagerConsts.PRIMARY_SLOT);
+        IPlayerContext pc = GetPlayerContext(player);
         if (pc == null)
           return;
         _inFullscreenContentState = pc.FullscreenContentWorkflowStateId;
@@ -553,6 +553,28 @@ namespace MediaPortal.UI.Services.Players
         return PlayerContextType.Audio;
       else
         return PlayerContextType.None;
+    }
+
+    public IPlayerContext GetPlayerContext(PlayerChoice player)
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        int slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+        switch (player)
+        {
+          case PlayerChoice.PrimaryPlayer:
+            slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
+            break;
+          case PlayerChoice.SecondaryPlayer:
+            slotIndex = PlayerManagerConsts.SECONDARY_SLOT;
+            break;
+          case PlayerChoice.CurrentPlayer:
+            slotIndex = _currentPlayerIndex;
+            break;
+        }
+        return GetPlayerContextInternal(slotIndex);
+      }
     }
 
     public IPlayerContext GetPlayerContext(int slotIndex)
