@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Include
+<Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master.xaml"
-    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    DataContext="{Binding Source={Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC}}"
-    > <!-- DataContext model = AudioPlayerModel -->
-  <Include.Resources>
-    <ResourceWrapper x:Key="Header_Text" Resource=""/>
-    <ResourceWrapper x:Key="Client_Element">
-[TODO: UI element to be displayed in the client area]
-    </ResourceWrapper>
-  </Include.Resources>
-</Include>
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
+  <Label DockPanel.Dock="Center"
+      HorizontalAlignment="Center" VerticalAlignment="Center"
+      Content="In the future, you will see an audio visualization here"/>
+</Grid>
