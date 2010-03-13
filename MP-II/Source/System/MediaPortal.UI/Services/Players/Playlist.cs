@@ -144,11 +144,23 @@ namespace MediaPortal.UI.Services.Players
             return null;
           if (_playIndexList == null)
             InitializePlayIndexList();
+          if (_playIndexList.Count == 0)
+            return null;
+          if (_repeatMode == RepeatMode.One)
+            return _itemList[_playIndexList[_currentPlayIndex]];
           int playIndex = _currentPlayIndex + relativeIndex;
           if (playIndex < 0 || playIndex >= _playIndexList.Count)
-            return null;
-          int index = _playIndexList[_currentPlayIndex];
+          {
+            if (_repeatMode == RepeatMode.None)
+              return null;
+            while (playIndex > _playIndexList.Count)
+              playIndex -= _playIndexList.Count;
+            while (playIndex < 0)
+              playIndex += _playIndexList.Count;
+          }
+          int index = _playIndexList[playIndex];
           if (index < 0 || index >= _itemList.Count)
+            // Should never happen if we didn't break our index list
             return null;
           return _itemList[index];
         }

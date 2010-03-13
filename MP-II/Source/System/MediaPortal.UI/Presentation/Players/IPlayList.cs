@@ -77,7 +77,7 @@ namespace MediaPortal.UI.Presentation.Players
 
     /// <summary>
     /// Gets the currently active media item. This is a convenience property for calling
-    /// <see cref="RelativeItem"/> with a relative index of <c>0</c>.
+    /// <see cref="this"/> with a relative index of <c>0</c>.
     /// </summary>
     MediaItem Current { get; }
 
@@ -88,6 +88,8 @@ namespace MediaPortal.UI.Presentation.Players
     /// The current item can be retrieved with the <paramref name="relativeIndex"/> <c>0</c>, for the next item
     /// use a <paramref name="relativeIndex"/> of <c>0</c>, for the last item use a <paramref name="relativeIndex"/>
     /// of <c>-1</c>, etc.
+    /// This property heeds the <see cref="RepeatMode"/> property, i.e. it returns the playlist item which will be
+    /// played at the <paramref name="relativeIndex"/>'th position.
     /// </remarks>
     /// <param name="relativeIndex">Index relative to the current item.</param>
     /// <returns>Media item at the specified relative index or <c>null</c>, if there is no media item at the specified
@@ -101,8 +103,19 @@ namespace MediaPortal.UI.Presentation.Players
     bool AllPlayed { get; }
 
     /// <summary>
+    /// Returns the information if we have a previous item.
+    /// </summary>
+    bool HasPrevious { get; }
+
+    /// <summary>
+    /// Returns the information if we have a next item.
+    /// </summary>
+    bool HasNext { get; }
+
+    /// <summary>
     /// Noves the playlist to the previous media item to be played and returns it.
     /// </summary>
+    /// <para
     /// <returns>Media item instance or <c>null</c>, if there are no previous items available (i.e. the playlist is
     /// not started at all or empty or the current item is already the first one).</returns>
     MediaItem GetPrevious();
@@ -113,16 +126,6 @@ namespace MediaPortal.UI.Presentation.Players
     /// <returns>Media item instance or <c>null</c>, if there are no more items to be played (i.e. the playlist is
     /// not started at all or empty or has reached its end (<see cref="AllPlayed"/> is <c>true</c>)).</returns>
     MediaItem GetNext();
-
-    /// <summary>
-    /// Returns the information if we have a previous item.
-    /// </summary>
-    bool HasPrevious { get; }
-
-    /// <summary>
-    /// Returns the information if we have a next item.
-    /// </summary>
-    bool HasNext { get; }
 
     /// <summary>
     /// Clears the playlist.

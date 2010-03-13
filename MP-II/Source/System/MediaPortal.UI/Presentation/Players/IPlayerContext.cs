@@ -106,6 +106,13 @@ namespace MediaPortal.UI.Presentation.Players
     IPlaylist Playlist { get; }
 
     /// <summary>
+    /// Returns the media item which is currently played. Note that this player context might play a resource which
+    /// doesn't belong to a media item (e.g. by calling <see cref="DoPlay(IResourceLocator,string,string)"/>). In that case,
+    /// this property will return <c>null</c>.
+    /// </summary>
+    MediaItem CurrentMediaItem { get; }
+
+    /// <summary>
     /// Configures this player context to be automatically closed when the player is stopped or has ended.
     /// This will typically be used when playing videos, which run without a playlist.
     /// </summary>

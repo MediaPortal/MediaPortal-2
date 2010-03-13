@@ -179,14 +179,14 @@ namespace UiComponents.Media.Models
       {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
-          MusicAspect.ASPECT_ID,
+          AudioAspect.ASPECT_ID,
       };
 
     protected static readonly Guid[] NECESSARY_MOVIE_MIAS = new Guid[]
       {
           ProviderResourceAspect.ASPECT_ID,
           MediaAspect.ASPECT_ID,
-          MovieAspect.ASPECT_ID,
+          VideoAspect.ASPECT_ID,
       };
 
     protected static readonly Guid[] NECESSARY_PICTURE_MIAS = new Guid[]
@@ -618,7 +618,7 @@ namespace UiComponents.Media.Models
     public static bool GetModuleIdAndNameForMediaItem(MediaItem item, out Guid moduleId, out string contextName)
     {
       // No locking necessary
-      if (item.Aspects.ContainsKey(MovieAspect.Metadata.AspectId))
+      if (item.Aspects.ContainsKey(VideoAspect.Metadata.AspectId))
       {
         moduleId = VIDEO_MODULE_ID;
         contextName = VIDEO_PLAYER_CONTEXT_NAME_RESOURCE;
@@ -630,7 +630,7 @@ namespace UiComponents.Media.Models
         contextName = PICTURE_PLAYER_CONTEXT_NAME_RESOURCE;
         return true;
       }
-      if (item.Aspects.ContainsKey(MusicAspect.Metadata.AspectId))
+      if (item.Aspects.ContainsKey(AudioAspect.Metadata.AspectId))
       {
         moduleId = MUSIC_MODULE_ID;
         contextName = AUDIO_PLAYER_CONTEXT_NAME_RESOURCE;
@@ -861,17 +861,17 @@ namespace UiComponents.Media.Models
 
     protected void ReloadArtists(StackedFiltersMLVS sfmlvs)
     {
-      CreateFilterValuesList(FILTER_BY_ARTIST_MODE_RESOURCE, MediaNavigationMode.MusicFilterByArtist, sfmlvs, new SimpleMLFilterCriterion(MusicAspect.ATTR_ARTISTS));
+      CreateFilterValuesList(FILTER_BY_ARTIST_MODE_RESOURCE, MediaNavigationMode.MusicFilterByArtist, sfmlvs, new SimpleMLFilterCriterion(AudioAspect.ATTR_ARTISTS));
     }
 
     protected void ReloadAlbums(StackedFiltersMLVS sfmlvs)
     {
-      CreateFilterValuesList(FILTER_BY_ALBUM_MODE_RESOURCE, MediaNavigationMode.MusicFilterByAlbum, sfmlvs, new SimpleMLFilterCriterion(MusicAspect.ATTR_ALBUM));
+      CreateFilterValuesList(FILTER_BY_ALBUM_MODE_RESOURCE, MediaNavigationMode.MusicFilterByAlbum, sfmlvs, new SimpleMLFilterCriterion(AudioAspect.ATTR_ALBUM));
     }
 
     protected void ReloadMusicGenres(StackedFiltersMLVS sfmlvs)
     {
-      CreateFilterValuesList(FILTER_BY_MUSIC_GENRE_MODE_RESOURCE, MediaNavigationMode.MusicFilterByGenre, sfmlvs, new SimpleMLFilterCriterion(MusicAspect.ATTR_GENRES));
+      CreateFilterValuesList(FILTER_BY_MUSIC_GENRE_MODE_RESOURCE, MediaNavigationMode.MusicFilterByGenre, sfmlvs, new SimpleMLFilterCriterion(AudioAspect.ATTR_GENRES));
     }
 
     protected void ReloadDecades(StackedFiltersMLVS sfmlvs)
@@ -881,12 +881,12 @@ namespace UiComponents.Media.Models
 
     protected void ReloadActors(StackedFiltersMLVS sfmlvs)
     {
-      CreateFilterValuesList(FILTER_BY_ACTOR_MODE_RESOURCE, MediaNavigationMode.MoviesFilterByActor, sfmlvs, new SimpleMLFilterCriterion(MovieAspect.ATTR_ACTORS));
+      CreateFilterValuesList(FILTER_BY_ACTOR_MODE_RESOURCE, MediaNavigationMode.MoviesFilterByActor, sfmlvs, new SimpleMLFilterCriterion(VideoAspect.ATTR_ACTORS));
     }
 
     protected void ReloadMovieGenres(StackedFiltersMLVS sfmlvs)
     {
-      CreateFilterValuesList(FILTER_BY_MOVIE_GENRE_MODE_RESOURCE, MediaNavigationMode.MoviesFilterByGenre, sfmlvs, new SimpleMLFilterCriterion(MovieAspect.ATTR_GENRE));
+      CreateFilterValuesList(FILTER_BY_MOVIE_GENRE_MODE_RESOURCE, MediaNavigationMode.MoviesFilterByGenre, sfmlvs, new SimpleMLFilterCriterion(VideoAspect.ATTR_GENRE));
     }
 
     protected void ReloadMovieYears(StackedFiltersMLVS sfmlvs)
@@ -981,9 +981,9 @@ namespace UiComponents.Media.Models
         SubViewsNavigationMode = MediaNavigationMode.LocalMedia;
         PlayableItemCreator = mi =>
           {
-            if (mi.Aspects.ContainsKey(MusicAspect.ASPECT_ID))
+            if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
               return new MusicItem(mi);
-            else if (mi.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+            else if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
               return new MovieItem(mi);
             else if (mi.Aspects.ContainsKey(PictureAspect.ASPECT_ID))
               return new PictureItem(mi);
@@ -998,8 +998,8 @@ namespace UiComponents.Media.Models
                 },
             OptionalMIATypes = new Guid[]
                 {
-                    MusicAspect.ASPECT_ID,
-                    MovieAspect.ASPECT_ID,
+                    AudioAspect.ASPECT_ID,
+                    VideoAspect.ASPECT_ID,
                     PictureAspect.ASPECT_ID,
                 });
         // Dynamic modes remain null - local media doesn't provide dynamic filters

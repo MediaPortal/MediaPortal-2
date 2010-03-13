@@ -68,6 +68,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "System\UPnP\UPnP.cs
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "System\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "..\..\Resources\Test\TestPlugin\TestPlugin.csproj", "{8B3A2090-66A2-49CC-8D92-053B324F291F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -150,6 +152,7 @@ Global
 		{4CC18776-125E-4318-9D24-D60110AD9697}.Release|x86.ActiveCfg = Release|x86
 		{4CC18776-125E-4318-9D24-D60110AD9697}.Release|x86.Build.0 = Release|x86
 		{EE24ACB8-4306-41BB-B59A-F134FBC7A9A1}.Debug|x86.ActiveCfg = Debug|x86
+		{EE24ACB8-4306-41BB-B59A-F134FBC7A9A1}.Debug|x86.Build.0 = Debug|x86
 		{EE24ACB8-4306-41BB-B59A-F134FBC7A9A1}.Release|x86.ActiveCfg = Release|x86
 		{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}.Debug|x86.ActiveCfg = Debug|x86
 		{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}.Debug|x86.Build.0 = Debug|x86
@@ -163,6 +166,10 @@ Global
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Debug|x86.Build.0 = Debug|x86
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.ActiveCfg = Release|x86
 		{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}.Release|x86.Build.0 = Release|x86
+		{8B3A2090-66A2-49CC-8D92-053B324F291F}.Debug|x86.ActiveCfg = Debug|x86
+		{8B3A2090-66A2-49CC-8D92-053B324F291F}.Debug|x86.Build.0 = Debug|x86
+		{8B3A2090-66A2-49CC-8D92-053B324F291F}.Release|x86.ActiveCfg = Release|x86
+		{8B3A2090-66A2-49CC-8D92-053B324F291F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

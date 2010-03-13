@@ -29,13 +29,13 @@ using MediaPortal.Core.MediaManagement;
 namespace MediaPortal.UI.Presentation.Players
 {
   /// <summary>
-  /// For each video player, there need to be present two special states to present its video content:
+  /// For each player, there need to be present two special states to present its player contents:
   /// The currently playing state and the fullscreen content state.
   /// </summary>
-  public enum VideoStateType
+  public enum MediaWorkflowStateType
   {
     /// <summary>
-    /// No special video screen.
+    /// No special screen.
     /// </summary>
     None,
 
@@ -50,8 +50,9 @@ namespace MediaPortal.UI.Presentation.Players
     CurrentlyPlaying,
 
     /// <summary>
-    /// Indicates the fullscreen content state. The screen to this state shows the video fullscreen
-    /// with additional onscreen display, info and/or actions to be taken by the user.
+    /// Indicates the fullscreen content state. For video players, the screen to this state shows the video fullscreen
+    /// with additional onscreen display, info and/or actions to be taken by the user. For audio players, this could be a
+    /// visualization screen.
     /// </summary>
     /// <remarks>
     /// The fullscreen content screen can only be shown for the "primary" player.
@@ -342,5 +343,10 @@ namespace MediaPortal.UI.Presentation.Players
     /// Changes the index of the "current" player to the other active player, if possible.
     /// </summary>
     void ToggleCurrentPlayer();
+
+    /// <summary>
+    /// Switches the primary and secondary players, if they are both video players.
+    /// </summary>
+    void SwitchPipPlayers();
   }
 }

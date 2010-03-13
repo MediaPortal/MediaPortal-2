@@ -546,10 +546,10 @@ namespace MediaPortal.UI.Services.Players
     public PlayerContextType GetTypeOfMediaItem(MediaItem item)
     {
       // No locking necessary
-      if (item.Aspects.ContainsKey(MovieAspect.Metadata.AspectId) ||
+      if (item.Aspects.ContainsKey(VideoAspect.Metadata.AspectId) ||
           item.Aspects.ContainsKey(PictureAspect.Metadata.AspectId))
         return PlayerContextType.Video;
-      else if (item.Aspects.ContainsKey(MusicAspect.Metadata.AspectId))
+      else if (item.Aspects.ContainsKey(AudioAspect.Metadata.AspectId))
         return PlayerContextType.Audio;
       else
         return PlayerContextType.None;
@@ -674,6 +674,19 @@ namespace MediaPortal.UI.Services.Players
         if (_currentPlayerIndex != -1)
           CurrentPlayerIndex = 1 - _currentPlayerIndex;
         CheckCurrentPlayerSlot();
+      }
+    }
+
+    public void SwitchPipPlayers()
+    {
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        int numActive = playerManager.NumActiveSlots;
+        if (numActive > 1 &&
+            GetPlayerContext(PlayerManagerConsts.SECONDARY_SLOT).MediaType == PlayerContextType.Video &&
+            GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT).MediaType == PlayerContextType.Video)
+          playerManager.SwitchSlots();
       }
     }
 

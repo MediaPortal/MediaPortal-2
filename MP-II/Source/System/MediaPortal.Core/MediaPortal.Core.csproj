@@ -102,8 +102,8 @@
     <Compile Include="Logging\NoLogger.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\MusicAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
+    <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\PictureAspect.cs" />
     <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
     <Compile Include="MediaManagement\FileSystemResourceNavigator.cs" />

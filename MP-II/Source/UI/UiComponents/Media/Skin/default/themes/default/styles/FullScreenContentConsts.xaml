@@ -8,4 +8,5 @@
   <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDPipHeight" Resource="108"/>
   <ResourceWrapper x:Key="FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth" Resource="200"/>
 
+  <ResourceWrapper x:Key="VideoButtonFrameStrokeThickness" Resource="1"/>
 </ResourceDictionary>

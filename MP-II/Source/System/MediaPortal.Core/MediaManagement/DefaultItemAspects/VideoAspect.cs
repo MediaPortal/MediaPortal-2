@@ -27,9 +27,9 @@ using System;
 namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata specification of the "Music" media item aspect which is assigned to all song items.
+  /// Contains the metadata specification of the "Video" media item aspect which is assigned to all video media items.
   /// </summary>
-  public static class MovieAspect
+  public static class VideoAspect
   {
     /// <summary>
     /// Media item aspect id of the movie aspect.
@@ -64,10 +64,12 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("Actors", 100, Cardinality.ManyToMany, true);
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_ISDVD =
         MediaItemAspectMetadata.CreateAttributeSpecification("IsDVD", typeof(bool), Cardinality.Inline, false);
+    public static MediaItemAspectMetadata.AttributeSpecification ATTR_STORYPLOT =
+        MediaItemAspectMetadata.CreateStringAttributeSpecification("StoryPlot", 10000, Cardinality.Inline, false);
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
-        ASPECT_ID, "MovieItem", new[] {
+        ASPECT_ID, "VideoItem", new[] {
             ATTR_GENRE,
             ATTR_DURATION,
             ATTR_DIRECTOR,
@@ -82,6 +84,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
             ATTR_FPS,
             ATTR_ACTORS,
             ATTR_ISDVD,
+            ATTR_STORYPLOT,
         });
   }
 }

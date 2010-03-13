@@ -27,12 +27,12 @@ using System;
 namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 {
   /// <summary>
-  /// Contains the metadata specification of the "Music" media item aspect which is assigned to all song items.
+  /// Contains the metadata specification of the "Audio" media item aspect which is assigned to all audio media items.
   /// </summary>
-  public static class MusicAspect
+  public static class AudioAspect
   {
     /// <summary>
-    /// Media item aspect id of the music aspect.
+    /// Media item aspect id of the audio aspect.
     /// </summary>
     public static Guid ASPECT_ID = new Guid("9BA3C559-41F7-4a5f-917C-E3EF65516D14");
 
@@ -65,7 +65,7 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
 
     public static MediaItemAspectMetadata Metadata = new MediaItemAspectMetadata(
         // TODO: Localize name
-        ASPECT_ID, "MusicItem", new[] {
+        ASPECT_ID, "AudioItem", new[] {
             ATTR_ARTISTS,
             ATTR_ALBUM,
             ATTR_GENRES,

@@ -25,8 +25,10 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.Media.Models
@@ -41,29 +43,60 @@ namespace UiComponents.Media.Models
 
     public const string CURRENTLY_PLAYING_STATE_ID_STR = "4596B758-CE2B-4e31-9CB9-6C30215831ED";
     public const string FULLSCREEN_CONTENT_STATE_ID_STR = "82E8C050-0318-41a3-86B8-FC14FB85338B";
-    public const string PLAYER_CONFIGURATION_DIALOG_STATE_ID = "D0B79345-69DF-4870-B80E-39050434C8B3"; // From SkinBase
 
     public static readonly Guid CURRENTLY_PLAYING_STATE_ID = new Guid(CURRENTLY_PLAYING_STATE_ID_STR);
     public static readonly Guid FULLSCREEN_CONTENT_STATE_ID = new Guid(FULLSCREEN_CONTENT_STATE_ID_STR);
-    public static readonly Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
 
     public const string FULLSCREENAUDIO_SCREEN_NAME = "FullscreenContentAudio"; // TODO: Create screen
-    public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingAudio"; // TODO: Create screen
+    public const string CURRENTLY_PLAYING_SCREEN_NAME = "CurrentlyPlayingAudio";
+
+    protected MediaWorkflowStateType _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
+
+    protected AbstractProperty _currentPlayerIndexProperty;
 
     public AudioPlayerModel() : base(300)
     {
-      // TODO
+      _currentPlayerIndexProperty = new WProperty(typeof(int), 0);
+      // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
     protected override void Update()
     {
-      // TODO
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+
+      CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
 
     protected static bool CanHandlePlayer(IPlayer player)
     {
       return player is IAudioPlayer;
     }
+
+    protected void UpdateAudioStateType(NavigationContext newContext)
+    {
+      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+      if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
+        _currentMediaWorkflowStateType = MediaWorkflowStateType.CurrentlyPlaying;
+      else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
+        _currentMediaWorkflowStateType = MediaWorkflowStateType.FullscreenContent;
+      else
+        _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
+    }
+
+    #region Members to be accessed from the GUI
+
+    public AbstractProperty CurrentPlayerIndexProperty
+    {
+      get { return _currentPlayerIndexProperty; }
+    }
+
+    public int CurrentPlayerIndex
+    {
+      get { return (int) _currentPlayerIndexProperty.GetValue(); }
+      set { _currentPlayerIndexProperty.SetValue(value); }
+    }
+
+    #endregion
 
     #region IWorkflowModel implementation
 
@@ -75,61 +108,61 @@ namespace UiComponents.Media.Models
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = null;
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
-      {
-        IPlayerContext pc = playerContextManager.CurrentPlayerContext;
         // The "currently playing" screen is always bound to the "current player"
-        return pc != null && CanHandlePlayer(pc.CurrentPlayer);
-      }
+        pc = playerContextManager.CurrentPlayerContext;
       else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
-      {
         // The "fullscreen content" screen is always bound to the "primary player"
-        IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-        return pc != null && CanHandlePlayer(pc.CurrentPlayer);
-      }
-      else
-        return false;
+        pc = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      return pc != null && CanHandlePlayer(pc.CurrentPlayer);
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      StartTimer(); // Lazily start our timer
+      UpdateAudioStateType(newContext);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      StopTimer(); // Reduce workload when none of our states is used
+      UpdateAudioStateType(newContext);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      // TODO
+      UpdateAudioStateType(newContext);
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      // Nothing to do
     }
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      // Nothing to do
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
     {
-      // TODO
+      // Nothing to do
     }
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      // TODO
+      switch (_currentMediaWorkflowStateType)
+      {
+        case MediaWorkflowStateType.CurrentlyPlaying:
+          screen = CURRENTLY_PLAYING_SCREEN_NAME;
+          break;
+        case MediaWorkflowStateType.FullscreenContent:
+          screen = FULLSCREENAUDIO_SCREEN_NAME;
+          break;
+      }
       return ScreenUpdateMode.AutoWorkflowManager;
     }
-
-    #endregion
-
-    #region Overrides of BaseTimerControlledUIModel
 
     #endregion
   }

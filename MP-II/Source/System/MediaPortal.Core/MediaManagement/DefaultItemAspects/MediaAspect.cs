@@ -56,7 +56,8 @@ namespace MediaPortal.Core.MediaManagement.DefaultItemAspects
         MediaItemAspectMetadata.CreateStringAttributeSpecification("RectifiedPath", 1000, Cardinality.Inline, false);
 
     /// <summary>
-    /// Contains the recording time date of the media item.
+    /// Contains the recording time and date of the media item. Can be used for an exact recording time
+    /// (e.g. for pictures) as well as for only storing a recording year (e.g. for movies).
     /// </summary>
     public static MediaItemAspectMetadata.AttributeSpecification ATTR_RECORDINGTIME =
         MediaItemAspectMetadata.CreateAttributeSpecification("RecordingTime", typeof(DateTime), Cardinality.Inline, false);

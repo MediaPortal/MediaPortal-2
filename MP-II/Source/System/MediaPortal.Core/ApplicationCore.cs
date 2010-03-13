@@ -114,8 +114,8 @@ namespace MediaPortal.Core
       miatr.RegisterLocallyKnownMediaItemAspectType(ProviderResourceAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(ImporterAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(MediaAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(MovieAspect.Metadata);
-      miatr.RegisterLocallyKnownMediaItemAspectType(MusicAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(VideoAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectType(AudioAspect.Metadata);
       miatr.RegisterLocallyKnownMediaItemAspectType(PictureAspect.Metadata);
     }
 

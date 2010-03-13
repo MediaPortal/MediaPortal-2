@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+
+  <!-- ************************** Blue theme colors **************************** -->
+
+  <ResourceWrapper x:Key="VideoButtonFrameStrokeColor" Resource="Black"/>
+  <ResourceWrapper x:Key="VideoButtonFrameStrokeFocusColor" Resource="Yellow"/>
+
+</ResourceDictionary>

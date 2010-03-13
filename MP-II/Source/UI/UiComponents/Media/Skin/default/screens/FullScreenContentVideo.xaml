@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -25,7 +25,7 @@
         Width="{Binding PipWidth}" Height="{Binding PipHeight}">
       <Rectangle.IsVisible>
         <!-- The background PIP will be replaced by the OSD PIP when the OSD is visible -->
-        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+        <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
           <Binding Path="IsPip"/>
           <Binding Path="!IsOSDVisible"/>
         </MultiBinding>

@@ -86,6 +86,11 @@
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
+    <Content Include="Skin\default\screens\CurrentlyPlayingAudio.xaml" />
+    <Content Include="Skin\default\screens\FullscreenContentAudio.xaml" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\MusicShowItems.xaml" />
     <Content Include="Skin\default\screens\MoviesShowItems.xaml" />
@@ -101,15 +106,13 @@
     <Content Include="Skin\default\screens\MusicFilterByGenre.xaml" />
     <Content Include="Skin\default\screens\PicturesFilterBySize.xaml" />
     <Content Include="Skin\default\screens\PicturesFilterByYear.xaml" />
-    <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
-    <Content Include="Skin\default\screens\CurrentlyPlayingVideo.xaml" />
-    <Content Include="Skin\default\screens\FullscreenContentVideo.xaml" />
     <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml" />
     <Content Include="Skin\default\screens\MusicSimpleSearch.xaml" />
     <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
-    <Content Include="Skin\default\themes\default\styles\VideoPlayerStyles.xaml" />
+    <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
+    <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />
     <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\media-states.xml" />

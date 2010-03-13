@@ -61,12 +61,13 @@ namespace UiComponents.Media.Models
 
     protected DateTime _lastVideoInfoDemand = DateTime.MinValue;
     protected bool _inactive = false;
-    protected VideoStateType _currentVideoStateType = VideoStateType.None;
+    protected MediaWorkflowStateType _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
 
     protected AbstractProperty _isOSDVisibleProperty;
     protected AbstractProperty _pipWidthProperty;
     protected AbstractProperty _pipHeightProperty;
     protected AbstractProperty _isPipProperty;
+    protected AbstractProperty _currentPlayerIndexProperty;
 
     public VideoPlayerModel() : base(300)
     {
@@ -74,6 +75,7 @@ namespace UiComponents.Media.Models
       _pipWidthProperty = new WProperty(typeof(float), 0f);
       _pipHeightProperty = new WProperty(typeof(float), 0f);
       _isPipProperty = new WProperty(typeof(bool), false);
+      _currentPlayerIndexProperty = new WProperty(typeof(int), 0);
       // Don't StartTimer here, since that will be done in method EnterModelContext
     }
 
@@ -88,6 +90,7 @@ namespace UiComponents.Media.Models
       IsPip = pipPlayer != null;
       PipHeight = DEFAULT_PIP_HEIGHT;
       PipWidth = pipPlayer == null ? DEFAULT_PIP_WIDTH : PipHeight*pipPlayer.VideoAspectRatio.Width/pipPlayer.VideoAspectRatio.Height;
+      CurrentPlayerIndex = playerContextManager.CurrentPlayerIndex;
     }
 
     protected static bool CanHandlePlayer(IPlayer player)
@@ -100,18 +103,18 @@ namespace UiComponents.Media.Models
       IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
       {
-        screenManager.BackgroundDisabled = true;
-        _currentVideoStateType = VideoStateType.CurrentlyPlaying;
+        screenManager.BackgroundDisabled = false;
+        _currentMediaWorkflowStateType = MediaWorkflowStateType.CurrentlyPlaying;
       }
       else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
       {
         screenManager.BackgroundDisabled = true;
-        _currentVideoStateType = VideoStateType.FullscreenContent;
+        _currentMediaWorkflowStateType = MediaWorkflowStateType.FullscreenContent;
       }
       else
       {
         screenManager.BackgroundDisabled = false;
-        _currentVideoStateType = VideoStateType.None;
+        _currentMediaWorkflowStateType = MediaWorkflowStateType.None;
       }
     }
 
@@ -159,6 +162,17 @@ namespace UiComponents.Media.Models
     {
       get { return (float) _pipHeightProperty.GetValue(); }
       set { _pipHeightProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentPlayerIndexProperty
+    {
+      get { return _currentPlayerIndexProperty; }
+    }
+
+    public int CurrentPlayerIndex
+    {
+      get { return (int) _currentPlayerIndexProperty.GetValue(); }
+      set { _currentPlayerIndexProperty.SetValue(value); }
     }
 
     public void ShowVideoInfo()
@@ -233,12 +247,12 @@ namespace UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      switch (_currentVideoStateType)
+      switch (_currentMediaWorkflowStateType)
       {
-        case VideoStateType.CurrentlyPlaying:
+        case MediaWorkflowStateType.CurrentlyPlaying:
           screen = CURRENTLY_PLAYING_SCREEN_NAME;
           break;
-        case VideoStateType.FullscreenContent:
+        case MediaWorkflowStateType.FullscreenContent:
           screen = FULLSCREENVIDEO_SCREEN_NAME;
           break;
       }

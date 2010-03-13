@@ -40,6 +40,7 @@ namespace MediaPortal.UI.Services.Players
     #region Protected fields
 
     protected volatile bool _closeWhenFinished = false;
+    protected volatile MediaItem _currentMediaItem = null;
 
     protected IPlayerSlotController _slotController;
     protected readonly PlayerContextManager _contextManager;
@@ -111,6 +112,7 @@ namespace MediaPortal.UI.Services.Players
 
     protected bool DoPlay(IResourceLocator locator, string mimeType, string mediaItemTitle, StartTime startTime)
     {
+      _currentMediaItem = null;
       IPlayerSlotController psc = _slotController;
       if (psc == null)
         return false;
@@ -128,7 +130,9 @@ namespace MediaPortal.UI.Services.Players
       string mediaItemTitle;
       if (!GetItemData(item, out locator, out mimeType, out mediaItemTitle))
         return false;
-      return DoPlay(locator, mimeType, mediaItemTitle, startTime);
+      bool result = DoPlay(locator, mimeType, mediaItemTitle, startTime);
+      _currentMediaItem = item;
+      return result;
     }
 
     internal bool RequestNextItem()
@@ -181,6 +185,11 @@ namespace MediaPortal.UI.Services.Players
     public IPlaylist Playlist
     {
       get { return _playlist; }
+    }
+
+    public MediaItem CurrentMediaItem
+    {
+      get { return _currentMediaItem; }
     }
 
     public bool CloseWhenFinished

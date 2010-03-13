@@ -85,7 +85,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           SHARE_CATEGORIES, new[]
               {
                 MediaAspect.Metadata,
-                MovieAspect.Metadata
+                VideoAspect.Metadata
               });
     }
 
@@ -153,10 +153,10 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
           if (!extractedAspectData.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
             extractedAspectData[MediaAspect.ASPECT_ID] = mediaAspect = new MediaItemAspect(MediaAspect.Metadata);
           MediaItemAspect movieAspect;
-          if (!extractedAspectData.TryGetValue(MovieAspect.ASPECT_ID, out movieAspect))
-            extractedAspectData[MovieAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(MovieAspect.Metadata);
+          if (!extractedAspectData.TryGetValue(VideoAspect.ASPECT_ID, out movieAspect))
+            extractedAspectData[VideoAspect.ASPECT_ID] = movieAspect = new MediaItemAspect(VideoAspect.Metadata);
 
-          movieAspect.SetAttribute(MovieAspect.ATTR_DURATION, info.Length);
+          movieAspect.SetAttribute(VideoAspect.ATTR_DURATION, info.Length);
           if (isDvd)
           {
             mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, Path.GetFileName(dvdFolder));
@@ -172,7 +172,7 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
             // TODO: extract cover art, store it in media library (see Mantis #1977)
           }
           mediaAspect.SetAttribute(MediaAspect.ATTR_RECORDINGTIME, info.CreationTime);
-          movieAspect.SetAttribute(MovieAspect.ATTR_ISDVD, isDvd);
+          movieAspect.SetAttribute(VideoAspect.ATTR_ISDVD, isDvd);
           if (mediaInfo.IsValid)
           {
             int? i;
@@ -184,32 +184,32 @@ namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 
             s = mediaInfo.GetVidCodec(0);
             if (s != null)
-              movieAspect.SetAttribute(MovieAspect.ATTR_VIDEOENCODING, s);
+              movieAspect.SetAttribute(VideoAspect.ATTR_VIDEOENCODING, s);
             l = mediaInfo.GetVidBitrate(0);
             if (l.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_VIDEOBITRATE, l.Value);
+              movieAspect.SetAttribute(VideoAspect.ATTR_VIDEOBITRATE, l.Value);
             i = mediaInfo.GetWidth(0);
             if (i.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_WIDTH, i.Value);
+              movieAspect.SetAttribute(VideoAspect.ATTR_WIDTH, i.Value);
             i = mediaInfo.GetHeight(0);
             if (i.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_HEIGHT, i.Value);
+              movieAspect.SetAttribute(VideoAspect.ATTR_HEIGHT, i.Value);
             i = mediaInfo.GetFramerate(0);
             if (i.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_FPS, i.Value);
-            movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOSTREAMCOUNT, mediaInfo.GetAudioCount());
+              movieAspect.SetAttribute(VideoAspect.ATTR_FPS, i.Value);
+            movieAspect.SetAttribute(VideoAspect.ATTR_AUDIOSTREAMCOUNT, mediaInfo.GetAudioCount());
             s = mediaInfo.GetAudioCodec(0);
             if (s != null)
-              movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOENCODING, s);
+              movieAspect.SetAttribute(VideoAspect.ATTR_AUDIOENCODING, s);
             l = mediaInfo.GetAudioBitrate(0);
             if (l.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_AUDIOBITRATE, l.Value);
+              movieAspect.SetAttribute(VideoAspect.ATTR_AUDIOBITRATE, l.Value);
             f = mediaInfo.GetAR(0);
             if (f.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_ASPECTRATIO, f.Value);
+              movieAspect.SetAttribute(VideoAspect.ATTR_ASPECTRATIO, f.Value);
             l = mediaInfo.GetPlaytime(0);
             if (l.HasValue)
-              movieAspect.SetAttribute(MovieAspect.ATTR_DURATION, l.Value);
+              movieAspect.SetAttribute(VideoAspect.ATTR_DURATION, l.Value);
           }
         }
 

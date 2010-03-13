@@ -413,10 +413,7 @@ namespace MediaPortal.UI.Services.Players
       get
       {
         lock (SyncObj)
-        {
-          CheckActive();
           return _player;
-        }
       }
     }
 

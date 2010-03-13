@@ -25,11 +25,11 @@
 
     <String Name="PlayAudioItem" Text="Play audio item"/>
     <String Name="EnqueueAudioItem" Text="Enqueue audio item"/>
-    <String Name="MuteVideoAndPlayAudioItem" Text="Mute video + play audio item concurrently"/>
+    <String Name="MuteVideoAndPlayAudioItem" Text="Mute video &amp; play audio item concurrently"/>
 
     <String Name="PlayVideoItem" Text="Play video item"/>
     <String Name="EnqueueVideoItem" Text="Enqueue video item"/>
-    <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item muted + continue concurrent music item"/>
+    <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item muted &amp; continue concurrent music item"/>
     <String Name="PlayVideoItemPIP" Text="Play video item concurrently in PIP mode"/>
     <String Name="PlayItemDialogHeader" Text="Play item"/>
 
@@ -37,12 +37,27 @@
     <String Name="PicturePlayerContextName" Text="Picture"/>
     <String Name="AudioPlayerContextName" Text="Audio"/>
 
+    <String Name="NextMediaItemLabel" Text="Next: "/>
+    <String Name="VideoCurrentlyPlayingHeader" Text="Currently playing"/>
+    <String Name="ButtonOpenVideoPlaylist" Text="Video playlist"/>
+    <String Name="VideoTitleLabel" Text="Title: "/>
+    <String Name="VideoGenreLabel" Text="Genre: "/>
+    <String Name="VideoYearLabel" Text="Year: "/>
+    <String Name="VideoDurationLabel" Text="Duration: "/>
+    <String Name="VideoActorsLabel" Text="Actor(s): "/>
+    <String Name="VideoStoryPlotLabel" Text="Story plot: "/>
+
+    <String Name="AudioCurrentlyPlayingHeader" Text="Currently playing"/>
+    <String Name="ButtonOpenAudioPlaylist" Text="Audio playlist"/>
+    <String Name="AudioArtistLabel" Text="Artist: "/>
+    <String Name="AudioTitleLabel" Text="Title: "/>
+    <String Name="AudioYearLabel" Text="Year: "/>
+    <String Name="AudioDurationLabel" Text="Duration: "/>
+
     <String Name="VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current video"/>
     <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
     <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
     <String Name="AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Audio visualization"/>
-    <String Name="PictureCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current picture"/>
-    <String Name="PictureFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen picture"/>
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
 

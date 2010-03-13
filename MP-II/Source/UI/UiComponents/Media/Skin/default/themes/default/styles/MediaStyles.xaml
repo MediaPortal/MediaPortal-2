@@ -51,7 +51,7 @@
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
                     <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
                       <Control.IsVisible>
-                        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                           <Binding Path="IsAudio"/>
                           <Binding Path="IsMuted"/>
                         </MultiBinding>
@@ -174,7 +174,7 @@
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
                     <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
                       <Control.IsVisible>
-                        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                           <Binding Path="IsAudio"/>
                           <Binding Path="IsMuted"/>
                         </MultiBinding>
@@ -196,8 +196,9 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
-                      HorizontalAlignment="Left" VerticalAlignment="Center" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Scroll="true"
+                      HorizontalAlignment="Left" VerticalAlignment="Center"
+                      MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel> <!-- PiPHeaderPanel -->
               <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
@@ -205,7 +206,8 @@
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
                 <Button.Template>
                   <ControlTemplate TargetType="{x:Type Button}">
-                    <Rectangle x:Name="PIPRectangle" Grid.Column="0" Grid.Row="1" Stroke="{ThemeResource OSDPipStrokeColor}" StrokeThickness="{ThemeResource OSDPipStrokeThickness}"
+                    <Rectangle x:Name="PIPRectangle" Grid.Column="0" Grid.Row="1" Stroke="{ThemeResource OSDPipStrokeColor}"
+                        StrokeThickness="{ThemeResource OSDPipStrokeThickness}"
                         Width="{Binding VideoWidth}" Height="{Binding VideoHeight}">
                       <Rectangle.Fill>
                         <VideoBrush Stream="1"/>

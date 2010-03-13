@@ -1,8 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- TODO -->
-<DockPanel
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    DataContext="{Binding Source={Model Id=A2F24149-B44C-498b-AE93-288213B87A1A}}"
-    > <!-- DataContext model = PlayerModel -->
-</DockPanel>
+    Source="screens\master_menu.xaml"
+    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    >
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoCurrentlyPlayingHeader]"/>
+
+    <ResourceWrapper x:Key="Contents_Element">
+      <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
+        <DockPanel.Context>
+          <mp_special:PlayerControl
+              SlotIndex="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256},Path=CurrentPlayerIndex}"/>
+              <!-- Model = Video player model -->
+        </DockPanel.Context>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="TitleLabel" Content="[Media.VideoTitleLabel]"/>
+          <Label x:Name="Title" Scroll="true" Content="{Binding MediaItemTitle}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="GenreLabel" Content="[Media.VideoGenreLabel]"/>
+          <Label x:Name="Genre" Content="{Binding VideoGenre}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="YearLabel" Content="[Media.VideoYearLabel]"/>
+          <Label x:Name="Year" Content="{Binding VideoYear}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="DurationLabel" Content="[Media.VideoDurationLabel]"/>
+          <Label x:Name="Duration" Content="{Binding Duration}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Vertical"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="ActorsLabel" Content="[Media.VideoActorsLabel]"/>
+          <Label x:Name="Actors" Wrap="true" HorizontalAlignment="Stretch"
+              Content="{Binding Path=VideoActors,Converter={ThemeResource CommaSeparatedValuesConverter}}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Center" Orientation="Vertical"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Label x:Name="StoryPlotLabel" HorizontalAlignment="Left" VerticalAlignment="Top"
+              Content="[Media.VideoStoryPlotLabel]"/>
+          <TextBox x:Name="StoryPlot"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Text="{Binding VideoStoryPlot}"/>
+        </StackPanel>
+      </DockPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>
