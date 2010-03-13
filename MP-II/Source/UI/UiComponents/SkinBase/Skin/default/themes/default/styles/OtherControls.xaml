@@ -15,7 +15,9 @@
 
   <!-- ***************************** Converters ********************************* -->
 
-  <ExpressionMultiValueConverter x:Key="ExpressionConverter"/>
+  <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
+  <CommaSeparatedValuesConverter x:Key="CommaSeparatedValuesConverter"/>
 
   <!-- ***************************** Brushes ******************************** -->
 
@@ -660,7 +662,7 @@
                     <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}"
                          VerticalAlignment="Center" HorizontalAlignment="Center">
                       <Control.IsVisible>
-                        <MultiBinding Converter="{StaticResource ExpressionConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                           <Binding Path="IsAudio"/>
                           <Binding Path="IsMuted"/>
                         </MultiBinding>

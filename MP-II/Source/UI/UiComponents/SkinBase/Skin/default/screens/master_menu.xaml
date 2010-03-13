@@ -78,11 +78,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <ContentPresenter Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <ContentPresenter.Content>
-              <DynamicResource ResourceKey="Contents_Element"/>
-            </ContentPresenter.Content>
-          </ContentPresenter>
+          <ContentPresenter Margin="10,0,10,10" x:Name="ContentViewer" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Content="{DynamicResource Contents_Element}"/>
         </Grid>
       </DockPanel>
     </ResourceWrapper>
