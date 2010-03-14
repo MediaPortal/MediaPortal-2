@@ -29,12 +29,16 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities;
 
 namespace MediaPortal.UI.Services.Players
 {
+  /// <summary>
+  /// Implementation of the <see cref="IPlayerContextManager"/> interface.
+  /// </summary>
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {
     #region Consts
@@ -66,7 +70,6 @@ namespace MediaPortal.UI.Services.Players
            WorkflowManagerMessaging.CHANNEL,
            PlayerManagerMessaging.CHANNEL,
         });
-      _messageQueue.PreviewMessage += OnPreviewMessage;
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
@@ -79,28 +82,41 @@ namespace MediaPortal.UI.Services.Players
       _messageQueue = null;
     }
 
-    void OnPreviewMessage(IMessageReceiver queue, SystemMessage message)
+    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
+        // Adjust our knowledge about the currently opened FSC/CP state if the user switches to one of them
         WorkflowManagerMessaging.MessageType messageType =
             (WorkflowManagerMessaging.MessageType) message.MessageType;
-        if (messageType == WorkflowManagerMessaging.MessageType.StatesPopped)
+        switch (messageType)
         {
-          ICollection<Guid> statesRemoved = new List<Guid>(((IDictionary<Guid, NavigationContext>) message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
-          // Don't request the lock here, because we're in a synchronous message notification method
-          if (_inCurrentlyPlayingState.HasValue && statesRemoved.Contains(_inCurrentlyPlayingState.Value))
-            _inCurrentlyPlayingState = null;
-          if (_inFullscreenContentState.HasValue && statesRemoved.Contains(_inFullscreenContentState.Value))
-            _inFullscreenContentState = null;
+          case WorkflowManagerMessaging.MessageType.StatesPopped:
+            ICollection<Guid> statesRemoved = new List<Guid>(
+                ((IDictionary<Guid, NavigationContext>) message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
+            // Don't request the lock here, because we're in a synchronous message notification method
+            if (_inCurrentlyPlayingState.HasValue && statesRemoved.Contains(_inCurrentlyPlayingState.Value))
+              _inCurrentlyPlayingState = null;
+            if (_inFullscreenContentState.HasValue && statesRemoved.Contains(_inFullscreenContentState.Value))
+              _inFullscreenContentState = null;
+            break;
+          case WorkflowManagerMessaging.MessageType.StatePushed:
+            NavigationContext context = (NavigationContext) message.MessageData[WorkflowManagerMessaging.CONTEXT];
+            Guid stateId = context.WorkflowState.StateId;
+            Guid? potentialState = GetPotentialCPStateId();
+            if (potentialState.HasValue && potentialState.Value == stateId)
+              lock(SyncObj)
+                _inCurrentlyPlayingState = potentialState;
+            potentialState = GetPotentialFSCStateId();
+            if (potentialState.HasValue && potentialState.Value == stateId)
+              lock (SyncObj)
+                _inFullscreenContentState = potentialState;
+            break;
         }
       }
-    }
-
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
+        // React to player changes
         PlayerManagerMessaging.MessageType messageType =
             (PlayerManagerMessaging.MessageType) message.MessageType;
         PlayerContext pc;
@@ -138,8 +154,8 @@ namespace MediaPortal.UI.Services.Players
             _currentPlayerIndex = 1 - _currentPlayerIndex;
             break;
         }
-        CheckCurrentPlayerSlot();
-        CheckMediaWorkflowStates_NoLock();
+        CheckCurrentPlayerSlot(); // Current player could have been closed
+        CheckMediaWorkflowStates_NoLock(); // Primary player could have been changed or closed or CP player could have been closed
       }
     }
 
@@ -187,21 +203,48 @@ namespace MediaPortal.UI.Services.Players
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
       IPlayerSlotController primaryPSC = playerManager.GetPlayerSlotController(PlayerManagerConsts.PRIMARY_SLOT);
       IPlayerSlotController secondaryPSC = playerManager.GetPlayerSlotController(PlayerManagerConsts.SECONDARY_SLOT);
-      int currentPlayerSlot;
       lock (playerManager.SyncObj)
       {
         bool primaryPlayerActive = primaryPSC.IsActive;
         bool secondaryPlayerActive = secondaryPSC.IsActive;
-        currentPlayerSlot = CurrentPlayerIndex;
-        if (currentPlayerSlot == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
-          currentPlayerSlot = -1;
-        else if (currentPlayerSlot == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
-          currentPlayerSlot = -1;
-        if (currentPlayerSlot == -1)
+        int currentPlayerIndex = _currentPlayerIndex;
+        if (currentPlayerIndex == PlayerManagerConsts.PRIMARY_SLOT && !primaryPlayerActive)
+          currentPlayerIndex = -1;
+        else if (currentPlayerIndex == PlayerManagerConsts.SECONDARY_SLOT && !secondaryPlayerActive)
+          currentPlayerIndex = -1;
+        if (currentPlayerIndex == -1)
           if (primaryPlayerActive)
-            currentPlayerSlot = PlayerManagerConsts.PRIMARY_SLOT;
+            currentPlayerIndex = PlayerManagerConsts.PRIMARY_SLOT;
+        CurrentPlayerIndex = currentPlayerIndex;
       }
-      SetCurrentPlayerIndex_NoLock(currentPlayerSlot);
+    }
+
+    /// <summary>
+    /// Schedules an asynchronous call to <see cref="CheckMediaWorkflowStates_NoLock"/> at the global thread pool.
+    /// </summary>
+    protected void CheckMediaWorkflowStates_Async()
+    {
+      ServiceScope.Get<IThreadPool>().Add(new DoWorkHandler(CheckMediaWorkflowStates_NoLock), "PlayerContextManager: CheckMediaWorkflowStates");
+    }
+
+    /// <summary>
+    /// Gets the "currently playing" workflow state for the current player.
+    /// </summary>
+    /// <returns></returns>
+    protected Guid? GetPotentialCPStateId()
+    {
+      IPlayerContext currentPC = CurrentPlayerContext;
+      return currentPC == null ? new Guid?() : currentPC.CurrentlyPlayingWorkflowStateId;
+    }
+
+    /// <summary>
+    /// Gets the "fullscreen content" workflow state for the primary player.
+    /// </summary>
+    /// <returns></returns>
+    protected Guid? GetPotentialFSCStateId()
+    {
+      IPlayerContext currentPC = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
+      return currentPC == null ? new Guid?() : currentPC.FullscreenContentWorkflowStateId;
     }
 
     /// <summary>
@@ -210,22 +253,25 @@ namespace MediaPortal.UI.Services.Players
     /// changed, the workflow state will be adapted to match the new current player context's "currently playing" state.
     /// The same check will happen for the primary player context and the "fullscreen content" state.
     /// </summary>
+    /// <remarks>
+    /// This method must not be called when the player manager's lock is held.
+    /// </remarks>
     protected void CheckMediaWorkflowStates_NoLock()
     {
-      Guid? oldCPStateId = _inCurrentlyPlayingState;
-      Guid? oldFSCStateId = _inFullscreenContentState;
+      Guid? oldCPStateId;
+      Guid? oldFSCStateId;
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        oldCPStateId = _inCurrentlyPlayingState;
+        oldFSCStateId = _inFullscreenContentState;
+      }
       Guid? newCPStateId = null;
       Guid? newFSCStateId = null;
       if (oldCPStateId.HasValue)
-      {
-        IPlayerContext currentPC = CurrentPlayerContext;
-        newCPStateId = currentPC == null ? new Guid?() : currentPC.CurrentlyPlayingWorkflowStateId;
-      }
+        newCPStateId = GetPotentialCPStateId();
       if (oldFSCStateId.HasValue)
-      {
-        IPlayerContext primaryPC = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
-        newFSCStateId = primaryPC == null ? new Guid?() : primaryPC.FullscreenContentWorkflowStateId;
-      }
+        newFSCStateId = GetPotentialFSCStateId();
       // Don't hold the lock while doing the workflow navigation below - see threading policy
       ILogger log = ServiceScope.Get<ILogger>();
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
@@ -233,26 +279,30 @@ namespace MediaPortal.UI.Services.Players
       {
         log.Debug("PlayerContextManager: Currently Playing Workflow State '{0}' doesn't fit any more to the current situation. Leaving workflow state...",
             oldCPStateId.Value);
-        _inCurrentlyPlayingState = null;
+        lock (playerManager.SyncObj)
+          _inCurrentlyPlayingState = null;
         workflowManager.NavigatePopToState(oldCPStateId.Value, true);
       }
       if (oldFSCStateId.HasValue && (!newFSCStateId.HasValue || newFSCStateId.Value != oldFSCStateId.Value))
       {
         log.Debug("PlayerContextManager: Fullscreen Content Workflow State '{0}' doesn't fit any more to the current situation. Leaving workflow state...",
             oldFSCStateId.Value);
-        _inFullscreenContentState = null;
+        lock (playerManager.SyncObj)
+          _inFullscreenContentState = null;
         workflowManager.NavigatePopToState(oldFSCStateId.Value, true);
       }
       if (newCPStateId.HasValue && newCPStateId.Value != oldCPStateId.Value)
       {
-        _inCurrentlyPlayingState = newCPStateId;
+        lock (playerManager.SyncObj)
+          _inCurrentlyPlayingState = newCPStateId;
         log.Debug("PlayerContextManager: ... Auto-switching to new 'Currently Playing' Workflow State '{0}'",
             newCPStateId.Value);
         workflowManager.NavigatePush(newCPStateId.Value, null);
       }
       if (newFSCStateId.HasValue && newFSCStateId.Value != oldFSCStateId.Value)
       {
-        _inFullscreenContentState = newFSCStateId;
+        lock (playerManager.SyncObj)
+          _inFullscreenContentState = newFSCStateId;
         log.Debug("PlayerContextManager: ... Auto-switching to new 'Fullscreen Content' Workflow State '{0}'",
             newFSCStateId.Value);
         workflowManager.NavigatePush(newFSCStateId.Value, null);
@@ -281,22 +331,6 @@ namespace MediaPortal.UI.Services.Players
       return GetPlayerContext(playerManager.GetPlayerSlotController(slotIndex));
     }
 
-    protected void SetCurrentPlayerIndex_NoLock(int value)
-    {
-      lock (SyncObj)
-      {
-        if (_currentPlayerIndex == value)
-          return;
-        PlayerContext newCurrent = GetPlayerContextInternal(value);
-        if (newCurrent == null || !newCurrent.IsValid)
-          return;
-        _currentPlayerIndex = value;
-      }
-      CheckMediaWorkflowStates_NoLock();
-      PlayerContextManagerMessaging.SendPlayerContextManagerMessage(
-          PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
-    }
-
     #region IDisposable implementation
 
     public void Dispose()
@@ -308,6 +342,8 @@ namespace MediaPortal.UI.Services.Players
 
     #region IPlayerContextManager implementation
 
+    // Returns the player manager's synchronization object; depending on if we already have a local reference to the
+    // player manager, we will request the sync object's reference on the player manager itself or we use this property.
     public object SyncObj
     {
       get
@@ -360,15 +396,28 @@ namespace MediaPortal.UI.Services.Players
         lock (SyncObj)
           return _currentPlayerIndex;
       }
-      set { SetCurrentPlayerIndex_NoLock(value); }
+      set
+      {
+        lock (SyncObj)
+        {
+          if (_currentPlayerIndex == value)
+            return;
+          PlayerContext newCurrent = GetPlayerContextInternal(value);
+          if (newCurrent == null || !newCurrent.IsValid)
+            return;
+          _currentPlayerIndex = value;
+          CheckMediaWorkflowStates_Async();
+          PlayerContextManagerMessaging.SendPlayerContextManagerMessage(
+              PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged, value);
+        }
+      }
     }
 
     public int NumActivePlayerContexts
     {
       get
       {
-        IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-        lock (playerManager.SyncObj)
+        lock (SyncObj)
         {
           int result = 0;
           for (int i = 0; i < 2; i++)
@@ -386,8 +435,7 @@ namespace MediaPortal.UI.Services.Players
 
     public int NumPlayerContextsOfMediaType(PlayerContextType mediaType)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      lock (SyncObj)
       {
         int result = 0;
         for (int i = 0; i < 2; i++)
@@ -499,8 +547,7 @@ namespace MediaPortal.UI.Services.Players
 
     public IEnumerable<IPlayerContext> GetPlayerContextsByMediaModuleId(Guid mediaModuleId)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      lock (SyncObj)
       {
         for (int i = 0; i < 2; i++)
         {
@@ -511,36 +558,36 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public void ShowCurrentlyPlaying(PlayerChoice player)
+    public void ShowCurrentlyPlaying()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      Guid currentlyPlayingStateId;
+      lock (SyncObj)
       {
         if (_inCurrentlyPlayingState.HasValue)
           return;
-        IPlayerContext pc = GetPlayerContext(player);
+        IPlayerContext pc = GetPlayerContext(_currentPlayerIndex);
         if (pc == null)
           return;
-        _inCurrentlyPlayingState = pc.CurrentlyPlayingWorkflowStateId;
+        currentlyPlayingStateId = pc.CurrentlyPlayingWorkflowStateId;
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_inCurrentlyPlayingState.Value, null);
+      workflowManager.NavigatePush(currentlyPlayingStateId, null);
     }
 
-    public void ShowFullscreenContent(PlayerChoice player)
+    public void ShowFullscreenContent()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      Guid fullscreenContentStateId;
+      lock (SyncObj)
       {
         if (_inFullscreenContentState.HasValue)
           return;
-        IPlayerContext pc = GetPlayerContext(player);
+        IPlayerContext pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
         if (pc == null)
           return;
-        _inFullscreenContentState = pc.FullscreenContentWorkflowStateId;
+        fullscreenContentStateId = pc.FullscreenContentWorkflowStateId;
       }
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(_inFullscreenContentState.Value, null);
+      workflowManager.NavigatePush(fullscreenContentStateId, null);
     }
 
     public PlayerContextType GetTypeOfMediaItem(MediaItem item)
@@ -557,8 +604,7 @@ namespace MediaPortal.UI.Services.Players
 
     public IPlayerContext GetPlayerContext(PlayerChoice player)
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      lock (SyncObj)
       {
         int slotIndex = PlayerManagerConsts.PRIMARY_SLOT;
         switch (player)
@@ -584,8 +630,7 @@ namespace MediaPortal.UI.Services.Players
 
     public ICollection<AudioStreamDescriptor> GetAvailableAudioStreams()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      lock (SyncObj)
       {
         ICollection<AudioStreamDescriptor> result = new List<AudioStreamDescriptor>();
         for (int i = 0; i < 2; i++)
@@ -690,8 +735,7 @@ namespace MediaPortal.UI.Services.Players
 
     public void ToggleCurrentPlayer()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
+      lock (SyncObj)
       {
         if (_currentPlayerIndex != -1)
           CurrentPlayerIndex = 1 - _currentPlayerIndex;

@@ -91,14 +91,20 @@ namespace MediaPortal.UI.Presentation.Players
   /// tracks their player state and manages UI workflow states relating to active players.
   /// The separation of player context initiator (= media plugin) and player context manager
   /// (= <see cref="IPlayerContextManager"/>) is necessary, because players also need to run while the
-  /// media modules possibly don't have the active control over them.
-  /// The typical separation of roles is like this:
+  /// media modules possibly don't have the active control over them.<br/>
+  /// The typical separation of roles is like this:<br/>
   /// The media module initiates one or more player contexts. It doesn't need to track its player contexts, because
-  /// it is always possible to find the player contexts of the media module again.
-  /// The player context manager will track current media workflow states to switch between states, if necessary
+  /// it is always possible to find the player contexts of the media module by its media module id again (by calling
+  /// <see cref="GetPlayerContextsByMediaModuleId"/>).
+  /// The player context manager will track two current media workflow states for each player context: The workflow
+  /// state for a "fullscreen content" state and the workflow state for a "currently playing" workflow state.
+  /// The player context manager will automatically switch between states, if necessary
   /// (for example when the primary and secondary players are switched, the fullscreen content workflow state needs
-  /// to be exchanged). It tracks player context activity states, takes care of automatic playlist advance and closes
-  /// player contexts automatically, if necessary.
+  /// to be exchanged). It will also automatically pop those workflow states from the workflow navigation stack, if
+  /// the corresponding player context is closed.
+  /// The player context manager tracks player context activity states (like <see cref="IsAudioPlayerActive"/> and
+  /// <see cref="IsPipActive"/>), takes care of automatic playlist advance and closes player contexts automatically,
+  /// if necessary.
   /// Media modules should use this service interface to manage their player contexts instead of using the
   /// basic <see cref="IPlayerManager"/> API itself.
   /// </para>
@@ -106,8 +112,8 @@ namespace MediaPortal.UI.Presentation.Players
   /// <b>Functionality:</b><br/>
   /// While the <see cref="IPlayerManager"/> deals with primary and secondary player slots, this service
   /// provides a more abstract view for the client, it deals with typed player contexts and playlists.
-  /// The functionality of this component is comprehensive, it deals with the collectivity of all players, while the
-  /// <see cref="IPlayerManager"/>'s functionality is mostly focused to single technical player slots.
+  /// The functionality of this component is comprehensive, it deals with the collectivity of all players, in contrast
+  /// to the <see cref="IPlayerManager"/>'s functionality which is mostly focused to single technical player slots.
   /// This service manages and solves player conflicts (like two audio players at the same time) automatically by
   /// simply closing an old player when a new conflicting player is opened. Non-conflicting players can be played
   /// concurrently.
@@ -118,8 +124,8 @@ namespace MediaPortal.UI.Presentation.Players
   /// </para>
   /// <para>
   /// <b>Playlists</b><br/>
-  /// This service also provides playlist management, i.e. it manages automatic playlist advance, and provides methods
-  /// to control the current player like <see cref="Stop"/>, <see cref="Pause"/> etc.
+  /// The player context manager also provides playlist management, i.e. it manages automatic playlist advance and
+  /// provides methods to control the current player like <see cref="Stop"/>, <see cref="Pause"/> etc.
   /// </para>
   /// <para>
   /// <b>Thread-Safety:</b><br/>
@@ -285,18 +291,24 @@ namespace MediaPortal.UI.Presentation.Players
     IEnumerable<IPlayerContext> GetPlayerContextsByMediaModuleId(Guid mediaModuleId);
 
     /// <summary>
-    /// Switches to the "currently playing" workflow state for the player determined by the
-    /// <paramref name="player"/> parameter.
+    /// Switches to the "currently playing" workflow state for the current player.
     /// </summary>
-    /// <param name="player">Tells for which player the currently playing workflow state should be moved to.</param>
-    void ShowCurrentlyPlaying(PlayerChoice player);
+    /// <remarks>
+    /// The "currently playing" workflow state can only be shown for the current player. As long as the user remains
+    /// in the CP state, the player context manager will automatically track changes of the current player and adapt the
+    /// "currently playing" state to match the new current player.
+    /// </remarks>
+    void ShowCurrentlyPlaying();
 
     /// <summary>
-    /// Switches to the "fullscreen content" workflow state for player determined by the
-    /// <paramref name="player"/> parameter.
+    /// Switches to the "fullscreen content" workflow state for the primary player.
     /// </summary>
-    /// <param name="player">Tells for which player the fullscreen content workflow state should be moved to.</param>
-    void ShowFullscreenContent(PlayerChoice player);
+    /// <remarks>
+    /// The "fullscreen content" workflow state can only be shown for the primary player. As long as the user remains
+    /// in the FSC state, the player context manager will automatically track changes of the primary player and adapt the
+    /// "fullscreen content" state to match the new primary player.
+    /// </remarks>
+    void ShowFullscreenContent();
 
     /// <summary>
     /// Returns the player context type of the specified media <paramref name="item"/>. The player context type of a media
