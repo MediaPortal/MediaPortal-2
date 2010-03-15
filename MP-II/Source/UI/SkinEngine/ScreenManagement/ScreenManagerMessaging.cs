@@ -55,8 +55,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ShowDialog,
 
       /// <summary>
-      /// Internal message to close a dialog asynchronously. The name of the dialog to close is given in the
-      /// parameter <see cref="DIALOG_NAME"/>.
+      /// Internal message to close a dialog asynchronously. The dialog data structure of the dialog to close is
+      /// given in the parameter <see cref="DIALOG_DATA"/>.
       /// </summary>
       CloseDialog,
 
@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     // Message data
     public const string SCREEN = "Screen"; // Type Screen
     public const string CLOSE_DIALOGS = "CloseDialogs"; // Type bool
-    public const string DIALOG_NAME = "DialogName"; // Type string
+    public const string DIALOG_DATA = "DialogData"; // Type DialogData
     public const string DIALOG_CLOSE_CALLBACK = "DialogCloseCallback"; // Type DialogCloseCallbackDlgt
 
     internal static void SendMessageShowScreen(Screen screen, bool closeDialogs)
@@ -88,10 +88,10 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
-    internal static void SendMessageCloseDialog(string dialogName)
+    internal static void SendMessageCloseDialog(DialogData dd)
     {
       SystemMessage msg = new SystemMessage(MessageType.CloseDialog);
-      msg.MessageData[DIALOG_NAME] = dialogName;
+      msg.MessageData[DIALOG_DATA] = dd;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
