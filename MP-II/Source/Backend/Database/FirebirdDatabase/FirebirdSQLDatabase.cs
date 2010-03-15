@@ -191,12 +191,12 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public string GetSQLVarLengthStringType(uint maxNumChars)
     {
-      return "VARCHAR(" + maxNumChars + ")";
+      return "VARCHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
     public string GetSQLFixedLengthStringType(uint maxNumChars)
     {
-      return "CHAR(" + maxNumChars + ")";
+      return "CHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
     public string GetCreateSequenceCommand(string sequenceName)
