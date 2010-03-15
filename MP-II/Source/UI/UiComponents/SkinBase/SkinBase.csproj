@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -284,63 +284,17 @@
     <Content Include="Skin\default\screens\DialogPlayerSlotAudio.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerChooseGeometry.xaml" />
     <Content Include="Skin\default\screens\DialogPlayerConfiguration.xaml" />
-    <Content Include="Skin\default\screens\dialogDvdChapters.xaml" />
-    <Content Include="Skin\default\screens\dialogDvdTitles.xaml" />
-    <Content Include="Skin\default\screens\dialogLoadPlayList.xaml" />
-    <Content Include="Skin\default\screens\dialogMediaSortMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMovieContextMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMovieSortMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMovieViewMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMusicContextMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMusicSortMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMusicViewMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMyPictureContextMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMyPictureSortMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogMyPictureViewMenu.xaml" />
-    <Content Include="Skin\default\screens\dialogNoSharesDefined.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsAspect.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsAudioCodec.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsAudioLanguage.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsDivXVideoCodec.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsH264VideoCodec.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsMpg2VideoCodec.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsRefreshrate.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsRefreshrate24FPS.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsRefreshrate25FPS.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsRefreshrate30FPS.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsRefreshrateControl.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsRefreshrateDefault.xaml" />
-    <Content Include="Skin\default\screens\dialogSettingsSubtitleLanguage.xaml" />
-    <Content Include="Skin\default\screens\dialogSubtitles.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherLocations.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherRemoveCity.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSearch.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSearchResult.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSetup.xaml" />
-    <Content Include="Skin\default\screens\dialogZoomModes.xaml" />
     <Content Include="Skin\default\screens\GenericDialog.xaml" />
     <Content Include="Skin\default\screens\home.xaml" />
-    <Content Include="Skin\default\screens\imdbresultchoice.xaml" />
     <Content Include="Skin\default\screens\master.xaml" />
     <Content Include="Skin\default\screens\master_dialog.xaml" />
     <Content Include="Skin\default\screens\master_dialog_menu.xaml" />
     <Content Include="Skin\default\screens\master_menu.xaml" />
-    <Content Include="Skin\default\screens\movieEnded.xaml" />
-    <Content Include="Skin\default\screens\movieResume.xaml" />
-    <Content Include="Skin\default\screens\movieStopped.xaml" />
-    <Content Include="Skin\default\screens\music.xaml" />
-    <Content Include="Skin\default\screens\picturedetail.xaml" />
-    <Content Include="Skin\default\screens\pictureEditting.xaml" />
-    <Content Include="Skin\default\screens\pictures.xaml" />
-    <Content Include="Skin\default\screens\pictureviewer.xaml" />
-    <Content Include="Skin\default\screens\playlist.xaml" />
-    <Content Include="Skin\default\screens\settingsAudioSetup.xaml" />
-    <Content Include="Skin\default\screens\settingsAudioSetup2.xaml" />
-    <Content Include="Skin\default\screens\settingsMonitorSetup.xaml" />
-    <Content Include="Skin\default\screens\settingsMonitorSetup2.xaml" />
-    <Content Include="Skin\default\screens\settingsMusic.xaml" />
-    <Content Include="Skin\default\screens\settingsPlayback.xaml" />
-    <Content Include="Skin\default\screens\settingsRefreshrate.xaml" />
     <Content Include="Skin\default\screens\simple_dialog_menu.xaml" />
     <Content Include="Skin\default\screens\weather.xaml" />
     <Content Include="Skin\default\screens\ShowHomeServer.xaml" />
@@ -377,15 +331,15 @@
     <None Include="Skin\default\shaders\solidbrush.fx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_choose_path.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_edit_path.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_edit_share.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_overview.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml"/>
-    <Content Include="Skin\default\screens\shares_config_remove_shares.xaml"/>
+    <Content Include="Skin\default\screens\shares_config_choose_categories.xaml" />
+    <Content Include="Skin\default\screens\shares_config_choose_media_provider.xaml" />
+    <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml" />
+    <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
+    <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
+    <Content Include="Skin\default\screens\shares_config_edit_share.xaml" />
+    <Content Include="Skin\default\screens\shares_config_overview.xaml" />
+    <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml" />
+    <Content Include="Skin\default\screens\shares_config_remove_shares.xaml" />
     <Content Include="Skin\default\workflow\sharesconfig-actions.xml" />
     <Content Include="Skin\default\workflow\sharesconfig-states.xml" />
   </ItemGroup>
