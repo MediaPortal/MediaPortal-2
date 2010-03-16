@@ -59,12 +59,14 @@ namespace MediaPortal.UI.Presentation.Models
   /// <para>
   /// Example for such a workflow state composite:
   /// <example>
-  /// Home > Media > Artist 1 > Album 5 > Track
+  /// Home > Media > Artist 1 > Album 5 > Track 2
   /// </example>
-  /// During the navigation, the workflow state composite is built up by selecting the appropriate buttons
-  /// or other controls in the GUI to trigger the state transitions.<br/>
-  /// Each of the workflow states can be attended by a workflow model. In the example, the <i>Home</i>
-  /// state doesn't have a workflow model, and all following states are attended by the <i>Media</i> model.
+  /// During the navigation, the workflow state composite is built up by selecting the appropriate menu entries
+  /// or other controls in the GUI which trigger the state transitions.<br/>
+  /// Workflow states can be attended by their workflow model. This gives the model the ability to
+  /// be notified about state changes, so it can do initialization and disposal tasks.
+  /// In the example above, the <i>Home</i> state doesn't have a workflow model, and all following states are
+  /// attended by the <i>Media</i> model.
   /// </para>
   /// <para>
   /// A more complex example is:
