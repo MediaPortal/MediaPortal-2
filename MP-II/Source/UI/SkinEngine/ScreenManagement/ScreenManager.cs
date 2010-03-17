@@ -28,6 +28,7 @@ using System.Threading;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localization;
+using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;
@@ -269,6 +270,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             break;
         }
       }
+      else if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          if (((SystemState) message.MessageData[SystemMessaging.PARAM]) == SystemState.ShuttingDown)
+            UnsubscribeFromMessages();
+        }
+      }
     }
 
     void SubscribeToMessages()
@@ -276,6 +286,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
           ScreenManagerMessaging.CHANNEL,
+          SystemMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();

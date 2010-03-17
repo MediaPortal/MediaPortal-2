@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Core.Localization;
@@ -112,7 +113,13 @@ namespace UiComponents.SkinBase.Models
     {
       _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
       _messageQueue.SubscribeToMessageChannel(PlayerContextManagerMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      _messageQueue.UnsubscribeFromAllMessageChannels();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -142,6 +149,15 @@ namespace UiComponents.SkinBase.Models
           case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
             CheckUpdatePlayerConfigurationData();
             break;
+        }
+      }
+      else if (message.ChannelName == SystemMessaging.CHANNEL)
+      {
+        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
+        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
+        {
+          if (((SystemState) message.MessageData[SystemMessaging.PARAM]) == SystemState.ShuttingDown)
+            UnsubscribeFromMessages();
         }
       }
     }
