@@ -763,7 +763,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     public object GetModel(Guid modelId)
     {
-      EnterReadLock("GetModel");
+      EnterWriteLock("GetModel");
       try
       {
         object model = GetOrLoadModel(modelId);
@@ -780,7 +780,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
       finally
       {
-        ExitReadLock();
+        ExitWriteLock();
       }
     }
 
