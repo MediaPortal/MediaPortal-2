@@ -9,7 +9,7 @@
 
   <Runtime>
     <Assembly FileName="BassLibraries.dll"/>
-    <Assembly FileName="BassRegistration.dll"/>
     <Assembly FileName="Bass.Net.dll"/>
+    <Assembly FileName="BassRegistration.dll"/>
   </Runtime>
 </Plugin>
