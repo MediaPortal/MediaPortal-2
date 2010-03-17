@@ -102,6 +102,7 @@
     <Compile Include="Presentation\Workflow\NavigationContext.cs" />
     <Compile Include="Presentation\Workflow\PushTransientStateNavigationTransition.cs" />
     <Compile Include="Presentation\Workflow\WorkflowContributorAction.cs" />
+    <Compile Include="Presentation\Workflow\WorkflowManagerLockException.cs" />
     <Compile Include="Presentation\Workflow\WorkflowManagerMessaging.cs" />
     <Compile Include="Presentation\Workflow\WorkflowState.cs" />
     <Compile Include="Presentation\Workflow\WorkflowAction.cs" />

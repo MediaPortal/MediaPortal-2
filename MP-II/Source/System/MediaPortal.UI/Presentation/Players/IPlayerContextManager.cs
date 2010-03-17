@@ -159,6 +159,16 @@ namespace MediaPortal.UI.Presentation.Players
     bool IsPipActive { get; }
 
     /// <summary>
+    /// Gets the information a "currently playing" workflow state is available on the workflow navigation stack.
+    /// </summary>
+    bool IsCurrentlyPlayingWorkflowStateActive { get; }
+
+    /// <summary>
+    /// Gets the information a "fullscreen content" workflow state is available on the workflow navigation stack.
+    /// </summary>
+    bool IsFullscreenContentWorkflowStateActive { get; }
+
+    /// <summary>
     /// Gets or sets the index of the current player slot. The current player is the player which has the
     /// "user focus", i.e. it receives all commands from the remote or from other play controls and it will be shown
     /// in the "currently playing" screen.

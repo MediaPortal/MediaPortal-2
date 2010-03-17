@@ -47,14 +47,56 @@ namespace MediaPortal.UI.Services.Players
 
     #endregion
 
+    #region Enums & classes
+
+    protected enum PlayerWFStateType
+    {
+      CurrentlyPlaying,
+      FullscreenContent
+    }
+
+    /// <summary>
+    /// Stores a descriptor for an instance of a "currently playing" or "fullscreen content" workflow navigation state
+    /// on the workflow navigation context stack.
+    /// </summary>
+    protected class PlayerWFStateInstance
+    {
+      protected PlayerWFStateType _type;
+      protected Guid _wfStateId;
+
+      public PlayerWFStateInstance(PlayerWFStateType type, Guid wfStateId)
+      {
+        _type = type;
+        _wfStateId = wfStateId;
+      }
+
+      public PlayerWFStateType WFStateType
+      {
+        get { return _type; }
+      }
+
+      public Guid WFStateId
+      {
+        get { return _wfStateId; }
+      }
+    }
+
+    #endregion
+
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
     private int _currentPlayerIndex = -1; // Set this value via the CurrentPlayerIndex property to correctly raise the update event
 
-    // Remember the state id when we are in a "currently playing" or "fullscreen content" state
-    protected Guid? _inCurrentlyPlayingState = null;
-    protected Guid? _inFullscreenContentState = null;
+    /// <summary>
+    /// Remembers all player workflow state instances ("currently playing" or "fullscreen content" states) from the current
+    /// workflow navigation stack. We need that to update those states when the current player or primary player change.
+    /// The topmost player workflow state instance from the navigation stack is at the end of this list.
+    /// </summary>
+    /// <remarks>
+    /// Note that we can be in a CP state and in an FSC state at the same time.
+    /// </remarks>
+    protected List<PlayerWFStateInstance> _playerWfStateInstances = new List<PlayerWFStateInstance>(2);
 
     #endregion
 
@@ -94,11 +136,22 @@ namespace MediaPortal.UI.Services.Players
           case WorkflowManagerMessaging.MessageType.StatesPopped:
             ICollection<Guid> statesRemoved = new List<Guid>(
                 ((IDictionary<Guid, NavigationContext>) message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
-            // Don't request the lock here, because we're in a synchronous message notification method
-            if (_inCurrentlyPlayingState.HasValue && statesRemoved.Contains(_inCurrentlyPlayingState.Value))
-              _inCurrentlyPlayingState = null;
-            if (_inFullscreenContentState.HasValue && statesRemoved.Contains(_inFullscreenContentState.Value))
-              _inFullscreenContentState = null;
+            lock (SyncObj)
+            {
+              // If one of our remembered player workflow states was removed from workflow navigation stack,
+              // take it from our player workflow state cache. Our player workflow state cache is in the same order
+              // as the workflow navigation stack, so if we tracked everything correctly, each removal of states should
+              // remove states from the end of our cache.
+              for (int i = 0; i < _playerWfStateInstances.Count; i++)
+              {
+                PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
+                if (statesRemoved.Contains(wfStateInstance.WFStateId))
+                {
+                  _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
+                  break;
+                }
+              }
+            }
             break;
           case WorkflowManagerMessaging.MessageType.StatePushed:
             NavigationContext context = (NavigationContext) message.MessageData[WorkflowManagerMessaging.CONTEXT];
@@ -106,11 +159,11 @@ namespace MediaPortal.UI.Services.Players
             Guid? potentialState = GetPotentialCPStateId();
             if (potentialState.HasValue && potentialState.Value == stateId)
               lock(SyncObj)
-                _inCurrentlyPlayingState = potentialState;
+                _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.CurrentlyPlaying, stateId));
             potentialState = GetPotentialFSCStateId();
             if (potentialState.HasValue && potentialState.Value == stateId)
               lock (SyncObj)
-                _inFullscreenContentState = potentialState;
+                _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
             break;
         }
       }
@@ -258,55 +311,70 @@ namespace MediaPortal.UI.Services.Players
     /// </remarks>
     protected void CheckMediaWorkflowStates_NoLock()
     {
-      Guid? oldCPStateId;
-      Guid? oldFSCStateId;
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
-      {
-        oldCPStateId = _inCurrentlyPlayingState;
-        oldFSCStateId = _inFullscreenContentState;
-      }
-      Guid? newCPStateId = null;
-      Guid? newFSCStateId = null;
-      if (oldCPStateId.HasValue)
-        newCPStateId = GetPotentialCPStateId();
-      if (oldFSCStateId.HasValue)
-        newFSCStateId = GetPotentialFSCStateId();
-      // Don't hold the lock while doing the workflow navigation below - see threading policy
-      ILogger log = ServiceScope.Get<ILogger>();
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      if (oldCPStateId.HasValue && (!newCPStateId.HasValue || newCPStateId.Value != oldCPStateId.Value))
+      workflowManager.StartBatchUpdate();
+      ILogger log = ServiceScope.Get<ILogger>();
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      try
       {
-        log.Debug("PlayerContextManager: Currently Playing Workflow State '{0}' doesn't fit any more to the current situation. Leaving workflow state...",
-            oldCPStateId.Value);
-        lock (playerManager.SyncObj)
-          _inCurrentlyPlayingState = null;
-        workflowManager.NavigatePopToState(oldCPStateId.Value, true);
+        for (int i = 0; i < _playerWfStateInstances.Count; i++)
+        {
+          // Find the first workflow state of our cached player workflow states which doesn't fit any more
+          // and update to the new player workflow state of the same player workflow state type, if necessary.
+          PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
+          Guid? newStateId;
+          string stateName;
+          switch (wfStateInstance.WFStateType)
+          {
+            case PlayerWFStateType.CurrentlyPlaying:
+              newStateId = GetPotentialCPStateId();
+              stateName = "Currently Playing";
+              break;
+            case PlayerWFStateType.FullscreenContent:
+              newStateId = GetPotentialFSCStateId();
+              stateName = "Fullscreen Content";
+              break;
+            default:
+              throw new NotImplementedException(string.Format("No handler for player workflow state type '{0}'",
+                  wfStateInstance.WFStateType));
+          }
+          if (!newStateId.HasValue || newStateId.Value != wfStateInstance.WFStateId)
+          {
+            // Found the first player workflow state which doesn't fit any more
+            log.Debug("PlayerContextManager: {0} Workflow State '{1}' doesn't fit any more to the current situation. Leaving workflow state...",
+                stateName, wfStateInstance.WFStateId);
+            lock (playerManager.SyncObj)
+              // Remove all workflow states until the player workflow state which doesn't fit any more
+              _playerWfStateInstances.RemoveRange(i, _playerWfStateInstances.Count - i);
+            if (!workflowManager.NavigatePopToState(wfStateInstance.WFStateId, true))
+              // Because of some reason, we could not pop the old state, so don't push new state
+              newStateId = null;
+            if (newStateId.HasValue)
+            {
+              log.Debug("PlayerContextManager: ... Auto-switching to new '{0}' Workflow State '{1}'",
+                  stateName, newStateId.Value);
+              workflowManager.NavigatePush(newStateId.Value, null);
+            }
+            break;
+          }
+        }
       }
-      if (oldFSCStateId.HasValue && (!newFSCStateId.HasValue || newFSCStateId.Value != oldFSCStateId.Value))
+      finally
       {
-        log.Debug("PlayerContextManager: Fullscreen Content Workflow State '{0}' doesn't fit any more to the current situation. Leaving workflow state...",
-            oldFSCStateId.Value);
-        lock (playerManager.SyncObj)
-          _inFullscreenContentState = null;
-        workflowManager.NavigatePopToState(oldFSCStateId.Value, true);
+        workflowManager.EndBatchUpdate();
       }
-      if (newCPStateId.HasValue && newCPStateId.Value != oldCPStateId.Value)
-      {
-        lock (playerManager.SyncObj)
-          _inCurrentlyPlayingState = newCPStateId;
-        log.Debug("PlayerContextManager: ... Auto-switching to new 'Currently Playing' Workflow State '{0}'",
-            newCPStateId.Value);
-        workflowManager.NavigatePush(newCPStateId.Value, null);
-      }
-      if (newFSCStateId.HasValue && newFSCStateId.Value != oldFSCStateId.Value)
-      {
-        lock (playerManager.SyncObj)
-          _inFullscreenContentState = newFSCStateId;
-        log.Debug("PlayerContextManager: ... Auto-switching to new 'Fullscreen Content' Workflow State '{0}'",
-            newFSCStateId.Value);
-        workflowManager.NavigatePush(newFSCStateId.Value, null);
-      }
+    }
+
+    protected int FindIndexOfPlayerWFStateType(PlayerWFStateType type)
+    {
+      lock (SyncObj)
+        for (int i = 0; i < _playerWfStateInstances.Count; i++)
+        {
+          PlayerWFStateInstance wfStateInstance = _playerWfStateInstances[i];
+          if (wfStateInstance.WFStateType == type)
+            return i;
+        }
+      return -1;
     }
 
     protected static PlayerContext GetPlayerContext(IPlayerSlotController psc)
@@ -382,6 +450,16 @@ namespace MediaPortal.UI.Services.Players
         // No locking necessary
         return playerManager[PlayerManagerConsts.SECONDARY_SLOT] is IVideoPlayer;
       }
+    }
+
+    public bool IsCurrentlyPlayingWorkflowStateActive
+    {
+      get { return FindIndexOfPlayerWFStateType(PlayerWFStateType.CurrentlyPlaying) != -1; }
+    }
+
+    public bool IsFullscreenContentWorkflowStateActive
+    {
+      get { return FindIndexOfPlayerWFStateType(PlayerWFStateType.CurrentlyPlaying) != -1; }
     }
 
     public IPlayerContext CurrentPlayerContext
@@ -471,7 +549,8 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController slotController;
         playerManager.OpenSlot(out slotIndex, out slotController);
         playerManager.AudioSlotIndex = slotController.SlotIndex;
-        PlayerContext result = new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Audio, currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
+        PlayerContext result = new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Audio,
+            currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
         result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
         return result;
       }
@@ -563,7 +642,7 @@ namespace MediaPortal.UI.Services.Players
       Guid currentlyPlayingStateId;
       lock (SyncObj)
       {
-        if (_inCurrentlyPlayingState.HasValue)
+        if (IsCurrentlyPlayingWorkflowStateActive)
           return;
         IPlayerContext pc = GetPlayerContext(_currentPlayerIndex);
         if (pc == null)
@@ -579,7 +658,7 @@ namespace MediaPortal.UI.Services.Players
       Guid fullscreenContentStateId;
       lock (SyncObj)
       {
-        if (_inFullscreenContentState.HasValue)
+        if (IsFullscreenContentWorkflowStateActive)
           return;
         IPlayerContext pc = GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
         if (pc == null)

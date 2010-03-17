@@ -165,10 +165,16 @@ namespace UiComponents.SkinBase.Models
     {
       ICollection<NavigationContext> stackCopy;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      lock (workflowManager.SyncObj)
-        stackCopy = new List<NavigationContext>(workflowManager.NavigationContextStack);
-      foreach (NavigationContext context in stackCopy)
-        UpdateMenu(context);
+      workflowManager.Lock.EnterReadLock();
+      try
+      {
+        foreach (NavigationContext context in workflowManager.NavigationContextStack)
+          UpdateMenu(context);
+      }
+      finally
+      {
+        workflowManager.Lock.ExitReadLock();
+      }
     }
 
     protected ItemsList UpdateMenu(NavigationContext context)

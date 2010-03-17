@@ -126,5 +126,33 @@ namespace MediaPortal.UI.Presentation.Screens
     /// Reloads background, current screen and all dialogs.
     /// </summary>
     void Reload();
+
+    /// <summary>
+    /// Avoids exchanges of the screen and changes of dialogs until <see cref="EndBatchUpdate"/> is called.
+    /// </summary>
+    /// <remarks>
+    /// This method will collect update requests of screens and dialogs which are done in methods <see cref="ShowScreen"/>,
+    /// <see cref="ExchangeScreen"/>, <see cref="ShowDialog(string)"/>, <see cref="ShowDialog(string,DialogCloseCallbackDlgt)"/>
+    /// and <see cref="SetBackgroundLayer"/>. Between the calls of <see cref="StartBatchUpdate"/> and
+    /// <see cref="EndBatchUpdate"/>, the render thread will continue to render the screen/dialogs which were active
+    /// at the time when <see cref="StartBatchUpdate"/> was called.
+    /// When <see cref="EndBatchUpdate"/> is called, the collected screen and dialog updates are executed at once.
+    /// The screen update sequence requests will be adjusted when there are calls which can be overridden by the sequence,
+    /// i.e. if there are multiple calls to <see cref="ShowScreen"/> or <see cref="ExchangeScreen"/>, the final sequence
+    /// which is executed by method <see cref="EndBatchUpdate"/> will only invoke the last screen update.
+    /// It is safe to call this method multiple times; for each call to <see cref="StartBatchUpdate"/>, a call to
+    /// <see cref="EndBatchUpdate"/> is necessary.
+    /// </remarks>
+    void StartBatchUpdate();
+
+    /// <summary>
+    /// Ends batch update mode and executes all screen/dialog changes which were recorded between the call of
+    /// <see cref="StartBatchUpdate"/> and the call to this method.
+    /// </summary>
+    /// <remarks>
+    /// As call pairs of <see cref="StartBatchUpdate"/>/<see cref="EndBatchUpdate"/> can be stacked, only the last
+    /// <see cref="EndBatchUpdate"/> will trigger the screen updates.
+    /// </remarks>
+    void EndBatchUpdate();
   }
 }

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
@@ -33,10 +34,10 @@ namespace MediaPortal.UI.Presentation.Workflow
   public interface IWorkflowManager
   {
     /// <summary>
-    /// Synchronization object to lock the workflow manager's internal data like the <see cref="NavigationContextStack"/>
+    /// Lock object for the workflow manager's internal data like the <see cref="NavigationContextStack"/>
     /// and its internal model cache.
     /// </summary>
-    object SyncObj { get; }
+    ReaderWriterLockSlim Lock { get; }
 
     /// <summary>
     /// Returns all currently known workflow states. The dictionary maps state ids to states.
@@ -156,7 +157,25 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <param name="stateId">Id of the state until that the navigation stack should be cleaned.</param>
     /// <param name="inclusive">If set to <c>true</c>, the specified state will be popped too, else
     /// it will remain on top of the workflow navigation stack.</param>
-    void NavigatePopToState(Guid stateId, bool inclusive);
+    /// <returns><c>true</c>, if the given state was found on the workflow navigation stack and was removed, else
+    /// <c>false</c>.</returns>
+    bool NavigatePopToState(Guid stateId, bool inclusive);
+
+    /// <summary>
+    /// Avoids screen updates during a batch workflow navigation.
+    /// </summary>
+    /// <remarks>
+    /// When this method is called, all screen updates are cached to avoid updates to the screen during a
+    /// workflow navigation which spans multiple calls to the navigation methods, like "pop" navigations followed
+    /// by "push" navigations. After the batch navigation, method <see cref="EndBatchUpdate"/> must be called which
+    /// updates the screen for the new workflow state.
+    /// </remarks>
+    void StartBatchUpdate();
+
+    /// <summary>
+    /// Ends a batch workflow navigation and updates the screen for the new workflow state.
+    /// </summary>
+    void EndBatchUpdate();
 
     /// <summary>
     /// Returns the model with the requested <paramref name="modelId"/> and assigns it to be related
@@ -165,6 +184,15 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// <param name="modelId">Id of the model to return.</param>
     /// <returns>Instance of the model with the specified <paramref name="modelId"/>.</returns>
     object GetModel(Guid modelId);
+
+    /// <summary>
+    /// Returns the information if one of the active navigation contexts on the stack is the workflow state
+    /// with the given <paramref name="workflowStateId"/>.
+    /// </summary>
+    /// <param name="workflowStateId">Id of the workflow state to search.</param>
+    /// <returns><c>true</c>, if the specified workflow state is currently available on the workflow navigation stack,
+    /// else <c>false</c>.</returns>
+    bool IsStateContainedInNavigationStack(Guid workflowStateId);
 
     /// <summary>
     /// Returns the information if one of the active navigation contexts on the stack contains the model
