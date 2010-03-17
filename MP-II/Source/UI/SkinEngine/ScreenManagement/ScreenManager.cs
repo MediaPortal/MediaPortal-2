@@ -181,6 +181,28 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       #endregion
     }
 
+    protected class DialogSaveDescriptor
+    {
+      protected string _dialogName;
+      protected DialogCloseCallbackDlgt _closeCallback;
+
+      public DialogSaveDescriptor(string dialogName, DialogCloseCallbackDlgt closeCallback)
+      {
+        _dialogName = dialogName;
+        _closeCallback = closeCallback;
+      }
+
+      public string DialogName
+      {
+        get { return _dialogName; }
+      }
+
+      public DialogCloseCallbackDlgt CloseCallback
+      {
+        get { return _closeCallback; }
+      }
+    }
+
     #endregion
 
     #region Protected fields
@@ -471,6 +493,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     protected internal void DoCloseDialog(DialogData closeDD)
     {
+      DialogData oldDialogData = null;
       lock(_syncObj)
       {
         // Search the to-be-closed dialog in the dialog stack and close it.
@@ -482,13 +505,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           helpStack.Push(_dialogStack.Pop());
         if (_dialogStack.Count > 0)
         { // We found our dialog to close
-          DialogData oldDialogData = _dialogStack.Pop();
+          oldDialogData = _dialogStack.Pop();
           Screen oldDialog = oldDialogData.DialogScreen;
           oldDialog.ScreenState = Screen.State.Closing;
           if (helpStack.Count == 0)
             oldDialog.DetachInput();
-          if (oldDialogData.CloseCallback != null)
-            oldDialogData.CloseCallback(oldDialog.Name);
           ScheduleDisposeScreen(oldDialog);
         }
         if (helpStack.Count == 0)
@@ -505,6 +526,8 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           foreach (DialogData data in helpStack)
             _dialogStack.Push(data);
       }
+      if (oldDialogData.CloseCallback != null)
+        oldDialogData.CloseCallback(oldDialogData.DialogScreen.Name);
     }
 
     protected internal void DoCloseDialogs()
@@ -565,17 +588,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Remember all open screens
       string backgroundName;
       string screenName;
-      List<string> dialogNamesReverse;
+      List<DialogSaveDescriptor> dialogsReverse;
       lock (_syncObj)
       {
         backgroundName = _backgroundData.BackgroundScreen == null ? null : _backgroundData.BackgroundScreen.Name;
         screenName = _currentScreen.Name;
-        dialogNamesReverse = new List<string>(_dialogStack.Count);
+        dialogsReverse = new List<DialogSaveDescriptor>(_dialogStack.Count);
         foreach (DialogData dd in _dialogStack)
           // We should move the dialog's Closed delegate to the new dialog, but it is not possible to copy a delegate.
-          // To not clear the delegate here might lead to missbehaviour, but clearing it without copying it will be even
-          // worse because modules might rely on this behaviour.
-          dialogNamesReverse.Add(dd.DialogScreen.Name);
+          // To not clear the delegate here might lead to missbehaviour because the closed delegates are then fired too
+          // early, but clearing it without copying it will be even worse because modules might rely on this behaviour.
+          dialogsReverse.Add(new DialogSaveDescriptor(dd.DialogScreen.Name, dd.CloseCallback));
       }
 
       // Close all
@@ -593,12 +616,12 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       DoExchangeScreen(screen);
 
       // Reload dialogs
-      foreach (string dialogName in dialogNamesReverse)
+      foreach (DialogSaveDescriptor dialogDescriptor in dialogsReverse)
       {
-        Screen dialog = GetScreen(dialogName);
+        Screen dialog = GetScreen(dialogDescriptor.DialogName);
         // We should have copied the dialog's Closed delegate of the old dialog instead of using null here... but it's not possible to
         // copy it
-        DoShowDialog(dialog, null);
+        DoShowDialog(dialog, dialogDescriptor.CloseCallback);
       }
     }
 
@@ -1017,6 +1040,22 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       IncPendingOperations();
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to reload screens");
       ScreenManagerMessaging.SendMessageReloadScreens();
+    }
+
+    public void StartBatchUpdate()
+    {
+      // TODO:
+      // - Create class BatchUpdateCache and field _batchUpdateCache. Use field BUC._numBatchUpdates to support stacking.
+      // - implement collection of all screen/dialog change events in methods above
+      // - ensure that also dialog close events are executed in the correct order
+      //   -> probably the BUC needs a complicated structure to hold the (rectified) sequence of screen updates,
+      //      we probably need to hand the BUC structure to the async executor where we do the complete batch update at once
+    }
+
+    public void EndBatchUpdate()
+    {
+      // TODO
+      // See comment in StartBatchUpdate()
     }
 
     #endregion
