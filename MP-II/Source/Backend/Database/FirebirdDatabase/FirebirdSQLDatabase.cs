@@ -50,6 +50,8 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public const int PAGE_SIZE = 16384;
 
+    public const int MAX_NUM_CHARS_CHAR_VARCHAR = 8191;
+
     protected string _connectionString;
 
     #region Ctor & dtor
@@ -191,12 +193,18 @@ namespace MediaPortal.BackendComponents.Database.Firebird
 
     public string GetSQLVarLengthStringType(uint maxNumChars)
     {
-      return "VARCHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
+      if (maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR)
+        return "BLOB SUB_TYPE 1"; // SUB_TYPE 1 = text
+      else
+        return "VARCHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
     public string GetSQLFixedLengthStringType(uint maxNumChars)
     {
-      return "CHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
+      if (maxNumChars > MAX_NUM_CHARS_CHAR_VARCHAR)
+        return "BLOB SUB_TYPE 1"; // SUB_TYPE 1 = text
+      else
+        return "CHAR(" + maxNumChars + ")"; // Defaults to the default character set of our DB, see the creation of the DB file
     }
 
     public string GetCreateSequenceCommand(string sequenceName)
