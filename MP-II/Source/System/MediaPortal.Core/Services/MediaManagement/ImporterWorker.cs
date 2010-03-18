@@ -218,7 +218,7 @@ namespace MediaPortal.Core.Services.MediaManagement
           return;
       lock (_syncObj)
       {
-        _workerThread = new Thread(ImporterLoop);
+        _workerThread = new Thread(ImporterLoop) {Name = "Importer worker thread"};
         _workerThread.Start();
         IsSuspended = false;
       }
