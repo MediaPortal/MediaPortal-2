@@ -163,7 +163,6 @@ namespace UiComponents.SkinBase.Models
     /// </summary>
     protected void UpdateMenus()
     {
-      ICollection<NavigationContext> stackCopy;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.Lock.EnterReadLock();
       try
