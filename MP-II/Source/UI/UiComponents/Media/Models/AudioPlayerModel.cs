@@ -28,7 +28,6 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace UiComponents.Media.Models
@@ -74,7 +73,6 @@ namespace UiComponents.Media.Models
 
     protected void UpdateAudioStateType(NavigationContext newContext)
     {
-      IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
       if (newContext.WorkflowState.StateId == CURRENTLY_PLAYING_STATE_ID)
         _currentMediaWorkflowStateType = MediaWorkflowStateType.CurrentlyPlaying;
       else if (newContext.WorkflowState.StateId == FULLSCREEN_CONTENT_STATE_ID)
