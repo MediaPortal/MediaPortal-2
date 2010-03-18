@@ -322,8 +322,8 @@ namespace UPnP.Infrastructure.CP
         _subscriptions.Clear();
         if (_device.IsConnected)
           _device.Disconnect();
-        InvokeDeviceDisconnected();
       }
+      InvokeDeviceDisconnected();
     }
 
     internal void OnSubscribeEvents(CpService service)

@@ -341,24 +341,32 @@ namespace MediaPortal.UI.Services.ServerCommunication
 
     public void Startup()
     {
+      UPnPServerWatcher watcher;
+      UPnPClientControlPoint cp;
       lock (_syncObj)
       {
-        if (_serverWatcher != null)
-          _serverWatcher.Start();
-        if (_controlPoint != null)
-          _controlPoint.Start();
+        watcher = _serverWatcher;
+        cp = _controlPoint;
       }
+      if (watcher != null)
+        watcher.Start();
+      if (cp != null)
+        cp.Start();
     }
 
     public void Shutdown()
     {
+      UPnPServerWatcher watcher;
+      UPnPClientControlPoint cp;
       lock (_syncObj)
       {
-        if (_serverWatcher != null)
-          _serverWatcher.Stop();
-        if (_controlPoint != null)
-          _controlPoint.Stop();
+        watcher = _serverWatcher;
+        cp = _controlPoint;
       }
+      if (watcher != null)
+        watcher.Stop();
+      if (cp != null)
+        cp.Stop();
       _messageQueue.Shutdown();
     }
 
