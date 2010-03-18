@@ -526,7 +526,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           foreach (DialogData data in helpStack)
             _dialogStack.Push(data);
       }
-      if (oldDialogData.CloseCallback != null)
+      if (oldDialogData != null && oldDialogData.CloseCallback != null)
         oldDialogData.CloseCallback(oldDialogData.DialogScreen.Name);
     }
 
