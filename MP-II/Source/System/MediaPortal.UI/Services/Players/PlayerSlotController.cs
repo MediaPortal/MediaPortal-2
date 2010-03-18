@@ -286,6 +286,7 @@ namespace MediaPortal.UI.Services.Players
           return;
         PlayerSlotState oldSlotState = _slotState;
         _slotState = slotState;
+        InvokeSlotStateChanged(slotState);
         if (oldSlotState == PlayerSlotState.Inactive && slotState != PlayerSlotState.Inactive)
           PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerSlotActivated);
         if (oldSlotState != PlayerSlotState.Inactive || slotState != PlayerSlotState.Stopped)
@@ -304,7 +305,16 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
+    protected void InvokeSlotStateChanged(PlayerSlotState slotState)
+    {
+      SlotStateChangedDlgt dlgt = SlotStateChanged;
+      if (dlgt != null)
+        dlgt(this, slotState);
+    }
+
     #region IPlayerSlotController implementation
+
+    public event SlotStateChangedDlgt SlotStateChanged;
 
     public int SlotIndex
     {

@@ -41,12 +41,6 @@ namespace MediaPortal.UI.Services.Players
   /// </summary>
   public class PlayerContextManager : IPlayerContextManager, IDisposable
   {
-    #region Consts
-
-    protected const string KEY_PLAYER_CONTEXT = "PlayerContextManager: PlayerContext";
-
-    #endregion
-
     #region Enums & classes
 
     protected enum PlayerWFStateType
@@ -179,8 +173,8 @@ namespace MediaPortal.UI.Services.Players
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
-            pc = GetPlayerContext(psc);
-            if (pc == null)
+            pc = PlayerContext.GetPlayerContext(psc);
+            if (pc == null || !pc.IsValid)
               return;
             if (!pc.NextItem())
               if (pc.CloseWhenFinished)
@@ -188,8 +182,8 @@ namespace MediaPortal.UI.Services.Players
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
-            pc = GetPlayerContext(psc);
-            if (pc == null)
+            pc = PlayerContext.GetPlayerContext(psc);
+            if (pc == null || !pc.IsValid)
               return;
             // We get the player message asynchronously, so we have to check the state of the slot again to ensure
             // we close the correct one
@@ -198,8 +192,8 @@ namespace MediaPortal.UI.Services.Players
             break;
           case PlayerManagerMessaging.MessageType.RequestNextItem:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
-            pc = GetPlayerContext(psc);
-            if (pc == null)
+            pc = PlayerContext.GetPlayerContext(psc);
+            if (pc == null || !pc.IsValid)
               return;
             pc.RequestNextItem();
             break;
@@ -377,26 +371,10 @@ namespace MediaPortal.UI.Services.Players
       return -1;
     }
 
-    protected static PlayerContext GetPlayerContext(IPlayerSlotController psc)
-    {
-      if (psc == null)
-        return null;
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      lock (playerManager.SyncObj)
-      {
-        if (!psc.IsActive)
-          return null;
-        object result;
-        if (psc.ContextVariables.TryGetValue(KEY_PLAYER_CONTEXT, out result))
-          return result as PlayerContext;
-      }
-      return null;
-    }
-
     protected static PlayerContext GetPlayerContextInternal(int slotIndex)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      return GetPlayerContext(playerManager.GetPlayerSlotController(slotIndex));
+      return PlayerContext.GetPlayerContext(playerManager.GetPlayerSlotController(slotIndex));
     }
 
     #region IDisposable implementation
@@ -549,10 +527,8 @@ namespace MediaPortal.UI.Services.Players
         IPlayerSlotController slotController;
         playerManager.OpenSlot(out slotIndex, out slotController);
         playerManager.AudioSlotIndex = slotController.SlotIndex;
-        PlayerContext result = new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Audio,
+        return new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Audio,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
-        result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
-        return result;
       }
     }
 
@@ -617,10 +593,8 @@ namespace MediaPortal.UI.Services.Players
           playerManager.OpenSlot(out slotIndex, out slotController);
           playerManager.AudioSlotIndex = PlayerManagerConsts.PRIMARY_SLOT;
         }
-        PlayerContext result = new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Video,
+        return new PlayerContext(this, slotController, mediaModuleId, name, PlayerContextType.Video,
             currentlyPlayingWorkflowStateId, fullscreenContentWorkflowStateId);
-        result.SetContextVariable(KEY_PLAYER_CONTEXT, result);
-        return result;
       }
     }
 

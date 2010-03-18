@@ -49,6 +49,8 @@ namespace MediaPortal.UI.Presentation.Players
     Stopped
   }
 
+  public delegate void SlotStateChangedDlgt(IPlayerSlotController slotController, PlayerSlotState slotState);
+
   /// <summary>
   /// Player slot controller for a player in a player slot of the <see cref="IPlayerManager"/>.
   /// The player slot controller maintains the state of each player slot and exposes context variables, which can contain
@@ -68,6 +70,12 @@ namespace MediaPortal.UI.Presentation.Players
   /// </remarks>
   public interface IPlayerSlotController
   {
+    /// <summary>
+    /// Synchronous event which gets fired when the slot state (<see cref="PlayerSlotState"/>) changes. In the event handler,
+    /// no other locks than the player manager's <see cref="IPlayerManager.SyncObj"/> must be raised!
+    /// </summary>
+    event SlotStateChangedDlgt SlotStateChanged;
+
     /// <summary>
     /// Returns the index of the slot which is controlled by this slot controller.
     /// </summary>

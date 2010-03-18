@@ -1271,7 +1271,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       IPlayerContext pc = GetPlayerContext();
       if (pc == null)
         return;
-      if (pc.PlayerState == PlaybackState.Paused || pc.PlayerState == PlaybackState.Seeking)
+      if (pc.PlaybackState == PlaybackState.Paused || pc.PlaybackState == PlaybackState.Seeking)
         pc.Play();
       else
         pc.Restart();
@@ -1297,7 +1297,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       IPlayerContext pc = GetPlayerContext();
       if (pc == null)
         return;
-      switch (pc.PlayerState) {
+      switch (pc.PlaybackState) {
         case PlaybackState.Playing:
           pc.Pause();
           break;

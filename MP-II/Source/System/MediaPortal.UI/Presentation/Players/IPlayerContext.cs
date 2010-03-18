@@ -132,7 +132,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// <summary>
     /// Returns the playback state of the <see cref="CurrentPlayer"/>.
     /// </summary>
-    PlaybackState PlayerState { get; }
+    PlaybackState PlaybackState { get; }
 
     /// <summary>
     /// Gets the name of this player context. This value might be a localized value.

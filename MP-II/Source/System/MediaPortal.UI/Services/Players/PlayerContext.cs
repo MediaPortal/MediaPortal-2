@@ -35,7 +35,13 @@ namespace MediaPortal.UI.Services.Players
 {
   public class PlayerContext : IPlayerContext, IDisposable
   {
+    #region Consts
+
     public const double MAX_SEEK_RATE = 100;
+
+    protected const string KEY_PLAYER_CONTEXT = "PlayerContext: Assigned PlayerContext";
+
+    #endregion
 
     #region Protected fields
 
@@ -61,6 +67,8 @@ namespace MediaPortal.UI.Services.Players
     {
       _contextManager = contextManager;
       _slotController = slotController;
+      _slotController.SlotStateChanged += OnSlotStateChanged;
+      SetContextVariable(KEY_PLAYER_CONTEXT, this);
       _playlist = new Playlist();
       _mediaModuleId = mediaModuleId;
       _name = name;
@@ -71,10 +79,25 @@ namespace MediaPortal.UI.Services.Players
 
     public void Dispose()
     {
-      _slotController = null;
+      lock (SyncObj)
+      {
+        IPlayerSlotController slotController = _slotController;
+        if (slotController == null)
+          return;
+        slotController.SlotStateChanged -= OnSlotStateChanged;
+        if (slotController.IsActive)
+          ResetContextVariable(KEY_PLAYER_CONTEXT);
+        _slotController = null;
+      }
     }
 
     #endregion
+
+    private void OnSlotStateChanged(IPlayerSlotController slotController, PlayerSlotState slotState)
+    {
+      if (slotState == PlayerSlotState.Inactive)
+        Dispose();
+    }
 
     protected static object SyncObj
     {
@@ -165,6 +188,22 @@ namespace MediaPortal.UI.Services.Players
         player.SetPlaybackRate(4*newRate);
     }
 
+    public static PlayerContext GetPlayerContext(IPlayerSlotController psc)
+    {
+      if (psc == null)
+        return null;
+      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        if (!psc.IsActive)
+          return null;
+        object result;
+        if (psc.ContextVariables.TryGetValue(KEY_PLAYER_CONTEXT, out result))
+          return result as PlayerContext;
+      }
+      return null;
+    }
+
     #region IPlayerContext implementation
 
     public bool IsValid
@@ -203,7 +242,7 @@ namespace MediaPortal.UI.Services.Players
       get { return GetCurrentPlayer(); }
     }
 
-    public PlaybackState PlayerState
+    public PlaybackState PlaybackState
     {
       get
       {
@@ -212,7 +251,7 @@ namespace MediaPortal.UI.Services.Players
           return PlaybackState.Stopped;
         switch (player.State)
         {
-          case Presentation.Players.PlayerState.Active:
+          case PlayerState.Active:
             IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
             if (mpc == null)
               return PlaybackState.Playing;
@@ -222,9 +261,9 @@ namespace MediaPortal.UI.Services.Players
               return PlaybackState.Seeking;
             else
               return PlaybackState.Playing;
-          case Presentation.Players.PlayerState.Ended:
+          case PlayerState.Ended:
             return PlaybackState.Ended;
-          case Presentation.Players.PlayerState.Stopped:
+          case PlayerState.Stopped:
             return PlaybackState.Stopped;
           default:
             throw new UnexpectedStateException("Handling code for {0}.{1} is not implemented",
@@ -365,7 +404,7 @@ namespace MediaPortal.UI.Services.Players
       IMediaPlaybackControl mpc = player as IMediaPlaybackControl;
       if (mpc == null)
         return;
-      if (player.State == Presentation.Players.PlayerState.Active)
+      if (player.State == PlayerState.Active)
         if (mpc.IsPaused)
           mpc.Resume();
         else
