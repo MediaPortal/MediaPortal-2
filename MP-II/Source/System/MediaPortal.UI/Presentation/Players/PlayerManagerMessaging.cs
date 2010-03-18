@@ -39,7 +39,7 @@ namespace MediaPortal.UI.Presentation.Players
     // Message type
     public enum MessageType
     {
-      #region Player messages. The param will denote the player slot controller (IPlayerSlotController).
+      #region Player messages. Parameters: PLAYER_SLOT_CONTROLLER, ACTIVATION_SEQUENCE
 
       /// <summary>
       /// A player started playing a media item.
@@ -81,7 +81,7 @@ namespace MediaPortal.UI.Presentation.Players
 
       #endregion
 
-      #region PlayerManager messages concerning a special player slot. The param will denote the player slot controller (IPlayerSlotController).
+      #region PlayerManager messages concerning a special player slot. Parameters: PLAYER_SLOT_CONTROLLER
 
       /// <summary>
       /// The slot playing audio changed to a new slot index.
@@ -105,7 +105,7 @@ namespace MediaPortal.UI.Presentation.Players
 
       #endregion
 
-      #region General messages which don't concern a special player. The param doesn't have a special meaning for these messages.
+      #region General messages which don't concern a special player. No parameters.
 
       /// <summary>
       /// The primary and secondary players were exchanged.
@@ -126,7 +126,8 @@ namespace MediaPortal.UI.Presentation.Players
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string PLAYER_SLOT_CONTROLLER = "PlayerSlotController"; // Holds the player slot controller (IPlayerSlotController)
+    public const string ACTIVATION_SEQUENCE = "ActivationSequence"; // Holds the activation sequence number of the player slot controller at the time when the message was sent (uint)
 
     /// <summary>
     /// Sends a message which announces a change in a specific player. This method handles all
@@ -137,7 +138,8 @@ namespace MediaPortal.UI.Presentation.Players
     public static void SendPlayerMessage(MessageType type, IPlayerSlotController psc)
     {
       SystemMessage msg = new SystemMessage(type);
-      msg.MessageData[PARAM] = psc;
+      msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      msg.MessageData[ACTIVATION_SEQUENCE] = psc.ActivationSequence;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 
@@ -150,7 +152,7 @@ namespace MediaPortal.UI.Presentation.Players
     public static void SendPlayerManagerPlayerMessage(MessageType type, IPlayerSlotController psc)
     {
       SystemMessage msg = new SystemMessage(type);
-      msg.MessageData[PARAM] = psc;
+      msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

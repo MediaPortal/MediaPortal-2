@@ -109,6 +109,12 @@ namespace MediaPortal.UI.Presentation.Players
     bool IsActive { get; }
 
     /// <summary>
+    /// Returns a sequence number which gets incremented when the player slot gets activated. This is necessary to
+    /// be able to detect obsolete player messages.
+    /// </summary>
+    uint ActivationSequence { get; }
+
+    /// <summary>
     /// Gets the playback state of this player slot.
     /// </summary>
     PlayerSlotState PlayerSlotState { get; }

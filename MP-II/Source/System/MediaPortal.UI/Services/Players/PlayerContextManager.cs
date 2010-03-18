@@ -168,22 +168,25 @@ namespace MediaPortal.UI.Services.Players
             (PlayerManagerMessaging.MessageType) message.MessageType;
         PlayerContext pc;
         IPlayerSlotController psc;
+        uint activationSequence;
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
-            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
+            activationSequence = (uint) message.MessageData[PlayerManagerMessaging.ACTIVATION_SEQUENCE];
             pc = PlayerContext.GetPlayerContext(psc);
-            if (pc == null || !pc.IsValid)
+            if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
               return;
             if (!pc.NextItem())
               if (pc.CloseWhenFinished)
                 pc.Close();
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
-            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
+            activationSequence = (uint) message.MessageData[PlayerManagerMessaging.ACTIVATION_SEQUENCE];
             pc = PlayerContext.GetPlayerContext(psc);
-            if (pc == null || !pc.IsValid)
+            if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
               return;
             // We get the player message asynchronously, so we have to check the state of the slot again to ensure
             // we close the correct one
@@ -191,9 +194,10 @@ namespace MediaPortal.UI.Services.Players
               pc.Close();
             break;
           case PlayerManagerMessaging.MessageType.RequestNextItem:
-            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PARAM];
+            psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
+            activationSequence = (uint) message.MessageData[PlayerManagerMessaging.ACTIVATION_SEQUENCE];
             pc = PlayerContext.GetPlayerContext(psc);
-            if (pc == null || !pc.IsValid)
+            if (pc == null || !pc.IsValid || psc.ActivationSequence != activationSequence)
               return;
             pc.RequestNextItem();
             break;

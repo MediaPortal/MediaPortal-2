@@ -47,6 +47,7 @@ namespace MediaPortal.UI.Services.Players
     protected PlayerSlotState _slotState = PlayerSlotState.Inactive;
     protected int _volume = 100;
     protected bool _isMuted = false;
+    protected uint _activationSequence = 0;
 
     internal PlayerSlotController(PlayerManager parent, int slotIndex)
     {
@@ -284,6 +285,8 @@ namespace MediaPortal.UI.Services.Players
       {
         if (slotState == _slotState)
           return;
+        if (slotState == PlayerSlotState.Inactive)
+          _activationSequence++;
         PlayerSlotState oldSlotState = _slotState;
         _slotState = slotState;
         InvokeSlotStateChanged(slotState);
@@ -409,6 +412,15 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
+    public uint ActivationSequence
+    {
+      get
+      {
+        lock (SyncObj)
+          return _activationSequence;
+      }
+    }
+
     public PlayerSlotState PlayerSlotState
     {
       get
@@ -480,9 +492,12 @@ namespace MediaPortal.UI.Services.Players
       lock (SyncObj)
       {
         CheckActive();
-        SetSlotState(PlayerSlotState.Stopped);
-        // We need to simulate the PlayerStopped event, as the ReleasePlayer() method discards all further player events
-        PlayerManagerMessaging.SendPlayerManagerPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
+        if (_slotState != PlayerSlotState.Stopped)
+        {
+          SetSlotState(PlayerSlotState.Stopped);
+          // We need to simulate the PlayerStopped event, as the ReleasePlayer() method discards all further player events
+          PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
+        }
         ReleasePlayer();
       }
     }
