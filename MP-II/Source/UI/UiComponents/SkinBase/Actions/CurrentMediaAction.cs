@@ -58,7 +58,8 @@ namespace UiComponents.SkinBase.Actions
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           PlayerManagerMessaging.CHANNEL
+           PlayerManagerMessaging.CHANNEL,
+           WorkflowManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -85,13 +86,30 @@ namespace UiComponents.SkinBase.Actions
             break;
         }
       }
+      else if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            Update();
+            break;
+        }
+      }
     }
 
     protected void Update()
     {
-      IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>();
-      _isVisible = playerManager.NumActiveSlots > 0;
-      FireStateChanged();
+      bool lastVisible = _isVisible;
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      IPlayerContext pc = playerContextManager.CurrentPlayerContext;
+      if (pc == null)
+        _isVisible = false;
+      else
+        _isVisible = workflowManager.CurrentNavigationContext.WorkflowState.StateId != pc.CurrentlyPlayingWorkflowStateId;
+      if (lastVisible != _isVisible)
+        FireStateChanged();
     }
 
     protected void FireStateChanged()

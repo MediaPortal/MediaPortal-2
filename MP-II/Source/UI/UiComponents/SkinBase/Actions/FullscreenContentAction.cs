@@ -56,7 +56,8 @@ namespace UiComponents.SkinBase.Actions
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           PlayerManagerMessaging.CHANNEL
+           PlayerManagerMessaging.CHANNEL,
+           WorkflowManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
@@ -85,15 +86,26 @@ namespace UiComponents.SkinBase.Actions
             break;
         }
       }
+      else if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
+            Update();
+            break;
+        }
+      }
     }
 
     protected void Update()
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
       IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
-      _isVisible = vp != null || ap != null;
+      _isVisible = vp != null || ap != null && workflowManager.CurrentNavigationContext.WorkflowState.StateId != pcPrimary.CurrentlyPlayingWorkflowStateId;
       if (vp == null)
         _displayTitle = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
       else
