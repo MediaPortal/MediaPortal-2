@@ -291,7 +291,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_fallbackImage != null)
         PerformLayout(_fallbackImage);
 
-      IsInvalidLayout = false;
       if (Screen != null)
         Screen.Invalidate(this);
     }

@@ -319,7 +319,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         lock (sync)
           CollectionUtils.AddAll(l, ItemsSource);
       else
-          CollectionUtils.AddAll(l, ItemsSource);
+        CollectionUtils.AddAll(l, ItemsSource);
       IEnumerator enumer = l.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null) return false;

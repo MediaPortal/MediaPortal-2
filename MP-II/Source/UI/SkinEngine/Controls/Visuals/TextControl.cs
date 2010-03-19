@@ -331,7 +331,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ActualHeight = finalRect.Height;
 
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      IsInvalidLayout = false;
     
       if (Screen != null)
         Screen.Invalidate(this);

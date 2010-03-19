@@ -131,7 +131,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
       Initialize();
       InitializeTriggers();
-      IsInvalidLayout = false;
 
       _performLayout = true;
 

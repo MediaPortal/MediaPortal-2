@@ -185,7 +185,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       Initialize();
       InitializeTriggers();
-      IsInvalidLayout = false;
     }
 
     public override void DoRender()
