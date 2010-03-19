@@ -435,7 +435,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
           MediaItemTitle = mit;
           IPlaylist pl = playerContext.Playlist;
-          MediaItem nextMediaItem = pl.GetNext();
+          MediaItem nextMediaItem = pl[1];
           if (nextMediaItem == null)
           {
             NextMediaItemTitle = null;
