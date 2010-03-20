@@ -105,7 +105,7 @@ namespace UiComponents.SkinBase.Actions
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
       IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
-      _isVisible = vp != null || ap != null && workflowManager.CurrentNavigationContext.WorkflowState.StateId != pcPrimary.CurrentlyPlayingWorkflowStateId;
+      _isVisible = vp != null || ap != null && workflowManager.CurrentNavigationContext.WorkflowState.StateId != pcPrimary.FullscreenContentWorkflowStateId;
       if (vp == null)
         _displayTitle = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
       else
