@@ -228,7 +228,7 @@ namespace Ui.Players.BassPlayer
 
     public string Name
     {
-      get { return "AudioPlayer"; }
+      get { return "Audio"; }
     }
 
     public PlayerState State
