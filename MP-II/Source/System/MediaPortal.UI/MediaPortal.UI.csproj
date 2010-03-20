@@ -78,7 +78,7 @@
     <Compile Include="Presentation\Players\IPlayerEvents.cs" />
     <Compile Include="Presentation\Players\IPlayerManager.cs" />
     <Compile Include="Presentation\Players\IPlayerSlotController.cs" />
-    <Compile Include="Presentation\Players\IPlayList.cs" />
+    <Compile Include="Presentation\Players\IPlaylist.cs" />
     <Compile Include="Presentation\Players\IReusablePlayer.cs" />
     <Compile Include="Presentation\Players\IMediaPlaybackControl.cs" />
     <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
