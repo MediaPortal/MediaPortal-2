@@ -44,7 +44,7 @@
   </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
-    <String Name="CurrentMedia" Text="Current Media"/>
+    <String Name="CurrentMedia" Text="Current media"/>
     <String Name="FullscreenVideo" Text="Fullscreen {0}"/> <!--for example "Fullscreen TV" -->
     <String Name="AudioVisualization" Text="Audio visualization"/>
     <String Name="PlayerOfType" Text="{0} player"/> <!-- for example "Video player" -->
