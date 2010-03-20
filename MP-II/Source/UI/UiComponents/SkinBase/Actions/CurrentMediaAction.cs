@@ -50,7 +50,7 @@ namespace UiComponents.SkinBase.Actions
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected bool _isVisible;
+    protected volatile bool _isVisible;
 
     #endregion
 

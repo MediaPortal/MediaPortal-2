@@ -56,8 +56,8 @@ namespace UiComponents.SkinBase.Actions
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected bool _isEnabled = true;
-    protected IResourceString _titleRes = null;
+    protected volatile bool _isEnabled = true;
+    protected volatile IResourceString _titleRes = null;
 
     #endregion
 
