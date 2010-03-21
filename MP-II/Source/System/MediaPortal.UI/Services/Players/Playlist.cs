@@ -33,12 +33,18 @@ namespace MediaPortal.UI.Services.Players
   public class Playlist : IPlaylist
   {
     protected static Random rnd = new Random();
+    protected object _syncObj = new object();
+    protected IPlayerContext _playerContext;
     protected PlayMode _playMode = PlayMode.Continuous;
     protected RepeatMode _repeatMode = RepeatMode.None;
     protected IList<MediaItem> _itemList = new List<MediaItem>();
     protected IList<int> _playIndexList = null; // Index on _itemList, lazy initialized before playing
     protected int _currentPlayIndex = -1; // Index for the _playItemList
-    protected object _syncObj = new object();
+
+    public Playlist(IPlayerContext context)
+    {
+      _playerContext = context;
+    }
 
     protected void InitializePlayIndexList()
     {
@@ -176,7 +182,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public MediaItem GetPrevious()
+    public MediaItem MoveAndGetPrevious()
     {
       lock (_syncObj)
       {
@@ -192,7 +198,7 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    public MediaItem GetNext()
+    public MediaItem MoveAndGetNext()
     {
       lock (_syncObj)
       {

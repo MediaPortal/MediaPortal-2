@@ -69,7 +69,7 @@ namespace MediaPortal.UI.Services.Players
       _slotController = slotController;
       _slotController.SlotStateChanged += OnSlotStateChanged;
       SetContextVariable(KEY_PLAYER_CONTEXT, this);
-      _playlist = new Playlist();
+      _playlist = new Playlist(this);
       _mediaModuleId = mediaModuleId;
       _name = name;
       _type = type;
@@ -160,7 +160,7 @@ namespace MediaPortal.UI.Services.Players
 
     internal bool RequestNextItem()
     {
-      MediaItem item = _playlist.GetNext();
+      MediaItem item = _playlist.MoveAndGetNext();
       if (item == null)
         return false;
       return DoPlay(item, StartTime.Enqueue);
@@ -448,7 +448,7 @@ namespace MediaPortal.UI.Services.Players
       {
         if (--countLeft < 0 || !_playlist.HasPrevious) // Break loop if we don't have any more items left
           return false;
-      } while (!DoPlay(_playlist.GetPrevious(), StartTime.AtOnce));
+      } while (!DoPlay(_playlist.MoveAndGetPrevious(), StartTime.AtOnce));
       return true;
     }
 
@@ -470,7 +470,7 @@ namespace MediaPortal.UI.Services.Players
             Close();
           return false;
         }
-        playOk = DoPlay(_playlist.GetNext(), StartTime.AtOnce);
+        playOk = DoPlay(_playlist.MoveAndGetNext(), StartTime.AtOnce);
       } while (!playOk);
       return true;
     }
