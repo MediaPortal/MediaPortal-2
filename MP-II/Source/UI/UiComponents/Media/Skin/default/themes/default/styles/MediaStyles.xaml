@@ -201,12 +201,12 @@
                       MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel> <!-- PiPHeaderPanel -->
-              <Button x:Name="PIPButton" Grid.Column="0" Grid.Row="1"
+              <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1"
                   VerticalAlignment="Center" HorizontalAlignment="Center"
                   Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
                 <Button.Template>
                   <ControlTemplate TargetType="{x:Type Button}">
-                    <Rectangle x:Name="PIPRectangle" Grid.Column="0" Grid.Row="1" Stroke="{ThemeResource OSDPipStrokeColor}"
+                    <Rectangle x:Name="PiPRectangle" Grid.Column="0" Grid.Row="1" Stroke="{ThemeResource OSDPipStrokeColor}"
                         StrokeThickness="{ThemeResource OSDPipStrokeThickness}"
                         Width="{Binding VideoWidth}" Height="{Binding VideoHeight}">
                       <Rectangle.Fill>
@@ -217,10 +217,10 @@
                 </Button.Template>
                 <Button.Triggers>
                   <Trigger Property="HasFocus" Value="True">
-                    <Setter TargetName="PIPRectangle" Property="Stroke" Value="{ThemeResource OSDPipStrokeFocusColor}"/>
+                    <Setter TargetName="PiPRectangle" Property="Stroke" Value="{ThemeResource OSDPipStrokeFocusColor}"/>
                   </Trigger>
                 </Button.Triggers>
-              </Button> <!-- PIPButton -->
+              </Button> <!-- PiPButton -->
               <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center"
                   Content="{Binding PlayerStateText}" Scroll="true" MaxDesiredWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"

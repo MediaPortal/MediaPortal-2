@@ -120,7 +120,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// The technical target player slot (primary/secondary) of a given <see cref="IPlayerContext"/>
   /// is managed almost transparently for the client. There is a rare number of cases where the client needs to cope
   /// with the set-up of primary and secondary players, for example when two video players are running, one of them as
-  /// PIP player. In that situation, it can be necessary to explicitly exchange the player slots.
+  /// PiP player. In that situation, it can be necessary to explicitly exchange the player slots.
   /// </para>
   /// <para>
   /// <b>Playlists</b><br/>
@@ -154,7 +154,7 @@ namespace MediaPortal.UI.Presentation.Players
     bool IsVideoPlayerActive { get; }
 
     /// <summary>
-    /// Returns the information if a secondary player is running in PIP mode.
+    /// Returns the information if a secondary player is running in PiP mode.
     /// </summary>
     bool IsPipActive { get; }
 
@@ -173,6 +173,11 @@ namespace MediaPortal.UI.Presentation.Players
     /// "user focus", i.e. it receives all commands from the remote or from other play controls and it will be shown
     /// in the "currently playing" screen.
     /// </summary>
+    /// <remarks>
+    /// If there is one player active, that player is the current player and this property will return the index
+    /// of that player slot (<see cref="PlayerManagerConsts.PRIMARY_SLOT"/>). If no player is active at the moment,
+    /// this property returns <c>-1</c>.
+    /// </remarks>
     int CurrentPlayerIndex { get; set; }
 
     /// <summary>
@@ -246,19 +251,19 @@ namespace MediaPortal.UI.Presentation.Players
     /// Opens a video player context. If there is already an active player, it depends on the parameter
     /// <paramref name="concurrent"/> whether the already active player context will be deactivated or not.
     /// If there is already a video player active, it depends on the <paramref name="subordinatedVideo"/> parameter
-    /// whether the new video player will be run in picture-in-picture mode (PIP) or whether the active player will
+    /// whether the new video player will be run in picture-in-picture mode (PiP) or whether the active player will
     /// be replaced by the new player.
     /// </summary>
     /// <remarks>
     /// <para>
     /// This method has to handle many conflict situations with already running players. Almost all conflict situations
     /// can be controlled by setting the parameters <paramref name="concurrent"/> and <paramref name="subordinatedVideo"/>.
-    /// The situation where there are already a primary and a secondary (PIP) video player is a very complicated situation,
-    /// where not every possible combination can be achieved by this method; you cannot automatically preserve the PIP
-    /// player, as always the PIP video player will be removed:
+    /// The situation where there are already a primary and a secondary (PiP) video player is a very complicated situation,
+    /// where not every possible combination can be achieved by this method; you cannot automatically preserve the PiP
+    /// player, as always the PiP video player will be removed:
     /// If <paramref name="concurrent"/> is set to <c>false</c>, all active players will be deactivated first.
     /// If <paramref name="concurrent"/> is set to <c>true</c>, always the secondary active player (which is used for
-    /// PIP) will be deactivated. So to exchange the primary player with a new player, while the secondary (PIP) player
+    /// PiP) will be deactivated. So to exchange the primary player with a new player, while the secondary (PiP) player
     /// should be preserved, you need to do this manually (switching the players).
     /// </para>
     /// <para>
@@ -282,7 +287,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// <param name="subordinatedVideo">This parameter is only evaluated when the <paramref name="concurrent"/> parameter
     /// is set to <c>true</c>. If <paramref name="subordinatedVideo"/> is set to <c>true</c>, an already active primary
     /// video player will continue playing in the primary player slot, and the new player context will be created as
-    /// secondary player/PIP.
+    /// secondary player/PiP.
     /// If set to <c>false</c>, an already active primary video player context will be replaced by the new player
     /// context.</param>
     /// <param name="currentlyPlayingWorkflowStateId">The id of the workflow state to be used as currently playing

@@ -41,7 +41,7 @@
     <String Name="UnknownMediaItem" Text="Unknown media item"/>
     <String Name="UnknownPlayerContextName" Text="Player"/>
     <String Name="HeaderNormal" Text="{0}"/> <!-- {0} = media item title -->
-    <String Name="HeaderPip" Text="{0} (PiP)"/> <!-- {0} = media item title -->
+    <String Name="HeaderPiP" Text="{0} (PiP)"/> <!-- {0} = media item title -->
     <String Name="Playing" Text="Playing"/>
     <String Name="Paused" Text="Paused"/>
     <String Name="SeekingForward" Text="Seeking forward ({0})"/> <!-- For example: "Seeking forward (2x)" -->

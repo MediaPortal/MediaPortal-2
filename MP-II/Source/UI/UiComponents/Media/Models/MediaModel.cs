@@ -121,7 +121,7 @@ namespace UiComponents.Media.Models
     public const string PLAY_VIDEO_ITEM_RESOURCE = "[Media.PlayVideoItem]";
     public const string ENQUEUE_VIDEO_ITEM_RESOURCE = "[Media.EnqueueVideoItem]";
     public const string PLAY_VIDEO_ITEM_MUTED_CONCURRENT_AUDIO_RESOURCE = "[Media.PlayVideoItemMutedConcurrentAudio]";
-    public const string PLAY_VIDEO_ITEM_PIP_RESOURCE = "[Media.PlayVideoItemPIP]";
+    public const string PLAY_VIDEO_ITEM_PIP_RESOURCE = "[Media.PlayVideoItemPiP]";
 
     public const string VIDEO_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.VideoPlayerContextName]";
     public const string PICTURE_PLAYER_CONTEXT_NAME_RESOURCE = "[Media.PicturePlayerContextName]";
@@ -648,7 +648,7 @@ namespace UiComponents.Media.Models
     /// <param name="play">If <c>true</c>, plays the specified <paramref name="item"/>, else enqueues it.</param>
     /// <param name="concurrent">If set to <c>true</c>, the <paramref name="item"/> will be played concurrently to
     /// an already playing player. Else, all other players will be stopped first.</param>
-    /// <param name="subordinatedVideo">If set to <c>true</c>, a video item will be played in PIP mode, if
+    /// <param name="subordinatedVideo">If set to <c>true</c>, a video item will be played in PiP mode, if
     /// applicable.</param>
     protected static void PlayOrEnqueueItem(MediaItem item, bool play, bool concurrent, bool subordinatedVideo)
     {

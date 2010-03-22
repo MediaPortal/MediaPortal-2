@@ -30,7 +30,7 @@
     <String Name="PlayVideoItem" Text="Play video item"/>
     <String Name="EnqueueVideoItem" Text="Enqueue video item"/>
     <String Name="PlayVideoItemMutedConcurrentAudio" Text="Play video item muted &amp; continue concurrent music item"/>
-    <String Name="PlayVideoItemPIP" Text="Play video item concurrently in PIP mode"/>
+    <String Name="PlayVideoItemPiP" Text="Play video item concurrently in PiP mode"/>
     <String Name="PlayItemDialogHeader" Text="Play item"/>
 
     <String Name="VideoPlayerContextName" Text="Video"/>
@@ -57,6 +57,11 @@
     <String Name="VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Fullscreen video"/>
     <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
     <String Name="AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Audio visualization"/>
+    <String Name="ShowPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Playlist"/>
+
+    <String Name="ShowAudioPlaylist" Text="Show audio playlist"/>
+    <String Name="ShowVideoPlaylist" Text="Show video playlist"/>
+    <String Name="ShowPiPPlaylist" Text="Show PiP playlist"/>
 
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
 

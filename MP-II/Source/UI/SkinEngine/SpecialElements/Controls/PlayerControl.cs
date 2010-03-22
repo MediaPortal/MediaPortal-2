@@ -64,7 +64,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     public const string UNKNOWN_MEDIA_ITEM_RESOURCE = "[PlayerControl.UnknownMediaItem]";
     public const string UNKNOWN_PLAYER_CONTEXT_NAME_RESOURCE = "[PlayerControl.UnknownPlayerContextName]";
     public const string HEADER_NORMAL_RESOURCE = "[PlayerControl.HeaderNormal]";
-    public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPip]";
+    public const string HEADER_PIP_RESOURCE = "[PlayerControl.HeaderPiP]";
     public const string PLAYBACK_RATE_HINT_RESOURCE = "[PlayerControl.PlaybackRateHint]";
 
     public const string PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID_STR = "428326CE-9DE1-41ff-A33B-BBB80C8AFAC5";
@@ -132,7 +132,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     protected AbstractProperty _currentlyPlayingWFStateIDProperty;
 
     protected IResourceString _headerNormalResource;
-    protected IResourceString _headerPipResource;
+    protected IResourceString _headerPiPResource;
     protected IResourceString _playbackRateHintResource;
 
     #endregion
@@ -198,7 +198,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       _timer.Elapsed += OnTimerElapsed;
 
       _headerNormalResource = LocalizationHelper.CreateResourceString(HEADER_NORMAL_RESOURCE);
-      _headerPipResource = LocalizationHelper.CreateResourceString(HEADER_PIP_RESOURCE);
+      _headerPiPResource = LocalizationHelper.CreateResourceString(HEADER_PIP_RESOURCE);
       _playbackRateHintResource = LocalizationHelper.CreateResourceString(PLAYBACK_RATE_HINT_RESOURCE);
     }
 
@@ -424,7 +424,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         {
           IsPip = SlotIndex == PlayerManagerConsts.SECONDARY_SLOT && player is IVideoPlayer;
           string pcName = LocalizationHelper.CreateResourceString(playerContext.Name).Evaluate();
-          Title = IsPip ? _headerPipResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
+          Title = IsPip ? _headerPiPResource.Evaluate(pcName) : _headerNormalResource.Evaluate(pcName);
           string mit = player.MediaItemTitle;
           if (mit == null)
           {

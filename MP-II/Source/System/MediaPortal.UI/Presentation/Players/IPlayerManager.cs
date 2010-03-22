@@ -42,7 +42,7 @@ namespace MediaPortal.UI.Presentation.Players
   /// From the player manager's point of view, both the primary and the secondary player slot behave the same, except
   /// that the secondary slot can only be active if the primary slot is active.
   /// But the application (i.e. the presentation module) will typically use the primary player slot for the fullscreen
-  /// video display, while a video in the secondary player slot will be displayed as a PIP video.
+  /// video display, while a video in the secondary player slot will be displayed as a PiP video.
   /// </para>
   /// <para>
   /// Audio comes from the player in the slot denoted by <see cref="AudioSlotIndex"/>, except when the

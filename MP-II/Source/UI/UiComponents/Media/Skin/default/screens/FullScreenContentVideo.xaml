@@ -21,10 +21,10 @@
       <RowDefinition Height="50"/>
     </Grid.RowDefinitions>
 
-    <Rectangle x:Name="PIP" Grid.Column="1" Grid.Row="1" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
+    <Rectangle x:Name="PiP" Grid.Column="1" Grid.Row="1" Stroke="{ThemeResource PipStrokeColor}" StrokeThickness="1"
         Width="{Binding PipWidth}" Height="{Binding PipHeight}">
       <Rectangle.IsVisible>
-        <!-- The background PIP will be replaced by the OSD PIP when the OSD is visible -->
+        <!-- The background PiP will be replaced by the OSD PiP when the OSD is visible -->
         <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
           <Binding Path="IsPip"/>
           <Binding Path="!IsOSDVisible"/>
@@ -33,7 +33,7 @@
       <Rectangle.Fill>
         <VideoBrush Stream="1"/>
       </Rectangle.Fill>
-    </Rectangle> <!-- PIP -->
+    </Rectangle> <!-- PiP -->
   </Grid> <!-- PipLayoutGrid -->
   <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false">
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
