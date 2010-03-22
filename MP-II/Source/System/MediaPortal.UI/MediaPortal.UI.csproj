@@ -87,6 +87,7 @@
     <Compile Include="Presentation\Players\PlayerContextManagerMessaging.cs" />
     <Compile Include="Presentation\Players\PlayerManagerConsts.cs" />
     <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />
+    <Compile Include="Presentation\Players\PlaylistMessaging.cs" />
     <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
     <Compile Include="Presentation\Screens\IBackgroundManager.cs" />
     <Compile Include="Presentation\Screens\IDialogManager.cs" />
