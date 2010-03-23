@@ -24,7 +24,7 @@
         DisplayLabel="[Media.PicturesNavigationRootWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/> <!-- Workflow model = Media model -->
 
-    <!-- Media screen states -->
+    <!-- CP/FSC states -->
 
     <WorkflowState Id="5764A810-F298-4a20-BF84-F03D16F775B1"
         Name="VideoCurrentlyPlaying"
@@ -45,5 +45,12 @@
         Name="AudioFullscreenContent"
         DisplayLabel="[Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
+
+    <!-- Playlist -->
+
+    <WorkflowState Id="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
+        Name="ShowPlaylist"
+        DisplayLabel="[Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel]"
+        WorkflowModel="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/> <!-- Workflow model = Playlist model -->
   </States>
 </Workflow>

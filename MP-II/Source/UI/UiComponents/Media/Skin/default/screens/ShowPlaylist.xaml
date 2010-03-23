@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <Model x:Key="PlaylistModel" Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource PlaylistModel},Path=PlaylistHeader}"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <Grid DataContext="{Binding Source={StaticResource PlaylistModel}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Bottom" LastChildFill="false">
+          <Label DockPanel.Dock="Left" Content="{Binding PlaylistHeader}"/>
+          <StackPanel Margin="0,0,10,0" Orientation="Horizontal" DockPanel.Dock="Right">
+            <Label Color="{ThemeResource HintTextColor}" Content=" ("/>
+            <Label Color="{ThemeResource HintTextColor}" Content="{Binding NumItemsStr}"/>
+            <Label Color="{ThemeResource HintTextColor}" Content=")"/>
+          </StackPanel>
+        </DockPanel>
+        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+<!-- TODO: Use special PlayList ListView style -->
+          <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}">
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource PlaylistModel}" Path="Select"
+                  Parameters="{LateBoundValue Value={Binding}}"/>
+            </ListView.Resources>
+          </ListView>
+          <Label IsVisible="{Binding IsPlaylistEmpty}"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
+        </StackPanel>
+      </Grid>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

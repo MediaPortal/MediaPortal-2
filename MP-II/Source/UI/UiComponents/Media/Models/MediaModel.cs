@@ -130,10 +130,6 @@ namespace UiComponents.Media.Models
     public const string SYSTEM_INFORMATION_RESOURCE = "[System.Information]";
     public const string CANNOT_PLAY_ITEM_RESOURCE = "[Media.CannotPlayItemDialogText]";
 
-    public const string NO_ITEMS_RESOURCE = "[Media.NoItems]";
-    public const string ONE_ITEM_RESOURCE = "[Media.OneItem]";
-    public const string N_ITEMS_RESOURCE = "[Media.NItems]";
-
     public const string LOCAL_MEDIA_ROOT_VIEW_NAME_RESOURCE = "[Media.LocalMediaRootViewName]";
     public const string MUSIC_VIEW_NAME_RESOURCE = "[Media.MusicRootViewName]";
     public const string MOVIES_VIEW_NAME_RESOURCE = "[Media.MoviesRootViewName]";
@@ -690,12 +686,6 @@ namespace UiComponents.Media.Models
         pcm.ShowFullscreenContent();
     }
 
-    protected string BuildNumItemsStr(int numItems)
-    {
-      return numItems == 0 ? NO_ITEMS_RESOURCE : (numItems == 1 ? ONE_ITEM_RESOURCE :
-          LocalizationHelper.Translate(N_ITEMS_RESOURCE, numItems));
-    }
-
     /// <summary>
     /// Updates the GUI data for a media items view screen which reflects the data of the given <paramref name="view"/>.
     /// </summary>
@@ -756,7 +746,7 @@ namespace UiComponents.Media.Models
         IsItemsValid = false;
       }
       Items = items;
-      NumItemsStr = BuildNumItemsStr(items.Count);
+      NumItemsStr = Utils.Utils.BuildNumItemsStr(items.Count);
       Items.FireChange();
       ItemsListTitle = title;
     }
@@ -820,7 +810,7 @@ namespace UiComponents.Media.Models
         throw;
       }
       Items = items;
-      NumItemsStr = BuildNumItemsStr(items.Count);
+      NumItemsStr = Utils.Utils.BuildNumItemsStr(items.Count);
       ItemsListTitle = title;
     }
 

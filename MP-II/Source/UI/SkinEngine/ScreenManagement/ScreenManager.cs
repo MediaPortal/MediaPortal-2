@@ -292,15 +292,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             break;
         }
       }
-      else if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
-        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          if (((SystemState) message.MessageData[SystemMessaging.PARAM]) == SystemState.ShuttingDown)
-            UnsubscribeFromMessages();
-        }
-      }
     }
 
     void SubscribeToMessages()
@@ -308,7 +299,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
           ScreenManagerMessaging.CHANNEL,
-          SystemMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();

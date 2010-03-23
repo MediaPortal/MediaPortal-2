@@ -20,11 +20,13 @@
     <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" Name="MediaModel" ClassName="UiComponents.Media.Models.MediaModel"/>
     <Model Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256" Name="VideoPlayerModel" ClassName="UiComponents.Media.Models.VideoPlayerModel"/>
     <Model Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC" Name="AudioPlayerModel" ClassName="UiComponents.Media.Models.AudioPlayerModel"/>
+    <Model Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C" Name="PlaylistModel" ClassName="UiComponents.Media.Models.PlaylistModel"/>
 
     <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="LocalMediaContributorModel" ClassName="UiComponents.Media.Actions.LocalMediaAction"/>
     <Model Id="D8922F2B-5B56-4218-93B1-570616BAAEAD" Name="MusicContributorModel" ClassName="UiComponents.Media.Actions.MusicAction"/>
     <Model Id="598F813D-D575-4229-A8E6-5ABCE0EDCDB8" Name="MoviesContributorModel" ClassName="UiComponents.Media.Actions.MoviesAction"/>
     <Model Id="7190C5BB-430E-48be-A6B2-C651A840C54A" Name="PicturesContributorModel" ClassName="UiComponents.Media.Actions.PicturesAction"/>
+    <Model Id="313C4313-1D2B-4505-BA50-84EA684889C7" Name="PlaylistContributorModel" ClassName="UiComponents.Media.Actions.PlaylistAction"/>
   </Register>
 
   <Register Location="/Resources/Language">

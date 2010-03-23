@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -64,9 +64,11 @@
     <Compile Include="Actions\PicturesAction.cs" />
     <Compile Include="Actions\MoviesAction.cs" />
     <Compile Include="Actions\MusicAction.cs" />
+    <Compile Include="Actions\PlaylistAction.cs" />
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
     <Compile Include="Actions\LocalMediaAction.cs" />
     <Compile Include="Models\MediaModel.cs" />
+    <Compile Include="Models\PlaylistModel.cs" />
     <Compile Include="Navigation\PictureItem.cs" />
     <Compile Include="Navigation\MovieItem.cs" />
     <Compile Include="Navigation\MediaNavigationMode.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="FilterCriteria\FilterValue.cs" />
     <Compile Include="FilterCriteria\MLFilterCriterion.cs" />
     <Compile Include="FilterCriteria\SimpleMLFilterCriterion.cs" />
+    <Compile Include="Utils\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
@@ -111,6 +114,7 @@
     <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
+    <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />

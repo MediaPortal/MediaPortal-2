@@ -33,8 +33,13 @@ namespace MediaPortal.Core.Messaging
   public delegate void MessageReceivedHandler(AsynchronousMessageQueue queue, SystemMessage message);
 
   /// <summary>
-  /// Synchronous message queue to be used by message receivers.
+  /// Asynchronous message queue to be used by message receivers.
   /// </summary>
+  /// <remarks>
+  /// This message queue is only able to deliver messages until the <see cref="SystemState.ShuttingDown"/> system message.
+  /// The <see cref="SystemState.ShuttingDown"/> message is the last message being delivered; messages which are sent
+  /// later are not delivered by this message queue any more.
+  /// </remarks>
   public class AsynchronousMessageQueue : MessageQueueBase
   {
     #region Protected fields
@@ -69,7 +74,12 @@ namespace MediaPortal.Core.Messaging
           ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
           if (messageType == SystemMessaging.MessageType.SystemStateChanged)
             if (sss.CurrentState == SystemState.ShuttingDown || sss.CurrentState == SystemState.Ending)
-              _owner.Terminate();
+              // It is necessary to block the main thread as long as our message delivery thread is terminated to
+              // avoid asynchronous threads during the shutdown phase.
+              // It's a bit illegal to call the Shutdown() method which acquires a lock in this synchronous message
+              // handler method. But as we know that the SystemStateChanged message is only called by our application
+              // main thread which doesn't hold locks, this won't cause deadlocks.
+              _owner.Shutdown();
         }
       }
     }
@@ -146,7 +156,7 @@ namespace MediaPortal.Core.Messaging
     protected override void HandleMessageAvailable(SystemMessage message)
     {
       lock (_syncObj)
-        Monitor.PulseAll(_syncObj); // Awake the possibly sleeping message delivery thread
+        Monitor.PulseAll(_syncObj); // Awake the possibly sleeping asynchronous message delivery thread
       MessageReceivedHandler handler = PreviewMessage;
       if (handler != null)
         handler(this, message);

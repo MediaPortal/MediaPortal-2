@@ -25,32 +25,177 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
+using MediaPortal.Core.Commands;
+using MediaPortal.Core.General;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using UiComponents.Media.Navigation;
 
 namespace UiComponents.Media.Models
 {
   /// <summary>
   /// Attends the Playlist state.
   /// </summary>
-  public class PlaylistModel : BaseMessageControlledUIModel, IWorkflowModel
+  /// <remarks>
+  /// We only provide one single playlist workflow state for audio and video playlists for development time reasons.
+  /// Later, we can split this state up in two different states with two different screens.
+  /// </remarks>
+  public class PlaylistModel : IDisposable, IWorkflowModel
   {
+    #region Consts
+
     public const string MODEL_ID_STR = "E30AA448-C1D1-4d8e-B08F-CF569624B51C";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
+    public const string SHOW_AUDIO_PLAYLIST_RES = "[Media.ShowAudioPlaylist]";
+    public const string SHOW_VIDEO_PLAYLIST_RES = "[Media.ShowVideoPlaylist]";
+    public const string SHOW_PIP_PLAYLIST_RES = "[Media.ShowPiPPlaylist]";
+
+    public const string IS_CURRENT_ITEM_KEY = "CurrentItem";
+
+    #endregion
+
+    protected AsynchronousMessageQueue _messageQueue;
     protected ItemsList _items = new ItemsList();
+    protected IPlaylist _playlist = null;
+    protected AbstractProperty _playlistHeaderProperty;
+    protected AbstractProperty _numItemsStrProperty;
+    protected AbstractProperty _isPlaylistEmptyProperty;
 
     public PlaylistModel()
     {
-      SubscribeToMessages();
+      InitializeMessageQueue();
+      _playlistHeaderProperty = new WProperty(typeof(string), null);
+      _numItemsStrProperty = new WProperty(typeof(string), null);
+      _isPlaylistEmptyProperty = new WProperty(typeof(bool), false);
+      // Don't _messageQueue.Start() here, as this will be done in EnterModelContext
     }
 
-    private void SubscribeToMessages()
+    public void Dispose()
     {
-      _messageQueue.SubscribeToMessageChannel(PlaylistMessaging.CHANNEL);
-      _messageQueue.SubscribeToMessageChannel(PlayerContextManagerMessaging.CHANNEL);
+      _messageQueue.Shutdown();
+    }
+
+    private void InitializeMessageQueue()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            PlaylistMessaging.CHANNEL,
+            PlayerManagerMessaging.CHANNEL,
+            PlayerContextManagerMessaging.CHANNEL,
+        });
+      _messageQueue.MessageReceived += OnMessageReceived;
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == PlaylistMessaging.CHANNEL)
+      {
+        PlaylistMessaging.MessageType messageType = (PlaylistMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlaylistMessaging.MessageType.PlaylistAdvance:
+            UpdateCurrentItem();
+            break;
+          case PlaylistMessaging.MessageType.PropertiesChanged:
+            UpdateProperties();
+            break;
+        }
+      }
+      else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
+      {
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
+            // We don't need to track PlayerSlotActivated and PlayerSlotDeactivated messages, because all information
+            // we need is contained in the CurrentPlayer information
+            UpdatePlaylist();
+            break;
+        }
+      }
+      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      {
+        PlayerContextManagerMessaging.MessageType messageType = (PlayerContextManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+            UpdatePlaylist();
+            break;
+        }
+      }
+    }
+
+    protected void UpdatePlaylist()
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+      IPlaylist playlist;
+      if (pc != null)
+      {
+        playlist = pc.Playlist;
+        switch (pc.MediaType)
+        {
+          case PlayerContextType.Audio:
+            PlaylistHeader = SHOW_AUDIO_PLAYLIST_RES;
+            break;
+          case PlayerContextType.Video:
+            PlaylistHeader = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
+                SHOW_VIDEO_PLAYLIST_RES : SHOW_PIP_PLAYLIST_RES;
+            break;
+          default:
+            // Unknown player context type
+            PlaylistHeader = null;
+            break;
+        }
+      }
+      else
+        playlist = null;
+      if (playlist != _playlist)
+      {
+        int ct = 0;
+        foreach (MediaItem mediaItem in _playlist.ItemList)
+        {
+          int idx = ct++;
+          PlayableItem item = new PlayableItem(mediaItem)
+            {
+                Command = new MethodDelegateCommand(() => Select(idx))
+            };
+          _items.Add(item);
+        }
+        IsPlaylistEmpty = _items.Count == 0;
+        NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
+        _items.FireChange();
+      }
+      UpdateCurrentItem();
+    }
+
+    protected void UpdateCurrentItem()
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+      IPlaylist playlist = pc == null ? null : pc.Playlist;
+      if (playlist == null)
+        return;
+      int idx = playlist.ItemListIndex;
+      foreach (PlayableItem item in _items)
+      {
+        bool isCurrentItem = idx-- == 0;
+        if (((bool) item.AdditionalProperties[IS_CURRENT_ITEM_KEY]) != isCurrentItem)
+        {
+          item.AdditionalProperties[IS_CURRENT_ITEM_KEY] = isCurrentItem;
+          item.FireChange();
+        }
+      }
+    }
+
+    protected void UpdateProperties()
+    {
+      // TODO: Other properties
     }
 
     #region Members to be accessed from the GUI
@@ -60,11 +205,55 @@ namespace UiComponents.Media.Models
       get { return _items; }
     }
 
+    public AbstractProperty PlaylistHeaderProperty
+    {
+      get { return _playlistHeaderProperty; }
+    }
+
+    public string PlaylistHeader
+    {
+      get { return (string) _playlistHeaderProperty.GetValue(); }
+      internal set { _playlistHeaderProperty.SetValue(value); }
+    }
+
+    public AbstractProperty NumItemsStrProperty
+    {
+      get { return _numItemsStrProperty; }
+    }
+
+    public string NumItemsStr
+    {
+      get { return (string) _numItemsStrProperty.GetValue(); }
+      internal set { _numItemsStrProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsPlaylistEmptyProperty
+    {
+      get { return _isPlaylistEmptyProperty; }
+    }
+
+    public bool IsPlaylistEmpty
+    {
+      get { return (bool) _isPlaylistEmptyProperty.GetValue(); }
+      internal set { _isPlaylistEmptyProperty.SetValue(value); }
+    }
+
+    public void Select(int index)
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+      IPlaylist playlist = pc == null ? null : pc.Playlist;
+      if (pc == null || pc.Playlist != _playlist)
+        return;
+      playlist.ItemListIndex = index;
+      pc.DoPlay(playlist.Current);
+    }
+
     #endregion
 
     #region IWorkflowModel implementation
 
-    public override Guid ModelId
+    public Guid ModelId
     {
       get { return MODEL_ID; }
     }
@@ -78,27 +267,31 @@ namespace UiComponents.Media.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      _messageQueue.Start();
+      UpdatePlaylist();
+      UpdateProperties();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      _messageQueue.Shutdown();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
-      // TODO
+      // Nothing to do
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do
+      _messageQueue.Shutdown();
     }
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // TODO
+      _messageQueue.Start();
+      UpdatePlaylist();
+      UpdateProperties();
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
@@ -108,7 +301,6 @@ namespace UiComponents.Media.Models
 
     public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
     {
-      // Nothing to do
       return ScreenUpdateMode.AutoWorkflowManager;
     }
 

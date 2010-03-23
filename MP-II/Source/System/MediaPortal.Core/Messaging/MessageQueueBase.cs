@@ -162,10 +162,8 @@ namespace MediaPortal.Core.Messaging
     public void Receive(SystemMessage message)
     {
       lock (_syncObj)
-      {
         _messages.Enqueue(message);
-        HandleMessageAvailable(message);
-      }
+      HandleMessageAvailable(message);
     }
 
     public SystemMessage Dequeue()

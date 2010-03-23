@@ -28,15 +28,20 @@ using MediaPortal.Core.Messaging;
 namespace MediaPortal.UI.Presentation.Models
 {
   /// <summary>
-  /// Base class for UI models which are registered to messages from the system.
-  /// This class provides virtual initialization and disposal methods for system message queue registrations.
+  /// Base class for UI models which are registered to messages from the system and which are listening for
+  /// messages all over their lifetime.
   /// </summary>
+  /// <remarks>
+  /// In general, workflow models should not be derived from this class as workflow models are normally receiving
+  /// messages only during the time when they are active. The other time they normally will temporary shut down their
+  /// message queue.
+  /// </remarks>
   public abstract class BaseMessageControlledUIModel : IDisposable
   {
     protected AsynchronousMessageQueue _messageQueue;
 
     /// <summary>
-    /// Creates a new <see cref="BaseMessageControlledUIModel"/> instance and initializes the message subscribtions.
+    /// Creates a new <see cref="BaseMessageControlledUIModel"/> instance and starts the message queue.
     /// </summary>
     protected BaseMessageControlledUIModel()
     {
@@ -45,7 +50,6 @@ namespace MediaPortal.UI.Presentation.Models
 
     public virtual void Dispose()
     {
-      _messageQueue.UnsubscribeFromAllMessageChannels();
       _messageQueue.Shutdown();
     }
 

@@ -63,6 +63,8 @@
     <String Name="ShowVideoPlaylist" Text="Show video playlist"/>
     <String Name="ShowPiPPlaylist" Text="Show PiP playlist"/>
 
+    <String Name="PlaylistEmpty" Text="&lt;No items in playlist&gt;"/>
+
     <String Name="CannotPlayItemDialogText" Text="Unable to play media item"/>
 
     <String Name="LocalMediaRootViewName" Text="Local media"/>

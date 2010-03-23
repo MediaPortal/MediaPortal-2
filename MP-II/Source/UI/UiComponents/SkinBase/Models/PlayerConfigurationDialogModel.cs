@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Messaging;
-using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.Core.Localization;
@@ -41,7 +40,7 @@ namespace UiComponents.SkinBase.Models
   /// This model attends the dialogs "DialogPlayerConfiguration", "DialogChooseAudioStream", "DialogPlayerSlotAudio" and
   /// "DialogPlayerChooseGeometry".
   /// </summary>
-  public class PlayerConfigurationDialogModel : BaseMessageControlledUIModel, IWorkflowModel
+  public class PlayerConfigurationDialogModel : IDisposable, IWorkflowModel
   {
     #region Consts
 
@@ -81,6 +80,8 @@ namespace UiComponents.SkinBase.Models
 
     protected object _syncObj = new object();
 
+    protected AsynchronousMessageQueue _messageQueue;
+
     // Mode 1: Player configuration menu dialog
     protected bool _inPlayerConfigurationDialog = false;
     protected ItemsList _playerConfigurationMenu = new ItemsList();
@@ -106,20 +107,22 @@ namespace UiComponents.SkinBase.Models
 
     public PlayerConfigurationDialogModel()
     {
-      SubscribeToMessages();
+      InitializeMessageQueue();
     }
 
-    void SubscribeToMessages()
+    public void Dispose()
     {
-      _messageQueue.SubscribeToMessageChannel(PlayerManagerMessaging.CHANNEL);
-      _messageQueue.SubscribeToMessageChannel(PlayerContextManagerMessaging.CHANNEL);
-      _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.Shutdown();
+    }
+
+    private void InitializeMessageQueue()
+    {
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+            PlayerManagerMessaging.CHANNEL,
+            PlayerContextManagerMessaging.CHANNEL,
+        });
       _messageQueue.MessageReceived += OnMessageReceived;
-    }
-
-    void UnsubscribeFromMessages()
-    {
-      _messageQueue.UnsubscribeFromAllMessageChannels();
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -149,15 +152,6 @@ namespace UiComponents.SkinBase.Models
           case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
             CheckUpdatePlayerConfigurationData();
             break;
-        }
-      }
-      else if (message.ChannelName == SystemMessaging.CHANNEL)
-      {
-        SystemMessaging.MessageType messageType = (SystemMessaging.MessageType) message.MessageType;
-        if (messageType == SystemMessaging.MessageType.SystemStateChanged)
-        {
-          if (((SystemState) message.MessageData[SystemMessaging.PARAM]) == SystemState.ShuttingDown)
-            UnsubscribeFromMessages();
         }
       }
     }
@@ -614,7 +608,7 @@ namespace UiComponents.SkinBase.Models
 
     #region IWorkflowModel implementation
 
-    public override Guid ModelId
+    public Guid ModelId
     {
       get { return PLAYER_CONFIGURATION_DIALOG_MODEL_ID; }
     }
@@ -648,30 +642,38 @@ namespace UiComponents.SkinBase.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _messageQueue.Start();
       EnterContext(newContext);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _messageQueue.Shutdown();
       ExitContext(oldContext);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       if (push)
-        EnterModelContext(oldContext, newContext);
+      {
+        _messageQueue.Start();
+        EnterContext(newContext);
+      }
       else
+      {
+        _messageQueue.Shutdown();
         ExitContext(oldContext);
+      }
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      // Nothing to do here: We don't stop the message queue in our sub states, so we don't need to update our properties again
     }
 
     public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
     {
-      // Nothing to do here
+      // Nothing to do here: We didn't stop the message queue in our sub states, so we don't need to update our properties again
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)

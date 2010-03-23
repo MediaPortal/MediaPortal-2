@@ -26,5 +26,11 @@
         SortOrder="c"
         SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
         ContributorModelId="7190C5BB-430E-48be-A6B2-C651A840C54A"/> <!-- Pictures action -->
+    <WorkflowContributorAction Id="985AD907-0EDB-4feb-AA99-2B52DDEADE6F"
+        Name="*->ShowPlaylist"
+        DisplayCategory="z-WorkflowContributors"
+        SortOrder="d"
+        SourceState="*"
+        ContributorModelId="313C4313-1D2B-4505-BA50-84EA684889C7"/> <!-- Playlist action -->
   </MenuActions>
 </Workflow>
