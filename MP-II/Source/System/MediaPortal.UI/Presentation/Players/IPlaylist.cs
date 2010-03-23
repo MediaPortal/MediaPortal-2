@@ -70,10 +70,22 @@ namespace MediaPortal.UI.Presentation.Players
     RepeatMode RepeatMode { get; set; }
 
     /// <summary>
-    /// Returns a list of all queued media items to play. The order of the returned list is the original playlist
+    /// Gets a list of all queued media items to play. The order of the returned list is the original playlist
     /// order, not the order in which the items will be played.
     /// </summary>
     IList<MediaItem> ItemList { get; }
+
+    /// <summary>
+    /// Gets or sets the index of the current item in the <see cref="ItemList"/> or <c>-1</c>, if no item
+    /// is currently being played.
+    /// </summary>
+    /// <remarks>
+    /// This index is valid in the <see cref="ItemList"/>, which might not represent the play order. The play order is
+    /// determined by the current <see cref="RepeatMode"/> and the current <see cref="PlayMode"/>. If the play mode is
+    /// <see cref="Players.PlayMode.Shuffle"/> for example, the play order (given by <see cref="Item(int)"/>) is random
+    /// while the <see cref="ItemList"/> is still in the order which was built by the playlist modifying properties.
+    /// </remarks>
+    int ItemListIndex { get; set; }
 
     /// <summary>
     /// Gets the currently active media item. This is a convenience property for calling

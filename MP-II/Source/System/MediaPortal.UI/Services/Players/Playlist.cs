@@ -66,6 +66,49 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
+    protected int GetItemListIndex(int relativeIndex)
+    {
+      lock (_syncObj)
+      {
+        if (_currentPlayIndex == -1)
+          return -1;
+        if (_playIndexList == null)
+          InitializePlayIndexList();
+        if (_playIndexList.Count == 0)
+          return -1;
+        if (_repeatMode == RepeatMode.One)
+          return _playIndexList[_currentPlayIndex];
+        int playIndex = _currentPlayIndex + relativeIndex;
+        if (playIndex < 0 || playIndex >= _playIndexList.Count)
+        {
+          if (_repeatMode == RepeatMode.None)
+            return -1;
+          while (playIndex > _playIndexList.Count)
+            playIndex -= _playIndexList.Count;
+          while (playIndex < 0)
+            playIndex += _playIndexList.Count;
+        }
+        int index = _playIndexList[playIndex];
+        if (index < 0 || index >= _itemList.Count)
+          // Should never happen if we didn't break our index list
+          return -1;
+        return index;
+      }
+    }
+
+    protected void SetCurrentPlayIndexByItemIndex(int currentItemIndex)
+    {
+      if (currentItemIndex == -1)
+        _currentPlayIndex = -1;
+      else
+        // Find current played item in shuffled index list
+        foreach (int i in _playIndexList)
+          if (_playIndexList[i] == currentItemIndex)
+            _currentPlayIndex = i;
+    }
+
+    #region IPlaylist implementation
+
     public object SyncObj
     {
       get { return _syncObj; }
@@ -85,11 +128,7 @@ namespace MediaPortal.UI.Services.Players
             return;
           int currentItemIndex = _currentPlayIndex > -1 ? _playIndexList[_currentPlayIndex] : -1;
           InitializePlayIndexList();
-          if (_playMode == PlayMode.Shuffle && currentItemIndex > -1)
-            // Find current played item in shuffled index list
-            foreach (int i in _playIndexList)
-              if (_playIndexList[i] == currentItemIndex)
-                _currentPlayIndex = i;
+          SetCurrentPlayIndexByItemIndex(currentItemIndex);
         }
       }
     }
@@ -107,6 +146,12 @@ namespace MediaPortal.UI.Services.Players
     public IList<MediaItem> ItemList
     {
       get { return _itemList; }
+    }
+
+    public int ItemListIndex
+    {
+      get { return GetItemListIndex(0); }
+      set { SetCurrentPlayIndexByItemIndex(value); }
     }
 
     public MediaItem Current
@@ -146,29 +191,8 @@ namespace MediaPortal.UI.Services.Players
       {
         lock (_syncObj)
         {
-          if (_currentPlayIndex == -1)
-            return null;
-          if (_playIndexList == null)
-            InitializePlayIndexList();
-          if (_playIndexList.Count == 0)
-            return null;
-          if (_repeatMode == RepeatMode.One)
-            return _itemList[_playIndexList[_currentPlayIndex]];
-          int playIndex = _currentPlayIndex + relativeIndex;
-          if (playIndex < 0 || playIndex >= _playIndexList.Count)
-          {
-            if (_repeatMode == RepeatMode.None)
-              return null;
-            while (playIndex > _playIndexList.Count)
-              playIndex -= _playIndexList.Count;
-            while (playIndex < 0)
-              playIndex += _playIndexList.Count;
-          }
-          int index = _playIndexList[playIndex];
-          if (index < 0 || index >= _itemList.Count)
-            // Should never happen if we didn't break our index list
-            return null;
-          return _itemList[index];
+          int index = GetItemListIndex(relativeIndex);
+          return index == -1 ? null : _itemList[index];
         }
       }
     }
@@ -358,5 +382,7 @@ namespace MediaPortal.UI.Services.Players
         _playIndexList = null;
       }
     }
+
+    #endregion
   }
 }
