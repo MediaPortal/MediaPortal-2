@@ -50,6 +50,7 @@
 
     <WorkflowState Id="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
         Name="ShowPlaylist"
+        MainScreen="ShowPlaylist"
         DisplayLabel="[Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/> <!-- Workflow model = Playlist model -->
   </States>

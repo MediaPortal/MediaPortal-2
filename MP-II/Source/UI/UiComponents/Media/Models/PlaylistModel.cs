@@ -157,6 +157,7 @@ namespace UiComponents.Media.Models
         playlist = null;
       if (playlist != _playlist)
       {
+        _playlist = playlist;
         int ct = 0;
         foreach (MediaItem mediaItem in _playlist.ItemList)
         {
@@ -185,7 +186,8 @@ namespace UiComponents.Media.Models
       foreach (PlayableItem item in _items)
       {
         bool isCurrentItem = idx-- == 0;
-        if (((bool) item.AdditionalProperties[IS_CURRENT_ITEM_KEY]) != isCurrentItem)
+        bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[IS_CURRENT_ITEM_KEY];
+        if (!currentIsCurrentItem.HasValue || currentIsCurrentItem.Value != isCurrentItem)
         {
           item.AdditionalProperties[IS_CURRENT_ITEM_KEY] = isCurrentItem;
           item.FireChange();
