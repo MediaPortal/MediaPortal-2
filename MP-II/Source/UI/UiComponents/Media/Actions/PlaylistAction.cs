@@ -58,18 +58,18 @@ namespace UiComponents.Media.Actions
       Update();
     }
 
-    void SubscribeToMessages()
+    private void SubscribeToMessages()
     {
       _messageQueue = new AsynchronousMessageQueue(this, new string[]
         {
-           PlaylistMessaging.CHANNEL,
            PlayerContextManagerMessaging.CHANNEL,
+           WorkflowManagerMessaging.CHANNEL,
         });
       _messageQueue.MessageReceived += OnMessageReceived;
       _messageQueue.Start();
     }
 
-    void UnsubscribeFromMessages()
+    private void UnsubscribeFromMessages()
     {
       if (_messageQueue == null)
         return;
@@ -77,25 +77,24 @@ namespace UiComponents.Media.Actions
       _messageQueue = null;
     }
 
-    void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
-      if (message.ChannelName == PlaylistMessaging.CHANNEL)
-      {
-        PlaylistMessaging.MessageType messageType = (PlaylistMessaging.MessageType) message.MessageType;
-        switch (messageType)
-        {
-          case PlaylistMessaging.MessageType.PlaylistAdvance:
-          case PlaylistMessaging.MessageType.PropertiesChanged:
-            Update();
-            break;
-        }
-      }
-      else if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
+      if (message.ChannelName == PlayerContextManagerMessaging.CHANNEL)
       {
         PlayerContextManagerMessaging.MessageType messageType = (PlayerContextManagerMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
           case PlayerContextManagerMessaging.MessageType.CurrentPlayerChanged:
+            Update();
+            break;
+        }
+      }
+      else if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
+      {
+        WorkflowManagerMessaging.MessageType messageType = (WorkflowManagerMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case WorkflowManagerMessaging.MessageType.NavigationComplete:
             Update();
             break;
         }
