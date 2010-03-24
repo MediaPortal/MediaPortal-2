@@ -132,6 +132,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// containing the specified state on top of the navigation context stack. This realizes a
     /// forward navigation.
     /// </summary>
+    /// <remarks>
+    /// A transient workflow state is a state which is built by the application on-the-fly and not stored in
+    /// the workflow manager. After popping the state away from the navigation context stack, it is not
+    /// referenced by the workflow manager any more.
+    /// </remarks>
     /// <param name="state">Id of the new transient state to add and enter.</param>
     /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
     /// in the GUI (in the navigation history).</param>
