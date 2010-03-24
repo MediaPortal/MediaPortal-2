@@ -140,10 +140,12 @@ namespace MediaPortal.UI.Services.Players
       if (psc == null)
         return false;
       lock (SyncObj)
-        if (!psc.IsActive)
-          return false;
-        else
-          return psc.Play(locator, mimeType, mediaItemTitle, startTime);
+        if (psc.IsActive && psc.Play(locator, mimeType, mediaItemTitle, startTime))
+        {
+          Play();
+          return true;
+        }
+      return false;
     }
 
     protected bool DoPlay(MediaItem item, StartTime startTime)
