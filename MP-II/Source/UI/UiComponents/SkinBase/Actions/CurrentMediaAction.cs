@@ -50,9 +50,17 @@ namespace UiComponents.SkinBase.Actions
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
+
+    // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
     protected volatile bool _isVisible;
+    protected readonly IResourceString _displayTitle; // TODO: Listen for language changes; update display title
 
     #endregion
+
+    public CurrentMediaAction()
+    {
+      _displayTitle = LocalizationHelper.CreateResourceString(CURRENT_MEDIA_RESOURCE);
+    }
 
     void SubscribeToMessages()
     {
@@ -100,16 +108,15 @@ namespace UiComponents.SkinBase.Actions
 
     protected void Update()
     {
-      bool lastVisible = _isVisible;
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IPlayerContext pc = playerContextManager.CurrentPlayerContext;
-      if (pc == null)
-        _isVisible = false;
-      else
-        _isVisible = workflowManager.CurrentNavigationContext.WorkflowState.StateId != pc.CurrentlyPlayingWorkflowStateId;
-      if (lastVisible != _isVisible)
-        FireStateChanged();
+      bool visible = pc == null ? false :
+          workflowManager.CurrentNavigationContext.WorkflowState.StateId != pc.CurrentlyPlayingWorkflowStateId;
+      if (visible == _isVisible)
+        return;
+      _isVisible = visible;
+      FireStateChanged();
     }
 
     protected void FireStateChanged()
@@ -134,7 +141,7 @@ namespace UiComponents.SkinBase.Actions
 
     public IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateResourceString(CURRENT_MEDIA_RESOURCE); }
+      get { return _displayTitle; }
     }
 
     public void Initialize()

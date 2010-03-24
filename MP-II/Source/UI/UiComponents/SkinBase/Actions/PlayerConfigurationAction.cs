@@ -45,21 +45,23 @@ namespace UiComponents.SkinBase.Actions
     public static readonly Guid PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID = new Guid(PLAYER_CONFIGURATION_CONTRIBUTOR_MODEL_ID_STR);
     public static readonly Guid PLAYER_CONFIGURATION_DIALOG_STATE = new Guid(PLAYER_CONFIGURATION_DIALOG_STATE_ID);
 
-    public const string DISPLAY_TITLE_RESOURCE = "[Players.PlayerConfiguration]";
+    public const string PLAYER_CONFIGURATION_RES = "[Players.PlayerConfiguration]";
 
     #endregion
 
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
+
+    // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
     protected volatile bool _isVisible;
-    protected volatile IResourceString _displayTitle;
+    protected readonly IResourceString _displayTitle; // TODO: Listen for language changes; update display title
 
     #endregion
 
     public PlayerConfigurationAction()
     {
-      _displayTitle = LocalizationHelper.CreateResourceString(DISPLAY_TITLE_RESOURCE);
+      _displayTitle = LocalizationHelper.CreateResourceString(PLAYER_CONFIGURATION_RES);
     }
 
     void SubscribeToMessages()

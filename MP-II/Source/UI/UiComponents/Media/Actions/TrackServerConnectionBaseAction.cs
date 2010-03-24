@@ -35,10 +35,13 @@ namespace UiComponents.Media.Actions
   {
     #region Protected fields
 
-    protected bool _visibleOnServerConnect;
-    protected Guid _targetWorkflowStateId;
-    protected string _displayTitleResource;
     protected AsynchronousMessageQueue _messageQueue = null;
+
+    protected readonly bool _visibleOnServerConnect;
+    protected readonly Guid _targetWorkflowStateId;
+    protected readonly IResourceString _displayTitle;
+
+    // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
     protected volatile bool _isVisible;
 
     #endregion
@@ -47,7 +50,7 @@ namespace UiComponents.Media.Actions
     {
       _visibleOnServerConnect = visibleOnServerConnect;
       _targetWorkflowStateId = targetWorkflowStateId;
-      _displayTitleResource = displayTitleResource;
+      _displayTitle = LocalizationHelper.CreateResourceString(displayTitleResource);
     }
 
     void SubscribeToMessages()
@@ -114,7 +117,7 @@ namespace UiComponents.Media.Actions
 
     public IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateResourceString(_displayTitleResource); }
+      get { return _displayTitle; }
     }
 
     public void Initialize()

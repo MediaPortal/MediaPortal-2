@@ -56,7 +56,8 @@ namespace UiComponents.SkinBase.Actions
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected volatile bool _isEnabled = true;
+
+    // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
     protected volatile IResourceString _titleRes = null;
 
     #endregion

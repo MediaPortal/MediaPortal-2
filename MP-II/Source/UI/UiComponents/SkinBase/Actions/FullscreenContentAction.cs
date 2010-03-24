@@ -47,8 +47,10 @@ namespace UiComponents.SkinBase.Actions
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected volatile bool _isVisible;
-    protected volatile IResourceString _displayTitle;
+    protected readonly object _syncObj = new object();
+
+    protected bool _isVisible;
+    protected IResourceString _displayTitleResource; // TODO: Listen for language changes; update display title
 
     #endregion
 
@@ -105,12 +107,18 @@ namespace UiComponents.SkinBase.Actions
       IPlayerContext pcPrimary = playerContextManager.GetPlayerContext(PlayerManagerConsts.PRIMARY_SLOT);
       IVideoPlayer vp = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IVideoPlayer;
       IAudioPlayer ap = pcPrimary == null ? null : pcPrimary.CurrentPlayer as IAudioPlayer;
-      _isVisible = vp != null || ap != null && workflowManager.CurrentNavigationContext.WorkflowState.StateId != pcPrimary.FullscreenContentWorkflowStateId;
+      bool visible = vp != null || ap != null && workflowManager.CurrentNavigationContext.WorkflowState.StateId != pcPrimary.FullscreenContentWorkflowStateId;
+      IResourceString displayTitleRes;
       if (vp == null)
-        _displayTitle = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
+        displayTitleRes = ap == null ? null : LocalizationHelper.CreateStaticString(AUDIO_VISUALIZATION_RESOURCE);
       else
-        _displayTitle = LocalizationHelper.CreateStaticString(
+        displayTitleRes = LocalizationHelper.CreateStaticString(
             LocalizationHelper.CreateResourceString(FULLSCREEN_VIDEO_RESOURCE).Evaluate(vp.Name));
+      lock (_syncObj)
+      {
+        _isVisible = visible;
+        _displayTitleResource = displayTitleRes;
+      }
       FireStateChanged();
     }
 
@@ -126,7 +134,11 @@ namespace UiComponents.SkinBase.Actions
 
     public bool IsActionVisible
     {
-      get { return _isVisible; }
+      get
+      {
+        lock (_syncObj)
+          return _isVisible;
+      }
     }
 
     public bool IsActionEnabled
@@ -136,7 +148,11 @@ namespace UiComponents.SkinBase.Actions
 
     public IResourceString DisplayTitle
     {
-      get { return _displayTitle; }
+      get
+      {
+        lock (_syncObj)
+          return _displayTitleResource;
+      }
     }
 
     public void Initialize()

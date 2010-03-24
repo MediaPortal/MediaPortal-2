@@ -47,8 +47,9 @@ namespace UiComponents.Media.Actions
     #region Protected fields
 
     protected AsynchronousMessageQueue _messageQueue = null;
-    protected volatile bool _isVisible;
+    protected readonly object _syncObj = new object();
 
+    protected bool _isVisible;
     protected string _displayTitleResource = null;
 
     #endregion
@@ -105,29 +106,33 @@ namespace UiComponents.Media.Actions
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      bool lastVisible = _isVisible;
-      string lastDisplayTitleResource = _displayTitleResource;
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
-      _isVisible = pc != null;
+      bool visible = pc != null;
+      string displayTitleRes = null;
       if (pc != null)
         switch (pc.MediaType)
         {
           case PlayerContextType.Audio:
-            _displayTitleResource = SHOW_AUDIO_PLAYLIST_RES;
+            displayTitleRes = SHOW_AUDIO_PLAYLIST_RES;
             break;
           case PlayerContextType.Video:
-            _displayTitleResource = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
+            displayTitleRes = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
                 SHOW_VIDEO_PLAYLIST_RES : SHOW_PIP_PLAYLIST_RES;
             break;
           default:
             // Unknown player context type
-            _isVisible = false;
-            _displayTitleResource = null;
+            visible = false;
             break;
         }
-      _isVisible &= workflowManager.CurrentNavigationContext.WorkflowState.StateId != SHOW_PLAYLIST_WORKFLOW_STATE_ID;
-      if (lastVisible != _isVisible || lastDisplayTitleResource != _displayTitleResource)
-        FireStateChanged();
+      visible = visible && workflowManager.CurrentNavigationContext.WorkflowState.StateId != SHOW_PLAYLIST_WORKFLOW_STATE_ID;
+      lock (_syncObj)
+      {
+        if (visible == _isVisible && displayTitleRes == _displayTitleResource)
+          return;
+        _isVisible = visible;
+        _displayTitleResource = displayTitleRes;
+      }
+      FireStateChanged();
     }
 
     protected void FireStateChanged()
@@ -142,7 +147,11 @@ namespace UiComponents.Media.Actions
 
     public bool IsActionVisible
     {
-      get { return _isVisible; }
+      get
+      {
+        lock (_syncObj)
+          return _isVisible;
+      }
     }
 
     public bool IsActionEnabled
@@ -152,7 +161,11 @@ namespace UiComponents.Media.Actions
 
     public IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateResourceString(_displayTitleResource); }
+      get
+      {
+        lock (_syncObj)
+          return LocalizationHelper.CreateResourceString(_displayTitleResource);
+      }
     }
 
     public void Initialize()
