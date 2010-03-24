@@ -471,7 +471,7 @@ namespace UiComponents.Media.Models
     protected static void NavigateToView(MediaNavigationMode navigationMode, View view)
     {
       WorkflowState newState = WorkflowState.CreateTransientState(
-          "View: " + view.DisplayName, view.DisplayName, null, true, WorkflowType.Workflow);
+          "View: " + view.DisplayName, view.DisplayName, false, null, true, WorkflowType.Workflow);
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       IDictionary<string, object> variables = new Dictionary<string, object>
         {
@@ -784,7 +784,7 @@ namespace UiComponents.Media.Models
             {
                 Command = new MethodDelegateCommand(() =>
                     {
-                      WorkflowState state = WorkflowState.CreateTransientState(filterTitle, filterTitle, null, false,
+                      WorkflowState state = WorkflowState.CreateTransientState(filterTitle, filterTitle, false, null, false,
                           WorkflowType.Workflow);
                       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
                       workflowManager.NavigatePushTransient(state, new NavigationContextConfig

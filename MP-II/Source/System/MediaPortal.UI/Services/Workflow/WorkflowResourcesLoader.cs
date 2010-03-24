@@ -191,6 +191,7 @@ namespace MediaPortal.UI.Services.Workflow
       string name = null;
       string displayLabel = null;
       string dialogScreen = null;
+      bool isTemporary = false;
       string workflowModelId = null;
       XPathNavigator attrNav = stateNav.Clone();
       if (attrNav.MoveToFirstAttribute())
@@ -206,6 +207,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "DisplayLabel":
               displayLabel = attrNav.Value;
+              break;
+            case "Temporary":
+              isTemporary = Boolean.Parse(attrNav.Value);
               break;
             case "DialogScreen":
               dialogScreen = attrNav.Value;
@@ -225,7 +229,7 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} with id '{1}': 'DisplayLabel' attribute missing", stateNav.Name, id));
       if (string.IsNullOrEmpty(dialogScreen) && string.IsNullOrEmpty(workflowModelId))
         throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'DialogScreen' atrribute must be specified", stateNav.Name, name));
-      return new WorkflowState(new Guid(id), name, displayLabel, dialogScreen, false, false,
+      return new WorkflowState(new Guid(id), name, displayLabel, isTemporary, dialogScreen, false, false,
           workflowModelId == null ? (Guid?) null : new Guid(workflowModelId), WorkflowType.Dialog);
     }
 
@@ -234,6 +238,7 @@ namespace MediaPortal.UI.Services.Workflow
       string id = null;
       string name = null;
       string displayLabel = null;
+      bool isTemporary = false;
       string mainScreen = null;
       bool inheritMenu = false;
       string workflowModelId = null;
@@ -251,6 +256,9 @@ namespace MediaPortal.UI.Services.Workflow
               break;
             case "DisplayLabel":
               displayLabel = attrNav.Value;
+              break;
+            case "Temporary":
+              isTemporary = Boolean.Parse(attrNav.Value);
               break;
             case "MainScreen":
               mainScreen = attrNav.Value;
@@ -274,7 +282,7 @@ namespace MediaPortal.UI.Services.Workflow
         throw new ArgumentException(string.Format("{0} with id '{1}': 'DisplayLabel' attribute missing", stateNav.Name, id));
       if (string.IsNullOrEmpty(mainScreen) && string.IsNullOrEmpty(workflowModelId))
         throw new ArgumentException(string.Format("{0} '{1}': Either 'WorkflowModel' or 'MainScreen' atrribute must be specified", stateNav.Name, name));
-      return new WorkflowState(new Guid(id), name, displayLabel, mainScreen, inheritMenu, false,
+      return new WorkflowState(new Guid(id), name, displayLabel, isTemporary, mainScreen, inheritMenu, false,
           string.IsNullOrEmpty(workflowModelId) ? null : new Guid?(new Guid(workflowModelId)), WorkflowType.Workflow);
     }
 

@@ -450,7 +450,7 @@ namespace UiComponents.Configuration
           ConfigSection section = (ConfigSection) childNode.ConfigObj;
           // Create transient state for new config section
           WorkflowState newState = WorkflowState.CreateTransientState(
-              string.Format("Config: '{0}'", childNode.Location), section.SectionMetadata.Text, CONFIGURATION_SECTION_SCREEN,
+              string.Format("Config: '{0}'", childNode.Location), section.SectionMetadata.Text, false, CONFIGURATION_SECTION_SCREEN,
               false, WorkflowType.Workflow);
           // Add action for menu
           IResourceString res = LocalizationHelper.CreateResourceString(section.Metadata.Text);

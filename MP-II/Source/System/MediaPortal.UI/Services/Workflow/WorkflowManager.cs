@@ -340,8 +340,15 @@ namespace MediaPortal.UI.Services.Workflow
       try
       {
         ILogger logger = ServiceScope.Get<ILogger>();
-        NavigationContext predecessor = CurrentNavigationContext;
+        NavigationContext current = CurrentNavigationContext;
 
+        if (current != null && current.WorkflowState.IsTemporary && state.WorkflowType == WorkflowType.Workflow)
+        {
+          logger.Info("Current workflow state '{0}' is temporary, popping it from navigation stack", current.WorkflowState.Name);
+          DoPopNavigationContext(1);
+        }
+
+        NavigationContext predecessor = CurrentNavigationContext;
         logger.Info("WorkflowManager: Pushing workflow state '{0}' (id='{1}') onto the navigation stack...", state.Name, state.StateId);
 
         // Find non-transient state. If new state is transient, search for last non-transient state on stack.

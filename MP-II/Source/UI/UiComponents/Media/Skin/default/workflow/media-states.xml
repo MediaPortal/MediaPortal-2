@@ -29,21 +29,25 @@
     <WorkflowState Id="5764A810-F298-4a20-BF84-F03D16F775B1"
         Name="VideoCurrentlyPlaying"
         DisplayLabel="[Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
         WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
 
     <WorkflowState Id="882C1142-8028-4112-A67D-370E6E483A33"
         Name="VideoFullscreenContent"
         DisplayLabel="[Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
         WorkflowModel="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/> <!-- Workflow model = Video player model -->
 
     <WorkflowState Id="4596B758-CE2B-4e31-9CB9-6C30215831ED"
         Name="AudioCurrentlyPlaying"
         DisplayLabel="[Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
 
     <WorkflowState Id="82E8C050-0318-41a3-86B8-FC14FB85338B"
         Name="AudioFullscreenContent"
         DisplayLabel="[Media.AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
 
     <!-- Playlist -->
@@ -52,6 +56,7 @@
         Name="ShowPlaylist"
         MainScreen="ShowPlaylist"
         DisplayLabel="[Media.ShowPlaylistWorkflowStateNavigationContextDisplayLabel]"
+        Temporary="true"
         WorkflowModel="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/> <!-- Workflow model = Playlist model -->
   </States>
 </Workflow>
