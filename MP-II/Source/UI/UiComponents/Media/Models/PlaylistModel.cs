@@ -51,9 +51,9 @@ namespace UiComponents.Media.Models
     public const string MODEL_ID_STR = "E30AA448-C1D1-4d8e-B08F-CF569624B51C";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
-    public const string SHOW_AUDIO_PLAYLIST_RES = "[Media.ShowAudioPlaylist]";
-    public const string SHOW_VIDEO_PLAYLIST_RES = "[Media.ShowVideoPlaylist]";
-    public const string SHOW_PIP_PLAYLIST_RES = "[Media.ShowPiPPlaylist]";
+    public const string AUDIO_PLAYLIST_RES = "[Media.AudioPlaylist]";
+    public const string VIDEO_PLAYLIST_RES = "[Media.VideoPlaylist]";
+    public const string PIP_PLAYLIST_RES = "[Media.PiPPlaylist]";
 
     public const string IS_CURRENT_ITEM_KEY = "CurrentItem";
 
@@ -98,10 +98,13 @@ namespace UiComponents.Media.Models
         PlaylistMessaging.MessageType messageType = (PlaylistMessaging.MessageType) message.MessageType;
         switch (messageType)
         {
-          case PlaylistMessaging.MessageType.PlaylistAdvance:
+          case PlaylistMessaging.MessageType.PlaylistUpdate:
+            UpdatePlaylist();
+            break;
+          case PlaylistMessaging.MessageType.CurrentItemChange:
             UpdateCurrentItem();
             break;
-          case PlaylistMessaging.MessageType.PropertiesChanged:
+          case PlaylistMessaging.MessageType.PropertiesChange:
             UpdateProperties();
             break;
         }
@@ -141,11 +144,11 @@ namespace UiComponents.Media.Models
         switch (pc.MediaType)
         {
           case PlayerContextType.Audio:
-            PlaylistHeader = SHOW_AUDIO_PLAYLIST_RES;
+            PlaylistHeader = AUDIO_PLAYLIST_RES;
             break;
           case PlayerContextType.Video:
             PlaylistHeader = pc.PlayerSlotController.SlotIndex == PlayerManagerConsts.PRIMARY_SLOT ?
-                SHOW_VIDEO_PLAYLIST_RES : SHOW_PIP_PLAYLIST_RES;
+                VIDEO_PLAYLIST_RES : PIP_PLAYLIST_RES;
             break;
           default:
             // Unknown player context type
@@ -159,12 +162,13 @@ namespace UiComponents.Media.Models
       {
         _playlist = playlist;
         int ct = 0;
+        _items.Clear();
         foreach (MediaItem mediaItem in _playlist.ItemList)
         {
           int idx = ct++;
           PlayableItem item = new PlayableItem(mediaItem)
             {
-                Command = new MethodDelegateCommand(() => Select(idx))
+                Command = new MethodDelegateCommand(() => ItemSelected(idx))
             };
           _items.Add(item);
         }
@@ -198,6 +202,17 @@ namespace UiComponents.Media.Models
     protected void UpdateProperties()
     {
       // TODO: Other properties
+    }
+
+    protected void ItemSelected(int index)
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+      IPlaylist playlist = pc == null ? null : pc.Playlist;
+      if (pc == null || pc.Playlist != _playlist)
+        return;
+      playlist.ItemListIndex = index;
+      pc.DoPlay(playlist.Current);
     }
 
     #region Members to be accessed from the GUI
@@ -240,15 +255,17 @@ namespace UiComponents.Media.Models
       internal set { _isPlaylistEmptyProperty.SetValue(value); }
     }
 
-    public void Select(int index)
+    /// <summary>
+    /// Provides a callable method for the skin to select an item of the media contents view.
+    /// Depending on the item type, we will navigate to the choosen view, play the choosen item or filter by the item.
+    /// </summary>
+    /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
+    public void Select(ListItem item)
     {
-      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
-      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
-      IPlaylist playlist = pc == null ? null : pc.Playlist;
-      if (pc == null || pc.Playlist != _playlist)
+      if (item == null)
         return;
-      playlist.ItemListIndex = index;
-      pc.DoPlay(playlist.Current);
+      if (item.Command != null)
+        item.Command.Execute();
     }
 
     #endregion
@@ -269,6 +286,7 @@ namespace UiComponents.Media.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      _playlist = null;
       _messageQueue.Start();
       UpdatePlaylist();
       UpdateProperties();
@@ -277,6 +295,7 @@ namespace UiComponents.Media.Models
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       _messageQueue.Shutdown();
+      _playlist = null;
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

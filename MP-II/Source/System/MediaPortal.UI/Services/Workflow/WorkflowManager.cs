@@ -127,6 +127,8 @@ namespace MediaPortal.UI.Services.Workflow
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
     public const int MODEL_CACHE_MAX_NUM_UNUSED = 50;
 
+    protected readonly static NavigationContextConfig EMPTY_NAVIGATION_CONTEXT_CONFIG = new NavigationContextConfig();
+
     protected static readonly TimeSpan LOCK_TIMEOUT = new TimeSpan(0, 0, 0, 2);
 
     #endregion
@@ -330,8 +332,10 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    protected bool DoPushNavigationContext(WorkflowState state, string navigationContextDisplayLabel, IDictionary<string, object> additionalContextVariables)
+    protected bool DoPushNavigationContext(WorkflowState state, NavigationContextConfig config)
     {
+      if (config == null)
+        config = EMPTY_NAVIGATION_CONTEXT_CONFIG;
       EnterWriteLock("DoPushNavigationContext");
       try
       {
@@ -367,10 +371,10 @@ namespace MediaPortal.UI.Services.Workflow
         }
 
         // Create new workflow context
-        NavigationContext newContext = new NavigationContext(state, navigationContextDisplayLabel, predecessor, workflowModel);
-        if (additionalContextVariables != null)
+        NavigationContext newContext = new NavigationContext(state, config.NavigationContextDisplayLabel, predecessor, workflowModel);
+        if (config.AdditionalContextVariables != null)
           lock (newContext.SyncRoot)
-            CollectionUtils.AddAll(newContext.ContextVariables, additionalContextVariables);
+            CollectionUtils.AddAll(newContext.ContextVariables, config.AdditionalContextVariables);
 
         // Check if state change is accepted
         if (workflowModel != null && !workflowModel.CanEnterState(predecessor, newContext))
@@ -658,8 +662,7 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    public void NavigatePush(Guid stateId, string navigationContextDisplayLabel,
-        IDictionary<string, object> additionalContextVariables)
+    public void NavigatePush(Guid stateId, NavigationContextConfig config)
     {
       EnterWriteLock("NavigatePush");
       try
@@ -668,7 +671,7 @@ namespace MediaPortal.UI.Services.Workflow
         if (!_states.TryGetValue(stateId, out state))
           throw new ArgumentException(string.Format("WorkflowManager: Workflow state '{0}' is not available", stateId));
 
-        if (DoPushNavigationContext(state, navigationContextDisplayLabel, additionalContextVariables))
+        if (DoPushNavigationContext(state, config))
           UpdateScreen_NeedsLock();
         WorkflowManagerMessaging.SendNavigationCompleteMessage();
       }
@@ -678,18 +681,12 @@ namespace MediaPortal.UI.Services.Workflow
       }
     }
 
-    public void NavigatePush(Guid stateId, string navigationContextDisplayLabel)
-    {
-      NavigatePush(stateId, navigationContextDisplayLabel, null);
-    }
-
-    public void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel,
-        IDictionary<string, object> additionalContextVariables)
+    public void NavigatePushTransient(WorkflowState state, NavigationContextConfig config)
     {
       EnterWriteLock("NavigatePushTransient");
       try
       {
-        if (DoPushNavigationContext(state, navigationContextDisplayLabel, additionalContextVariables))
+        if (DoPushNavigationContext(state, config))
           UpdateScreen_NeedsLock();
         WorkflowManagerMessaging.SendNavigationCompleteMessage();
       }
@@ -697,11 +694,6 @@ namespace MediaPortal.UI.Services.Workflow
       {
         ExitWriteLock();
       }
-    }
-
-    public void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel)
-    {
-      NavigatePushTransient(state, navigationContextDisplayLabel, null);
     }
 
     public void NavigatePop(int count)

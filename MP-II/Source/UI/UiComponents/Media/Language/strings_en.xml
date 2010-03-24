@@ -62,6 +62,9 @@
     <String Name="ShowAudioPlaylist" Text="Show audio playlist"/>
     <String Name="ShowVideoPlaylist" Text="Show video playlist"/>
     <String Name="ShowPiPPlaylist" Text="Show PiP playlist"/>
+    <String Name="AudioPlaylist" Text="Audio playlist"/>
+    <String Name="VideoPlaylist" Text="Video playlist"/>
+    <String Name="PiPPlaylist" Text="PiP playlist"/>
 
     <String Name="PlaylistEmpty" Text="&lt;No items in playlist&gt;"/>
 

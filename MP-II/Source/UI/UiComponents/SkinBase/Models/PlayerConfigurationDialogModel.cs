@@ -501,9 +501,12 @@ namespace UiComponents.SkinBase.Models
     public static void OpenChooseGeometryDialog(IPlayerContext playerContext)
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, null, new Dictionary<string, object>
+      workflowManager.NavigatePush(PLAYER_CHOOSE_GEOMETRY_MENU_DIALOG_STATE_ID, new NavigationContextConfig
         {
-            {KEY_PLAYER_CONTEXT, playerContext}
+          AdditionalContextVariables = new Dictionary<string, object>
+          {
+              {KEY_PLAYER_CONTEXT, playerContext}
+          }
         });
     }
 

@@ -82,10 +82,13 @@ namespace UiComponents.SkinBase
             if (!serversWereAdded)
               // Don't bother the user with connection messages if servers were only removed from the network
               return;
-            workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE_ID, null, new Dictionary<string, object>
-                {
-                  {ServerAttachmentModel.AUTO_CLOSE_ON_NO_SERVER_KEY, true}
-                });
+            workflowManager.NavigatePush(ATTACH_TO_SERVER_STATE_ID, new NavigationContextConfig
+              {
+                  AdditionalContextVariables = new Dictionary<string, object>
+                    {
+                      {ServerAttachmentModel.AUTO_CLOSE_ON_NO_SERVER_KEY, true}
+                    }
+              });
             break;
         }
       }

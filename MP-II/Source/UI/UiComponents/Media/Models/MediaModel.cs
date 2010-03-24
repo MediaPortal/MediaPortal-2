@@ -479,7 +479,7 @@ namespace UiComponents.Media.Models
             {VIEW_KEY, view},
             {DYNAMIC_MODES_KEY, null}
         };
-      workflowManager.NavigatePushTransient(newState, null, variables);
+      workflowManager.NavigatePushTransient(newState, new NavigationContextConfig { AdditionalContextVariables = variables });
     }
 
     /// <summary>
@@ -787,12 +787,15 @@ namespace UiComponents.Media.Models
                       WorkflowState state = WorkflowState.CreateTransientState(filterTitle, filterTitle, null, false,
                           WorkflowType.Workflow);
                       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-                      workflowManager.NavigatePushTransient(state, null, new Dictionary<string, object>
-                          {
-                            {NAVIGATION_MODE_KEY, remainingDynamicModes.FirstOrDefault()},
-                            {VIEW_KEY, subVS.BuildRootView()},
-                            {DYNAMIC_MODES_KEY, remainingDynamicModes}
-                          });
+                      workflowManager.NavigatePushTransient(state, new NavigationContextConfig
+                        {
+                          AdditionalContextVariables = new Dictionary<string, object>
+                            {
+                              {NAVIGATION_MODE_KEY, remainingDynamicModes.FirstOrDefault()},
+                              {VIEW_KEY, subVS.BuildRootView()},
+                              {DYNAMIC_MODES_KEY, remainingDynamicModes}
+                            }
+                        });
                     })
             };
           if (filterValue.HasNumItems)

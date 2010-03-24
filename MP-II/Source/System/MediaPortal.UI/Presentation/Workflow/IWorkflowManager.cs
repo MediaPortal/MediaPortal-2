@@ -28,6 +28,26 @@ using System.Threading;
 
 namespace MediaPortal.UI.Presentation.Workflow
 {
+  public class NavigationContextConfig
+  {
+    /// <summary>
+    /// Label for the new navigation context to be displayed in the GUI (in the navigation history).
+    /// </summary>
+    public string NavigationContextDisplayLabel = null;
+
+    /// <summary>
+    /// Additional variables to be set at the <see cref="NavigationContext"/> before entering the new state.
+    /// If set to <c>null</c>, no additional variables will be added to the navigation context.
+    /// </summary>
+    public IDictionary<string, object> AdditionalContextVariables = null;
+
+    /// <summary>
+    /// Set to <c>true</c> if the workflow state should be replaced automatically by the next pushed state.
+    /// If this is set to <c>true</c>, no other workflow state will be pushed onto the state.
+    /// </summary>
+    public bool IsTemporary = false;
+  }
+
   /// <summary>
   /// Component for tracking application states, managing application workflows and GUI models.
   /// </summary>
@@ -96,36 +116,8 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// This is a convenience method for calling <c>NavigatePush(stateId, null);</c>.
     /// </remarks>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
-    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
-    /// in the GUI (in the navigation history).</param>
-    void NavigatePush(Guid stateId, string navigationContextDisplayLabel);
-
-    /// <summary>
-    /// Navigates to the specified non-transient state. This will push a new navigation context entry
-    /// containing the specified state on top of the navigation context stack. This realizes a
-    /// forward navigation.
-    /// </summary>
-    /// <param name="stateId">Id of the non-transient state to enter.</param>
-    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
-    /// in the GUI (in the navigation history).</param>
-    /// <param name="additionalContextVariables">Additional variables to be set at the
-    /// <see cref="NavigationContext"/> before entering the new state. If set to <c>null</c>,
-    /// no additional variables will be added to the navigation context.</param>
-    void NavigatePush(Guid stateId, string navigationContextDisplayLabel,
-        IDictionary<string, object> additionalContextVariables);
-
-    /// <summary>
-    /// Navigates to the specified transient state. This will push a new navigation context entry
-    /// containing the specified state on top of the navigation context stack. This realizes a
-    /// forward navigation.
-    /// </summary>
-    /// <remarks>
-    /// This is a convenience method for calling <c>NavigatePushTransient(stateId, navigationContextDisplayLabel, null);</c>.
-    /// </remarks>
-    /// <param name="state">Id of the new transient state to add and enter.</param>
-    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
-    /// in the GUI (in the navigation history).</param>
-    void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel);
+    /// <param name="config">Configuration for the new state.</param>
+    void NavigatePush(Guid stateId, NavigationContextConfig config);
 
     /// <summary>
     /// Navigates to the specified transient state. This will push a new navigation context entry
@@ -138,13 +130,8 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// referenced by the workflow manager any more.
     /// </remarks>
     /// <param name="state">Id of the new transient state to add and enter.</param>
-    /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
-    /// in the GUI (in the navigation history).</param>
-    /// <param name="additionalContextVariables">Additional variables to be set at the
-    /// <see cref="NavigationContext"/> before entering the new state. If set to <c>null</c>,
-    /// no additional variables will be added to the navigation context.</param>
-    void NavigatePushTransient(WorkflowState state, string navigationContextDisplayLabel,
-        IDictionary<string, object> additionalContextVariables);
+    /// <param name="config">Configuration for the new state.</param>
+    void NavigatePushTransient(WorkflowState state, NavigationContextConfig config);
 
     /// <summary>
     /// Removes the <paramref name="count"/> youngest navigation context levels from the

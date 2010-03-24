@@ -85,10 +85,11 @@ namespace MediaPortal.UI.Presentation.Workflow
     public override void Execute()
     {
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
-      if (_workflowNavigationContextVariables == null)
-        workflowManager.NavigatePushTransient(_transientState, _displayLabel);
-      else
-        workflowManager.NavigatePushTransient(_transientState, _displayLabel, _workflowNavigationContextVariables);
+      NavigationContextConfig config = new NavigationContextConfig {
+        NavigationContextDisplayLabel = _displayLabel,
+        AdditionalContextVariables = _workflowNavigationContextVariables
+      };
+      workflowManager.NavigatePushTransient(_transientState, config);
     }
   }
 }

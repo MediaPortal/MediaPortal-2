@@ -72,7 +72,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// </summary>
     public override void Execute()
     {
-      ServiceScope.Get<IWorkflowManager>().NavigatePush(TargetStateId, _displayLabel);
+      ServiceScope.Get<IWorkflowManager>().NavigatePush(TargetStateId, new NavigationContextConfig { NavigationContextDisplayLabel = _displayLabel });
     }
   }
 }

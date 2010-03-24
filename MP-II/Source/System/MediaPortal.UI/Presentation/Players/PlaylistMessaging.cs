@@ -40,14 +40,19 @@ namespace MediaPortal.UI.Presentation.Players
     public enum MessageType
     {
       /// <summary>
+      /// Gets fired when the playlist was changed, i.e. items were added, deleted or moved.
+      /// </summary>
+      PlaylistUpdate,
+
+      /// <summary>
       /// Gets fired when the item, which is currently played, changes.
       /// </summary>
-      PlaylistAdvance,
+      CurrentItemChange,
 
       /// <summary>
       /// Gets fired when some properties of the playlist, e.g. <see cref="IPlaylist.PlayMode"/>, change.
       /// </summary>
-      PropertiesChanged,
+      PropertiesChange,
     }
 
     // Message data
