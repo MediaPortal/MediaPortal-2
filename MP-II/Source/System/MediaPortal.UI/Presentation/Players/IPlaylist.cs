@@ -83,7 +83,7 @@ namespace MediaPortal.UI.Presentation.Players
     /// This index is valid in the <see cref="ItemList"/>, which might not represent the play order. The play order is
     /// determined by the current <see cref="RepeatMode"/> and the current <see cref="PlayMode"/>. If the play mode is
     /// <see cref="Players.PlayMode.Shuffle"/> for example, the play order (given by <see cref="Item(int)"/>) is random
-    /// while the <see cref="ItemList"/> is still in the order which was built by the playlist modifying properties.
+    /// while the <see cref="ItemList"/> is still in the order which was built by the playlist build methods.
     /// </remarks>
     int ItemListIndex { get; set; }
 
