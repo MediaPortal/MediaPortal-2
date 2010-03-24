@@ -120,7 +120,7 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// forward navigation.
     /// </summary>
     /// <remarks>
-    /// This is a convenience method for calling <c>NavigatePushTransient(stateId, null);</c>.
+    /// This is a convenience method for calling <c>NavigatePushTransient(stateId, navigationContextDisplayLabel, null);</c>.
     /// </remarks>
     /// <param name="state">Id of the new transient state to add and enter.</param>
     /// <param name="navigationContextDisplayLabel">Label for the new navigation context to be displayed
