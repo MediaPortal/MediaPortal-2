@@ -40,12 +40,6 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// If set to <c>null</c>, no additional variables will be added to the navigation context.
     /// </summary>
     public IDictionary<string, object> AdditionalContextVariables = null;
-
-    /// <summary>
-    /// Set to <c>true</c> if the workflow state should be replaced automatically by the next pushed state.
-    /// If this is set to <c>true</c>, no other workflow state will be pushed onto the state.
-    /// </summary>
-    public bool IsTemporary = false;
   }
 
   /// <summary>
