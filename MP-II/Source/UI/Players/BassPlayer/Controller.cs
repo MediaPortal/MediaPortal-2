@@ -121,13 +121,10 @@ namespace Ui.Players.BassPlayer
     {
       TerminateThread();
 
-      lock (_syncObj)
-      {
-        _playbackProcessor.Dispose();
-        _outputDeviceManager.Dispose();
+      _playbackProcessor.Dispose();
+      _outputDeviceManager.Dispose();
 
-        _bassLibraryManager.Dispose();
-      }
+      _bassLibraryManager.Dispose();
     }
 
     #region Public members

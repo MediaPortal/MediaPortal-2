@@ -105,14 +105,13 @@ namespace Ui.Players.BassPlayer.PlayerComponents
     /// </remarks>
     protected void MoveToNextInputSource_Sync()
     {
-      Resume();
-
       // TODO: Insert gap between tracks if we are in playback mode Normal
       IInputSource inputSource = PeekNextInputSource();
       if (_playbackSession != null)
         // TODO: Trigger crossfading if CF is configured
-        _playbackSession.End(true);
+        _playbackSession.End(_internalState == InternalPlaybackState.Playing); // Only wait for fade out when we are playing
 
+      _internalState = InternalPlaybackState.Playing;
       Log.Debug("Playing next input source '{0}'", inputSource);      
       if (_playbackSession != null)
       {
