@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities;
+using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Players
 {
@@ -40,6 +41,7 @@ namespace MediaPortal.UI.Services.Players
     protected RepeatMode _repeatMode = RepeatMode.None;
     protected IList<int> _playIndexList = null; // Index on _itemList, lazy initialized before playing
     protected int _currentPlayIndex = -1; // Index for the _playItemList
+    protected int _inBatchUpdate = 0; // 0 ^= no batch update, >0 ^= in batch update mode
 
     public Playlist(IPlayerContext context)
     {
@@ -98,13 +100,14 @@ namespace MediaPortal.UI.Services.Players
 
     protected void SetCurrentPlayIndexByItemIndex(int currentItemIndex)
     {
-      if (currentItemIndex == -1)
-        _currentPlayIndex = -1;
-      else
-        // Find current played item in shuffled index list
-        foreach (int i in _playIndexList)
-          if (_playIndexList[i] == currentItemIndex)
-            _currentPlayIndex = i;
+      lock (_syncObj)
+        if (currentItemIndex == -1)
+          _currentPlayIndex = -1;
+        else
+            // Find current played item in shuffled index list
+          foreach (int i in _playIndexList)
+            if (_playIndexList[i] == currentItemIndex)
+              _currentPlayIndex = i;
       PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
     }
 
@@ -208,6 +211,15 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
+    public bool InBatchUpdateMode
+    {
+      get
+      {
+        lock (_syncObj)
+          return _inBatchUpdate > 0;
+      }
+    }
+
     public MediaItem MoveAndGetPrevious()
     {
       lock (_syncObj)
@@ -247,7 +259,8 @@ namespace MediaPortal.UI.Services.Players
         _itemList.Clear();
         _playIndexList = null;
         _currentPlayIndex = -1;
-        PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
+        if (!InBatchUpdateMode)
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
       }
     }
 
@@ -314,7 +327,8 @@ namespace MediaPortal.UI.Services.Players
           _currentPlayIndex -= fromIndex;
         if (_currentPlayIndex < 0)
           _currentPlayIndex = -1;
-        PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
+        if (!InBatchUpdateMode)
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
       }
     }
 
@@ -325,7 +339,8 @@ namespace MediaPortal.UI.Services.Players
         if (index1 < 0 || index1 >= _itemList.Count || index2 < 0 || index2 >= _itemList.Count)
           return;
         CollectionUtils.Swap(_itemList, index1, index2);
-        PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
+        if (!InBatchUpdateMode)
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
         if (_playIndexList == null)
           return;
         // Adapt play index list
@@ -360,7 +375,8 @@ namespace MediaPortal.UI.Services.Players
         if (index < 0 || index > _itemList.Count)
           return false;
         _itemList.Insert(index, mediaItem);
-        PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
+        if (!InBatchUpdateMode)
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
         if (_playIndexList == null)
           return true;
         // Adapt play index list...
@@ -391,6 +407,21 @@ namespace MediaPortal.UI.Services.Players
         PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PropertiesChange, _playerContext);
         PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.CurrentItemChange, _playerContext);
       }
+    }
+
+    public void StartBatchUpdate()
+    {
+      lock (_syncObj)
+        _inBatchUpdate ++;
+    }
+
+    public void EndBatchUpdate()
+    {
+      lock (_syncObj)
+        if (InBatchUpdateMode)
+          _inBatchUpdate--;
+        else
+          throw new IllegalCallException("The playlist is currently not in batch update mode");
     }
 
     #endregion

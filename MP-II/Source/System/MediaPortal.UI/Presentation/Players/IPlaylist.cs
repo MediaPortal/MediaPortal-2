@@ -115,6 +115,12 @@ namespace MediaPortal.UI.Presentation.Players
     bool AllPlayed { get; }
 
     /// <summary>
+    /// Gets the information if this playlist is currently in batch update mode. In batch update mode, the playlist
+    /// suppresses change events of type <see cref="PlaylistMessaging.MessageType.PlaylistUpdate"/>.
+    /// </summary>
+    bool InBatchUpdateMode { get; }
+
+    /// <summary>
     /// Returns the information if we have a previous item.
     /// </summary>
     bool HasPrevious { get; }
@@ -195,5 +201,17 @@ namespace MediaPortal.UI.Presentation.Players
     /// Resets the status for all items to not-played.
     /// </summary>
     void ResetStatus();
+
+    /// <summary>
+    /// Suppresses change events of type <see cref="PlaylistMessaging.MessageType.PlaylistUpdate"/>
+    /// until <see cref="EndBatchUpdate"/> is called.
+    /// </summary>
+    void StartBatchUpdate();
+
+    /// <summary>
+    /// Must be called after a batch update when <see cref="StartBatchUpdate"/> was called. This will re-enable
+    /// change events of type <see cref="PlaylistMessaging.MessageType.PlaylistUpdate"/>.
+    /// </summary>
+    void EndBatchUpdate();
   }
 }
