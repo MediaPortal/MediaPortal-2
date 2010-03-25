@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Timers;
 using MediaPortal.Core.Logging;
 using MediaPortal.UI.Control.InputManager;
@@ -463,11 +462,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
           }
           else
           {
-            ILocalization localization = ServiceScope.Get<ILocalization>();
-            CultureInfo culture = localization.CurrentCulture;
             PercentPlayed = (float) (100*currentTime.TotalMilliseconds/duration.TotalMilliseconds);
-            CurrentTime = new DateTime().Add(currentTime).ToString("T", culture);
-            Duration = new DateTime().Add(duration).ToString("T", culture);
+            CurrentTime = FormattingUtils.FormatMediaDuration(currentTime);
+            Duration = FormattingUtils.FormatMediaDuration(duration);
           }
           string seekHint = string.Empty;
           bool playing = false;
@@ -1125,7 +1122,7 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
     /// </summary>
     public int? VideoYear
     {
-      get { return (int) _videoYearProperty.GetValue(); }
+      get { return (int?) _videoYearProperty.GetValue(); }
       internal set { _videoYearProperty.SetValue(value); }
     }
 
