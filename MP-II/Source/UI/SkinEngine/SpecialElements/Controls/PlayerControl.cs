@@ -554,8 +554,9 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
         }
         else
         {
-          VideoYear = ((DateTime) mediaAspect[MediaAspect.ATTR_RECORDINGTIME]).Year;
-          AudioYear = ((DateTime) mediaAspect[MediaAspect.ATTR_RECORDINGTIME]).Year;
+          DateTime? recordingTime = (DateTime?) mediaAspect[MediaAspect.ATTR_RECORDINGTIME];
+          VideoYear = recordingTime.HasValue ? (int?) recordingTime.Value.Year : null;
+          AudioYear = VideoYear;
         }
         if (videoAspect == null)
         {
