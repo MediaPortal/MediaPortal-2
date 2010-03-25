@@ -216,7 +216,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -267,7 +267,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -328,8 +328,10 @@
                 </TransformGroup>
               </Control.RenderTransform>
             </Control>
-            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
-            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
+                HorizontalAlignment="Left" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -387,7 +389,8 @@
                 </TransformGroup>
               </Control.RenderTransform>
             </Control>
-            <Ellipse Grid.Column="1" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center" Width="5" Height="5" Fill="{ThemeResource RadioButtonDotColor}" Visibility="Hidden"/>
+            <Ellipse Grid.Column="1" Grid.Row="0" x:Name="InnerCircle" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -446,7 +449,7 @@
               </Grid.RenderTransform>
               <Control Grid.Column="0" Grid.Row="0" Width="26" Height="26" Style="{ThemeResource ButtonControlStyle}"/>
               <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
-                  Stroke="{ThemeResource CheckBoxCheckColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
+                  Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
             </Grid>
             <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,10,0"/>
           </Grid>
@@ -573,8 +576,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
-               RenderTransformOrigin="0.5,0.5">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -618,8 +622,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
-               RenderTransformOrigin="0.5,0.5">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -663,8 +668,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
-               RenderTransformOrigin="0.5,0.5">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -708,8 +714,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
-          <Control Style="{ThemeResource ArrowButtonControlStyle}" Width="40" Height="40"
-               RenderTransformOrigin="0.5,0.5">
+          <Control Style="{ThemeResource ArrowButtonControlStyle}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -1225,9 +1232,9 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}"/>
-            <Path x:Name="PathHorz" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}"
+            <Path x:Name="PathHorz" Stretch="None" Stroke="{ThemeResource ControlHandleColor}"
                 Height="25" Width="25" Data="M5,12 L19,12 z" StrokeThickness="2"/>
-            <Path x:Name="PathVert" Stretch="None" Stroke="{ThemeResource PlusMinusButtonCrossColor}"
+            <Path x:Name="PathVert" Stretch="None" Stroke="{ThemeResource ControlHandleColor}"
                 Height="25" Width="25" Data="M12,5 L12,19 z" StrokeThickness="2"/>
           </Grid>
           <ControlTemplate.Triggers>

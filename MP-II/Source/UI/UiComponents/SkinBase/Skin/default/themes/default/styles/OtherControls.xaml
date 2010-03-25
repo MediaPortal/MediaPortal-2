@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System"
-    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects"
     xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="Colors,Buttons"
     >
@@ -554,8 +554,8 @@
     <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
   </Style>
 
-  <!-- ****************************** Keybindings listview ********************************** -->
-
+  <!-- ****************************** Keybindings ListView ********************************** -->
+  
   <Style x:Key="KeyBindingContainerStyle" TargetType="{x:Type ListViewItem}">
     <Setter Property="Template">
       <Setter.Value>

@@ -65,8 +65,6 @@
 
   <ResourceWrapper x:Key="DisabledButtonStrokeColor" Resource="#00000000"/>
 
-  <ResourceWrapper x:Key="PlusMinusButtonCrossColor" Resource="White"/>
-
   <ResourceWrapper x:Key="ArrowButtonArrowColor" Resource="#FFCCCCCC"/>
 
   <ResourceWrapper x:Key="DisabledArrowButtonArrowColor" Resource="#FF6D6D6D"/>
@@ -138,11 +136,11 @@
 
   <ResourceWrapper x:Key="ScrollBarWidth" Resource="12"/>
 
-  <!-- White, little bit transparent -->
-  <ResourceWrapper x:Key="RadioButtonDotColor" Resource="#AAFFFFFF"/>
-
   <!-- White -->
-  <ResourceWrapper x:Key="CheckBoxCheckColor" Resource="#FFFFFFFF"/>
+  <ResourceWrapper x:Key="ControlHandleColor" Resource="#FFFFFFFF"/>
+
+  <!-- Between red and orange -->
+  <ResourceWrapper x:Key="DeleteCrossColor" Resource="#FFFF5A00"/>
 
   <!-- Dirty dark blue -->
   <ResourceWrapper x:Key="VideoPreviewBorderDarkColor" Resource="#FF6A6A8D"/>

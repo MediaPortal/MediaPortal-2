@@ -30,10 +30,11 @@
         </DockPanel>
         <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-<!-- TODO: Use special PlayList ListView style -->
-          <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}">
+          <ListView Style="{ThemeResource PlayListListViewStyle}" ItemsSource="{Binding Items}">
             <ListView.Resources>
-              <Command x:Key="Menu_Command" Source="{StaticResource PlaylistModel}" Path="Select"
+              <Command x:Key="Select_Command" Source="{StaticResource PlaylistModel}" Path="Select"
+                  Parameters="{LateBoundValue Value={Binding}}"/>
+              <Command x:Key="Remove_Command" Source="{StaticResource PlaylistModel}" Path="Remove"
                   Parameters="{LateBoundValue Value={Binding}}"/>
             </ListView.Resources>
           </ListView>

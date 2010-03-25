@@ -25,14 +25,16 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Core;
-using MediaPortal.Core.Commands;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Utilities;
 using UiComponents.Media.Navigation;
 
 namespace UiComponents.Media.Models
@@ -55,7 +57,9 @@ namespace UiComponents.Media.Models
     public const string VIDEO_PLAYLIST_RES = "[Media.VideoPlaylist]";
     public const string PIP_PLAYLIST_RES = "[Media.PiPPlaylist]";
 
-    public const string IS_CURRENT_ITEM_KEY = "CurrentItem";
+    public const string KEY_IS_CURRENT_ITEM = "CurrentItem";
+    public const string KEY_LENGTH = "Length";
+    public const string KEY_INDEX = "Playlist-Index";
 
     #endregion
 
@@ -137,10 +141,9 @@ namespace UiComponents.Media.Models
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
-      IPlaylist playlist;
       if (pc != null)
       {
-        playlist = pc.Playlist;
+        _playlist = pc.Playlist;
         switch (pc.MediaType)
         {
           case PlayerContextType.Audio:
@@ -157,25 +160,38 @@ namespace UiComponents.Media.Models
         }
       }
       else
-        playlist = null;
-      if (playlist != _playlist)
+        _playlist = null;
+      int ct = 0;
+      _items.Clear();
+      foreach (MediaItem mediaItem in _playlist.ItemList)
       {
-        _playlist = playlist;
-        int ct = 0;
-        _items.Clear();
-        foreach (MediaItem mediaItem in _playlist.ItemList)
-        {
-          int idx = ct++;
-          PlayableItem item = new PlayableItem(mediaItem)
-            {
-                Command = new MethodDelegateCommand(() => ItemSelected(idx))
-            };
-          _items.Add(item);
-        }
-        IsPlaylistEmpty = _items.Count == 0;
-        NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
-        _items.FireChange();
+        int idx = ct++;
+        PlayableItem item = new PlayableItem(mediaItem);
+        MediaItemAspect mediaAspect;
+        MediaItemAspect audioAspect;
+        MediaItemAspect videoAspect;
+        if (!mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+          mediaAspect = null;
+        if (!mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+          audioAspect = null;
+        if (!mediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+          videoAspect = null;
+        string title = mediaAspect == null ? null : mediaAspect[MediaAspect.ATTR_TITLE] as string;
+
+        string artists = audioAspect == null ? null : StringUtils.Join(", ", (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS]);
+        string name = title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
+        long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
+        if (!length.HasValue)
+          length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
+
+        item.Name = (idx + 1) + ". " + name;
+        item.SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(new TimeSpan(0, 0, 0, (int) length.Value)) : string.Empty);
+        item.AdditionalProperties[KEY_INDEX] = idx;
+        _items.Add(item);
       }
+      IsPlaylistEmpty = _items.Count == 0;
+      NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
+      _items.FireChange();
       UpdateCurrentItem();
     }
 
@@ -190,10 +206,10 @@ namespace UiComponents.Media.Models
       foreach (PlayableItem item in _items)
       {
         bool isCurrentItem = idx-- == 0;
-        bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[IS_CURRENT_ITEM_KEY];
+        bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[KEY_IS_CURRENT_ITEM];
         if (!currentIsCurrentItem.HasValue || currentIsCurrentItem.Value != isCurrentItem)
         {
-          item.AdditionalProperties[IS_CURRENT_ITEM_KEY] = isCurrentItem;
+          item.AdditionalProperties[KEY_IS_CURRENT_ITEM] = isCurrentItem;
           item.FireChange();
         }
       }
@@ -204,7 +220,7 @@ namespace UiComponents.Media.Models
       // TODO: Other properties
     }
 
-    protected void ItemSelected(int index)
+    protected void PlayItem(int index)
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
@@ -213,6 +229,16 @@ namespace UiComponents.Media.Models
         return;
       playlist.ItemListIndex = index;
       pc.DoPlay(playlist.Current);
+    }
+
+    protected void RemoveItem(int index)
+    {
+      IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
+      IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+      IPlaylist playlist = pc == null ? null : pc.Playlist;
+      if (pc == null || pc.Playlist != _playlist)
+        return;
+      playlist.RemoveAt(index);
     }
 
     #region Members to be accessed from the GUI
@@ -256,16 +282,30 @@ namespace UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Provides a callable method for the skin to select an item of the media contents view.
-    /// Depending on the item type, we will navigate to the choosen view, play the choosen item or filter by the item.
+    /// Provides a callable method for the skin to select an item of the playlist.
+    /// The item will be played.
     /// </summary>
     /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
     public void Select(ListItem item)
     {
       if (item == null)
         return;
-      if (item.Command != null)
-        item.Command.Execute();
+      object oIndex;
+      if (item.AdditionalProperties.TryGetValue(KEY_INDEX, out oIndex))
+        PlayItem((int) oIndex);
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to remove an item from the playlist.
+    /// </summary>
+    /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
+    public void Remove(ListItem item)
+    {
+      if (item == null)
+        return;
+      object oIndex;
+      if (item.AdditionalProperties.TryGetValue(KEY_INDEX, out oIndex))
+        RemoveItem((int) oIndex);
     }
 
     #endregion

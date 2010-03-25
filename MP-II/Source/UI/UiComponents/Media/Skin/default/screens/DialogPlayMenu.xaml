@@ -3,7 +3,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:collections="clr-namespace:MediaPortal.Presentation.Collections"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects"
     Source="screens\simple_dialog_menu.xaml"
     >
   <Include.Resources>

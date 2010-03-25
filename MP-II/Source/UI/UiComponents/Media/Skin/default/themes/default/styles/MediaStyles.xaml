@@ -2,19 +2,24 @@
 <ResourceDictionary
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects"
     xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="FullScreenContentConsts,Consts,Colors,Buttons,OtherControls"
     >
 
+  <!-- ***************************************** OSD ************************************************** -->
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[0].Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
+        Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[0].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[1].Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
+        Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[1].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor2}"/>
     </ColorAnimationUsingKeyFrames>
-    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00" Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[2].Color">
+    <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
+        Storyboard.TargetName="OSD_Background" Storyboard.TargetProperty="Background.GradientStops[2].Color">
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor3}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
@@ -255,5 +260,115 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+  </Style>
+
+  <!-- ************************************** Playlist ************************************************ -->
+
+  <Style x:Key="RemoveButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="1" ScaleY="1"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Control Style="{ThemeResource ButtonControlStyle}"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Path x:Name="Cross1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Margin="6" Stretch="Fill"
+                Stroke="{ThemeResource DeleteCrossColor}" StrokeThickness="2" Data="M2,2 L23,23 z"/>
+            <Path x:Name="Cross2"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                Margin="6" Stretch="Fill"
+                Stroke="{ThemeResource DeleteCrossColor}" StrokeThickness="2" Data="M2,23 L23,2 z"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Focused_BeginStoryboard" Storyboard="{ThemeResource FocusedButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonStoryboard}"
+                    HandoffBehavior="TemporaryReplace"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid x:Name="ParentPanel">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Button x:Name="ItemButton" Grid.Column="0" Grid.Row="0"
+          Style="{ThemeResource ButtonWideStyle}"
+          Context="{Binding}"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+          Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+        <Button.Content>
+          <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="NameLabel" Grid.Column="0" Grid.Row="0" Margin="10,7,0,7"
+                Content="{TemplateBinding Context[Name]}"
+                FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Label Grid.Column="1" Grid.Row="0" Margin="10,7,10,7"
+                Content="{TemplateBinding Context[Length]}"
+                FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            <Grid.Triggers>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
+              </Trigger>
+            </Grid.Triggers>
+          </Grid>
+        </Button.Content>
+      </Button>
+      <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource ArrowButtonUpStyle}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"
+          Margin="10,0,2,0" Width="35" Height="35"/>
+      <Button Grid.Column="2" Grid.Row="0" Style="{ThemeResource ArrowButtonDownStyle}"
+          HorizontalAlignment="Center" VerticalAlignment="Center"
+          Margin="0,0,4,0" Width="35" Height="35"/>
+      <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Style="{StaticResource RemoveButtonStyle}"
+          Width="35" Height="35"
+          VerticalAlignment="Center" HorizontalAlignment="Center"
+          Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="PlayListListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource PlayListItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 </ResourceDictionary>

@@ -32,9 +32,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Media")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Media")]
-[assembly: AssemblyCopyright("Copyright ©  2009")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("Media Plugin")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

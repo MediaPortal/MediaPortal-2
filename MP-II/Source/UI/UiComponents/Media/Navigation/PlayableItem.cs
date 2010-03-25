@@ -61,5 +61,11 @@ namespace UiComponents.Media.Navigation
     {
       get { return _mediaItem; }
     }
+
+    public string Name
+    {
+      get { return this[KEY_NAME]; }
+      set { SetLabel(KEY_NAME, value); }
+    }
   }
 }
