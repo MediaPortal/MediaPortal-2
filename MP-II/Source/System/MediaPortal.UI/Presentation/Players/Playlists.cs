@@ -22,17 +22,17 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.UI.Presentation.Players;
 
-namespace MediaPortal.UI.Views
+namespace MediaPortal.UI.Presentation.Players
 {
   public static class Playlists
   {
-    public static void AddToPlaylist(this View view, IPlaylist playlist)
+    public static void AddToPlaylist(this IEnumerable<MediaItem> items, IPlaylist playlist)
     {
       playlist.StartBatchUpdate();
-      foreach (MediaItem mediaItem in view.MediaItems)
+      foreach (MediaItem mediaItem in items)
         playlist.Add(mediaItem);
       playlist.EndBatchUpdate();
     }

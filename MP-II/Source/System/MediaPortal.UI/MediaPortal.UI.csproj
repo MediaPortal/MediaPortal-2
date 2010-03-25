@@ -162,7 +162,7 @@
     <Compile Include="UserManagement\IRole.cs" />
     <Compile Include="UserManagement\IUser.cs" />
     <Compile Include="UserManagement\IUserService.cs" />
-    <Compile Include="Views\Playlists.cs" />
+    <Compile Include="Presentation\Players\Playlists.cs" />
     <Compile Include="Views\SimpleTextSearchViewSpecification.cs" />
     <Compile Include="Views\StackedFiltersMLVS.cs" />
     <Compile Include="Views\LocalSharesViewSpecification.cs" />
