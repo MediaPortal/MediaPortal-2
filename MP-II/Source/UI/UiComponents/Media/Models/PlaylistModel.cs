@@ -60,10 +60,13 @@ namespace UiComponents.Media.Models
     public const string KEY_IS_CURRENT_ITEM = "CurrentItem";
     public const string KEY_LENGTH = "Length";
     public const string KEY_INDEX = "Playlist-Index";
+    public const string KEY_UP_SELECTED = "Up-Selected";
+    public const string KEY_DOWN_SELECTED = "Down-Selected";
 
     #endregion
 
     protected AsynchronousMessageQueue _messageQueue;
+    protected readonly object _syncObj = new object();
     protected ItemsList _items = new ItemsList();
     protected IPlaylist _playlist = null;
     protected AbstractProperty _playlistHeaderProperty;
@@ -141,9 +144,10 @@ namespace UiComponents.Media.Models
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
+      IPlaylist playlist;
       if (pc != null)
       {
-        _playlist = pc.Playlist;
+        playlist = pc.Playlist;
         switch (pc.MediaType)
         {
           case PlayerContextType.Audio:
@@ -160,37 +164,41 @@ namespace UiComponents.Media.Models
         }
       }
       else
-        _playlist = null;
-      int ct = 0;
-      _items.Clear();
-      foreach (MediaItem mediaItem in _playlist.ItemList)
+        playlist = null;
+      lock (_syncObj)
       {
-        int idx = ct++;
-        PlayableItem item = new PlayableItem(mediaItem);
-        MediaItemAspect mediaAspect;
-        MediaItemAspect audioAspect;
-        MediaItemAspect videoAspect;
-        if (!mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
-          mediaAspect = null;
-        if (!mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
-          audioAspect = null;
-        if (!mediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
-          videoAspect = null;
-        string title = mediaAspect == null ? null : mediaAspect[MediaAspect.ATTR_TITLE] as string;
+        _playlist = playlist;
+        int ct = 0;
+        _items.Clear();
+        foreach (MediaItem mediaItem in playlist.ItemList)
+        {
+          int idx = ct++;
+          PlayableItem item = new PlayableItem(mediaItem);
+          MediaItemAspect mediaAspect;
+          MediaItemAspect audioAspect;
+          MediaItemAspect videoAspect;
+          if (!mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+            mediaAspect = null;
+          if (!mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+            audioAspect = null;
+          if (!mediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+            videoAspect = null;
+          string title = mediaAspect == null ? null : mediaAspect[MediaAspect.ATTR_TITLE] as string;
 
-        string artists = audioAspect == null ? null : StringUtils.Join(", ", (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS]);
-        string name = title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
-        long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
-        if (!length.HasValue)
-          length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
+          string artists = audioAspect == null ? null : StringUtils.Join(", ", (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS]);
+          string name = title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
+          long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
+          if (!length.HasValue)
+            length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
 
-        item.Name = (idx + 1) + ". " + name;
-        item.SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(new TimeSpan(0, 0, 0, (int) length.Value)) : string.Empty);
-        item.AdditionalProperties[KEY_INDEX] = idx;
-        _items.Add(item);
+          item.Name = (idx + 1) + ". " + name;
+          item.SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(new TimeSpan(0, 0, 0, (int) length.Value)) : string.Empty);
+          item.AdditionalProperties[KEY_INDEX] = idx;
+          _items.Add(item);
+        }
+        IsPlaylistEmpty = _items.Count == 0;
+        NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
       }
-      IsPlaylistEmpty = _items.Count == 0;
-      NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
       _items.FireChange();
       UpdateCurrentItem();
     }
@@ -200,8 +208,9 @@ namespace UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      if (playlist == null)
-        return;
+      lock (_syncObj)
+        if (playlist == null || playlist != _playlist)
+          return;
       int idx = playlist.ItemListIndex;
       foreach (PlayableItem item in _items)
       {
@@ -225,8 +234,9 @@ namespace UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      if (pc == null || pc.Playlist != _playlist)
-        return;
+      lock (_syncObj)
+        if (pc == null || pc.Playlist != _playlist)
+          return;
       playlist.ItemListIndex = index;
       pc.DoPlay(playlist.Current);
     }
@@ -236,9 +246,44 @@ namespace UiComponents.Media.Models
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
       IPlaylist playlist = pc == null ? null : pc.Playlist;
-      if (pc == null || pc.Playlist != _playlist)
-        return;
+      lock (_syncObj)
+        if (pc == null || pc.Playlist != _playlist)
+          return;
       playlist.RemoveAt(index);
+    }
+
+    protected void MoveItemUp(int index, ListItem item)
+    {
+      IPlaylist playlist = _playlist;
+      if (playlist == null)
+        return;
+      lock (playlist.SyncObj)
+      {
+        if (index > 0 && index < playlist.ItemList.Count)
+          playlist.Swap(index, index - 1);
+      }
+      lock (_syncObj)
+      {
+        item.AdditionalProperties[KEY_UP_SELECTED] = true;
+        item.FireChange();
+      }
+    }
+
+    protected void MoveItemDown(int index, ListItem item)
+    {
+      IPlaylist playlist = _playlist;
+      if (playlist == null)
+        return;
+      lock (playlist.SyncObj)
+      {
+        if (index >= 0 && index < playlist.ItemList.Count - 1)
+          playlist.Swap(index, index + 1);
+      }
+      lock (_syncObj)
+      {
+        item.AdditionalProperties[KEY_DOWN_SELECTED] = true;
+        item.FireChange();
+      }
     }
 
     #region Members to be accessed from the GUI
@@ -281,6 +326,24 @@ namespace UiComponents.Media.Models
       internal set { _isPlaylistEmptyProperty.SetValue(value); }
     }
 
+    protected bool TryGetIndex(ListItem item, out int index)
+    {
+      index = -1;
+      if (item == null)
+        return false;
+      object oIndex;
+      if (item.AdditionalProperties.TryGetValue(KEY_INDEX, out oIndex))
+      {
+        int? i = oIndex as int?;
+        if (i.HasValue)
+        {
+          index = i.Value;
+          return true;
+        }
+      }
+      return false;
+    }
+
     /// <summary>
     /// Provides a callable method for the skin to select an item of the playlist.
     /// The item will be played.
@@ -288,11 +351,9 @@ namespace UiComponents.Media.Models
     /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
     public void Select(ListItem item)
     {
-      if (item == null)
-        return;
-      object oIndex;
-      if (item.AdditionalProperties.TryGetValue(KEY_INDEX, out oIndex))
-        PlayItem((int) oIndex);
+      int index;
+      if (TryGetIndex(item, out index))
+        PlayItem(index);
     }
 
     /// <summary>
@@ -301,11 +362,31 @@ namespace UiComponents.Media.Models
     /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
     public void Remove(ListItem item)
     {
-      if (item == null)
-        return;
-      object oIndex;
-      if (item.AdditionalProperties.TryGetValue(KEY_INDEX, out oIndex))
-        RemoveItem((int) oIndex);
+      int index;
+      if (TryGetIndex(item, out index))
+        RemoveItem(index);
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to move the given playlist <paramref name="item"/> up in the playlist.
+    /// </summary>
+    /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
+    public void MoveUp(ListItem item)
+    {
+      int index;
+      if (TryGetIndex(item, out index))
+        MoveItemUp(index, item);
+    }
+
+    /// <summary>
+    /// Provides a callable method for the skin to move the given playlist <paramref name="item"/> down in the playlist.
+    /// </summary>
+    /// <param name="item">The choosen item. This item should be one of the items in the <see cref="Items"/> list.</param>
+    public void MoveDown(ListItem item)
+    {
+      int index;
+      if (TryGetIndex(item, out index))
+        MoveItemDown(index, item);
     }
 
     #endregion

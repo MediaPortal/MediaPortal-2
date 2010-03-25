@@ -284,11 +284,11 @@
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <Path x:Name="Cross1"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                Margin="6" Stretch="Fill"
+                Margin="10" Stretch="Fill"
                 Stroke="{ThemeResource DeleteCrossColor}" StrokeThickness="2" Data="M2,2 L23,23 z"/>
             <Path x:Name="Cross2"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                Margin="6" Stretch="Fill"
+                Margin="10" Stretch="Fill"
                 Stroke="{ThemeResource DeleteCrossColor}" StrokeThickness="2" Data="M2,23 L23,2 z"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -327,8 +327,7 @@
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Button x:Name="ItemButton" Grid.Column="0" Grid.Row="0"
-          Style="{ThemeResource ButtonWideStyle}"
-          Context="{Binding}"
+          Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
         <Button.Content>
@@ -355,11 +354,15 @@
         </Button.Content>
       </Button>
       <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource ArrowButtonUpStyle}"
+          Margin="10,0,2,0" Width="35" Height="35"
           HorizontalAlignment="Center" VerticalAlignment="Center"
-          Margin="10,0,2,0" Width="35" Height="35"/>
+          Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+          HasFocus="{Binding AdditionalProperties[Up-Selected]}"/>
       <Button Grid.Column="2" Grid.Row="0" Style="{ThemeResource ArrowButtonDownStyle}"
+          Margin="0,0,10,0" Width="35" Height="35"
           HorizontalAlignment="Center" VerticalAlignment="Center"
-          Margin="0,0,4,0" Width="35" Height="35"/>
+          Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+          HasFocus="{Binding AdditionalProperties[Down-Selected]}"/>
       <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Style="{StaticResource RemoveButtonStyle}"
           Width="35" Height="35"
           VerticalAlignment="Center" HorizontalAlignment="Center"

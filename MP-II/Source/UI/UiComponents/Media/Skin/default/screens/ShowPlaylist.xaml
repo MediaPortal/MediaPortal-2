@@ -34,6 +34,10 @@
             <ListView.Resources>
               <Command x:Key="Select_Command" Source="{StaticResource PlaylistModel}" Path="Select"
                   Parameters="{LateBoundValue Value={Binding}}"/>
+              <Command x:Key="MoveUp_Command" Source="{StaticResource PlaylistModel}" Path="MoveUp"
+                  Parameters="{LateBoundValue Value={Binding}}"/>
+              <Command x:Key="MoveDown_Command" Source="{StaticResource PlaylistModel}" Path="MoveDown"
+                  Parameters="{LateBoundValue Value={Binding}}"/>
               <Command x:Key="Remove_Command" Source="{StaticResource PlaylistModel}" Path="Remove"
                   Parameters="{LateBoundValue Value={Binding}}"/>
             </ListView.Resources>
