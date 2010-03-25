@@ -185,6 +185,28 @@ namespace MediaPortal.Core.Messaging
     }
 
     /// <summary>
+    /// Returns the information if this async message queue is terminated. A terminated message queue won't
+    /// enqueue any more messages, and its asynchronous message delivery thread will terminate when possible.
+    /// </summary>
+    public bool IsTerminated
+    {
+      get
+      {
+        lock (_syncObj)
+          return _terminated;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the priority in which the async message delivery thread of this message queue should run.
+    /// </summary>
+    public ThreadPriority ThreadPriority
+    {
+      get { return _messageDeliveryThread.Priority; }
+      set { _messageDeliveryThread.Priority = value; }
+    }
+
+    /// <summary>
     /// Starts this message queue.
     /// </summary>
     public void Start()
@@ -246,19 +268,6 @@ namespace MediaPortal.Core.Messaging
       {
         _terminated = true;
         Monitor.PulseAll(_syncObj);
-      }
-    }
-
-    /// <summary>
-    /// Returns the information if this async message queue is terminated. A terminated message queue won't
-    /// enqueue any more messages, and its asynchronous message delivery thread will terminate when possible.
-    /// </summary>
-    public bool IsTerminated
-    {
-      get
-      {
-        lock (_syncObj)
-          return _terminated;
       }
     }
 
