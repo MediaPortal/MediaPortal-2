@@ -62,7 +62,7 @@ namespace MediaPortal.UI.Views
     /// sub views of this view.</param>
     /// <param name="optionalMIATypeIds">Ids of the media item aspect types which may be extracted for items and
     /// sub views of this view.</param>
-    internal LocalDirectoryViewSpecification(string overrideName, ResourcePath viewPath,
+    public LocalDirectoryViewSpecification(string overrideName, ResourcePath viewPath,
         IEnumerable<Guid> necessaryMIATypeIds, IEnumerable<Guid> optionalMIATypeIds) :
         base(null, necessaryMIATypeIds, optionalMIATypeIds)
     {
