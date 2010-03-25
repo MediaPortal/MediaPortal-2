@@ -89,6 +89,7 @@
     <Compile Include="General\SmallLRUCache.cs" />
     <Compile Include="General\SystemName.cs" />
     <Compile Include="IStatus.cs" />
+    <Compile Include="Localization\FormattingUtils.cs" />
     <Compile Include="Localization\ILocalization.cs" />
     <Compile Include="Localization\IResourceString.cs" />
     <Compile Include="Localization\LocalizationHelper.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="MediaManagement\MLQueries\NotFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
     <Compile Include="MediaManagement\ResourcePath.cs" />
+    <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorkerMessaging.cs" />
