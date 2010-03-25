@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
@@ -49,6 +50,7 @@ namespace UiComponents.SkinBase.Models
 
     protected ICollection<WorkflowAction> _registeredActions = new List<WorkflowAction>();
     protected object _syncObj = new object();
+    protected bool _dirty = true;
 
     #endregion
 
@@ -62,7 +64,9 @@ namespace UiComponents.SkinBase.Models
     void SubscribeToMessages()
     {
       _messageQueue.SubscribeToMessageChannel(WorkflowManagerMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(MenuModelMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.ThreadPriority = ThreadPriority.BelowNormal;
     }
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -77,10 +81,38 @@ namespace UiComponents.SkinBase.Models
             UnregisterActionChangeHandlers(context);
         }
       }
+      else if (message.ChannelName == MenuModelMessaging.CHANNEL)
+      {
+        if (((MenuModelMessaging.MessageType) message.MessageType) ==
+            MenuModelMessaging.MessageType.UpdateMenu)
+          CheckUpdateMenus();
+      }
     }
 
     void OnMenuActionStateChanged(WorkflowAction action)
     {
+      Invalidate();
+    }
+
+    // Avoids too many menu updates
+    protected void Invalidate()
+    {
+      lock (_syncObj)
+      {
+        _dirty = true;
+        MenuModelMessaging.SendMenuMessage(MenuModelMessaging.MessageType.UpdateMenu);
+      }
+    }
+
+    protected void CheckUpdateMenus()
+    {
+      Thread.Sleep(5);
+      lock (_syncObj)
+      {
+        if (!_dirty)
+          return;
+        _dirty = false;
+      }
       UpdateMenus();
     }
 

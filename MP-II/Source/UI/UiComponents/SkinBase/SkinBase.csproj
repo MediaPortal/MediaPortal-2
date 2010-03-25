@@ -64,6 +64,7 @@
     <Compile Include="ConnectionListenerService.cs" />
     <Compile Include="IConnectionListenerService.cs" />
     <Compile Include="Models\HomeServerModel.cs" />
+    <Compile Include="Models\MenuModelMessaging.cs" />
     <Compile Include="Models\PlayerConfigurationDialogModel.cs" />
     <Compile Include="Models\MenuModel.cs" />
     <Compile Include="Models\ServerAttachmentModel.cs" />
