@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.Core.Localization
 {
   /// <summary>
@@ -44,7 +46,15 @@ namespace MediaPortal.Core.Localization
 
     public string Evaluate(params string[] args)
     {
-      return string.Format(_stringValue, args);
+      try
+      {
+        return string.Format(_stringValue, args);
+      }
+      catch (FormatException)
+      {
+        return _stringValue;
+      }
+      
     }
 
     public int CompareTo(IResourceString other)
