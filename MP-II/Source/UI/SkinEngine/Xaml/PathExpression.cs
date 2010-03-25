@@ -91,6 +91,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       result = null;
       object value = source.Value;
+      if (value == null)
+        return false;
       ParameterInfo[] indexerParams = IndexerDataDescriptor.GetIndexerTypes(value.GetType());
       object[] convertedIndices;
       // Search indexer on source type
