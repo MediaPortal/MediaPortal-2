@@ -308,11 +308,13 @@ namespace MediaPortal.UI.Services.Players
           return;
         for (int i = toIndex - 1; i >= fromIndex; i--)
           _itemList.RemoveAt(i);
+        if (!InBatchUpdateMode)
+          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
         if (_playIndexList == null)
           return;
         // Adapt play index list
         int removeCount = toIndex - fromIndex;
-        for (int i = _playIndexList.Count - 1; i >= 0; i++)
+        for (int i = _playIndexList.Count - 1; i >= 0; i--)
         {
           int playIndex = _playIndexList[i];
           if (playIndex < fromIndex)
@@ -327,8 +329,6 @@ namespace MediaPortal.UI.Services.Players
           _currentPlayIndex -= fromIndex;
         if (_currentPlayIndex < 0)
           _currentPlayIndex = -1;
-        if (!InBatchUpdateMode)
-          PlaylistMessaging.SendPlaylistMessage(PlaylistMessaging.MessageType.PlaylistUpdate, _playerContext);
       }
     }
 
