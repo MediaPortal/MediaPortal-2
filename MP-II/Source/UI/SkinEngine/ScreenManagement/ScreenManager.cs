@@ -670,11 +670,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// </summary>
     public void Shutdown()
     {
+      UnsubscribeFromMessages();
       lock (_syncObj)
-      {
-        UnsubscribeFromMessages();
         DoCloseCurrentScreenAndDialogs(true);
-      }
       _skinManager.Dispose();
     }
 
