@@ -28,7 +28,7 @@ namespace MediaPortal.Core.Services.Localization
 {
   public class LocalizationSettings
   {
-    protected string _mediaDurationFormat = "{0}:{1}";
+    protected string _mediaDurationFormat = "{0}:{1:D2}";
 
     /// <summary>
     /// Returns a format string to format a media duration timespan. The format string has two placeholders for
