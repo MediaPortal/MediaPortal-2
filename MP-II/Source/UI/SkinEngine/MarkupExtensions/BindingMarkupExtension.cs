@@ -326,7 +326,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set
       {
         if (_compiledPath != null)
-          throw new XamlBindingException("The path of a Binding which was already prepared cannot be changed");
+          throw new XamlBindingException("The path of a Binding which was already prepared cannot be changed (binding {0})", ToString());
         PathProperty.SetValue(value);
       }
     }
@@ -500,7 +500,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _typeOfSource = SourceType.ElementName;
       }
       if (sourcePropertiesSet > 1)
-        throw new XamlBindingException("Conflicting binding property configuration: More than one source property is set");
+        throw new XamlBindingException("Conflicting binding property configuration: More than one source property is set (binding {0})", ToString());
     }
 
     /// <summary>

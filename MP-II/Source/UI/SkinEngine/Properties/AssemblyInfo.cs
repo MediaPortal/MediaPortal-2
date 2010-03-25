@@ -32,9 +32,9 @@ using System.Runtime.InteropServices;
 [assembly : AssemblyTitle("SkinEngine")]
 [assembly : AssemblyDescription("")]
 [assembly : AssemblyConfiguration("")]
-[assembly : AssemblyCompany("")]
-[assembly : AssemblyProduct("SkinEngine")]
-[assembly : AssemblyCopyright("Copyright ©  2007")]
+[assembly: AssemblyCompany("Team MediaPortal")]
+[assembly: AssemblyProduct("SkinEngine Plugin")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]
 
