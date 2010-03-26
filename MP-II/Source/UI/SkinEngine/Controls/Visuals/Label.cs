@@ -348,6 +348,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (Screen != null)
         Screen.Invalidate(this);
+
+      Initialize();
+      InitializeTriggers();
     }
 
     public override void DoBuildRenderTree()
