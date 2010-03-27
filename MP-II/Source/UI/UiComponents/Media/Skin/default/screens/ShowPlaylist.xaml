@@ -33,13 +33,13 @@
           <ListView Style="{ThemeResource PlayListListViewStyle}" ItemsSource="{Binding Items}">
             <ListView.Resources>
               <Command x:Key="Select_Command" Source="{StaticResource PlaylistModel}" Path="Select"
-                  Parameters="{LateBoundValue Value={Binding}}"/>
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
               <Command x:Key="MoveUp_Command" Source="{StaticResource PlaylistModel}" Path="MoveUp"
-                  Parameters="{LateBoundValue Value={Binding}}"/>
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
               <Command x:Key="MoveDown_Command" Source="{StaticResource PlaylistModel}" Path="MoveDown"
-                  Parameters="{LateBoundValue Value={Binding}}"/>
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
               <Command x:Key="Remove_Command" Source="{StaticResource PlaylistModel}" Path="Remove"
-                  Parameters="{LateBoundValue Value={Binding}}"/>
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
           <Label IsVisible="{Binding IsPlaylistEmpty}"

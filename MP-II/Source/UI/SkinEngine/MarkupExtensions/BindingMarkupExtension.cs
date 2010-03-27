@@ -130,6 +130,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected AbstractProperty _sourceValueValidProperty = new SProperty(typeof(bool), false); // Cache-valid flag to avoid unnecessary calls to UpdateSourceValue()
     protected bool _isUpdatingBinding = false; // Used to avoid recursive calls to method UpdateBinding
     protected IDataDescriptor _attachedSource = null; // To which source data are we attached?
+    protected IObservable _attachedSourceObservable = null; // To which observable source data are we attached?
     protected ICollection<AbstractProperty> _attachedPropertiesCollection = new List<AbstractProperty>(); // To which data contexts and other properties are we attached?
 
     // Derived properties
@@ -425,6 +426,17 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// Called when our binding source changed.
     /// Will trigger an update of our source value here.
     /// </summary>
+    /// <param name="observable">The observable source value which fired its <see cref="IObservable.ObjectChanged"/> event.</param>
+    protected void OnBindingSourceChange(IObservable observable)
+    {
+      if (_active)
+        UpdateSourceValue();
+    }
+
+    /// <summary>
+    /// Called when our binding source changed.
+    /// Will trigger an update of our source value here.
+    /// </summary>
     /// <param name="dd">The source data descriptor which changed.</param>
     protected void OnBindingSourceChange(IDataDescriptor dd)
     {
@@ -517,6 +529,19 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     }
 
     /// <summary>
+    /// Attaches a change handler to the specified observable
+    /// <paramref name="source"/>, which will be used as binding source.
+    /// </summary>
+    protected void AttachToSourceObservable(IObservable source)
+    {
+      if (source != null)
+      {
+        _attachedSourceObservable = source;
+        _attachedSourceObservable.ObjectChanged += OnBindingSourceChange;
+      }
+    }
+
+    /// <summary>
     /// Attaches a change handler to the specified <paramref name="sourcePathProperty"/>,
     /// which is located in the resolving path to the source value. We will attach
     /// a change handler to every property, whose change will potentially affect
@@ -545,6 +570,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       {
         _attachedSource.Detach(OnBindingSourceChange);
         _attachedSource = null;
+      }
+      if (_attachedSourceObservable != null)
+      {
+        _attachedSourceObservable.ObjectChanged -= OnBindingSourceChange;
+        _attachedSourceObservable = null;
       }
     }
 
@@ -810,6 +840,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       finally
       {
         AttachToSource(result);
+        IObservable observable = result == null ? null : result.Value as IObservable;
+        if (observable != null)
+          AttachToSourceObservable(observable);
       }
     }
 

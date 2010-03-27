@@ -9,4 +9,7 @@
   <ResourceWrapper x:Key="VideoButtonFrameStrokeColor" Resource="Black"/>
   <ResourceWrapper x:Key="VideoButtonFrameStrokeFocusColor" Resource="Yellow"/>
 
+  <ResourceWrapper x:Key="PlaylistItemColor" Resource="LightGray"/>
+  <ResourceWrapper x:Key="PlaylistHighlightLabelColor" Resource="White"/>
+
 </ResourceDictionary>

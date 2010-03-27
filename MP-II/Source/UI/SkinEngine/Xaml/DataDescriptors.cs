@@ -949,7 +949,17 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       {
         if (_value != null && _value.SupportsChangeNotification)
           _value.Detach(OnSourceValueChange);
-        bool valueChanged = (_value != null && value != null) ? _value.Value != value.Value: _value != value;
+        bool valueChanged ;
+        if (_value != null && value != null)
+        {
+          if (_value.SupportsChangeNotification)
+            valueChanged = _value == value ? _value.Value != value.Value : _value != value;
+          else
+            // If the source value doesn't support change notification, we must assume that its value changed
+            valueChanged = true;
+        }
+        else
+          valueChanged = true;
         _value = value;
         if (_value != null && _value.SupportsChangeNotification)
           _value.Attach(OnSourceValueChange);

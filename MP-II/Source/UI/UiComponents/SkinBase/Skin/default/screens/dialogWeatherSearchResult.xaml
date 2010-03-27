@@ -22,7 +22,7 @@
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource DataContext}" Path="AddLocation">
                 <Command.Parameters>
-                  <LateBoundValue Value="{Binding}"/>
+                  <LateBoundValue BindingValue="{Binding}"/>
                 </Command.Parameters>
               </Command>
               <Command Source="{Service ScreenManager}" Path="CloseDialog"/>

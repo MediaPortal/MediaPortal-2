@@ -331,42 +331,51 @@
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
         <Button.Content>
-          <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Grid>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="NameLabel" Grid.Column="0" Grid.Row="0" Margin="10,7,0,7"
-                Content="{TemplateBinding Context[Name]}"
-                FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Label Grid.Column="1" Grid.Row="0" Margin="10,7,10,7"
-                Content="{TemplateBinding Context[Length]}"
-                FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-            <Grid.Triggers>
-              <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
-              </Trigger>
-            </Grid.Triggers>
+            <!-- Inner container necessary to hold extra data context -->
+            <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DataContext="{TemplateBinding Context}">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Label Grid.Column="0" Grid.Row="0" Margin="0,7,10,7"
+                  Content="{TemplateBinding Context[NumberStr]}"
+                  Color="{ThemeResource PlaylistItemColor}"
+                  VerticalAlignment="Center"/>
+              <Label x:Name="NameLabel" Grid.Column="1" Grid.Row="0" Margin="0,7,10,7"
+                  Content="{Binding [Name]}"
+                  FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Label.Color>
+                  <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding Path="AdditionalProperties[IsCurrentItem]"/>
+                    <Binding Source="{ThemeResource PlaylistHighlightLabelColor}"/>
+                    <Binding Source="{ThemeResource PlaylistItemColor}"/>
+                  </MultiBinding>
+                </Label.Color>
+              </Label>
+              <Label Grid.Column="2" Grid.Row="0" Margin="0,7,0,7"
+                  Content="{Binding [Length]}"
+                  Color="{ThemeResource PlaylistItemColor}"
+                  FontSize="22" VerticalAlignment="Center"/>
+            </Grid>
           </Grid>
         </Button.Content>
+        <Button.Triggers>
+          <Trigger Property="HasFocus" Value="True">
+            <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
+          </Trigger>
+        </Button.Triggers>
       </Button>
-      <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource ArrowButtonUpStyle}"
-          Margin="10,0,2,0" Width="35" Height="35"
-          HorizontalAlignment="Center" VerticalAlignment="Center"
-          Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
-          HasFocus="{Binding AdditionalProperties[Up-Selected]}"/>
-      <Button Grid.Column="2" Grid.Row="0" Style="{ThemeResource ArrowButtonDownStyle}"
-          Margin="0,0,10,0" Width="35" Height="35"
-          HorizontalAlignment="Center" VerticalAlignment="Center"
-          Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
-          HasFocus="{Binding AdditionalProperties[Down-Selected]}"/>
-      <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Style="{StaticResource RemoveButtonStyle}"
-          Width="35" Height="35"
-          VerticalAlignment="Center" HorizontalAlignment="Center"
-          Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
     </Grid>
   </DataTemplate>
 

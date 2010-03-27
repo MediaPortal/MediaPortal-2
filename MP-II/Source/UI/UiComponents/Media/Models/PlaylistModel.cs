@@ -57,11 +57,10 @@ namespace UiComponents.Media.Models
     public const string VIDEO_PLAYLIST_RES = "[Media.VideoPlaylist]";
     public const string PIP_PLAYLIST_RES = "[Media.PiPPlaylist]";
 
-    public const string KEY_IS_CURRENT_ITEM = "CurrentItem";
+    public const string KEY_IS_CURRENT_ITEM = "IsCurrentItem";
     public const string KEY_LENGTH = "Length";
     public const string KEY_INDEX = "Playlist-Index";
-    public const string KEY_UP_SELECTED = "Up-Selected";
-    public const string KEY_DOWN_SELECTED = "Down-Selected";
+    public const string KEY_NUMBERSTR = "NumberStr";
 
     #endregion
 
@@ -170,6 +169,7 @@ namespace UiComponents.Media.Models
         _playlist = playlist;
         int ct = 0;
         _items.Clear();
+        int currentItemIdx = playlist.ItemListIndex;
         foreach (MediaItem mediaItem in playlist.ItemList)
         {
           int idx = ct++;
@@ -191,16 +191,17 @@ namespace UiComponents.Media.Models
           if (!length.HasValue)
             length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
 
-          item.Name = (idx + 1) + ". " + name;
+          item.Name = name;
+          item.SetLabel(KEY_NUMBERSTR, (idx + 1) + ".");
           item.SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(new TimeSpan(0, 0, 0, (int) length.Value)) : string.Empty);
           item.AdditionalProperties[KEY_INDEX] = idx;
+          item.AdditionalProperties[KEY_IS_CURRENT_ITEM] = currentItemIdx == idx;
           _items.Add(item);
         }
         IsPlaylistEmpty = _items.Count == 0;
         NumItemsStr = Utils.Utils.BuildNumItemsStr(_items.Count);
       }
       _items.FireChange();
-      UpdateCurrentItem();
     }
 
     protected void UpdateCurrentItem()
@@ -216,7 +217,7 @@ namespace UiComponents.Media.Models
       {
         bool isCurrentItem = idx-- == 0;
         bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[KEY_IS_CURRENT_ITEM];
-        if (!currentIsCurrentItem.HasValue || currentIsCurrentItem.Value != isCurrentItem)
+        if (isCurrentItem != (currentIsCurrentItem.HasValue ? currentIsCurrentItem.Value : false))
         {
           item.AdditionalProperties[KEY_IS_CURRENT_ITEM] = isCurrentItem;
           item.FireChange();
@@ -262,11 +263,6 @@ namespace UiComponents.Media.Models
         if (index > 0 && index < playlist.ItemList.Count)
           playlist.Swap(index, index - 1);
       }
-      lock (_syncObj)
-      {
-        item.AdditionalProperties[KEY_UP_SELECTED] = true;
-        item.FireChange();
-      }
     }
 
     protected void MoveItemDown(int index, ListItem item)
@@ -278,11 +274,6 @@ namespace UiComponents.Media.Models
       {
         if (index >= 0 && index < playlist.ItemList.Count - 1)
           playlist.Swap(index, index + 1);
-      }
-      lock (_syncObj)
-      {
-        item.AdditionalProperties[KEY_DOWN_SELECTED] = true;
-        item.FireChange();
       }
     }
 

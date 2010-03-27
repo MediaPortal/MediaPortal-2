@@ -32,7 +32,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// Class to wrap a value object which cannot directly be used. This may be the case if
   /// the object is resolved by a markup extension, for example.
   /// </summary>
-  public class ValueWrapper : DependencyObject, IContentEnabled, IDeepCopyable
+  public class ValueWrapper : DependencyObject, IContentEnabled
   {
     #region Protected fields
 

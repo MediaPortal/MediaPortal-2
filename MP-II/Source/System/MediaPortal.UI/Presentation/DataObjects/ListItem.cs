@@ -31,8 +31,6 @@ using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.UI.Presentation.DataObjects
 {
-  public delegate void ListItemChangedHandler(ListItem item);
-
   /// <summary>
   /// Common class for wrapping single "items" to be displayed in the GUI.
   /// The term "item" in this context stands for a the (localized) text contents of a single,
@@ -49,11 +47,11 @@ namespace MediaPortal.UI.Presentation.DataObjects
   /// <item>An associated command, to be executed when this item is choosen for example</item>
   /// <item>Change listeners which can be called when the item's contents change</item>
   /// </list>
-  /// Changes do <b>not</b> automatically trigger the <see cref="OnChanged"/> event; this event
+  /// Changes do <b>not</b> automatically trigger the <see cref="ObjectChanged"/> event; this event
   /// has to be explicitly triggered by modifying clients.
   /// </remarks>
   /// TODO: Make multithreading-safe
-  public class ListItem
+  public class ListItem : IObservable
   {
     #region Protected fields
 
@@ -67,7 +65,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
     /// <summary>
     /// Event to track changes to this item.
     /// </summary>
-    public event ListItemChangedHandler OnChanged;
+    public event ObjectChangedHandler ObjectChanged;
 
     #endregion
 
@@ -286,12 +284,13 @@ namespace MediaPortal.UI.Presentation.DataObjects
     }
 
     /// <summary>
-    /// Fires the <see cref="OnChanged"/> event.
+    /// Fires the <see cref="ObjectChanged"/> event.
     /// </summary>
     public void FireChange()
     {
-      if (OnChanged != null)
-        OnChanged(this);
+      ObjectChangedHandler dlgt = ObjectChanged;
+      if (dlgt != null)
+        dlgt(this);
     }
 
     /// <summary>

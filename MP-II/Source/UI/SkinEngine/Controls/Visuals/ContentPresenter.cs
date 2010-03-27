@@ -85,9 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
       if (_templateControl == null)
-      { // No ContentTemplate set
+        // No ContentTemplate set
         FindAutomaticContentDataTemplate();
-      }
       if (_templateControl != null)
         // The controls in the DataTemplate access their "data" via their data context, so we must assign it
         _templateControl.Context = Content;

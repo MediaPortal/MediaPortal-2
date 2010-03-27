@@ -23,35 +23,74 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
   /// <summary>
   /// Class to wrap a value object which cannot directly be used. Objects of this class will NOT be
-  /// automatically converted to the underlaying <see cref="Value"/> object. That's why the code where
+  /// automatically converted to the underlaying <see cref="BindingValue"/> object. That's why the code where
   /// instances of this class are used must explicitly support <see cref="LateBoundValue"/>s.
   /// </summary>
-  public class LateBoundValue : ValueWrapper
+  /// <remarks>
+  /// We don't derive <see cref="LateBoundValue"/> from <see cref="ValueWrapper"/> because we must avoid
+  /// that the <see cref="BindingValue"/> property gets automatically copied in the <see cref="DeepCopy"/> method.
+  /// </remarks>
+  public class LateBoundValue : DependencyObject, IContentEnabled
   {
-    #region Ctor
+    #region Protected fields
 
-    public LateBoundValue() { }
+    protected object _bindingValue = null;
+
+    #endregion
+
+    #region Ctor
 
     // We don't expose the LateBoundValue(object value) constructor to avoid the misusage
     // for {LateBoundValue {Binding ...}} (which cannot work, because the binding cannot bind
     // when used as a constructor parameter)
 
+    public LateBoundValue() { }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      // Don't copy the BindingValue property because it is late bound and thus the actual value is not interesting
+    }
+
     #endregion
+
+    #region Public members
+
+    public object BindingValue
+    {
+      get { return _bindingValue; }
+      set { _bindingValue = value; }
+    }
 
     public static IList<object> ConvertLateBoundValues(IEnumerable<object> parameters)
     {
       IList<object> result = new List<object>();
       foreach (object parameter in parameters)
         if (parameter is LateBoundValue)
-          result.Add(((LateBoundValue) parameter).Value);
+          result.Add(((LateBoundValue) parameter).BindingValue);
         else
           result.Add(parameter);
       return result;
     }
+
+    #endregion
+
+    #region IContentEnabled implementation
+
+    public virtual bool FindContentProperty(out IDataDescriptor dd)
+    {
+      dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("BindingValue"));
+      return true;
+    }
+
+    #endregion
   }
 }

@@ -51,7 +51,7 @@
           <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}">
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
-                  Parameters="{LateBoundValue Value={Binding}}"/>
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
           <Label IsVisible="{Binding IsItemsEmpty}"

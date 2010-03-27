@@ -50,7 +50,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
       <InvokeCommand CommandStencil="{DynamicResource Execute_Command_Stencil}">
         <InvokeCommand.CommandParameters>
-          <LateBoundValue Value="{Binding}"/>
+          <LateBoundValue BindingValue="{Binding}"/>
         </InvokeCommand.CommandParameters>
       </InvokeCommand>
     </CommandList>

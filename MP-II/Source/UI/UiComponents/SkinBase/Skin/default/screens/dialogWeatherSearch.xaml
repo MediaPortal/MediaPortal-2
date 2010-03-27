@@ -22,7 +22,7 @@
           <Button Name="ButtonDone" Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[system.done]">
             <Button.Command>
               <CommandList>
-                <Command Path="SearchLocations" Parameters="{LateBoundValue Value={Binding Path=SearchCity}}"/>
+                <Command Path="SearchLocations" Parameters="{LateBoundValue BindingValue={Binding Path=SearchCity}}"/>
                 <Command Source="{Service ScreenManager}" Path="CloseDialog"/>
                 <Command Source="{Service ScreenManager}" Path="ShowDialog" Parameters="dialogWeatherSearchResult"/>
               </CommandList>
