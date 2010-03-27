@@ -211,9 +211,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      InitializeTriggers();
       Deallocate();
       float w = (float) Width * SkinContext.Zoom.Width;
       float h = (float) Height * SkinContext.Zoom.Height;
@@ -253,23 +252,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           h = _fallbackImage.Texture.Height * SkinContext.Zoom.Height;
       }
 
-      _desiredSize = new SizeF(w, h);
-
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("Image.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
+      return new SizeF(w, h);
     }
 
     public override void Arrange(RectangleF finalRect)
@@ -293,6 +276,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (Screen != null)
         Screen.Invalidate(this);
+
+      InitializeTriggers();
     }
 
     public override void DoBuildRenderTree()
@@ -344,8 +329,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       base.DoRender();
       SkinContext.AddOpacity(Opacity);
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix = Matrix.Translation(new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z));
+      ExtendedMatrix m = new ExtendedMatrix
+        {
+            Matrix = Matrix.Translation(new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z))
+        };
       SkinContext.AddTransform(m);
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       float opacity = (float)SkinContext.Opacity;

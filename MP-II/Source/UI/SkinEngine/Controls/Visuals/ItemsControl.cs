@@ -244,11 +244,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Measure&Arrange
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       // Call this before we measure. It will invalidate the layout (ApplyTemplate)
       DoUpdateItems();
-      base.Measure(ref totalSize);
+      return base.CalculateDesiredSize(totalSize);
     }
 
     #endregion

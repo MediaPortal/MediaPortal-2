@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -42,22 +41,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected const string TOP_ATTACHED_PROPERTY = "Canvas.Top";
     protected const string BOTTOM_ATTACHED_PROPERTY = "Canvas.Bottom";
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
-
       RectangleF rect = new RectangleF(0, 0, 0, 0);
       foreach (UIElement child in Children)
       {
@@ -69,22 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             new SizeF(childSize.Width, childSize.Height)));
       }
 
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-
-      if (Double.IsNaN(Width))
-        _desiredSize.Width = rect.Right;
-      if (Double.IsNaN(Height))
-        _desiredSize.Height = rect.Bottom;
-
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("canvas.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      return new SizeF(rect.Right, rect.Bottom);
     }
 
     public override void Arrange(RectangleF finalRect)
@@ -120,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         point.Y += y;
 
         // Get the child size
-        SizeF childSize = child.TotalDesiredSize();
+        SizeF childSize = child.DesiredSize;
 
         // Arrange the child
         child.Arrange(new RectangleF(point, childSize));

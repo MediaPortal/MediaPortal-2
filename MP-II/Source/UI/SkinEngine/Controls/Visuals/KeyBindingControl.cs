@@ -30,7 +30,7 @@ using MediaPortal.Utilities.DeepCopy;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   /// <summary>
-  /// Control to provide a key binding which can be triggered with a <see cref="MediaPortal.Control.InputManager.Key"/>. This control can also
+  /// Control to provide a key binding which can be triggered with a <see cref="Key"/>. This control can also
   /// provide a visible feedback for the user; it shows the key and a description for the shortcut.
   /// It is similar to a <see cref="KeyBinding"/>, which doesn't provide a view.
   /// </summary>

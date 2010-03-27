@@ -96,7 +96,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
       SkinContext.Transforms = new List<ExtendedMatrix>();
 
-
       GraphicsDevice.Device.EndScene();
 
       //get the current backbuffer

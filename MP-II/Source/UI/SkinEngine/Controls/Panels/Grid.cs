@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -105,22 +104,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     #region Measure & Arrange
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
-
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());
       if (RowDefinitions.Count == 0)
@@ -151,24 +136,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         RowDefinitions.SetDesiredLength(row, GetRowSpan(child), childSize.Height);
       }
 
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-      if (Double.IsNaN(Width))
-        _desiredSize.Width = (float) ColumnDefinitions.TotalDesiredLength;
-
-      if (Double.IsNaN(Height))
-        _desiredSize.Height = (float) RowDefinitions.TotalDesiredLength;
-      
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("Grid.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
+      return new SizeF((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength);
     }
 
     public override void Arrange(RectangleF finalRect)

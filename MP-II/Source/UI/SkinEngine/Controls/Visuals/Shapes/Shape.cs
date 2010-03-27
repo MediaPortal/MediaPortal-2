@@ -372,27 +372,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if (Screen != null) Screen.Invalidate(this);
     }
 
-    public override void Measure(ref SizeF totalSize)
-    {
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("Shape.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
-    }
-
     public override void Deallocate()
     {
       base.Deallocate();

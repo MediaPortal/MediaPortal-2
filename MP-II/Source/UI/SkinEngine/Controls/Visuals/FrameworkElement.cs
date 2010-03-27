@@ -493,6 +493,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return false;
     }
 
+    protected override void MeasureOverride(ref SizeF totalSize)
+    {
+      base.MeasureOverride(ref totalSize);
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width * SkinContext.Zoom.Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height * SkinContext.Zoom.Height;
+      SizeF calculatedSize = CalculateDesiredSize(totalSize);
+
+      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
+
+      if (double.IsNaN(_desiredSize.Width))
+        _desiredSize.Width = calculatedSize.Width;
+
+      if (double.IsNaN(_desiredSize.Height))
+        _desiredSize.Height = calculatedSize.Height;
+    }
+
+    protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
+    {
+      return new SizeF();
+    }
+
     /// <summary>
     /// Arranges the child horizontal and vertical in a given area. If the area is bigger than
     /// the child's desired size, the child will be arranged according to its
@@ -505,7 +528,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// The area the child should take.</param>
     public void ArrangeChild(FrameworkElement child, ref PointF location, ref SizeF childSize)
     {
-      SizeF desiredSize = child.TotalDesiredSize();
+      SizeF desiredSize = child.DesiredSize;
 
       if (!double.IsNaN(desiredSize.Width))
       {
@@ -567,7 +590,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// The area the child should take.</param>
     public void ArrangeChildHorizontal(FrameworkElement child, ref PointF location, ref SizeF childSize)
     {
-      SizeF desiredSize = child.TotalDesiredSize();
+      SizeF desiredSize = child.DesiredSize;
 
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Width < childSize.Width)
       {
@@ -603,7 +626,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// The area the child should take.</param>
     public void ArrangeChildVertical(FrameworkElement child, ref PointF location, ref SizeF childSize)
     {
-      SizeF desiredSize = child.TotalDesiredSize();
+      SizeF desiredSize = child.DesiredSize;
 
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Height < childSize.Height)
       {

@@ -161,50 +161,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentTemplateProperty.SetValue(value); }
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
-
-      SizeF childSize;
-
       if (_templateControl != null)
       {
-        childSize = new SizeF(totalSize.Width, totalSize.Height);
-        if (LayoutTransform != null)
-        {
-          ExtendedMatrix m;
-          LayoutTransform.GetTransform(out m);
-          SkinContext.AddLayoutTransform(m);
-        }
+        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
 
         // Measure the child
         _templateControl.Measure(ref childSize);
 
-        if (LayoutTransform != null)
-          SkinContext.RemoveLayoutTransform();
+        return childSize;
       }
       else
-        childSize = new SizeF();
-
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-      if (double.IsNaN(Width))
-        _desiredSize.Width = childSize.Width;
-
-      if (double.IsNaN(Height))
-        _desiredSize.Height = childSize.Height;
-
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("ContentPresenter.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
+        return new SizeF();
     }
 
     public override void Arrange(RectangleF finalRect)

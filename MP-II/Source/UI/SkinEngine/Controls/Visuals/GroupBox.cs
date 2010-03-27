@@ -65,8 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _headerProperty = new SProperty(typeof(string), string.Empty);
       _headerColorProperty = new SProperty(typeof(Color), Color.White);
-      _headerLabel = new Label();
-      _headerLabel.VisualParent = this;
+      _headerLabel = new Label {VisualParent = this};
     }
 
     void Attach()
@@ -136,7 +135,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override Thickness GetTotalBorderMargin()
     {
       Thickness result = base.GetTotalBorderMargin();
-      float halfLabel = _headerLabel.TotalDesiredSize().Height/(2*SkinContext.Zoom.Height); // Value has to be adjusted by zoom because the label returns a zoomed value
+      float halfLabel = _headerLabel.DesiredSize.Height/(2*SkinContext.Zoom.Height); // Value has to be adjusted by zoom because the label returns a zoomed value
       result.Top = halfLabel + Math.Max(halfLabel, result.Top);
       return result;
     }
@@ -160,7 +159,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void ArrangeBorder(RectangleF finalRect)
     {
-      float totalHeaderLabelHeight = _headerLabel.TotalDesiredSize().Height;
+      float totalHeaderLabelHeight = _headerLabel.DesiredSize.Height;
       float halfLabelHeight = totalHeaderLabelHeight/2;
       RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + halfLabelHeight,
           finalRect.Width, finalRect.Height - halfLabelHeight);
@@ -195,11 +194,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         LayoutTransform.GetTransform(out em);
         layoutTransform = layoutTransform.Multiply(em);
       }
-      baseRect.Y += _headerLabel.DesiredSize.Height/2;
+      SizeF desiredSize = _headerLabel.DesiredSize;
+      baseRect.Y += desiredSize.Height/2;
       return GraphicsPathHelper.CreateRoundedRectWithTitleRegionPath(baseRect,
           (float) CornerRadius * SkinContext.Zoom.Width, (float) CornerRadius * SkinContext.Zoom.Width, true,
           HEADER_INSET_LINE * SkinContext.Zoom.Width,
-          _headerLabel.DesiredSize.Width + HEADER_INSET_SPACE * SkinContext.Zoom.Width * 2, layoutTransform);
+          desiredSize.Width + HEADER_INSET_SPACE * SkinContext.Zoom.Width * 2, layoutTransform);
     }
 
     public override void DoRender()

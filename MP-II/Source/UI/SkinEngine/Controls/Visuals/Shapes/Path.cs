@@ -221,35 +221,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       using (GraphicsPath p = CalculateTransformedPath(new RectangleF(0, 0, 0, 0), null))
       {
         RectangleF bounds = p.GetBounds();
-
-        _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-        if (double.IsNaN(Width))
-          _desiredSize.Width = bounds.Width * SkinContext.Zoom.Width;
-
-        if (double.IsNaN(Height))
-          _desiredSize.Height = bounds.Height * SkinContext.Zoom.Height;
-
-        if (LayoutTransform != null)
-        {
-          ExtendedMatrix m;
-          LayoutTransform.GetTransform(out m);
-          SkinContext.AddLayoutTransform(m);
-        }
-        SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-        if (LayoutTransform != null)
-          SkinContext.RemoveLayoutTransform();
-
-        totalSize = _desiredSize;
-        AddMargin(ref totalSize);
-
-        //Trace.WriteLine(String.Format("path.measure :{0} returns {1}x{2}", this.Name, (int)_desiredSize.Width, (int)_desiredSize.Height));
+        return new SizeF(bounds.Width * SkinContext.Zoom.Width, bounds.Height * SkinContext.Zoom.Height);
       }
     }
 

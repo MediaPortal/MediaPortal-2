@@ -147,7 +147,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else
       {
-        SizeF desiredSize = _templateControl.TotalDesiredSize();
+        SizeF desiredSize = _templateControl.DesiredSize;
         PointF position;
         SizeF availableSize;
         if (_canScroll)

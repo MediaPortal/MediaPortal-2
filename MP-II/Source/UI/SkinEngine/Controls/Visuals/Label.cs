@@ -265,72 +265,41 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result.ToArray();
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-      InitializeTriggers();
-
       _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
-      SizeF childSize;
+      if (_resourceString == null || _asset == null)
+        return new SizeF();
       // Measure the text
-      if (_resourceString != null && _asset != null)
-      {
-        float height = _asset.Font.LineHeight(_fontSizeCache);
-        float width;
-        float totalWidth; // Attention: totalWidth is cleaned up by SkinContext.Zoom
-        if (double.IsNaN(Width))
-          if ((Scroll || Wrap) && !double.IsNaN(MaxDesiredWidth))
-            // MaxDesiredWidth will only be evaluated if either Scroll or Wrap is set
-            totalWidth = (float) MaxDesiredWidth;
-          else
-            // No size constraints
-            totalWidth = totalSize.Width / SkinContext.Zoom.Width;
-        else
-          // Width: highest priority
-          totalWidth = (float) Width;
-        if (Wrap)
-        { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
-          string[] lines = WrapText(totalWidth, true);
-          width = 0;
-          foreach (string line in lines)
-            width = Math.Max(width, _asset.Font.Width(line, _fontSizeCache));
-          height *= lines.Length;
-        }
-        else if (float.IsNaN(totalWidth) || !Scroll)
-          width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
-        else
-          width = totalWidth;
-
-        childSize = new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
-      }
-      else
-        childSize = new SizeF();
-
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
+      float height = _asset.Font.LineHeight(_fontSizeCache);
+      float width;
+      float totalWidth; // Attention: totalWidth is cleaned up by SkinContext.Zoom
       if (double.IsNaN(Width))
-        _desiredSize.Width = childSize.Width;
-
-      if (double.IsNaN(Height))
-        _desiredSize.Height = childSize.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
+        if ((Scroll || Wrap) && !double.IsNaN(MaxDesiredWidth))
+          // MaxDesiredWidth will only be evaluated if either Scroll or Wrap is set
+          totalWidth = (float) MaxDesiredWidth;
+        else
+          // No size constraints
+          totalWidth = totalSize.Width / SkinContext.Zoom.Width;
+      else
+        // Width: highest priority
+        totalWidth = (float) Width;
+      if (Wrap)
+      { // If Width property set and Wrap property set, we need to calculate the number of necessary text lines
+        string[] lines = WrapText(totalWidth, true);
+        width = 0;
+        foreach (string line in lines)
+          width = Math.Max(width, _asset.Font.Width(line, _fontSizeCache));
+        height *= lines.Length;
       }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      else if (float.IsNaN(totalWidth) || !Scroll)
+        width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
+      else
+        width = totalWidth;
 
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("Label.Measure: {0} returns {1}x{2}", _label.ToString(), (int)totalSize.Width, (int)totalSize.Height));
+      return new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
     }
 
     public override void Arrange(RectangleF finalRect)

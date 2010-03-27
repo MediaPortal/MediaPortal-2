@@ -55,7 +55,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static double _finalOpacity = 1.0;
     private static ExtendedMatrix _finalTransform = new ExtendedMatrix();
     private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
-    private static ExtendedMatrix _tempTransform = null;
     private static Form _form;
     private static bool _isRendering = false;
     private static AbstractProperty _zoomProperty = new WProperty(typeof(SizeF), new SizeF(1, 1));
@@ -84,6 +83,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static void ResetZorder()
     {
       _Zorder = 1.0f;
+    }
+
+    public static void SetZOrder(float value)
+    {
+      _Zorder = value;
     }
 
     public static float GetZorder()
@@ -237,7 +241,11 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public static List<ExtendedMatrix> Transforms
     {
       get { return _groupTransforms; }
-      set { _groupTransforms = value; }
+      set
+      {
+        _groupTransforms = value;
+        UpdateFinalTransform();
+      }
     }
 
     /// <summary>
@@ -250,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         _groupTransforms.Add(matrix.Multiply(_groupTransforms[_groupTransforms.Count - 1]));
       else
         _groupTransforms.Add(matrix);
-      UpdateFinalTransform(_groupTransforms[_groupTransforms.Count - 1]);
+      UpdateFinalTransform();
     }
 
     /// <summary>
@@ -260,19 +268,15 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       if (_groupTransforms.Count > 0)
         _groupTransforms.RemoveAt(_groupTransforms.Count - 1);
-      if (_groupTransforms.Count > 0)
-        UpdateFinalTransform(_groupTransforms[_groupTransforms.Count - 1]);
-      else
-        UpdateFinalTransform(new ExtendedMatrix());
+      UpdateFinalTransform();
     }
 
     /// <summary>
     /// Sets the final transform.
     /// </summary>
-    /// <param name="matrix">The transform to set.</param>
-    public static void UpdateFinalTransform(ExtendedMatrix matrix)
+    public static void UpdateFinalTransform()
     {
-      _finalTransform = matrix;
+      _finalTransform = _groupTransforms.Count > 0 ? _groupTransforms[_groupTransforms.Count - 1] : new ExtendedMatrix();
     }
 
     /// <summary>
@@ -290,7 +294,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         _layoutTransforms.Add(matrix.Multiply(_layoutTransforms[_layoutTransforms.Count - 1]));
       else
         _layoutTransforms.Add(matrix);
-      UpdateFinalLayoutTransform(_layoutTransforms[_layoutTransforms.Count - 1]);
+      UpdateFinalLayoutTransform();
     }
 
     /// <summary>
@@ -300,19 +304,15 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       if (_layoutTransforms.Count > 0)
         _layoutTransforms.RemoveAt(_layoutTransforms.Count - 1);
-      if (_layoutTransforms.Count > 0)
-        UpdateFinalLayoutTransform(_layoutTransforms[_layoutTransforms.Count - 1]);
-      else
-        UpdateFinalLayoutTransform(new ExtendedMatrix());
+      UpdateFinalLayoutTransform();
     }
 
     /// <summary>
     /// Sets the final transform.
     /// </summary>
-    /// <param name="matrix">The matrix.</param>
-    public static void UpdateFinalLayoutTransform(ExtendedMatrix matrix)
+    public static void UpdateFinalLayoutTransform()
     {
-      _finalLayoutTransform = matrix;
+      _finalLayoutTransform = _layoutTransforms.Count > 0 ? _layoutTransforms[_layoutTransforms.Count - 1] : new ExtendedMatrix();
     }
 
     /// <summary>
@@ -323,16 +323,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       get { return _finalLayoutTransform; }
       set { _finalLayoutTransform = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the temporary transform.
-    /// </summary>
-    /// <value>The temporary transform.</value>
-    public static ExtendedMatrix TemporaryTransform
-    {
-      get { return _tempTransform; }
-      set { _tempTransform = value; }
     }
 
     /// <summary>

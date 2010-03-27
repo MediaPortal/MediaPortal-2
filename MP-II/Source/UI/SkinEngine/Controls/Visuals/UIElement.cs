@@ -240,6 +240,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _opacityProperty;
     protected AbstractProperty _freezableProperty;
     protected AbstractProperty _templateNameScopeProperty;
+    protected SizeF _availableSize;
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
     protected ResourceDictionary _resources;
@@ -558,7 +559,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _renderTransformOriginProperty.SetValue(value); }
     }
 
-    public bool IsInvalidLayout
+    public bool IsLayoutInvalid
     {
       get { return _isLayoutInvalid; }
       set { _isLayoutInvalid = value;}
@@ -672,17 +673,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns the total desired size, i.e. the <see cref="DesiredSize"/> with the
-    /// <see cref="Margin"/>.
-    /// </summary>
-    /// <returns><see cref="DesiredSize"/> plus <see cref="Margin"/>.</returns>
-    public SizeF TotalDesiredSize()
-    {
-      return new SizeF(_desiredSize.Width + (Margin.Left + Margin.Right) * SkinContext.Zoom.Width,
-          _desiredSize.Height + (Margin.Top + Margin.Bottom) * SkinContext.Zoom.Height);
-    }
-
-    /// <summary>
     /// Will make this element scroll the specified <paramref name="element"/> in a visible
     /// position inside this element's borders. The call should also be delegated to the parent element
     /// with the original element and its updated bounds as parameter; this will make all parents also
@@ -761,8 +751,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
     /// contains the size available for this child control (size constraint). As output, it must be set
     /// to the <see cref="DesiredSize"/> plus <see cref="Margin"/>.</param>
-    public virtual void Measure(ref SizeF totalSize)
+    public void Measure(ref SizeF totalSize)
     {
+      _availableSize = new SizeF(totalSize);
+      RemoveMargin(ref totalSize);
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m;
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      MeasureOverride(ref totalSize);
+      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
+      if (LayoutTransform != null)
+        SkinContext.RemoveLayoutTransform();
+      AddMargin(ref _desiredSize);
+      totalSize = _desiredSize;
+    }
+    
+    protected virtual void MeasureOverride(ref SizeF totalSize)
+    {
+      _desiredSize = new SizeF();
     }
 
     /// <summary>
@@ -782,54 +791,64 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     public virtual void Invalidate()
     {
-      IsInvalidLayout = true;
+      IsLayoutInvalid = true;
     }
 
     /// <summary>
-    /// Updates the layout, i.e. calls <see cref="Measure"/> and <see cref="Arrange"/>.
+    /// Updates the layout, i.e. calls <see cref="Measure"/> and <see cref="Arrange"/>, if <see cref="_isLayoutInvalid"/>
+    /// is set.
     /// </summary>
     public void UpdateLayout()
     {
-      if (!IsInvalidLayout) 
+      if (!_isLayoutInvalid) 
         return;
     
       //Trace.WriteLine("UpdateLayout: " + Name + "  " + GetType());
-      IsInvalidLayout = false;
+      _isLayoutInvalid = false;
 
-      if (VisualParent is UIElement)
+      if (VisualParent == null)
       {
-        ((UIElement) VisualParent).Invalidate();
-        ((UIElement) VisualParent).UpdateLayout();
+        SizeF screenSize = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
+        SizeF childSize = new SizeF(screenSize.Width, screenSize.Height);
+
+        Measure(ref childSize);
+
+        // Root element - restart counting
+        SkinContext.ResetZorder();
+
+        // Ignore the measured size - arrange with screen size
+        Arrange(new RectangleF(0, 0, screenSize.Width, screenSize.Height));
       }
       else
       {
-        FrameworkElement element = this as FrameworkElement;
-        if (element == null)
+        ExtendedMatrix m = _finalLayoutTransform;
+        if (m != null)
+          SkinContext.AddLayoutTransform(m);
+
+        SizeF availableSize = new SizeF(_availableSize.Width, _availableSize.Height);
+        SizeF formerDesiredSize = _desiredSize;
+
+        Measure(ref availableSize);
+        if (m != null)
+          SkinContext.RemoveLayoutTransform();
+
+        if (_desiredSize != formerDesiredSize && VisualParent is UIElement)
         {
-          SizeF size = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
-          SizeF childSize = new SizeF(size.Width, size.Height);
-          Measure(ref childSize);
-          Arrange(new RectangleF(0, 0, size.Width, size.Height));
+          // Our size has changed - we need to invalidate our parent
+          UIElement parent = ((UIElement) VisualParent);
+          parent.Invalidate();
+          parent.UpdateLayout();
         }
         else
-        {
-          SizeF size = new SizeF((float) element.Width * SkinContext.Zoom.Width,
-              (float) element.Height * SkinContext.Zoom.Height);
-
-          // Root element - Start counting again
-          SkinContext.ResetZorder();
-
-          if (Double.IsNaN(size.Width)) 
-            size.Width = SkinContext.SkinWidth * SkinContext.Zoom.Width;
-          if (Double.IsNaN(size.Height)) 
-            size.Height = SkinContext.SkinHeight * SkinContext.Zoom.Height;
-
-          SizeF childSize = new SizeF(size.Width, size.Height);
-          ExtendedMatrix m = _finalLayoutTransform;
+        { // Our size is the same as before - just arrange
+          RectangleF finalRect = new RectangleF(_finalRect.Location, _finalRect.Size);
+          AddMargin(ref finalRect);
           if (m != null)
             SkinContext.AddLayoutTransform(m);
-          Measure(ref childSize);
-          Arrange(new RectangleF(0, 0, size.Width, size.Height));
+
+          SkinContext.SetZOrder(ActualPosition.Z);
+
+          Arrange(finalRect);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
         }

@@ -275,11 +275,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _renderer = new FontRender(_asset.Font);
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-      InitializeTriggers();
-
       _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
@@ -287,35 +284,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new SizeF(_asset.Font.Width(Text, _fontSizeCache) * SkinContext.Zoom.Width,
               _asset.Font.LineHeight(_fontSizeCache) * SkinContext.Zoom.Height);
 
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
+      if (PreferredTextLength.HasValue)
+        // We use the "W" character as the character which needs the most space in X-direction
+        childSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache) * SkinContext.Zoom.Width;
 
-      if (double.IsNaN(Width))
-      {
-        if (PreferredTextLength.HasValue)
-          // We use the "W" character as the character which needs the most space in X-direction
-          _desiredSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache) * SkinContext.Zoom.Width;
-        else
-          _desiredSize.Width = childSize.Width;
-      }
-
-      if (double.IsNaN(Height))
-        _desiredSize.Height = childSize.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("TextControl.Measure: {0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      return childSize;
     }
 
     public override void Arrange(RectangleF finalRect)

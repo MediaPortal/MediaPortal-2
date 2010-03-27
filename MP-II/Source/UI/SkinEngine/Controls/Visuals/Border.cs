@@ -215,17 +215,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Measure & Arrange
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      base.Measure(ref totalSize);
-      RemoveMargin(ref totalSize);
-
       MeasureBorder(totalSize);
-
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
 
       Thickness borderMargin = GetTotalBorderMargin();
       RemoveMargin(ref totalSize, borderMargin);
@@ -241,17 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       AddMargin(ref childSize, borderMargin);
 
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-      if (double.IsNaN(Width))
-        _desiredSize.Width = childSize.Width;
-
-      if (double.IsNaN(Height))
-        _desiredSize.Height = childSize.Height;
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-      //Trace.WriteLine(String.Format("Border.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
+      return childSize;
     }
 
     public override void Arrange(RectangleF finalRect)

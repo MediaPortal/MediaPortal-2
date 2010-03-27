@@ -73,41 +73,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _lastChildFillProperty.SetValue(value); }
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
-
-      SizeF cummulatedSize = CalculateDesiredSize(Children.GetEnumerator(), totalSize);
-
-      _desiredSize = new SizeF((float)Width * SkinContext.Zoom.Width, (float)Height * SkinContext.Zoom.Height);
-
-      if (double.IsNaN(Width))
-        _desiredSize.Width = cummulatedSize.Width;
-
-      if (double.IsNaN(Height))
-        _desiredSize.Height = cummulatedSize.Height;
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("DockPanel.measure :{0} returns {1}x{2}", this.Name, (int)totalSize.Width, (int)totalSize.Height));
+      return CalculateDesiredSize(Children.GetEnumerator(), totalSize);
     }
 
     public override void Arrange(RectangleF finalRect)
@@ -145,7 +113,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           continue;
 
         // Size of the child
-        SizeF childSize = child.TotalDesiredSize();
+        SizeF childSize = child.DesiredSize;
 
         if (GetDock(child) == Dock.Top)
         {
@@ -256,9 +224,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
       }
       if (LayoutTransform != null)
-      {
         SkinContext.RemoveLayoutTransform();
-      }
       _finalLayoutTransform = SkinContext.FinalLayoutTransform;
 
       if (!finalRect.IsEmpty)

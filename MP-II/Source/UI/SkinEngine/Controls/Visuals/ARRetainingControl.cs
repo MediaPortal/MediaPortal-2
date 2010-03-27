@@ -106,14 +106,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _contentProperty.SetValue(value); }
     }
 
-    protected SizeF CalculateSize(SizeF availableSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       // Calculate constraints
-      SizeF result = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-      if (double.IsNaN(result.Width))
-        result.Width = availableSize.Width;
-      if (double.IsNaN(result.Height))
-        result.Height = availableSize.Height;
+      SizeF result = new SizeF(totalSize.Width, totalSize.Height);
       float desiredWidthFromHeight = result.Height * AspectRatio;
       if (result.Width < desiredWidthFromHeight)
         // Adapt height
@@ -122,20 +118,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Adapt width
         result.Width = desiredWidthFromHeight;
       return result;
-    }
-
-    public override void Measure(ref SizeF totalSize)
-    {
-      RemoveMargin(ref totalSize);
-
-      _desiredSize = CalculateSize(totalSize);
-
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("ARRetainingControl.Measure: {0} returns {1}x{2}", Name, (int) totalSize.Width, (int) totalSize.Height));
     }
 
     public override void Arrange(RectangleF finalRect)
@@ -161,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (content != null)
       {
         PointF position = new PointF(finalRect.X, finalRect.Y);
-        SizeF availableSize = CalculateSize(finalRect.Size);
+        SizeF availableSize = CalculateDesiredSize(finalRect.Size);
         ArrangeChild(content, ref position, ref availableSize);
         RectangleF childRect = new RectangleF(position, availableSize);
         content.Arrange(childRect);

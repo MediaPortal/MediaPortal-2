@@ -129,22 +129,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       InvokeScrolled();
     }
 
-    public override void Measure(ref SizeF totalSize)
+    protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      RemoveMargin(ref totalSize);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width*SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height*SkinContext.Zoom.Height;
-
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
       SizeF childSize;
@@ -175,23 +161,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           minSize.Height = childSize.Height;
       }
 
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-      if (double.IsNaN(Width))
-        _desiredSize.Width = totalDesiredWidth;
-
-      if (double.IsNaN(Height))
-        _desiredSize.Height = totalDesiredHeight;
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      SkinContext.FinalLayoutTransform.TransformSize(ref _desiredSize);
-
-      totalSize = _desiredSize;
-      AddMargin(ref totalSize);
-
-      //Trace.WriteLine(String.Format("StackPanel.Measure: {0} returns {1}x{2}", Name, (int)totalSize.Width, (int)totalSize.Height));
+      return new SizeF(totalDesiredWidth, totalDesiredHeight);
     }
 
     public override void Arrange(RectangleF finalRect)
@@ -231,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 for (int i = visibleChildrenCount - 1; i >= 0; i--)
                 {
                   FrameworkElement child = visibleChildren[i];
-                  spaceLeft -= child.TotalDesiredSize().Height;
+                  spaceLeft -= child.DesiredSize.Height;
                   if (spaceLeft < 0)
                     break; // Nothing to correct
                   if (_scrollIndex > i)
@@ -242,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 for (int i = 0; i < _scrollIndex; i++)
                 {
                   FrameworkElement child = visibleChildren[i];
-                  startPositionY -= child.TotalDesiredSize().Height;
+                  startPositionY -= child.DesiredSize.Height;
                 }
               }
               else
@@ -251,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               for (int i = 0; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
-                SizeF childSize = child.TotalDesiredSize();
+                SizeF childSize = child.DesiredSize;
                 if (!_canScroll || (i >= _scrollIndex && startPositionY + childSize.Height <= bounds.Height + 0.5))
                   lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
@@ -283,7 +253,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 for (int i = visibleChildrenCount - 1; i >= 0; i--)
                 {
                   FrameworkElement child = visibleChildren[i];
-                  spaceLeft -= child.TotalDesiredSize().Width;
+                  spaceLeft -= child.DesiredSize.Width;
                   if (spaceLeft < 0)
                     break; // Nothing to correct
                   if (_scrollIndex > i)
@@ -294,7 +264,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 for (int i = 0; i < _scrollIndex; i++)
                 {
                   FrameworkElement child = visibleChildren[i];
-                  startPositionX -= child.TotalDesiredSize().Width;
+                  startPositionX -= child.DesiredSize.Width;
                 }
               }
               else
@@ -303,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               for (int i = _scrollIndex; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
-                SizeF childSize = child.TotalDesiredSize();
+                SizeF childSize = child.DesiredSize;
                 if (!_canScroll || (i >= _scrollIndex && startPositionX + childSize.Width <= bounds.Width + 0.5))
                   lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
@@ -362,7 +332,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             for (int i = childIndex; i >= 0; i--)
             {
               FrameworkElement child = visibleChildren[i];
-              spaceLeft -= child.TotalDesiredSize().Height;
+              spaceLeft -= child.DesiredSize.Height;
               if (spaceLeft < 0 && numVisible > 0)
                 break;
               numVisible++;
@@ -382,7 +352,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             for (int i = childIndex; i >= 0; i--)
             {
               FrameworkElement child = visibleChildren[i];
-              spaceLeft -= child.TotalDesiredSize().Width;
+              spaceLeft -= child.DesiredSize.Width;
               if (spaceLeft < 0 && numVisible > 0)
                 break;
               numVisible++;
@@ -703,7 +673,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           FrameworkElement fe = CollectionUtils.SafeGet(visibleChildren, i);
           if (fe == null)
             continue;
-          spaceBefore += fe.TotalDesiredSize().Width;
+          spaceBefore += fe.DesiredSize.Width;
         }
         return spaceBefore;
       }
@@ -728,7 +698,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           FrameworkElement fe = CollectionUtils.SafeGet(visibleChildren, i);
           if (fe == null)
             continue;
-          spaceBefore += fe.TotalDesiredSize().Height;
+          spaceBefore += fe.DesiredSize.Height;
         }
         return spaceBefore;
       }
