@@ -128,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     void Init()
     {
       _resourceKeyProperty = new SProperty(typeof(string), null);
-      _treeSearchModeProperty = new SProperty(typeof (TreeSearchMode), MarkupExtensions.TreeSearchMode.LogicalTree);
+      _treeSearchModeProperty = new SProperty(typeof (TreeSearchMode), TreeSearchMode.LogicalTree);
       _assignmentModeProperty = new SProperty(typeof(AssignmentMode), AssignmentMode.Reference);
     }
 
@@ -268,9 +268,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected void UpdateTarget(object value)
     {
       object assignValue;
-      if (AssignmentMode == MarkupExtensions.AssignmentMode.Reference)
+      if (AssignmentMode == AssignmentMode.Reference)
         assignValue = value;
-      else if (AssignmentMode == MarkupExtensions.AssignmentMode.Copy)
+      else if (AssignmentMode == AssignmentMode.Copy)
       {
         assignValue = MpfCopyManager.DeepCopyCutLP(value);
         if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
@@ -299,16 +299,16 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       parent = null;
       AbstractProperty parentProperty;
-      if (TreeSearchMode == MarkupExtensions.TreeSearchMode.LogicalTree)
+      if (TreeSearchMode == TreeSearchMode.LogicalTree)
         parentProperty = obj.LogicalParentProperty;
-      else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.VisualTree)
+      else if (TreeSearchMode == TreeSearchMode.VisualTree)
       {
         if (obj is Visual)
           parentProperty = ((Visual) obj).VisualParentProperty;
         else
           return false;
       }
-      else if (TreeSearchMode == MarkupExtensions.TreeSearchMode.Hybrid)
+      else if (TreeSearchMode == TreeSearchMode.Hybrid)
       {
         parentProperty = obj.LogicalParentProperty;
         if (parentProperty.GetValue() == null && obj is Visual)
