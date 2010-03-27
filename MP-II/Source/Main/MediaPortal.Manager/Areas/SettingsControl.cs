@@ -347,7 +347,7 @@ namespace MediaPortal.Manager
       }
       else
       {
-        _lblSectionTitle.Text = "MediaPortal II";
+        _lblSectionTitle.Text = "MediaPortal 2";
         _panelSectionSettings.Controls.Clear();
       }
     }
@@ -694,7 +694,7 @@ namespace MediaPortal.Manager
         else
         {
           _panelSectionSettings.Controls.Clear();  // Clear the old bestNode
-          _lblSectionTitle.Text = "MediaPortal II";
+          _lblSectionTitle.Text = "MediaPortal 2";
         }
       }
     }

@@ -4,7 +4,7 @@
     PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}"
     Author="Albert"
     Copyright="GPL"
-    Description="Shows settings to be edited in the MediaPortal-II GUI"
+    Description="Shows settings to be edited in the MediaPortal 2 GUI"
     PluginVersion="1.0">
 
   <Runtime>

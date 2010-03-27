@@ -156,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
         }
         //Texture.ToFile(_textureOpacity, @"c:\1\test.png", ImageFileFormat.Png);
-        //TextureLoader.Save(@"C:\erwin\trunk\MP-II\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
+        //TextureLoader.Save(@"C:\erwin\trunk\MP 2\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
       }
       SkinContext.Transforms = originalTransforms;
       if (Transform != null)

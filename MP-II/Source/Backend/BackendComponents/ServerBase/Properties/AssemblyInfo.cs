@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Team MediaPortal")]
-[assembly: AssemblyProduct("MediaPortal-II")]
+[assembly: AssemblyProduct("MediaPortal 2")]
 [assembly: AssemblyCopyright("Copyright © Team MediaPortal 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

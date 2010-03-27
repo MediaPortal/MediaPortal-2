@@ -27,7 +27,7 @@ using UPnP.Infrastructure.Dv;
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
   /// <summary>
-  /// Encapsulates the MediaPortal-II UPnP backend server device.
+  /// Encapsulates the MediaPortal 2 UPnP backend server device.
   /// </summary>
   public class UPnPBackendServer : UPnPServer
   {

@@ -43,7 +43,7 @@ namespace MediaPortal.UI.ServerCommunication
   }
 
   /// <summary>
-  /// Interface of the MediaPortal-II server's ContentDirectory service.
+  /// Interface of the MediaPortal 2 server's ContentDirectory service.
   /// </summary>
   public interface IContentDirectory
   {

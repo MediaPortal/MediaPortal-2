@@ -36,7 +36,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 namespace MediaPortal.UI.Services.ServerCommunication
 {
   /// <summary>
-  /// Encapsulates the MediaPortal-II UPnP client's proxy for the ContentDirectory service.
+  /// Encapsulates the MediaPortal 2 UPnP client's proxy for the ContentDirectory service.
   /// </summary>
   public class UPnPContentDirectoryServiceProxy : IContentDirectory
   {
@@ -52,7 +52,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     {
       CpAction result;
       if (!_serviceStub.Actions.TryGetValue(actionName, out result))
-        throw new FatalException("Method '{0}' is not present in the connected MP-II ContentDirectoryService", actionName);
+        throw new FatalException("Method '{0}' is not present in the connected MP 2 ContentDirectoryService", actionName);
       return result;
     }
 

@@ -107,7 +107,7 @@ namespace MediaPortal.Manager
           CrashLogger crash = new CrashLogger(pathManager.GetPath("<LOG>"));
           crash.CreateLog(ex);
           //Form frm =
-          //  new YesNoDialogScreen("MediaPortal II", "Unrecoverable Error",
+          //  new YesNoDialogScreen("MediaPortal 2", "Unrecoverable Error",
           //                        "MediaPortal has encountered an unrecoverable error\r\nDetails have been logged\r\n\r\nRestart?",
           //                        BaseScreen.Image.bug);
           //restart = frm.ShowDialog() == DialogResult.Yes;

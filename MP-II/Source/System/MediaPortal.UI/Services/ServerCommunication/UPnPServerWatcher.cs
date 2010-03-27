@@ -39,7 +39,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
   public delegate void AvailableBackendServersChangedDlgt(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded);
 
   /// <summary>
-  /// Watches the network for available MediaPortal-II servers.
+  /// Watches the network for available MediaPortal 2 servers.
   /// </summary>
   public class UPnPServerWatcher
   {
@@ -106,7 +106,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MP-II BackendServer '{0}' at host '{1}'",
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MP 2 BackendServer '{0}' at host '{1}'",
             serverDescriptor.ServerName, serverDescriptor.System.HostName);
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
@@ -122,7 +122,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MP-II BackendServer '{0}' at host '{1}' was removed from the network",
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MP 2 BackendServer '{0}' at host '{1}' was removed from the network",
             serverDescriptor.ServerName, serverDescriptor.System.HostName);
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;

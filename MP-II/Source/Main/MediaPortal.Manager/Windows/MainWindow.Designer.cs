@@ -104,7 +104,7 @@ namespace MediaPortal.Manager
       this.MinimumSize = new System.Drawing.Size(600, 36);
       this.Name = "MainWindow";
       this.RightToLeft = System.Windows.Forms.RightToLeft.No;
-      this.Text = "MediaPortal II - Manager";
+      this.Text = "MediaPortal 2 - Manager";
       this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWindow_FormClosing);
       this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyDown);
       this.ResumeLayout(false);

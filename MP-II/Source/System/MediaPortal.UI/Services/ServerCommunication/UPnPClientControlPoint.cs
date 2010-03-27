@@ -62,7 +62,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
     public event BackendServerDisconnectedDlgt BackendServerDisconnected;
 
     /// <summary>
-    /// Gets or sets the system ID of the MediaPortal-II server, which is this UPnP client's homeserver.
+    /// Gets or sets the system ID of the MediaPortal 2 server, which is this UPnP client's homeserver.
     /// The control point automatically connects to the homeserver.
     /// </summary>
     public string HomeServerSystemId
@@ -116,7 +116,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         }
         catch (Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("Error connecting to UPnP MP-II backend server '{0}'", e, deviceUuid);
+          ServiceScope.Get<ILogger>().Warn("Error connecting to UPnP MP 2 backend server '{0}'", e, deviceUuid);
           return;
         }
       }
@@ -140,7 +140,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
       catch (Exception e)
       {
-        ServiceScope.Get<ILogger>().Warn("Error connecting to services of UPnP MP-II backend server '{0}'", e, deviceUuid);
+        ServiceScope.Get<ILogger>().Warn("Error connecting to services of UPnP MP 2 backend server '{0}'", e, deviceUuid);
         connection.DeviceDisconnected -= OnUPnPDeviceDisconnected;
         _controlPoint.Disconnect(deviceUuid);
         return;

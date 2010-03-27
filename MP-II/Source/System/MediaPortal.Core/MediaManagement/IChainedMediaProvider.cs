@@ -30,7 +30,7 @@ namespace MediaPortal.Core.MediaManagement
   /// Interface to provide access to media files which are read from a resource accessor provided by another media provider.
   /// </summary>
   /// <remarks>
-  /// MP-II supports chaining of media providers. A chained media provider reads its input data from another media provider,
+  /// MP 2 supports chaining of media providers. A chained media provider reads its input data from another media provider,
   /// which itself can be a base media provider or another chained media provider.
   /// This interface provides method a <see cref="CreateResourceAccessor"/> as well as interface
   /// <see cref="IBaseMediaProvider"/>, except that it needs an additional parameter for the base resource which provides

@@ -40,7 +40,7 @@ namespace MediaPortal.Backend.Services.BackendServer
 {
   public class BackendServer : IBackendServer, IDisposable
   {
-    public const string MP2SERVER_DEVICEVERSION = "MediaPortal-II/1.0";
+    public const string MP2SERVER_DEVICEVERSION = "MediaPortal 2/1.0";
 
     public class UPnPLoggerDelegate : UPnPLogger
     {

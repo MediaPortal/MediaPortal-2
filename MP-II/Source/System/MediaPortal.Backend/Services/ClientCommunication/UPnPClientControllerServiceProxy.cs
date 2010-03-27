@@ -33,7 +33,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
   /// <summary>
-  /// Encapsulates the MediaPortal-II UPnP server's proxy for the ClientController service.
+  /// Encapsulates the MediaPortal 2 UPnP server's proxy for the ClientController service.
   /// </summary>
   public class UPnPClientControllerServiceProxy : IClientController
   {
@@ -49,7 +49,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       CpAction result;
       if (!_serviceStub.Actions.TryGetValue(actionName, out result))
-        throw new FatalException("Method '{0}' is not present in the connected MP-II ClientController", actionName);
+        throw new FatalException("Method '{0}' is not present in the connected MP 2 ClientController", actionName);
       return result;
     }
 

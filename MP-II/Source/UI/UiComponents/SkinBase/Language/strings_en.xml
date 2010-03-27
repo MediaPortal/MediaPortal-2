@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language>
   <Section Name="Home">
-    <String Name="Title" Text="MediaPortal-II"/>
+    <String Name="Title" Text="MediaPortal 2"/>
     <String Name="HomeStateDisplayLabel" Text="Home"/>
   </Section>
   <Section Name="Dialogs">
@@ -23,9 +23,9 @@
     <String Name="AttachToServerWorkflowStateLabel" Text="Attach to server"/>
     <String Name="DetachFromServerWorkflowStateLabel" Text="Detach from server"/>
     <String Name="HomeServerWorkflowStateLabel" Text="HomeServer"/>
-    <String Name="AttachedText.Before" Text="This MediaPortal-II client is currently attached to home server"/>
+    <String Name="AttachedText.Before" Text="This MediaPortal 2 client is currently attached to home server"/>
     <String Name="AttachedText.After" Text=""/>
-    <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal-II client."/>
+    <String Name="NoHomeServerAttached" Text="Currently, there is no home server attached to this MediaPortal 2 client."/>
     <String Name="HomeServerIsConnected" Text="The home server is currently connected."/>
     <String Name="HomeServerIsNotConnected" Text="The home server is currently disconnected."/>
     <String Name="DetachMenu" Text="Detach"/>
@@ -33,14 +33,14 @@
     <String Name="DetachConfirmDialogText" Text="If you detach from the home server, all data about the local shares and their media items will be removed from the home server's media library. You can attach again later. Do you really want to detach from home server '{0}' at host {1}?"/>
     <String Name="SearchForServers" Text="Search for servers"/>
     <String Name="DetachFromServer" Text="Detach from home server"/>
-    <String Name="AttachToServerHeader" Text="Attach to MediaPortal-II server"/>
-    <String Name="AttachToMultipleText" Text="There are multiple MP-II servers available in the network. Do you want to choose one of them as home server?"/>
-    <String Name="AttachToSingleText.Before" Text="The MP-II server"/>
+    <String Name="AttachToServerHeader" Text="Attach to MediaPortal 2 server"/>
+    <String Name="AttachToMultipleText" Text="There are multiple MP 2 servers available in the network. Do you want to choose one of them as home server?"/>
+    <String Name="AttachToSingleText.Before" Text="The MP 2 server"/>
     <String Name="AttachToSingleText.After" Text="is available in the network. Do you want to attach to it?"/>
-    <String Name="AttachToServerNoServerText" Text="Currently, there is no MediaPortal-II server available in the network."/>
+    <String Name="AttachToServerNoServerText" Text="Currently, there is no MediaPortal 2 server available in the network."/>
     <String Name="AttachButton" Text="Attach"/>
     <String Name="AttachInfoDialogHeader" Text="Server attached"/>
-    <String Name="AttachInfoDialogText" Text="This MediaPortal-II client was attached to its new home server '{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
+    <String Name="AttachInfoDialogText" Text="This MediaPortal 2 client was attached to its new home server '{0}' at host {1}"/> <!-- {0} = server name, {1} = host name -->
   </Section>
   <Section Name="Players">
     <String Name="PlayerConfiguration" Text="Player configuration"/>
@@ -94,7 +94,7 @@
     <String Name="General.Server.HomeServer" Text="Home server"/>
     <String Name="General.Server.HomeServer.Help" Text="Home server information, attach to and detach from home server"/>
     <String Name="General.Server.ServerListener" Text="Server listener"/>
-    <String Name="General.Server.ServerListener.Help" Text="Disable automatic popup in unconnected state, when a MediaPortal-II server becomes available in the network"/>
+    <String Name="General.Server.ServerListener.Help" Text="Disable automatic popup in unconnected state, when a MediaPortal 2 server becomes available in the network"/>
 
     <String Name="Regional" Text="Regional"/>
     <String Name="Regional.Language" Text="Language"/>
@@ -144,11 +144,11 @@
     <String Name="ReImport" Text="ReImport"/>
   </Section>
   <Section Name="UPnPFrontendServer">
-    <String Name="DefaultFriendlyName" Text="MediaPortal-II client"/>
+    <String Name="DefaultFriendlyName" Text="MediaPortal 2 client"/>
     <String Name="Manufacturer" Text="Team Mediaportal"/>
     <String Name="ManufacturerUrl" Text="www.team-mediaportal.com"/>
-    <String Name="ModelDescription" Text="MediaPortal-II client - the MediaPortal GUI. Plays media content, hosts local shares and provides other user interface parts."/>
-    <String Name="ModelName" Text="MediaPortal-II client"/>
+    <String Name="ModelDescription" Text="MediaPortal 2 client - the MediaPortal GUI. Plays media content, hosts local shares and provides other user interface parts."/>
+    <String Name="ModelName" Text="MediaPortal 2 client"/>
     <String Name="ModelNumber" Text="1"/>
     <!--    <String Name="ModelUrl" Text="..."/> -->
   </Section>

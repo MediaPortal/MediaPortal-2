@@ -4,7 +4,7 @@
     PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}"
     Author="SMa, Albert"
     Copyright="GPL"
-    Description="MediaPortal-II configuration engine"
+    Description="MediaPortal 2 configuration engine"
     PluginVersion="1.0">
 
   <Runtime>

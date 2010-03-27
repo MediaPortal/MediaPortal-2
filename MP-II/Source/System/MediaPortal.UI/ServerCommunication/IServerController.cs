@@ -27,7 +27,7 @@ using MediaPortal.Core.General;
 namespace MediaPortal.UI.ServerCommunication
 {
   /// <summary>
-  /// Interface of the MediaPortal-II server's ServerController service.
+  /// Interface of the MediaPortal 2 server's ServerController service.
   /// </summary>
   public interface IServerController
   {

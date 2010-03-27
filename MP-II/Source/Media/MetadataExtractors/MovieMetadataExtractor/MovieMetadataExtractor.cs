@@ -35,7 +35,7 @@ using MediaPortal.Utilities.SystemAPI;
 namespace MediaPortal.Media.MetadataExtractors.MovieMetadataExtractor
 {
   /// <summary>
-  /// MediaPortal-II metadata extractor implementation for movie files. Supports several formats.
+  /// MediaPortal 2 metadata extractor implementation for movie files. Supports several formats.
   /// </summary>
   public class MovieMetadataExtractor : IMetadataExtractor
   {

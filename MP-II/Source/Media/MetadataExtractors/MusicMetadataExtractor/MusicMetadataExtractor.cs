@@ -35,7 +35,7 @@ using MediaPortal.Core.Logging;
 namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 {
   /// <summary>
-  /// MediaPortal-II metadata extractor implementation for music files. Supports several formats.
+  /// MediaPortal 2 metadata extractor implementation for music files. Supports several formats.
   /// </summary>
   public class MusicMetadataExtractor : IMetadataExtractor
   {
@@ -60,7 +60,7 @@ namespace MediaPortal.Media.MetadataExtractors.MusicMetadataExtractor
 
     /// <summary>
     /// Music file accessor class needed for our tag library implementation. This class maps
-    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP-II file from a media provider.
+    /// the TagLib#'s <see cref="File.IFileAbstraction"/> view to an MP 2 file from a media provider.
     /// </summary>
     protected class MediaProviderFileAbstraction : File.IFileAbstraction
     {

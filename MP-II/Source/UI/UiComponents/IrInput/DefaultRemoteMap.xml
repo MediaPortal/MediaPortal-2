@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Contains a default mapping of remote keys to MP-II keys.
-  For each key mapping to be interpreted by MP-II, there must be a MappedKeyCode element.
+  Contains a default mapping of remote keys to MP 2 keys.
+  For each key mapping to be interpreted by MP 2, there must be a MappedKeyCode element.
   The Code attribute contains the key name which comes from the IRSS server. The Key_Name attribute contains
-  a reference to a MP-II key. The prefix (S: or P:) determines if the key is a special (S:) or printable (P:) key.
+  a reference to a MP 2 key. The prefix (S: or P:) determines if the key is a special (S:) or printable (P:) key.
   The suffix is the special key name or the printable key's character.
 
   Each key code may only be mapped once (i.e. a key code given in the Code attribute may only be at most once).
   It is not necessary to add a MappedKeyCode entry for each IRSS key code, but it is recommended to do so. If a remote key
-  should not be mapped to an MP-II key, the special key None (S:None) can be used.
+  should not be mapped to an MP 2 key, the special key None (S:None) can be used.
 -->
 <ArrayOfMappedKeyCode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <MappedKeyCode Code="Power" Key_Name="S:None" />

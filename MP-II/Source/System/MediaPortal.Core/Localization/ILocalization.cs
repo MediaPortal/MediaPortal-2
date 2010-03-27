@@ -35,7 +35,7 @@ namespace MediaPortal.Core.Localization
   /// and for providing localized strings for a configured current culture.
   /// </summary>
   /// <remarks>
-  /// Localized strings are referenced at the MP-II client side from the application via the interface
+  /// Localized strings are referenced at the MP 2 client side from the application via the interface
   /// <see cref="IResourceString"/>.
   /// When a localized string is to be requested and stored in memory, instances of <c>StringId</c>, which
   /// implements <see cref="IResourceString"/>, should be used. Do not store localized <see cref="string"/> instances

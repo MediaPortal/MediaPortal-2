@@ -25,7 +25,7 @@
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Temporary local filesystem accessor instance for a resource which might located anywhere in an MP-II system.
+  /// Temporary local filesystem accessor instance for a resource which might located anywhere in an MP 2 system.
   /// Via this instance, the resource, which potentially is located in a remote system, can be accessed
   /// via a <see cref="LocalFileSystemPath"/>.
   /// </summary>

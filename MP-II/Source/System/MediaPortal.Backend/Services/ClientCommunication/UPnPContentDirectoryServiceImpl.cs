@@ -40,7 +40,7 @@ using UPnP.Infrastructure.Dv.DeviceTree;
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
   /// <summary>
-  /// Provides the UPnP service for the MediaPortal-II content directory.
+  /// Provides the UPnP service for the MediaPortal 2 content directory.
   /// </summary>
   /// <remarks>
   /// This service works similar to the ContentDirectory service of the UPnP standard MediaServer device, but it uses a bit

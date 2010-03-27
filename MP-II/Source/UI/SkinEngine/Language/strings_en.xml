@@ -8,7 +8,7 @@
     <String Name="Appearance.Skin" Text="Skin"/>
     <String Name="Appearance.Skin.SkinAndTheme" Text="Skin and theme"/>
     <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin" Text="Change skin"/>
-    <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin.Help" Text="Change the look&amp;feel of MediaPortal-II"/>
+    <String Name="Appearance.Skin.SkinAndTheme.ChangeSkin.Help" Text="Change the look&amp;feel of MediaPortal 2"/>
     <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme" Text="Change theme"/>
     <String Name="Appearance.Skin.SkinAndTheme.ChangeTheme.Help" Text="Change the current skin's presentation"/>
 

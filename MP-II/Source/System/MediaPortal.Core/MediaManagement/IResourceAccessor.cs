@@ -34,7 +34,7 @@ namespace MediaPortal.Core.MediaManagement
   }
 
   /// <summary>
-  /// Temporary local accessor instance for a resource which might located anywhere in an MP-II system.
+  /// Temporary local accessor instance for a resource which might located anywhere in an MP 2 system.
   /// </summary>
   /// <remarks>
   /// Via this instance, the resource, which potentially is located in a remote system, can be accessed

@@ -29,7 +29,7 @@ using MediaPortal.Core.Logging;
 namespace MediaPortal.UI.Control.InputManager
 {
   /// <summary>
-  /// Represents a standardized input command in MediaPortal-II. There are two kinds of keys: Printable and non-printable
+  /// Represents a standardized input command in MediaPortal 2. There are two kinds of keys: Printable and non-printable
   /// (special) keys. Special keys have their own key constant defined in this class, for example <see cref="Play"/>.
   /// Printable keys like letters, digits and special characters, aren't defined as own instances in this class,
   /// they will be built on demand.

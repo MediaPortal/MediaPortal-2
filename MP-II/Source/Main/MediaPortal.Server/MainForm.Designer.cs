@@ -1,4 +1,4 @@
-﻿namespace MediaPortal
+namespace MediaPortal
 {
   partial class MainForm
   {
@@ -36,10 +36,10 @@
       // 
       // serverTrayIcon
       // 
-      this.serverTrayIcon.BalloonTipText = "MediaPortal-II Server";
-      this.serverTrayIcon.BalloonTipTitle = "MediaPortal-II";
+      this.serverTrayIcon.BalloonTipText = "MediaPortal 2 Server";
+      this.serverTrayIcon.BalloonTipTitle = "MediaPortal 2";
       this.serverTrayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("serverTrayIcon.Icon")));
-      this.serverTrayIcon.Text = "MediaPortal-II";
+      this.serverTrayIcon.Text = "MediaPortal 2";
       this.serverTrayIcon.Visible = true;
       // 
       // label1
@@ -61,7 +61,7 @@
       this.Controls.Add(this.label1);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.Name = "MainForm";
-      this.Text = "MediaPortal-II Server Application";
+      this.Text = "MediaPortal 2 Server Application";
       this.ResumeLayout(false);
 
     }

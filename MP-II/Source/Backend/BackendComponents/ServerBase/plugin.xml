@@ -4,7 +4,7 @@
     PluginId="{AC442F92-02F6-44be-8434-094B84A1892A}"
     Author="Albert"
     Copyright="GPL"
-    Description="Base services and language resources for the MP-II server"
+    Description="Base services and language resources for the MP 2 server"
     PluginVersion="1.0">
 
   <DependsOn>

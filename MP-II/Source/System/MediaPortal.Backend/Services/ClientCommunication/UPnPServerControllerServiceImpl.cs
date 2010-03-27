@@ -35,7 +35,7 @@ using UPnP.Infrastructure.Dv.DeviceTree;
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
   /// <summary>
-  /// Provides the UPnP service implementation for the MediaPortal-II server controller interface.
+  /// Provides the UPnP service implementation for the MediaPortal 2 server controller interface.
   /// </summary>
   public class UPnPServerControllerServiceImpl : DvService
   {

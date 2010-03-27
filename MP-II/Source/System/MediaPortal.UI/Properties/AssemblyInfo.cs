@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 [assembly : AssemblyDescription("")]
 [assembly : AssemblyConfiguration("")]
 [assembly : AssemblyCompany("")]
-[assembly: AssemblyProduct("MediaPortal-II")]
+[assembly: AssemblyProduct("MediaPortal 2")]
 [assembly: AssemblyCopyright("Copyright © Team MediaPortal  2009")]
 [assembly : AssemblyTrademark("")]
 [assembly : AssemblyCulture("")]

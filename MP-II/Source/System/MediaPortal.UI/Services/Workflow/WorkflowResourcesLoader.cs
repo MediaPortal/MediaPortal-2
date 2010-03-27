@@ -35,7 +35,7 @@ using MediaPortal.Utilities;
 namespace MediaPortal.UI.Services.Workflow
 {
   /// <summary>
-  /// Class for loading MediaPortal-II workflow resources from the current skin context.
+  /// Class for loading MediaPortal 2 workflow resources from the current skin context.
   /// </summary>
   public class WorkflowResourcesLoader
   {

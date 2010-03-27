@@ -33,7 +33,7 @@ namespace MediaPortal.Core.MediaManagement
   /// </summary>
   /// <remarks>
   /// To locate a media item, we basically need its <see cref="NativeSystem"/> and its <see cref="NativeResourcePath"/> for
-  /// its native system. This pair of data identifies a media item uniquely in an MP-II system.
+  /// its native system. This pair of data identifies a media item uniquely in an MP 2 system.
   /// </remarks>
   public interface IResourceLocator
   {

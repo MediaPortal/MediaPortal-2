@@ -38,7 +38,7 @@ namespace MediaPortal.Backend.ClientCommunication
   }
 
   /// <summary>
-  /// Interface of the MP-II client's ClientController service.
+  /// Interface of the MP 2 client's ClientController service.
   /// </summary>
   public interface IClientController
   {

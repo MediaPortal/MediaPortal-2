@@ -204,7 +204,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP-II client '{0}' (system ID '{1}') at host '{2}'",
+        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: Found MP 2 client '{0}' (system ID '{1}') at host '{2}'",
             clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Add(clientDescriptor);
       }
@@ -220,7 +220,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         clientDescriptor = GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || !_availableClients.Contains(clientDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: MP-II client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
+        ServiceScope.Get<ILogger>().Debug("UPnPServerControlPoint: MP 2 client '{0}' (system ID '{1}') at host '{2}' was removed from the network",
             clientDescriptor.ClientName, clientDescriptor.MPFrontendServerUUID, clientDescriptor.System.HostName);
         _availableClients.Remove(clientDescriptor);
       }
@@ -262,7 +262,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn(
-            "UPnPServerControlPoint: Error connecting to UPnP MP-II frontend server '{0}'", e, clientSystemId);
+            "UPnPServerControlPoint: Error connecting to UPnP MP 2 frontend server '{0}'", e, clientSystemId);
         return;
       }
       try
@@ -275,7 +275,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       catch (Exception e)
       {
         ServiceScope.Get<ILogger>().Warn(
-            "UPnPServerControlPoint: Error connecting to services of UPnP MP-II frontend server '{0}'", e, clientSystemId);
+            "UPnPServerControlPoint: Error connecting to services of UPnP MP 2 frontend server '{0}'", e, clientSystemId);
         _controlPoint.Disconnect(connection);
         return;
       }

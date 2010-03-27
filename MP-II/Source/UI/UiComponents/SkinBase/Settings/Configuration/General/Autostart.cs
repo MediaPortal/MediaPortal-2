@@ -37,7 +37,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.General
   {
     #region Constants
 
-    protected const string AUTOSTART_REGISTER_NAME = "MediaPortal-II";
+    protected const string AUTOSTART_REGISTER_NAME = "MediaPortal 2";
 
     #endregion
 

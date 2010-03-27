@@ -30,7 +30,7 @@ namespace MediaPortal.Core.UPnP
   public class UPnPTypesAndIds
   {
     // Backend
-    public const string BACKEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Server";
+    public const string BACKEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP2-Server";
     public const int BACKEND_SERVER_DEVICE_TYPE_VERSION = 1;
 
     public const string CONTENT_DIRECTORY_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ContentDirectory";
@@ -38,7 +38,7 @@ namespace MediaPortal.Core.UPnP
     public const string CONTENT_DIRECTORY_SERVICE_ID = "urn:team-mediaportal-com:serviceId:ContentDirectory";
 
     // Frontend
-    public const string FRONTEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP-II-Client";
+    public const string FRONTEND_SERVER_DEVICE_TYPE = "schemas-team-mediaportal-com:device:MP2-Client";
     public const int FRONTEND_SERVER_DEVICE_TYPE_VERSION = 1;
 
     public const string CLIENT_CONTROLLER_SERVICE_TYPE = "schemas-team-mediaportal-com:service:ClientController";

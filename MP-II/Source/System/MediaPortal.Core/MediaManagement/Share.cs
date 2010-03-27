@@ -45,7 +45,7 @@ namespace MediaPortal.Core.MediaManagement
 
   /// <summary>
   /// Holds all configuration data of a share. A share descriptor globally describes a share
-  /// in an MP-II system.
+  /// in an MP 2 system.
   /// A share basically is a directory of a provider, which gets assigned a special name (the share name).
   /// Some user interaction at the GUI level will use the share as a means to simplify the work with
   /// media provider paths (for example the automatic import).

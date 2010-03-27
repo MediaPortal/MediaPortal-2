@@ -100,7 +100,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       _messageQueue.Start();
       string homeServerSystemId = HomeServerSystemId;
       if (string.IsNullOrEmpty(homeServerSystemId))
-        // Watch for all MP-II media servers, if we don't have a homeserver yet
+        // Watch for all MP 2 media servers, if we don't have a homeserver yet
         _serverWatcher = BuildServerWatcher();
       else
         // If we have a homeserver set, we'll try to connect to it

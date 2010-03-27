@@ -102,7 +102,7 @@ namespace MediaPortal.Manager
       options += "/LogMethod\tInstructs the logger to also log the name of its calling method\r\n";
       options += "/LogLevel=<level>\tSets the log level.  <level> should be one of the following values:\r\n\t\t" +
         logLevels;
-      InfoScreen form = new InfoScreen("MediaPortal II", "Command Line Options", options, InfoScreen.Image.info);
+      InfoScreen form = new InfoScreen("MediaPortal 2", "Command Line Options", options, InfoScreen.Image.info);
       form.Size = new Size(714, 326);
       Application.Run(form);
     }
