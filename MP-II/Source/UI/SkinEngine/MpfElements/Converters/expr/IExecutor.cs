@@ -1,6 +1,3 @@
-using System; 
-using System.Text;
-
 namespace Jyc.Expr 
 {
     public interface IExecutor

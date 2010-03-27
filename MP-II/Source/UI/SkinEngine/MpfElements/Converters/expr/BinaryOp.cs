@@ -1,11 +1,10 @@
-using System; 
-using System.Text;
+using System;
 
 namespace Jyc.Expr
 {
     abstract class BinaryOp : Operator
     {
-        public BinaryOp( )
+        protected BinaryOp( )
         {
         } 
 

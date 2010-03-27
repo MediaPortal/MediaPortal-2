@@ -1,7 +1,3 @@
-
-using System; 
-using System.Text;
-
 namespace Jyc.Expr
 {
     class ConditionalOpExecutor : Executor
@@ -24,7 +20,7 @@ namespace Jyc.Expr
             {
                 Result result = this.SubVisitors[0].Result;
                 int resultIndex = -1;
-                if ((bool)result.Value)
+                if ((bool) ConvertHelper.ChangeType(result.Value, typeof(bool)))
                 {
                     resultIndex = 1;
                 }
@@ -52,7 +48,7 @@ namespace Jyc.Expr
             if (this.CurrentIndex == 0)
             {
                 Result result = this.SubVisitors[0].Result;
-                if (!(bool)result.Value)
+                if (!(bool) ConvertHelper.ChangeType(result.Value, typeof(bool)))
                 {
                     this.EndVisit(new Result(false)); 
                     return ExecuteAction.End;
@@ -73,7 +69,7 @@ namespace Jyc.Expr
             if (this.CurrentIndex == 0)
             {
                 Result result = this.SubVisitors[0].Result;
-                if ((bool)result.Value)
+                if ((bool) ConvertHelper.ChangeType(result.Value, typeof(bool)))
                 {
                     this.EndVisit(new Result(true)); 
                     return ExecuteAction.End;

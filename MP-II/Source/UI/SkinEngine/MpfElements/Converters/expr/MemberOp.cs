@@ -1,5 +1,6 @@
-using System; 
+using System;
 using System.Reflection;
+
 namespace Jyc.Expr
 {
     class MemberOp : Operator

@@ -1,5 +1,3 @@
-using System; 
-using System.Text;
 using System.Collections;
 
 namespace Jyc.Expr
@@ -10,7 +8,7 @@ namespace Jyc.Expr
         IExecutor _top;
         Stack  _stack = new Stack ();  
 
-        public ExecutorContext()
+        protected ExecutorContext()
         { 
         } 
 

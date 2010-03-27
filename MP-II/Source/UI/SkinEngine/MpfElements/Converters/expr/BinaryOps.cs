@@ -1,5 +1,4 @@
-using System; 
-using System.Text;
+using System;
 
 namespace Jyc.Expr
 {
@@ -379,7 +378,7 @@ namespace Jyc.Expr
             }
             else
             {
-                if (type0 == typeof(string))
+                if (type0 == typeof(string) || type1 == typeof(string))
                     return new Result( ConvertHelper.ToString(argArray[0].Value) +  ConvertHelper.ToString(argArray[1].Value));
                 else
                 {

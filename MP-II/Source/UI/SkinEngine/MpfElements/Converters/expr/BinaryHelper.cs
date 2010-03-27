@@ -1,6 +1,5 @@
 using System;
-using System.Collections; 
-using System.Text;
+using System.Collections;
 
 namespace Jyc.Expr
 {

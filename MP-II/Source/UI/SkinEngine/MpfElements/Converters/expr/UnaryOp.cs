@@ -1,11 +1,8 @@
-using System; 
-using System.Text;
-
 namespace Jyc.Expr
 {
     abstract class UnaryOp :Operator
     {
-        public UnaryOp( )
+        protected UnaryOp( )
         {
         }
 

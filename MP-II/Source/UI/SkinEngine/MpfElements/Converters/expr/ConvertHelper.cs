@@ -1,5 +1,4 @@
-using System; 
-using System.Text;
+using System;
 using System.ComponentModel;
 
 namespace Jyc.Expr
@@ -23,19 +22,14 @@ namespace Jyc.Expr
                 {
                     if (conversionType.IsValueType)
                     {
-                        throw new InvalidCastException("Cannot Cast Null To ValueType" );
+                        throw new InvalidCastException("Cannot cast null to ValueType" );
                     }
                     return null;
                 }
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(value);
-                if (typeConverter == null)
+                if (typeConverter == null || !typeConverter.CanConvertTo(conversionType))
                 {
-                    throw new InvalidCastException("Cannot Cast Null To  Target Type");
-                }
-
-                if (!typeConverter.CanConvertTo(conversionType))
-                {
-                    throw new InvalidCastException("Cannot Cast Null To  Target Type");
+                    throw new InvalidCastException("Cannot cast to target type");
                 }
 
                 return typeConverter.ConvertTo(value, conversionType);
@@ -61,14 +55,9 @@ namespace Jyc.Expr
                     return string.Empty;
 
                 TypeConverter typeConverter = TypeDescriptor.GetConverter(value);
-                if (typeConverter == null)
+                if (typeConverter == null || !typeConverter.CanConvertTo(typeof(string)))
                 {
-                    throw new InvalidCastException("Cannot Cast Null To  Target Type");
-                }
-
-                if (!typeConverter.CanConvertTo(typeof(string)))
-                {
-                    throw new InvalidCastException("Cannot Cast Null To  Target Type");
+                    throw new InvalidCastException("Cannot to target type");
                 }
 
                 return typeConverter.ConvertToString(value);

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using System.Text;
 using System.Globalization;
+using System.Text;
 
 namespace Jyc.Expr
 {

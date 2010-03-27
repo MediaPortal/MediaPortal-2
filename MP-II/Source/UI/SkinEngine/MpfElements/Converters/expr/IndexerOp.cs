@@ -1,8 +1,7 @@
 using System;
-using System.Collections; 
-using System.Text;
+using System.Collections;
 using System.Reflection;
- 
+
 namespace Jyc.Expr
 {
     class IndexerOp : Operator
