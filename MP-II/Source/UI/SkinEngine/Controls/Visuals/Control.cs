@@ -258,37 +258,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return new SizeF();
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
+      base.ArrangeOverride(finalRect);
       FrameworkElement templateControl = TemplateControl;
-      //Trace.WriteLine(String.Format("Control.Arrange :{0} X {1},Y {2} W {3}xH {4}", this.Name, (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-      RemoveMargin(ref finalRect);
-
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-
-      ActualPosition = new SlimDX.Vector3(layoutRect.Location.X, layoutRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = layoutRect.Width;
-      ActualHeight = layoutRect.Height;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      if (templateControl != null)
-      {
-        templateControl.Arrange(layoutRect);
-        ActualBounds = templateControl.ActualTotalBounds; // Need to add 
-      }
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      if (!finalRect.IsEmpty)
-        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      base.Arrange(finalRect);
+      if (templateControl == null)
+        return;
+      templateControl.Arrange(finalRect);
+      ActualBounds = templateControl.ActualTotalBounds; // Need to adapt to template control's bounds
     }
 
     #endregion

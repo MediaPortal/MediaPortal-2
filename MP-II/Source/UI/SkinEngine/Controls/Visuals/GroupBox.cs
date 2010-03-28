@@ -164,12 +164,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RectangleF borderRect = new RectangleF(finalRect.X, finalRect.Y + halfLabelHeight,
           finalRect.Width, finalRect.Height - halfLabelHeight);
       base.ArrangeBorder(borderRect);
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
       float realHeaderInset = (HEADER_INSET_LINE + HEADER_INSET_SPACE)*SkinContext.Zoom.Width;
       float borderInsetX = GetBorderInsetX();
       _headerLabelRect = new RectangleF(
@@ -181,8 +175,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _headerLabelRect.Height = finalRect.Height;
 
       _headerLabel.Arrange(_headerLabelRect);
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
     }
 
     protected override GraphicsPath CreateBorderRectPath(RectangleF baseRect)

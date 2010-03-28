@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Drawing;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -182,9 +183,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
-    public override void Arrange(System.Drawing.RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      base.Arrange(finalRect);
+      base.ArrangeOverride(finalRect);
       // We need to update the scrollbars after our and our content's final rectangles are set
       UpdateScrollBars();
     }

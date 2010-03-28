@@ -176,40 +176,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         return new SizeF();
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("ContentPresenter.Arrange: {0} X {1}, Y {2} W {4} H {5}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
-  
-      RemoveMargin(ref finalRect);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
-      if (_templateControl != null)
-      {
-        PointF position = new PointF(finalRect.X, finalRect.Y);
-        SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
-        ArrangeChild(_templateControl, ref position, ref availableSize);
-        RectangleF childRect = new RectangleF(position, availableSize);
-        _templateControl.Arrange(childRect);
-      }
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      base.Arrange(finalRect);
+      base.ArrangeOverride(finalRect);
+      if (_templateControl == null)
+        return;
+      PointF position = new PointF(finalRect.X, finalRect.Y);
+      SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
+      ArrangeChild(_templateControl, ref position, ref availableSize);
+      RectangleF childRect = new RectangleF(position, availableSize);
+      _templateControl.Arrange(childRect);
     }
 
     public override void DoRender()

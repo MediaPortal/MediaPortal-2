@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
@@ -120,25 +119,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("ARRetainingControl.Arrange: {0} X {1}, Y {2} W {4} H {5}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
-  
-      RemoveMargin(ref finalRect);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
+      base.ArrangeOverride(finalRect);
       FrameworkElement content = Content;
       if (content != null)
       {
@@ -148,13 +131,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         RectangleF childRect = new RectangleF(position, availableSize);
         content.Arrange(childRect);
       }
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      base.Arrange(finalRect);
     }
 
     public override void DoRender()

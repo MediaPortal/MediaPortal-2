@@ -29,7 +29,6 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
-using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -236,32 +235,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return childSize;
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      base.Arrange(finalRect);
-      RemoveMargin(ref finalRect);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
+      float oldPosX = ActualPosition.X;
+      float oldPosY = ActualPosition.Y;
+      float oldWidth = _finalRect.Width;
+      float oldHeight= _finalRect.Height;
+      base.ArrangeOverride(finalRect);
 
       ArrangeBorder(finalRect);
 
-      if (_finalRect != finalRect)
+      if (!finalRect.IsEmpty &&
+          (oldPosX != finalRect.X || oldPosY != finalRect.Y ||
+           oldWidth != finalRect.Width || oldHeight != finalRect.Height))
         _performLayout = true;
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+      _finalRect = finalRect;
 
-      if (_content != null)
-      {
-        RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
-        RemoveMargin(ref layoutRect, GetTotalBorderMargin());
-        PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
-        SizeF size = new SizeF(layoutRect.Size);
-        ArrangeChild(_content, ref location, ref size);
-        _content.Arrange(new RectangleF(location, size));
-      }
+      if (_content == null)
+        return;
+      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      RemoveMargin(ref layoutRect, GetTotalBorderMargin());
+      PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
+      SizeF size = new SizeF(layoutRect.Size);
+      ArrangeChild(_content, ref location, ref size);
+      _content.Arrange(new RectangleF(location, size));
     }
 
     /// <summary>

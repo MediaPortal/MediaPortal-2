@@ -511,6 +511,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _desiredSize.Height = calculatedSize.Height;
     }
 
+    protected override void ArrangeOverride(RectangleF finalRect)
+    {
+      base.ArrangeOverride(finalRect);
+      ActualWidth = finalRect.Width;
+      ActualHeight = finalRect.Height;
+    }
+
     protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
     {
       return new SizeF();

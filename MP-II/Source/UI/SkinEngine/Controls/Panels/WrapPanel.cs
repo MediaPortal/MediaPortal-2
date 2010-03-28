@@ -173,25 +173,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF(totalDesiredWidth, totalDesiredHeight);
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("WrapPanel.Arrange: {0} X {1} Y {2} W {3} H {4}", Name, (int) finalRect.X, (int) finalRect.Y, (int) finalRect.Width, (int) finalRect.Height));
-
-      RemoveMargin(ref finalRect);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
+      base.ArrangeOverride(finalRect);
       switch (Orientation)
       {
         case Orientation.Horizontal:
@@ -258,18 +242,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           }
           break;
       }
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      if (!finalRect.IsEmpty)
-      {
-        if (_finalRect.Width != finalRect.Width || _finalRect.Height != _finalRect.Height)
-          _performLayout = true;
-        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      }
-      base.Arrange(finalRect);
     }
   }
 }

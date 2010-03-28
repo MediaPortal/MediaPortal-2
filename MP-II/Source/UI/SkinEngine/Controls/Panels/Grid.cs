@@ -27,7 +27,6 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -139,19 +138,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength);
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      RemoveMargin(ref finalRect);
-      ActualPosition = new SlimDX.Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
+      base.ArrangeOverride(finalRect);
 
       ColumnDefinitions.SetAvailableSize(ActualWidth);
       RowDefinitions.SetAvailableSize(ActualHeight);
@@ -179,15 +168,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         child.Arrange(new RectangleF(position, childSize));
       }
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      if (_finalRect != finalRect)
-        _performLayout = true;
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      if (Screen != null) Screen.Invalidate(this);
-      base.Arrange(finalRect);
     }
 
     #endregion

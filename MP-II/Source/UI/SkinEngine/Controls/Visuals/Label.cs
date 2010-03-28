@@ -302,24 +302,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      //Trace.WriteLine(String.Format("Label.Arrange: {0} X {1},Y {2} W {3} H {4}", _label.ToString(), (int)finalRect.X, (int)finalRect.Y, (int)finalRect.Width, (int)finalRect.Height));
-
-      RemoveMargin(ref finalRect);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
+      base.ArrangeOverride(finalRect);
       if (Screen != null)
         Screen.Invalidate(this);
-
-      Initialize();
-      InitializeTriggers();
     }
 
     public override void DoBuildRenderTree()

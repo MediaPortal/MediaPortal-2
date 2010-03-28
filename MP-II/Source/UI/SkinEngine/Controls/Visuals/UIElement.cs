@@ -778,10 +778,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Arranges the UI element and positions it in the finalrect.
     /// </summary>
     /// <param name="finalRect">The final position and size the parent computed for this child element.</param>
-    public virtual void Arrange(RectangleF finalRect)
+    public void Arrange(RectangleF finalRect)
     {
+      RemoveMargin(ref finalRect);
+
+      // TODO: Check if we need this if statement
+      if (!finalRect.IsEmpty)
+        _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
+
+      if (LayoutTransform != null)
+      {
+        ExtendedMatrix m;
+        LayoutTransform.GetTransform(out m);
+        SkinContext.AddLayoutTransform(m);
+      }
+      ArrangeOverride(finalRect);
+      if (LayoutTransform != null)
+        SkinContext.RemoveLayoutTransform();
+
+      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
       Initialize();
       InitializeTriggers();
+    }
+
+    protected virtual void ArrangeOverride(RectangleF finalRect)
+    {
+      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
     }
 
     /// <summary>

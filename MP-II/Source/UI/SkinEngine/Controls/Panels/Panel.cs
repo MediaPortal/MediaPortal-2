@@ -207,6 +207,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (Screen != null) Screen.Invalidate(this);
     }
 
+    protected override void ArrangeOverride(RectangleF finalRect)
+    {
+      float oldPosX = ActualPosition.X;
+      float oldPosY = ActualPosition.Y;
+      float oldWidth = _finalRect.Width;
+      float oldHeight= _finalRect.Height;
+      base.ArrangeOverride(finalRect);
+      if (!finalRect.IsEmpty &&
+          (oldPosX != finalRect.X || oldPosY != finalRect.Y ||
+           oldWidth != finalRect.Width || oldHeight != finalRect.Height))
+        _performLayout = true;
+      _finalRect = finalRect;
+      Screen.Invalidate(this);
+    }
+
     void SetupBrush()
     {
       if (Background != null && _backgroundContext != null)

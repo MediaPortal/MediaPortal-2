@@ -123,23 +123,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.MakeVisible(element, elementBounds);
     }
 
-    public override void Arrange(RectangleF finalRect)
+    protected override void ArrangeOverride(RectangleF finalRect)
     {
-      RemoveMargin(ref finalRect);
-
-      _finalRect = new RectangleF(finalRect.Location, finalRect.Size);
-
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-
+      base.ArrangeOverride(finalRect);
       if (_templateControl == null)
       {
         _scrollOffsetX = 0;
@@ -177,14 +163,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       _actualScrollOffsetX = _scrollOffsetX;
       _actualScrollOffsetY = _scrollOffsetY;
-
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-
-      Initialize();
-      InitializeTriggers();
     }
 
     public override void DoRender()
