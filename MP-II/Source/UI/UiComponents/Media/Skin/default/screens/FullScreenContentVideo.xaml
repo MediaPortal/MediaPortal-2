@@ -9,6 +9,12 @@
   <Grid.Background>
     <VideoBrush Stream="0"/>
   </Grid.Background>
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="*"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="*"/>
+  </Grid.RowDefinitions>
   <Grid x:Name="PipLayoutGrid" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
@@ -35,7 +41,8 @@
       </Rectangle.Fill>
     </Rectangle> <!-- PiP -->
   </Grid> <!-- PipLayoutGrid -->
-  <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false">
+  <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
+      VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
         IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
       <mp_special:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
