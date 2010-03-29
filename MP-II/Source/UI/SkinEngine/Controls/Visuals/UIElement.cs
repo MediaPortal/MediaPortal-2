@@ -218,7 +218,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   public delegate void UIEventDelegate(string eventName);
 
-  public class UIElement : Visual, IContentEnabled
+  public abstract class UIElement : Visual, IContentEnabled
   {
     protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
     protected const string LOADED_EVENT = "UIElement.Loaded";
@@ -786,9 +786,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Measure(ref totalSize, false);
     }
 
-    protected virtual void MeasureOverride(ref SizeF totalSize)
-    {
-    }
+    protected abstract void MeasureOverride(ref SizeF totalSize);
 
     /// <summary>
     /// Arranges the UI element and positions it in the finalrect.

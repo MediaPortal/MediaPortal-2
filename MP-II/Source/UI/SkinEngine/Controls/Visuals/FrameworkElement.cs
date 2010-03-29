@@ -495,7 +495,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void MeasureOverride(ref SizeF totalSize)
     {
-      base.MeasureOverride(ref totalSize);
       if (!double.IsNaN(Width))
         totalSize.Width = (float) Width * SkinContext.Zoom.Width;
       if (!double.IsNaN(Height))
