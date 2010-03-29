@@ -129,6 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnPreferredTextLengthChanged(AbstractProperty prop, object oldValue)
     {
       Invalidate();
+      InvalidateParent();
     }
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)

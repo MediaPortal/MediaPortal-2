@@ -29,7 +29,6 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
-using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
@@ -91,6 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     void OnRadiusChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
+      InvalidateParent();
       if (Screen != null) Screen.Invalidate(this);
     }
 
@@ -189,14 +189,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                 Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                 PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-                _verticesCountFill = (verts.Length / 3);
+                _verticesCountFill = verts.Length / 3;
               }
             }
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            if (SkinContext.UseBatching == false)
+            if (SkinContext.UseBatching)
+            {
+              TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
+              _verticesCountBorder = verts.Length / 3;
+              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
+              if (_strokeContext == null)
+              {
+                _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
+                Stroke.SetupPrimitive(_strokeContext);
+                RenderPipeline.Instance.Add(_strokeContext);
+              }
+              else
+                _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
+            }
+            else
             {
               if (_borderAsset == null)
               {
@@ -212,23 +226,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
                   Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
 
                   PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                  _verticesCountBorder = (verts.Length / 3);
+                  _verticesCountBorder = verts.Length / 3;
                 }
               }
-            }
-            else
-            {
-              TriangulateHelper.TriangulateStroke_TriangleList(path, (float)StrokeThickness, true, out verts, _finalLayoutTransform);
-              _verticesCountBorder = (verts.Length / 3);
-              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-              if (_strokeContext == null)
-              {
-                _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-                Stroke.SetupPrimitive(_strokeContext);
-                RenderPipeline.Instance.Add(_strokeContext);
-              }
-              else
-                _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
             }
           }
         }

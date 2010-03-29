@@ -297,6 +297,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _prepare = true;
       Invalidate();
+      InvalidateParent();
       if (Screen != null) Screen.Invalidate(this);
     }
 

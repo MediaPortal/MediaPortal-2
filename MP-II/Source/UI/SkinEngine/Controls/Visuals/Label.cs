@@ -117,6 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
       Invalidate();
+      InvalidateParent();
     }
 
     void OnRenderAttributeChanged(AbstractProperty prop, object oldValue)

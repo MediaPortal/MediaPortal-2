@@ -201,6 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
+      InvalidateParent();
     }
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
@@ -208,6 +209,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ///@optimize: 
       Style.Set(this);
       Invalidate();
+      InvalidateParent();
     }
 
     void OnActualSizeChanged(AbstractProperty property, object oldValue)

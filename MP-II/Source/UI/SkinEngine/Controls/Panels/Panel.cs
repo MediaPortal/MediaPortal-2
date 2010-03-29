@@ -192,6 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
       Invalidate();
+      InvalidateParent();
     }
 
     public bool IsItemsHost

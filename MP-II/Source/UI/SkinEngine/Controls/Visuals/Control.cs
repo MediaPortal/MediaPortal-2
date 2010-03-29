@@ -117,13 +117,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (oldTemplateControl != null)
         oldTemplateControl.VisualParent = null;
 
-      FrameworkElement element = property.GetValue() as FrameworkElement;
+      FrameworkElement element = TemplateControl;
       if (element != null)
       {
         element.VisualParent = this;
         element.SetScreen(Screen);
       }
       Invalidate();
+      InvalidateParent();
     }
 
     #endregion
@@ -232,12 +233,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void DoRender()
     {
       FrameworkElement templateControl = TemplateControl;
-      if (templateControl != null)
-      {
+        if (templateControl == null)
+          return;
         SkinContext.AddOpacity(Opacity);
         templateControl.Render();
         SkinContext.RemoveOpacity();
-      }
     }
 
     #endregion

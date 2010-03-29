@@ -346,8 +346,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnVisibilityPropertyChanged(AbstractProperty property, object oldValue)
     {
       Invalidate();
-      if (VisualParent is UIElement)
-        ((UIElement) VisualParent).Invalidate();
+      InvalidateParent();
       if (IsVisible)
         FireUIEvent(UIEvent.Visible, this);
       else
@@ -835,13 +834,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Invalidates the layout of this UIElement.
-    /// If dimensions change, it will invalidate the parent visual so the parent
-    /// will re-layout itself and its children
+    /// Invalidates the layout of this UIElement. This should be done if properties are changed which affect the layout.
     /// </summary>
     public virtual void Invalidate()
     {
       IsLayoutInvalid = true;
+    }
+
+    /// <summary>
+    /// Invalidates the layout of the parent of this UIElement. This should be called if properties are changed which
+    /// affect the size of this control.
+    /// </summary>
+    public void InvalidateParent()
+    {
+      UIElement parent = VisualParent as UIElement;
+      if (parent != null)
+        parent.Invalidate();
     }
 
     /// <summary>
