@@ -23,8 +23,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using System.IO;
 
@@ -36,20 +34,20 @@ namespace Media.Importers.PictureImporter
 
     private uint _PixXDim;
     private uint _PixYDim;
-    private string _EquipMake = "";
-    private string _EquipModel = "";
-    private string _ImageDescription = "";
-    private string _Copyright = "";
-    private string _DTOrig = "";
-    private string _DTDigitized = "";
+    private string _EquipMake = string.Empty;
+    private string _EquipModel = string.Empty;
+    private string _ImageDescription = string.Empty;
+    private string _Copyright = string.Empty;
+    private string _DTOrig = string.Empty;
+    private string _DTDigitized = string.Empty;
     private uint _Orientation;
     private Fraction _FocalLength = new Fraction(0, 0);
     private Fraction _FNumber = new Fraction(0, 0);
     private Fraction _ExposureTime = new Fraction(0, 0);
     private Fraction _ExposureBias = new Fraction(0, 0);
-    private string _ISOSpeed = "";
+    private string _ISOSpeed = string.Empty;
     private bool _FlashFired;
-    private string _FlashMode = "";
+    private string _FlashMode = string.Empty;
     private MeteringMode _MeteringMode = MeteringMode.Unknown;
     private Bitmap _ThumbImage;
 

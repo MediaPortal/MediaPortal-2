@@ -189,7 +189,7 @@ namespace MediaPortal.Core.Services.Logging
       if (mainKey == null)
         return string.Empty;
       string[] subKeys = mainKey.GetSubKeyNames();
-      string cpuInfos = "";
+      string cpuInfos = string.Empty;
       for (int i = 0; i < subKeys.Length; i++)
       {
         RegistryKey key = mainKey.OpenSubKey(subKeys[i]);

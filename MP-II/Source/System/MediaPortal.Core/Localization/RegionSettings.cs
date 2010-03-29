@@ -41,7 +41,7 @@ namespace MediaPortal.Core.Localization
     /// <summary>
     /// Gets or sets the culture used for localization.
     /// </summary>
-    [Setting(SettingScope.User, "")]
+    [Setting(SettingScope.User, null)]
     public string Culture
     {
       get { return _culture; }
@@ -52,7 +52,7 @@ namespace MediaPortal.Core.Localization
     /// Gets or sets the region used for localization.
     /// </summary>
     /// <value>The Region (ISO 2 letters)</value>
-    [Setting(SettingScope.Global, "")]
+    [Setting(SettingScope.Global, null)]
     public string Region
     {
       get { return _region; }
@@ -63,7 +63,7 @@ namespace MediaPortal.Core.Localization
     /// Gets or sets the city used for localization.
     /// </summary>
     /// <value>The city name</value>
-    [Setting(SettingScope.Global, "")]
+    [Setting(SettingScope.Global, null)]
     public string City
     {
       get { return _city; }

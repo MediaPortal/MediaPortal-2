@@ -255,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Ctor
 
-    public UIElement()
+    protected UIElement()
     {
       Init();
       Attach();
@@ -263,7 +263,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _nameProperty = new SProperty(typeof(string), "");
+      _nameProperty = new SProperty(typeof(string), string.Empty);
       _acutalPositionProperty = new SProperty(typeof(Vector3), new Vector3(0, 0, 1));
       _marginProperty = new SProperty(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();

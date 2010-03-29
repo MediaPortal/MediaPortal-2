@@ -128,7 +128,7 @@ namespace MediaPortal.Utilities.FileSystem
       {
         return String.Format("{0:X}", sn);
       }
-      else return "";
+      else return string.Empty;
     }
 
     /// <summary>

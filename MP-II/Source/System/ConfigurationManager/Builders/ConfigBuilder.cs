@@ -169,7 +169,7 @@ namespace MediaPortal.Configuration.Builders
     protected static ICollection<string> ParseListenTo(string listenTo)
     {
       return listenTo == null ? null : new List<string>(
-                                         listenTo.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
+                                         listenTo.Replace(" ", string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries));
     }
 
     protected static IDictionary<string, string> ParseAdditionalData(string additionalData)
@@ -177,7 +177,7 @@ namespace MediaPortal.Configuration.Builders
       IDictionary<string, string> result = new Dictionary<string, string>();
       if (additionalData == null)
         return result;
-      string[] entries = additionalData.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+      string[] entries = additionalData.Replace(" ", string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
       foreach (string entry in entries)
       {
         int index = entry.IndexOf('=');
@@ -194,7 +194,7 @@ namespace MediaPortal.Configuration.Builders
       IDictionary<string, Type> result = new Dictionary<string, Type>();
       if (additionalTypesList == null)
         return result;
-      string[] entries = additionalTypesList.Replace(" ", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+      string[] entries = additionalTypesList.Replace(" ", string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
       foreach (string entry in entries)
       {
         int index = entry.IndexOf('=');
