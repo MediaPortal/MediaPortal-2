@@ -500,15 +500,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         totalSize.Width = (float) Width * SkinContext.Zoom.Width;
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height * SkinContext.Zoom.Height;
+
       SizeF calculatedSize = CalculateDesiredSize(totalSize);
 
-      _desiredSize = new SizeF((float) Width * SkinContext.Zoom.Width, (float) Height * SkinContext.Zoom.Height);
-
-      if (double.IsNaN(_desiredSize.Width))
-        _desiredSize.Width = calculatedSize.Width;
-
-      if (double.IsNaN(_desiredSize.Height))
-        _desiredSize.Height = calculatedSize.Height;
+      if (double.IsNaN(Width))
+        totalSize.Width = calculatedSize.Width;
+      if (double.IsNaN(Height))
+        totalSize.Height = calculatedSize.Height;
     }
 
     protected override void ArrangeOverride(RectangleF finalRect)
