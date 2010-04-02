@@ -35,7 +35,7 @@ namespace MediaPortal.UI.Services.FrontendServer
 {
   public class FrontendServer : IFrontendServer, IDisposable
   {
-    public const string MP2SERVER_DEVICEVERSION = "MediaPortal 2/1.0";
+    public const string MP2SERVER_DEVICEVERSION = "MediaPortal-2/1.0";
 
     public class UPnPLoggerDelegate : UPnPLogger
     {
