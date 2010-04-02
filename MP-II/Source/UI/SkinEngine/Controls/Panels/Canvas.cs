@@ -65,7 +65,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
       foreach (FrameworkElement child in Children)
       {
-        if (!child.IsVisible) 
+        if (!child.IsVisible)
           continue;
         // Get the coordinates relative to the canvas area.
         PointF point = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
@@ -81,6 +81,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // Arrange the child
         child.Arrange(new RectangleF(point, childSize));
       }
+      UpdateRenderOrder();
     }
 
     #region Attached properties

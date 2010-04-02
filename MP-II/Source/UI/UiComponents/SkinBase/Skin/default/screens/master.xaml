@@ -40,15 +40,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Grid.Resources>
       <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
     </Grid.Resources>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
     <StackPanel x:Name="HeaderTextPanel" Orientation="Vertical" Grid.Column="0" Grid.Row="0">
-      <Label Margin="60,0,0,0" FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
+      <Label x:Name="HeaderLabel" Margin="60,0,0,0" FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
           Color="{ThemeResource WindowHeaderColor}"
           Content="{DynamicResource Header_Text}" />
-      <Label Margin="60,0,0,0" DockPanel.Dock="Top"
+      <Label x:Name="MirrorHeaderLabel" Margin="60,0,0,0" DockPanel.Dock="Top"
           FontFamily="{ThemeResource HeaderFontFamily}" FontSize="{ThemeResource HeaderFontSize}"
           Color="{ThemeResource WindowHeaderColor}" Opacity="0.75" RenderTransformOrigin="0.5,0.5"
           Content="{DynamicResource Header_Text}">

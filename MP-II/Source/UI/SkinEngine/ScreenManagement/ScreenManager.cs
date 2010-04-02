@@ -28,7 +28,6 @@ using System.Threading;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
 using MediaPortal.Core.Localization;
-using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.UI.Presentation.Workflow;

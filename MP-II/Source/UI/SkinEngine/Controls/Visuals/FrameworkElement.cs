@@ -600,7 +600,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Width < childSize.Width)
       {
-
         if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
         {
           location.X += (childSize.Width - desiredSize.Width) / 2;

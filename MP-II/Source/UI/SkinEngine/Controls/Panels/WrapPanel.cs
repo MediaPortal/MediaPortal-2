@@ -25,10 +25,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using SlimDX;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {

@@ -39,6 +39,18 @@ using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
+  public class ZOrderComparer : IComparer<UIElement>
+  {
+    #region IComparer<UIElement> Members
+
+    public int Compare(UIElement x, UIElement y)
+    {
+      return Panel.GetZIndex(x).CompareTo(Panel.GetZIndex(y));
+    }
+
+    #endregion
+  }
+
   /// <summary>
   /// Finder implementation which looks for a panel which has its
   /// <see cref="Panel.IsItemsHost"/> property set.
@@ -74,9 +86,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected AbstractProperty _childrenProperty;
     protected AbstractProperty _backgroundProperty;
     protected bool _isItemsHost = false;
-    protected bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
+    protected volatile bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
     protected List<UIElement> _renderOrder; // Cache for the render order of our children
-    protected bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
+    protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected VisualAssetContext _backgroundAsset;
     protected PrimitiveContext _backgroundContext;
     protected UIEvent _lastEvent = UIEvent.None;
@@ -221,6 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         _performLayout = true;
       _finalRect = finalRect;
       Screen.Invalidate(this);
+      _updateRenderOrder = true;
     }
 
     void SetupBrush()

@@ -367,6 +367,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// fit any more into the specified <paramref name="maxWidth"/>.</returns>
     public int CalculateMaxSubstring(string text, float fontSize, int startIndex, float maxWidth)
     {
+      if (double.IsNaN(maxWidth))
+        return text.Length;
       float sizeScale = fontSize / _charSet.RenderedSize;
       
       for (int i = startIndex; i < text.Length; i++)

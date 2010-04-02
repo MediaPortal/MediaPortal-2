@@ -105,6 +105,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
+#if LAYOUTING_OUTPUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Grid.CalculateDesiredSize Name='{0}', starting", Name));
+#endif
       if (ColumnDefinitions.Count == 0)
         ColumnDefinitions.Add(new ColumnDefinition());
       if (RowDefinitions.Count == 0)
@@ -117,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       // Set the Width/Hight of the Columns/Rows according to the sizes of the children.
       foreach (FrameworkElement child in Children)
       {
-        if (!child.IsVisible) 
+        if (!child.IsVisible)
           continue;
         int col = GetColumn(child);
         int row = GetRow(child);
@@ -130,24 +133,33 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         // FIXME Albert: Would be better to use the size which is really available for the child here,
         // but this is not so easy to calculate (depends on col/row definition(s), colspan/rowspan)
         child.Measure(ref childSize);
-
+#if LAYOUTING_OUTPUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Grid.CalculateDesiredSize Name='{0}', child '{1}' measures: '{2}'",
+            Name, child.Name, childSize));
+#endif
         ColumnDefinitions.SetDesiredLength(col, GetColumnSpan(child), childSize.Width);
         RowDefinitions.SetDesiredLength(row, GetRowSpan(child), childSize.Height);
       }
-
+#if LAYOUTING_OUTPUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Grid.CalculateDesiredSize Name='{0}', totalSize='{1}', returns: '{2}'",
+          Name, totalSize, new SizeF((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength)));
+#endif
       return new SizeF((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength);
     }
 
     protected override void ArrangeOverride(RectangleF finalRect)
     {
       base.ArrangeOverride(finalRect);
-
+#if LAYOUTING_OUTPUT
+      System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', finalRect='{1}'",
+          Name, finalRect));
+#endif
       ColumnDefinitions.SetAvailableSize(ActualWidth);
       RowDefinitions.SetAvailableSize(ActualHeight);
 
       foreach (FrameworkElement child in Children)
       {
-        if (!child.IsVisible) 
+        if (!child.IsVisible)
           continue;
         int col = GetColumn(child);
         int row = GetRow(child);
@@ -165,7 +177,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             (float) RowDefinitions.GetLength(row, GetRowSpan(child)));
 
         ArrangeChild(child, ref position, ref childSize);
-
+#if LAYOUTING_OUTPUT
+        System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', child '{1}' will be arranged at: '{2}'",
+            Name, child.Name, new RectangleF(position, childSize)));
+#endif
         child.Arrange(new RectangleF(position, childSize));
       }
     }

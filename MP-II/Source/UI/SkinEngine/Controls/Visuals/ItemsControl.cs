@@ -307,6 +307,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
+    // TODO: Execute this method synchronous in change handler and use SetValueInRenderThread to update
+    // variables
     protected virtual bool Prepare()
     {
       if (ItemsSource == null) return false;
@@ -323,18 +325,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         CollectionUtils.AddAll(l, ItemsSource);
       IEnumerator enumer = l.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
-      if (presenter == null) return false;
+      if (presenter == null)
+        return false;
 
       if (!_templateApplied)
       {
+        _templateApplied = true;
         presenter.ApplyTemplate(ItemsPanel);
         _itemsHostPanel = null;
-        _templateApplied = true;
       }
 
       if (_itemsHostPanel == null)
         _itemsHostPanel = presenter.ItemsHostPanel;
-      if (_itemsHostPanel == null) return false;
+      if (_itemsHostPanel == null)
+        return false;
 
       _itemsHostPanel.Children.Clear();
       UIElementCollection children = new UIElementCollection(null);
@@ -369,7 +373,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _prepare = false; // Set this first because another thread might InvalidateItems again while we are rebuilding
         if (!Prepare())
           // Didn't succeed yet. Try again next time.
-          _prepare = true;
+          InvalidateItems();
       }
     }
 
