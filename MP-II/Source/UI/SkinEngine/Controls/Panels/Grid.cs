@@ -22,6 +22,8 @@
 
 #endregion
 
+#define LAYOUTING_OUTPUT
+
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
@@ -151,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       base.ArrangeOverride(finalRect);
 #if LAYOUTING_OUTPUT
-      System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', finalRect='{1}'",
+      System.Diagnostics.Trace.WriteLine(string.Format("Grid.ArrangeOverride Name='{0}', finalRect='{1}'",
           Name, finalRect));
 #endif
       ColumnDefinitions.SetAvailableSize(ActualWidth);
@@ -178,7 +180,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
         ArrangeChild(child, ref position, ref childSize);
 #if LAYOUTING_OUTPUT
-        System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', child '{1}' will be arranged at: '{2}'",
+        System.Diagnostics.Trace.WriteLine(string.Format("Grid.ArrangeOverride Name='{0}', child '{1}' will be arranged at: '{2}'",
             Name, child.Name, new RectangleF(position, childSize)));
 #endif
         child.Arrange(new RectangleF(position, childSize));
