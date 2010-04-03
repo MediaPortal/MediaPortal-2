@@ -221,18 +221,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Thickness borderMargin = GetTotalBorderMargin();
       RemoveMargin(ref totalSize, borderMargin);
 
-      SizeF childSize;
       if (_content != null && _content.IsVisible)
-      {
-         childSize = new SizeF(totalSize.Width, totalSize.Height);
-        _content.Measure(ref childSize);
-      }
+        _content.Measure(ref totalSize);
       else
-        childSize = new SizeF();
+        totalSize = new SizeF();
 
-      AddMargin(ref childSize, borderMargin);
+      AddMargin(ref totalSize, borderMargin);
 
-      return childSize;
+      return totalSize;
     }
 
     protected override void ArrangeOverride(RectangleF finalRect)
