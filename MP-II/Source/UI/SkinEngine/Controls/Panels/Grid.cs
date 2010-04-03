@@ -22,8 +22,6 @@
 
 #endregion
 
-#define LAYOUTING_OUTPUT
-
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
