@@ -502,7 +502,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!double.IsNaN(Height))
         totalSize.Height = (float) Height * SkinContext.Zoom.Height;
 
-      SizeF calculatedSize = CalculateDesiredSize(totalSize);
+      SizeF calculatedSize = CalculateDesiredSize(new SizeF(totalSize));
 
       if (double.IsNaN(Width))
         totalSize.Width = calculatedSize.Width;
