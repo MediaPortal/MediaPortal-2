@@ -263,11 +263,20 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _invalidControls.Clear();
         _visual.Deallocate();
         _visual.Allocate();
-        _visual.Invalidate();
         _visual.Initialize();
         //if (SkinContext.UseBatching)
         //  _visual.BuildRenderTree();
-        _visual.UpdateLayout();
+
+        // Albert, 2010-04-03: Next lines were commented out because of a strange multithreading problem in the theme
+        // configuration dialog:
+        // When we do an UpdateLayout() here, the "DialogBackgroundGrid" of the master_dialog screen measures its
+        // correct desired size here, but in the render thread, it updates its layout again and sees a different desired
+        // size than the size which was measured here. I don't know why; we are inside the lock of _visual here as well
+        // as in the Render() method, so this should be no race condition... Strange.
+        // So we will update the layout in the render thread until we found out why the layout is updated in the render thread
+        // again with strange different values.
+//        _visual.Invalidate();
+//        _visual.UpdateLayout();
       }
     }
 
