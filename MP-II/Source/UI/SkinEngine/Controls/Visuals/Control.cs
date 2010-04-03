@@ -248,14 +248,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       FrameworkElement templateControl = TemplateControl;
 
-      if (templateControl != null)
-      {
-        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
-        templateControl.Measure(ref childSize);
-        return childSize;
-      }
-      else
+      if (templateControl == null)
         return new SizeF();
+      templateControl.Measure(ref totalSize);
+      return totalSize;
     }
 
     protected override void ArrangeOverride(RectangleF finalRect)

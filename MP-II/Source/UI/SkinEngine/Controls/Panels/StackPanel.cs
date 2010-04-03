@@ -135,7 +135,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
       SizeF childSize;
-      SizeF minSize = new SizeF(0, 0);
       foreach (UIElement child in Children)
       {
         if (!child.IsVisible)
@@ -160,10 +159,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           if (childSize.Height > totalDesiredHeight)
             totalDesiredHeight = childSize.Height;
         }
-        if (childSize.Width > minSize.Width)
-          minSize.Width = childSize.Width;
-        if (childSize.Height > minSize.Height)
-          minSize.Height = childSize.Height;
       }
 #if LAYOUTING_OUTPUT
       System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.CalculateDesiredSize Name='{0}', totalSize='{1}', returns: '{2}'",

@@ -27,7 +27,6 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Xaml;
-using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
@@ -163,17 +162,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      if (_templateControl != null)
-      {
-        SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
-
-        // Measure the child
-        _templateControl.Measure(ref childSize);
-
-        return childSize;
-      }
-      else
+      if (_templateControl == null)
         return new SizeF();
+      // Measure the child
+      _templateControl.Measure(ref totalSize);
+      return totalSize;
     }
 
     protected override void ArrangeOverride(RectangleF finalRect)
