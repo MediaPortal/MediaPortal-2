@@ -80,6 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
         if (themeSetting.CurrentThemeName == theme.Name)
           _choosenItem = themeItem;
       }
+      _items.FireChange();
       base.SettingChanged();
     }
 

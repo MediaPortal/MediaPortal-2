@@ -79,6 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
         if (skinSetting.CurrentSkinName == skin.Name)
           _choosenItem = skinItem;
       }
+      _items.FireChange();
       base.SettingChanged();
     }
 
