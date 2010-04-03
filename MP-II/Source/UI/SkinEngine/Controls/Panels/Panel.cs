@@ -107,6 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       base.Dispose();
       Detach();
+      Children.Dispose();
     }
 
     void Init()
@@ -201,13 +202,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       UIElementCollection oldChildren = Children;
       _childrenProperty.SetValue(children);
       children.SetParent(this);
-      SetScreen(Screen);
+      SetScreen(Screen); // Sets the screen at the new children
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
       Invalidate();
       InvalidateParent();
       oldChildren.SetParent(null);
-      oldChildren.Clear();
+      oldChildren.Dispose();
     }
 
     public bool IsItemsHost

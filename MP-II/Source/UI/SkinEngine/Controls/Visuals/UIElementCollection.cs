@@ -22,13 +22,14 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class UIElementCollection : IEnumerable<UIElement>
+  public class UIElementCollection : IEnumerable<UIElement>, IDisposable
   {
     protected UIElement _parent;
     protected IList<UIElement> _elements;
@@ -38,6 +39,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _parent = parent;
       _elements = new List<UIElement>();
+    }
+
+    public void Dispose()
+    {
+      Clear();
     }
 
     protected void InvalidateParent()
@@ -92,7 +98,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Clear()
     {
       foreach (UIElement element in _elements)
+      {
         element.Deallocate();
+        element.Dispose();
+      }
       _elements.Clear();
       InvalidateParent();
     }
