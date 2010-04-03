@@ -198,6 +198,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public void SetChildren(UIElementCollection children)
     {
+      UIElementCollection oldChildren = Children;
       _childrenProperty.SetValue(children);
       children.SetParent(this);
       SetScreen(Screen);
@@ -205,6 +206,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (Screen != null) Screen.Invalidate(this);
       Invalidate();
       InvalidateParent();
+      oldChildren.SetParent(null);
+      oldChildren.Clear();
     }
 
     public bool IsItemsHost

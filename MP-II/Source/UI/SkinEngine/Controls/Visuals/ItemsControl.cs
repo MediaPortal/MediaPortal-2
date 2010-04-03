@@ -307,8 +307,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
-    // TODO: Execute this method synchronous in change handler and use SetValueInRenderThread to update
-    // variables
+    // TODO: Execute this method synchronous in change handler and use SetValueInRenderThread to update variables
     protected virtual bool Prepare()
     {
       if (ItemsSource == null) return false;
@@ -340,7 +339,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_itemsHostPanel == null)
         return false;
 
-      _itemsHostPanel.Children.Clear();
       UIElementCollection children = new UIElementCollection(null);
       while (enumer.MoveNext())
       {
@@ -348,7 +346,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         children.Add(container);
       }
       _itemsHostPanel.SetChildren(children);
-
       return true;
     }
 
