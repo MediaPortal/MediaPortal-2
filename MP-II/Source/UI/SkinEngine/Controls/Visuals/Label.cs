@@ -297,10 +297,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       else if (float.IsNaN(totalWidth))
         width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
-      else if (!Scroll)
-        width = Math.Min(_asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache), totalWidth);
       else
-        width = 0;
+        // Although we maybe can scroll, we will measure all the label's needed space
+        width = Math.Min(_asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache), totalWidth);
 
       return new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
     }
