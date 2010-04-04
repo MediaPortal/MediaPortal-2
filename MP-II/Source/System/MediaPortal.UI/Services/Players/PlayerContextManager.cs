@@ -709,10 +709,12 @@ namespace MediaPortal.UI.Services.Players
       {
         if (!playerContext.IsValid)
           return false;
-        IVideoPlayer player = playerContext.CurrentPlayer as IVideoPlayer;
+        IPlayer player = playerContext.CurrentPlayer;
         if (player == null || player.Name != stream.PlayerName)
           return false;
-        player.SetAudioStream(stream.AudioStreamName);
+        IVideoPlayer videoPlayer = player as IVideoPlayer;
+        if (videoPlayer != null)
+          videoPlayer.SetAudioStream(stream.AudioStreamName);
         playerManager.AudioSlotIndex = playerContext.PlayerSlotController.SlotIndex;
         return true;
       }

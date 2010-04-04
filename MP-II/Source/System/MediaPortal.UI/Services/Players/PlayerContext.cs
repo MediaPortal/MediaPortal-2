@@ -306,12 +306,27 @@ namespace MediaPortal.UI.Services.Players
 
     public IEnumerable<AudioStreamDescriptor> GetAudioStreamDescriptors()
     {
-      IVideoPlayer player = CurrentPlayer as IVideoPlayer;
-      if (player == null)
-        yield break;
-      ICollection<string> audioStreamNames = player.AudioStreams;
-      foreach (string streamName in audioStreamNames)
-        yield return new AudioStreamDescriptor(this, player.Name, streamName);
+      IVideoPlayer videoPlayer = CurrentPlayer as IVideoPlayer;
+      if (videoPlayer != null)
+      {
+        ICollection<string> audioStreamNames = videoPlayer.AudioStreams;
+        foreach (string streamName in audioStreamNames)
+          yield return new AudioStreamDescriptor(this, videoPlayer.Name, streamName);
+      }
+      IAudioPlayer audioPlayer = CurrentPlayer as IAudioPlayer;
+      if (audioPlayer != null)
+      {
+        string title = audioPlayer.MediaItemTitle;
+        if (string.IsNullOrEmpty(title))
+        {
+          MediaItem item = Playlist.Current;
+          IResourceLocator locator;
+          string mimeType;
+          string mediaItemTitle;
+          title = GetItemData(item, out locator, out mimeType, out mediaItemTitle) ? mediaItemTitle : "Audio";
+        }
+        yield return new AudioStreamDescriptor(this, audioPlayer.Name, title);
+      }
     }
 
     public void OverrideGeometry(IGeometry geometry)
