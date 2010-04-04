@@ -772,13 +772,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Measure(ref SizeF totalSize, bool force)
     {
 #if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("Measure Name='{0}', totalSize={1}", Name, totalSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
 #endif
       if (SameSize(_availableSize, totalSize) && !force)
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
         totalSize = _desiredSize;
 #if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Measure cutting short, totalSize is like before"));
+        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
 #endif
         return;
       }
@@ -797,7 +797,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       AddMargin(ref totalSize);
       _desiredSize = totalSize;
 #if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("Measure Name='{0}', calculated desired size={1}", Name, totalSize));
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', returns calculated desired size={2}", GetType().Name, Name, totalSize));
 #endif
     }
 
@@ -819,13 +819,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Arrange(RectangleF outerRect, bool force)
     {
 #if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("Arrange Name='{0}', outerRect={1}", Name, outerRect));
+      System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
 #endif
       if (SameRect(_outerRect, outerRect) && !force)
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to
         // arrange again
 #if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Arrange cutting short, outerRect is like before"));
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
 #endif
         return;
       }
@@ -1243,7 +1243,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override string ToString()
     {
       string name = Name;
-      return string.IsNullOrEmpty(name) ? base.ToString() : name;
+      return GetType().Name + (string.IsNullOrEmpty(name) ? string.Empty : (", Name: '" + name + "'"));
     }
 
     #endregion

@@ -118,5 +118,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       get { return _finalValue; }
       set { _finalValue = value; }
     }
+
+    public override string ToString()
+    {
+      return GetType().Name + ", Value=" + _value + ", UnitType=" + _unitType;
+    }
   }
 }
