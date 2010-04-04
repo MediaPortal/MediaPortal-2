@@ -1192,5 +1192,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      string name = Name;
+      return string.IsNullOrEmpty(name) ? base.ToString() : name;
+    }
+
+    #endregion
   }
 }

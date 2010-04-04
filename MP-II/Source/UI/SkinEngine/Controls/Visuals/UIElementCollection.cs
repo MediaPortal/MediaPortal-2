@@ -145,5 +145,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("{0}: Count={1}", typeof(UIElementCollection).Name, Count);
+    }
+
+    #endregion
   }
 }

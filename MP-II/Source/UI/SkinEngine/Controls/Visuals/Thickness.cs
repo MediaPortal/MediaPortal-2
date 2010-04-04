@@ -75,6 +75,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _left; }
       set { _left = value; } 
     }
+
     public float Top 
     {
       get { return _top; }
@@ -86,10 +87,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _right; }
       set { _right = value; }
     }
+
     public float Bottom 
     {
       get { return _bottom; }
       set { _bottom = value; } 
+    }
+
+    public override string ToString()
+    {
+      return string.Format("({0}; {1}; {2}; {3})", Left, Top, Right, Bottom);
     }
   }
 }
