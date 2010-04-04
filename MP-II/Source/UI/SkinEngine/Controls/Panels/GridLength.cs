@@ -121,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override string ToString()
     {
-      return GetType().Name + ", Value=" + _value + ", UnitType=" + _unitType;
+      return GetType().Name + ", Value=" + _value + ", UnitType=" + _unitType + ", FinalValue=" + _finalValue;
     }
   }
 }

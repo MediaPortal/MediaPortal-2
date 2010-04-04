@@ -22,6 +22,8 @@
 
 #endregion
 
+//#define DEBUG_LAYOUT
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -892,6 +894,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!_isLayoutInvalid) 
         return;
     
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}'", GetType().Name, Name));
+#endif
       //Trace.WriteLine("UpdateLayout: " + Name + "  " + GetType());
       _isLayoutInvalid = false;
 
@@ -901,11 +906,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF screenSize = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
         SizeF size = new SizeF(screenSize.Width, screenSize.Height);
 
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so measure with screen size {2}", GetType().Name, Name, size));
+#endif
         Measure(ref size, true);
 
         // Root element - restart counting
         SkinContext.ResetZorder();
 
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so arrange with screen size {2}", GetType().Name, Name, size));
+#endif
         // Ignore the measured size - arrange with screen size
         Arrange(new RectangleF(0, 0, screenSize.Width, screenSize.Height), true);
       }
@@ -913,6 +924,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (!_availableSize.HasValue || !_outerRect.HasValue)
         {
+#if DEBUG_LAYOUT
+          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no available size or no outer rect, updating layout at parent {2}", GetType().Name, Name, parent));
+#endif
           parent.Invalidate();
           parent.UpdateLayout();
           return;
@@ -925,24 +939,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (m != null)
           SkinContext.AddLayoutTransform(m);
 
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with former available size {2}", GetType().Name, Name, availableSize));
+#endif
         Measure(ref availableSize, true);
         if (m != null)
           SkinContext.RemoveLayoutTransform();
 
-        if (_desiredSize != formerDesiredSize || !_outerRect.HasValue)
+        if (_desiredSize != formerDesiredSize)
         {
+#if DEBUG_LAYOUT
+          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned different desired size, updating parent (former: {2}, now: {3})", GetType().Name, Name, formerDesiredSize, _desiredSize));
+#endif
           _isLayoutInvalid = true; // At least, we need to do arrangement again
-          // Our size has changed - we need to invalidate our parent
+          // Our size has changed - we need to update our parent
           parent.Invalidate();
+          parent.UpdateLayout();
+          return;
         }
         else
         { // Our size is the same as before - just arrange
-          RectangleF outerRect = new RectangleF(_outerRect.Value.Location, _outerRect.Value.Size);
           if (m != null)
             SkinContext.AddLayoutTransform(m);
 
           SkinContext.SetZOrder(ActualPosition.Z);
 
+          RectangleF outerRect = new RectangleF(_outerRect.Value.Location, _outerRect.Value.Size);
+#if DEBUG_LAYOUT
+          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned same desired size, arranging with old outer rect {2}", GetType().Name, Name, outerRect));
+#endif
           Arrange(outerRect, true);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
