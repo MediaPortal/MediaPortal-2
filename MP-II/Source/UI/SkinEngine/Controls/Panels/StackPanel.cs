@@ -129,9 +129,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-#if LAYOUTING_OUTPUT
-      System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.CalculateDesiredSize Name='{0}', starting", Name));
-#endif
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
       SizeF childSize;
@@ -143,10 +140,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           childSize = new SizeF(totalSize.Width, float.NaN);
           child.Measure(ref childSize);
-#if LAYOUTING_OUTPUT
-          System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.CalculateDesiredSize Name='{0}', child '{1}' measures: '{2}'",
-              Name, child.Name, childSize));
-#endif
           totalDesiredHeight += childSize.Height;
           if (childSize.Width > totalDesiredWidth)
             totalDesiredWidth = childSize.Width;
@@ -160,10 +153,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             totalDesiredHeight = childSize.Height;
         }
       }
-#if LAYOUTING_OUTPUT
-      System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.CalculateDesiredSize Name='{0}', totalSize='{1}', returns: '{2}'",
-          Name, totalSize, new SizeF(totalDesiredWidth, totalDesiredHeight)));
-#endif
       return new SizeF(totalDesiredWidth, totalDesiredHeight);
     }
 
@@ -171,10 +160,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       base.ArrangeOverride(finalRect);
 
-#if LAYOUTING_OUTPUT
-      System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', finalRect='{1}'",
-          Name, finalRect));
-#endif
       _totalHeight = 0;
       _totalWidth = 0;
       IList<FrameworkElement> visibleChildren = GetVisibleChildren();
@@ -227,10 +212,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 childSize.Width = (float) ActualWidth;
 
                 ArrangeChildHorizontal(child, ref position, ref childSize);
-#if LAYOUTING_OUTPUT
-                System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', child '{1}' will be arranged at: '{2}'",
-                    Name, child.Name, new RectangleF(position, childSize)));
-#endif
                 child.Arrange(new RectangleF(position, childSize));
                 _totalWidth = Math.Max(_totalWidth, child.ActualTotalBounds.Width);
                 _totalHeight += child.ActualTotalBounds.Height;
@@ -283,10 +264,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 childSize.Width = Math.Min(childSize.Width, actualWidth);
 
                 ArrangeChildVertical(child, ref location, ref childSize);
-#if LAYOUTING_OUTPUT
-                System.Diagnostics.Trace.WriteLine(string.Format("StackPanel.ArrangeOverride Name='{0}', child '{1}' will be arranged at: '{2}'",
-                    Name, child.Name, new RectangleF(location, childSize)));
-#endif
                 child.Arrange(new RectangleF(location, childSize));
                 _totalHeight = Math.Max(_totalHeight, child.ActualTotalBounds.Height);
                 _totalWidth += child.ActualTotalBounds.Width;

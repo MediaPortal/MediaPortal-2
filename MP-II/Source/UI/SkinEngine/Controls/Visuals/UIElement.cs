@@ -720,6 +720,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return child.IsInArea(x, y) && IsInVisibleArea(x, y);
     }
 
+    #region Replacing methods for the == operator which evaluate two float.NaN values to equal
+
+    public static bool SameValue(float val1, float val2)
+    {
+      return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
+    }
+
+    public static bool SameSize(SizeF size1, SizeF size2)
+    {
+      return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
+    }
+
+    public static bool SameSize(SizeF? size1, SizeF size2)
+    {
+      return size1.HasValue && SameSize(size1.Value, size2);
+    }
+
+    public static bool SameRect(RectangleF rect1, RectangleF rect2)
+    {
+      return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
+    }
+
+    public static bool SameRect(RectangleF? rect1, RectangleF rect2)
+    {
+      return rect1.HasValue && SameRect(rect1.Value, rect2);
+    }
+
+    #endregion
+
     /// <summary>
     /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
     /// </summary>
@@ -742,9 +771,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <paramref name="totalSize"/> doesn't differ from the total size given in the last call.</param>
     public void Measure(ref SizeF totalSize, bool force)
     {
-      if (_availableSize == totalSize && !force)
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure Name='{0}', totalSize={1}", Name, totalSize));
+#endif
+      if (SameSize(_availableSize, totalSize) && !force)
       { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
         totalSize = _desiredSize;
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Measure cutting short, totalSize is like before"));
+#endif
         return;
       }
       _availableSize = new SizeF(totalSize);
@@ -761,6 +796,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SkinContext.RemoveLayoutTransform();
       AddMargin(ref totalSize);
       _desiredSize = totalSize;
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure Name='{0}', calculated desired size={1}", Name, totalSize));
+#endif
     }
 
     public void Measure(ref SizeF totalSize)
@@ -780,10 +818,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// doesn't differ from the outer rect given in the last call.</param>
     public void Arrange(RectangleF outerRect, bool force)
     {
-      if (_outerRect == outerRect && !force)
-        // Optimization: If our input data is the same and the layout isn't invalid, we don't need to
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Arrange Name='{0}', outerRect={1}", Name, outerRect));
+#endif
+      if (SameRect(_outerRect, outerRect) && !force)
+      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to
         // arrange again
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange cutting short, outerRect is like before"));
+#endif
         return;
+      }
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
       RemoveMargin(ref rect);
