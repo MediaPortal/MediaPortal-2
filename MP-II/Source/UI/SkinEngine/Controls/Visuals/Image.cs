@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
@@ -211,13 +210,47 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _stretchDirectionProperty.SetValue(value); }
     }
 
+    protected static void CalculateScalingFactors(SizeF availableSize, SizeF imageSize, Stretch stretch, out float scaleX, out float scaleY)
+    {
+      float sourceFrameRatio = imageSize.Width / imageSize.Height;
+      
+      // Adaptions when available size is not specified in any direction(s)
+      if (double.IsNaN(availableSize.Width) && double.IsNaN(availableSize.Height))
+        availableSize = imageSize;
+      else if (double.IsNaN(availableSize.Height))
+        availableSize.Height = availableSize.Width / sourceFrameRatio;
+      else if (double.IsNaN(availableSize.Width))
+        availableSize.Width = availableSize.Height * sourceFrameRatio;
+
+      float outputFrameRatio = availableSize.Width / availableSize.Height;
+      scaleX = 1;
+      scaleY = 1;
+      if (stretch == Stretch.Uniform || stretch == Stretch.UniformToFill)
+      {
+        // Uniform and UniformToFill both use the same scaling factors for X and Y dimensions,
+        // they only differ in the choice of master dimension
+        if ((stretch == Stretch.Uniform) == (sourceFrameRatio > outputFrameRatio))
+        { // Source width/height is bigger than target width/height, so fill width and adapt height
+          scaleX = availableSize.Width/imageSize.Width;
+          scaleY = scaleX;
+        }
+        else
+        { // Else fill height and adapt width
+          scaleY = availableSize.Height/imageSize.Height;
+          scaleX = scaleY;
+        }
+      }
+      else if (stretch == Stretch.Fill)
+      {
+        scaleX = availableSize.Width/imageSize.Width;
+        scaleY = availableSize.Height/imageSize.Height;
+      }
+    }
+
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       Deallocate();
-      float w = (float) Width * SkinContext.Zoom.Width;
-      float h = (float) Height * SkinContext.Zoom.Height;
-
-      if (_image == null && Source != null)
+      if (_image == null && !string.IsNullOrEmpty(Source))
       {
         _image = ContentManager.Load(Source, Thumbnail);
         _image.Texture.UseThumbnail = Thumbnail;
@@ -227,7 +260,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _renderImage = new TextureRender(_image.Texture);
       }
 
-      if (_fallbackImage == null && FallbackSource != null)
+      if (_fallbackImage == null && !string.IsNullOrEmpty(FallbackSource))
       {
         _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
         _fallbackImage.Texture.UseThumbnail = Thumbnail;
@@ -237,22 +270,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _renderFallback = new TextureRender(_fallbackImage.Texture);
       }
 
+      SizeF imageSize;
       if (_image != null)
-      {
-        if (Double.IsNaN(w))
-          w = _image.Texture.Width * SkinContext.Zoom.Width;
-        if (Double.IsNaN(h))
-          h = _image.Texture.Height * SkinContext.Zoom.Height;
-      }
+        imageSize = new SizeF(_image.Texture.Width * SkinContext.Zoom.Width, _image.Texture.Height * SkinContext.Zoom.Height);
       else if (_fallbackImage != null)
-      {
-        if (Double.IsNaN(w))
-          w = _fallbackImage.Texture.Width * SkinContext.Zoom.Width;
-        if (Double.IsNaN(h))
-          h = _fallbackImage.Texture.Height * SkinContext.Zoom.Height;
-      }
+        imageSize = new SizeF(_fallbackImage.Texture.Width * SkinContext.Zoom.Width, _fallbackImage.Texture.Height * SkinContext.Zoom.Height);
+      else
+        imageSize = new SizeF();
+      float scaleX;
+      float scaleY;
+      CalculateScalingFactors(totalSize, imageSize, Stretch, out scaleX, out scaleY);
 
-      return new SizeF(w, h);
+      return new SizeF(imageSize.Width * scaleX, imageSize.Height * scaleY);
     }
 
     protected override void ArrangeOverride(RectangleF finalRect)
@@ -340,38 +369,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       SkinContext.RemoveOpacity();
     }
 
-
     void PerformLayout(VertextBufferAsset asset)
     {
       if (asset != null && asset.Texture.IsAllocated)
       {
-        float scaleX = 1;
-        float scaleY = 1;
         float sourceImageHeight = asset.Texture.Height;
         float sourceImageWidth = asset.Texture.Width;
-        float fSourceFrameRatio = sourceImageWidth / sourceImageHeight;
-        float fOutputFrameRatio = (float) ActualWidth / (float) ActualHeight;
         // Calculate scaling factor for both dimensions
-        if (Stretch == Stretch.Uniform || Stretch == Stretch.UniformToFill)
-        {
-          // Uniform and UniformToFill both use the same scaling factors for X and Y dimensions,
-          // they only differ in the choice of master dimension
-          if ((Stretch == Stretch.Uniform) == (fSourceFrameRatio > fOutputFrameRatio))
-          { // Source width/height is bigger than target width/height, so fill width and adapt height
-            scaleX = (float) ActualWidth/sourceImageWidth;
-            scaleY = scaleX;
-          }
-          else
-          { // Else fill height and adapt width
-            scaleY = (float) ActualHeight/sourceImageHeight;
-            scaleX = scaleY;
-          }
-        }
-        else if (Stretch == Stretch.Fill)
-        {
-          scaleX = (float) ActualWidth/sourceImageWidth;
-          scaleY = (float) ActualHeight/sourceImageHeight;
-        }
+        float scaleX;
+        float scaleY;
+        CalculateScalingFactors(new SizeF((float) ActualWidth, (float) ActualHeight), new SizeF(sourceImageWidth, sourceImageHeight), Stretch, out scaleX, out scaleY);
 
         float scaledImageWidth = sourceImageWidth*scaleX;
         float scaledImageHeight = sourceImageHeight*scaleY;

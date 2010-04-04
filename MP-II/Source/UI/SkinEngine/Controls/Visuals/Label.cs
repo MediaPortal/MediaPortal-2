@@ -295,10 +295,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           width = Math.Max(width, _asset.Font.Width(line, _fontSizeCache));
         height *= lines.Length;
       }
-      else if (float.IsNaN(totalWidth) || !Scroll)
+      else if (float.IsNaN(totalWidth))
         width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
+      else if (!Scroll)
+        width = Math.Min(_asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache), totalWidth);
       else
-        width = totalWidth;
+        width = 0;
 
       return new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
     }
