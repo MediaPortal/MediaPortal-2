@@ -230,8 +230,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _freezableProperty;
     protected AbstractProperty _templateNameScopeProperty;
     protected SizeF? _availableSize;
-    protected SizeF _desiredSize;
     protected RectangleF? _outerRect;
+    protected SizeF _desiredSize;
     protected RectangleF _finalRect;
     protected ResourceDictionary _resources;
     protected volatile bool _isLayoutInvalid = true;
@@ -722,34 +722,35 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return child.IsInArea(x, y) && IsInVisibleArea(x, y);
     }
 
-    #region Replacing methods for the == operator which evaluate two float.NaN values to equal
+    // Code commented out by Albert, 2010-04-05, see comment in method Measure.
+    //#region Replacing methods for the == operator which evaluate two float.NaN values to equal
 
-    public static bool SameValue(float val1, float val2)
-    {
-      return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
-    }
+    //public static bool SameValue(float val1, float val2)
+    //{
+    //  return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
+    //}
 
-    public static bool SameSize(SizeF size1, SizeF size2)
-    {
-      return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
-    }
+    //public static bool SameSize(SizeF size1, SizeF size2)
+    //{
+    //  return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
+    //}
 
-    public static bool SameSize(SizeF? size1, SizeF size2)
-    {
-      return size1.HasValue && SameSize(size1.Value, size2);
-    }
+    //public static bool SameSize(SizeF? size1, SizeF size2)
+    //{
+    //  return size1.HasValue && SameSize(size1.Value, size2);
+    //}
 
-    public static bool SameRect(RectangleF rect1, RectangleF rect2)
-    {
-      return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
-    }
+    //public static bool SameRect(RectangleF rect1, RectangleF rect2)
+    //{
+    //  return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
+    //}
 
-    public static bool SameRect(RectangleF? rect1, RectangleF rect2)
-    {
-      return rect1.HasValue && SameRect(rect1.Value, rect2);
-    }
+    //public static bool SameRect(RectangleF? rect1, RectangleF rect2)
+    //{
+    //  return rect1.HasValue && SameRect(rect1.Value, rect2);
+    //}
 
-    #endregion
+    //#endregion
 
     /// <summary>
     /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
@@ -776,14 +777,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
 #endif
-      if (SameSize(_availableSize, totalSize) && !force)
-      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
-        totalSize = _desiredSize;
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
-#endif
-        return;
-      }
+      // Commented out by Albert, 2010-04-05: This layout optimization doesn't work correctly in some cases.
+      // One concrete problem is when a layout update is being made in one UI element P and in some child element C,
+      // a child has been added/made visible. When in that case, this layout optimization prevents that C is measured again,
+      // but the optimization in the Arrange method doesn't prevent C from being arranged, C is in an invalid state
+      // (because it was not measured but arranged).
+      // To be fixed later.
+//      if (SameSize(_availableSize, totalSize) && !force)
+//      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
+//        totalSize = _desiredSize;
+//#if DEBUG_LAYOUT
+//        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
+//#endif
+//        return;
+//      }
       _availableSize = new SizeF(totalSize);
       RemoveMargin(ref totalSize);
       if (LayoutTransform != null)
@@ -823,14 +830,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
 #endif
-      if (SameRect(_outerRect, outerRect) && !force)
-      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to
-        // arrange again
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
-#endif
-        return;
-      }
+      // Commented out by Albert, 2010-04-05: This layout optimization doesn't work correctly in some cases.
+      // See comment in Measure(ref SizeF, bool) method.
+//      if (SameRect(_outerRect, outerRect) && !force)
+//      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to
+//        // arrange again
+//#if DEBUG_LAYOUT
+//        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
+//#endif
+//        return;
+//      }
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
       RemoveMargin(ref rect);
