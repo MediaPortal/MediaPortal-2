@@ -75,7 +75,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override UIElement PrepareItemContainer(object dataItem)
     {
-      TreeViewItem container = new TreeViewItem {Content = dataItem, Context = dataItem, Style = ItemContainerStyle};
+      TreeViewItem container = new TreeViewItem
+        {
+            Content = dataItem,
+            Context = dataItem,
+            Style = ItemContainerStyle,
+            Screen = Screen
+        };
 
       DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
       childItemTemplate.LogicalParent = container;

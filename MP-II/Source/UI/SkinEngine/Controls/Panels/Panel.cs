@@ -195,20 +195,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public UIElementCollection Children
     {
       get { return (UIElementCollection) _childrenProperty.GetValue(); }
-    }
-
-    public void SetChildren(UIElementCollection children)
-    {
-      UIElementCollection oldChildren = Children;
-      _childrenProperty.SetValue(children);
-      children.SetParent(this);
-      SetScreen(Screen); // Sets the screen at the new children
-      _updateRenderOrder = true;
-      if (Screen != null) Screen.Invalidate(this);
-      Invalidate();
-      InvalidateParent();
-      oldChildren.SetParent(null);
-      oldChildren.Dispose();
+      internal set
+      {
+        UIElementCollection oldChildren = Children;
+        _childrenProperty.SetValue(value);
+        value.SetParent(this);
+        SetScreen(Screen); // Sets the screen at the new children
+        _updateRenderOrder = true;
+        if (Screen != null) Screen.Invalidate(this);
+        Invalidate();
+        InvalidateParent();
+        oldChildren.SetParent(null);
+        oldChildren.Dispose();
+      }
     }
 
     public bool IsItemsHost

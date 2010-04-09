@@ -24,12 +24,12 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
 using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -50,7 +50,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsPanelProperty;
     protected AbstractProperty _currentItemProperty;
 
-    protected volatile bool _prepare = false;
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
 
@@ -99,7 +98,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
-      _prepare = false;
       ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       Attach();
@@ -242,17 +240,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region Measure&Arrange
-
-    protected override SizeF CalculateDesiredSize(SizeF totalSize)
-    {
-      // Call this before we measure. It will invalidate the layout (ApplyTemplate)
-      DoUpdateItems();
-      return base.CalculateDesiredSize(totalSize);
-    }
-
-    #endregion
-
     #region Item management
 
     /// <summary>
@@ -295,10 +282,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void InvalidateItems()
     {
-      _prepare = true;
+      PrepareItems();
       Invalidate();
       InvalidateParent();
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     protected ItemsPresenter FindItemsPresenter()
@@ -307,14 +293,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           new TypeFinder(typeof(ItemsPresenter))) as ItemsPresenter;
     }
 
-    // TODO: Execute this method synchronous in change handler and use SetValueInRenderThread to update variables
-    protected virtual bool Prepare()
+    protected virtual void PrepareItems()
     {
-      if (ItemsSource == null) return false;
-      if (ItemsPanel == null) return false;
-      if (TemplateControl == null) return false;
-      if (ItemContainerStyle == null) return false;
-      if (ItemTemplate == null) return false;
+      if (ItemsSource == null) return;
+      if (ItemsPanel == null) return;
+      if (TemplateControl == null) return;
+      if (ItemContainerStyle == null) return;
+      if (ItemTemplate == null) return;
       IList<object> l = new List<object>();
       ISynchronizable sync = ItemsSource as ISynchronizable;
       if (sync != null)
@@ -325,7 +310,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       IEnumerator enumer = l.GetEnumerator();
       ItemsPresenter presenter = FindItemsPresenter();
       if (presenter == null)
-        return false;
+        return;
 
       if (!_templateApplied)
       {
@@ -337,7 +322,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_itemsHostPanel == null)
         _itemsHostPanel = presenter.ItemsHostPanel;
       if (_itemsHostPanel == null)
-        return false;
+        return;
 
       UIElementCollection children = new UIElementCollection(null);
       while (enumer.MoveNext())
@@ -345,8 +330,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         UIElement container = PrepareItemContainer(enumer.Current);
         children.Add(container);
       }
-      _itemsHostPanel.SetChildren(children);
-      return true;
+      SetValueInRenderThread(new SimplePropertyDataDescriptor(_itemsHostPanel, typeof(Panel).GetProperty("Children")), children);
+      return;
     }
 
     /// <summary>
@@ -362,17 +347,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="dataItem">Item to build a visible container for.</param>
     /// <returns>UI element which renders the specified <paramref name="dataItem"/>.</returns>
     protected abstract UIElement PrepareItemContainer(object dataItem);
-
-    public void DoUpdateItems()
-    {
-      if (_prepare)
-      {
-        _prepare = false; // Set this first because another thread might InvalidateItems again while we are rebuilding
-        if (!Prepare())
-          // Didn't succeed yet. Try again next time.
-          InvalidateItems();
-      }
-    }
 
     public void SetFocusOnItem(object dataItem)
     {
@@ -394,13 +368,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Allocate()
     {
       base.Allocate();
-      _prepare = true;
-    }
-
-    public override void Update()
-    {
-      base.Update();
-      DoUpdateItems();
+      PrepareItems();
     }
 
     public override void  FireEvent(string eventName)

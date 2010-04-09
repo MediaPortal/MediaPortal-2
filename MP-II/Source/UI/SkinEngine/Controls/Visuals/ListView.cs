@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
   {
     protected override UIElement PrepareItemContainer(object dataItem)
     {
-      ListViewItem container = new ListViewItem {Style = ItemContainerStyle, Context = dataItem};
+      ListViewItem container = new ListViewItem {Style = ItemContainerStyle, Context = dataItem, Screen = Screen};
       // We need to copy the item data template for the child containers, because the
       // data template contains specific data for each container. We need to "personalize" the
       // data template copy by assigning its LogicalParent.
