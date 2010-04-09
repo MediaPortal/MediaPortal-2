@@ -58,8 +58,9 @@ namespace MediaPortal.Core.General
 
     public override void Fire(object oldValue)
     {
-      if (_eventDelegate != null)
-        _eventDelegate(this, oldValue);
+      PropertyChangedHandler dlgt = _eventDelegate;
+      if (dlgt != null)
+        dlgt(this, oldValue);
     }
 
     /// <summary>
