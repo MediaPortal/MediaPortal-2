@@ -202,13 +202,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               for (int i = 0; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
-                SizeF childSize = child.DesiredSize;
+                SizeF childSize = new SizeF(child.DesiredSize);
                 if (!_canScroll || (i >= _scrollIndex && startPositionY + childSize.Height <= actualHeight + 0.5))
                   lastVisibleChild = i;
                 PointF position = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
-
-                childSize.Height = Math.Min(childSize.Height, actualHeight);
                 childSize.Width = (float) ActualWidth;
 
                 ArrangeChildHorizontal(child, ref position, ref childSize);
@@ -254,14 +252,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               for (int i = _scrollIndex; i < visibleChildrenCount; i++)
               {
                 FrameworkElement child = visibleChildren[i];
-                SizeF childSize = child.DesiredSize;
+                SizeF childSize = new SizeF(child.DesiredSize);
                 if (!_canScroll || (i >= _scrollIndex && startPositionX + childSize.Width <= actualWidth + 0.5))
                   lastVisibleChild = i;
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
 
                 childSize.Height = (float) ActualHeight;
-                childSize.Width = Math.Min(childSize.Width, actualWidth);
 
                 ArrangeChildVertical(child, ref location, ref childSize);
                 child.Arrange(new RectangleF(location, childSize));
