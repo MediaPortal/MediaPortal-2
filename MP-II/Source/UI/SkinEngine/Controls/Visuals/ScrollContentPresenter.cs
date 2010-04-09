@@ -26,7 +26,6 @@ using System;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
-using SlimDX;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -138,16 +137,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF availableSize;
         if (_canScroll)
         {
+          availableSize = finalRect.Size;
           if (desiredSize.Width > finalRect.Width)
+          {
             _scrollOffsetX = Math.Max(_scrollOffsetX, finalRect.Width - desiredSize.Width);
+            availableSize.Width = desiredSize.Width;
+          }
           else
             _scrollOffsetX = 0;
           if (desiredSize.Height > finalRect.Height)
+          {
             _scrollOffsetY = Math.Max(_scrollOffsetY, finalRect.Height - desiredSize.Height);
+            availableSize.Height = desiredSize.Height;
+          }
           else
             _scrollOffsetY = 0;
           position = new PointF(finalRect.X + _scrollOffsetX, finalRect.Y + _scrollOffsetY);
-          availableSize = desiredSize;
         }
         else
         {

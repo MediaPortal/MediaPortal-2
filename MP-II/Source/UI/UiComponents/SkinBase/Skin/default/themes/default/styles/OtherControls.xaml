@@ -77,7 +77,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ScrollViewer}">
-          <Grid>
+          <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="2"/>
@@ -394,7 +394,7 @@
   <!-- A simple data template to show the Name of the ListItem in a Label -->
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-      <Label x:Name="ItemLabel" Margin="10,7,0,7" Content="{Binding [Name]}" FontSize="28"/>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -408,8 +408,8 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" Margin="0,7,0,7" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,7,0,7" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Image Thumbnail="True" Stretch="Uniform" Grid.Row="0" Grid.Column="0" Height="32" Width="32" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding [Name]}" FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center"/>
     </Grid>
   </DataTemplate>
 
@@ -421,7 +421,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Image x:Name="Image" Width="100" Height="100" Grid.Row="0" Grid.Column="0" Stretch="Uniform" Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,4,0,4" Content="{Binding [Name]}" FontSize="28"/>
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Content="{Binding [Name]}" FontSize="28"/>
     </Grid>
   </DataTemplate>
 
@@ -435,7 +435,7 @@
         <ColumnDefinition Width="200"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="ShareName" Grid.Column="0" Margin="5,0,0,0" Content="{Binding [Name]}" FontSize="22"/>
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="22"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22"/>
     </Grid>
   </DataTemplate>
@@ -456,7 +456,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" VerticalAlignment="Top"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -517,23 +517,12 @@
 
   <!-- *************************** TreeView item data templates ****************************** -->
 
-  <!-- A data template for a TreeItem with a radio button -->
-  <HierarchicalDataTemplate x:Key="DefaultSingleMarkableTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
+  <!-- A data template for a default TreeItem -->
+  <HierarchicalDataTemplate x:Key="DefaultTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
       ItemsSource="{Binding SubItems}" DataString="{Binding [Name]}">
-    <RadioButton x:Name="Checker" GroupName="RadioButtonGroup"
-        Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center"
-        Content="{Binding [Name]}"
-        IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-        Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
-  </HierarchicalDataTemplate>
-
-  <!-- A data template for a TreeItem with a check box -->
-  <HierarchicalDataTemplate x:Key="DefaultMultiMarkableTreeItemDataTemplate" DataType="{x:Type collections:TreeItem}"
-      ItemsSource="{Binding SubItems}" DataString="{Binding [Name]}">
-    <CheckBox x:Name="Checker" Style="{ThemeResource CheckBoxStyle}"
-        Content="{Binding [Name]}"
-        IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-        Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="28"/>
+    </Grid>
   </HierarchicalDataTemplate>
 
   <!-- ************************** TreeView item container styles ***************************** -->
@@ -543,7 +532,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
-          <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -556,9 +545,107 @@
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
                 VerticalAlignment="Top"/>
-            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch"/>
-            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1" IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
-              <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
+              <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+  </Style>
+
+  <!-- Tree item container which shows a PlusMinus button and a radio button in front of the item content, in expanded state a sub stack panel unter the first line -->
+  <Style x:Key="DefaultSingleMarkableTreeItemContainerStyle" TargetType="{x:Type HeaderedItemsControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{ThemeResource PlusMinusButtonStyle}"
+                IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                VerticalAlignment="Center"/>
+            <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
+                Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+              <RadioButton.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+                  <Setter TargetName="ItemControl" Property="Background">
+                    <Setter.Value>
+                      <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
+                    </Setter.Value>
+                  </Setter>
+                </Trigger>
+              </RadioButton.Triggers>
+              <RadioButton.Content>
+                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              </RadioButton.Content>
+            </RadioButton>
+            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
+              <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="IsExpanded" BindingWrapper="{DynamicResource ResourceKey=Expander_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
+  </Style>
+
+  <!-- Tree item container which shows a PlusMinus button and a checkbox in front of the item content, in expanded state a sub stack panel unter the first line -->
+  <Style x:Key="DefaultMultiMarkableTreeItemContainerStyle" TargetType="{x:Type HeaderedItemsControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type HeaderedItemsControl}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <CheckBox x:Name="Expander" Grid.Column="0" Grid.Row="0" Style="{ThemeResource PlusMinusButtonStyle}"
+                IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
+                Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                VerticalAlignment="Center"/>
+            <CheckBox x:Name="Checker" Style="{ThemeResource CheckBoxStyle}"
+                Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+              <CheckBox.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
+                  <Setter TargetName="ItemControl" Property="Background">
+                    <Setter.Value>
+                      <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
+                    </Setter.Value>
+                  </Setter>
+                </Trigger>
+              </CheckBox.Triggers>
+              <CheckBox.Content>
+                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+              </CheckBox.Content>
+            </CheckBox>
+            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
+              <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
             </StackPanel>
           </Grid>
         </ControlTemplate>
@@ -574,8 +661,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TreeView}">
-          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false">
-            <ItemsPresenter HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="false"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -583,20 +671,20 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <StackPanel x:Name="TreeItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          <StackPanel x:Name="TreeItemsHost" IsItemsHost="True" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultTreeItemContainerStyle}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultTreeItemDataTemplate}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
   </Style>
 
   <Style x:Key="DefaultMultiMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultMultiMarkableTreeItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMultiMarkableTreeItemContainerStyle}"/>
   </Style>
 
   <Style x:Key="DefaultSingleMarkableTreeViewStyle" BasedOn="{ThemeResource DefaultTreeViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultSingleMarkableTreeItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultSingleMarkableTreeItemContainerStyle}"/>
     <Setter Property="RadioButton.GroupContext" Value="RadioButtonGroup"/>
   </Style>
 
