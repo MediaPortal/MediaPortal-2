@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -337,6 +337,7 @@
     <Content Include="Skin\default\screens\shares_config_choose_metadata_extractors.xaml" />
     <Content Include="Skin\default\screens\shares_config_choose_path.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_path.xaml" />
+    <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
     <Content Include="Skin\default\screens\shares_config_edit_share.xaml" />
     <Content Include="Skin\default\screens\shares_config_overview.xaml" />
     <Content Include="Skin\default\screens\shares_config_relocate_dialog.xaml" />
