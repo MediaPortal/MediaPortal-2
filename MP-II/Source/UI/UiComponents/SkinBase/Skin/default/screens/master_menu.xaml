@@ -32,7 +32,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master.xaml"
-    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
 
@@ -61,10 +61,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
           <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Stretch">
-            <mp_special:PlayerControl Style="{ThemeResource DefaultPlayerControlStyle}" Margin="3"
+            <mp_special_controls:PlayerControl Style="{ThemeResource DefaultPlayerControlStyle}" Margin="3"
                 AutoVisibility="True"
                 SlotIndex="0"/>
-            <mp_special:PlayerControl Style="{ThemeResource DefaultPlayerControlStyle}" Margin="3"
+            <mp_special_controls:PlayerControl Style="{ThemeResource DefaultPlayerControlStyle}" Margin="3"
                 AutoVisibility="True"
                 SlotIndex="1"/>
           </StackPanel>

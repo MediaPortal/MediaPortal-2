@@ -2,7 +2,7 @@
 <Grid
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     x:Name="FullscreenLayoutGrid"
     DataContext="{Binding Source={Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}}"
     > <!-- DataContext model = VideoPlayerModel -->
@@ -45,13 +45,13 @@
       VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
     <DockPanel x:Name="OSD_LeftPanel" DockPanel.Dock="Left" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
         IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
-      <mp_special:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+      <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource PrimaryVideoOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           SlotIndex="0"/>
     </DockPanel> <!-- OSD_LeftPanel -->
     <DockPanel x:Name="OSD_RightPanel" DockPanel.Dock="Right" IsVisible="{Binding IsOSDVisible}" LastChildFill="false">
-      <mp_special:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
+      <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Bottom"
           Style="{ThemeResource SecondaryMediaOSDStyle}"
           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
           AutoVisibility="true" SlotIndex="1"/>

@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects"
-    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="Colors,Buttons"
     >
 
@@ -622,10 +622,10 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Style x:Key="DefaultPlayerControlStyle" TargetType="{x:Type mp_special:PlayerControl}">
+  <Style x:Key="DefaultPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <GroupBox x:Name="Shine" Style="{ThemeResource PlayerControlGroupBoxStyle}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
               Header="{Binding Title}">
@@ -753,7 +753,7 @@
   <Style x:Key="WorkflowNavigationBarStyle">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type mp_special:WorkflowNavigationBar}">
+        <ControlTemplate TargetType="{x:Type mp_special_controls:WorkflowNavigationBar}">
           <ListView ItemsSource="{TemplateBinding NavigationItems}">
             <ListView.Style>
               <Style BasedOn="{ThemeResource DefaultListViewStyle}">

@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects"
-    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     DependsOnStyleResources="FullScreenContentConsts,Consts,Colors,Buttons,OtherControls"
     >
 
@@ -24,10 +24,10 @@
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
-  <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
+  <Style x:Key="PrimaryVideoOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
               CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -146,11 +146,11 @@
     </Setter>
   </Style>
 
-  <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special:PlayerControl}">
+  <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="FixedVideoHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
     <Setter Property="Template">
       <Setter.Value>
-        <ControlTemplate TargetType="{x:Type mp_special:PlayerControl}">
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
               CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">

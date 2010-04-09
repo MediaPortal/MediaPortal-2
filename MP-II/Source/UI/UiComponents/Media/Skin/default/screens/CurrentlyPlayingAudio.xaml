@@ -3,7 +3,7 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_menu.xaml"
-    xmlns:mp_special="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
     >
   <Include.Resources>
 
@@ -13,7 +13,7 @@
       <GroupBox Header="[Media.AudioCurrentlyPlayingInformationHeader]" Style="{ThemeResource ContentGroupBoxStyle}">
         <DockPanel x:Name="RightPanel" Margin="20" LastChildFill="true">
           <DockPanel.Context>
-            <mp_special:PlayerControl
+            <mp_special_controls:PlayerControl
                 SlotIndex="{Binding Source={Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC},Path=CurrentPlayerIndex}"/>
                 <!-- Model = Audio player model -->
           </DockPanel.Context>
