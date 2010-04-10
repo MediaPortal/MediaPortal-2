@@ -821,6 +821,16 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     #region Public properties
 
+    public object SourceObject
+    {
+      get { return _obj; }
+    }
+
+    public string PropertyName
+    {
+      get { return _propertyName; }
+    }
+
     public AbstractProperty Property
     {
       get { return _prop; }
