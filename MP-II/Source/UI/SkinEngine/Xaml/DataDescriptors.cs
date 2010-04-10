@@ -760,7 +760,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// </summary>
   public class DependencyPropertyDataDescriptor : IDataDescriptor
   {
-
     #region Protected fields
 
     protected object _obj;
@@ -816,6 +815,15 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         return true;
       }
       return false;
+    }
+
+    #endregion
+
+    #region Public properties
+
+    public AbstractProperty Property
+    {
+      get { return _prop; }
     }
 
     #endregion
