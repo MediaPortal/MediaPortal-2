@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
@@ -34,6 +35,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Protected fields
 
     protected AbstractProperty _isExpandedProperty;
+    protected AbstractProperty _isExpandableProperty;
+    protected AbstractProperty _forceExpanderProperty;
 
     #endregion
 
@@ -42,33 +45,107 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public HeaderedItemsControl()
     {
       Init();
+      Attach();
+      CheckExpandable();
     }
 
     void Init()
     {
       _isExpandedProperty = new SProperty(typeof(bool), false);
+      _isExpandableProperty = new SProperty(typeof(bool), false);
+      _forceExpanderProperty = new SProperty(typeof(bool), false);
+    }
+
+    void Attach()
+    {
+      _forceExpanderProperty.Attach(OnForceExpanderChanged);
+    }
+
+    void Detach()
+    {
+      _forceExpanderProperty.Attach(OnForceExpanderChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       HeaderedItemsControl c = (HeaderedItemsControl) source;
       IsExpanded = copyManager.GetCopy(c.IsExpanded);
+      ForceExpander = copyManager.GetCopy(c.ForceExpander);
+      Attach();
+      CheckExpandable();
     }
 
     #endregion
+
+    void OnForceExpanderChanged(AbstractProperty prop, object oldVal)
+    {
+      CheckExpandable();
+    }
+
+    protected override void OnItemsSourceChanged()
+    {
+      base.OnItemsSourceChanged();
+      CheckExpandable();
+    }
+
+    protected override void OnItemsChanged()
+    {
+      base.OnItemsChanged();
+      CheckExpandable();
+    }
+
+    protected void CheckExpandable()
+    {
+      // We must consider both the Items count and the ItemsSource count because
+      // if ItemsSource is set, the TreeViewItem avoids the eager setup of the Items
+      bool result = ForceExpander || Items.Count > 0;
+      if (!result)
+      {
+        IEnumerable itemsSource = ItemsSource;
+        if (itemsSource != null)
+        {
+          IEnumerator enumer = itemsSource.GetEnumerator();
+          result = enumer.MoveNext();
+        }
+      }
+      IsExpandable = result;
+    }
 
     #region Public properties
 
     public bool IsExpanded
     {
-      get { return (bool)_isExpandedProperty.GetValue(); }
+      get { return (bool) _isExpandedProperty.GetValue(); }
       set { _isExpandedProperty.SetValue(value); }
     }
 
     public AbstractProperty IsExpandedProperty
     {
       get { return _isExpandedProperty; }
+    }
+
+    public bool IsExpandable
+    {
+      get { return (bool) _isExpandableProperty.GetValue(); }
+      set { _isExpandableProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsExpandableProperty
+    {
+      get { return _isExpandableProperty; }
+    }
+
+    public bool ForceExpander
+    {
+      get { return (bool) _forceExpanderProperty.GetValue(); }
+      set { _forceExpanderProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ForceExpanderProperty
+    {
+      get { return _forceExpanderProperty; }
     }
 
     #endregion
@@ -80,6 +157,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Content = dataItem,
             Context = dataItem,
             Style = ItemContainerStyle,
+            ForceExpander = ForceExpander,
             Screen = Screen
         };
 

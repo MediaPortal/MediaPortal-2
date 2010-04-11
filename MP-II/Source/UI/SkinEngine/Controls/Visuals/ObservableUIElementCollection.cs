@@ -25,89 +25,52 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MediaPortal.UI.SkinEngine.Controls.Panels;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class UIElementCollection : IEnumerable<UIElement>, IDisposable
+  public delegate void CollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : UIElement;
+
+  public class ObservableUIElementCollection<T> : IEnumerable<T>, IDisposable where T : UIElement
   {
     protected UIElement _parent;
-    protected IList<UIElement> _elements;
-    protected bool _zIndexFixed = false;
+    protected IList<T> _elements;
 
-    public UIElementCollection(UIElement parent)
+    public ObservableUIElementCollection(UIElement parent)
     {
       _parent = parent;
-      _elements = new List<UIElement>();
+      _elements = new List<T>();
     }
+
+    public CollectionChangedDlgt<T> CollectionChanged;
 
     public void Dispose()
     {
       Clear();
     }
 
-    protected void InvalidateParent()
-    {
-      if (_parent != null)
-        _parent.Invalidate();
-    }
-
-    public void FixZIndex()
-    {
-      if (SkinManagement.SkinContext.UseBatching)
-        return;
-      if (_zIndexFixed) return;
-      _zIndexFixed = true;
-      double zindex1 = 0;
-      foreach (UIElement element in _elements)
-      {
-        if (Panel.GetZIndex(element) < 0)
-        {
-          Panel.SetZIndex(element, zindex1);
-          zindex1 += 0.0001;
-        }
-        else
-        {
-          Panel.SetZIndex(element, Panel.GetZIndex(element)+zindex1);
-          zindex1 += 0.0001;
-        }
-      }
-    }
-
-    public void SetParent(UIElement parent)
-    {
-      _parent = parent;
-      foreach (UIElement element in _elements)
-      {
-        element.VisualParent = _parent;
-        element.Screen = _parent == null ? null : _parent.Screen;
-      }
-      InvalidateParent();
-    }
-
-    public void Add(UIElement element)
+    public void Add(T element)
     {
       element.VisualParent = _parent;
       element.Screen = _parent == null ? null : _parent.Screen;
       _elements.Add(element);
-      InvalidateParent();
+      FireCollectionChanged();
     }
 
-    public void Remove(UIElement element)
+    public void Remove(T element)
     {
       _elements.Remove(element);
-      InvalidateParent();
+      FireCollectionChanged();
     }
 
     public void Clear()
     {
-      foreach (UIElement element in _elements)
+      foreach (T element in _elements)
       {
         element.Deallocate();
         element.Dispose();
       }
       _elements.Clear();
-      InvalidateParent();
+      FireCollectionChanged();
     }
 
     public int Count
@@ -115,7 +78,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _elements.Count; }
     }
 
-    public UIElement this[int index]
+    public T this[int index]
     {
       get { return _elements[index]; }
       set
@@ -123,18 +86,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (value != _elements[index])
         {
           _elements[index] = value;
-          if (_parent != null)
-          {
-            _elements[index].VisualParent = _parent;
-            _parent.Invalidate();
-          }
+          FireCollectionChanged();
         }
       }
     }
 
+    protected void FireCollectionChanged()
+    {
+      CollectionChangedDlgt<T> dlgt = CollectionChanged;
+      if (dlgt != null)
+        dlgt(this);
+    }
+
     #region IEnumerable<UIElement> Members
 
-    public IEnumerator<UIElement> GetEnumerator()
+    public IEnumerator<T> GetEnumerator()
     {
       return _elements.GetEnumerator();
     }
@@ -154,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override string ToString()
     {
-      return string.Format("{0}: Count={1}", typeof(UIElementCollection).Name, Count);
+      return string.Format("{0}: Count={1}", typeof(ObservableUIElementCollection<T>).Name, Count);
     }
 
     #endregion

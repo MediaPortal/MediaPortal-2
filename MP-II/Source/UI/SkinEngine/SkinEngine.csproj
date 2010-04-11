@@ -84,6 +84,7 @@
     <Compile Include="Controls\Animations\TimelineGroup.cs" />
     <Compile Include="Controls\Panels\DefinitionsCollectionBase.cs" />
     <Compile Include="Controls\Panels\Panel.cs" />
+    <Compile Include="Controls\Visuals\ObservableUIElementCollection.cs" />
     <Compile Include="Controls\Visuals\Templates\FrameworkTemplate.cs" />
     <Compile Include="Controls\Visuals\GroupBox.cs" />
     <Compile Include="Controls\Visuals\IScrollViewerFocusSupport.cs" />

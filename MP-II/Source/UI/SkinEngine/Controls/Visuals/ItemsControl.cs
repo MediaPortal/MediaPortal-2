@@ -49,6 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemContainerStyleProperty;
     protected AbstractProperty _itemsPanelProperty;
     protected AbstractProperty _currentItemProperty;
+    protected AbstractProperty _itemsProperty;
 
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
@@ -66,6 +67,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _itemsSourceProperty = new SProperty(typeof(IEnumerable), null);
+      _itemsProperty = new SProperty(typeof(ObservableUIElementCollection<UIElement>), new ObservableUIElementCollection<UIElement>(this));
       _itemTemplateProperty = new SProperty(typeof(DataTemplate), null);
       _itemContainerStyleProperty = new SProperty(typeof(Style), null);
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
@@ -76,6 +78,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _itemsSourceProperty.Attach(OnItemsSourceChanged);
+      _itemsProperty.Attach(OnItemsChanged);
       _itemTemplateProperty.Attach(OnItemTemplateChanged);
       _itemsPanelProperty.Attach(OnItemsPanelChanged);
       _itemContainerStyleProperty.Attach(OnItemContainerStyleChanged);
@@ -84,6 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Detach()
     {
       _itemsSourceProperty.Detach(OnItemsSourceChanged);
+      _itemsProperty.Detach(OnItemsChanged);
       _itemTemplateProperty.Detach(OnItemTemplateChanged);
       _itemsPanelProperty.Detach(OnItemsPanelChanged);
       _itemContainerStyleProperty.Detach(OnItemContainerStyleChanged);
@@ -95,6 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ItemsControl c = (ItemsControl) source;
       object oldItemsSource = ItemsSource;
+      object oldItems = Items;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
       ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
@@ -102,6 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
+      OnItemsChanged(_itemsProperty, oldItems);
       InvalidateItems();
     }
 
@@ -123,16 +129,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         coll.ObjectChanged += OnCollectionChanged;
     }
 
+    protected void DetachFromItems(ObservableUIElementCollection<UIElement> items)
+    {
+      if (items == null)
+        return;
+      items.CollectionChanged -= OnItemsCollectionChanged;
+    }
+
+    protected void AttachToItems(ObservableUIElementCollection<UIElement> items)
+    {
+      if (items == null)
+        return;
+      items.CollectionChanged += OnItemsCollectionChanged;
+    }
+
     void OnItemsSourceChanged(AbstractProperty property, object oldValue)
     {
       DetachFromItemsSource(oldValue as IEnumerable);
       AttachToItemsSource(ItemsSource);
       InvalidateItems();
+      OnItemsSourceChanged();
     }
 
     void OnCollectionChanged(IObservable itemsSource)
     {
       InvalidateItems();
+      OnItemsSourceChanged();
     }
 
     void OnItemTemplateChanged(AbstractProperty property, object oldValue)
@@ -149,6 +171,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnItemContainerStyleChanged(AbstractProperty property, object oldValue)
     {
       InvalidateItems();
+    }
+
+    void OnItemsChanged(AbstractProperty prop, object oldVal)
+    {
+      DetachFromItems(oldVal as ObservableUIElementCollection<UIElement>);
+      AttachToItems(Items);
+      OnItemsChanged();
+    }
+
+    void OnItemsCollectionChanged(ObservableUIElementCollection<UIElement> collection)
+    {
+      OnItemsChanged();
+    }
+
+    /// <summary>
+    /// Will be called when the <see cref="ItemsSource"/> object or the <see cref="ItemsSource"/> collection was changed.
+    /// </summary>
+    protected virtual void OnItemsSourceChanged()
+    {
+    }
+
+    /// <summary>
+    /// Will be called when the <see cref="Items"/> object or the <see cref="Items"/> collection was changed.
+    /// </summary>
+    protected virtual void OnItemsChanged()
+    {
+      if (_itemsHostPanel == null)
+        return;
+      UIElementCollection children = new UIElementCollection(null);
+      foreach (UIElement child in Items)
+        children.Add(child);
+      _itemsHostPanel.Children = children;
     }
 
     #endregion
@@ -190,7 +244,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Gets or sets a collection used to generate the content of the ItemsControl.
+    /// Gets or sets an enumeration used to generate the content of the ItemsControl.
     /// </summary>
     public IEnumerable ItemsSource
     {
@@ -201,6 +255,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public AbstractProperty ItemContainerStyleProperty
     {
       get { return _itemContainerStyleProperty; }
+    }
+
+    public AbstractProperty ItemsProperty
+    {
+      get { return _itemsProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets the items of the ItemsControl directly.
+    /// </summary>
+    public ObservableUIElementCollection<UIElement> Items
+    {
+      get { return (ObservableUIElementCollection<UIElement>) _itemsProperty.GetValue(); }
+      set { _itemsProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -280,7 +348,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SelectionChanged.Execute(new object[] { CurrentItem });
     }
 
-    protected void InvalidateItems()
+    protected virtual void InvalidateItems()
     {
       PrepareItems();
       Invalidate();
@@ -324,14 +392,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_itemsHostPanel == null)
         return;
 
-      UIElementCollection children = new UIElementCollection(null);
+      ObservableUIElementCollection<UIElement> items = new ObservableUIElementCollection<UIElement>(this);
       while (enumer.MoveNext())
       {
         UIElement container = PrepareItemContainer(enumer.Current);
-        children.Add(container);
+        items.Add(container);
       }
-      SetValueInRenderThread(new SimplePropertyDataDescriptor(_itemsHostPanel, typeof(Panel).GetProperty("Children")), children);
-      return;
+      SetValueInRenderThread(new SimplePropertyDataDescriptor(this, typeof(ItemsControl).GetProperty("Items")), items);
     }
 
     /// <summary>
