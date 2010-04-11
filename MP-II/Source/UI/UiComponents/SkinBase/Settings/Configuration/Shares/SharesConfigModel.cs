@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.Core.Localization;
@@ -561,20 +562,20 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
 
     protected void UpdateIsChoosenPathValid()
     {
+      ResourcePath rp = ChoosenResourcePath;
+      if (rp == null)
+      {
+        IsChoosenPathValid = false;
+        return;
+      }
       try
       {
-        ResourcePath rp = ChoosenResourcePath;
-        if (rp == null)
-        {
-          IsChoosenPathValid = false;
-          return;
-        }
         // Check if we can create an item accessor - if we get an exception, the path is not valid
         IResourceAccessor ra = rp.CreateLocalMediaItemAccessor();
         ra.Dispose();
         IsChoosenPathValid = true;
       }
-      catch (Exception)
+      catch (Exception) // No logging necessary - exception is used to determine an invalid path
       {
         IsChoosenPathValid = false;
       }
@@ -582,20 +583,21 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
 
     protected void UpdateChoosenPathDisplayName()
     {
+      ResourcePath rp = ChoosenResourcePath;
+      if (rp == null)
+      {
+        ChoosenResourcePathDisplayName = string.Empty;
+        return;
+      }
       try
       {
-        ResourcePath rp = ChoosenResourcePath;
-        if (rp == null)
-        {
-          ChoosenResourcePathDisplayName = string.Empty;
-          return;
-        }
         IResourceAccessor ra = rp.CreateLocalMediaItemAccessor();
         ChoosenResourcePathDisplayName = ra.ResourcePathName;
         ra.Dispose();
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, rp);
         ChoosenResourcePathDisplayName = string.Empty;
       }
     }
@@ -622,22 +624,29 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
       foreach (Share share in shareDescriptors)
       {
-        ListItem shareItem = new ListItem(NAME_KEY, share.Name);
-        shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
-        IResourceAccessor resourceAccessor = share.BaseResourcePath.CreateLocalMediaItemAccessor();
-        shareItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY] = resourceAccessor;
-        shareItem.SetLabel(PATH_KEY, resourceAccessor.ResourcePathName);
-        IMediaProvider firstMediaProvider = GetFirstMediaProvider(share);
-        shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, firstMediaProvider == null ? null : firstMediaProvider.Metadata.Name);
-        string categories = StringUtils.Join(", ", share.MediaCategories);
-        shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
-        if (shareDescriptors.Count == 1)
+        try
         {
-          selected = true;
-          shareItem.Selected = true;
+          ListItem shareItem = new ListItem(NAME_KEY, share.Name);
+          shareItem.SetLabel(ID_KEY, share.ShareId.ToString());
+          IResourceAccessor resourceAccessor = share.BaseResourcePath.CreateLocalMediaItemAccessor();
+          shareItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY] = resourceAccessor;
+          shareItem.SetLabel(PATH_KEY, resourceAccessor.ResourcePathName);
+          IMediaProvider firstMediaProvider = GetFirstMediaProvider(share);
+          shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, firstMediaProvider == null ? null : firstMediaProvider.Metadata.Name);
+          string categories = StringUtils.Join(", ", share.MediaCategories);
+          shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
+          if (shareDescriptors.Count == 1)
+          {
+            selected = true;
+            shareItem.Selected = true;
+          }
+          shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
+          _sharesList.Add(shareItem);
         }
-        shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
-        _sharesList.Add(shareItem);
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("Share item '{0}' (path '{1}') cannot be built", e, share.Name, share.BaseResourcePath);
+        }
       }
       _sharesList.FireChange();
       IsSharesSelected = selected;
@@ -774,8 +783,9 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
         ResourcePath rp = ChoosenResourcePath;
         return rp.CreateLocalMediaItemAccessor().ResourceName;
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        ServiceScope.Get<ILogger>().Warn("Problem generating suggestion for share name for path '{0}'", e, ChoosenResourcePath);
         return string.Empty;
       }
     }
