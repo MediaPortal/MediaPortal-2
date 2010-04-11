@@ -548,7 +548,7 @@
                 IsChecked="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded,Mode=TwoWay}"
                 Command="{DynamicResource ResourceKey=Expander_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
                 VerticalAlignment="Top"/>
-            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+            <ContentPresenter x:Name="TreeItemContentPresenter" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
             <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                 IsVisible="{Binding RelativeSource={RelativeSource AncestorType={x:Type HeaderedItemsControl}},Path=IsExpanded}">
@@ -878,7 +878,7 @@
                 Stroke="{ThemeResource WorkflowNavigationBarItemContainerStrokeColor}"
                 Fill="{ThemeResource WorkflowNavigationBarItemContainerFillColor}"
                 Data="M0,0 L20,10 0,20"/>
-            <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="ContentPresenter" HorizontalAlignment="Stretch"/>
+            <ContentPresenter Grid.Row="0" Grid.Column="1" x:Name="WorkflowNavibationItemContentPresenter" HorizontalAlignment="Stretch"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

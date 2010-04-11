@@ -216,7 +216,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -267,7 +267,7 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Style="{ThemeResource ButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -330,7 +330,7 @@
             </Control>
             <Ellipse x:Name="InnerCircle" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Width="5" Height="5" Fill="{ThemeResource ControlHandleColor}" Visibility="Hidden"/>
-            <ContentPresenter x:Name="ContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,7,10,7"
+            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="1" Grid.Row="0" Margin="10,7,10,7"
                 HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
@@ -380,7 +380,7 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ContentPresenter x:Name="ContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             <Control x:Name="GrowControl" Grid.Column="1" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
                 VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
               <Control.RenderTransform>
