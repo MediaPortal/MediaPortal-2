@@ -28,9 +28,16 @@
             <Label Color="{ThemeResource HintTextColor}" Content=")"/>
           </StackPanel>
         </DockPanel>
-        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical"
+        <Grid Grid.Column="0" Grid.Row="1"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <ListView Style="{ThemeResource PlayListListViewStyle}" ItemsSource="{Binding Items}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <ListView Style="{ThemeResource PlayListListViewStyle}" ItemsSource="{Binding Items}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.Resources>
               <Command x:Key="Select_Command" Source="{StaticResource PlaylistModel}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
@@ -39,7 +46,7 @@
           <Label IsVisible="{Binding IsPlaylistEmpty}"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
-        </StackPanel>
+        </Grid>
       </Grid>
     </ResourceWrapper>
 

@@ -10,7 +10,13 @@
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <ResourceWrapper x:Key="Config_Contents_Element">
-      <StackPanel Orientation="Vertical">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <ListView x:Name="Menu" Style="{ThemeResource ImageDialogListViewStyle}" ItemsSource="{Binding Source={StaticResource Model},Path=CurrentConfigController.Items}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" CurrentItem="{Binding Source={StaticResource Model},Path=CurrentConfigController.ChoosenItem,Mode=TwoWay}">
           <ListView.Resources>
@@ -20,7 +26,7 @@
             </CommandList>
           </ListView.Resources>
         </ListView>
-      </StackPanel>
+      </Grid>
     </ResourceWrapper>
   </Include.Resources>
 </Include>

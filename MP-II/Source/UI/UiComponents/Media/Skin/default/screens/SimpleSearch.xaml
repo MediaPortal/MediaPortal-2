@@ -42,10 +42,17 @@
           <TextBox Grid.Row="1" Style="{ThemeResource TextBoxStyle}"
               Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100"/>
         </Grid>
-        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical"
+        <Grid Grid.Column="0" Grid.Row="1"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding IsItemsValid}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
           <!-- To support all properties of the media items (e.g. artist, album, etc.), we need to use a special ListView style -->
-          <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}">
+          <ListView Style="{ThemeResource ContentsMenuListViewStyle}" ItemsSource="{Binding Items}"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource MediaModel}" Path="Select"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
@@ -54,7 +61,7 @@
           <Label IsVisible="{Binding IsItemsEmpty}"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
-        </StackPanel>
+        </Grid>
         <Label Grid.Row="1" Grid.Column="0" IsVisible="{Binding !IsItemsValid}"
             HorizontalAlignment="Center" VerticalAlignment="Center"
             Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>

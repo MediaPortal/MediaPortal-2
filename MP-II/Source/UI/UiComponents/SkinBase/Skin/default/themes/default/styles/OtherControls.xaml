@@ -89,7 +89,8 @@
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <!-- Content -->
-            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"/>
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Margin="{TemplateBinding Margin}" Content="{TemplateBinding Content}"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <!-- ScrollBar X -->
             <Grid x:Name="ScrollBarX" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="2" Grid.Column="0">
               <Grid.ColumnDefinitions>
@@ -447,8 +448,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true">
-            <ItemsPresenter VerticalAlignment="Top"/>
+          <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
