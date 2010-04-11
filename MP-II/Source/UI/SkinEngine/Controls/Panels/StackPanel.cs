@@ -166,13 +166,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       int visibleChildrenCount = visibleChildren.Count;
       if (visibleChildrenCount > 0)
       {
+        float actualWidth = (float) ActualWidth;
+        float actualHeight = (float) ActualHeight;
         // Hint: We cannot skip the arrangement of children above _scrollOffset or below the last visible child
         // because the rendering and focus system also needs the bounds of the currently invisible children
         switch (Orientation)
         {
           case Orientation.Vertical:
             {
-              float actualHeight = (float) ActualHeight;
               const float startPositionX = 0;
               float startPositionY = 0;
               if (_canScroll)
@@ -207,7 +208,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   lastVisibleChild = i;
                 PointF position = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
-                childSize.Width = (float) ActualWidth;
+
+                childSize.Width = actualWidth;
 
                 ArrangeChildHorizontal(child, ref position, ref childSize);
                 child.Arrange(new RectangleF(position, childSize));
@@ -222,7 +224,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
           case Orientation.Horizontal:
             {
-              float actualWidth = (float) ActualWidth;
               float startPositionX = 0;
               const float startPositionY = 0;
               if (_canScroll)
@@ -258,7 +259,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 PointF location = new PointF(ActualPosition.X + startPositionX,
                     ActualPosition.Y + startPositionY);
 
-                childSize.Height = (float) ActualHeight;
+                childSize.Height = actualHeight;
 
                 ArrangeChildVertical(child, ref location, ref childSize);
                 child.Arrange(new RectangleF(location, childSize));
