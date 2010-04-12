@@ -450,8 +450,7 @@ namespace UiComponents.Media.Models
     {
       if (_currentNavigationContext == null)
         return defaultValue;
-      T? result = _currentNavigationContext.GetContextVariable(contextVariableName, inheritFromPredecessor) as T?;
-      return result.HasValue ? result.Value : defaultValue;
+      return (_currentNavigationContext.GetContextVariable(contextVariableName, inheritFromPredecessor) as T?) ?? defaultValue;
     }
 
     protected void SetInCurrentContext<T>(string contextVariableName, T value)

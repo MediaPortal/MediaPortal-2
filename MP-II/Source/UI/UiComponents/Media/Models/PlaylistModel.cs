@@ -193,7 +193,7 @@ namespace UiComponents.Media.Models
 
           item.Name = name;
           item.SetLabel(KEY_NUMBERSTR, (idx + 1) + ".");
-          item.SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(new TimeSpan(0, 0, 0, (int) length.Value)) : string.Empty);
+          item.SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) length.Value)) : string.Empty);
           item.AdditionalProperties[KEY_INDEX] = idx;
           item.AdditionalProperties[KEY_IS_CURRENT_ITEM] = currentItemIdx == idx;
           _items.Add(item);
@@ -217,7 +217,7 @@ namespace UiComponents.Media.Models
       {
         bool isCurrentItem = idx-- == 0;
         bool? currentIsCurrentItem = (bool?) item.AdditionalProperties[KEY_IS_CURRENT_ITEM];
-        if (isCurrentItem != (currentIsCurrentItem.HasValue ? currentIsCurrentItem.Value : false))
+        if (isCurrentItem != (currentIsCurrentItem ?? false))
         {
           item.AdditionalProperties[KEY_IS_CURRENT_ITEM] = isCurrentItem;
           item.FireChange();

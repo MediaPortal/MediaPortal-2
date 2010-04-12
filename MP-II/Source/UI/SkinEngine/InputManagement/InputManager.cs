@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
     #region Consts
 
     // TODO: Make this configurable
-    protected static TimeSpan MOUSE_CONTROLS_TIMEOUT = new TimeSpan(0, 0, 0, 5);
+    protected static TimeSpan MOUSE_CONTROLS_TIMEOUT = TimeSpan.FromSeconds(5);
 
     #endregion
 

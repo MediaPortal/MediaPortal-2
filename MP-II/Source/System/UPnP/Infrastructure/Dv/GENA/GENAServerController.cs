@@ -158,7 +158,7 @@ namespace UPnP.Infrastructure.Dv.GENA
         foreach (EventingState eventingState in _serverData.ServiceMulticastEventingState.Values)
         {
           TimeSpan? ts = eventingState.GetNextScheduleTimeSpan();
-          if (!nextScheduleTimeSpan.HasValue || (ts.HasValue && ts.Value < nextScheduleTimeSpan.Value))
+          if (!nextScheduleTimeSpan.HasValue || (ts < nextScheduleTimeSpan.Value))
             nextScheduleTimeSpan = ts;
         }
         if (nextScheduleTimeSpan.HasValue)

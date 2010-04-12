@@ -151,11 +151,11 @@ namespace MediaPortal.UI.Services.Players
             NavigationContext context = (NavigationContext) message.MessageData[WorkflowManagerMessaging.CONTEXT];
             Guid stateId = context.WorkflowState.StateId;
             Guid? potentialState = GetPotentialCPStateId();
-            if (potentialState.HasValue && potentialState.Value == stateId)
+            if (potentialState == stateId)
               lock(SyncObj)
                 _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.CurrentlyPlaying, stateId));
             potentialState = GetPotentialFSCStateId();
-            if (potentialState.HasValue && potentialState.Value == stateId)
+            if (potentialState == stateId)
               lock (SyncObj)
                 _playerWfStateInstances.Add(new PlayerWFStateInstance(PlayerWFStateType.FullscreenContent, stateId));
             break;
@@ -336,7 +336,7 @@ namespace MediaPortal.UI.Services.Players
               throw new NotImplementedException(string.Format("No handler for player workflow state type '{0}'",
                   wfStateInstance.WFStateType));
           }
-          if (!newStateId.HasValue || newStateId.Value != wfStateInstance.WFStateId)
+          if (newStateId != wfStateInstance.WFStateId)
           {
             // Found the first player workflow state which doesn't fit any more
             log.Debug("PlayerContextManager: {0} Workflow State '{1}' doesn't fit any more to the current situation. Leaving workflow state...",

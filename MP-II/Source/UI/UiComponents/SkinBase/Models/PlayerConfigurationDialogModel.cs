@@ -460,9 +460,9 @@ namespace UiComponents.SkinBase.Models
       else if (newContext.WorkflowState.StateId == PLAYER_SLOT_AUDIO_MENU_DIALOG_STATE_ID)
       {
         int? slotIndex = newContext.GetContextVariable(KEY_PLAYER_SLOT, false) as int?;
-        _playerSlotAudioMenuSlotIndex = slotIndex.HasValue ? slotIndex.Value : 0;
+        _playerSlotAudioMenuSlotIndex = slotIndex ?? 0;
         bool? showToggleMute = newContext.GetContextVariable(KEY_SHOW_MUTE, false) as bool?;
-        _showToggleMute = !showToggleMute.HasValue || showToggleMute.Value;
+        _showToggleMute = showToggleMute ?? true;
         UpdatePlayerSlotAudioMenu();
         _inPlayerSlotAudioMenuDialog = true;
       }

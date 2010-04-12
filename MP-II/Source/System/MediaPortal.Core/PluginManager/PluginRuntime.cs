@@ -90,7 +90,7 @@ namespace MediaPortal.Core.PluginManager
     /// <summary>
     /// Timeout until we assume a deadlock.
     /// </summary>
-    protected static readonly TimeSpan STATE_LOCK_TIMEOUT = new TimeSpan(0, 0, 0, 2);
+    protected static readonly TimeSpan STATE_LOCK_TIMEOUT = TimeSpan.FromSeconds(2);
 
     protected object _syncObj;
     protected IPluginMetadata _pluginMetadata;

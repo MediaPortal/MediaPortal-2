@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
   public partial class MainForm : Form, IScreenControl
   {
     // TODO: Make this configurable
-    protected static TimeSpan SCREENSAVER_TIMEOUT = new TimeSpan(0, 0, 5, 0);
+    protected static TimeSpan SCREENSAVER_TIMEOUT = TimeSpan.FromMinutes(5);
 
     private Thread _renderThread;
     private GraphicsDevice _directX;

@@ -38,7 +38,6 @@ using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.Services.Workflow
 {
-  // TODO: Avoid that methods are called from two different threads at the same time
   public class WorkflowManager : IWorkflowManager
   {
     #region Classes
@@ -129,7 +128,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     protected readonly static NavigationContextConfig EMPTY_NAVIGATION_CONTEXT_CONFIG = new NavigationContextConfig();
 
-    protected static readonly TimeSpan LOCK_TIMEOUT = new TimeSpan(0, 0, 0, 2);
+    protected static readonly TimeSpan LOCK_TIMEOUT = TimeSpan.FromSeconds(2);
 
     #endregion
 

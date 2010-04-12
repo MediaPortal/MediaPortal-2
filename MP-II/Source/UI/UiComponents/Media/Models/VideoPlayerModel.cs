@@ -54,7 +54,7 @@ namespace UiComponents.Media.Models
 
     public const string VIDEOCONTEXTMENU_DIALOG_NAME = "DialogVideoContextMenu";
 
-    protected static TimeSpan VIDEO_INFO_TIMEOUT = new TimeSpan(0, 0, 0, 5);
+    protected static TimeSpan VIDEO_INFO_TIMEOUT = TimeSpan.FromSeconds(5);
 
     public static float DEFAULT_PIP_HEIGHT = 108;
     public static float DEFAULT_PIP_WIDTH = 192;

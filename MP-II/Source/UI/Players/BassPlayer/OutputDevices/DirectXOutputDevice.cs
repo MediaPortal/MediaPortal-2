@@ -361,7 +361,7 @@ namespace Ui.Players.BassPlayer.OutputDevices
     /// </summary>
     internal void WaitAndHandleOutputEnd_Sync()
     {
-      DateTime timeout = DateTime.Now + CurrentDeviceInfo._Latency + new TimeSpan(0, 0, 0, 1);
+      DateTime timeout = DateTime.Now + CurrentDeviceInfo._Latency + TimeSpan.FromSeconds(1);
       BassStream stream = _OutputStream;
       if (stream != null)
         while (Bass.BASS_ChannelIsActive(stream.Handle) != BASSActive.BASS_ACTIVE_STOPPED && DateTime.Now < timeout)
