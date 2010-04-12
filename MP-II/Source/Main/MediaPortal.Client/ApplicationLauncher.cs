@@ -137,7 +137,7 @@ namespace MediaPortal
 
             ApplicationCore.RegisterDefaultMediaItemAspectTypes(); // To be done after UI services are running
 
-            systemStateService.SwitchSystemState(SystemState.Started, true);
+            systemStateService.SwitchSystemState(SystemState.Running, true);
 
             Application.Run();
 

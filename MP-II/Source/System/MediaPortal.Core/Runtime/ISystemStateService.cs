@@ -32,22 +32,22 @@ namespace MediaPortal.Core.Runtime
     None,
 
     /// <summary>
-    /// The system is initializing. This means, all services and components will be configured and started.
+    /// The system is initializing. All services and components are configured and started.
     /// </summary>
     Initializing,
 
     /// <summary>
-    /// All services and components have been started and the main application will start to process its window message loop.
+    /// All services and components have been started and the main application is processing its window message loop.
     /// </summary>
-    Started,
+    Running,
 
     /// <summary>
-    /// The system received the signal to shut down. All services and components will shut down now.
+    /// The system received the signal to shut down and all services and components are shutting down.
     /// </summary>
     ShuttingDown,
 
     /// <summary>
-    /// All services and components have been shut down and the system will exit now.
+    /// All services and components have been shut down and the system is exiting.
     /// </summary>
     Ending,
   }

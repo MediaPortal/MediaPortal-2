@@ -52,7 +52,7 @@ namespace MediaPortal.UI.Presentation.Models
       _timer = new Timer(updateInterval);
 
       ISystemStateService systemStateService = ServiceScope.Get<ISystemStateService>();
-      if (systemStateService.CurrentState == SystemState.Started)
+      if (systemStateService.CurrentState == SystemState.Running)
         StartTimer();
       SubscribeToMessages();
     }
@@ -121,7 +121,7 @@ namespace MediaPortal.UI.Presentation.Models
           SystemState state = (SystemState) message.MessageData[SystemMessaging.PARAM];
           switch (state)
           {
-            case SystemState.Started:
+            case SystemState.Running:
               StartTimer();
               break;
             case SystemState.ShuttingDown:

@@ -155,7 +155,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     #endregion
 
-    #region Protected methods
+    #region Private & protected methods
 
     void SubscribeToMessages()
     {

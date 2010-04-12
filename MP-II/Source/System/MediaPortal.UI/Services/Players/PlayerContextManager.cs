@@ -29,6 +29,7 @@ using MediaPortal.Core.Logging;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Runtime;
 using MediaPortal.Core.Threading;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
@@ -309,6 +310,10 @@ namespace MediaPortal.UI.Services.Players
     /// </remarks>
     protected void CheckMediaWorkflowStates_NoLock()
     {
+      ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+      if (sss.CurrentState != SystemState.Running)
+        // Only automatically change workflow states in running state
+        return;
       IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
       workflowManager.StartBatchUpdate();
       ILogger log = ServiceScope.Get<ILogger>();
