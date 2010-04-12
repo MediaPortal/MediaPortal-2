@@ -24,14 +24,21 @@
 
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class ListView : ItemsControl
+  public class ListView : ItemsControl, IAddChild<ListViewItem>
   {
     protected override UIElement PrepareItemContainer(object dataItem)
     {
-      ListViewItem container = new ListViewItem {Style = ItemContainerStyle, Context = dataItem, Screen = Screen};
+      ListViewItem container = new ListViewItem
+        {
+            Style = ItemContainerStyle,
+            Context = dataItem,
+            Content = dataItem,
+            Screen = Screen
+        };
       // We need to copy the item data template for the child containers, because the
       // data template contains specific data for each container. We need to "personalize" the
       // data template copy by assigning its LogicalParent.
@@ -40,5 +47,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       container.ContentTemplate = childItemTemplate;
       return container;
     }
+
+    #region IAddChild<ListViewItem> Members
+
+    public void AddChild(ListViewItem o)
+    {
+      // This is not solved in an optimal way because every time the Items collection is changed, the whole
+      // Children collection of our items host panel is built newly in the change handler of the Items property.
+      // Maybe we should solve that rebuild during the XAML loading time by avoiding the event handler until we
+      // receive a call to Initialize (+ make class implement IInitializable)?
+      Items.Add(o);
+    }
+
+    #endregion
   }
 }
