@@ -156,7 +156,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// letters to move the focus to a child entry.
     /// </summary>
     /// <remarks>
-    /// This value be automatically bound to the <see cref="HierarchicalDataTemplate.DataString"/> property.
+    /// This value will automatically be set to the value of the <see cref="HierarchicalDataTemplate.DataString"/>
+    /// property.
     /// </remarks>
     public string DataString
     {

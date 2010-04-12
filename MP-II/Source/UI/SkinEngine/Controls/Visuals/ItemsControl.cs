@@ -119,14 +119,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       IObservable oldItemsSource = itemsSource as IObservable;
       if (oldItemsSource != null)
-        oldItemsSource.ObjectChanged -= OnCollectionChanged;
+        oldItemsSource.ObjectChanged -= OnItemsSourceCollectionChanged;
     }
 
     protected void AttachToItemsSource(IEnumerable itemsSource)
     {
       IObservable coll = itemsSource as IObservable;
       if (coll != null)
-        coll.ObjectChanged += OnCollectionChanged;
+        coll.ObjectChanged += OnItemsSourceCollectionChanged;
     }
 
     protected void DetachFromItems(ObservableUIElementCollection<UIElement> items)
@@ -151,7 +151,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       OnItemsSourceChanged();
     }
 
-    void OnCollectionChanged(IObservable itemsSource)
+    void OnItemsSourceCollectionChanged(IObservable itemsSource)
     {
       InvalidateItems();
       OnItemsSourceChanged();
@@ -186,14 +186,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Will be called when the <see cref="ItemsSource"/> object or the <see cref="ItemsSource"/> collection was changed.
+    /// Will be called when the <see cref="ItemsSource"/> object or the <see cref="ItemsSource"/> collection were changed.
     /// </summary>
     protected virtual void OnItemsSourceChanged()
     {
     }
 
     /// <summary>
-    /// Will be called when the <see cref="Items"/> object or the <see cref="Items"/> collection was changed.
+    /// Will be called when the <see cref="Items"/> object or the <see cref="Items"/> collection were changed.
     /// </summary>
     protected virtual void OnItemsChanged()
     {

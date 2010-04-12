@@ -46,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _dataStringProperty = new SProperty(typeof(string), "");
+      _dataStringProperty = new SProperty(typeof(string), string.Empty);
     }
 
     void Attach()
@@ -89,10 +89,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns a string representation for the current <see cref="TreeViewItem"/>. This is used
+    /// Returns a string representation for the current <see cref="ListViewItem"/>. This is used
     /// by the scrolling engine to find the appropriate element when the user starts to type the first
     /// letters to move the focus to a child entry.
     /// </summary>
+    /// <remarks>
+    /// This value will automatically be set to the value of the <see cref="DataTemplate.DataString"/> property.
+    /// </remarks>
     public string DataString
     {
       get { return (string) _dataStringProperty.GetValue(); }
@@ -100,6 +103,5 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
-
   }
 }
