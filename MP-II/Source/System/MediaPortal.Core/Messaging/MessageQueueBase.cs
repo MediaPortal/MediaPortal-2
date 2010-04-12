@@ -154,18 +154,6 @@ namespace MediaPortal.Core.Messaging
         UnregisterFromMessageChannel(channel);
     }
 
-    /// <summary>
-    /// Enqueues the specified <paramref name="message"/> to this queue. This message will be called
-    /// by the <see cref="IMessageBroker"/> service.
-    /// </summary>
-    /// <param name="message">Message to be enqueued in this message queue.</param>
-    public void Receive(SystemMessage message)
-    {
-      lock (_syncObj)
-        _messages.Enqueue(message);
-      HandleMessageAvailable(message);
-    }
-
     public SystemMessage Dequeue()
     {
       lock (_syncObj)
@@ -185,6 +173,31 @@ namespace MediaPortal.Core.Messaging
     {
       lock (_syncObj)
         _messages.Clear();
+    }
+
+    #endregion
+
+    #region IMessageReceiver implementation
+
+    /// <summary>
+    /// Enqueues the specified <paramref name="message"/> to this queue. This message will be called
+    /// by the <see cref="IMessageBroker"/> service.
+    /// </summary>
+    /// <param name="message">Message to be enqueued in this message queue.</param>
+    public void Receive(SystemMessage message)
+    {
+      lock (_syncObj)
+        _messages.Enqueue(message);
+      HandleMessageAvailable(message);
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("{0} '{1}'", GetType().Name, _queueName);
     }
 
     #endregion
