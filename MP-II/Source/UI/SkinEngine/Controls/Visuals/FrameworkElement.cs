@@ -662,9 +662,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           IsMouseOver = true;
           FireEvent(MOUSEENTER_EVENT);
-          if (!HasFocus && IsInVisibleArea(x, y))
-            TrySetFocus(false);
         }
+        if (!HasFocus && IsInVisibleArea(x, y))
+          TrySetFocus(false);
       }
       else
       {
