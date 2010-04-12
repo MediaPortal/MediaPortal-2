@@ -79,9 +79,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
   public class Panel : FrameworkElement, IAddChild<UIElement>, IUpdateEventHandler
   {
-    #region Protected fields
+    #region Constants
 
     protected const string ZINDEX_ATTACHED_PROPERTY = "Panel.ZIndex";
+
+    #endregion
+
+    #region Protected fields
 
     protected AbstractProperty _childrenProperty;
     protected AbstractProperty _backgroundProperty;
