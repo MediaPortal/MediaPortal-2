@@ -60,6 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       Button b = (Button) source;
 
+      IsDefault = b.IsDefault;
       Command = copyManager.GetCopy(b.Command);
     }
 

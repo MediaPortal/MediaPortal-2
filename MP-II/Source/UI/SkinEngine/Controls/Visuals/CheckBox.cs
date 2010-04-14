@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       CheckBox cb = (CheckBox) source;
-      IsChecked = copyManager.GetCopy(cb.IsChecked);
+      IsChecked = cb.IsChecked;
       Checked = copyManager.GetCopy(cb.Checked);
       Unchecked = copyManager.GetCopy(cb.Unchecked);
     }

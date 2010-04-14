@@ -47,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _routedEventProperty = new SProperty(typeof(string), "");
+      _routedEventProperty = new SProperty(typeof(string), string.Empty);
       _actions = new List<TriggerAction>();
     }
 
@@ -55,7 +55,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       base.DeepCopy(source, copyManager);
       EventTrigger t = (EventTrigger) source;
-      RoutedEvent = copyManager.GetCopy(t.RoutedEvent);
+      RoutedEvent = t.RoutedEvent;
       foreach (TriggerAction action in t._actions)
         _actions.Add(copyManager.GetCopy(action));
     }

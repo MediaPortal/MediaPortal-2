@@ -83,10 +83,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Detach();
       base.DeepCopy(source, copyManager);
       SkewTransform t = (SkewTransform) source;
-      CenterX = copyManager.GetCopy(t.CenterX);
-      CenterY = copyManager.GetCopy(t.CenterY);
-      AngleX = copyManager.GetCopy(t.AngleX);
-      AngleY = copyManager.GetCopy(t.AngleY);
+      CenterX = t.CenterX;
+      CenterY = t.CenterY;
+      AngleX = t.AngleX;
+      AngleY = t.AngleY;
       Attach();
     }
 

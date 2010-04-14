@@ -215,12 +215,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       base.DeepCopy(source, copyManager);
       BindingMarkupExtension bme = (BindingMarkupExtension) source;
       Source = copyManager.GetCopy(bme.Source);
-      ElementName = copyManager.GetCopy(bme.ElementName);
-      RelativeSource = copyManager.GetCopy(bme.RelativeSource);
+      ElementName = bme.ElementName;
+      RelativeSource = bme.RelativeSource;
       CheckTypeOfSource();
-      Path = copyManager.GetCopy(bme.Path);
-      Mode = copyManager.GetCopy(bme.Mode);
-      UpdateSourceTrigger = copyManager.GetCopy(bme.UpdateSourceTrigger);
+      Path = bme.Path;
+      Mode = bme.Mode;
+      UpdateSourceTrigger = bme.UpdateSourceTrigger;
+      Converter = copyManager.GetCopy(bme.Converter);
+      ConverterParameter = copyManager.GetCopy(bme.ConverterParameter);
 
       _compiledPath = bme._compiledPath;
       Attach();

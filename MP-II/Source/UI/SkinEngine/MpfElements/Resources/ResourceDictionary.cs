@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   {
     #region Protected fields
 
-    protected string _source = "";
+    protected string _source = string.Empty;
     protected ICollection<string> _dependsOnStyleResources = new List<string>();
     protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
     protected IDictionary<string, object> _names = new Dictionary<string, object>();
@@ -55,14 +55,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       base.DeepCopy(source, copyManager);
       ResourceDictionary rd = (ResourceDictionary) source;
-      Source = copyManager.GetCopy(rd.Source);
+      Source = rd.Source;
+      _dependsOnStyleResources = new List<string>(rd._dependsOnStyleResources);
       foreach (ResourceDictionary crd in rd._mergedDictionaries)
         _mergedDictionaries.Add(copyManager.GetCopy(crd));
       foreach (KeyValuePair<string, object> kvp in rd._names)
         if (_names.ContainsKey(kvp.Key))
           continue;
         else
-          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+          _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      _resources.Clear();
+      foreach (KeyValuePair<object, object> kvp in rd._resources)
+        _resources.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
     }
 
     #endregion

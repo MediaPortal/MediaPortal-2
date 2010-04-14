@@ -100,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       base.DeepCopy(source, copyManager);
       PropertyAnimationTimeline t = (PropertyAnimationTimeline) source;
-      _propertyExpression = copyManager.GetCopy(t._propertyExpression);
+      _propertyExpression = t._propertyExpression;
     }
 
     #endregion

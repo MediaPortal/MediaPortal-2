@@ -85,8 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       GroupBox gb = (GroupBox) source;
-      Header = copyManager.GetCopy(gb.Header);
-      HeaderColor = copyManager.GetCopy(gb.HeaderColor);
+      Header = gb.Header;
+      HeaderColor = gb.HeaderColor;
 
       Attach();
     }

@@ -220,8 +220,12 @@ namespace MediaPortal.UI.SkinEngine.SpecialElements.Controls
       base.DeepCopy(source, copyManager);
       PlayerControl pc = (PlayerControl) source;
 
-      SlotIndex = copyManager.GetCopy(pc.SlotIndex);
-      AutoVisibility = copyManager.GetCopy(pc.AutoVisibility);
+      SlotIndex = pc.SlotIndex;
+      AutoVisibility = pc.AutoVisibility;
+      _stickToPlayerContext = pc._stickToPlayerContext;
+      _fixedVideoWidth = pc._fixedVideoWidth;
+      _fixedVideoHeight = pc._fixedVideoHeight;
+      
       Attach();
       UpdateProperties();
     }

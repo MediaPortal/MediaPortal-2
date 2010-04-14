@@ -39,14 +39,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void Init()
     {
-      _nameProperty = new SProperty(typeof(string), "");
+      _nameProperty = new SProperty(typeof(string), string.Empty);
       _lengthProperty = new SProperty(typeof(GridLength), new GridLength());
     }
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       DefinitionBase db = (DefinitionBase) source;
-      Name = copyManager.GetCopy(db.Name);
+      Name = db.Name;
       Length = copyManager.GetCopy(db.Length);
     }
 

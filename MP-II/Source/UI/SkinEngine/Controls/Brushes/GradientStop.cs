@@ -83,8 +83,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       base.DeepCopy(source, copyManager);
       Detach();
       GradientStop s = source as GradientStop;
-      Color = copyManager.GetCopy(s.Color);
-      Offset = copyManager.GetCopy(s.Offset);
+      Color = s.Color;
+      Offset = s.Offset;
       Attach();
     }
 

@@ -146,13 +146,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       base.DeepCopy(source, copyManager);
       Timeline t = (Timeline) source;
-      BeginTime = copyManager.GetCopy(t.BeginTime);
-      Accelleration = copyManager.GetCopy(t.Accelleration);
-      AutoReverse = copyManager.GetCopy(t.AutoReverse);
-      DecelerationRatio = copyManager.GetCopy(t.DecelerationRatio);
-      _durationProperty.SetValue(copyManager.GetCopy(t._durationProperty.GetValue())); // Copying of a Nullable<TimeSpan>
-      FillBehavior = copyManager.GetCopy(t.FillBehavior);
-      RepeatBehavior = copyManager.GetCopy(t.RepeatBehavior);
+      BeginTime = t.BeginTime;
+      Accelleration = t.Accelleration;
+      AutoReverse = t.AutoReverse;
+      DecelerationRatio = t.DecelerationRatio;
+      _durationProperty.SetValue(t._durationProperty.GetValue()); // Copying of a Nullable<TimeSpan>
+      FillBehavior = t.FillBehavior;
+      RepeatBehavior = t.RepeatBehavior;
     }
 
     #endregion

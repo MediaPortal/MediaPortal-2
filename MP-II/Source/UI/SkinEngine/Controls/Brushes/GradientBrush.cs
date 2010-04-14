@@ -107,9 +107,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Detach();
       base.DeepCopy(source, copyManager);
       GradientBrush b = (GradientBrush) source;
-      ColorInterpolationMode = copyManager.GetCopy(b.ColorInterpolationMode);
-      SpreadMethod = copyManager.GetCopy(b.SpreadMethod);
-      MappingMode = copyManager.GetCopy(b.MappingMode);
+      ColorInterpolationMode = b.ColorInterpolationMode;
+      SpreadMethod = b.SpreadMethod;
+      MappingMode = b.MappingMode;
       foreach (GradientStop stop in b.GradientStops)
         GradientStops.Add(copyManager.GetCopy(stop));
       Attach();

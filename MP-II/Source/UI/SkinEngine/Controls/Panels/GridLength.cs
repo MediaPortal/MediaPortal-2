@@ -65,9 +65,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       GridLength gl = (GridLength) source;
-      _unitType = copyManager.GetCopy(gl._unitType);
-      _value = copyManager.GetCopy(gl._value);
-      _finalValue = copyManager.GetCopy(gl._finalValue);
+      _unitType = gl._unitType;
+      _value = gl._value;
+      _finalValue = gl._finalValue;
     }
 
     #endregion
@@ -116,7 +116,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public double Length
     {
       get { return _finalValue; }
-      set { _finalValue = value; }
+      internal set { _finalValue = value; }
     }
 
     public override string ToString()

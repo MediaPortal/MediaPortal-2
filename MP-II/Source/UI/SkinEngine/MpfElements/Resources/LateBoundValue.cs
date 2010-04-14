@@ -54,11 +54,13 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public LateBoundValue() { }
 
-    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
-    {
-      base.DeepCopy(source, copyManager);
-      // Don't copy the BindingValue property because it is late bound and thus the actual value is not interesting
-    }
+// Albert: This method is only here to contain the comment - it is not necessary to be executed because it is empty.
+//         That's why we comment it out.
+//    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+//    {
+//      base.DeepCopy(source, copyManager);
+//      // Don't copy the BindingValue property because it is late bound and thus the actual value is not interesting
+//    }
 
     #endregion
 

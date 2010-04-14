@@ -128,8 +128,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Shape s = (Shape) source;
       Fill = copyManager.GetCopy(s.Fill);
       Stroke = copyManager.GetCopy(s.Stroke);
-      StrokeThickness = copyManager.GetCopy(s.StrokeThickness);
-      Stretch = copyManager.GetCopy(s.Stretch);
+      StrokeThickness = s.StrokeThickness;
+      Stretch = s.Stretch;
       Attach();
     }
 

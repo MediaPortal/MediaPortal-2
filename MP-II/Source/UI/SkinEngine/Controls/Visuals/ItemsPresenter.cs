@@ -49,11 +49,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      DetachScrolling();
       base.DeepCopy(source, copyManager);
       ItemsPresenter ip = (ItemsPresenter) source;
       _itemsHostPanel = copyManager.GetCopy(ip._itemsHostPanel);
-      _canScroll = copyManager.GetCopy(ip._canScroll);
-      UpdateCanScroll();
+      _canScroll = ip._canScroll;
+      AttachScrolling();
     }
 
     #endregion
@@ -64,7 +65,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (dlgt != null) dlgt(this);
     }
 
-    protected void UpdateCanScroll()
+    protected void DetachScrolling()
+    {
+      IScrollInfo si = _itemsHostPanel as IScrollInfo;
+      if (si != null)
+        si.Scrolled -= OnItemsPanelScrolled; // Repeat the Scrolled event to our subscribers
+    }
+
+    protected void AttachScrolling()
     {
       IScrollInfo si = _itemsHostPanel as IScrollInfo;
       if (si != null)
@@ -74,6 +82,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    protected void UpdateCanScroll()
+    {
+      IScrollInfo si = _itemsHostPanel as IScrollInfo;
+      if (si != null)
+        si.CanScroll = _canScroll;
+    }
+
     void OnItemsPanelScrolled(object sender)
     {
       InvokeScrolled();
@@ -81,11 +96,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void ApplyTemplate(ItemsPanelTemplate template)
     {
+      DetachScrolling();
       ControlTemplate ct = new ControlTemplate();
       ct.AddChild(template.LoadContent());
       Template = ct;
       _itemsHostPanel = TemplateControl.FindElement(ItemsHostFinder.Instance) as Panel;
-      UpdateCanScroll();
+      AttachScrolling();
     }
 
     public Panel ItemsHostPanel

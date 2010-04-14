@@ -60,7 +60,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     {
       base.DeepCopy(source, copyManager);
       ControlTemplate ct = (ControlTemplate) source;
-      TargetType = copyManager.GetCopy(ct.TargetType);
+      TargetType = ct.TargetType;
       foreach (TriggerBase t in ct.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
     }

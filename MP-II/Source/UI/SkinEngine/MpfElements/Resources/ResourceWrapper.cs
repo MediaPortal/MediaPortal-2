@@ -52,12 +52,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     {
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper) source;
-      Freezable = copyManager.GetCopy(rw.Freezable);
+      Freezable = rw.Freezable;
       foreach (KeyValuePair<string, object> kvp in rw._names)
         if (_names.ContainsKey(kvp.Key))
           continue;
         else
-          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+          _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
     }
 
     #endregion

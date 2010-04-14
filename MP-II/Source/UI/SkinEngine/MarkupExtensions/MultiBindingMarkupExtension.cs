@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       MultiBindingMarkupExtension mbme = (MultiBindingMarkupExtension) source;
       Converter = copyManager.GetCopy(mbme.Converter);
       ConverterParameter = copyManager.GetCopy(mbme.ConverterParameter);
-      Mode = copyManager.GetCopy(mbme.Mode);
+      Mode = mbme.Mode;
       foreach (BindingMarkupExtension childBinding in mbme._childBindings)
         _childBindings.Add(copyManager.GetCopy(childBinding));
       Attach();

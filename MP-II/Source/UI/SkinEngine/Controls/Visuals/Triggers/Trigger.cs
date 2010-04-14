@@ -50,15 +50,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _propertyProperty = new SProperty(typeof(string), "");
-      _valueProperty = new SProperty(typeof(object), false);
+      _propertyProperty = new SProperty(typeof(string), string.Empty);
+      _valueProperty = new SProperty(typeof(object), null);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       Trigger t = (Trigger) source;
-      Property = copyManager.GetCopy(t.Property);
+      Property = t.Property;
       Value = copyManager.GetCopy(t.Value);
     }
 
@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public string Property
     {
-      get { return _propertyProperty.GetValue() as string; }
+      get { return (string) _propertyProperty.GetValue(); }
       set { _propertyProperty.SetValue(value); }
     }
 

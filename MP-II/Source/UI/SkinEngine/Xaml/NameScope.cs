@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         if (_names.ContainsKey(kvp.Key))
           continue;
         else
-          _names.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+          _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
     }
 
     #region INamescope implementation

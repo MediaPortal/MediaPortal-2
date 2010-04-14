@@ -137,7 +137,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.DeepCopy(source, copyManager);
       Panel p = (Panel) source;
       Background = copyManager.GetCopy(p.Background);
-      IsItemsHost = copyManager.GetCopy(p.IsItemsHost);
+      IsItemsHost = p.IsItemsHost;
       foreach (UIElement el in p.Children)
         Children.Add(copyManager.GetCopy(el));
       Attach();

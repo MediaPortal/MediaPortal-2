@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       Detach();
       base.DeepCopy(source, copyManager);
-      DataString = copyManager.GetCopy(DataString);
+      DataString = DataString;
       Attach();
     }
 

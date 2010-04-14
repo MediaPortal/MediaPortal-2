@@ -57,7 +57,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       base.DeepCopy(source, copyManager);
       DockPanel p = (DockPanel) source;
-      LastChildFill = copyManager.GetCopy(p.LastChildFill);
+      LastChildFill = p.LastChildFill;
     }
 
     #endregion

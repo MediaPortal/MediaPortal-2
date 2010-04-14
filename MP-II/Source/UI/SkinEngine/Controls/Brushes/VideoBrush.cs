@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.DeepCopy(source, copyManager);
       VideoBrush b = (VideoBrush) source;
-      Stream = copyManager.GetCopy(b.Stream);
+      Stream = b.Stream;
     }
 
     #endregion

@@ -54,8 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     void Init()
     {
-      _YProperty = new SProperty(typeof(double), 0.0);
       _XProperty = new SProperty(typeof(double), 0.0);
+      _YProperty = new SProperty(typeof(double), 0.0);
     }
 
     void Attach()
@@ -75,8 +75,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Detach();
       base.DeepCopy(source, copyManager);
       TranslateTransform t = (TranslateTransform) source;
-      X = copyManager.GetCopy(t.X);
-      Y = copyManager.GetCopy(t.Y);
+      X = t.X;
+      Y = t.Y;
       Attach();
     }
 

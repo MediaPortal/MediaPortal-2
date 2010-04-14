@@ -78,7 +78,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       _isOpacity = false;
       _opacityProperty = new SProperty(typeof(double), 1.0);
-      _relativeTransformProperty = new SProperty(typeof(TransformGroup), new TransformGroup());
+      _relativeTransformProperty = new SProperty(typeof(Transform), new Transform());
       _transform = null;
       _freezableProperty = new SProperty(typeof(bool), false);
       _bounds = new RectangleF(0, 0, 0, 0);
@@ -100,11 +100,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Detach();
       base.DeepCopy(source, copyManager);
       Brush b = (Brush) source;
-      IsOpacityBrush = copyManager.GetCopy(b.IsOpacityBrush);
-      Opacity = copyManager.GetCopy(b.Opacity);
+      IsOpacityBrush = b.IsOpacityBrush;
+      Opacity = b.Opacity;
       RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
       Transform = copyManager.GetCopy(b.Transform);
-      Freezable = copyManager.GetCopy(b.Freezable);
+      Freezable = b.Freezable;
       Attach();
     }
 
@@ -159,9 +159,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       get { return _relativeTransformProperty; }
     }
 
-    public TransformGroup RelativeTransform
+    public Transform RelativeTransform
     {
-      get { return (TransformGroup) _relativeTransformProperty.GetValue(); }
+      get { return (Transform) _relativeTransformProperty.GetValue(); }
       set { _relativeTransformProperty.SetValue(value); }
     }
 

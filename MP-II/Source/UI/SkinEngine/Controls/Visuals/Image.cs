@@ -107,11 +107,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       Image i = (Image) source;
-      Source = copyManager.GetCopy(i.Source);
-      FallbackSource = copyManager.GetCopy(i.FallbackSource);
-      StretchDirection = copyManager.GetCopy(i.StretchDirection);
-      Stretch = copyManager.GetCopy(i.Stretch);
-      Thumbnail = copyManager.GetCopy(i.Thumbnail);
+      Source = i.Source;
+      FallbackSource = i.FallbackSource;
+      StretchDirection = i.StretchDirection;
+      Stretch = i.Stretch;
+      Thumbnail = i.Thumbnail;
       Attach();
     }
 

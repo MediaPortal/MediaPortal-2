@@ -81,8 +81,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       KeyBindingControl vs = (KeyBindingControl) source;
-      Key = copyManager.GetCopy(vs.Key);
-      Description = copyManager.GetCopy(vs.Description);
+      Key = vs.Key;
+      Description = vs.Description;
       Attach();
     }
 

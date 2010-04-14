@@ -71,8 +71,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       HeaderedItemsControl c = (HeaderedItemsControl) source;
-      IsExpanded = copyManager.GetCopy(c.IsExpanded);
-      ForceExpander = copyManager.GetCopy(c.ForceExpander);
+      IsExpanded = c.IsExpanded;
+      ForceExpander = c.ForceExpander;
       Attach();
       CheckExpandable();
     }

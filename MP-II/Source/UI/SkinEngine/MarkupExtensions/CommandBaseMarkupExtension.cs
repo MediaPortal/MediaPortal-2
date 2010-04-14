@@ -69,10 +69,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       base.DeepCopy(source, copyManager);
       CommandBaseMarkupExtension cbme = (CommandBaseMarkupExtension) source;
       _source.Source = copyManager.GetCopy(cbme._source.Source);
-      _source.ElementName = copyManager.GetCopy(cbme._source.ElementName);
-      _source.RelativeSource = copyManager.GetCopy(cbme._source.RelativeSource);
-      _path = copyManager.GetCopy(cbme._path);
-      _compiledPath = copyManager.GetCopy(cbme._compiledPath);
+      _source.ElementName = cbme._source.ElementName;
+      _source.RelativeSource = cbme._source.RelativeSource;
+      _path = cbme._path;
+      _compiledPath = cbme._compiledPath;
+      _source.Converter = copyManager.GetCopy(cbme._source.Converter);
+      _source.ConverterParameter = copyManager.GetCopy(cbme._source.ConverterParameter);
     }
 
     #endregion

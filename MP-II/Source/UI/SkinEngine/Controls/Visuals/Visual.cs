@@ -62,7 +62,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Visual v = (Visual) source;
       VisualParent = copyManager.GetCopy(v.VisualParent);
       FocusedElement = copyManager.GetCopy(v.FocusedElement);
-      Screen = copyManager.GetCopy(v.Screen);
+      Screen = v.Screen; // Visuals must not be copied to another screen so we can reuse the Screen value
     }
 
     #endregion

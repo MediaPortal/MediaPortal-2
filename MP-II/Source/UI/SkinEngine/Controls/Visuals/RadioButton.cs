@@ -76,8 +76,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       RadioButton rb = (RadioButton) source;
-      IsChecked = copyManager.GetCopy(rb.IsChecked);
-      GroupName = copyManager.GetCopy(rb.GroupName);
+      IsChecked = rb.IsChecked;
+      GroupName = rb.GroupName;
       Attach();
     }
 

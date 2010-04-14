@@ -183,16 +183,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       FrameworkElement fe = (FrameworkElement) source;
-      Width = copyManager.GetCopy(fe.Width);
-      Height = copyManager.GetCopy(fe.Height);
-      Style = copyManager.GetCopy(fe.Style);
-      ActualWidth = copyManager.GetCopy(fe.ActualWidth);
-      ActualHeight = copyManager.GetCopy(fe.ActualHeight);
-      HorizontalAlignment = copyManager.GetCopy(fe.HorizontalAlignment);
-      VerticalAlignment = copyManager.GetCopy(fe.VerticalAlignment);
-      Focusable = copyManager.GetCopy(fe.Focusable);
-      FontSize = copyManager.GetCopy(fe.FontSize);
-      FontFamily = copyManager.GetCopy(fe.FontFamily);
+      Width = fe.Width;
+      Height = fe.Height;
+      Style = fe.Style; // No copying necessary - Styles should be immutable
+      ActualWidth = fe.ActualWidth;
+      ActualHeight = fe.ActualHeight;
+      HorizontalAlignment = fe.HorizontalAlignment;
+      VerticalAlignment = fe.VerticalAlignment;
+      Focusable = fe.Focusable;
+      FontSize = fe.FontSize;
+      FontFamily = fe.FontFamily;
       Attach();
     }
 

@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     void Init()
     {
-      _bindingProperty = new SProperty(typeof(object), "");
+      _bindingProperty = new SProperty(typeof(object), null);
       _valueProperty = new SProperty(typeof(object));
     }
 

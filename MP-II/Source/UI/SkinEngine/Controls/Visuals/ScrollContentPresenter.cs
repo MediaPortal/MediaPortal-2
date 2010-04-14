@@ -70,7 +70,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       ScrollContentPresenter scp = (ScrollContentPresenter) source;
-      CanScroll = copyManager.GetCopy(scp.CanScroll);
+      CanScroll = scp.CanScroll;
+      _scrollOffsetX = 0;
+      _scrollOffsetY = 0;
       Attach();
     }
 

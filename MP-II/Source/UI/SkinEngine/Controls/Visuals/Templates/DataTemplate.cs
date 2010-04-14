@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     {
       _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _dataTypeProperty = new SProperty(typeof(Type), null);
-      _dataStringProperty = new SProperty(typeof(string), "");
+      _dataStringProperty = new SProperty(typeof(string), string.Empty);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -61,8 +61,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       DataTemplate dt = (DataTemplate) source;
       foreach (TriggerBase t in dt.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
-      DataType = copyManager.GetCopy(dt.DataType);
-      DataString = copyManager.GetCopy(dt.DataString);
+      DataType = dt.DataType;
+      DataString = dt.DataString;
     }
 
     #endregion

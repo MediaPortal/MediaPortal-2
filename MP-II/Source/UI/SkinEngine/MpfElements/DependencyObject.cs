@@ -67,7 +67,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       DependencyObject d = (DependencyObject) source;
       if (d._attachedProperties != null)
         foreach (KeyValuePair<string, AbstractProperty> kvp in d._attachedProperties)
-          AddAttachedProperty(kvp.Key, copyManager.GetCopy(kvp.Value.GetValue()), kvp.Value.PropertyType);
+        {
+          object copy = kvp.Value.PropertyType.IsPrimitive ? kvp.Value.GetValue() : copyManager.GetCopy(kvp.Value.GetValue());
+          AddAttachedProperty(kvp.Key, copy, kvp.Value.PropertyType);
+        }
       DataContext = copyManager.GetCopy(d.DataContext);
       LogicalParent = copyManager.GetCopy(d.LogicalParent);
       if (d._bindings != null)
@@ -162,9 +165,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public AbstractProperty GetOrCreateAttachedProperty<T>(string name, T defaultValue)
     {
-      AbstractProperty result = GetAttachedProperty(name);
-      if (result == null)
-        result = AddAttachedProperty(name, defaultValue, typeof(T));
+      AbstractProperty result = GetAttachedProperty(name) ?? AddAttachedProperty(name, defaultValue, typeof(T));
       return result;
     }
 

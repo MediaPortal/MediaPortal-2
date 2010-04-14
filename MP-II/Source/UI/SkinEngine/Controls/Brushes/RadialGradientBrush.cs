@@ -114,8 +114,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       RadialGradientBrush b = (RadialGradientBrush) source;
       Center = copyManager.GetCopy(b.Center);
       GradientOrigin = copyManager.GetCopy(b.GradientOrigin);
-      RadiusX = copyManager.GetCopy(b.RadiusX);
-      RadiusY = copyManager.GetCopy(b.RadiusY);
+      RadiusX = b.RadiusX;
+      RadiusY = b.RadiusY;
       Attach();
     }
 

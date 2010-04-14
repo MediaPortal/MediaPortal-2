@@ -108,8 +108,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Border b = (Border) source;
       BorderBrush = copyManager.GetCopy(b.BorderBrush);
       Background = copyManager.GetCopy(b.Background);
-      BorderThickness = copyManager.GetCopy(b.BorderThickness);
-      CornerRadius = copyManager.GetCopy(b.CornerRadius);
+      BorderThickness = b.BorderThickness;
+      CornerRadius = b.CornerRadius;
       _content = copyManager.GetCopy(b._content);
 
       Attach();

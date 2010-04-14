@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _dataStringProperty = new SProperty(typeof(string), "");
+      _dataStringProperty = new SProperty(typeof(string), string.Empty);
       _contentProperty = new SProperty(typeof(object), null);
       _contentTemplateProperty = new SProperty(typeof(DataTemplate), null);
     }
@@ -73,7 +73,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object oldContentTemplate = ContentTemplate;
       base.DeepCopy(source, copyManager);
       TreeViewItem twi = (TreeViewItem) source;
-      DataString = copyManager.GetCopy(twi.DataString);
+      DataString = twi.DataString;
 
       Content = copyManager.GetCopy(twi.Content);
       ContentTemplate = copyManager.GetCopy(twi.ContentTemplate);

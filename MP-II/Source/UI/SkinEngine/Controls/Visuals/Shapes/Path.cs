@@ -55,14 +55,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void Init()
     {
-      _dataProperty = new SProperty(typeof(string), "");
+      _dataProperty = new SProperty(typeof(string), string.Empty);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       Path p = (Path) source;
-      Data = copyManager.GetCopy(p.Data);
+      Data = p.Data;
     }
 
     #endregion

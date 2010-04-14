@@ -61,8 +61,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       base.DeepCopy(source, copyManager);
       Polygon p = (Polygon) source;
-      foreach (Point pt in p.Points)
-        Points.Add(copyManager.GetCopy(pt));
+      Points = new List<Point>(p.Points);
     }
 
     #endregion
@@ -76,7 +75,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public IList<Point> Points
     {
-      get { return (IList<Point>)_pointsProperty.GetValue(); }
+      get { return (IList<Point>) _pointsProperty.GetValue(); }
+      set { _pointsProperty.SetValue(value); }
     }
 
     #endregion

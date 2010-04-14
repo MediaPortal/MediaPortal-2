@@ -48,7 +48,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     void Init()
     {
       _storyBoardProperty = new SProperty(typeof(Storyboard), null);
-      _nameProperty = new SProperty(typeof(string), "");
+      _nameProperty = new SProperty(typeof(string), string.Empty);
       _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), Animations.HandoffBehavior.SnapshotAndReplace);
     }
 
@@ -57,8 +57,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       base.DeepCopy(source, copyManager);
       BeginStoryboard s = (BeginStoryboard) source;
       Storyboard = copyManager.GetCopy(s.Storyboard);
-      Name = copyManager.GetCopy(s.Name);
-      HandoffBehavior = copyManager.GetCopy(s.HandoffBehavior);
+      Name = s.Name;
+      HandoffBehavior = s.HandoffBehavior;
     }
 
     #endregion

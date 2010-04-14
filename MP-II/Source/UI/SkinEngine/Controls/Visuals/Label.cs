@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void Init()
     {
-      _contentProperty = new SProperty(typeof(string), "");
+      _contentProperty = new SProperty(typeof(string), string.Empty);
       _colorProperty = new SProperty(typeof(Color), Color.White);
       _scrollProperty = new SProperty(typeof(bool), false);
       _wrapProperty = new SProperty(typeof(bool), false);
@@ -101,11 +101,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       Label l = (Label) source;
-      Content = copyManager.GetCopy(l.Content);
-      Color = copyManager.GetCopy(l.Color);
-      Scroll = copyManager.GetCopy(l.Scroll);
-      Wrap = copyManager.GetCopy(l.Wrap);
-      MaxDesiredWidth = copyManager.GetCopy(l.MaxDesiredWidth);
+      Content = l.Content;
+      Color = l.Color;
+      Scroll = l.Scroll;
+      Wrap = l.Wrap;
+      MaxDesiredWidth = l.MaxDesiredWidth;
 
       _resourceString = LocalizationHelper.CreateResourceString(Content);
       Attach();

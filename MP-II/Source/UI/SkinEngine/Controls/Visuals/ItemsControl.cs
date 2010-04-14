@@ -101,10 +101,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object oldItemsSource = ItemsSource;
       object oldItems = Items;
       ItemsSource = copyManager.GetCopy(c.ItemsSource);
-      ItemContainerStyle = copyManager.GetCopy(c.ItemContainerStyle);
+      ItemContainerStyle = c.ItemContainerStyle; // Styles should be immutable
       SelectionChanged = copyManager.GetCopy(c.SelectionChanged);
-      ItemTemplate = copyManager.GetCopy(c.ItemTemplate);
-      ItemsPanel = copyManager.GetCopy(c.ItemsPanel);
+      ItemTemplate = c.ItemTemplate; // Data templates should be immutable
+      ItemsPanel = c.ItemsPanel; // Styles should be immutable
       Attach();
       OnItemsSourceChanged(_itemsSourceProperty, oldItemsSource);
       OnItemsChanged(_itemsProperty, oldItems);

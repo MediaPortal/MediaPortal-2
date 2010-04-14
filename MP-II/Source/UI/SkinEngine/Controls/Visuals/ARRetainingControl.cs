@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.DeepCopy(source, copyManager);
       ARRetainingControl c = (ARRetainingControl) source;
       Content = copyManager.GetCopy(c.Content);
-      AspectRatio = copyManager.GetCopy(c.AspectRatio);
+      AspectRatio = c.AspectRatio;
       Attach();
       OnLayoutPropertyChanged(null, null);
     }

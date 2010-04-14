@@ -55,8 +55,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       base.DeepCopy(source, copyManager);
       ValueKeyFrame<T> kf = (ValueKeyFrame<T>) source;
-      KeyTime = copyManager.GetCopy(kf.KeyTime);
-      Value = copyManager.GetCopy(kf.Value);
+      KeyTime = kf.KeyTime;
+      if (typeof(T).IsPrimitive)
+        Value = kf.Value;
+      else
+        Value = copyManager.GetCopy(kf.Value);
     }
 
     #endregion

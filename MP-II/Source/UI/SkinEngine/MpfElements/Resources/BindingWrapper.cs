@@ -53,8 +53,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
-      BindingWrapper rw = (BindingWrapper) source;
-      Freezable = copyManager.GetCopy(rw.Freezable);
+      BindingWrapper bw = (BindingWrapper) source;
+      Freezable = bw.Freezable;
     }
 
     #endregion

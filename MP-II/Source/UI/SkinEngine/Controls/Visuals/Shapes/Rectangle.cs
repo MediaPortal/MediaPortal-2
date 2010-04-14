@@ -80,8 +80,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Detach();
       base.DeepCopy(source, copyManager);
       Rectangle r = (Rectangle) source;
-      RadiusX = copyManager.GetCopy(r.RadiusX);
-      RadiusY = copyManager.GetCopy(r.RadiusY);
+      RadiusX = r.RadiusX;
+      RadiusY = r.RadiusY;
       Attach();
     }
 
@@ -101,7 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public double RadiusX
     {
-      get { return (double)_radiusYProperty.GetValue(); }
+      get { return (double) _radiusYProperty.GetValue(); }
       set { _radiusYProperty.SetValue(value); }
     }
 
@@ -112,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public double RadiusY
     {
-      get { return (double)_radiusYProperty.GetValue(); }
+      get { return (double) _radiusYProperty.GetValue(); }
       set { _radiusYProperty.SetValue(value); }
     }
 

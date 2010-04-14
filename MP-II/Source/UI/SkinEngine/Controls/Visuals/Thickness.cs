@@ -37,6 +37,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
     }
 
+    public Thickness(Thickness other)
+    {
+      _left = other._left;
+      _top = other._top;
+      _right = other._right;
+      _bottom = other._bottom;
+    }
+
     public Thickness(float thickness)
     {
       _left = thickness;

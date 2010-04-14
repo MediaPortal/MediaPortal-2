@@ -50,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _caretIndexProperty = new SProperty(typeof(int), 0);
-      _textProperty = new SProperty(typeof(string), "");
+      _textProperty = new SProperty(typeof(string), string.Empty);
       _colorProperty = new SProperty(typeof(Color), Color.Black);
 
       _preferredTextLengthProperty = new SProperty(typeof(int?), null);
@@ -61,9 +61,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.DeepCopy(source, copyManager);
       TextBox t = (TextBox) source;
-      Text = copyManager.GetCopy(t.Text);
-      Color = copyManager.GetCopy(t.Color);
-      CaretIndex = copyManager.GetCopy(t.CaretIndex);
+      Text = t.Text;
+      Color = t.Color;
+      CaretIndex = t.CaretIndex;
     }
 
     #endregion

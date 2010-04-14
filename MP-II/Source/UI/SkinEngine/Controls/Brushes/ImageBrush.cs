@@ -78,8 +78,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Detach();
       base.DeepCopy(source, copyManager);
       ImageBrush b = (ImageBrush) source;
-      ImageSource = copyManager.GetCopy(b.ImageSource);
-      DownloadProgress = copyManager.GetCopy(b.DownloadProgress);
+      ImageSource = b.ImageSource;
+      DownloadProgress = b.DownloadProgress;
       Attach();
     }
 

@@ -83,10 +83,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       Detach();
       base.DeepCopy(source, copyManager);
       ScaleTransform t = (ScaleTransform) source;
-      CenterX = copyManager.GetCopy(t.CenterX);
-      CenterY = copyManager.GetCopy(t.CenterY);
-      ScaleX = copyManager.GetCopy(t.ScaleX);
-      ScaleY = copyManager.GetCopy(t.ScaleY);
+      CenterX = t.CenterX;
+      CenterY = t.CenterY;
+      ScaleX = t.ScaleX;
+      ScaleY = t.ScaleY;
       Attach();
     }
 

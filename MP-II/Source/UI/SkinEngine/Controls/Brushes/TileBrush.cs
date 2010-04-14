@@ -102,10 +102,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Detach();
       base.DeepCopy(source, copyManager);
       TileBrush b = (TileBrush) source;
-      AlignmentX = copyManager.GetCopy(b.AlignmentX);
-      AlignmentY = copyManager.GetCopy(b.AlignmentY);
-      Stretch = copyManager.GetCopy(b.Stretch);
-      Tile = copyManager.GetCopy(b.Tile);
+      AlignmentX = b.AlignmentX;
+      AlignmentY = b.AlignmentY;
+      Stretch = b.Stretch;
+      Tile = b.Tile;
       ViewPort = copyManager.GetCopy(b.ViewPort);
       Attach();
     }

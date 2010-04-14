@@ -63,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.DeepCopy(source, copyManager);
       VisualBrush b = (VisualBrush) source;
-      Visual = copyManager.GetCopy(b.Visual);
+      Visual = b.Visual; // Use the original Visual. Why should we use a copy?
     }
 
     #endregion

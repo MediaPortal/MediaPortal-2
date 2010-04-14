@@ -43,8 +43,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
     {
       base.DeepCopy(source, copyManager);
       SetterBase sb = (SetterBase) source;
-      TargetName = copyManager.GetCopy(sb.TargetName);
-      Property = copyManager.GetCopy(sb.Property);
+      TargetName = sb.TargetName;
+      Property = sb.Property;
     }
 
     #endregion

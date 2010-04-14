@@ -151,9 +151,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Detach();
       base.DeepCopy(source, copyManager);
       DynamicResourceMarkupExtension drme = (DynamicResourceMarkupExtension) source;
-      ResourceKey = copyManager.GetCopy(drme.ResourceKey);
-      TreeSearchMode = copyManager.GetCopy(drme.TreeSearchMode);
-      AssignmentMode = copyManager.GetCopy(drme.AssignmentMode);
+      ResourceKey = drme.ResourceKey;
+      TreeSearchMode = drme.TreeSearchMode;
+      AssignmentMode = drme.AssignmentMode;
       Attach();
     }
 

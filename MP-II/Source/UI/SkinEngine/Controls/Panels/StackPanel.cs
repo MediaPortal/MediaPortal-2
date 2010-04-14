@@ -85,8 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       Detach();
       base.DeepCopy(source, copyManager);
       StackPanel p = (StackPanel) source;
-      Orientation = copyManager.GetCopy(p.Orientation);
-      CanScroll = copyManager.GetCopy(p.CanScroll);
+      Orientation = p.Orientation;
+      CanScroll = p.CanScroll;
       Attach();
     }
 

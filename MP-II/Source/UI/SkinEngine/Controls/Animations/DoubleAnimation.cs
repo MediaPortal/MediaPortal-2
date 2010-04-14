@@ -55,9 +55,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Animations
     {
       base.DeepCopy(source, copyManager);
       DoubleAnimation a = (DoubleAnimation) source;
-      From = copyManager.GetCopy(a.From);
-      To = copyManager.GetCopy(a.To);
-      By = copyManager.GetCopy(a.By);
+      From = a.From;
+      To = a.To;
+      By = a.By;
     }
 
     #endregion

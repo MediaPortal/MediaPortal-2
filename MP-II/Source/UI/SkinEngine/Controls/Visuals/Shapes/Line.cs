@@ -91,10 +91,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       Detach();
       base.DeepCopy(source, copyManager);
       Line l = (Line) source;
-      X1 = copyManager.GetCopy(l.X1);
-      Y1 = copyManager.GetCopy(l.Y1);
-      X2 = copyManager.GetCopy(l.X2);
-      Y2 = copyManager.GetCopy(l.Y2);
+      X1 = l.X1;
+      Y1 = l.Y1;
+      X2 = l.X2;
+      Y2 = l.Y2;
       Attach();
     }
 

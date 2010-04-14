@@ -290,16 +290,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       UIElement el = (UIElement) source;
-      Name = copyManager.GetCopy(el.Name);
+      Name = el.Name;
       // We do not copy the focus flag, only one element can have focus
-      //HasFocus = copyManager.GetCopy(el.HasFocus);
-      ActualPosition = copyManager.GetCopy(el.ActualPosition);
-      Margin = copyManager.GetCopy(el.Margin);
-      Visibility = copyManager.GetCopy(el.Visibility);
-      IsEnabled = copyManager.GetCopy(el.IsEnabled);
+      //HasFocus = el.HasFocus;
+      ActualPosition = el.ActualPosition;
+      Margin = new Thickness(el.Margin);
+      Visibility = el.Visibility;
+      IsEnabled = el.IsEnabled;
       // TODO Albert78: Implement Freezing
-      Freezable = copyManager.GetCopy(el.Freezable);
-      Opacity = copyManager.GetCopy(el.Opacity);
+      Freezable = el.Freezable;
+      Opacity = el.Opacity;
       Loaded = copyManager.GetCopy(el.Loaded);
       OpacityMask = copyManager.GetCopy(el.OpacityMask);
       object oldLayoutTransform = LayoutTransform;

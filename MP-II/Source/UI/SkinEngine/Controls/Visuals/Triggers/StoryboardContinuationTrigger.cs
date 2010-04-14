@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       base.DeepCopy(source, copyManager);
       StopStoryboard s = (StopStoryboard) source;
-      BeginStoryboardName = copyManager.GetCopy(s.BeginStoryboardName);
+      BeginStoryboardName = s.BeginStoryboardName;
     }
 
     #endregion
