@@ -540,7 +540,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (desiredSize.Width < childSize.Width)
         {
-          if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+          // Width takes precedence over Stretch - Use Center as fallback
+          if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
+              (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(Width)))
           {
             location.X += (childSize.Width - desiredSize.Width)/2;
             childSize.Width = desiredSize.Width;
@@ -564,7 +566,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (desiredSize.Height < childSize.Height)
         {
-          if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+          // Height takes precedence over Stretch - Use Center as fallback
+          if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
+              (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(Height)))
           {
             location.Y += (childSize.Height - desiredSize.Height)/2;
             childSize.Height = desiredSize.Height;
@@ -600,7 +604,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Width < childSize.Width)
       {
-        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center)
+        // Width takes precedence over Stretch - Use Center as fallback
+        if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
+            (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(Width)))
         {
           location.X += (childSize.Width - desiredSize.Width) / 2;
           childSize.Width = desiredSize.Width;
@@ -635,7 +641,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       if (!double.IsNaN(desiredSize.Width) && desiredSize.Height < childSize.Height)
       {
-        if (child.VerticalAlignment == VerticalAlignmentEnum.Center)
+        // Height takes precedence over Stretch - Use Center as fallback
+        if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
+            (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(Height)))
         {
           location.Y += (childSize.Height - desiredSize.Height) / 2;
           childSize.Height = desiredSize.Height;
@@ -647,6 +655,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
         else if (child.VerticalAlignment == VerticalAlignmentEnum.Top)
         {
+          // Leave location unchanged
           childSize.Height = desiredSize.Height;
         }
         //else if (child.VerticalAlignment == VerticalAlignmentEnum.Stretch)
