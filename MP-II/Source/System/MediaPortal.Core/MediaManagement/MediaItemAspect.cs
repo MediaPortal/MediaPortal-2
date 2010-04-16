@@ -321,10 +321,10 @@ namespace MediaPortal.Core.MediaManagement
               "Media item aspect attribute cannot be deserialized: Unknown attribute specification '{0}'", attributeName));
         if (attributeSpec.IsCollectionAttribute)
         {
-          ArrayList values = new ArrayList();
+          IList valuesCollection = attributeSpec.CreateValuesCollection();
           while (reader.NodeType != XmlNodeType.EndElement)
-            values.Add(DeserializeValue(reader, attributeSpec.AttributeType));
-          result.SetCollectionAttribute(attributeSpec, values);
+            valuesCollection.Add(DeserializeValue(reader, attributeSpec.AttributeType));
+          result.SetCollectionAttribute(attributeSpec, valuesCollection);
         }
         else
           result.SetAttribute(attributeSpec, DeserializeValue(reader, attributeSpec.AttributeType));

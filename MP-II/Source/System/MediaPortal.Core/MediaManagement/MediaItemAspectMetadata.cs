@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -139,6 +140,12 @@ namespace MediaPortal.Core.MediaManagement
         _attributeType = type;
         _cardinality = cardinality;
         _indexed = indexed;
+      }
+
+      internal IList CreateValuesCollection()
+      {
+        Type collectionType = typeof(List<>).MakeGenericType(_attributeType);
+        return (IList) Activator.CreateInstance(collectionType);
       }
 
       /// <summary>
