@@ -40,11 +40,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   {
     #region Protected fields
 
+    protected static readonly ICollection<object> EMPTY_OBJECT_COLLECTION = new List<object>(0).AsReadOnly();
+    protected static readonly ICollection<KeyValuePair<object, object>> EMPTY_KVP_COLLECTION = new List<KeyValuePair<object, object>>(0);
+
     protected string _source = string.Empty;
-    protected ICollection<string> _dependsOnStyleResources = new List<string>();
-    protected IList<ResourceDictionary> _mergedDictionaries = new List<ResourceDictionary>();
-    protected IDictionary<string, object> _names = new Dictionary<string, object>();
-    protected IDictionary<object, object> _resources = new Dictionary<object, object>();
+    protected ICollection<string> _dependsOnStyleResources = new List<string>(0);
+    protected IList<ResourceDictionary> _mergedDictionaries = null;
+    protected IDictionary<string, object> _names = null;
+    protected IDictionary<object, object> _resources = null;
     protected WeakEventMulticastDelegate _resourcesChangedDelegate = new WeakEventMulticastDelegate();
 
     #endregion
@@ -57,16 +60,51 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       ResourceDictionary rd = (ResourceDictionary) source;
       Source = rd.Source;
       _dependsOnStyleResources = new List<string>(rd._dependsOnStyleResources);
-      foreach (ResourceDictionary crd in rd._mergedDictionaries)
-        _mergedDictionaries.Add(copyManager.GetCopy(crd));
-      foreach (KeyValuePair<string, object> kvp in rd._names)
-        if (_names.ContainsKey(kvp.Key))
-          continue;
-        else
-          _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
-      _resources.Clear();
-      foreach (KeyValuePair<object, object> kvp in rd._resources)
-        _resources.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+      _mergedDictionaries = rd._mergedDictionaries; // MergedDictionaries won't be copied as they come from outside the application, see the WPF docs for that property
+      if (rd._names == null)
+        _names = null;
+      else
+      {
+        _names = new Dictionary<string, object>(rd._names.Count);
+        foreach (KeyValuePair<string, object> kvp in rd._names)
+          if (_names.ContainsKey(kvp.Key))
+            continue;
+          else
+            _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      }
+      if (rd._resources == null)
+        _resources = null;
+      else
+      {
+        _resources = new Dictionary<object, object>(rd._resources.Count);
+        foreach (KeyValuePair<object, object> kvp in rd._resources)
+          _resources.Add(copyManager.GetCopy(kvp.Key), copyManager.GetCopy(kvp.Value));
+      }
+    }
+
+    #endregion
+
+    #region Protected members
+
+    internal IDictionary<object, object> GetOrCreateUnderlayingDictionary()
+    {
+      if (_resources == null)
+        _resources = new Dictionary<object, object>();
+      return _resources;
+    }
+
+    protected IList<ResourceDictionary> GetOrCreateMergedDictionaries()
+    {
+      if (_mergedDictionaries == null)
+        _mergedDictionaries = new List<ResourceDictionary>();
+      return _mergedDictionaries;
+    }
+
+    protected IDictionary<string, object> GetOrCreateNames()
+    {
+      if (_names == null)
+        _names = new Dictionary<string, object>();
+      return _names;
     }
 
     #endregion
@@ -118,14 +156,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       }
     }
 
-    public IDictionary<object, object> UnderlayingDictionary
-    {
-      get { return _resources; }
-    }
-
     public IList<ResourceDictionary> MergedDictionaries
     {
-      get { return _mergedDictionaries; }
+      get { return GetOrCreateMergedDictionaries(); }
       set { _mergedDictionaries = value; }
     }
 
@@ -169,9 +202,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         Merge(mergeDict);
       }
-      if (MergedDictionaries.Count > 0)
+      if (_mergedDictionaries != null && _mergedDictionaries.Count > 0)
       {
-        foreach (ResourceDictionary dictionary in MergedDictionaries)
+        foreach (ResourceDictionary dictionary in _mergedDictionaries)
           Merge(dictionary);
       }
       FireChanged();
@@ -183,7 +216,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public object FindName(string name)
     {
-      if (_names.ContainsKey(name))
+      if (_names != null && _names.ContainsKey(name))
         return _names[name];
       INameScope parent = FindParentNamescope();
       if (parent != null)
@@ -205,11 +238,14 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void RegisterName(string name, object instance)
     {
-      _names.Add(name, instance);
+      IDictionary<string, object> names = GetOrCreateNames();
+      names.Add(name, instance);
     }
 
     public void UnregisterName(string name)
     {
+      if (_names == null)
+        return;
       _names.Remove(name);
     }
 
@@ -219,17 +255,20 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public bool ContainsKey(object key)
     {
-      return _resources.ContainsKey(key);
+      return _resources != null && _resources.ContainsKey(key);
     }
 
     public void Add(object key, object value)
     {
-      _resources.Add(key, value);
+      IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
+      resources.Add(key, value);
       FireChanged();
     }
 
     public bool Remove(object key)
     {
+      if (_resources == null)
+        return false;
       bool result = _resources.Remove(key);
       FireChanged();
       return result;
@@ -237,27 +276,38 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public bool TryGetValue(object key, out object value)
     {
-      return _resources.TryGetValue(key, out value);
+      value = null;
+      return _resources != null && _resources.TryGetValue(key, out value);
     }
 
     public object this[object key]
     {
-      get { return _resources[key]; }
+      get
+      {
+        if (_resources == null)
+        {
+          if (key == null)
+            throw new ArgumentNullException("key");
+          throw new KeyNotFoundException(string.Format("Key '{0}' was not found in this ResourceDictionary", key));
+        }
+        return _resources[key];
+      }
       set
       {
-        _resources[key] = value;
+        IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
+        resources[key] = value;
         FireChanged();
       }
     }
 
     public ICollection<object> Keys
     {
-      get { return _resources.Keys; }
+      get { return _resources == null ? EMPTY_OBJECT_COLLECTION : _resources.Keys; }
     }
 
     public ICollection<object> Values
     {
-      get { return _resources.Values; }
+      get { return _resources == null ? EMPTY_OBJECT_COLLECTION : _resources.Values; }
     }
 
     #endregion
@@ -266,28 +316,33 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void Add(KeyValuePair<object, object> item)
     {
-      _resources.Add(item);
+      IDictionary<object, object> resources = GetOrCreateUnderlayingDictionary();
+      resources.Add(item);
       FireChanged();
     }
 
     public void Clear()
     {
-      _resources.Clear();
+      _resources = null;
       FireChanged();
     }
 
     public bool Contains(KeyValuePair<object, object> item)
     {
-      return _resources.Contains(item);
+      return _resources != null && _resources.Contains(item);
     }
 
     public void CopyTo(KeyValuePair<object, object>[] array, int arrayIndex)
     {
+      if (_resources == null)
+        return;
       _resources.CopyTo(array, arrayIndex);
     }
 
     public bool Remove(KeyValuePair<object, object> item)
     {
+      if (_resources == null)
+        return false;
       bool result = _resources.Remove(item);
       FireChanged();
       return result;
@@ -295,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public int Count
     {
-      get { return _resources.Count; }
+      get { return _resources == null ? 0 : _resources.Count; }
     }
 
     public bool IsReadOnly
@@ -309,7 +364,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     IEnumerator<KeyValuePair<object, object>> IEnumerable<KeyValuePair<object, object>>.GetEnumerator()
     {
-      return _resources.GetEnumerator();
+      return (_resources ?? EMPTY_KVP_COLLECTION).GetEnumerator();
     }
 
     #endregion
@@ -318,7 +373,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public IEnumerator GetEnumerator()
     {
-      return _resources.GetEnumerator();
+      return (_resources ?? EMPTY_KVP_COLLECTION).GetEnumerator();
     }
 
     #endregion

@@ -111,8 +111,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void MergeResourceDictionaries(ResourceDictionary source, ResourceDictionary target)
     {
-      IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>)source).GetEnumerator();
-      IDictionary<object, object> targetDictionary = target.UnderlayingDictionary;
+      IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>) source).GetEnumerator();
+      IDictionary<object, object> targetDictionary = target.GetOrCreateUnderlayingDictionary();
       while (enumer.MoveNext())
       {
         object entry = enumer.Current.Value;
