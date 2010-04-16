@@ -439,6 +439,7 @@ namespace MediaPortal.Core.Services.MediaManagement
         // Actual import process
         while (importJob.HasPendingResources)
         {
+          Thread.Sleep(0);
           CheckImportStillRunning(importJob.State);
           IFileSystemResourceAccessor fsra;
           lock (importJob.SyncObj)
