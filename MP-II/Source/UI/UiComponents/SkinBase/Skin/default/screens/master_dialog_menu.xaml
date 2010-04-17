@@ -40,13 +40,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Header has to be defined by the includer: "Dialog_Header_Text" -->
 
     <!-- Contents -->
-    <!-- For the Menu_Items resource, we cannot just use the DynamicResource markup extension alone because
-         the contents of the Menu_Items ResourceWrapper typically gets filled via a binding, which
-         maybe will evaluated too late. When only using a DynamicResource pointing to the Menu_Items
-         ResourceWrapper, the XAML parser will typeconvert the ResourceWrapper to its Resource and
-         assign the value, which is still null, to the target (ItemsSource) property.
-         When using a Binding to the Resource property directly, the later assignment to the Resource will
-         be noticed by the binding. -->
     <ListView x:Key="Contents_Element" x:Name="MainMenu" Style="{ThemeResource MenuListViewStyle}"
         ItemsSource="{Binding Source={DynamicResource Menu_Items},Path=Resource}" HasFocus="true"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
