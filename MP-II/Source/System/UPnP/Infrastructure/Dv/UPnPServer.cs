@@ -218,7 +218,7 @@ namespace UPnP.Infrastructure.Dv
         // At the end, start the controllers
         _serverData.SSDPController.Start();
         _serverData.GENAController.Start();
-        Configuration.LOGGER.Info("UPnP server running hosting {0} UPnP root devices", _serverData.Server.RootDevices.Count);
+        Configuration.LOGGER.Info("UPnP server online hosting {0} UPnP root devices", _serverData.Server.RootDevices.Count);
       }
     }
 
