@@ -888,7 +888,9 @@
   </Style>
 
   <DataTemplate x:Key="WorkflowNavigationBarItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <Label Margin="10,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Label x:Name="ItemLabel" Margin="10,5,0,5" Content="{Binding [Name]}" Color="{ThemeResource WorkflowNavigationBarFontColor}"/>
+    </Grid>
   </DataTemplate>
 
   <Style x:Key="WorkflowNavigationBarStyle">
