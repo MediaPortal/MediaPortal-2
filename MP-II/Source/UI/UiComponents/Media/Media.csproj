@@ -67,8 +67,10 @@
     <Compile Include="Actions\PlaylistAction.cs" />
     <Compile Include="Actions\TrackServerConnectionBaseAction.cs" />
     <Compile Include="Actions\LocalMediaAction.cs" />
+    <Compile Include="Models\BasePlaylistModel.cs" />
+    <Compile Include="Models\EditPlaylistModel.cs" />
     <Compile Include="Models\MediaModel.cs" />
-    <Compile Include="Models\PlaylistModel.cs" />
+    <Compile Include="Models\ShowPlaylistModel.cs" />
     <Compile Include="Navigation\PictureItem.cs" />
     <Compile Include="Navigation\MovieItem.cs" />
     <Compile Include="Navigation\MediaNavigationMode.cs" />
@@ -112,9 +114,9 @@
     <Content Include="Skin\default\screens\MoviesSimpleSearch.xaml" />
     <Content Include="Skin\default\screens\MusicSimpleSearch.xaml" />
     <Content Include="Skin\default\screens\PicturesSimpleSearch.xaml" />
-    <Content Include="Skin\default\screens\shares_config_edit_name.xaml" />
     <Content Include="Skin\default\screens\SimpleSearch.xaml" />
     <Content Include="Skin\default\screens\ShowPlaylist.xaml" />
+    <Content Include="Skin\default\screens\EditPlaylist.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\default\themes\default\styles\MediaColors.xaml" />
     <Content Include="Skin\default\themes\default\styles\FullScreenContentConsts.xaml" />

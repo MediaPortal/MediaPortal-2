@@ -58,6 +58,7 @@
     <String Name="AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel" Text="Current audio"/>
     <String Name="AudioFullscreenContentWorkflowStateNavigationContextDisplayLabel" Text="Audio visualization"/>
     <String Name="ShowPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Playlist"/>
+    <String Name="EditPlaylistWorkflowStateNavigationContextDisplayLabel" Text="Edit Playlist"/>
 
     <String Name="ShowAudioPlaylist" Text="Show audio playlist"/>
     <String Name="ShowVideoPlaylist" Text="Show video playlist"/>
@@ -65,6 +66,7 @@
     <String Name="AudioPlaylist" Text="Audio playlist"/>
     <String Name="VideoPlaylist" Text="Video playlist"/>
     <String Name="PiPPlaylist" Text="PiP playlist"/>
+    <String Name="EditPlaylist" Text="Edit playlist"/>
 
     <String Name="PlaylistEmpty" Text="&lt;No items in playlist&gt;"/>
 

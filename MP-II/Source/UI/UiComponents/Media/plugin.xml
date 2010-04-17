@@ -20,7 +20,8 @@
     <Model Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856" Name="MediaModel" ClassName="UiComponents.Media.Models.MediaModel"/>
     <Model Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256" Name="VideoPlayerModel" ClassName="UiComponents.Media.Models.VideoPlayerModel"/>
     <Model Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC" Name="AudioPlayerModel" ClassName="UiComponents.Media.Models.AudioPlayerModel"/>
-    <Model Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C" Name="PlaylistModel" ClassName="UiComponents.Media.Models.PlaylistModel"/>
+    <Model Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C" Name="ShowPlaylistModel" ClassName="UiComponents.Media.Models.ShowPlaylistModel"/>
+    <Model Id="0AFD5E3A-2CB6-44d6-827F-72A7193595E2" Name="EditPlaylistModel" ClassName="UiComponents.Media.Models.EditPlaylistModel"/>
 
     <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="LocalMediaContributorModel" ClassName="UiComponents.Media.Actions.LocalMediaAction"/>
     <Model Id="D8922F2B-5B56-4218-93B1-570616BAAEAD" Name="MusicContributorModel" ClassName="UiComponents.Media.Actions.MusicAction"/>

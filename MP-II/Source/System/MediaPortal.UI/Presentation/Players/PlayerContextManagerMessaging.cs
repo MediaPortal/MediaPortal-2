@@ -40,18 +40,23 @@ namespace MediaPortal.UI.Presentation.Players
     public enum MessageType
     {
       /// <summary>
-      /// The current player was changed. The PARAM will contain the player slot.
+      /// The current player slot controller changed. The PLAYER_SLOT will contain the new player slot index.
+      /// Note that this message is only sent when the current player slot controller changes, it isn't sent when
+      /// the player slots were exchanged (for example when the primary video is exchanged with the PiP video) and thus
+      /// the current player index was changed to the other player. So when tracking the current player and the
+      /// player slot index is important, the message <see cref="PlayerManagerMessaging.MessageType.PlayerSlotsChanged"/>
+      /// might also be interesting.
       /// </summary>
       CurrentPlayerChanged,
     }
 
     // Message data
-    public const string PARAM = "Param"; // Parameter depends on the message type, see the docs in MessageType enum
+    public const string PLAYER_SLOT = "PlayerSlot"; // Player slot index of type int
 
     public static void SendPlayerContextManagerMessage(MessageType type, int playerSlot)
     {
       SystemMessage msg = new SystemMessage(type);
-      msg.MessageData[PARAM] = playerSlot;
+      msg.MessageData[PLAYER_SLOT] = playerSlot;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

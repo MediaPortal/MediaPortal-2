@@ -315,72 +315,114 @@
     </Setter>
   </Style>
 
-  <DataTemplate x:Key="PlayListItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
-    <Grid x:Name="ParentPanel">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-      <Button x:Name="ItemButton" Grid.Column="0" Grid.Row="0"
-          Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
-          VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-          Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
-        <Button.Content>
-          <Grid>
+  <Style x:Key="PlaylistItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button x:Name="ItemButton"
+              Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+              Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+            <Button.Content>
+              <ContentPresenter x:Name="PlaylistItemData"/>
+            </Button.Content>
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemNameLabel" Property="Scroll" Value="True"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PlaylistMoveUpButtonStyle" TargetType="{x:Type Button}" BasedOn="{ThemeResource ArrowButtonUpStyle}"/>
+
+  <Style x:Key="PlaylistMoveDownButtonStyle" TargetType="{x:Type Button}" BasedOn="{ThemeResource ArrowButtonDownStyle}"/>
+
+  <Style x:Key="EditPlaylistItemContainerStyle" TargetType="{x:Type ListViewItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ParentPanel">
             <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <!-- Inner container necessary to hold extra data context -->
-            <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DataContext="{TemplateBinding Context}">
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Label Grid.Column="0" Grid.Row="0" Margin="0,7,10,7"
-                  Content="{TemplateBinding Context[NumberStr]}"
-                  Color="{ThemeResource PlaylistItemColor}"
-                  VerticalAlignment="Center"/>
-              <Label x:Name="NameLabel" Grid.Column="1" Grid.Row="0" Margin="0,7,10,7"
-                  Content="{Binding [Name]}"
-                  FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Label.Color>
-                  <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                    <Binding Path="AdditionalProperties[IsCurrentItem]"/>
-                    <Binding Source="{ThemeResource PlaylistHighlightLabelColor}"/>
-                    <Binding Source="{ThemeResource PlaylistItemColor}"/>
-                  </MultiBinding>
-                </Label.Color>
-              </Label>
-              <Label Grid.Column="2" Grid.Row="0" Margin="0,7,0,7"
-                  Content="{Binding [Length]}"
-                  Color="{ThemeResource PlaylistItemColor}"
-                  FontSize="22" VerticalAlignment="Center"/>
-            </Grid>
+            <ContentPresenter x:Name="PlaylistItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0"
+                VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+            <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3" Width="30" Height="30"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Style="{ThemeResource PlaylistMoveUpButtonStyle}" Context="{Binding}"
+                Command="{DynamicResource ResourceKey=MoveUp_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                HasFocus="{Binding AdditionalProperties[IsUpButtonFocused]}"/>
+            <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3" Width="30" Height="30"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Style="{ThemeResource PlaylistMoveDownButtonStyle}" Context="{Binding}"
+                Command="{DynamicResource ResourceKey=MoveDown_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                HasFocus="{Binding AdditionalProperties[IsDownButtonFocused]}"/>
+            <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3" Width="30" Height="30"
+                VerticalAlignment="Center" HorizontalAlignment="Center"
+                Style="{ThemeResource RemoveButtonStyle}" Context="{Binding}"
+                Command="{DynamicResource ResourceKey=Remove_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"/>
           </Grid>
-        </Button.Content>
-        <Button.Triggers>
-          <Trigger Property="HasFocus" Value="True">
-            <Setter TargetName="NameLabel" Property="Scroll" Value="True"/>
-          </Trigger>
-        </Button.Triggers>
-      </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="PlaylistItemDataTemplate" DataType="{x:Type collections:ListItem}" DataString="{Binding [Name]}">
+    <Grid Margin="0,3,0,3">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="ItemNumberLabel" Grid.Column="0" Grid.Row="0"
+            Content="{Binding [NumberStr]}"
+            Color="{ThemeResource PlaylistItemColor}"
+            VerticalAlignment="Center"/>
+        <Label x:Name="ItemNameLabel" Grid.Column="1" Grid.Row="0" Margin="10,0,10,0"
+            Content="{Binding [Name]}"
+            FontSize="28" HorizontalAlignment="Left" VerticalAlignment="Center">
+          <Label.Color>
+            <MultiBinding Converter="{ThemeResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsCurrentItem]"/>
+              <Binding Source="{ThemeResource PlaylistHighlightLabelColor}"/>
+              <Binding Source="{ThemeResource PlaylistItemColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label x:Name="ItemLengthLabel" Grid.Column="2" Grid.Row="0" FontSize="22" VerticalAlignment="Center"
+            Content="{Binding [Length]}" Color="{ThemeResource PlaylistItemColor}"/>
+      </Grid>
     </Grid>
   </DataTemplate>
 
-  <Style x:Key="PlayListListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource PlayListItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  <Style x:Key="PlaylistListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource PlaylistItemContainerStyle}"/>
   </Style>
+
+  <Style x:Key="EditPlaylistListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource EditPlaylistItemContainerStyle}"/>
+  </Style>
+
 </ResourceDictionary>

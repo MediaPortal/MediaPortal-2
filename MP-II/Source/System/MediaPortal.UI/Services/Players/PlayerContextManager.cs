@@ -203,7 +203,8 @@ namespace MediaPortal.UI.Services.Players
             pc.RequestNextItem();
             break;
           case PlayerManagerMessaging.MessageType.PlayerSlotsChanged:
-            _currentPlayerIndex = 1 - _currentPlayerIndex;
+            lock (SyncObj)
+              _currentPlayerIndex = 1 - _currentPlayerIndex;
             break;
         }
         CheckCurrentPlayerSlot(); // Current player could have been closed

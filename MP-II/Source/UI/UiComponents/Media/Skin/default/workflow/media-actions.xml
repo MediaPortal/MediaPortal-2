@@ -32,5 +32,12 @@
         SortOrder="d"
         SourceState="*"
         ContributorModelId="313C4313-1D2B-4505-BA50-84EA684889C7"/> <!-- Playlist action -->
+    <PushNavigationTransition Id="583BD923-535F-4e91-9246-EADAE8042B16"
+        Name="ShowPlaylist->EditPlaylist"
+        DisplayCategory="a-Media"
+        SortOrder="a"
+        SourceState="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
+        TargetState="078DCC03-AE75-4347-8C07-183605CDB1B7"
+        DisplayTitle="[Media.EditPlaylist]"/>
   </MenuActions>
 </Workflow>

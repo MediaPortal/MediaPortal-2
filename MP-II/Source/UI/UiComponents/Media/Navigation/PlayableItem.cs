@@ -22,9 +22,13 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core.Localization;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.Utilities;
 
 namespace UiComponents.Media.Navigation
 {
@@ -41,6 +45,7 @@ namespace UiComponents.Media.Navigation
     #region Public consts
 
     public const string KEY_NAME = "Name";
+    public const string KEY_LENGTH = "Length";
 
     #endregion
 
@@ -53,7 +58,24 @@ namespace UiComponents.Media.Navigation
     public PlayableItem(MediaItem mediaItem)
     {
       _mediaItem = mediaItem;
-      SetLabel(KEY_NAME, _mediaItem[MediaAspect.ASPECT_ID][MediaAspect.ATTR_TITLE] as string);
+      MediaItemAspect mediaAspect;
+      MediaItemAspect audioAspect;
+      MediaItemAspect videoAspect;
+      if (!mediaItem.Aspects.TryGetValue(MediaAspect.ASPECT_ID, out mediaAspect))
+        mediaAspect = null;
+      if (!mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out audioAspect))
+        audioAspect = null;
+      if (!mediaItem.Aspects.TryGetValue(VideoAspect.ASPECT_ID, out videoAspect))
+        videoAspect = null;
+      string title = mediaAspect == null ? null : mediaAspect[MediaAspect.ATTR_TITLE] as string;
+
+      string artists = audioAspect == null ? null : StringUtils.Join(", ", (IEnumerable<string>) audioAspect[AudioAspect.ATTR_ARTISTS]);
+      string name = title + (string.IsNullOrEmpty(artists) ? string.Empty : (" (" + artists + ")"));
+      long? length = audioAspect == null ? null : (long?) audioAspect[AudioAspect.ATTR_DURATION];
+      if (!length.HasValue)
+        length = videoAspect == null ? null : (long?) videoAspect[VideoAspect.ATTR_DURATION];
+      SetLabel(KEY_NAME, name);
+      SetLabel(KEY_LENGTH, length.HasValue ? FormattingUtils.FormatMediaDuration(TimeSpan.FromSeconds((int) length.Value)) : string.Empty);
       // TODO: Open ListItem to store ints (rating), dates (Date) and other objects in ListItems
     }
 
@@ -66,6 +88,12 @@ namespace UiComponents.Media.Navigation
     {
       get { return this[KEY_NAME]; }
       set { SetLabel(KEY_NAME, value); }
+    }
+
+    public string Length
+    {
+      get { return this[KEY_LENGTH]; }
+      set { SetLabel(KEY_LENGTH, value); }
     }
   }
 }

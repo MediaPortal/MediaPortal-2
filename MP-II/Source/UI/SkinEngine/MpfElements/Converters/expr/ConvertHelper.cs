@@ -7,6 +7,8 @@ namespace Jyc.Expr
     { 
         public static object ChangeType(object value, Type conversionType)
         {
+            if (value == null && conversionType.IsPrimitive)
+              return Activator.CreateInstance(conversionType); // Return default value
             object o = null;
             try
             {

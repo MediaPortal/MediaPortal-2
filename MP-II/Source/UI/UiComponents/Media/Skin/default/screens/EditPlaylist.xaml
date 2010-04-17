@@ -6,13 +6,13 @@
     >
   <Include.Resources>
 
-    <Model x:Key="ShowPlaylistModel" Id="E30AA448-C1D1-4d8e-B08F-CF569624B51C"/>
+    <Model x:Key="EditPlaylistModel" Id="0AFD5E3A-2CB6-44d6-827F-72A7193595E2"/>
 
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource ShowPlaylistModel},Path=PlaylistHeader}"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource EditPlaylistModel},Path=PlaylistHeader}"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <Grid DataContext="{Binding Source={StaticResource ShowPlaylistModel}}">
+      <Grid DataContext="{Binding Source={StaticResource EditPlaylistModel}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -36,14 +36,18 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <ListView Style="{ThemeResource PlaylistListViewStyle}" ItemsSource="{Binding Items}"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <ListView Grid.Column="0" Grid.Row="0" Style="{ThemeResource EditPlaylistListViewStyle}"
+              ItemsSource="{Binding RelItems}">
             <ListView.Resources>
-              <Command x:Key="Select_Command" Source="{StaticResource ShowPlaylistModel}" Path="Play"
+              <Command x:Key="MoveUp_Command" Source="{StaticResource EditPlaylistModel}" Path="MoveUp"
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command x:Key="MoveDown_Command" Source="{StaticResource EditPlaylistModel}" Path="MoveDown"
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command x:Key="Remove_Command" Source="{StaticResource EditPlaylistModel}" Path="Remove"
                   Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
-          <Label IsVisible="{Binding IsPlaylistEmpty}"
+          <Label Grid.Column="0" Grid.Row="0" IsVisible="{Binding IsPlaylistEmpty}"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
         </Grid>
