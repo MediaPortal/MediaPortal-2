@@ -307,7 +307,7 @@ namespace MediaPortal.UI.Presentation.DataObjects
       IList<string> l = new List<string>();
       foreach (KeyValuePair<string, IResourceString> kvp in _labels)
         l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
-      return StringUtils.Join(", ", l);
+      return GetType().Name + ": " + StringUtils.Join(", ", l);
     }
   }
 }
