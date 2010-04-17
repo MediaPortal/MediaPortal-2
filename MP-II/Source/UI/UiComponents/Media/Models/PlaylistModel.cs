@@ -393,7 +393,7 @@ namespace UiComponents.Media.Models
     {
       IPlayerContextManager playerContextManager = ServiceScope.Get<IPlayerContextManager>();
       IPlayerContext pc = playerContextManager.GetPlayerContext(PlayerChoice.CurrentPlayer);
-      return pc.MediaType == PlayerContextType.Audio || pc.MediaType == PlayerContextType.Video;
+      return pc != null && (pc.MediaType == PlayerContextType.Audio || pc.MediaType == PlayerContextType.Video);
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
