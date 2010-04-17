@@ -200,16 +200,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
     {
-      Invalidate();
-      InvalidateParent();
+      InvalidateLayout();
+      InvalidateParentLayout();
     }
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
       ///@optimize: 
       Style.Set(this);
-      Invalidate();
-      InvalidateParent();
+      InvalidateLayout();
+      InvalidateParentLayout();
     }
 
     void OnActualSizeChanged(AbstractProperty property, object oldValue)
@@ -235,13 +235,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <summary>
     /// Called when a property value has been changed
     /// Since all UIElement properties are layout properties
-    /// we're simply calling Invalidate() here to invalidate the layout
+    /// we're simply calling InvalidateLayout() here to invalidate the layout
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
     void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
-      Invalidate();
+      InvalidateLayout();
     }
 
     #region Public properties
@@ -844,9 +844,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!IsVisible)
         return;
 
-      UpdateLayout();
       RectangleF bounds = ActualBounds;
-
       if (bounds.Width <= 0 || bounds.Height <= 0)
         return;
 

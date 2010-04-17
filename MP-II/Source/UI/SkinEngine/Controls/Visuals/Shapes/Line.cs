@@ -102,8 +102,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     void OnCoordinateChanged(AbstractProperty property, object oldValue)
     {
-      Invalidate();
-      InvalidateParent();
+      InvalidateLayout();
+      InvalidateParentLayout();
       if (Screen != null) Screen.Invalidate(this);
     }
 

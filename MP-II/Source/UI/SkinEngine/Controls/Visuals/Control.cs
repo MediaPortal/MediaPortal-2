@@ -124,8 +124,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         element.VisualParent = this;
         element.SetScreen(Screen);
       }
-      Invalidate();
-      InvalidateParent();
+      InvalidateLayout();
+      InvalidateParentLayout();
     }
 
     #endregion

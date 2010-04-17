@@ -41,6 +41,70 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
   /// </summary>
   public class Screen: NameScope
   {
+    #region Classes
+
+    protected class InvalidControl : IComparable<InvalidControl>
+    {
+      protected int _treeDepth = -1;
+      protected UIElement _element;
+
+      public InvalidControl(UIElement element)
+      {
+        _element = element;
+      }
+
+      protected void InitializeTreeDepth()
+      {
+        Visual current = _element;
+        while (current != null)
+        {
+          _treeDepth++;
+          current = current.VisualParent;
+        }
+      }
+
+      /// <summary>
+      /// Returns the number of steps wich are necessary to follow the <see cref="Visual.VisualParent"/>
+      /// reference on the <see cref="Element"/> until the root control is reached.
+      /// </summary>
+      public int TreeDepth
+      {
+        get
+        {
+          if (_treeDepth == -1)
+            InitializeTreeDepth();
+          return _treeDepth;
+        }
+      }
+
+      /// <summary>
+      /// Returns the invalid element.
+      /// </summary>
+      public UIElement Element
+      {
+        get { return _element; }
+      }
+
+      public int CompareTo(InvalidControl other)
+      {
+        return TreeDepth - other.TreeDepth;
+      }
+
+      public override int GetHashCode()
+      {
+        return _element.GetHashCode();
+      }
+
+      public override bool Equals(object o)
+      {
+        if (!(o is InvalidControl))
+          return false;
+        return _element.Equals(((InvalidControl) o)._element);
+      }
+    }
+
+    #endregion
+
     #region Enums
 
     public enum State
@@ -74,6 +138,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected UIElement _visual;
     protected bool _setFocusedElement = false;
     protected Animator _animator;
+    protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
     protected IList<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
     protected IDictionary<Key, KeyAction> _keyBindings = null;
 
@@ -181,7 +246,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (SkinContext.UseBatching)
         _visual.DestroyRenderTree();
       GraphicsDevice.InitializeZoom();
-      _visual.Invalidate();
+      _visual.InvalidateLayout();
       _visual.Initialize();
     }
 
@@ -207,6 +272,24 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
       lock (_visual)
       {
+        // Updating invalid elements works as follows:
+        // We start updating the layout of elements which have the biggest distance from the visual root, moving
+        // towards the root. The distance is the number of references which must be followed from the element along its
+        // VisualParent property until the root visual is reached.
+        // If we wouldn't follow that order and we would call the UpdateLayout method of an invalid parent P before the
+        // UpdateLayout method of an invalid child C, we could produce a situation where C gets arranged but was not measured.
+        //
+        // To achieve that call sequence, the _invalidLayoutControls list is ordered by the distance of the referenced
+        // element from the root.
+        // During each call to UpdateLayout() on an invalidated element, our _invalidLayoutControls list might get
+        // more entries because the updated element escalates the layout update to its parent. That's the reason why we
+        // cannot use a simple for loop.
+        while (_invalidLayoutControls.Count > 0)
+        {
+          InvalidControl ic = _invalidLayoutControls[_invalidLayoutControls.Count-1];
+          _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
+          ic.Element.UpdateLayout();
+        }
         if (SkinContext.UseBatching)
         {
           Update();
@@ -267,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         //if (SkinContext.UseBatching)
         //  _visual.BuildRenderTree();
 
-        _visual.Invalidate();
+        _visual.InvalidateLayout();
         _visual.UpdateLayout();
       }
     }
@@ -326,6 +409,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (!_attachedInput)
         return;
       _visual.OnMouseMove(x, y);
+    }
+
+    public void InvalidateLayout(UIElement element)
+    {
+      InvalidControl ic = new InvalidControl(element);
+      if (_invalidLayoutControls.Contains(ic))
+        return;
+      int index = _invalidLayoutControls.BinarySearch(ic);
+      if (index < 0)
+        index = ~index; // See IList<T>.BinarySearch(T)
+      _invalidLayoutControls.Insert(index, ic);
     }
 
     public void Invalidate(IUpdateEventHandler ctl)

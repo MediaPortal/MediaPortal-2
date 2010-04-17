@@ -117,8 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnContentChanged(AbstractProperty prop, object oldValue)
     {
       InitializeResourceString();
-      Invalidate();
-      InvalidateParent();
+      InvalidateLayout();
     }
 
     void OnRenderAttributeChanged(AbstractProperty prop, object oldValue)
@@ -129,7 +128,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
     {
-      Invalidate();
+      InvalidateLayout();
     }
 
     protected override void OnFontChanged(AbstractProperty prop, object oldValue)

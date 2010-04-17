@@ -49,7 +49,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void InvalidateParent()
     {
       if (_parent != null)
-        _parent.Invalidate();
+        _parent.InvalidateLayout();
     }
 
     public void FixZIndex()
@@ -126,7 +126,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           if (_parent != null)
           {
             _elements[index].VisualParent = _parent;
-            _parent.Invalidate();
+            _parent.InvalidateLayout();
           }
         }
       }

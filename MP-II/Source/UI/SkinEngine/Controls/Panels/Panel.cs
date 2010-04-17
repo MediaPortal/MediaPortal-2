@@ -154,13 +154,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     /// <summary>
     /// Called when a layout property has changed
-    /// we're simply calling Invalidate() here to invalidate the layout
+    /// we're simply calling InvalidateLayout() here to invalidate the layout
     /// </summary>
     /// <param name="property">The property.</param>
     /// <param name="oldValue">The old value of the property.</param>
     protected void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
-      Invalidate();
+      InvalidateLayout();
     }
 
     protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)
@@ -207,8 +207,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         SetScreen(Screen); // Sets the screen at the new children
         _updateRenderOrder = true;
         if (Screen != null) Screen.Invalidate(this);
-        Invalidate();
-        InvalidateParent();
+        InvalidateLayout();
+        InvalidateParentLayout();
         oldChildren.SetParent(null);
         oldChildren.Dispose();
       }
@@ -220,9 +220,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _isItemsHost = value; }
     }
 
-    public override void Invalidate()
+    public override void InvalidateLayout()
     {
-      base.Invalidate();
+      base.InvalidateLayout();
       _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
     }

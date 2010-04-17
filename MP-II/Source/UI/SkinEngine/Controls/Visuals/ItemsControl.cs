@@ -351,8 +351,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected virtual void InvalidateItems()
     {
       PrepareItems();
-      Invalidate();
-      InvalidateParent();
+      InvalidateLayout();
+      InvalidateParentLayout();
     }
 
     protected ItemsPresenter FindItemsPresenter()

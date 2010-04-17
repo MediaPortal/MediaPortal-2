@@ -157,13 +157,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
         _matrix *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
       }
     }
-    Matrix CreateSkewRadians(double skewX, double skewY)
+
+    static Matrix CreateSkewRadians(double skewX, double skewY)
     {
       Matrix matrix = Matrix.Identity;
       SetMatrix(ref matrix, 1.0, Math.Tan(skewY), Math.Tan(skewX), 1.0, 0.0, 0.0);
       return matrix;
     }
-    void SetMatrix(ref Matrix m, double m11, double m12, double m21, double m22, double offsetX, double offsetY)
+
+    static void SetMatrix(ref Matrix m, double m11, double m12, double m21, double m22, double offsetX, double offsetY)
     {
       m.M11 = (float)m11;
       m.M12 = (float)m12;

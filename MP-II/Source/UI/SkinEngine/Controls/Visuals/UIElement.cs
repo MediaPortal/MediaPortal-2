@@ -234,7 +234,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected SizeF _desiredSize;
     protected RectangleF _finalRect;
     protected ResourceDictionary _resources;
-    protected volatile bool _isLayoutInvalid = true;
     protected ExtendedMatrix _finalLayoutTransform;
     protected IExecutableCommand _loaded;
     protected bool _triggersInitialized;
@@ -334,7 +333,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnVisibilityPropertyChanged(AbstractProperty property, object oldValue)
     {
-      InvalidateParent();
+      InvalidateParentLayout();
       if (IsVisible)
         FireUIEvent(UIEvent.Visible, this);
       else
@@ -343,18 +342,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Called when a property value has been changed which makes the current layout invalid.
-    /// This method will call Invalidate() to invalidate the layout.
+    /// This method will call InvalidateLayout() to invalidate the layout.
     /// </summary>
     /// <param name="property">The property which was changed.</param>
     /// <param name="oldValue">The old value of the property.</param>
     void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
-      Invalidate();
+      InvalidateLayout();
     }
 
     void OnLayoutTransformChanged(IObservable observable)
     {
-      Invalidate();
+      InvalidateLayout();
     }
 
     void OnLayoutTransformPropertyChanged(AbstractProperty property, object oldValue)
@@ -548,12 +547,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       set { _renderTransformOriginProperty.SetValue(value); }
     }
 
-    public bool IsLayoutInvalid
-    {
-      get { return _isLayoutInvalid; }
-      set { _isLayoutInvalid = value;}
-    }
-
     /// <summary>
     /// Returns the desired size this element calculated based on the available size.
     /// This value denotes the desired size of this element without <see cref="Margin"/>.
@@ -722,35 +715,34 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return child.IsInArea(x, y) && IsInVisibleArea(x, y);
     }
 
-    // Code commented out by Albert, 2010-04-05, see comment in method Measure.
-    //#region Replacing methods for the == operator which evaluate two float.NaN values to equal
+    #region Replacing methods for the == operator which evaluate two float.NaN values to equal
 
-    //public static bool SameValue(float val1, float val2)
-    //{
-    //  return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
-    //}
+    public static bool SameValue(float val1, float val2)
+    {
+      return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
+    }
 
-    //public static bool SameSize(SizeF size1, SizeF size2)
-    //{
-    //  return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
-    //}
+    public static bool SameSize(SizeF size1, SizeF size2)
+    {
+      return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
+    }
 
-    //public static bool SameSize(SizeF? size1, SizeF size2)
-    //{
-    //  return size1.HasValue && SameSize(size1.Value, size2);
-    //}
+    public static bool SameSize(SizeF? size1, SizeF size2)
+    {
+      return size1.HasValue && SameSize(size1.Value, size2);
+    }
 
-    //public static bool SameRect(RectangleF rect1, RectangleF rect2)
-    //{
-    //  return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
-    //}
+    public static bool SameRect(RectangleF rect1, RectangleF rect2)
+    {
+      return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
+    }
 
-    //public static bool SameRect(RectangleF? rect1, RectangleF rect2)
-    //{
-    //  return rect1.HasValue && SameRect(rect1.Value, rect2);
-    //}
+    public static bool SameRect(RectangleF? rect1, RectangleF rect2)
+    {
+      return rect1.HasValue && SameRect(rect1.Value, rect2);
+    }
 
-    //#endregion
+    #endregion
 
     /// <summary>
     /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
@@ -761,36 +753,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// controls collect all the size requirements of their child controls.
     /// </para>
     /// <para>
-    /// An input size value of <see cref="float.NaN"/> denotes that this child control doesn't have a size
-    /// constraint in this direction. All other size values need to be considered by this child control as
-    /// the maximum available size. If this element still produces a bigger <see cref="DesiredSize"/>, the
-    /// <see cref="Arrange(RectangleF,bool)"/> method might give it a smaller final region.
+    /// An input size value of <see cref="float.NaN"/> in any coordinate denotes that this child control doesn't have a size
+    /// constraint in that direction. Coordinates different from <see cref="float.NaN"/> should be considered by this child
+    /// control as the maximum available size in that direction. If this element still produces a bigger
+    /// <see cref="DesiredSize"/>, the <see cref="Arrange(RectangleF)"/> method might give it a smaller final region.
     /// </para>
     /// </remarks>
     /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
     /// contains the size available for this child control (size constraint). As output, it must be set
     /// to the <see cref="DesiredSize"/> plus <see cref="Margin"/>.</param>
-    /// <param name="force">If set to <c>true</c>, the measurement will be executed even if the given
-    /// <paramref name="totalSize"/> doesn't differ from the total size given in the last call.</param>
-    public void Measure(ref SizeF totalSize, bool force)
+    public void Measure(ref SizeF totalSize)
     {
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
 #endif
-      // Commented out by Albert, 2010-04-05: This layout optimization doesn't work correctly in some cases.
-      // One concrete problem is when a layout update is being made in one UI element P and in some child element C,
-      // a child has been added/made visible. When in that case, this layout optimization prevents that C is measured again,
-      // but the optimization in the Arrange method doesn't prevent C from being arranged, C is in an invalid state
-      // (because it was not measured but arranged).
-      // To be fixed later.
-//      if (SameSize(_availableSize, totalSize) && !force)
-//      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
-//        totalSize = _desiredSize;
-//#if DEBUG_LAYOUT
-//        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
-//#endif
-//        return;
-//      }
+      if (SameSize(_availableSize, totalSize))
+      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
+        totalSize = _desiredSize;
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
+#endif
+        return;
+      }
       _availableSize = new SizeF(totalSize);
       RemoveMargin(ref totalSize);
       if (LayoutTransform != null)
@@ -810,11 +794,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #endif
     }
 
-    public void Measure(ref SizeF totalSize)
-    {
-      Measure(ref totalSize, false);
-    }
-
     protected virtual void MeasureOverride(ref SizeF totalSize)
     {
     }
@@ -823,23 +802,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Arranges the UI element and positions it in the finalrect.
     /// </summary>
     /// <param name="outerRect">The final position and size the parent computed for this child element.</param>
-    /// <param name="force">If set to <c>true</c>, the arrangement is done even if the given <paramref name="outerRect"/>
-    /// doesn't differ from the outer rect given in the last call.</param>
-    public void Arrange(RectangleF outerRect, bool force)
+    public void Arrange(RectangleF outerRect)
     {
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
 #endif
-      // Commented out by Albert, 2010-04-05: This layout optimization doesn't work correctly in some cases.
-      // See comment in Measure(ref SizeF, bool) method.
-//      if (SameRect(_outerRect, outerRect) && !force)
-//      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to
-//        // arrange again
-//#if DEBUG_LAYOUT
-//        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
-//#endif
-//        return;
-//      }
+      if (SameRect(_outerRect, outerRect))
+      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to arrange again
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
+#endif
+        return;
+      }
       _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
       RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
       RemoveMargin(ref rect);
@@ -863,11 +837,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InitializeTriggers();
     }
 
-    public void Arrange(RectangleF outerRect)
-    {
-      Arrange(outerRect, false);
-    }
-
     protected virtual void ArrangeOverride(RectangleF finalRect)
     {
       ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
@@ -878,36 +847,41 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// If dimensions change, it will invalidate the parent visual so the parent
     /// will re-layout itself and its children.
     /// </summary>
-    public virtual void Invalidate()
+    public virtual void InvalidateLayout()
     {
-      _isLayoutInvalid = true;
+      if (Screen != null)
+        Screen.InvalidateLayout(this);
     }
 
     /// <summary>
     /// Invalidates the layout of our visual parent.
     /// The parent will re-layout itself and its children.
     /// </summary>
-    public void InvalidateParent()
+    public void InvalidateParentLayout()
     {
       UIElement parent = VisualParent as UIElement;
       if (parent != null)
-        parent.Invalidate();
+        parent.InvalidateLayout();
     }
 
     /// <summary>
-    /// Updates the layout, i.e. calls <see cref="Measure(ref SizeF,bool)"/> and <see cref="Arrange(RectangleF,bool)"/>,
-    /// if <see cref="_isLayoutInvalid"/> is set.
+    /// Updates the layout, i.e. calls <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/>.
+    /// Must be done from the render thread.
     /// </summary>
     public void UpdateLayout()
     {
-      if (!_isLayoutInvalid) 
-        return;
-    
+      // When measure or arrange is directly or indirectly called from the following code, we need the measure/arrange to be
+      // forced and not be optimized when the available size/outer rect are the same.
+      // We could introduce new variables _isMeasureInvalid and _isArrangementInvalid, set it to true here and
+      // check them in the Measure/Arrange methods, but it is easier to just clear our available size/outer rect cache which
+      // also causes the Measure/Arrange to take place:
+      _availableSize = null;
+      _outerRect = null;
+
 #if DEBUG_LAYOUT
       System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}'", GetType().Name, Name));
 #endif
       //Trace.WriteLine("UpdateLayout: " + Name + "  " + GetType());
-      _isLayoutInvalid = false;
 
       UIElement parent = VisualParent as UIElement;
       if (parent == null)
@@ -918,26 +892,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so measure with screen size {2}", GetType().Name, Name, size));
 #endif
-        Measure(ref size, true);
+        Measure(ref size);
 
         // Root element - restart counting
         SkinContext.ResetZorder();
 
 #if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so arrange with screen size {2}", GetType().Name, Name, size));
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so we arrange with screen size {2}", GetType().Name, Name, size));
 #endif
         // Ignore the measured size - arrange with screen size
-        Arrange(new RectangleF(0, 0, screenSize.Width, screenSize.Height), true);
+        Arrange(new RectangleF(0, 0, screenSize.Width, screenSize.Height));
       }
       else
-      {
+      { // We have a visual parent, i.e parent != null
         if (!_availableSize.HasValue || !_outerRect.HasValue)
         {
 #if DEBUG_LAYOUT
           System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no available size or no outer rect, updating layout at parent {2}", GetType().Name, Name, parent));
 #endif
-          parent.Invalidate();
-          parent.UpdateLayout();
+          // We weren't Measured nor Arranged before - need to update parent
+          parent.InvalidateLayout();
           return;
         }
 
@@ -951,7 +925,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
         System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with former available size {2}", GetType().Name, Name, availableSize));
 #endif
-        Measure(ref availableSize, true);
+        Measure(ref availableSize);
         if (m != null)
           SkinContext.RemoveLayoutTransform();
 
@@ -960,10 +934,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
           System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned different desired size, updating parent (former: {2}, now: {3})", GetType().Name, Name, formerDesiredSize, _desiredSize));
 #endif
-          _isLayoutInvalid = true; // At least, we need to do arrangement again
           // Our size has changed - we need to update our parent
-          parent.Invalidate();
-          parent.UpdateLayout();
+          parent.InvalidateLayout();
           return;
         }
         else
@@ -977,7 +949,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 #if DEBUG_LAYOUT
           System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned same desired size, arranging with old outer rect {2}", GetType().Name, Name, outerRect));
 #endif
-          Arrange(outerRect, true);
+          Arrange(outerRect);
           if (m != null)
             SkinContext.RemoveLayoutTransform();
         }

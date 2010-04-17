@@ -123,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (_scrollIndex == scrollIndex)
         return;
       _scrollIndex = scrollIndex;
-      Invalidate();
+      InvalidateLayout();
       InvokeScrolled();
     }
 

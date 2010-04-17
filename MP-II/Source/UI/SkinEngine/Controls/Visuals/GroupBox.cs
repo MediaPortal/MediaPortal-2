@@ -97,7 +97,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _headerLabel.Content = Header;
       _headerLabel.Color = HeaderColor;
-      Invalidate();
+      InvalidateLayout();
     }
 
     #region Properties

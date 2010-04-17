@@ -118,7 +118,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public FrameworkElement FocusedElement
     {
-      get { return _focusedElement.GetValue() as FrameworkElement; }
+      get { return (FrameworkElement) _focusedElement.GetValue(); }
       set { _focusedElement.SetValue(value); }
     }
 
@@ -129,7 +129,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Screen Screen
     {
-      get { return _screenProperty.GetValue() as Screen; }
+      get { return (Screen) _screenProperty.GetValue(); }
       set { _screenProperty.SetValue(value); }
     }
 

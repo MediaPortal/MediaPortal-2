@@ -80,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
-      Invalidate();
+      InvalidateLayout();
     }
 
     public AbstractProperty AspectRatioProperty

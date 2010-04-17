@@ -98,7 +98,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         scrollOffsetY = 0;
       _scrollOffsetX = scrollOffsetX;
       _scrollOffsetY = scrollOffsetY;
-      Invalidate();
+      InvalidateLayout();
       InvokeScrolled();
     }
 
