@@ -17,15 +17,11 @@ Usage:
       <ResourceWrapper x:Key="Client_Element">
         [UI element to be displayed in the client area]
       </ResourceWrapper>
-      <ResourceWrapper x:Key="Focused_Element">
-        [UI element to be focused]
-      </ResourceWrapper>
     </Include.Resources>
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
  - Header_Text (String): The text to be displayed as header
- - Focused_Element (Any existing UI element): Element to be focused at startup
  - Client_Element (Any UI element): Element to be shown in the client area
 -->
 
@@ -33,7 +29,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
-    FocusedElement="{DynamicResource Focused_Element}"
     Context="{DynamicResource DataContext}"
     LastChildFill="True">
   <Grid x:Name="HeaderPanel" DockPanel.Dock="Top">

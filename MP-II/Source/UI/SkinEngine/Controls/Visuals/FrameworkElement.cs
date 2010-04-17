@@ -30,6 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -164,6 +165,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
       _fontSizeProperty.Attach(OnFontChanged);
+
+      _screenProperty.Attach(OnScreenChanged);
     }
 
     void Detach()
@@ -176,6 +179,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _hasFocusProperty.Detach(OnFocusPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
       _fontSizeProperty.Detach(OnFontChanged);
+
+      _screenProperty.Detach(OnScreenChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -194,9 +199,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FontSize = fe.FontSize;
       FontFamily = fe.FontFamily;
       Attach();
+      SetFocusAtScreen();
     }
 
     #endregion
+
+    protected void SetFocusAtScreen()
+    {
+      Screen screen = Screen;
+      if (screen == null)
+        return;
+      if (HasFocus)
+        screen.FrameworkElementGotFocus(this);
+    }
+
+    void OnScreenChanged(AbstractProperty property, object oldValue)
+    {
+      SetFocusAtScreen();
+      _screenProperty.Detach(OnScreenChanged); // The screen will only be assigned once
+    }
 
     protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
     {

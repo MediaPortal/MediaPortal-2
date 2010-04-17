@@ -11,9 +11,6 @@ Usage:
       Source="screens\master_dialog.xaml"
       >
     <Include.Resources>
-      <ResourceWrapper x:Key="Focused_Element">
-        [Reference of the focused element (or null)]
-      </ResourceWrapper>
       <ResourceWrapper x:Key="Dialog_Header_Text">
         [Header text to be shown as dialog title]
       </ResourceWrapper>
@@ -25,15 +22,13 @@ Usage:
   </Include>
 
 Parameters which have to be accessible by a DynamicResource lookup:
- - Focused_Element: An element which should be focused
  - Dialog_Header_Text (String): The text to be displayed as dialog title
  - Contents_Element (Any UI element): Contents area of the dialog.
 -->
 
 <Grid x:Name="DialogLayoutGrid"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    FocusedElement="{DynamicResource Focused_Element}">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Grid.ColumnDefinitions>
     <ColumnDefinition Width="50"/>
     <ColumnDefinition Width="*"/>

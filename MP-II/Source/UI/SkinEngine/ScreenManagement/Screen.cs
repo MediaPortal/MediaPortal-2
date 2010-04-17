@@ -136,7 +136,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     protected AbstractProperty _opened;
     public event EventHandler Closed;
     protected UIElement _visual;
-    protected bool _setFocusedElement = false;
     protected Animator _animator;
     protected List<InvalidControl> _invalidLayoutControls = new List<InvalidControl>();
     protected IList<IUpdateEventHandler> _invalidControls = new List<IUpdateEventHandler>();
@@ -298,18 +297,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         else
           _visual.Render();
       }
-      if (_setFocusedElement)
-      {
-        if (_visual.FocusedElement != null)
-          _visual.FocusedElement.TrySetFocus(true);
-        else
-        {
-          FrameworkElement fe = _visual as FrameworkElement;
-          if (fe != null)
-            fe.TrySetFocus(true);
-        }
-        _setFocusedElement = false;
-      }
     }
 
     public void AttachInput()
@@ -359,7 +346,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       lock (_visual)
       {
-        _setFocusedElement = true;
         IInputManager inputManager = ServiceScope.Get<IInputManager>();
         if (_attachedInput && inputManager.IsMouseUsed)
           _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
@@ -464,15 +450,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="focusedElement">The element which gained focus.</param>
     public void FrameworkElementGotFocus(FrameworkElement focusedElement)
     {
-      if (_focusedElement != focusedElement)
-      {
-        RemoveCurrentFocus();
-        if (!HasExtends(focusedElement.ActualBounds))
-          return;
-        _focusedElement = focusedElement;
-        _lastFocusRect = focusedElement.ActualBounds;
-        _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
-      }
+      if (_focusedElement == focusedElement)
+        return;
+      RemoveCurrentFocus();
+      if (!HasExtends(focusedElement.ActualBounds))
+        return;
+      _focusedElement = focusedElement;
+      _lastFocusRect = focusedElement.ActualBounds;
+      _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
     }
 
     /// <summary>
