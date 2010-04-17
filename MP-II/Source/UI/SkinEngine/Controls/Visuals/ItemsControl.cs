@@ -432,12 +432,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void Allocate()
-    {
-      base.Allocate();
-      PrepareItems();
-    }
-
     public override void  FireEvent(string eventName)
     {
       if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
