@@ -133,8 +133,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       double h = ActualHeight;
       SizeF rectSize = new SizeF((float)w, (float)h);
 
-      //Trace.WriteLine(String.Format("Rectangle.PerformLayout")); 
-
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)
         m.Matrix *= _finalLayoutTransform.Matrix;
@@ -158,7 +156,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             return;
           float centerX = rect.Width / 2 + rect.Left;
           float centerY = rect.Height / 2 + rect.Top;
-          //CalcCentroid(path, out centerX, out centerY);
           if (Fill != null)
           {
             if (SkinContext.UseBatching)

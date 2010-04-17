@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -36,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   {
     #region Protected fields
 
-    protected object _value = null;
+    protected SProperty _valueProperty = new SProperty(typeof(object), null);
 
     #endregion
 
@@ -46,7 +47,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public ValueWrapper(object value)
     {
-      _value = value;
+      Value = value;
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -60,10 +61,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region Public properties
 
+    public AbstractProperty ValueProperty
+    {
+      get { return _valueProperty; }
+    }
+
     public object Value
     {
-      get { return _value; }
-      set { _value = value; }
+      get { return _valueProperty.GetValue(); }
+      set { _valueProperty.SetValue(value); }
     }
 
     #endregion

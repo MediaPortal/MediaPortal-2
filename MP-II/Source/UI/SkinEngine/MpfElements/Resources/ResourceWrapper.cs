@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -63,6 +64,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     #endregion
 
     #region Public properties
+
+    public AbstractProperty ResourceProperty
+    {
+      get { return ValueProperty; }
+    }
 
     public object Resource
     {

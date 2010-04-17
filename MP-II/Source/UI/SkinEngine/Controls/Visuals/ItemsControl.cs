@@ -432,7 +432,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void  FireEvent(string eventName)
+    public override void FireEvent(string eventName)
     {
       if (eventName == LOSTFOCUS_EVENT || eventName == GOTFOCUS_EVENT)
         UpdateCurrentItem();

@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
@@ -60,6 +61,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     #endregion
 
     #region Public properties
+
+    public AbstractProperty BindingProperty
+    {
+      get { return ValueProperty; }
+    }
 
     public IBinding Binding
     {

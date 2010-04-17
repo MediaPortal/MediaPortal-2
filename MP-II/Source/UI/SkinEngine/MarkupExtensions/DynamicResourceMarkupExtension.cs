@@ -22,6 +22,8 @@
 
 #endregion
 
+//#define DEBUG_DRME
+
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
@@ -94,6 +96,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
+#if DEBUG_DRME
+    protected static IDictionary<object, int> _meIDs = new Dictionary<object, int>();
+    protected static int _idCounter = 0;
+#endif
+
     protected IList<ResourceDictionary> _attachedResources = new List<ResourceDictionary>(); // To which resources are we attached?
     protected IList<AbstractProperty> _attachedPropertiesList = new List<AbstractProperty>(); // To which properties are we attached?
     protected bool _attachedToSkinResources = false; // Are we attached to skin resources?
@@ -111,6 +118,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     public DynamicResourceMarkupExtension()
     {
+#if DEBUG_DRME
+      _meIDs.Add(this, _idCounter++);
+#endif
       Init();
       Attach();
     }
@@ -168,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     public string ResourceKey
     {
-      get { return (string)_resourceKeyProperty.GetValue(); }
+      get { return (string) _resourceKeyProperty.GetValue(); }
       set { _resourceKeyProperty.SetValue(value); }
     }
 
@@ -265,6 +275,20 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _attachedPropertiesList.Clear();
     }
 
+#if DEBUG_DRME
+
+    protected int GetDebugId()
+    {
+      return _meIDs[this];
+    }
+
+    protected void DebugOutput(string output, params object[] objs)
+    {
+      System.Diagnostics.Trace.WriteLine(string.Format("DREM #{0} ({1}): {2}", GetDebugId(), ToString(), string.Format(output, objs)));
+    }
+
+#endif
+
     protected void UpdateTarget(object value)
     {
       object assignValue;
@@ -280,6 +304,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
       else
         throw new XamlBindingException("AssignmentMode value {0} is not implemented", AssignmentMode);
+#if DEBUG_DRME
+      DebugOutput("Setting target value to '{0}'", assignValue);
+#endif
       _contextObject.SetBindingValue(_targetDataDescriptor, TypeConverter.Convert(assignValue, _targetDataDescriptor.DataType));
     }
 
@@ -324,6 +351,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       // Attach change handler to parent property
       AttachToSourcePathProperty(parentProperty);
       parent = parentProperty.GetValue() as DependencyObject;
+#if DEBUG_DRME
+      if (parent == null)
+        DebugOutput("FindParent didn't find a parent of object '{0}'", obj);
+#endif
       return parent != null;
     }
 
@@ -341,7 +372,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (KeepBinding)
       { // This instance should be used rather than the evaluated source value
         if (_targetDataDescriptor != null)
+        {
           _contextObject.SetBindingValue(_targetDataDescriptor, this);
+#if DEBUG_DRME
+          DebugOutput("Assigning this DRME to target data descriptor '{0}'", _targetDataDescriptor);
+#endif
+        }
         return true;
       }
       DependencyObject current = _contextObject;
