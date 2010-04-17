@@ -22,6 +22,8 @@
 
 #endregion
 
+//#define DEBUG_BINDINGS
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -113,6 +115,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Protected fields
 
+#if DEBUG_BINDINGS
+    protected static IDictionary<object, int> _bindingIDs = new Dictionary<object, int>();
+    protected static int _idCounter = 0;
+#endif
+
     // Binding configuration properties
     protected SourceType _typeOfSource = SourceType.DataContext;
     protected AbstractProperty _sourceProperty = new SProperty(typeof(object), null);
@@ -148,6 +155,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// </summary>
     public BindingMarkupExtension()
     {
+#if DEBUG_BINDINGS
+      _bindingIDs.Add(this, _idCounter++);
+#endif
       Attach();
     }
 
@@ -158,6 +168,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     public BindingMarkupExtension(DependencyObject contextObject):
         base(contextObject)
     {
+#if DEBUG_BINDINGS
+      _bindingIDs.Add(this, _idCounter++);
+#endif
       Attach();
     }
 
@@ -169,6 +182,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <param name="path">Path value for this Binding.</param>
     public BindingMarkupExtension(string path)
     {
+#if DEBUG_BINDINGS
+      _bindingIDs.Add(this, _idCounter++);
+#endif
       Path = path;
       Attach();
     }
@@ -580,6 +596,20 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       }
     }
 
+#if DEBUG_BINDINGS
+
+    protected int GetDebugId()
+    {
+      return _bindingIDs[this];
+    }
+
+    protected void DebugOutput(string output, params object[] objs)
+    {
+      System.Diagnostics.Trace.WriteLine(string.Format("Binding #{0} ({1}): {2}", GetDebugId(), ToString(), string.Format(output, objs)));
+    }
+
+#endif
+
     /// <summary>
     /// Returns the data context of the specified <paramref name="obj"/>.
     /// </summary>
@@ -647,18 +677,30 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected bool FindParent(DependencyObject obj, out DependencyObject parent,
         FindParentMode findParentMode)
     {
+      bool result;
       switch (findParentMode)
       {
         case FindParentMode.HybridPreferVisualTree:
-          if (FindParent_VT(obj, out parent))
-            return true;
-          return FindParent_LT(obj, out parent);
+          result = FindParent_VT(obj, out parent) || FindParent_LT(obj, out parent);
+#if DEBUG_BINDINGS
+          if (!result)
+            DebugOutput("FindParent didn't find a parent in VT or LT for object '{0}'", obj);
+#endif
+          return result;
         case FindParentMode.HybridPreferLogicalTree:
-          if (FindParent_LT(obj, out parent))
-            return true;
-          return FindParent_VT(obj, out parent);
+          result = FindParent_LT(obj, out parent) || FindParent_VT(obj, out parent);
+#if DEBUG_BINDINGS
+          if (!result)
+            DebugOutput("FindParent didn't find a parent in LT or VT for object '{0}'", obj);
+#endif
+          return result;
         case FindParentMode.LogicalTree:
-          return FindParent_LT(obj, out parent);
+          result = FindParent_LT(obj, out parent);
+#if DEBUG_BINDINGS
+          if (!result)
+            DebugOutput("FindParent didn't find a parent in LT for object '{0}'", obj);
+#endif
+          return result;
         default:
           // Should never occur. If so, we have forgotten to handle a SourceType
           throw new NotImplementedException(
@@ -699,7 +741,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       result = null;
       DependencyObject current = _contextObject;
       if (current == null)
+      {
+#if DEBUG_BINDINGS
+        DebugOutput("FindDataContext doesn't have a current context");
+#endif
         return false;
+      }
       if (UsedAsDataContext)
       {
         // If we are already the data context, step one level up and start the search at our parent
@@ -713,6 +760,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         { // Data context found
           if (parentBinding.Evaluate(out result))
             return true;
+#if DEBUG_BINDINGS
+          DebugOutput("FindDataContext found parent binding '{0}' but that binding could not evaluate", parentBinding);
+#endif
           // else simply return the parent's evaluated source data descriptor
           result = parentBinding.EvaluatedSourceValue;
           return false;
@@ -735,7 +785,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       result = null;
       DependencyObject current = _contextObject;
       if (current == null)
+      {
+#if DEBUG_BINDINGS
+        DebugOutput("FindNameScope doesn't have a current context");
+#endif
         return false;
+      }
       while (current != null)
       {
         if (current is INameScope)
@@ -780,6 +835,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           case SourceType.DataContext:
             return FindDataContext(out result);
           case SourceType.SourceProperty:
+#if DEBUG_BINDINGS
+            if (Source == null)
+              DebugOutput("GetSourceDataDescriptor doesn't have a Source", Source);
+#endif
             result = new DependencyPropertyDataDescriptor(this, "Source", _sourceProperty);
             return true;
           case SourceType.RelativeSource:
@@ -807,6 +866,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
                     }
                   }
                 }
+#if DEBUG_BINDINGS
+            DebugOutput("GetSourceDataDescriptor didn't find TemplateParent");
+#endif
                 return false;
               case RelativeSourceMode.FindAncestor:
                 if (FindAncestor(current, out current, FindParentMode.HybridPreferVisualTree,
@@ -830,7 +892,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
               return false;
             object obj = nameScope.FindName(ElementName) as UIElement;
             if (obj == null)
+            {
+#if DEBUG_BINDINGS
+              DebugOutput("GetSourceDataDescriptor didn't find object with name '{0}'", ElementName);
+#endif
               return false;
+            }
             result = new ValueDataDescriptor(obj);
             return true;
           default:
@@ -916,6 +983,10 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           _retryBinding = true;
           return false;
         }
+
+#if DEBUG_BINDINGS
+        DebugOutput("UpdateBinding: Binding evaluated to '{0}'", sourceDd.Value);
+#endif
 
         bool attachToSource = false;
         bool attachToTarget = false;
