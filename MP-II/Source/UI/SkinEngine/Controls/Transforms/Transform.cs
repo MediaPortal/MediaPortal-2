@@ -24,7 +24,6 @@
 
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX;
 
@@ -42,27 +41,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     #endregion
     
     #region Ctor
-
-    public Transform()
-    {
-      Attach();
-    }
-
-    public override void Dispose()
-    {
-      base.Dispose();
-      Detach();
-    }
-
-    void Attach()
-    {
-      SkinContext.ZoomProperty.Attach(OnZoomChanged);
-    }
-
-    void Detach()
-    {
-      SkinContext.ZoomProperty.Detach(OnZoomChanged);
-    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
@@ -85,12 +63,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     }
 
     #endregion
-
-    void OnZoomChanged(AbstractProperty prop, object oldValue)
-    {
-      _needUpdate = true;
-      _needUpdateRel = true; // Albert: Is this line necessary?
-    }
 
     protected void Fire()
     {
