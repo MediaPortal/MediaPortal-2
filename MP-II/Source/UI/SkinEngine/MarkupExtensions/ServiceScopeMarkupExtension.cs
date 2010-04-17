@@ -73,7 +73,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
+    {
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
     {
       if (_interfaceName == null)
         throw new XamlBindingException("ServiceScopeMarkupExtension: Property InterfaceName has to be set");
@@ -87,13 +91,15 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           BindingFlags.Public | BindingFlags.Static,
           null, new Type[] { typeof(bool) }, null);
         mi = mi.MakeGenericMethod(t);
-        return mi.Invoke(null, new object[] { false });
+        value = mi.Invoke(null, new object[] { false });
+        return true;
       }
       catch (Exception ex)
       {
         ServiceScope.Get<ILogger>().Error("ServiceScopeMarkupExtension: Error getting service '{0}'", ex, t.Name);
       }
-      return null;
+      value = null;
+      return false;
     }
 
     #endregion

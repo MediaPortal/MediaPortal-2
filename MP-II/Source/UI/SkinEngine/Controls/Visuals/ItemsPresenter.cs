@@ -98,7 +98,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       DetachScrolling();
       ControlTemplate ct = new ControlTemplate();
-      ct.AddChild(template.LoadContent());
+      FinishBindingsDlgt finishDlgt; // We don't need to finish the bindings on the new template because it is only a template
+      ct.AddChild(template.LoadContent(out finishDlgt));
       Template = ct;
       _itemsHostPanel = TemplateControl.FindElement(ItemsHostFinder.Instance) as Panel;
       AttachScrolling();

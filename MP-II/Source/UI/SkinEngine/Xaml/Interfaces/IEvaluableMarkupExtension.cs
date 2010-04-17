@@ -27,10 +27,9 @@ using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
 namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
-  /// Represents an instance of a markup extension which can be evaluated
-  /// early, i.e. during the parsing time. Implementing classes will
-  /// declare constructors and properties to configure this instance. The method
-  /// <see cref="IEvaluableMarkupExtension.Evaluate(IParserContext)"/>
+  /// Represents an instance of a markup extension which can be evaluated to a value, typically during the parsing time.
+  /// Implementing classes will declare constructors and properties to configure this instance. The method
+  /// <see cref="Initialize"/> will be called during parsing time, <see cref="Evaluate"/> will be called some time later and
   /// will evaluate the value implied by this markup extension instance.
   /// </summary>
   public interface IEvaluableMarkupExtension
@@ -40,6 +39,14 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
     /// evaluate, may throw a <see cref="XamlBindingException"/>.
     /// </summary>
     /// <param name="context">The context instance during the parsing process.</param>
-    object Evaluate(IParserContext context);
+    void Initialize(IParserContext context);
+
+    /// <summary>
+    /// Returns the value of this evaluatable markup extension. This will be called after <see cref="Initialize"/> was
+    /// called.
+    /// </summary>
+    /// <param name="value">Value which was evaluated by this markup extension.</param>
+    /// <returns><c>true</c>, if this markup extension could be evaluated, else <c>false</c>.</returns>
+    bool Evaluate(out object value);
   }
 }

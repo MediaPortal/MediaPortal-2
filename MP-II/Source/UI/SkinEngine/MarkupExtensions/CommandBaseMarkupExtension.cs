@@ -122,12 +122,17 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region IEvaluableMarkupExtension implementation
 
-    public object Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
       if (_path == null)
         throw new XamlBindingException("CommandBaseMarkupExtension: Path mustn't be null");
       _compiledPath = PathExpression.Compile(context, _path);
-      return this;
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = this;
+      return true;
     }
 
     #endregion

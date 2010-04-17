@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -39,12 +40,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Content = dataItem,
             Screen = Screen
         };
+
       // We need to copy the item data template for the child containers, because the
       // data template contains specific data for each container. We need to "personalize" the
       // data template copy by assigning its LogicalParent.
-      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      IEnumerable<IBinding> deferredBindings;
+      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
       childItemTemplate.LogicalParent = container;
       container.ContentTemplate = childItemTemplate;
+      MpfCopyManager.ActivateBindings(deferredBindings);
       return container;
     }
 

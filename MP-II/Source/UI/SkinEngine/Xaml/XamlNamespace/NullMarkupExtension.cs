@@ -28,11 +28,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 {
   public class NullMarkupExtension: IEvaluableMarkupExtension
   {
-    public NullMarkupExtension() {}
-
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context) { }
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
     {
-      return null;
+      value = null;
+      return true;
     }
   }
 }

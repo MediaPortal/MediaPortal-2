@@ -102,7 +102,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       DataTemplate dt = FindResource(Content.GetType()) as DataTemplate;
       if (dt != null)
       {
-        SetTemplateControl(dt.LoadContent() as FrameworkElement);
+        FinishBindingsDlgt finishDlgt;
+        SetTemplateControl(dt.LoadContent(out finishDlgt) as FrameworkElement);
+        finishDlgt.Invoke();
         return;
       }
       object templateControl;
@@ -130,7 +132,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         FindAutomaticContentDataTemplate();
         return;
       }
-      SetTemplateControl(ContentTemplate.LoadContent() as FrameworkElement);
+      FinishBindingsDlgt finishDlgt;
+      SetTemplateControl(ContentTemplate.LoadContent(out finishDlgt) as FrameworkElement);
+      finishDlgt.Invoke();
     }
 
     public FrameworkElement TemplateControl

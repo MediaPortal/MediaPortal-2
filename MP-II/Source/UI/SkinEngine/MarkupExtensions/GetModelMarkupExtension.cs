@@ -34,7 +34,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Protected fields
 
-    protected string _id;
+    protected string _id = null;
+    protected object _model = null;
 
     #endregion
 
@@ -57,14 +58,20 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
       if (Id == null)
         throw new XamlBindingException("GetModelMarkupExtension: Property Id has to be given");
       IModelLoader loader = context.GetContextVariable(typeof(IModelLoader)) as IModelLoader;
       if (loader == null)
         throw new XamlBindingException("GetModelMarkupExtension: No model loader instance present in parser context");
-      return loader.GetOrLoadModel(new Guid(Id));
+      _model = loader.GetOrLoadModel(new Guid(Id));
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = _model;
+      return _model != null;
     }
 
     #endregion

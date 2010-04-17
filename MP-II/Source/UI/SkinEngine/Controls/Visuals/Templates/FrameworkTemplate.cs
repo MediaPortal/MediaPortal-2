@@ -31,13 +31,15 @@ using MediaPortal.UI.SkinEngine.MpfElements;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
+  public delegate void FinishBindingsDlgt();
+
   /// <summary>
   /// Defines a container for UI elements which are used as template controls
   /// for all types of UI-templates. Special template types
   /// like <see cref="ControlTemplate"/> or <see cref="DataTemplate"/> are derived
   /// from this class. This class basically has no other job than holding those
   /// UI elements and cloning them when the template should be applied
-  /// (method <see cref="LoadContent()"/>).
+  /// (method <see cref="LoadContent(out FinishBindingsDlgt)"/>).
   /// </summary>
   /// <remarks>
   /// Templated controls such as <see cref="Button">Buttons</see> or
@@ -92,8 +94,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     #region Public methods
 
-    public UIElement LoadContent()
+    public UIElement LoadContent(out FinishBindingsDlgt finishBindings)
     {
+      finishBindings = () => { };
       if (_templateElement == null)
         return null;
       MpfCopyManager cm = new MpfCopyManager();
@@ -101,8 +104,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       UIElement result = cm.GetCopy(_templateElement);
       INameScope ns = new NameScope();
       foreach (KeyValuePair<string, object> nameRegistration in _names)
-        ns.RegisterName(cm.GetCopy(nameRegistration.Key), cm.GetCopy(nameRegistration.Value));
+        ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
       cm.FinishCopy();
+      IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
+      finishBindings = () =>
+        {
+          MpfCopyManager.ActivateBindings(deferredBindings);
+        };
       result.TemplateNameScope = ns;
       return result;
     }

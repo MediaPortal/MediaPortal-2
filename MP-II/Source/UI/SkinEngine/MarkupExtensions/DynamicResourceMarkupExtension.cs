@@ -272,10 +272,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         assignValue = value;
       else if (AssignmentMode == AssignmentMode.Copy)
       {
-        assignValue = MpfCopyManager.DeepCopyCutLP(value);
+        IEnumerable<IBinding> deferredBindings;
+        assignValue = MpfCopyManager.DeepCopyCutLP(value, out deferredBindings);
         if (assignValue is DependencyObject && _targetDataDescriptor.TargetObject is DependencyObject)
-          ((DependencyObject) assignValue).LogicalParent =
-              (DependencyObject) _targetDataDescriptor.TargetObject;
+          ((DependencyObject) assignValue).LogicalParent = (DependencyObject) _targetDataDescriptor.TargetObject;
+        MpfCopyManager.ActivateBindings(deferredBindings);
       }
       else
         throw new XamlBindingException("AssignmentMode value {0} is not implemented", AssignmentMode);

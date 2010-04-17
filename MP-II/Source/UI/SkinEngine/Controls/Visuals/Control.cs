@@ -104,8 +104,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         Resources.Merge(Template.Resources);
         foreach (TriggerBase t in Template.Triggers)
           Triggers.Add(t);
-        ///@optimize:
-        TemplateControl = Template.LoadContent() as FrameworkElement;
+        FinishBindingsDlgt finishDlgt;
+        TemplateControl = Template.LoadContent(out finishDlgt) as FrameworkElement;
+        finishDlgt.Invoke();
       }
       else
         TemplateControl = null;

@@ -54,8 +54,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// </para>
   /// <para>
   /// <b>Parsing operation</b><br/>
-  /// The parsing operation starts when the method <see cref="Parser.Parse()"/>
-  /// or <see cref="Parser.Parse()"/>
+  /// The parsing operation starts when the method <see cref="Parser.Parse(bool)"/>
+  /// or <see cref="Parser.Parse(bool)"/>
   /// is called.
   /// The parser will first read the XAML file with an XML reader. This will
   /// result in checking the conformance of the file to the XML language specification.
@@ -66,7 +66,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
   /// namespaces, all named elements created yet, and the current object which
   /// is built up, together with the context information of all parent elements
   /// up to the top of the tree. After the parsing process has finished,
-  /// the <see cref="Parser.Parse()"/> method returns the root element
+  /// the <see cref="Parser.Parse(bool)"/> method returns the root element
   /// of the created element tree.
   /// </para>
   /// <para>
@@ -175,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     protected XmlDocument _xmlDocument;
 
     /// <summary>
-    /// Holds the root object which will be build up by the <see cref="Parse()"/>
+    /// Holds the root object which will be build up by the <see cref="Parse(bool)"/>
     /// method.
     /// </summary>
     protected object _rootObject;
@@ -193,6 +193,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// </summary>
     protected IDictionary<object ,object> _contextVariables = new Dictionary<object, object>();
 
+    protected ICollection<EvaluatableMarkupExtensionActivator> _deferredMarkupExtensionActivations = new List<EvaluatableMarkupExtensionActivator>();
+    protected ICollection<IBinding> _deferredBindings = new List<IBinding>();
+
     #endregion
 
     #region Constructor
@@ -203,7 +206,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <remarks>
     /// The parsing operation will not start immediately, you'll first have to
     /// register all necessary namespace handlers. To start the parsing operation, call
-    /// method <see cref="Parse()"/>.
+    /// method <see cref="Parse(bool)"/>.
     /// </remarks>
     /// <param name="reader">The reader the parser will take its input to parse.</param>
     /// <param name="importNamespace">Delegate to be called when importing
@@ -233,7 +236,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Returns the root object which was instantiated for the root XAML element
     /// in the XML tree. This property returns a value different from <c>null</c>,
-    /// when the <see cref="Parse()"/> method has finished.
+    /// when the <see cref="Parse(bool)"/> method has finished.
     /// </summary>
     public object RootObject
     {
@@ -255,8 +258,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <summary>
     /// Parses the XAML file associated with this parser.
     /// </summary>
+    /// <param name="activateBindings">If set to <c>true</c>, bindings will be activated, else they will be left
+    /// unactivated.</param>
     /// <returns>The visual corresponding to the root XAML element.</returns>
-    public object Parse()
+    public object Parse(bool activateBindings)
     {
       if (_rootObject != null)
         throw new XamlParserException("XAML Parser: Parse() method was invoked multiple times");
@@ -264,6 +269,11 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       _rootObject = UnwrapIncludes(Instantiate(_xmlDocument.DocumentElement, out key));
       if (key != null)
         throw new XamlParserException("A 'x:Key' attribute is not allowed at the XAML root element");
+      foreach (EvaluatableMarkupExtensionActivator activator in _deferredMarkupExtensionActivations)
+        activator.Activate();
+      if (activateBindings)
+        foreach (IBinding binding in _deferredBindings)
+          binding.Activate();
       return _rootObject;
     }
 
@@ -333,10 +343,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         }
 
         // Step 2: Instantiate the element
-        elementContext.Instance =
-            GetNamespaceHandler(currentElement.NamespaceURI).
-                InstantiateElement(this, currentElement.LocalName,
-                    currentElement.NamespaceURI, new List<object>());
+        elementContext.Instance = GetNamespaceHandler(currentElement.NamespaceURI).
+            InstantiateElement(this, currentElement.LocalName, currentElement.NamespaceURI, new List<object>());
 
         // Step 3: Name registration and check for x:Key (to be done before child objects are built)
         foreach (XmlAttribute attr in remainingAttributes)
@@ -377,7 +385,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
         // Step 6: Handle child elements
         if (elementContext.Instance is INativeXamlObject)
         { // Implementors of INativeXamlObject will handle their XAML child elements theirselves
-          ((INativeXamlObject)elementContext.Instance).HandleChildren(this, currentElement);
+          ((INativeXamlObject) elementContext.Instance).HandleChildren(this, currentElement);
         }
         else
         { // Content member value/Children handled by this XAML parser
@@ -597,76 +605,81 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     {
       if (node is XmlAttribute) // Member attribute
         return ParseValue(node.Value);
-      else if (node is XmlElement) // Explicit or implicit (Content) member element
-      {
-        // Return value's type will vary depending on parameter 'needDict'
-        IList<object> resultList = new List<object>();
-        IDictionary<object, object> resultDict = new Dictionary<object, object>();
+      if (!(node is XmlElement))
+        return null;
+      
+      // Handle explicit or implicit (Content) member element
+      // Return value's type will be either a dict or a list, depending on contents
+      IList<object> resultList = new List<object>();
+      IDictionary<object, object> resultDict = new Dictionary<object, object>();
 
-        foreach (XmlNode childNode in node.ChildNodes)
+      foreach (XmlNode childNode in node.ChildNodes)
+      {
+        if (childNode is XmlElement)
         {
-          if (childNode is XmlElement)
+          if (childNode.LocalName.IndexOf('.') != -1) // "." is used as indicator that we have a member declaration
+            // Ignore member assignments here - we focus on our real children
+            continue;
+          object key;
+          object value = Instantiate((XmlElement) childNode, out key);
+          IEvaluableMarkupExtension evaluableMarkupExtension = value as IEvaluableMarkupExtension;
+          // Handle the case if a markup extension was instantiated as a child
+          if (evaluableMarkupExtension != null)
           {
-            if (childNode.LocalName.IndexOf('.') != -1) // "." is used as indicator that we have a member declaration
-            { // Ignore member assignments here - we focus on our real children
-              continue;
-            }
-            else
-            {
-              object key;
-              object value = Instantiate((XmlElement) childNode, out key);
-              // Handle the case if a markup extension was instantiated as a child
-              if (value is IEvaluableMarkupExtension)
-                value = ((IEvaluableMarkupExtension) value).Evaluate(this);
-              else if (value is IInclude)
-                value = ((IInclude) value).Content;
-              if (key == null)
-                resultList.Add(value);
-              else
-                try
-                {
-                  resultDict.Add(key, value);
-                }
-                catch (ArgumentException e)
-                {
-                  throw new XamlParserException("Duplicate key '{0}'", e, key);
-                }
-              // If a key was provided, register the new element in the current context.
-              // This is necessary if the new element should be accessed before all children
-              // here created are added to their target collection.
-              if (key != null)
-                _elementContextStack.CurrentElementContext.AddKeyedElement(key, value);
-            }
+            evaluableMarkupExtension.Initialize(this);
+            if (!evaluableMarkupExtension.Evaluate(out value))
+              throw new XamlParserException("Could not evaluate markup extension '{0}'", evaluableMarkupExtension);
           }
-          else if (childNode is XmlText || childNode is XmlCDataSection) // Ignore other XmlCharacterData nodes
-          {
-            resultList.Add(((XmlCharacterData) childNode).Data);
-          }
-        }
-        if (resultList.Count > 0 && resultDict.Count > 0)
-        { // Try to add implicit keys for resources which don't have one
-          foreach (object o in resultList)
-          {
+          IInclude include = value as IInclude;
+          if (include != null)
+            value = include.Content;
+          if (key == null)
+            resultList.Add(value);
+          else
             try
             {
-              resultDict.Add(GetImplicitKey(o), o);
+              resultDict.Add(key, value);
             }
-            catch
+            catch (ArgumentException e)
             {
-              throw new XamlBindingException("Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute", node.Name);
+              throw new XamlParserException("Duplicate key '{0}'", e, key);
             }
-          }
-          resultList.Clear();
+          // If a key was provided, register the new element in the current context.
+          // This is necessary if the new element should be accessed before all children
+          // here created are added to their target collection.
+          if (key != null)
+            _elementContextStack.CurrentElementContext.AddKeyedElement(key, value);
         }
-
-        if (resultDict.Count > 0)
-          return resultDict;
-        else
-          return resultList.Count == 0 ? null : (
-            resultList.Count == 1 ? resultList[0] : resultList);
+        else if (childNode is XmlText || childNode is XmlCDataSection) // Ignore other XmlCharacterData nodes
+          resultList.Add(((XmlCharacterData) childNode).Data);
       }
+      if (resultList.Count > 0 && resultDict.Count > 0)
+      {
+        // Try to add implicit keys for resources which don't have one
+        foreach (object o in resultList)
+        {
+          object key = GetImplicitKey(o);
+          try
+          {
+            resultDict.Add(key, o);
+          }
+          catch
+          {
+            throw new XamlBindingException(
+                "Xaml parser parsing Element '{0}': Child elements containing x:Key attributes cannot be mixed with child elements without x:Key attribute",
+                node.Name);
+          }
+        }
+        resultList.Clear();
+      }
+
+      if (resultDict.Count > 0)
+        return resultDict;
       else
-        return null;
+        return resultList.Count == 0
+            ? null
+            : (
+                resultList.Count == 1 ? resultList[0] : resultList);
     }
 
     protected object ParseValue(string str)
@@ -674,86 +687,96 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       str = str.Trim();
       if (str.StartsWith("{}")) // {} = escape sequence
         return str.Substring(2);
-      else if (str.StartsWith("{"))
-      { // Object instantiation in attribute value syntax
-        if (!str.EndsWith("}"))
-          throw new XamlParserException("Object instantiation expression '{0}' must be terminated by a '}}' character", str);
-        string expr = str.Substring(1, str.Length - 2).Trim(); // Extract the expression
-        ElementContextInfo elementContext = _elementContextStack.PushElementContext(expr);
-        try
+      if (!str.StartsWith("{"))
+        // Normal value, no markup extension
+        return str;
+
+      // Object/markup extension instantiation in attribute value syntax
+      if (!str.EndsWith("}"))
+        throw new XamlParserException("Object instantiation expression '{0}' must be terminated by a '}}' character", str);
+      string expr = str.Substring(1, str.Length - 2).Trim(); // Extract the expression
+      ElementContextInfo elementContext = _elementContextStack.PushElementContext(expr);
+      try
+      {
+        // Step 1: Process namespace declarations (doesn't apply here)
+        string extensionName;
+        IList<KeyValuePair<string, string>> parameters;
+        bool namedParams;
+        AttributeValueInstantiationParser.ParseInstantiationExpression(
+            expr, out extensionName, out parameters, out namedParams);
+        string namespaceURI;
+        LookupNamespace(extensionName, out extensionName, out namespaceURI);
+        if (namedParams)
         {
-          // Step 1: Process namespace declarations (doesn't apply here)
-          string extensionName;
-          IList<KeyValuePair<string, string>> parameters;
-          bool namedParams;
-          AttributeValueInstantiationParser.ParseInstantiationExpression(
-              expr, out extensionName, out parameters, out namedParams);
-          string namespaceURI;
-          LookupNamespace(extensionName, out extensionName, out namespaceURI);
-          if (namedParams)
-          { // Parameters given in a Name=Value syntax
-            // Step 2: Instantiate the element
-            elementContext.Instance = GetNamespaceHandler(namespaceURI).
-                InstantiateElement(this, extensionName, namespaceURI,
-                                   new List<object>()); // Invoke default constructor
+          // Parameters given in a Name=Value syntax
+          // Step 2: Instantiate the element
+          elementContext.Instance = GetNamespaceHandler(namespaceURI).
+              InstantiateElement(
+              this, extensionName, namespaceURI,
+              new List<object>()); // Invoke default constructor
 
-            // Step 4: Members and events in attribute syntax
+          // Step 4: Members and events in attribute syntax
 
-            // We only process the given parameters and assign their values to the
-            // target members. Property value inheritance, for example the
-            // inheritance of a "Context" member for bindings, has to be
-            // implemented on the visual's element class hierarchy.
-            foreach (KeyValuePair<string, string> parameter in parameters) // Assign value to each specified member
+          // We only process the given parameters and assign their values to the
+          // target members. Property value inheritance, for example the
+          // inheritance of a "Context" member for bindings, has to be
+          // implemented on the visual's element class hierarchy.
+          foreach (KeyValuePair<string, string> parameter in parameters) // Assign value to each specified member
+          {
+            string memberName = parameter.Key;
+            IDataDescriptor dd;
+            if (ReflectionHelper.FindMemberDescriptor(elementContext.Instance, memberName, out dd))
             {
-              string memberName = parameter.Key;
-              IDataDescriptor dd;
-              if (ReflectionHelper.FindMemberDescriptor(elementContext.Instance, memberName, out dd))
+              object paramVal = ParseValue(parameter.Value);
+              HandleMemberAssignment(dd, paramVal);
+              // Step 4: Name registration
+              if (memberName == "Name")
               {
-                object paramVal = ParseValue(parameter.Value);
-                HandleMemberAssignment(dd, paramVal);
-                // Step 4: Name registration
-                if (memberName == "Name")
-                {
-                  string value = Convert(paramVal, typeof(string)) as string;
-                  RegisterName(value, elementContext.Instance);
-                }
+                string value = Convert(paramVal, typeof(string)) as string;
+                RegisterName(value, elementContext.Instance);
               }
-              else
-                throw new XamlBindingException("XAML parser: Member '{0}' was not found on element type '{1}'",
-                                               memberName, elementContext.Instance.GetType().Name);
             }
+            else
+              throw new XamlBindingException(
+                  "XAML parser: Member '{0}' was not found on element type '{1}'",
+                  memberName, elementContext.Instance.GetType().Name);
           }
-          else
-          { // Parameters given as constructor parameters
-            // Step 2: Instantiate the element
-            IList<object> flatParams = new List<object>();
-            foreach (string param in AttributeValueInstantiationParser.ExtractParameterValues(parameters))
-            {
-              object value = ParseValue(param);
-              if (value is IEvaluableMarkupExtension)
-                value = ((IEvaluableMarkupExtension) value).Evaluate(this);
-              flatParams.Add(value);
-            }
-            elementContext.Instance = GetNamespaceHandler(namespaceURI).
-                InstantiateElement(this, extensionName, namespaceURI, flatParams);
-
-            // Step 4: Members and events in attribute syntax (doesn't apply here)
-          }
-          // Step 5: Member values in member element syntax (doesn't apply here)
-          // Step 6: Handle child elements (doesn't apply here)
-          // Step 7: Initialize
-          IInitializable initializable = elementContext.Instance as IInitializable;
-          if (initializable != null)
-            initializable.Initialize(this);
-
-          return elementContext.Instance;
         }
-        finally
+        else
         {
-          _elementContextStack.PopElementContext();
+          // Parameters given as constructor parameters
+          // Step 2: Instantiate the element
+          IList<object> flatParams = new List<object>();
+          foreach (string param in AttributeValueInstantiationParser.ExtractParameterValues(parameters))
+          {
+            object value = ParseValue(param);
+            IEvaluableMarkupExtension evaluableMarkupExtension = value as IEvaluableMarkupExtension;
+            if (evaluableMarkupExtension != null)
+            {
+              evaluableMarkupExtension.Initialize(this);
+              if (!evaluableMarkupExtension.Evaluate(out value))
+                throw new XamlParserException("Could not evaluate markup extension '{0}'", evaluableMarkupExtension);
+            }
+            flatParams.Add(value);
+          }
+          elementContext.Instance = GetNamespaceHandler(namespaceURI).
+              InstantiateElement(this, extensionName, namespaceURI, flatParams);
+
+          // Step 4: Members and events in attribute syntax (doesn't apply here)
         }
+        // Step 5: Member values in member element syntax (doesn't apply here)
+        // Step 6: Handle child elements (doesn't apply here)
+        // Step 7: Initialize
+        IInitializable initializable = elementContext.Instance as IInitializable;
+        if (initializable != null)
+          initializable.Initialize(this);
+
+        return elementContext.Instance;
       }
-      else return str;
+      finally
+      {
+        _elementContextStack.PopElementContext();
+      }
     }
 
     /// <summary>
@@ -837,10 +860,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <returns>Element found in the specified <paramref name="rootElement"/>.</returns>
     protected static object UnwrapIncludes(object rootElement)
     {
-      if (rootElement is IInclude)
-        return UnwrapIncludes(((IInclude) rootElement).Content);
-      else
-        return rootElement;
+      IInclude include = rootElement as IInclude;
+      return include == null ? rootElement : UnwrapIncludes(include.Content);
     }
 
     /// <summary>
@@ -854,10 +875,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// <see cref="IImplicitKey"/>.</exception>
     protected static object GetImplicitKey(object o)
     {
-      if (o is IImplicitKey)
-        return ((IImplicitKey) o).GetImplicitKey();
-      else
+      IImplicitKey implicitKey = o as IImplicitKey;
+      if (implicitKey == null)
         throw new XamlBindingException("Object '{0}' doesn't expose an implicit key", o);
+      return implicitKey.GetImplicitKey();
     }
 
     #endregion
@@ -891,19 +912,30 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public void HandleMemberAssignment(IDataDescriptor dd, object value)
     {
-      if (value is IBinding)
+      IBinding binding = value as IBinding;
+      if (binding != null)
       {
-        IBinding binding = (IBinding) value;
         binding.SetTargetDataDescriptor(dd);
-        binding.Activate();
+        _deferredBindings.Add(binding);
         return;
       }
-      else if (value is IEvaluableMarkupExtension)
+
+      IEvaluableMarkupExtension evaluableMarkupExtension = value as IEvaluableMarkupExtension;
+      if (evaluableMarkupExtension != null)
       {
-        IEvaluableMarkupExtension me = (IEvaluableMarkupExtension) value;
-        value = me.Evaluate(this);
+        evaluableMarkupExtension.Initialize(this);
+        if (!evaluableMarkupExtension.Evaluate(out value))
+        {
+          _deferredMarkupExtensionActivations.Add(new EvaluatableMarkupExtensionActivator(this, evaluableMarkupExtension, dd));
+          return;
+        }
       }
 
+      AssignValue(dd, value);
+    }
+
+    public void AssignValue(IDataDescriptor dd, object value)
+    {
       if (dd.SupportsWrite &&
           (value == null || dd.DataType.IsAssignableFrom(value.GetType())))
         dd.Value = value;
@@ -926,9 +958,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     public object GetContextVariable(object key)
     {
       object result;
-      if (!_contextVariables.TryGetValue(key, out result))
-        return null;
-      return result;
+      return _contextVariables.TryGetValue(key, out result) ? result : null;
     }
 
     #endregion

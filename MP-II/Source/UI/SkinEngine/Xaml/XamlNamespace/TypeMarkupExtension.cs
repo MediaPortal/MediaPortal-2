@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
@@ -32,6 +33,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
     #region Protected fields
 
     protected string _typeName = null;
+
+    protected Type _type = null;
 
     #endregion
 
@@ -53,9 +56,15 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      return ParserHelper.ParseType(context, _typeName);
+      _type =  ParserHelper.ParseType(context, _typeName);
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = _type;
+      return _type != null;
     }
 
     #endregion

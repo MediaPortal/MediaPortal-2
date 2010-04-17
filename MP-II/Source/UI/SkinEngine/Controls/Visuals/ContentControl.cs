@@ -104,11 +104,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected void InitializeContentPresenter()
     {
       ContentPresenter presenter = FindContentPresenter();
-      if (presenter != null)
-      {
-        presenter.Content = Content;
-        presenter.ContentTemplate = ContentTemplate;
-      }
+      if (presenter == null)
+        return;
+      presenter.Content = Content;
+      presenter.ContentTemplate = ContentTemplate;
     }
 
     #endregion

@@ -22,7 +22,8 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
@@ -37,7 +38,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   {
     #region Protected fields
 
-    protected string _resourceKey;
+    protected string _resourceKey = null;
+
+    protected object _resource = null;
 
     #endregion
 
@@ -60,15 +63,18 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      object result = FindResourceInTheme(_resourceKey);
-      if (result == null)
-        result = FindResourceInParserContext(_resourceKey, context);
+      _resource = FindResourceInTheme(_resourceKey) ?? FindResourceInParserContext(_resourceKey, context);
 
-      if (result == null)
-        throw new XamlBindingException("ThemeResourceMarkupExtension: Resource '{0}' not found", _resourceKey);
-      return result;
+      if (_resource == null)
+        ServiceScope.Get<ILogger>().Error("ThemeResourceMarkupExtension: Resource '{0}' not found", _resourceKey);
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = _resource;
+      return _resource != null;
     }
 
     #endregion

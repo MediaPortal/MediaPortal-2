@@ -64,8 +64,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #endregion
 
-    public ColorMarkupExtension() { }
-
     #region Properties
 
     /// <summary>
@@ -482,9 +480,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      return CalculateColor();
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = CalculateColor();
+      return true;
     }
 
     #endregion

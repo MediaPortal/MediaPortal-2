@@ -23,9 +23,11 @@
 #endregion
 
 using System.Collections;
+using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -161,7 +163,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             Screen = Screen
         };
 
-      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate);
+      // We need to copy the item data template for the child containers, because the
+      // data template contains specific data for each container. We need to "personalize" the
+      // data template copy by assigning its LogicalParent.
+      IEnumerable<IBinding> deferredBindings;
+      DataTemplate childItemTemplate = MpfCopyManager.DeepCopyCutLP(ItemTemplate, out deferredBindings);
       childItemTemplate.LogicalParent = container;
       container.ContentTemplate = childItemTemplate;
 
@@ -169,6 +175,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       container.ItemContainerStyle = ItemContainerStyle;
       container.ItemsPanel = ItemsPanel;
       container.ItemTemplate = ItemTemplate;
+      // Bindings need to be activated because our ContentTemplate will provide the children's items source
+      MpfCopyManager.ActivateBindings(deferredBindings);
       return container;
     }
   }

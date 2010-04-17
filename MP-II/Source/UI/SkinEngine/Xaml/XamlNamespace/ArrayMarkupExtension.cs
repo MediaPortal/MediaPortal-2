@@ -39,12 +39,6 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 
     #endregion
 
-    #region Constructor
-
-    public ArrayMarkupExtension() { }
-
-    #endregion
-
     #region Properties
 
     /// <summary>
@@ -90,9 +84,14 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
-      return _elements;
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = _elements;
+      return true;
     }
 
     #endregion

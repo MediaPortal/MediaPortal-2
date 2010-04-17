@@ -22,8 +22,6 @@
 
 #endregion
 
-using System.IO;
-
 namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
@@ -72,6 +70,16 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
     /// <param name="value">Value to set the member to. The value type will
     /// be converted to the member's type, if necessary.</param>
     void HandleMemberAssignment(IDataDescriptor dd, object value);
+
+    /// <summary>
+    /// Assigns the given <paramref name="value"/> to the given data descriptor <paramref name="dd"/>.
+    /// </summary>
+    /// <remarks>
+    /// This method does type conversions, if necessary.
+    /// </remarks>
+    /// <param name="dd">Target data descriptor to assigne the given <paramref name="value"/> or a converted value to.</param>
+    /// <param name="value">Value to assign.</param>
+    void AssignValue(IDataDescriptor dd, object value);
 
     /// <summary>
     /// Sets a context variable which is available for the lifetime of this parser contexts, or until

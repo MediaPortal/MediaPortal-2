@@ -38,6 +38,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
   public class ResourceDictionary: DependencyObject, IDictionary<object, object>, INameScope
   {
+    public const string KEY_ACTIVATE_BINDINGS = "ActivateBindings";
+
     #region Protected fields
 
     protected static readonly ICollection<object> EMPTY_OBJECT_COLLECTION = new List<object>(0).AsReadOnly();
@@ -197,7 +199,8 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
         if (includeFilePath == null)
           throw new XamlLoadException("Could not open include file '{0}'", includeFilePath);
         ResourceDictionary mergeDict = XamlLoader.Load(includeFilePath,
-            (IModelLoader) context.GetContextVariable(typeof(IModelLoader))) as ResourceDictionary;
+            (IModelLoader) context.GetContextVariable(typeof(IModelLoader)),
+            (bool) context.GetContextVariable(KEY_ACTIVATE_BINDINGS)) as ResourceDictionary;
         if (mergeDict == null)
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
         Merge(mergeDict);

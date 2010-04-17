@@ -53,6 +53,8 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
     /// </summary>
     protected string _staticMemberName = null;
 
+    protected object _value = null;
+
     #endregion
 
     #region Ctor
@@ -92,7 +94,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
 
     #region IEvaluableMarkupExtension implementation
 
-    object IEvaluableMarkupExtension.Evaluate(IParserContext context)
+    void IEvaluableMarkupExtension.Initialize(IParserContext context)
     {
       string localName;
       string namespaceURI;
@@ -103,13 +105,18 @@ namespace MediaPortal.UI.SkinEngine.Xaml.XamlNamespace
       {
         if (PathExpression.Compile(context, _staticMemberName).Evaluate(
             new ValueDataDescriptor(type), out result))
-          return result.Value;
+          _value = result.Value;
       }
       catch (XamlBindingException e)
       {
         ServiceScope.Get<ILogger>().Warn("Error evaluating Static markup", e);
       }
-      return null;
+    }
+
+    bool IEvaluableMarkupExtension.Evaluate(out object value)
+    {
+      value = _value;
+      return true;
     }
 
     #endregion

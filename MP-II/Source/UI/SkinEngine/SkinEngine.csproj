@@ -191,6 +191,7 @@
     <Compile Include="MpfElements\Resources\BindingWrapper.cs" />
     <Compile Include="MpfElements\Resources\LateBoundValue.cs" />
     <Compile Include="MpfElements\Resources\ValueWrapper.cs" />
+    <Compile Include="Xaml\EvaluatableMarkupExtensionActivator.cs" />
     <Compile Include="Xaml\PathExpression.cs" />
     <Compile Include="Xaml\ReflectionHelper.cs" />
     <Compile Include="Xaml\TypeConverter.cs" />

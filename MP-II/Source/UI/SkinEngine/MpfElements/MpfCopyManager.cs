@@ -24,6 +24,7 @@
 
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
@@ -62,6 +63,22 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       return false;
     }
 
+    public IEnumerable<IBinding> GetDeferredBindings()
+    {
+      foreach (object value in _identities.Values)
+      {
+        IBinding binding = value as IBinding;
+        if (binding != null)
+          yield return binding;
+      }
+    }
+
+    public static void ActivateBindings(IEnumerable<IBinding> deferredBindings)
+    {
+      foreach (IBinding binding in deferredBindings)
+        binding.Activate();
+    }
+
     /// <summary>
     /// Creates a deep copy of object <paramref name="o"/> and returns it.
     /// This method will create a new object graph starting at the given object.
@@ -72,14 +89,27 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// not go through the deep copy process. If one of the keys in this map
     /// is requested to be copied, the mapped value will be returned rather than
     /// trying to copy the key.</param>
+    /// <param name="deferredBindings">Enumeration of binding objects which have to be activated when all assignments
+    /// of the result are made. The later those bindings are bound, the fewer performance is lost for the bindings
+    /// failing to bind, when activated too early.</param>
     /// <returns>Deep copy of the specified object.</returns>
-    public static T DeepCopyWithIdentities<T>(T o, IDictionary<object, object> identities)
+    public static T DeepCopyWithIdentities<T>(T o, IDictionary<object, object> identities,
+        out IEnumerable<IBinding> deferredBindings)
     {
       MpfCopyManager cm = new MpfCopyManager();
       foreach (KeyValuePair<object, object> kvp in identities)
         cm.AddIdentity(kvp.Key, kvp.Value);
       T result = cm.GetCopy(o);
       cm.FinishCopy();
+      deferredBindings = cm.GetDeferredBindings();
+      return result;
+    }
+
+    public static T DeepCopyWithIdentities<T>(T o, IDictionary<object, object> identities)
+    {
+      IEnumerable<IBinding> deferredBindings;
+      T result = DeepCopyWithIdentities(o, identities, out deferredBindings);
+      ActivateBindings(deferredBindings);
       return result;
     }
 
@@ -91,19 +121,30 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling
-    /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an identity map containing
-    /// the specified <paramref name="fixedObject"/>.
+    /// <see cref="DeepCopyWithIdentities{T}(T,IDictionary{object,object},out IEnumerable{IBinding})"/>
+    /// with an identity map containing the specified <paramref name="fixedObject"/>.
     /// </remarks>
     /// <param name="o">Object to be copied. This object may implement the
     /// interface <see cref="IDeepCopyable"/>, or may not.</param>
     /// <param name="fixedObject">Object which should not be copied. This object
     /// will remain the same in the copy.</param>
+    /// <param name="deferredBindings">Enumeration of binding objects which have to be activated when all assignments
+    /// of the result are made. The later those bindings are bound, the fewer performance is lost for the bindings
+    /// failing to bind, when activated too early.</param>
     /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
+    public static T DeepCopyWithFixedObject<T>(T o, object fixedObject,
+        out IEnumerable<IBinding> deferredBindings)
+    {
+      Dictionary<object, object> identities = new Dictionary<object, object> {{fixedObject, fixedObject}};
+      return DeepCopyWithIdentities(o, identities, out deferredBindings);
+    }
+
     public static T DeepCopyWithFixedObject<T>(T o, object fixedObject)
     {
-      Dictionary<object, object> identities = new Dictionary<object, object>();
-      identities.Add(fixedObject, fixedObject);
-      return DeepCopyWithIdentities(o, identities);
+      IEnumerable<IBinding> deferredBindings;
+      T result = DeepCopyWithFixedObject(o, fixedObject, out deferredBindings);
+      ActivateBindings(deferredBindings);
+      return result;
     }
 
     /// <summary>
@@ -111,15 +152,27 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling
-    /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an empty identity map.
+    /// <see cref="DeepCopyWithIdentities{T}(T,IDictionary{object,object},out IEnumerable{IBinding})"/>
+    /// with an empty identity map.
     /// </remarks>
     /// <param name="o">Object to be copied. This object may implement the
     /// interface <see cref="IDeepCopyable"/>, or may not.</param>
+    /// <param name="deferredBindings">Enumeration of binding objects which have to be activated when all assignments
+    /// of the result are made. The later those bindings are bound, the fewer performance is lost for the bindings
+    /// failing to bind, when activated too early.</param>
     /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
-    public static new T DeepCopy<T>(T o)
+    public static T DeepCopy<T>(T o, out IEnumerable<IBinding> deferredBindings)
     {
       IDictionary<object, object> identities = new Dictionary<object, object>();
-      return DeepCopyWithIdentities(o, identities);
+      return DeepCopyWithIdentities(o, identities, out deferredBindings);
+    }
+
+    public static new T DeepCopy<T>(T o)
+    {
+      IEnumerable<IBinding> deferredBindings;
+      T result = DeepCopy(o, out deferredBindings);
+      ActivateBindings(deferredBindings);
+      return result;
     }
 
     /// <summary>
@@ -129,13 +182,16 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     /// <remarks>
     /// This method is a convenience method for calling
-    /// <see cref="MpfCopyManager.DeepCopyWithIdentities{T}"/> with an identity map only
-    /// containing the logical parent of <paramref name="o"/>, mapped to a <c>null</c> value,
+    /// <see cref="DeepCopyWithIdentities{T}(T,IDictionary{object,object},out IEnumerable{IBinding})"/>
+    /// with an identity map only containing the logical parent of <paramref name="o"/>, mapped to a <c>null</c> value,
     ///  if it is a <see cref="DependencyObject"/>.
     /// </remarks>
     /// <param name="o">Object to be copied.</param>
+    /// <param name="deferredBindings">Enumeration of binding objects which have to be activated when all assignments
+    /// of the result are made. The later those bindings are bound, the fewer performance is lost for the bindings
+    /// failing to bind, when activated too early.</param>
     /// <returns>Deep copy of the specified object <paramref name="o"/>.</returns>
-    public static T DeepCopyCutLP<T>(T o)
+    public static T DeepCopyCutLP<T>(T o, out IEnumerable<IBinding> deferredBindings)
     {
       IDictionary<object, object> identities = new Dictionary<object, object>();
       DependencyObject depObj = o as DependencyObject;
@@ -145,7 +201,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         if (lp != null)
           identities[lp] = null;
       }
-      return DeepCopyWithIdentities(o, identities);
+      return DeepCopyWithIdentities(o, identities, out deferredBindings);
+    }
+
+    public static T DeepCopyCutLP<T>(T o)
+    {
+      IEnumerable<IBinding> deferredBindings;
+      T result = DeepCopyCutLP(o, out deferredBindings);
+      ActivateBindings(deferredBindings);
+      return result;
     }
   }
 }

@@ -328,7 +328,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         return null;
       }
       ServiceScope.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
-      return XamlLoader.Load(skinFilePath, loader);
+      return XamlLoader.Load(skinFilePath, loader, true);
     }
 
     /// <summary>
@@ -347,7 +347,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         return null;
       }
       ServiceScope.Get<ILogger>().Debug("Loading background screen from file path '{0}'...", backgroundFilePath);
-      return XamlLoader.Load(backgroundFilePath, loader);
+      return XamlLoader.Load(backgroundFilePath, loader, true);
     }
 
     public void ClearRootDirectories()
@@ -476,7 +476,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         {
           logger.Info("SkinResources: Loading style resource '{0}' from file '{1}'", resourceKey, pr.ResourcePath);
           ResourceDictionary rd = XamlLoader.Load(pr.ResourcePath,
-              new StyleResourceModelLoader(this)) as ResourceDictionary;
+              new StyleResourceModelLoader(this), false) as ResourceDictionary;
           if (rd == null)
             throw new InvalidCastException("Style resource file '" + pr.ResourcePath +
                 "' doesn't contain a ResourceDictionary as root element");

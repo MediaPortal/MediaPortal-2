@@ -103,14 +103,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       else
         _targetDataDescriptor = null;
       AttachToTargetObject(copyManager.GetCopy(bb._contextObject));
-
-      if (bb.Active)
-        copyManager.CopyCompleted += OnCompleteBinding;
-    }
-
-    void OnCompleteBinding(ICopyManager copyManager)
-    {
-      Activate();
+      // Bindings have to be activated manually after copy procedure
     }
 
     #endregion
