@@ -178,7 +178,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="5" RadiusY="5" Width="18" Height="18" VerticalAlignment="Center">
+          <Rectangle x:Name="Shine" Stroke="{ThemeResource ButtonStrokeColor}" RadiusX="5" RadiusY="5" Width="18" Height="18">
             <Rectangle.Fill>
               <RadialGradientBrush GradientOrigin="0.85,0.82">
                 <RadialGradientBrush.RelativeTransform>
@@ -380,7 +380,8 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,7,10,7" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+            <ContentPresenter x:Name="RadioButtonContentPresenter" Grid.Column="0" Grid.Row="0" Margin="10,7,10,7"
+                HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
             <Control x:Name="GrowControl" Grid.Column="1" Grid.Row="0" Style="{ThemeResource RadioButtonControlStyle}"
                 VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
               <Control.RenderTransform>
@@ -451,7 +452,7 @@
               <Path x:Name="Check" Grid.Column="0" Grid.Row="0" Width="26" Height="26" Visibility="Hidden" Stretch="None"
                   Stroke="{ThemeResource ControlHandleColor}" StrokeThickness="2" Data="M8,13 L11,18 L18,6"/>
             </Grid>
-            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,7,10,7"/>
+            <ContentPresenter Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10,7,10,7"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="IsChecked" Value="True">
@@ -577,7 +578,6 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
@@ -623,7 +623,6 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
@@ -669,7 +668,6 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
@@ -715,7 +713,6 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Control Style="{ThemeResource ArrowButtonControlStyle}"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               RenderTransformOrigin="0.5,0.5">
             <Control.RenderTransform>
               <TransformGroup>
