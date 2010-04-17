@@ -117,7 +117,7 @@ namespace MediaPortal
 
             mediaAccessor.Initialize();
 
-            systemStateService.SwitchSystemState(SystemState.Started, true);
+            systemStateService.SwitchSystemState(SystemState.Running, true);
 
             Application.Run(new MainForm());
 
