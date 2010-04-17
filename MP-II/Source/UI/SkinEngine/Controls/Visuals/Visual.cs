@@ -75,7 +75,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// for bindings - as long as this system isn't reworked, we join those two concepts.
     /// We store the context in the <see cref="DependencyObject.DataContext"/>
     /// (See <see cref="BindingMarkupExtension"/>).
-    /// TODO: Rework the templating system - remove this property and create a logical tree
     /// </summary>
     /// <value>The context.</value>
     public object Context
@@ -91,8 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
         else if (DataContext == null)
         {
-          BindingMarkupExtension dc = new BindingMarkupExtension(this);
-          dc.Source = value; // Set the context value before setting the DataContext property
+          BindingMarkupExtension dc = new BindingMarkupExtension(this) {Source = value}; // Set the context value before setting the DataContext property
           DataContext = dc;
         }
         else
