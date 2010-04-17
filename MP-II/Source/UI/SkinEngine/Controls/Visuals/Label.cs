@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Label : Control
   {
-    #region Private fields
+    #region Private & protected fields
 
     protected AbstractProperty _contentProperty;
     protected AbstractProperty _colorProperty;
@@ -107,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Wrap = l.Wrap;
       MaxDesiredWidth = l.MaxDesiredWidth;
 
-      _resourceString = LocalizationHelper.CreateResourceString(Content);
+      InitializeResourceString();
       Attach();
     }
 
@@ -115,7 +115,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnContentChanged(AbstractProperty prop, object oldValue)
     {
-      _resourceString = Content == null ? null : LocalizationHelper.CreateResourceString(Content);
+      InitializeResourceString();
       Invalidate();
       InvalidateParent();
     }
@@ -141,6 +141,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _asset = null;
       if (Screen != null) 
         Screen.Invalidate(this);
+    }
+
+    protected void InitializeResourceString()
+    {
+      _resourceString = string.IsNullOrEmpty(Content) ? LocalizationHelper.CreateStaticString(string.Empty) :
+          LocalizationHelper.CreateResourceString(Content);
     }
 
     public AbstractProperty ContentProperty
@@ -271,7 +277,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
 
-      if (_resourceString == null || _asset == null)
+      if (_asset == null)
         return new SizeF();
       // Measure the text
       float height = _asset.Font.LineHeight(_fontSizeCache);
@@ -355,17 +361,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
       
-      if (_resourceString != null)
-      {
-        bool scroll = Scroll && !Wrap;
-        string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
+      bool scroll = Scroll && !Wrap;
+      string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
 
-        foreach (string line in lines)
-        {
-          float totalWidth;
-          _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-          rect.Y += lineHeight;
-        }
+      foreach (string line in lines)
+      {
+        float totalWidth;
+        _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
+        rect.Y += lineHeight;
       }
 
       SkinContext.RemoveTransform();
@@ -422,17 +425,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
-      if (_resourceString != null)
-      {
-        bool scroll = Scroll && !Wrap;
-        string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
+      bool scroll = Scroll && !Wrap;
+      string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
 
-        foreach (string line in lines)
-        {
-          float totalWidth;
-          _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-          rect.Y += lineHeight;
-        }
+      foreach (string line in lines)
+      {
+        float totalWidth;
+        _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
+        rect.Y += lineHeight;
       }
       SkinContext.RemoveTransform();
     }
