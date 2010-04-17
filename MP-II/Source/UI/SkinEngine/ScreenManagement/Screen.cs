@@ -448,16 +448,20 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// This will be called from the <see cref="FrameworkElement"/> class.
     /// </summary>
     /// <param name="focusedElement">The element which gained focus.</param>
-    public void FrameworkElementGotFocus(FrameworkElement focusedElement)
+    /// <returns><c>true</c>, if the focus could be set. This is the case when the given <paramref name="focusedElement"/>
+    /// has already valid <see cref="FrameworkElement.ActualBounds"/>. Else, <c>false</c>; in that case, this method
+    /// should be called again after the element arranged its layout.</returns>
+    public bool FrameworkElementGotFocus(FrameworkElement focusedElement)
     {
       if (_focusedElement == focusedElement)
-        return;
+        return true;
       RemoveCurrentFocus();
       if (!HasExtends(focusedElement.ActualBounds))
-        return;
+        return false;
       _focusedElement = focusedElement;
       _lastFocusRect = focusedElement.ActualBounds;
       _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
+      return true;
     }
 
     /// <summary>
@@ -468,7 +472,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// of its bounds is <see cref="float.NaN"/>.</returns>
     private static bool HasExtends(RectangleF rect)
     {
-      return !float.IsNaN(rect.Top) && !float.IsNaN(rect.Bottom) && !float.IsNaN(rect.Left) && !float.IsNaN(rect.Right);
+      return !rect.IsEmpty && !float.IsNaN(rect.Top) && !float.IsNaN(rect.Bottom) && !float.IsNaN(rect.Left) && !float.IsNaN(rect.Right);
     }
 
     /// <summary>

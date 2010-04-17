@@ -94,25 +94,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public const string MOUSEENTER_EVENT = "FrameworkElement.MouseEnter";
     public const string MOUSELEAVE_EVENT = "FrameworkElement.MouseEnter";
 
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _widthProperty;
-    AbstractProperty _heightProperty;
+    protected AbstractProperty _widthProperty;
+    protected AbstractProperty _heightProperty;
 
-    AbstractProperty _actualWidthProperty;
-    AbstractProperty _actualHeightProperty;
-    AbstractProperty _horizontalAlignmentProperty;
-    AbstractProperty _verticalAlignmentProperty;
-    AbstractProperty _styleProperty;
-    AbstractProperty _focusableProperty;
-    AbstractProperty _hasFocusProperty;
-    AbstractProperty _isMouseOverProperty;
-    bool _updateOpacityMask;
-    VisualAssetContext _opacityMaskContext;
-    AbstractProperty _fontSizeProperty;
-    AbstractProperty _fontFamilyProperty;
+    protected AbstractProperty _actualWidthProperty;
+    protected AbstractProperty _actualHeightProperty;
+    protected AbstractProperty _horizontalAlignmentProperty;
+    protected AbstractProperty _verticalAlignmentProperty;
+    protected AbstractProperty _styleProperty;
+    protected AbstractProperty _focusableProperty;
+    protected AbstractProperty _hasFocusProperty;
+    protected AbstractProperty _isMouseOverProperty;
+    protected VisualAssetContext _opacityMaskContext;
+    protected AbstractProperty _fontSizeProperty;
+    protected AbstractProperty _fontFamilyProperty;
 
-    AbstractProperty _contextMenuCommandProperty;
+    protected AbstractProperty _contextMenuCommandProperty;
+
+    protected bool _updateOpacityMask = false;
+    protected bool _updateFocus = false;
 
     #endregion
 
@@ -165,8 +167,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
       _fontSizeProperty.Attach(OnFontChanged);
-
-      _screenProperty.Attach(OnScreenChanged);
     }
 
     void Detach()
@@ -179,8 +179,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _hasFocusProperty.Detach(OnFocusPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
       _fontSizeProperty.Detach(OnFontChanged);
-
-      _screenProperty.Detach(OnScreenChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -199,24 +197,37 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FontSize = fe.FontSize;
       FontFamily = fe.FontFamily;
       Attach();
-      SetFocusAtScreen();
     }
 
     #endregion
 
-    protected void SetFocusAtScreen()
+    protected void UpdateFocus()
+    {
+      if (!_updateFocus)
+        return;
+      _updateFocus = false;
+      CheckFocus();
+    }
+
+    protected void CheckFocus()
     {
       Screen screen = Screen;
       if (screen == null)
+      {
+        _updateFocus = true;
         return;
+      }
       if (HasFocus)
-        screen.FrameworkElementGotFocus(this);
-    }
-
-    void OnScreenChanged(AbstractProperty property, object oldValue)
-    {
-      SetFocusAtScreen();
-      _screenProperty.Detach(OnScreenChanged); // The screen will only be assigned once
+      {
+        MakeVisible(this, ActualBounds);
+        if (!screen.FrameworkElementGotFocus(this))
+        {
+          _updateFocus = true;
+          return;
+        }
+      }
+      else
+        screen.FrameworkElementLostFocus(this);
     }
 
     protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
@@ -240,17 +251,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnFocusPropertyChanged(AbstractProperty property, object oldValue)
     {
-      if (HasFocus)
-      {
-        MakeVisible(this, ActualBounds);
-        if (Screen != null)
-          Screen.FrameworkElementGotFocus(this);
-      }
-      else
-      {
-        if (Screen != null)
-          Screen.FrameworkElementLostFocus(this);
-      }
+      CheckFocus();
     }
 
     /// <summary>
@@ -536,6 +537,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.ArrangeOverride(finalRect);
       ActualWidth = finalRect.Width;
       ActualHeight = finalRect.Height;
+      UpdateFocus();
     }
 
     protected virtual SizeF CalculateDesiredSize(SizeF totalSize)
@@ -563,7 +565,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // Width takes precedence over Stretch - Use Center as fallback
           if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
-              (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(Width)))
+              (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
           {
             location.X += (childSize.Width - desiredSize.Width)/2;
             childSize.Width = desiredSize.Width;
@@ -589,7 +591,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           // Height takes precedence over Stretch - Use Center as fallback
           if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
-              (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(Height)))
+              (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
           {
             location.Y += (childSize.Height - desiredSize.Height)/2;
             childSize.Height = desiredSize.Height;
@@ -627,7 +629,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         // Width takes precedence over Stretch - Use Center as fallback
         if (child.HorizontalAlignment == HorizontalAlignmentEnum.Center ||
-            (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(Width)))
+            (child.HorizontalAlignment == HorizontalAlignmentEnum.Stretch && !double.IsNaN(child.Width)))
         {
           location.X += (childSize.Width - desiredSize.Width) / 2;
           childSize.Width = desiredSize.Width;
@@ -664,7 +666,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         // Height takes precedence over Stretch - Use Center as fallback
         if (child.VerticalAlignment == VerticalAlignmentEnum.Center ||
-            (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(Height)))
+            (child.VerticalAlignment == VerticalAlignmentEnum.Stretch && !double.IsNaN(child.Height)))
         {
           location.Y += (childSize.Height - desiredSize.Height) / 2;
           childSize.Height = desiredSize.Height;
