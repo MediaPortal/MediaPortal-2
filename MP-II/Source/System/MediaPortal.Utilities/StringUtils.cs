@@ -191,5 +191,19 @@ namespace MediaPortal.Utilities
         result.Append(part);
       return result.ToString();
     }
+
+    /// <summary>
+    /// Escapes a string to be used in <see cref="string.Format(string,object[])"/> calls without params, i.e.
+    /// escapes all opening and closing curly braces, so that they are treated as normal characters and not as placeholders.
+    /// </summary>
+    /// <param name="str">String to be escaped.</param>
+    /// <returns>Escaped string.</returns>
+    public static string EscapeCurlyBraces(string str)
+    {
+      StringBuilder sb = new StringBuilder(str);
+      sb.Replace("{", "{{");
+      sb.Replace("}", "}}");
+      return sb.ToString();
+    }
   }
 }

@@ -61,10 +61,9 @@ namespace UiComponents.Media.Navigation
 
     public void UpdateData()
     {
-      if (string.IsNullOrEmpty(_overrideName))
-        SetLabel(KEY_NAME, _view.DisplayName);
-      else
-        SetLabel(KEY_NAME, _overrideName);
+      string name = string.IsNullOrEmpty(_overrideName) ? _view.DisplayName : _overrideName;
+      SetLabel(KEY_NAME, name);
+
       // TODO: Other properties
     }
 

@@ -54,7 +54,6 @@ namespace MediaPortal.Core.Localization
       {
         return _stringValue;
       }
-      
     }
 
     public int CompareTo(IResourceString other)
