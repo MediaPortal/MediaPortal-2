@@ -74,6 +74,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _maxDesiredWidthProperty = new SProperty(typeof(double), double.NaN);
 
       HorizontalAlignment = HorizontalAlignmentEnum.Left;
+      InitializeResourceString();
     }
 
     void Attach()
@@ -276,7 +277,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _fontSizeCache = GetFontSizeOrInherited();
       AllocFont();
-
       if (_asset == null)
         return new SizeF();
       // Measure the text
@@ -319,12 +319,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoBuildRenderTree()
     {
-      if (!IsVisible) 
-        return;
+      base.DoRender();
+
       if (_asset == null) 
         return;
-
-      base.DoRender();
 
       // The characters fit the textbox exactly, so to get some room between the top of the characters 
       // and the inner rectangle, move the text down (10% of font size) also reduce the font size to 90%
@@ -383,10 +381,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
+      base.DoRender();
+
       if (_asset == null)
         return;
-
-      base.DoRender();
 
       float lineHeight = _asset.Font.LineHeight(_fontSizeCache);
 
