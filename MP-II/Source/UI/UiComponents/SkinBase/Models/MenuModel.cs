@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Commands;
 using MediaPortal.Core.Localization;
 using MediaPortal.Core.Messaging;
+using MediaPortal.Core.Runtime;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -71,6 +72,8 @@ namespace UiComponents.SkinBase.Models
 
     void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
     {
+      if (!IsSystemActive())
+        return;
       if (message.ChannelName == WorkflowManagerMessaging.CHANNEL)
       {
         if (((WorkflowManagerMessaging.MessageType) message.MessageType) ==
@@ -92,6 +95,12 @@ namespace UiComponents.SkinBase.Models
     void OnMenuActionStateChanged(WorkflowAction action)
     {
       Invalidate();
+    }
+
+    protected bool IsSystemActive()
+    {
+      ISystemStateService sss = ServiceScope.Get<ISystemStateService>();
+      return sss.CurrentState == SystemState.Running;
     }
 
     // Avoids too many menu updates
