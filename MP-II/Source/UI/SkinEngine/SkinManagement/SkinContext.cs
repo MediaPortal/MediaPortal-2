@@ -48,8 +48,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static int _skinWidth = 0;
     private static int _skinHeight = 0;
     // FIXME Albert78: Those should be Stack, not List
-    private static List<ExtendedMatrix> _groupTransforms = new List<ExtendedMatrix>();
-    private static List<ExtendedMatrix> _layoutTransforms = new List<ExtendedMatrix>();
+    private static List<ExtendedMatrix> _combinedRenderTransforms = new List<ExtendedMatrix>();
+    private static List<ExtendedMatrix> _combinedLayoutTransforms = new List<ExtendedMatrix>();
     private static Stack<Rectangle> _scissorRects = new Stack<Rectangle>();
     private static Stack<double> _opacity = new Stack<double>();
     private static double _finalOpacity = 1.0;
@@ -221,7 +221,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Defines the maximum zoom in the X direction. Setting a X zoom of <see cref="MaxZoomWidth"/>
+    /// Gets the maximum zoom in the X direction. Setting an X zoom of <see cref="MaxZoomWidth"/>
     /// given the current active skin will fill the skin contents to the complete X area.
     /// </summary>
     /// <remarks>
@@ -238,12 +238,12 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       set { _fps = value; }
     }
 
-    public static List<ExtendedMatrix> Transforms
+    public static List<ExtendedMatrix> CombinedRenderTransforms
     {
-      get { return _groupTransforms; }
+      get { return _combinedRenderTransforms; }
       set
       {
-        _groupTransforms = value;
+        _combinedRenderTransforms = value;
         UpdateFinalTransform();
       }
     }
@@ -252,22 +252,22 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// Adds the transform matrix to the current transform stack
     /// </summary>
     /// <param name="matrix">The matrix.</param>
-    public static void AddTransform(ExtendedMatrix matrix)
+    public static void AddRenderTransform(ExtendedMatrix matrix)
     {
-      if (_groupTransforms.Count > 0)
-        _groupTransforms.Add(matrix.Multiply(_groupTransforms[_groupTransforms.Count - 1]));
+      if (_combinedRenderTransforms.Count > 0)
+        _combinedRenderTransforms.Add(matrix.Multiply(_combinedRenderTransforms[_combinedRenderTransforms.Count - 1]));
       else
-        _groupTransforms.Add(matrix);
+        _combinedRenderTransforms.Add(matrix);
       UpdateFinalTransform();
     }
 
     /// <summary>
     /// Removes the top transform from the transform stack.
     /// </summary>
-    public static void RemoveTransform()
+    public static void RemoveRenderTransform()
     {
-      if (_groupTransforms.Count > 0)
-        _groupTransforms.RemoveAt(_groupTransforms.Count - 1);
+      if (_combinedRenderTransforms.Count > 0)
+        _combinedRenderTransforms.RemoveAt(_combinedRenderTransforms.Count - 1);
       UpdateFinalTransform();
     }
 
@@ -276,7 +276,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static void UpdateFinalTransform()
     {
-      _finalTransform = _groupTransforms.Count > 0 ? _groupTransforms[_groupTransforms.Count - 1] : new ExtendedMatrix();
+      _finalTransform = _combinedRenderTransforms.Count > 0 ? _combinedRenderTransforms[_combinedRenderTransforms.Count - 1] : new ExtendedMatrix();
     }
 
     /// <summary>
@@ -290,10 +290,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public static void AddLayoutTransform(ExtendedMatrix matrix)
     {
-      if (_layoutTransforms.Count > 0)
-        _layoutTransforms.Add(matrix.Multiply(_layoutTransforms[_layoutTransforms.Count - 1]));
+      if (_combinedLayoutTransforms.Count > 0)
+        _combinedLayoutTransforms.Add(matrix.Multiply(_combinedLayoutTransforms[_combinedLayoutTransforms.Count - 1]));
       else
-        _layoutTransforms.Add(matrix);
+        _combinedLayoutTransforms.Add(matrix);
       UpdateFinalLayoutTransform();
     }
 
@@ -302,8 +302,8 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static void RemoveLayoutTransform()
     {
-      if (_layoutTransforms.Count > 0)
-        _layoutTransforms.RemoveAt(_layoutTransforms.Count - 1);
+      if (_combinedLayoutTransforms.Count > 0)
+        _combinedLayoutTransforms.RemoveAt(_combinedLayoutTransforms.Count - 1);
       UpdateFinalLayoutTransform();
     }
 
@@ -312,7 +312,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </summary>
     public static void UpdateFinalLayoutTransform()
     {
-      _finalLayoutTransform = _layoutTransforms.Count > 0 ? _layoutTransforms[_layoutTransforms.Count - 1] : new ExtendedMatrix();
+      _finalLayoutTransform = _combinedLayoutTransforms.Count > 0 ? _combinedLayoutTransforms[_combinedLayoutTransforms.Count - 1] : new ExtendedMatrix();
     }
 
     /// <summary>

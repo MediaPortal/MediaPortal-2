@@ -93,8 +93,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
     {
       if (Visual == null) return false;
-      List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
-      SkinContext.Transforms = new List<ExtendedMatrix>();
+      List<ExtendedMatrix> originalTransforms = SkinContext.CombinedRenderTransforms;
+      SkinContext.CombinedRenderTransforms = new List<ExtendedMatrix>();
 
       GraphicsDevice.Device.EndScene();
 
@@ -139,7 +139,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           }
 
 
-          SkinContext.AddTransform(matrix);
+          SkinContext.AddRenderTransform(matrix);
 
           //change the rendertarget to the opacitytexture
           GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
@@ -149,7 +149,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           Visual.DoRender();
           GraphicsDevice.Device.EndScene();
-          SkinContext.RemoveTransform();
+          SkinContext.RemoveRenderTransform();
 
           //restore the backbuffer
           GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
@@ -157,12 +157,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         //Texture.ToFile(_textureOpacity, @"c:\1\test.png", ImageFileFormat.Png);
         //TextureLoader.Save(@"C:\erwin\trunk\MP 2\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
       }
-      SkinContext.Transforms = originalTransforms;
+      SkinContext.CombinedRenderTransforms = originalTransforms;
       if (Transform != null)
       {
         ExtendedMatrix mTrans;
         Transform.GetTransform(out mTrans);
-        SkinContext.AddTransform(mTrans);
+        SkinContext.AddRenderTransform(mTrans);
       }
       //now render the opacitytexture with the opacitymask brush
       GraphicsDevice.Device.BeginScene();
@@ -178,7 +178,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         _effect.EndRender();
         if (Transform != null)
-          SkinContext.RemoveTransform();
+          SkinContext.RemoveRenderTransform();
       }
     }
   }

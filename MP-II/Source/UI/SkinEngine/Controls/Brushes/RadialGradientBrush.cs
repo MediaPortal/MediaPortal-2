@@ -228,7 +228,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         ExtendedMatrix mTrans;
         Transform.GetTransform(out mTrans);
-        SkinContext.AddTransform(mTrans);
+        SkinContext.AddRenderTransform(mTrans);
       }
       if (_brushTexture == null) return false;
       if (_refresh)
@@ -311,7 +311,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             m.Matrix *= Matrix.Translation(new Vector3(-(_position.X + 1), -(_position.Y + 1), 0));
             m.Matrix *= Matrix.Scaling((GraphicsDevice.Width * cx) / w, (GraphicsDevice.Height * cy) / h, 1.0f);
 
-            SkinContext.AddTransform(m);
+            SkinContext.AddRenderTransform(m);
 
             GraphicsDevice.Device.EndScene();
 
@@ -354,7 +354,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
                 _effect.EndRender();
 
                 GraphicsDevice.Device.EndScene();
-                SkinContext.RemoveTransform();
+                SkinContext.RemoveRenderTransform();
 
                 //restore the backbuffer
                 GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
@@ -394,7 +394,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         ExtendedMatrix mTrans;
         Transform.GetTransform(out mTrans);
-        SkinContext.AddTransform(mTrans);
+        SkinContext.AddRenderTransform(mTrans);
       }
       if (tex == null)
         return;
@@ -460,7 +460,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_effect != null)
         _effect.EndRender();
       if (Transform != null)
-        SkinContext.RemoveTransform();
+        SkinContext.RemoveRenderTransform();
     }
 
     #endregion

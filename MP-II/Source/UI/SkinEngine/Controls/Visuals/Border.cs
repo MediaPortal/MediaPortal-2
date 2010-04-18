@@ -486,7 +486,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SkinContext.AddOpacity(Opacity);
         //ExtendedMatrix m = new ExtendedMatrix();
         //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-        //SkinContext.AddTransform(m);
+        //SkinContext.AddRenderTransform(m);
         if (Background != null)
         {
           //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
@@ -511,7 +511,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
           _borderAsset.LastTimeUsed = SkinContext.Now;
         }
-        //SkinContext.RemoveTransform();
+        //SkinContext.RemoveRenderTransform();
         SkinContext.RemoveOpacity();
       }
 

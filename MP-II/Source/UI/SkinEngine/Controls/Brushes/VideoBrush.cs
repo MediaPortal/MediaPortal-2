@@ -182,7 +182,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         ExtendedMatrix mTrans;
         Transform.GetTransform(out mTrans);
-        SkinContext.AddTransform(mTrans);
+        SkinContext.AddRenderTransform(mTrans);
       }
 
       UpdateVertexBuffer(_renderPlayer, vertexBuffer);
@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _renderPlayer.EndRender(_effect);
       _renderPlayer = null;
       if (Transform != null)
-        SkinContext.RemoveTransform();
+        SkinContext.RemoveRenderTransform();
     }
   }
 }

@@ -886,8 +886,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.SkinWidth;
         float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
 
-        List<ExtendedMatrix> originalTransforms = SkinContext.Transforms;
-        SkinContext.Transforms = new List<ExtendedMatrix>();
+        List<ExtendedMatrix> originalTransforms = SkinContext.CombinedRenderTransforms;
+        SkinContext.CombinedRenderTransforms = new List<ExtendedMatrix>();
         ExtendedMatrix matrix = new ExtendedMatrix();
 
         // Apply the rendertransform
@@ -908,7 +908,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // instead of the skin width/height dimensions
         matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / bounds.Width, GraphicsDevice.Height / bounds.Height, 1);
 
-        SkinContext.AddTransform(matrix);
+        SkinContext.AddRenderTransform(matrix);
 
         GraphicsDevice.Device.EndScene();
 
@@ -946,14 +946,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
             DoRender();
             GraphicsDevice.Device.EndScene();
-            SkinContext.RemoveTransform();
+            SkinContext.RemoveRenderTransform();
 
             //restore the backbuffer
             GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
           }
         }
 
-        SkinContext.Transforms = originalTransforms;
+        SkinContext.CombinedRenderTransforms = originalTransforms;
         // Now render the opacitytexture with the opacitymask brush
         GraphicsDevice.Device.BeginScene();
         //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
@@ -977,13 +977,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           RenderTransform.GetTransform(out mNew);
           matrix.Matrix *= mNew;
           matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-          SkinContext.AddTransform(matrix);
+          SkinContext.AddRenderTransform(matrix);
         }
         // Render the control
         DoRender();
         // Remove the rendertransform
         if (RenderTransform != null)
-          SkinContext.RemoveTransform();
+          SkinContext.RemoveRenderTransform();
       }
     }
 
@@ -1009,13 +1009,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         RenderTransform.GetTransform(out mNew);
         matrix.Matrix *= mNew;
         matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-        SkinContext.AddTransform(matrix);
+        SkinContext.AddRenderTransform(matrix);
       }
       //render the control
       DoBuildRenderTree();
       //remove the rendertransform
       if (RenderTransform != null)
-        SkinContext.RemoveTransform();
+        SkinContext.RemoveRenderTransform();
       SkinContext.RemoveOpacity();
     }
 

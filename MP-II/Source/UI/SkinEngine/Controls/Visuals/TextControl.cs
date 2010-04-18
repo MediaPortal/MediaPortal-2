@@ -333,12 +333,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         };
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-      SkinContext.AddTransform(m);
+      SkinContext.AddRenderTransform(m);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
 
       _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache, color, false, out totalWidth);
-      SkinContext.RemoveTransform();
+      SkinContext.RemoveRenderTransform();
     }
 
     public override void DestroyRenderTree()
@@ -381,11 +381,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         };
       m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
       m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-      SkinContext.AddTransform(m);
+      SkinContext.AddRenderTransform(m);
       color.Alpha *= (float) SkinContext.Opacity;
       color.Alpha *= (float) Opacity;
       _asset.Draw(Text, rect, align, _fontSizeCache, color, false, out totalWidth);
-      SkinContext.RemoveTransform();
+      SkinContext.RemoveRenderTransform();
     }
 
     public override void Deallocate()

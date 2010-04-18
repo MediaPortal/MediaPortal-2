@@ -350,7 +350,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
             Matrix = Matrix.Translation(new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z))
         };
-      SkinContext.AddTransform(m);
+      SkinContext.AddRenderTransform(m);
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       float opacity = (float)SkinContext.Opacity;
       if (_image != null)
@@ -358,14 +358,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _image.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
         if (_image.Texture.IsAllocated)
         {
-          SkinContext.RemoveTransform();
+          SkinContext.RemoveRenderTransform();
           SkinContext.RemoveOpacity();
           return;
         }
       }
       if (_fallbackImage != null)
         _fallbackImage.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-      SkinContext.RemoveTransform();
+      SkinContext.RemoveRenderTransform();
       SkinContext.RemoveOpacity();
     }
 
