@@ -42,13 +42,13 @@ namespace MediaPortal.Core.Messaging
     /// <paramref name="channel"/>. The given <paramref name="receiver"/> will be referenced weakly by the message broker
     /// service, i.e. registering a message handler won't prevent the handler from being garbage collected.
     /// </summary>
-    void RegisterMessageQueue(string channel, IMessageReceiver receiver);
+    void RegisterMessageReceiver(string channel, IMessageReceiver receiver);
 
     /// <summary>
     /// Unregisters the specified message <paramref name="receiver"/> from receiving messages of the specified messages
     /// <paramref name="channel"/>.
     /// </summary>
-    void UnregisterMessageQueue(string channel, IMessageReceiver receiver);
+    void UnregisterMessageReceiver(string channel, IMessageReceiver receiver);
 
     /// <summary>
     /// Sends the specified message in the message channel of the specified <paramref name="channelName"/>.

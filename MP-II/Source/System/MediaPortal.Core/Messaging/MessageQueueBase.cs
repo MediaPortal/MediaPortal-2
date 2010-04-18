@@ -85,14 +85,14 @@ namespace MediaPortal.Core.Messaging
     protected void RegisterAtMessageChannel(string channelName)
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-      broker.RegisterMessageQueue(channelName, this);
+      broker.RegisterMessageReceiver(channelName, this);
     }
 
     protected void UnregisterFromMessageChannel(string channelName)
     {
       IMessageBroker broker = ServiceScope.Get<IMessageBroker>(false); // Unregistering might be done after the message broker service has gone
       if (broker != null)
-        broker.UnregisterMessageQueue(channelName, this);
+        broker.UnregisterMessageReceiver(channelName, this);
     }
 
     #endregion

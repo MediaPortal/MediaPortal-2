@@ -63,7 +63,7 @@ namespace MediaPortal.Core.Messaging
       public static void Create(AsynchronousMessageQueue owner)
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        broker.RegisterMessageQueue(SystemMessaging.CHANNEL, new ShutdownWatcher(owner));
+        broker.RegisterMessageReceiver(SystemMessaging.CHANNEL, new ShutdownWatcher(owner));
       }
 
       public void Receive(SystemMessage message)

@@ -102,7 +102,7 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
-    public void RegisterMessageQueue(string channel, IMessageReceiver receiver)
+    public void RegisterMessageReceiver(string channel, IMessageReceiver receiver)
     {
       lock (_syncObj)
       {
@@ -113,7 +113,7 @@ namespace MediaPortal.Core.Services.Messaging
       }
     }
 
-    public void UnregisterMessageQueue(string channel, IMessageReceiver receiver)
+    public void UnregisterMessageReceiver(string channel, IMessageReceiver receiver)
     {
       lock (_syncObj)
       {
