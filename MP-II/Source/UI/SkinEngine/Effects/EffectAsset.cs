@@ -179,7 +179,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
         if (!tex.IsAllocated)
           return;
       }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalRenderTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex.Texture);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
@@ -201,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
         GraphicsDevice.Device.SetTexture(0, tex);
         return;
       }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalRenderTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();
@@ -231,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
         GraphicsDevice.Device.SetTexture(stream, tex);
         return;
       }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalTransform.Matrix * GraphicsDevice.FinalTransform);
+      _effect.SetValue(_handleWorldProjection, SkinContext.FinalRenderTransform.Matrix * GraphicsDevice.FinalTransform);
       _effect.SetTexture(_handleTexture, tex);
       _effect.Technique = _handleTechnique;
       SetEffectParameters();

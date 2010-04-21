@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         return true;
       }
-      if (_previousMatrix != SkinContext.FinalTransform.Matrix)
+      if (_previousMatrix != SkinContext.FinalRenderTransform.Matrix)
       {
         return true;
       }
@@ -175,7 +175,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
             _characterIndex = 0;
-            _previousMatrix = SkinContext.FinalTransform.Matrix;
+            _previousMatrix = SkinContext.FinalRenderTransform.Matrix;
           }
 
           //need to scroll
@@ -229,7 +229,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _previousSize = size;
         _previousColor = color;
         //_previousGradientUsed = SkinContext.GradientInUse;
-        _previousMatrix = SkinContext.FinalTransform.Matrix;
+        _previousMatrix = SkinContext.FinalRenderTransform.Matrix;
 
         _font.AddString(text, textBox, 0.0f, alignment, size, color, true, false, out _textFits, out totalWidth);
         _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);

@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static Stack<Rectangle> _scissorRects = new Stack<Rectangle>();
     private static Stack<double> _opacity = new Stack<double>();
     private static double _finalOpacity = 1.0;
-    private static ExtendedMatrix _finalTransform = new ExtendedMatrix();
+    private static ExtendedMatrix _finalRenderTransform = new ExtendedMatrix();
     private static ExtendedMatrix _finalLayoutTransform = new ExtendedMatrix();
     private static Form _form;
     private static bool _isRendering = false;
@@ -244,7 +244,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       set
       {
         _combinedRenderTransforms = value;
-        UpdateFinalTransform();
+        UpdateFinalRenderTransform();
       }
     }
 
@@ -258,7 +258,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         _combinedRenderTransforms.Add(matrix.Multiply(_combinedRenderTransforms[_combinedRenderTransforms.Count - 1]));
       else
         _combinedRenderTransforms.Add(matrix);
-      UpdateFinalTransform();
+      UpdateFinalRenderTransform();
     }
 
     /// <summary>
@@ -268,24 +268,24 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     {
       if (_combinedRenderTransforms.Count > 0)
         _combinedRenderTransforms.RemoveAt(_combinedRenderTransforms.Count - 1);
-      UpdateFinalTransform();
+      UpdateFinalRenderTransform();
     }
 
     /// <summary>
     /// Sets the final transform.
     /// </summary>
-    public static void UpdateFinalTransform()
+    public static void UpdateFinalRenderTransform()
     {
-      _finalTransform = _combinedRenderTransforms.Count > 0 ? _combinedRenderTransforms[_combinedRenderTransforms.Count - 1] : new ExtendedMatrix();
+      _finalRenderTransform = _combinedRenderTransforms.Count > 0 ? _combinedRenderTransforms[_combinedRenderTransforms.Count - 1] : new ExtendedMatrix();
     }
 
     /// <summary>
-    /// Gets or sets the final matrix.
+    /// Gets or sets the final render transform matrix.
     /// </summary>
-    public static ExtendedMatrix FinalTransform
+    public static ExtendedMatrix FinalRenderTransform
     {
-      get { return _finalTransform; }
-      set { _finalTransform = value; }
+      get { return _finalRenderTransform; }
+      set { _finalRenderTransform = value; }
     }
 
     public static void AddLayoutTransform(ExtendedMatrix matrix)

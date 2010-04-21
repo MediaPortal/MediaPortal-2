@@ -409,8 +409,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       //float u2, v2;
       //u2 = v2 = 1;
       Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
-      Vector3 finalScale = new Vector3(SkinContext.FinalTransform.Matrix.M11, SkinContext.FinalTransform.Matrix.M22, SkinContext.FinalTransform.Matrix.M33);
-      Vector3 finalTranslation = new Vector3(SkinContext.FinalTransform.Matrix.M41, SkinContext.FinalTransform.Matrix.M42, SkinContext.FinalTransform.Matrix.M43);
+      Vector3 finalScale = new Vector3(SkinContext.FinalRenderTransform.Matrix.M11, SkinContext.FinalRenderTransform.Matrix.M22, SkinContext.FinalRenderTransform.Matrix.M33);
+      Vector3 finalTranslation = new Vector3(SkinContext.FinalRenderTransform.Matrix.M41, SkinContext.FinalRenderTransform.Matrix.M42, SkinContext.FinalRenderTransform.Matrix.M43);
 
       uvPos.X *= finalScale.X;
       uvPos.Y *= finalScale.Y;

@@ -267,7 +267,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       uint time = (uint) Environment.TickCount;
       SkinContext.TimePassed = time;
-      SkinContext.FinalTransform = new ExtendedMatrix();
+      SkinContext.FinalRenderTransform = new ExtendedMatrix();
 
       lock (_visual)
       {

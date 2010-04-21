@@ -304,7 +304,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
               h /= 2;
             }
             ExtendedMatrix m = new ExtendedMatrix();
-            m.Matrix *= SkinContext.FinalTransform.Matrix;
+            m.Matrix *= SkinContext.FinalRenderTransform.Matrix;
             //next put the control at position (0,0,0)
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
