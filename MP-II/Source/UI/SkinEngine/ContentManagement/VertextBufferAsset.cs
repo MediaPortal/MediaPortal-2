@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
