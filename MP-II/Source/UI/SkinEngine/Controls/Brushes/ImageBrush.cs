@@ -163,9 +163,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
       if (_tex == null)
-      {
         Allocate();
-      }
       _tex.Set(0);
       return true;
     }

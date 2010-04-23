@@ -52,7 +52,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void Load()
     {
- 
       if(_d3d == null)
         _d3d = new Direct3D();
     }
@@ -60,9 +59,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static void Unload()
     {
       if (_d3d != null)
-      {
         _d3d.Dispose();
-      }
       _d3d = null;
     }
   }
@@ -173,9 +170,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       try
       {
         if (!FindBestModes())
-        {
           System.Environment.Exit(0);
-        }
 
         /*
 
@@ -220,7 +215,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       // The app is ready to go
       //ready = true;
-
 
       return true;
     }
@@ -275,25 +269,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
-          {
             continue;
-          }
           if (doesRequireReference && deviceInfo.DevType != DeviceType.Reference)
-          {
             continue;
-          }
 
           foreach (DeviceCombo deviceCombo in deviceInfo.DeviceComboList)
           {
             bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
             if (!deviceCombo.IsWindowed)
-            {
               continue;
-            }
             if (deviceCombo.AdapterFormat != primaryDesktopDisplayMode.Format)
-            {
               continue;
-            }
 
             // If we haven't found a compatible DeviceCombo yet, or if this set
             // is better (because it's a HAL, and/or because formats match better),
@@ -306,10 +292,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
               bestDeviceInfo = deviceInfo;
               bestDeviceCombo = deviceCombo;
               if (deviceInfo.DevType == DeviceType.Hardware && adapterMatchesBackBuffer)
-              {
                 // This windowed device combo looks great -- take it
                 goto EndWindowedDeviceComboSearch;
-              }
               // Otherwise keep looking for a better windowed device combo
             }
           }
@@ -320,9 +304,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     EndWindowedDeviceComboSearch:
       if (bestDeviceCombo == null)
-      {
         return false;
-      }
 
       _graphicsSettings.WindowedAdapterInfo = bestAdapterInfo;
       _graphicsSettings.WindowedDeviceInfo = bestDeviceInfo;
@@ -332,9 +314,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.WindowedWidth = _ourRenderTarget.Width;
       _graphicsSettings.WindowedHeight = _ourRenderTarget.Height;
       if (_enumerationSettings.AppUsesDepthBuffer)
-      {
         _graphicsSettings.WindowedDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
-      }
       int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
       if (bestDeviceCombo.MultisampleTypeList.Count > 0)
         iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
@@ -376,31 +356,23 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       {
         GraphicsAdapterInfo adapterInfo = adapterInfoIterate;
 
-        /*if (GUIGraphicsContext._useScreenSelector)
-        {
-          adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
-        }*/
+        //if (GUIGraphicsContext._useScreenSelector)
+        //  adapterInfo = FindAdapterForScreen(GUI.Library.GUIGraphicsContext.currentScreen);
 
         adapterDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[adapterInfo.AdapterOrdinal].CurrentDisplayMode;
         foreach (GraphicsDeviceInfo deviceInfo in adapterInfo.DeviceInfoList)
         {
           if (doesRequireHardware && deviceInfo.DevType != DeviceType.Hardware)
-          {
             continue;
-          }
           if (doesRequireReference && deviceInfo.DevType != DeviceType.Reference)
-          {
             continue;
-          }
 
           foreach (DeviceCombo deviceCombo in deviceInfo.DeviceComboList)
           {
             bool adapterMatchesBackBuffer = (deviceCombo.BackBufferFormat == deviceCombo.AdapterFormat);
             bool adapterMatchesDesktop = (deviceCombo.AdapterFormat == adapterDesktopDisplayMode.Format);
             if (deviceCombo.IsWindowed)
-            {
               continue;
-            }
 
             // If we haven't found a compatible set yet, or if this set
             // is better (because it's a HAL, and/or because formats match better),
@@ -416,10 +388,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
               bestDeviceInfo = deviceInfo;
               bestDeviceCombo = deviceCombo;
               if (deviceInfo.DevType == DeviceType.Hardware && adapterMatchesDesktop && adapterMatchesBackBuffer)
-              {
                 // This fullscreen device combo looks great -- take it
                 goto EndFullscreenDeviceComboSearch;
-              }
               // Otherwise keep looking for a better fullscreen device combo
             }
           }
@@ -430,9 +400,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     EndFullscreenDeviceComboSearch:
       if (bestDeviceCombo == null)
-      {
         return false;
-      }
 
       // Need to find a display mode on the best adapter that uses pBestDeviceCombo->AdapterFormat
       // and is as close to bestAdapterDesktopDisplayMode's res as possible
@@ -441,9 +409,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       foreach (DisplayMode displayMode in bestAdapterInfo.DisplayModeList)
       {
         if (displayMode.Format != bestDeviceCombo.AdapterFormat)
-        {
           continue;
-        }
         if (NumberOfFullscreenDisplayModes == _graphicsSettings.FullscreenDisplayModes.Length)
           break;
         if (displayMode.Width == bestAdapterDesktopDisplayMode.Width &&
@@ -465,9 +431,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _graphicsSettings.IsWindowed = false;
 
       if (_enumerationSettings.AppUsesDepthBuffer)
-      {
         _graphicsSettings.FullscreenDepthStencilBufferFormat = (Format)bestDeviceCombo.DepthStencilFormatList[0];
-      }
       int iQuality = 0; //bestDeviceCombo.MultisampleTypeList.Count-1;
       if (bestDeviceCombo.MultisampleTypeList.Count > 0)
         iQuality = bestDeviceCombo.MultisampleTypeList.Count - 1;
@@ -512,32 +476,20 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       BuildPresentParamsFromSettings();
 
       if ((deviceInfo.Caps.PrimitiveMiscCaps & PrimitiveMiscCaps.NullReference) != 0)
-      {
         // Warn user about null ref device that can't render anything
         HandleSampleException(new NullReferenceDeviceException(), ApplicationMessage.None);
-      }
 
       CreateFlags createFlags;
       if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Software)
-      {
         createFlags = CreateFlags.SoftwareVertexProcessing;
-      }
       else if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Mixed)
-      {
         createFlags = CreateFlags.MixedVertexProcessing;
-      }
       else if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Hardware)
-      {
         createFlags = CreateFlags.HardwareVertexProcessing;
-      }
       else if (_graphicsSettings.VertexProcessingType == VertexProcessingType.PureHardware)
-      {
         createFlags = CreateFlags.HardwareVertexProcessing; // | CreateFlags.PureDevice;
-      }
       else
-      {
         throw new ApplicationException();
-      }
 
       // Make sure to allow multithreaded apps if we need them
       //presentParams.ForceNoMultiThreadedFlag = !isMultiThreaded;
@@ -588,57 +540,37 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         // Store device description
         if (deviceInfo.DevType == DeviceType.Reference)
-        {
           sb.Append("REF");
-        }
         else if (deviceInfo.DevType == DeviceType.Hardware)
-        {
           sb.Append("HAL");
-        }
         else if (deviceInfo.DevType == DeviceType.Software)
-        {
           sb.Append("SW");
-        }
 
         /*
         if ((behaviorFlags.HardwareVertexProcessing) &&
             (behaviorFlags.PureDevice))
         {
           if (deviceInfo.DevType == DeviceType.Hardware)
-          {
             sb.Append(" (pure hw vp)");
-          }
           else
-          {
             sb.Append(" (simulated pure hw vp)");
-          }
         }
         else if (behaviorFlags.HardwareVertexProcessing)
         {
           if (deviceInfo.DevType == DeviceType.Hardware)
-          {
             sb.Append(" (hw vp)");
-          }
           else
-          {
             sb.Append(" (simulated hw vp)");
-          }
         }
         else if (behaviorFlags.MixedVertexProcessing)
         {
           if (deviceInfo.DevType == DeviceType.Hardware)
-          {
             sb.Append(" (mixed vp)");
-          }
           else
-          {
             sb.Append(" (simulated mixed vp)");
-          }
         }
         else if (behaviorFlags.SoftwareVertexProcessing)
-        {
           sb.Append(" (sw vp)");
-        }
         */
         if (deviceInfo.DevType == DeviceType.Hardware)
         {
@@ -659,9 +591,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
         // Confine cursor to fullscreen window
         if (clipCursorWhenFullscreen && !windowed)
-        {
-          Rectangle rcWindow = this.ClientRectangle;
-        }*/
+          Rectangle rcWindow = this.ClientRectangle;*/
 
         // Setup the event handlers for our device
         //GraphicsDevice.Device.DeviceLost += new System.EventHandler(this.OnDeviceLost);
@@ -737,9 +667,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       // Build a message to display to the user
       string strMsg = "";
       if (e != null)
-      {
         strMsg = e.Message;
-      }
       //Log.Error("D3D: Exception: {0} {1} {2}", strMsg, strSource, strStack);
       if (ApplicationMessage.ApplicationMustExit == Type)
       {
@@ -753,9 +681,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       else
       {
         if (ApplicationMessage.WarnSwitchToRef == Type)
-        {
           strMsg = "\n\nSwitching to the reference rasterizer,\n";
-        }
 
         strMsg += "a software device that implements the entire\n";
         strMsg += "Direct3D feature set, but runs very slowly.";
@@ -869,7 +795,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         mediaFile = string.Empty;
       }
 
-
       /// <summary>
       /// Return information about the exception
       /// </summary>
@@ -917,7 +842,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         ForceMinimize = 11,
       }
 
-
       /// <summary>Window styles</summary>
       [Flags]
       public enum WindowStyles : uint
@@ -944,7 +868,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         MaximizeBox = 0x00010000,
       }
 
-
       /// <summary>Peek message flags</summary>
       public enum PeekMessageFlags : uint
       {
@@ -952,7 +875,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         Remove = 1,
         NoYield = 2,
       }
-
 
       /// <summary>Window messages</summary>
       public enum WindowMessage : uint
@@ -1003,7 +925,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         Size = 0x0005,
       }
 
-
       /// <summary>Mouse buttons</summary>
       public enum MouseButtons
       {
@@ -1013,7 +934,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         Side1 = 0x0020,
         Side2 = 0x0040,
       }
-
 
       /// <summary>Windows Message</summary>
       [StructLayout(LayoutKind.Sequential)]
@@ -1027,7 +947,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         public Point p;
       }
 
-
       /// <summary>MinMax Info structure</summary>
       [StructLayout(LayoutKind.Sequential)]
       public struct MinMaxInformation
@@ -1039,7 +958,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         public Point MaxTrackSize;
       }
 
-
       /// <summary>Monitor Info structure</summary>
       [StructLayout(LayoutKind.Sequential)]
       public struct MonitorInformation
@@ -1049,7 +967,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         public Rectangle WorkRectangle;
         public uint Flags; // Possible flags
       }
-
 
       /// <summary>Window class structure</summary>
       [StructLayout(LayoutKind.Sequential)]
@@ -1288,9 +1205,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.AutoDepthStencilFormat = Format.D24X8;
       }
       else
-      {
         _presentParams.EnableAutoDepthStencil = false;
-      }
 
       ServiceScope.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
         _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);

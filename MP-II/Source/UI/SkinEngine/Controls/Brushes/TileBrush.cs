@@ -31,16 +31,15 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-
   public enum TileMode
   {
-    //no tiling
+    // No tiling
     None,
-    //content is tiled
+    // Content is tiled
     Tile,
-    //content is tiled and flipped around x-axis
+    // Content is tiled and flipped around x-axis
     FlipX,
-    //content is tiled and flipped around y-axis
+    // Content is tiled and flipped around y-axis
     FlipY
   };
 
@@ -121,7 +120,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public AlignmentX AlignmentX
     {
-      get { return (AlignmentX)_alignmentXProperty.GetValue(); }
+      get { return (AlignmentX) _alignmentXProperty.GetValue(); }
       set { _alignmentXProperty.SetValue(value); }
     }
 
@@ -132,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public AlignmentY AlignmentY
     {
-      get { return (AlignmentY)_alignmentYProperty.GetValue(); }
+      get { return (AlignmentY) _alignmentYProperty.GetValue(); }
       set { _alignmentYProperty.SetValue(value); }
     }
 
@@ -143,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Stretch Stretch
     {
-      get { return (Stretch)_stretchProperty.GetValue(); }
+      get { return (Stretch) _stretchProperty.GetValue(); }
       set { _stretchProperty.SetValue(value); }
     }
 
@@ -154,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Vector4 ViewPort
     {
-      get { return (Vector4)_viewPortProperty.GetValue(); }
+      get { return (Vector4) _viewPortProperty.GetValue(); }
       set { _viewPortProperty.SetValue(value); }
     }
 
@@ -165,7 +164,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public TileMode Tile
     {
-      get { return (TileMode)_tileModeProperty.GetValue(); }
+      get { return (TileMode) _tileModeProperty.GetValue(); }
       set { _tileModeProperty.SetValue(value); }
     }
 
@@ -182,19 +181,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       switch (Stretch)
       {
         case Stretch.None:
-          //center, original size
+          // Center, original size
           break;
 
         case Stretch.Uniform:
-          //center, keep aspect ratio and show borders
+          // Center, keep aspect ratio and show borders
           break;
 
         case Stretch.UniformToFill:
-          //keep aspect ratio, zoom in to avoid borders
+          // Keep aspect ratio, zoom in to avoid borders
           break;
 
         case Stretch.Fill:
-          //stretch to fill
+          // Stretch to fill
           break;
       }
 

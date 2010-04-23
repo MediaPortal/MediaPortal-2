@@ -33,7 +33,8 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
-  public class RenderContext : IDisposable
+  // TODO: Make PrimitiveType configurable, add primitive type to grouping aspects
+  public class RenderGroup : IDisposable
   {
     EffectAsset _effect;
     EffectParameters _parameters;
@@ -130,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     }
     public void Add(PrimitiveContext primitive)
     {
-      primitive.RenderContext = this;
+      primitive.RenderGroup = this;
       _primitives.Add(primitive);
       _updateVertices = true;
     }

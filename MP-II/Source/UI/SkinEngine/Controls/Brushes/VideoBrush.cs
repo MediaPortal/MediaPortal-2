@@ -127,7 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Rectangle sourceRect;
       Rectangle destinationRect;
       GeometryData gd = new GeometryData(
-          new Size(_videoSize.Width, _videoSize.Height), new Size((int)_bounds.Width, (int)_bounds.Height), _pixelAspectRatio);
+          new Size(_videoSize.Width, _videoSize.Height), new Size((int) _bounds.Width, (int) _bounds.Height), _pixelAspectRatio);
 
       geometryManager.Transform(_currentGeometry, gd, out sourceRect, out destinationRect);
       string shaderName = geometry.Shader;
@@ -152,8 +152,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         float x = ((_verts[i].X - _minPosition.X) / _bounds.Width) * maxX + minX;
         float y = ((_verts[i].Y - _minPosition.Y) / _bounds.Height) * maxY + minY;
-        verts[i].X = (x * _bounds.Width) + _minPosition.X;
-        verts[i].Y = (y * _bounds.Height) + _minPosition.Y;
+        verts[i].X = x*_bounds.Width + _minPosition.X;
+        verts[i].Y = y*_bounds.Height + _minPosition.Y;
 
         float u = _verts[i].Tu1 * diffU + minU;
         float v = _verts[i].Tv1 * diffV + minV;

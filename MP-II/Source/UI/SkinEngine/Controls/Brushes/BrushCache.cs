@@ -56,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           return texture;
       // Here we must do a copy of the gradient stops. If we don't, the cache will change
       // when the stops are changed outside.
-      BrushTexture brush = new BrushTexture(new GradientStopCollection(stops), opacitybrush, null);
+      BrushTexture brush = new BrushTexture(new GradientStopCollection(stops, null), opacitybrush, null);
       _cache.Add(brush);
       return brush;
     }

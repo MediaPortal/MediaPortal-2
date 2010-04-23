@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     AbstractProperty _visualProperty;
     EffectAsset _effect;
-    Texture _textureOpacity;
+    Texture _textureVisual;
 
     #endregion
 
@@ -87,7 +87,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       UpdateBounds(bounds, layoutTransform, ref verts);
       base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
-      _textureOpacity = new Texture(GraphicsDevice.Device, (int)_bounds.Width, (int)_bounds.Height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+      _textureVisual = new Texture(GraphicsDevice.Device, (int)_bounds.Width, (int)_bounds.Height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
     }
 
     public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
@@ -98,11 +98,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
       GraphicsDevice.Device.EndScene();
 
-      //get the current backbuffer
+      // Get the current backbuffer
       using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
       {
-        //get the surface of our opacity texture
-        using (Surface textureOpacitySurface = _textureOpacity.GetSurfaceLevel(0))
+        // Get the surface of our texture
+        using (Surface textureVisualSurface = _textureVisual.GetSurfaceLevel(0))
         {
           SurfaceDescription desc = backBuffer.Description;
 
@@ -124,7 +124,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             //copy the correct rectangle from the backbuffer in the opacitytexture
             GraphicsDevice.Device.StretchRectangle(backBuffer, new Rectangle(
                 (int) (_orginalPosition.X * cx), (int) (_orginalPosition.Y * cy),
-                (int) (_bounds.Width * cx), (int) (_bounds.Height * cy)), textureOpacitySurface,
+                (int) (_bounds.Width * cx), (int) (_bounds.Height * cy)), textureVisualSurface,
                 new Rectangle(0, 0, (int) (_bounds.Width), (int) (_bounds.Height)), TextureFilter.None);
             matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
             matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / width, GraphicsDevice.Height / height, 1);
@@ -132,30 +132,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           else
           {
             GraphicsDevice.Device.StretchRectangle(backBuffer, new Rectangle(0, 0, desc.Width, desc.Height),
-                textureOpacitySurface, new Rectangle(0, 0, (int) _bounds.Width, (int) _bounds.Height), TextureFilter.None);
+                textureVisualSurface, new Rectangle(0, 0, (int) _bounds.Width, (int) _bounds.Height), TextureFilter.None);
             
             matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
             matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / width, GraphicsDevice.Height / height, 1);
           }
 
-
           SkinContext.AddRenderTransform(matrix);
 
-          //change the rendertarget to the opacitytexture
-          GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
+          // Change the rendertarget to our texture
+          GraphicsDevice.Device.SetRenderTarget(0, textureVisualSurface);
 
-          //render the control (will be rendered into the opacitytexture)
+          // Render the control (will be rendered into our texture)
           GraphicsDevice.Device.BeginScene();
           //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
           Visual.DoRender();
           GraphicsDevice.Device.EndScene();
           SkinContext.RemoveRenderTransform();
 
-          //restore the backbuffer
+          // Restore the backbuffer
           GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
         }
-        //Texture.ToFile(_textureOpacity, @"c:\1\test.png", ImageFileFormat.Png);
-        //TextureLoader.Save(@"C:\erwin\trunk\MP 2\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureOpacity);
+        //Texture.ToFile(_textureVisual, @"c:\1\test.png", ImageFileFormat.Png);
+        //TextureLoader.Save(@"C:\erwin\trunk\MP 2\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureVisual);
       }
       SkinContext.CombinedRenderTransforms = originalTransforms;
       if (Transform != null)
@@ -164,10 +163,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         Transform.GetTransform(out mTrans);
         SkinContext.AddRenderTransform(mTrans);
       }
-      //now render the opacitytexture with the opacitymask brush
+      // Now render our texture
       GraphicsDevice.Device.BeginScene();
       //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      _effect.StartRender(_textureOpacity);
+      _effect.StartRender(_textureVisual);
 
       return true;
     }

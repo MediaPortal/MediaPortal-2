@@ -90,12 +90,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       Color = color;
     }
 
-    /// <summary>Creates a vertex with a position and two texture coordinates.</summary>
-    /// <param name="position">Position</param>
-    /// <param name="u1">First texture coordinate U</param>
-    /// <param name="v1">First texture coordinate V</param>
-    /// <param name="u2">Second texture coordinate U</param>
-    /// <param name="v2">Second texture coordinate V</param>
     public PositionColored2Textured(Vector3 position, float u1, float v1,  int color)
     {
       X = position.X;
@@ -126,9 +120,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static void Set(VertexBuffer buffer, ref PositionColored2Textured[] verts)
     {
       using (DataStream stream=buffer.Lock(0, 0, LockFlags.None))
-      {
         stream.WriteRange(verts);
-      }
       buffer.Unlock();
     }
   }

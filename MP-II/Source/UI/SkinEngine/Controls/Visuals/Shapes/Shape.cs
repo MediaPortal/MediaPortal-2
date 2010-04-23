@@ -35,27 +35,27 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   /// <summary>
-  /// Describes to a LineStrip how it should place the line's width relative to its points
+  /// Describes to a LineStrip how it should paint its points relative to its center.
   /// </summary>
   /// <remarks>
-  /// The behavior of the LeftHanded and RightHanded modes depends on the order the points are
-  /// listed in. LeftHanded will draw the line on the outside of a clockwise curve and on the
-  /// inside of a counterclockwise curve; RightHanded is the opposite.
+  /// The behavior of the <see cref="LeftHanded"/> and <see cref="RightHanded"/> modes depends on the order the points are
+  /// listed in. <see cref="LeftHanded"/> will draw the line on the outside of a clockwise curve and on the
+  /// inside of a counterclockwise curve; <see cref="RightHanded"/> is the opposite.
   /// </remarks>
   public enum WidthMode
   {
     /// <summary>
-    /// Centers the width on the line
+    /// Centers the width on the line.
     /// </summary>
     Centered,
 
     /// <summary>
-    /// Places the width on the left-hand side of the line
+    /// Places the width on the left-hand side of the line.
     /// </summary>
     LeftHanded,
 
     /// <summary>
-    /// Places the width on the right-hand side of the line
+    /// Places the width on the right-hand side of the line.
     /// </summary>
     RightHanded
   }

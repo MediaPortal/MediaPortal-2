@@ -47,18 +47,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Init();
     }
 
-    public void Dispose()
-    {
-      _parent = null; // To avoid OnGradientsChanged callback
-      Clear();
-    }
-
-    public GradientStopCollection(GradientStopCollection source)
+    public GradientStopCollection(IEnumerable<GradientStop> source, GradientBrush parent)
     {
       _parent = null;
       Init();
       foreach (GradientStop s in source)
         Add(new GradientStop(s.Offset, s.Color));
+      _parent = parent;
     }
 
     void Init()

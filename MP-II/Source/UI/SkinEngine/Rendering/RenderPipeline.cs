@@ -29,28 +29,36 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
   /// <summary>
-  /// TODO:
-  ///  - sort by texture, effect
-  ///  - render front->back (improves zbuffer performance)
-  ///  - find solution for changing world transformations
-  ///  - use 1 big texture
-  /// 
-  /// left todo:
-  ///  - image control
-  ///  - path control fill
-  /// 
+  /// Holds all primitives to be rendered, grouped by <see cref="RenderGroup"/>.
   /// </summary>
+  /// <remarks>
+  /// Primitives are pieces of information to be rendered, each containing a buffer of
+  /// vertices, a texture and an effect plus parameters.
+  /// A <see cref="RenderGroup"/> optimizes the calculations in the shader; it groups
+  /// all objects with the same texture/effect combination together and contains the union
+  /// set of all vertice buffers of all primitives. So we only need to invoke the shaders
+  /// for each render group, instead of for each primitive.
+  /// </remarks>
+
+  // TODO:
+  //  - make primitive type in render group configurable
+  //  - sort by texture, effect
+  //  - render front->back (improves zbuffer performance)
+  //  - find solution for changing world transformations
+  //  - use 1 big texture
+  // 
+  // left todo:
+  //  - image control
+  //  - path control fill
+  // 
   public class RenderPipeline : IAsset
   {
     static RenderPipeline _instance = new RenderPipeline();
     List<PrimitiveContext> _primitives = new List<PrimitiveContext>();
     List<PrimitiveContext> _newPrimitives = new List<PrimitiveContext>();
-    List<RenderContext> _renderList = new List<RenderContext>();
+    List<RenderGroup> _renderList = new List<RenderGroup>();
     bool _sort = false;
 
-    /// <summary>
-    /// Gets the singleton instance.
-    /// </summary>
     public static RenderPipeline Instance
     {
       get { return _instance; }
@@ -66,14 +74,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       if (SkinContext.UseBatching == false) return;
       if (context == null) return;
       if (context.Effect == null || context.Parameters == null)
-      {
         return;
-      }
 
       lock (_primitives)
-      {
         _newPrimitives.Add(context);
-      }
     }
 
     public void Remove(PrimitiveContext primitive)
@@ -83,11 +87,11 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       
       lock (_primitives)
       {
-        if (primitive.RenderContext != null)
+        if (primitive.RenderGroup != null)
         {
-          RenderContext renderContext = primitive.RenderContext;
-          renderContext.Remove(primitive);
-          primitive.RenderContext = null;
+          RenderGroup renderGroup = primitive.RenderGroup;
+          renderGroup.Remove(primitive);
+          primitive.RenderGroup = null;
         }
         bool res1 = _primitives.Remove(primitive);
         bool res2 = _newPrimitives.Remove(primitive);
@@ -97,9 +101,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public void Clear()
     {
       for (int i = 0; i < _renderList.Count; ++i)
-      {
         _renderList[i].Dispose();
-      }
       _renderList.Clear();
     }
 
@@ -110,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       foreach (PrimitiveContext primitive in _primitives)
       {
         bool processed = false;
-        foreach (RenderContext rendercontext in _renderList)
+        foreach (RenderGroup rendercontext in _renderList)
         {
           if (rendercontext.Effect.Equals(primitive.Effect) &&
               rendercontext.Parameters.Equals(primitive.Parameters) &&
@@ -123,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         }
         if (!processed)
         {
-          RenderContext rendercontext = new RenderContext();
+          RenderGroup rendercontext = new RenderGroup();
           rendercontext.Effect = primitive.Effect;
           rendercontext.Parameters = primitive.Parameters;
           rendercontext.Texture = primitive.Texture;
@@ -138,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       foreach (PrimitiveContext primitive in _newPrimitives)
       {
         bool processed = false;
-        foreach (RenderContext rendercontext in _renderList)
+        foreach (RenderGroup rendercontext in _renderList)
         {
           if (rendercontext.Effect.Equals(primitive.Effect) &&
               rendercontext.Parameters.Equals(primitive.Parameters) &&
@@ -152,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         }
         if (!processed)
         {
-          RenderContext rendercontext = new RenderContext();
+          RenderGroup rendercontext = new RenderGroup();
           rendercontext.Effect = primitive.Effect;
           rendercontext.Parameters = primitive.Parameters;
           rendercontext.Texture = primitive.Texture;
@@ -169,26 +171,16 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       lock (_primitives)
       {
         if (_sort)
-        {
           CreateBatches();
-        }
         if (_newPrimitives.Count > 0)
-        {
           PlaceNewPrimitivesInBatches();
-        }
-        List<RenderContext> old = new List<RenderContext>();
-        foreach (RenderContext context in _renderList)
-        {
+        List<RenderGroup> old = new List<RenderGroup>();
+        foreach (RenderGroup context in _renderList)
           if (!context.Render())
-          {
             old.Add(context);
-          }
-        }
 
-        foreach (RenderContext context in old)
-        {
+        foreach (RenderGroup context in old)
           _renderList.Remove(context);
-        }
       }
     }
 
@@ -207,10 +199,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public bool Free(bool force)
     {
       if (!force) return false;
-      foreach (RenderContext context in _renderList)
-      {
+      foreach (RenderGroup context in _renderList)
         context.Dispose();
-      }
       return false;
     }
 

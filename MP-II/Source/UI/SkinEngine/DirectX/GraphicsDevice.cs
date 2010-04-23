@@ -118,23 +118,17 @@ namespace MediaPortal.UI.SkinEngine
         Format.A8R8G8B8);
 
       _supportsAlphaBlend = MPDirect3D.Direct3D.CheckDeviceFormat(_device.Capabilities.AdapterOrdinal,
-                                                      _device.Capabilities.DeviceType,
-                                                      _device.GetDisplayMode(0).Format,
-                                                      Usage.RenderTarget | Usage.QueryPostPixelShaderBlending,
-                                                      ResourceType.Surface,
-                                                      Format.A8R8G8B8);
+          _device.Capabilities.DeviceType, _device.GetDisplayMode(0).Format,
+          Usage.RenderTarget | Usage.QueryPostPixelShaderBlending,
+          ResourceType.Surface, Format.A8R8G8B8);
       int vertexShaderVersion = Device.Capabilities.VertexShaderVersion.Major;
       int pixelShaderVersion = Device.Capabilities.PixelShaderVersion.Major;
       ServiceScope.Get<ILogger>().Info("DirectX: Pixel shader support: {0}.{1}", Device.Capabilities.PixelShaderVersion.Major, Device.Capabilities.PixelShaderVersion.Minor);
       ServiceScope.Get<ILogger>().Info("DirectX: Vertex shader support: {0}.{1}", Device.Capabilities.VertexShaderVersion.Major, Device.Capabilities.VertexShaderVersion.Minor);
       if (pixelShaderVersion >= 2 && vertexShaderVersion >= 2)
-      {
         _supportsShaders = true;
-      }
       else
-      {
         _supportsShaders = false;
-      }
       if (_firstTimeInitialisation)
       {
         _firstTimeInitialisation = false;
@@ -169,9 +163,7 @@ namespace MediaPortal.UI.SkinEngine
         GetCapabilities();
       }
       else
-      {
         ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
-      }
       return true;
     }
 
@@ -188,15 +180,11 @@ namespace MediaPortal.UI.SkinEngine
     public void Dispose()
     {
       if (_backBuffer != null)
-      {
         _backBuffer.Dispose();
-      }
       _backBuffer = null;
 
       if (_device != null)
-      {
         _device.Dispose();
-      }
       _device = null;
       MPDirect3D.Unload();
     }

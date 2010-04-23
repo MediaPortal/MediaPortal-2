@@ -73,7 +73,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
     }
 
-
     /// <summary>
     /// Gets the number of alpha channel bits 
     /// </summary>
@@ -110,7 +109,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
     }
 
-
     /// <summary>
     /// Gets the number of depth bits
     /// </summary>
@@ -134,7 +132,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           return 0;
       }
     }
-
 
     /// <summary>
     /// Gets the number of stencil bits
@@ -160,4 +157,4 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
     }
   }
-} ;
+}

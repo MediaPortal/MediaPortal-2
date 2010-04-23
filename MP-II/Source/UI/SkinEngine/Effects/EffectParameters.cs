@@ -9,7 +9,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
     interface ParamContext
     {
       void Set();
-    };
+    }
 
     class ParamContextColor : ParamContext
     {
@@ -36,7 +36,8 @@ namespace MediaPortal.UI.SkinEngine.Effects
       {
         return _handle.GetHashCode() ^ _color.GetHashCode();
       }
-    };
+    }
+
     class ParamContextFloat2 : ParamContext
     {
       protected EffectHandleAsset _handle;
@@ -63,7 +64,8 @@ namespace MediaPortal.UI.SkinEngine.Effects
       {
         return _handle.GetHashCode() ^ _values[0].GetHashCode() ^ _values[1].GetHashCode();
       }
-    };
+    }
+
     class ParamContextFloat : ParamContext
     {
       protected EffectHandleAsset _handle;
@@ -89,7 +91,8 @@ namespace MediaPortal.UI.SkinEngine.Effects
       {
         return _handle.GetHashCode() ^ _value.GetHashCode();
       }
-    };
+    }
+
     class ParamContextMatrix : ParamContext
     {
       protected EffectHandleAsset _handle;
@@ -115,10 +118,9 @@ namespace MediaPortal.UI.SkinEngine.Effects
       {
         return _handle.GetHashCode() ^ _matrix.GetHashCode();
       }
-    };
+    }
 
     List<ParamContext> _params = new List<ParamContext>();
-
 
     public void Add(EffectHandleAsset handle, Color4 color)
     {
@@ -163,6 +165,5 @@ namespace MediaPortal.UI.SkinEngine.Effects
     {
       return _params.GetHashCode();
     }
-
   }
 }

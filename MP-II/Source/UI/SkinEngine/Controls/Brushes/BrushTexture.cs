@@ -60,7 +60,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _texture.Dispose();
         _texture = null;
       }
-      _stops.Dispose();
     }
 
     public void Allocate()
@@ -107,8 +106,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void CreateGradient()
     {
-      ///@optimize: use brush-cache
-      DataRectangle rect = _texture.LockRectangle(0, LockFlags.None);
       float width = 256.0f;
       byte[] data = new byte[4 * 512];
       int offY = 256 * 4;
@@ -119,8 +116,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         GradientStop stopEnd = orderedStops[i + 1];
         Color4 colorStart = ColorConverter.FromColor(stopBegin.Color);
         Color4 colorEnd = ColorConverter.FromColor(stopEnd.Color);
-        int offsetStart = (int)(stopBegin.Offset * width);
-        int offsetEnd = (int)(stopEnd.Offset * width);
+        int offsetStart = (int)( stopBegin.Offset * width);
+        int offsetEnd = (int) (stopEnd.Offset * width);
 
         float distance = offsetEnd - offsetStart;
         for (int x = offsetStart; x < offsetEnd; ++x)
@@ -165,6 +162,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           data[offY + offx + 3] = (byte)a;
         }
       }
+      DataRectangle rect = _texture.LockRectangle(0, LockFlags.None);
       rect.Data.Write(data, 0, 4 * 512);
       _texture.UnlockRectangle(0);
       rect.Data.Dispose();
@@ -179,7 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public bool IsAllocated
     {
-      get { return (_texture != null); }
+      get { return _texture != null; }
     }
 
     public bool CanBeDeleted

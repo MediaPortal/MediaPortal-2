@@ -114,6 +114,7 @@
     <Compile Include="Controls\Brushes\VideoBrush.cs" />
     <Compile Include="Controls\Brushes\VisualBrush.cs" />
     <Compile Include="Controls\Visuals\KeyBindingControl.cs" />
+    <Compile Include="DirectX\D3DSettings.cs" />
     <Compile Include="DirectX\Triangulate\GraphicsPathHelper.cs" />
     <Compile Include="DirectX\Triangulate\TriangulateHelper.cs" />
     <Compile Include="Geometry\GeometryIntelligentZoom.cs" />
@@ -268,7 +269,6 @@
     <Compile Include="Controls\Visuals\Visual.cs" />
     <Compile Include="SkinEnginePlugin.cs" />
     <Compile Include="DirectX\d3denumeration.cs" />
-    <Compile Include="DirectX\D3DSettingsForm.cs" />
     <Compile Include="DirectX\d3dSetup.cs" />
     <Compile Include="DirectX\d3dutil.cs" />
     <Compile Include="DirectX\GraphicsDevice.cs" />
@@ -328,7 +328,7 @@
     <Compile Include="Fonts\Quad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\PrimitiveContext.cs" />
-    <Compile Include="Rendering\RenderContext.cs" />
+    <Compile Include="Rendering\RenderGroup.cs" />
     <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Configuration\Appearance\Fullscreen.cs" />

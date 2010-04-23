@@ -34,6 +34,10 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Effects
 {
+  /// <summary>
+  /// Encapsulates an effect which can render a vertex buffer with a texture.
+  /// The effect gets loaded from the skin's shaders directory.
+  /// </summary>
   public class EffectAsset : IAsset
   {
     private string _effectName;
@@ -45,10 +49,6 @@ namespace MediaPortal.UI.SkinEngine.Effects
     EffectHandle _handleTechnique;
     Dictionary<string, EffectHandleAsset> _parameters;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EffectAsset"/> class.
-    /// </summary>
-    /// <param name="effectName">Name of the effect.</param>
     public EffectAsset(string effectName)
     {
       _parameters = new Dictionary<string, EffectHandleAsset>();
@@ -57,9 +57,6 @@ namespace MediaPortal.UI.SkinEngine.Effects
       Allocate();
     }
 
-    /// <summary>
-    /// Allocates this instance.
-    /// </summary>
     public void Allocate()
     {
       string effectFilePath = SkinContext.SkinResources.GetResourceFilePath(
@@ -73,11 +70,11 @@ namespace MediaPortal.UI.SkinEngine.Effects
         Version pixelShaderVersion = GraphicsDevice.Device.Capabilities.PixelShaderVersion;
 
         ShaderFlags shaderFlags = ShaderFlags.OptimizationLevel3 | ShaderFlags.EnableBackwardsCompatibility; //| ShaderFlags.NoPreshader;
-        //ShaderFlags shaderFlags =  ShaderFlags.NoPreshader;
+        //ShaderFlags shaderFlags = ShaderFlags.NoPreshader;
         effectShader = effectShader.Replace("vs_2_0", String.Format("vs_{0}_{1}", vertexShaderVersion.Major, vertexShaderVersion.Minor));
         effectShader = effectShader.Replace("ps_2_0", String.Format("ps_{0}_{1}", pixelShaderVersion.Major, pixelShaderVersion.Minor));
 
-        string errors = "";
+        string errors = string.Empty;
         try
         {
           _effect = Effect.FromString(GraphicsDevice.Device, effectShader, null, null, null, shaderFlags, null, out errors);
@@ -102,21 +99,11 @@ namespace MediaPortal.UI.SkinEngine.Effects
 
     #region IAsset Members
 
-    /// <summary>
-    /// Gets a value indicating the asset is allocated
-    /// </summary>
-    /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
       get { return (_effect != null); }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this asset can be deleted.
-    /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this asset can be deleted; otherwise, <c>false</c>.
-    /// </value>
     public bool CanBeDeleted
     {
       get
@@ -126,9 +113,6 @@ namespace MediaPortal.UI.SkinEngine.Effects
       }
     }
 
-    /// <summary>
-    /// Frees this asset.
-    /// </summary>
     public bool Free(bool force)
     {
       if (_handleTechnique != null)
@@ -158,10 +142,6 @@ namespace MediaPortal.UI.SkinEngine.Effects
 
     #endregion
 
-    /// <summary>
-    /// Renders the effect
-    /// </summary>
-    /// <param name="tex">The texture.</param>
     public void Render(TextureAsset tex, int stream)
     {
       if (!IsAllocated)
@@ -191,36 +171,28 @@ namespace MediaPortal.UI.SkinEngine.Effects
       _lastUsed = SkinContext.Now;
     }
 
+    /// <summary>
+    /// Starts the rendering of the given texture <paramref name="tex"/> in the stream of number <code>0</code>.
+    /// </summary>
+    /// <param name="tex">The texture to be rendered.</param>
     public void StartRender(Texture tex)
     {
-      if (!IsAllocated)
-        Allocate();
-      if (!IsAllocated)
-      {
-        //render without effect
-        GraphicsDevice.Device.SetTexture(0, tex);
-        return;
-      }
-      _effect.SetValue(_handleWorldProjection, SkinContext.FinalRenderTransform.Matrix * GraphicsDevice.FinalTransform);
-      _effect.SetTexture(_handleTexture, tex);
-      _effect.Technique = _handleTechnique;
-      SetEffectParameters();
-      _effect.Begin(0);
-      _effect.BeginPass(0);
-
-      GraphicsDevice.Device.SetTexture(0, tex);
+      StartRender(tex, 0);
     }
 
+    /// <summary>
+    /// Ends the rendering of the stream of number <code>0</code>.
+    /// </summary>
     public void EndRender()
     {
-      if (_effect != null)
-      {
-        _effect.EndPass();
-        _effect.End();
-        _lastUsed = SkinContext.Now;
-      }
+      EndRender(0);
     }
 
+    /// <summary>
+    /// Starts the rendering of the given texture <paramref name="tex"/> in the given <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="tex">The texture to be rendered.</param>
+    /// <param name="stream">Number of the stream to render.</param>
     public void StartRender(Texture tex, int stream)
     {
       if (!IsAllocated)
@@ -241,6 +213,10 @@ namespace MediaPortal.UI.SkinEngine.Effects
       GraphicsDevice.Device.SetTexture(stream, tex);
     }
 
+    /// <summary>
+    /// Ends the rendering of the given <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of the stream to end the rendering.</param>
     public void EndRender(int stream)
     {
       if (_effect != null)
@@ -262,39 +238,29 @@ namespace MediaPortal.UI.SkinEngine.Effects
     void SetEffectParameters()
     {
       if (_effectParameters.Count == 0) return;
-      Dictionary<string, object>.Enumerator enumer = _effectParameters.GetEnumerator();
-      while (enumer.MoveNext())
+      foreach (KeyValuePair<string, object> kvp in _effectParameters)
       {
-        object v = enumer.Current.Value;
-        Type type = v.GetType();
+        Type type = kvp.Value.GetType();
         if (type == typeof(Texture))
-          _effect.SetTexture(enumer.Current.Key, (Texture)v);
+          _effect.SetTexture(kvp.Key, (Texture) kvp.Value);
         if (type == typeof(Color4))
-          _effect.SetValue(enumer.Current.Key, (Color4)v);
-
+          _effect.SetValue(kvp.Key, (Color4) kvp.Value);
         else if (type == typeof(Color4[]))
-          _effect.SetValue<Color4>(enumer.Current.Key, (Color4[])v);
-
+          _effect.SetValue<Color4>(kvp.Key, (Color4[]) kvp.Value);
         else if (type == typeof(float))
-          _effect.SetValue(enumer.Current.Key, (float)v);
-
+          _effect.SetValue(kvp.Key, (float) kvp.Value);
         else if (type == typeof(float[]))
-          _effect.SetValue<float>(enumer.Current.Key, (float[])v);
-
+          _effect.SetValue<float>(kvp.Key, (float[]) kvp.Value);
         else if (type == typeof(Matrix))
-          _effect.SetValue(enumer.Current.Key, (Matrix)v);
-
+          _effect.SetValue(kvp.Key, (Matrix) kvp.Value);
         else if (type == typeof(Vector4))
-          _effect.SetValue(enumer.Current.Key, (Vector4)v);
-
+          _effect.SetValue(kvp.Key, (Vector4) kvp.Value);
         else if (type == typeof(bool))
-          _effect.SetValue(enumer.Current.Key, (bool)v);
-
+          _effect.SetValue(kvp.Key, (bool) kvp.Value);
         else if (type == typeof(float))
-          _effect.SetValue(enumer.Current.Key, (float)v);
-
+          _effect.SetValue(kvp.Key, (float) kvp.Value);
         else if (type == typeof(int))
-          _effect.SetValue(enumer.Current.Key, (int)v);
+          _effect.SetValue(kvp.Key, (int) kvp.Value);
       }
     }
 

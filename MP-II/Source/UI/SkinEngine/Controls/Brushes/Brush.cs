@@ -189,9 +189,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     /// <summary>
     /// Scales the specified u/v coordinates.
     /// </summary>
-    /// <param name="u">The u.</param>
-    /// <param name="v">The v.</param>
-    /// <param name="color">The color.</param>
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
@@ -210,11 +207,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
       for (int i = 0; i < verts.Length; ++i)
       {
-        float x1 = verts[i].X;
+        PositionColored2Textured vert = verts[i];
+        float x1 = vert.X;
         float u = x1 - (bounds.X + xoff);
         u /= w;
 
-        float y1 = verts[i].Y;
+        float y1 = vert.Y;
         float v = y1 - (bounds.Y + yoff);
         v /= h;
 
@@ -226,11 +224,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         {
           Color4 color = ColorConverter.FromColor(Color.White);
           color.Alpha *= (float) Opacity;
-          verts[i].Color = color.ToArgb();
+          vert.Color = color.ToArgb();
         }
-        verts[i].Tu1 = u;
-        verts[i].Tv1 = v;
-        verts[i].Z = zOrder;
+        vert.Tu1 = u;
+        vert.Tv1 = v;
+        vert.Z = zOrder;
+        verts[i] = vert;
       }
     }
 
@@ -242,11 +241,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       float maxy = 0;
       for (int i = 0; i < verts.Length; ++i)
       {
-        if (verts[i].X < minx) minx = verts[i].X;
-        if (verts[i].Y < miny) miny = verts[i].Y;
+        PositionColored2Textured vert = verts[i];
+        if (vert.X < minx) minx = vert.X;
+        if (vert.Y < miny) miny = vert.Y;
 
-        if (verts[i].X > maxx) maxx = verts[i].X;
-        if (verts[i].Y > maxy) maxy = verts[i].Y;
+        if (vert.X > maxx) maxx = vert.X;
+        if (vert.Y > maxy) maxy = vert.Y;
       }
       if (layoutTransform != null)
       {

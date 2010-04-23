@@ -131,7 +131,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       base.PerformLayout();
       double w = ActualWidth;
       double h = ActualHeight;
-      SizeF rectSize = new SizeF((float)w, (float)h);
+      SizeF rectSize = new SizeF((float) w, (float) h);
 
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)

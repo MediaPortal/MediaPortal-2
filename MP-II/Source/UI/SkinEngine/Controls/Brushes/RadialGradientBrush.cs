@@ -203,7 +203,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
     {
-      //      Trace.WriteLine("RadialGradientBrush.SetupBrush()");
       _verts = verts;
       //if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
       {
@@ -315,7 +314,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
             GraphicsDevice.Device.EndScene();
 
-            _cacheTexture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            _cacheTexture = new Texture(GraphicsDevice.Device, (int) w, (int) h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             //get the current backbuffer
             using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
             {
@@ -326,7 +325,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
                 {
                   //copy the correct rectangle from the backbuffer in the opacitytexture
                   GraphicsDevice.Device.StretchRectangle(backBuffer,
-                      new Rectangle((int)(_position.X * cx), (int)(_position.Y * cy), (int)(_width * cx), (int)(_height * cy)),
+                      new Rectangle((int) (_position.X * cx), (int) (_position.Y * cy),
+                          (int) (_width * cx), (int) (_height * cy)),
                       cacheSurface, new Rectangle(0, 0, (int) w, (int) h), TextureFilter.None);
                 }
                 //change the rendertarget to the opacitytexture
@@ -344,7 +344,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
                 _handleFocus.SetParameter(g_focus);
                 _handleCenter.SetParameter(g_center);
                 _handleRadius.SetParameter(g_radius);
-                _handleOpacity.SetParameter((float)(Opacity * SkinContext.Opacity));
+                _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
 
                 _effect.StartRender(_brushTexture.Texture);
 
@@ -379,7 +379,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _handleFocus.SetParameter(g_focus);
           _handleCenter.SetParameter(g_center);
           _handleRadius.SetParameter(g_radius);
-          _handleOpacity.SetParameter((float)(Opacity * SkinContext.Opacity));
+          _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
 
           _effect.StartRender(_brushTexture.Texture);
           _lastTimeUsed = SkinContext.Now;
@@ -443,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _handleFocus.SetParameter(g_focus);
         _handleCenter.SetParameter(g_center);
         _handleRadius.SetParameter(g_radius);
-        _handleOpacity.SetParameter((float)(Opacity * SkinContext.Opacity));
+        _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
         _handleAlphaTexture.SetParameter(_brushTexture.Texture);
         _effect.StartRender(tex);
         _lastTimeUsed = SkinContext.Now;
@@ -523,7 +523,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
 
         Color4 v = ColorConverter.FromColor(GradientStops[0].Color);
-        v.Alpha *= (float)SkinContext.Opacity;
+        v.Alpha *= (float) SkinContext.Opacity;
         context.Effect = ContentManager.GetEffect("solidbrush");
         context.Parameters.Add(context.Effect.GetParameterHandle("g_solidColor"), v);
         return;
@@ -559,7 +559,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         context.Parameters.Add(_handleFocus, g_focus);
         context.Parameters.Add(_handleCenter, g_center);
         context.Parameters.Add(_handleRadius, g_radius);
-        context.Parameters.Add(_handleOpacity, (float)(Opacity * SkinContext.Opacity));
+        context.Parameters.Add(_handleOpacity, (float) (Opacity * SkinContext.Opacity));
       }
     }
   }

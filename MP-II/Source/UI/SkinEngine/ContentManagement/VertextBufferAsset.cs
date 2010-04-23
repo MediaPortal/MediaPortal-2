@@ -128,22 +128,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         int colorBottomRight, int colorUpperRight)
     {
       if (!IsAllocated)
-      {
         return;
-      }
       if (x == _previousX && y == _previousY && z == _previousZ && w == _previousWidth && h == _previousHeight)
-      {
         if (colorUpperLeft == _previousColorUpperLeft && colorBottomLeft == _previousColorBottomLeft &&
             colorBottomRight == _previousColorBottomRight && colorUpperRight == _previousColorUpperRight
             /*&& _previousGradientInUse == SkinContext.GradientInUse*/)
-        {
           if (uoff == _previousUoff && voff == _previousVoff &&
               umax == _previousUmax && vmax == _previousVMax)
-          {
             return;
-          }
-        }
-      }
       _previousUoff = uoff;
       _previousVoff = voff;
       _previousUmax = umax;
@@ -253,7 +245,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <value><c>true</c> if this asset is allocated; otherwise, <c>false</c>.</value>
     public bool IsAllocated
     {
-      get { return (_vertexBuffer != null); }
+      get { return _vertexBuffer != null; }
     }
 
     /// <summary>
@@ -267,14 +259,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       get
       {
         if (!IsAllocated)
-        {
           return false;
-        }
         TimeSpan ts = SkinContext.Now - _lastTimeUsed;
         if (ts.TotalSeconds >= 5)
-        {
           return true;
-        }
         return false;
       }
     }
@@ -286,8 +274,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       if (_vertexBuffer != null)
       {
-        //        ServiceScope.Get<ILogger>().Debug("VERTEXTBUFFERASSET dispose vertextbuffer {0}", _texture.Name);
-        //        Trace.WriteLine(String.Format("  Dispose vertex :{0}", _texture.Name));
         _vertexBuffer.Dispose();
         _vertexBuffer = null;
         ContentManager.VertexReferences--;
@@ -309,33 +295,21 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public void Draw(float x, float y, float z, float width, float height, float alpha, int streamNumber)
     {
       if (!_texture.IsAllocated)
-      {
         _texture.Allocate();
-      }
       if (!_texture.IsAllocated)
-      {
         return;
-      }
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
-      {
         return;
-      }
 
       alpha *= 255;
       if (alpha < 0)
-      {
         alpha = 0;
-      }
       if (alpha > 255)
-      {
         alpha = 255;
-      }
 
-      Set(x, y, z, width, height, 0, 0, 1, 1, (int)alpha, (int)alpha, (int)alpha, (int)alpha);
+      Set(x, y, z, width, height, 0, 0, 1, 1, (int) alpha, (int) alpha, (int) alpha, (int) alpha);
 
       //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
@@ -360,68 +334,40 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         float alphaBottomRight, float alphaUpperRight)
     {
       if (!_texture.IsAllocated)
-      {
         _texture.Allocate();
-      }
       if (!_texture.IsAllocated)
-      {
         return;
-      }
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
-      {
         return;
-      }
 
       alphaUpperLeft *= 255;
       if (alphaUpperLeft < 0)
-      {
         alphaUpperLeft = 0;
-      }
       if (alphaUpperLeft > 255)
-      {
         alphaUpperLeft = 255;
-      }
 
       alphaBottomLeft *= 255;
       if (alphaBottomLeft < 0)
-      {
         alphaBottomLeft = 0;
-      }
       if (alphaBottomLeft > 255)
-      {
         alphaBottomLeft = 255;
-      }
 
       alphaBottomRight *= 255;
       if (alphaBottomRight < 0)
-      {
         alphaBottomRight = 0;
-      }
       if (alphaBottomRight > 255)
-      {
         alphaBottomRight = 255;
-      }
 
       alphaUpperRight *= 255;
       if (alphaUpperRight < 0)
-      {
         alphaUpperRight = 0;
-      }
       if (alphaUpperRight > 255)
-      {
         alphaUpperRight = 255;
-      }
 
-      Set(x, y, z, width, height,
-          uoff, voff, umax, vmax,
-          (int)alphaUpperLeft,
-          (int)alphaBottomLeft,
-          (int)alphaBottomRight,
-          (int)alphaUpperRight);
+      Set(x, y, z, width, height, uoff, voff, umax, vmax,
+          (int) alphaUpperLeft, (int) alphaBottomLeft, (int) alphaBottomRight, (int) alphaUpperRight);
       //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
@@ -435,68 +381,44 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         float alphaBottomRight, float alphaUpperRight, EffectAsset effect)
     {
       if (!_texture.IsAllocated)
-      {
         _texture.Allocate();
-      }
       if (!_texture.IsAllocated)
-      {
         return;
-      }
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
-      {
         return;
-      }
 
       alphaUpperLeft *= 255;
       if (alphaUpperLeft < 0)
-      {
         alphaUpperLeft = 0;
-      }
       if (alphaUpperLeft > 255)
-      {
         alphaUpperLeft = 255;
-      }
 
       alphaBottomLeft *= 255;
       if (alphaBottomLeft < 0)
-      {
         alphaBottomLeft = 0;
-      }
       if (alphaBottomLeft > 255)
-      {
         alphaBottomLeft = 255;
-      }
 
       alphaBottomRight *= 255;
       if (alphaBottomRight < 0)
-      {
         alphaBottomRight = 0;
-      }
       if (alphaBottomRight > 255)
-      {
         alphaBottomRight = 255;
-      }
 
       alphaUpperRight *= 255;
       if (alphaUpperRight < 0)
-      {
         alphaUpperRight = 0;
-      }
       if (alphaUpperRight > 255)
-      {
         alphaUpperRight = 255;
-      }
 
       Set(x, y, z, width, height,
           uoff, voff, umax, vmax,
-          (int)alphaUpperLeft,
-          (int)alphaBottomLeft,
-          (int)alphaBottomRight,
-          (int)alphaUpperRight);
+          (int) alphaUpperLeft,
+          (int) alphaBottomLeft,
+          (int) alphaBottomRight,
+          (int) alphaUpperRight);
 
       //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);

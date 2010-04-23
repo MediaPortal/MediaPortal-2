@@ -28,6 +28,7 @@ using MediaPortal.UI.SkinEngine.DirectX;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
+  // TODO: Make PrimitiveType configurable
   public class PrimitiveContext
   {
     EffectAsset _effect;
@@ -35,13 +36,13 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     ITextureAsset _texture;
     PositionColored2Textured[] _vertices;
     int _primitiveCount;
-    RenderContext _renderContext;
+    RenderGroup _renderGroup;
 
     public PrimitiveContext()
     {
     }
 
-    public PrimitiveContext( int primitiveCount, ref PositionColored2Textured[] vertices)
+    public PrimitiveContext(int primitiveCount, ref PositionColored2Textured[] vertices)
     {
       _primitiveCount = primitiveCount;
       _vertices = vertices;
@@ -49,10 +50,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
 
     #region Properties
 
-    public RenderContext RenderContext
+    public RenderGroup RenderGroup
     {
-      get { return _renderContext; }
-      set { _renderContext = value; }
+      get { return _renderGroup; }
+      set { _renderGroup = value; }
     }
 
     public EffectAsset Effect
@@ -91,8 +92,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       _primitiveCount = primitiveCount;
       _vertices = vertices;
-      if (_renderContext != null)
-        _renderContext.UpdateVertices = true;
+      if (_renderGroup != null)
+        _renderGroup.UpdateVertices = true;
     }
   }
 }

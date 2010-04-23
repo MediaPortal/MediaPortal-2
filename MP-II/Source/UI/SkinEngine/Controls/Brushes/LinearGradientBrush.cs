@@ -250,7 +250,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             SkinContext.AddRenderTransform(m);
 
             GraphicsDevice.Device.EndScene();
-            _cacheTexture = new Texture(GraphicsDevice.Device, (int)w, (int)h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+            _cacheTexture = new Texture(GraphicsDevice.Device, (int) w, (int) h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             //get the current backbuffer
             using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
             {
@@ -277,7 +277,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
                 RelativeTransform.GetTransformRel(out mrel);
                 mrel = Matrix.Invert(mrel);
                 _handleRelativeTransform.SetParameter(mrel);
-                _handleOpacity.SetParameter((float)(Opacity * SkinContext.Opacity));
+                _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
                 _handleStartPoint.SetParameter(g_startpoint);
                 _handleEndPoint.SetParameter(g_endpoint);
                 _effect.StartRender(_brushTexture.Texture);
@@ -310,7 +310,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           m = Matrix.Invert(m);
 
           _handleRelativeTransform.SetParameter(m);
-          _handleOpacity.SetParameter((float)(Opacity * SkinContext.Opacity));
+          _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
           _handleStartPoint.SetParameter(g_startpoint);
           _handleEndPoint.SetParameter(g_endpoint);
           _effect.StartRender(_brushTexture.Texture);
@@ -372,7 +372,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         RelativeTransform.GetTransformRel(out m);
         m = Matrix.Invert(m);
         _handleRelativeTransform.SetParameter(m);
-        _handleOpacity.SetParameter((float)(Opacity * SkinContext.Opacity));
+        _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
         _handleStartPoint.SetParameter(g_startpoint);
         _handleEndPoint.SetParameter(g_endpoint);
         _handleAlphaTexture.SetParameter(_brushTexture.Texture);
@@ -457,7 +457,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_singleColor)
       {
         Color4 v = ColorConverter.FromColor(GradientStops.OrderedGradientStopList[0].Color);
-        v.Alpha *= (float)SkinContext.Opacity;
+        v.Alpha *= (float) SkinContext.Opacity;
         context.Effect = ContentManager.GetEffect("solidbrush");
         context.Parameters.Add(context.Effect.GetParameterHandle("g_solidColor"), v);
         return;
@@ -487,7 +487,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       m = Matrix.Invert(m);
 
       context.Parameters.Add(_handleRelativeTransform, m);
-      context.Parameters.Add(_handleOpacity, (float)(Opacity * SkinContext.Opacity));
+      context.Parameters.Add(_handleOpacity, (float) (Opacity * SkinContext.Opacity));
       context.Parameters.Add(_handleStartPoint, g_startpoint);
       context.Parameters.Add(_handleEndPoint, g_endpoint);
       context.Texture = _brushTexture;
