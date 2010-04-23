@@ -25,7 +25,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using MediaPortal.Core;
 using MediaPortal.Core.Messaging;
 using MediaPortal.UI.Thumbnails;
 using MediaPortal.Utilities.FileSystem;
