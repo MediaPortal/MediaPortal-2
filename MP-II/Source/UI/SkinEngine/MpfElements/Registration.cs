@@ -269,8 +269,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
       else if (targetType == typeof(Brush))
       {
-        SolidColorBrush b = new SolidColorBrush();
-        b.Color = (System.Drawing.Color)TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(value.ToString());
+        SolidColorBrush b = new SolidColorBrush
+          {
+              Color = (System.Drawing.Color)
+                  TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(value.ToString())
+          };
         result = b;
         return true;
       }
@@ -351,30 +354,21 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (t == typeof(Vector2))
       {
         Vector2 vec = (Vector2) source;
-        Vector2 result = new Vector2();
-        result.X = vec.X;
-        result.Y = vec.Y;
+        Vector2 result = new Vector2 {X = vec.X, Y = vec.Y};
         target = result;
         return true;
       }
       else if (t == typeof(Vector3))
       {
         Vector3 vec = (Vector3) source;
-        Vector3 result = new Vector3();
-        result.X = vec.X;
-        result.Y = vec.Y;
-        result.Z = vec.Z;
+        Vector3 result = new Vector3 {X = vec.X, Y = vec.Y, Z = vec.Z};
         target = result;
         return true;
       }
       else if (t == typeof(Vector4))
       {
         Vector4 vec = (Vector4) source;
-        Vector4 result = new Vector4();
-        result.X = vec.X;
-        result.Y = vec.Y;
-        result.W = vec.W;
-        result.Z = vec.Z;
+        Vector4 result = new Vector4 {X = vec.X, Y = vec.Y, W = vec.W, Z = vec.Z};
         target = result;
         return true;
       }
