@@ -121,8 +121,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement element = TemplateControl;
       if (element != null)
       {
-        element.VisualParent = this;
         element.SetScreen(Screen);
+        element.VisualParent = this;
       }
       InvalidateLayout();
       InvalidateParentLayout();
