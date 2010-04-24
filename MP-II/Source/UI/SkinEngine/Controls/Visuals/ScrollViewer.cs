@@ -186,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override void ArrangeOverride(RectangleF finalRect)
     {
       base.ArrangeOverride(finalRect);
-      // We need to update the scrollbars after our and our content's final rectangles are set
+      // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
     }
 
