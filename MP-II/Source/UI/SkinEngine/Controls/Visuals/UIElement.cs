@@ -27,7 +27,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using SlimDX;
@@ -492,13 +494,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (ns != null)
           try
           {
-            if (ns.FindName(Name) == this)
-              return; // Avoid exception when registered multiple times
             ns.RegisterName(Name, this);
           }
           catch (ArgumentException)
           {
-            throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
+            ServiceScope.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
           }
       }
     }
