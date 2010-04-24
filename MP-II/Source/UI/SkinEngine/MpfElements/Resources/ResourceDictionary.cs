@@ -168,17 +168,42 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region Public methods
 
-    public void Merge(ResourceDictionary dict)
+    /// <summary>
+    /// Takes over the control over the resources in the given resource dictionary. That means, the
+    /// <see cref="DependencyObject.LogicalParent"/> properties of the resource keys and values will be set to this
+    /// instance.
+    /// </summary>
+    /// <param name="dict">Resource dictionary whose contents should be taken over.</param>
+    public void TakeOver(ResourceDictionary dict)
     {
       IEnumerator<KeyValuePair<object, object>> enumer = ((IDictionary<object, object>) dict).GetEnumerator();
       bool wasChanged = false;
       while (enumer.MoveNext())
       {
-        this[enumer.Current.Key] = enumer.Current.Value;
+        object key = enumer.Current.Key;
+        object value = enumer.Current.Value;
+        this[key] = value;
+        DependencyObject depObj = key as DependencyObject;
+        if (depObj != null)
+          depObj.LogicalParent = this;
+        depObj = value as DependencyObject;
+        if (depObj != null)
+          depObj.LogicalParent = this;
         wasChanged = true;
       }
       if (wasChanged)
         FireChanged();
+    }
+
+    /// <summary>
+    /// Merges the resources in the given resource dictionary to this resource dictionary. That means, the given dict
+    /// will be copied and then the copy will be used as parameter for <see cref="TakeOver"/>.
+    /// instance.
+    /// </summary>
+    /// <param name="dict">Resource dictionary whose contents should be merged.</param>
+    public void Merge(ResourceDictionary dict)
+    {
+      TakeOver(MpfCopyManager.DeepCopyCutLP(dict));
     }
 
     public void FireChanged()
@@ -203,12 +228,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
             (bool) context.GetContextVariable(KEY_ACTIVATE_BINDINGS)) as ResourceDictionary;
         if (mergeDict == null)
           throw new Exception(String.Format("Resource '{0}' doesn't contain a resource dictionary", _source));
-        Merge(mergeDict);
+        TakeOver(mergeDict);
       }
       if (_mergedDictionaries != null && _mergedDictionaries.Count > 0)
       {
         foreach (ResourceDictionary dictionary in _mergedDictionaries)
-          Merge(dictionary);
+          TakeOver(dictionary);
       }
       FireChanged();
     }
