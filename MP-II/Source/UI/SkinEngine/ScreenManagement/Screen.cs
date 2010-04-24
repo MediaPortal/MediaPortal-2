@@ -283,12 +283,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // During each call to UpdateLayout() on an invalidated element, our _invalidLayoutControls list might get
         // more entries because the updated element escalates the layout update to its parent. That's the reason why we
         // cannot use a simple for loop.
-        while (_invalidLayoutControls.Count > 0)
-        {
-          InvalidControl ic = _invalidLayoutControls[_invalidLayoutControls.Count-1];
-          _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
-          ic.Element.UpdateLayout();
-        }
+        lock (_invalidLayoutControls)
+          while (_invalidLayoutControls.Count > 0)
+          {
+            InvalidControl ic = _invalidLayoutControls[_invalidLayoutControls.Count-1];
+            _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
+            ic.Element.UpdateLayout();
+          }
         if (SkinContext.UseBatching)
         {
           Update();
@@ -400,12 +401,15 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void InvalidateLayout(UIElement element)
     {
       InvalidControl ic = new InvalidControl(element);
-      if (_invalidLayoutControls.Contains(ic))
-        return;
-      int index = _invalidLayoutControls.BinarySearch(ic);
-      if (index < 0)
-        index = ~index; // See IList<T>.BinarySearch(T)
-      _invalidLayoutControls.Insert(index, ic);
+      lock (_invalidLayoutControls)
+      {
+        if (_invalidLayoutControls.Contains(ic))
+          return;
+        int index = _invalidLayoutControls.BinarySearch(ic);
+        if (index < 0)
+          index = ~index; // See IList<T>.BinarySearch(T)
+        _invalidLayoutControls.Insert(index, ic);
+      }
     }
 
     public void Invalidate(IUpdateEventHandler ctl)
