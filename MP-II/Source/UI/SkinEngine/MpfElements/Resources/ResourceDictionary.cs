@@ -242,6 +242,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public void RegisterName(string name, object instance)
     {
       IDictionary<string, object> names = GetOrCreateNames();
+      object old;
+      if (names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
+        return;
       names.Add(name, instance);
     }
 

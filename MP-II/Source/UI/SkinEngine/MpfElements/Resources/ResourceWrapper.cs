@@ -110,6 +110,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void RegisterName(string name, object instance)
     {
+      object old;
+      if (_names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
+        return;
       _names.Add(name, instance);
     }
 

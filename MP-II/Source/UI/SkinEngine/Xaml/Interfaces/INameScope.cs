@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+
 namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
 {
   /// <summary>
@@ -49,8 +51,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml.Interfaces
     /// <paramref name="name"/>.
     /// </summary>
     /// <param name="name">Name to register.</param>
-    /// <param name="instance">Instance to map to the specified
-    /// <paramref name="name"/>.</param>
+    /// <param name="instance">Instance to map to the specified <paramref name="name"/>.</param>
+    /// <exception cref="ArgumentException">If another object with the specified <paramref name="name"/> is
+    /// already present in this namescope.</exception>
     void RegisterName(string name, object instance);
 
     /// <summary>
