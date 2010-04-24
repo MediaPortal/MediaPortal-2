@@ -46,8 +46,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
 
     public object FindName(string name)
     {
-      if (_names.ContainsKey(name))
-        return _names[name];
+      object obj;
+      if (_names.TryGetValue(name, out obj))
+        return obj;
       return null;
     }
 

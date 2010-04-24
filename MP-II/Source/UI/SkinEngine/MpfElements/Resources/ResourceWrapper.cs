@@ -88,8 +88,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public object FindName(string name)
     {
-      if (_names.ContainsKey(name))
-        return _names[name];
+      object obj;
+      if (_names.TryGetValue(name, out obj))
+        return obj;
       INameScope parent = FindParentNamescope();
       if (parent != null)
         return parent.FindName(name);
