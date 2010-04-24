@@ -43,7 +43,7 @@
           <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-          <Button x:Name="ContinueButton" Grid.Column="2" Height="40" Width="250" Style="{ThemeResource WizardButtonStyle}"
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
               Content="[System.Continue]" IsEnabled="{Binding !IsShareNameEmpty}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ChooseShareCategoriesStateId}}"/>
         </Grid>

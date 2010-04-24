@@ -88,10 +88,9 @@ namespace MediaPortal.Utilities.DeepCopy
     /// object to the specified <paramref name="target"/> object.
     /// </summary>
     /// <remarks>
-    /// This method can be overridden in subclasses to step in the deep copy
-    /// behavior.
+    /// This method can be overridden in subclasses to step in the deep copy behavior.
     /// </remarks>
-    protected virtual void DoDeepCopy<T>(T source, T target) where T: IDeepCopyable
+    protected virtual void DoDeepCopy<T>(T source, T target) where T : IDeepCopyable
     {
       target.DeepCopy(source, this);
     }
@@ -105,12 +104,12 @@ namespace MediaPortal.Utilities.DeepCopy
       {
         IDeepCopyable source = _toBeCompleted.First.Value;
         _toBeCompleted.RemoveFirst();
-        IDeepCopyable target = (IDeepCopyable) _identities[source];
-        if (target != null)
+        object target;
+        if (_identities.TryGetValue(source, out target) && target is IDeepCopyable)
           // If we wanted to avoid recursive calls for the same object, we would
           // have to mark the target object as to be currently processed. We would
           // also have to check this marking at the beginning of this method.
-          DoDeepCopy(source, target);
+          DoDeepCopy(source, (IDeepCopyable) target);
       }
       if (CopyCompleted != null)
         CopyCompleted(this);
