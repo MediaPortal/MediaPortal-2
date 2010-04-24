@@ -48,12 +48,12 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// the <paramref name="source"/> object.</param>
     protected override bool CopyHook<T>(T source, out T result)
     {
-      result = default(T);
       if (source is Screen)
       {
         result = source;
         return true;
       }
+      result = default(T);
       object res;
       if (Registration.CopyMpfObject(source, out res))
       {
