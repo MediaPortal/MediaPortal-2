@@ -39,7 +39,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     #region Protected fields
 
     protected bool _freezable = false;
-    protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected IDictionary<string, object> _names = null;
 
     #endregion
 
@@ -54,11 +54,28 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       base.DeepCopy(source, copyManager);
       ResourceWrapper rw = (ResourceWrapper) source;
       Freezable = rw.Freezable;
-      foreach (KeyValuePair<string, object> kvp in rw._names)
-        if (_names.ContainsKey(kvp.Key))
-          continue;
-        else
-          _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      if (rw._names == null)
+        _names = null;
+      else
+      {
+        _names = new Dictionary<string, object>(rw._names.Count);
+        foreach (KeyValuePair<string, object> kvp in rw._names)
+          if (_names.ContainsKey(kvp.Key))
+            continue;
+          else
+            _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      }
+    }
+
+    #endregion
+
+    #region Protected methods
+
+    protected IDictionary<string, object> GetOrCreateNames()
+    {
+      if (_names == null)
+        _names = new Dictionary<string, object>();
+      return _names;
     }
 
     #endregion
@@ -89,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public object FindName(string name)
     {
       object obj;
-      if (_names.TryGetValue(name, out obj))
+      if (_names != null && _names.TryGetValue(name, out obj))
         return obj;
       INameScope parent = FindParentNamescope();
       if (parent != null)
@@ -111,14 +128,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public void RegisterName(string name, object instance)
     {
+      IDictionary<string, object> names = GetOrCreateNames();
       object old;
-      if (_names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
+      if (names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
         return;
-      _names.Add(name, instance);
+      names.Add(name, instance);
     }
 
     public void UnregisterName(string name)
     {
+      if (_names == null)
+        return;
       _names.Remove(name);
     }
 
