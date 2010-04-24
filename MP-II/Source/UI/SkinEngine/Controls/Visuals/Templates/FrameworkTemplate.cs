@@ -102,6 +102,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
       UIElement result = cm.GetCopy(_templateElement);
+      result.Resources.Merge(Resources);
       INameScope ns = new NameScope();
       foreach (KeyValuePair<string, object> nameRegistration in _names)
         ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
@@ -122,7 +123,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     public void AddChild(UIElement o)
     {
       _templateElement = o;
-      _templateElement.Resources.Merge(Resources);
     }
 
     #endregion
