@@ -496,7 +496,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
               return; // Avoid exception when registered multiple times
             ns.RegisterName(Name, this);
           }
-          catch
+          catch (ArgumentException)
           {
             throw new ArgumentException("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
           }
