@@ -79,6 +79,5 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     }
 
     #endregion
-
   }
 }

@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public IBinding Binding
     {
-      get { return (IBinding) Value; }
+      get { return Value as IBinding; } // Value is not strongly typed by superclass ValueWrapper, so we cannot use a normal typecast
       set { Value = value; }
     }
 
