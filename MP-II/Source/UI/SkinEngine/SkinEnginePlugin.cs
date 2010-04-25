@@ -138,6 +138,7 @@ namespace MediaPortal.UI.SkinEngine
       _mainForm.StopRenderThread();
       _screenManager.Shutdown();
 
+      ContentManager.Free();
       ContentManager.Uninitialize();
 
       ServiceScope.Get<ILogger>().Debug("SkinEnginePlugin: Removing ISkinResourceManager service");

@@ -31,6 +31,7 @@ using System.Net;
 using System.Net.Cache;
 using MediaPortal.Core;
 using MediaPortal.Core.Logging;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.Thumbnails;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -257,8 +258,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             {
               info = ImageInformation.FromStream(stream);
               stream.Seek(0, SeekOrigin.Begin);
-              _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8, Pool.Default,
-                                            Filter.None, Filter.None, 0);
+              _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.A8R8G8B8,
+                  Pool.Default, Filter.None, Filter.None, 0);
               ContentManager.TextureReferences++;
             }
             else
@@ -276,9 +277,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
               {
                 info = ImageInformation.FromStream(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                _texture =
-                  Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-                                         Pool.Managed, Filter.None, Filter.None, 0);
+                _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
+                    Pool.Managed, Filter.None, Filter.None, 0);
                 ContentManager.TextureReferences++;
               }
             }
@@ -297,7 +297,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           if (UseThumbnail)
           {
             info = ImageInformation.FromFile(_sourceFileName);
-            _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8, Pool.Default, Filter.None, Filter.None, 0);
+            _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.A8R8G8B8,
+                Pool.Default, Filter.None, Filter.None, 0);
             ContentManager.TextureReferences++;
           }
           else
@@ -313,9 +314,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             else
             {
               info = ImageInformation.FromFile(_sourceFileName);
-              _texture =
-                Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.Unknown,
-                                       Pool.Managed, Filter.None, Filter.None, 0);
+              _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.Unknown,
+                  Pool.Managed, Filter.None, Filter.None, 0);
               ContentManager.TextureReferences++;
             }
           }
@@ -353,13 +353,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public void Draw(int streamNumber)
     {
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
-      {
         return;
-      }
       lock (_texture)
       {
         GraphicsDevice.Device.SetTexture(streamNumber, _texture);
@@ -374,13 +370,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public void Set(int streamNumber)
     {
       if (!IsAllocated)
-      {
         Allocate();
-      }
       if (!IsAllocated)
-      {
         return;
-      }
 
       GraphicsDevice.Device.SetTexture(streamNumber, _texture);
       _lastTimeUsed = SkinContext.Now;
@@ -476,9 +468,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           stream.Seek(0, SeekOrigin.Begin);
           info = ImageInformation.FromStream(stream);
           stream.Seek(0, SeekOrigin.Begin);
-          _texture =
-            Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-                                     Pool.Managed, Filter.None, Filter.None, 0);
+          _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
+              Pool.Managed, Filter.None, Filter.None, 0);
           ContentManager.TextureReferences++;
         }
       }

@@ -31,6 +31,7 @@ using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Players;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Utilities.DeepCopy;
@@ -92,10 +93,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
     {
-      UpdateBounds(bounds, layoutTransform, ref verts);
-      base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
+      UpdateBounds(bounds, layoutTransform, verts);
+      base.SetupBrush(bounds, layoutTransform, zOrder, verts);
       _effect = ContentManager.GetEffect("normal");
       _verts = verts;
       _videoSize = new Size(0, 0);
@@ -162,10 +163,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         verts[i].Color = _verts[i].Color;
         verts[i].Z = SkinContext.GetZorder();
       }
-      PositionColored2Textured.Set(vertexBuffer, ref verts);
+      PositionColored2Textured.Set(vertexBuffer, verts);
     }
 
-    public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
+    public override bool BeginRender(PrimitiveContext primitiveContext)
     {
       IPlayerManager playerManager = ServiceScope.Get<IPlayerManager>(false);
       if (playerManager == null)
@@ -185,7 +186,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         SkinContext.AddRenderTransform(mTrans);
       }
 
-      UpdateVertexBuffer(_renderPlayer, vertexBuffer);
+      UpdateVertexBuffer(_renderPlayer, primitiveContext.VertexBuffer);
       _renderPlayer.BeginRender(_effect);
       return true;
     }

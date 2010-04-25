@@ -25,8 +25,6 @@
 
 using System.Collections;
 using System.Diagnostics;
-using MediaPortal.Core;
-using MediaPortal.Core.Logging;
 using SlimDX;
 using SlimDX.Direct3D9;
 

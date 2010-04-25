@@ -27,13 +27,14 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using SlimDX.Direct3D9;
+using FillMode=System.Drawing.Drawing2D.FillMode;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -78,11 +79,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _dataProperty.SetValue(value); }
     }
 
-    protected override void PerformLayout()
+    protected override void DoPerformLayout()
     {
-      if (!_performLayout)
-        return;
-      base.PerformLayout();
+      base.DoPerformLayout();
 
       ExtendedMatrix m = new ExtendedMatrix();
       if (_finalLayoutTransform != null)
@@ -95,126 +94,56 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
       RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, (float) ActualWidth, (float) ActualHeight);
 
-      //Fill brush
+      // Setup brushes
+      RemovePrimitiveContext(ref _fillContext);
+      RemovePrimitiveContext(ref _strokeContext);
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
         using (GraphicsPath path = CalculateTransformedPath(rect, _finalLayoutTransform))
         {
           if (Fill != null && !_fillDisabled)
           {
-            //Trace.WriteLine(String.Format("Path.PerformLayout() {0} points: {1}", Name, path.PointCount));
-            if (SkinContext.UseBatching)
+            GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+            PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+            GraphicsPath subPath = new GraphicsPath();
+            for (int i = 0; i < subPathVerts.Length; i++)
             {
-              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-              GraphicsPath subPath = new GraphicsPath();
-              for (int i = 0; i < subPathVerts.Length; i++)
-              {
-                bool isClosed;
-                gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
-              }
-              PositionColored2Textured[] verts;
-              GraphicsPathHelper.Flatten(subPathVerts, out verts);
-              if (verts != null)
-              {
-                _verticesCountFill = verts.Length / 3;
-                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-                if (_fillContext == null)
-                {
-                  _fillContext = new PrimitiveContext(_verticesCountFill, ref verts);
-                  Fill.SetupPrimitive(_fillContext);
-                  RenderPipeline.Instance.Add(_fillContext);
-                }
-                else
-                  _fillContext.OnVerticesChanged(_verticesCountFill, ref verts);
-              }
+              bool isClosed;
+              gpi.NextSubpath(subPath, out isClosed);
+              TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
             }
-            else
+            PositionColored2Textured[] verts;
+            GraphicsPathHelper.Flatten(subPathVerts, out verts);
+            if (verts != null)
             {
-              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-              GraphicsPath subPath = new GraphicsPath();
-              for (int i = 0; i < subPathVerts.Length; i++)
-              {
-                bool isClosed;
-                gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.Triangulate(subPath, out subPathVerts[i]);
-              }
-              PositionColored2Textured[] verts;
-              GraphicsPathHelper.Flatten(subPathVerts, out verts);
-              if (_fillAsset == null)
-              {
-                _fillAsset = new VisualAssetContext("Path._fillContext:" + Name, Screen.Name);
-                ContentManager.Add(_fillAsset);
-              }
-              if (verts != null)
-              {
-                _verticesCountFill = verts.Length / 3; // _fillPrimitiveType == PrimitiveType.TriangleList
-                _fillAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-
-                PositionColored2Textured.Set(_fillAsset.VertexBuffer, ref verts);
-              }
+              int numVertices = verts.Length / 3;
+              Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+              _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+              AddPrimitiveContext(_fillContext);
+              Fill.SetupPrimitive(_fillContext);
             }
           }
           if (Stroke != null && StrokeThickness > 0)
           {
-            if (SkinContext.UseBatching)
+            GraphicsPathIterator gpi = new GraphicsPathIterator(path);
+            PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
+            GraphicsPath subPath = new GraphicsPath();
+            for (int i = 0; i < subPathVerts.Length; i++)
             {
-              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-              GraphicsPath subPath = new GraphicsPath();
-              for (int i = 0; i < subPathVerts.Length; i++)
-              {
-                bool isClosed;
-                gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
-                    out subPathVerts[i], _finalLayoutTransform);
-              }
-              PositionColored2Textured[] verts;
-              GraphicsPathHelper.Flatten(subPathVerts, out verts);
-              if (verts != null)
-              {
-                _verticesCountBorder = verts.Length/3;
-                Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-                if (_strokeContext == null)
-                {
-                  _strokeContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-                  Stroke.SetupPrimitive(_strokeContext);
-                  RenderPipeline.Instance.Add(_strokeContext);
-                }
-                else
-                  _strokeContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-              }
+              bool isClosed;
+              gpi.NextSubpath(subPath, out isClosed);
+              TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
+                  out subPathVerts[i], _finalLayoutTransform);
             }
-            else
+            PositionColored2Textured[] verts;
+            GraphicsPathHelper.Flatten(subPathVerts, out verts);
+            if (verts != null)
             {
-              if (_borderAsset == null)
-              {
-                _borderAsset = new VisualAssetContext("Path._borderContext:" + Name, Screen.Name);
-                ContentManager.Add(_borderAsset);
-              }
-              GraphicsPathIterator gpi = new GraphicsPathIterator(path);
-              PositionColored2Textured[][] subPathVerts = new PositionColored2Textured[gpi.SubpathCount][];
-              GraphicsPath subPath = new GraphicsPath();
-              for (int i = 0; i < subPathVerts.Length; i++)
-              {
-                bool isClosed;
-                gpi.NextSubpath(subPath, out isClosed);
-                TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
-                    out subPathVerts[i], _finalLayoutTransform);
-              }
-              PositionColored2Textured[] verts;
-              GraphicsPathHelper.Flatten(subPathVerts, out verts);
-              if (verts != null)
-              {
-                _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-                Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-
-                PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-                _verticesCountBorder = verts.Length / 3;
-              }
+              int numVertices = verts.Length/3;
+              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+              _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+              AddPrimitiveContext(_strokeContext);
+              Stroke.SetupPrimitive(_strokeContext);
             }
           }
         }

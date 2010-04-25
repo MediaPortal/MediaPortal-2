@@ -29,6 +29,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
@@ -149,27 +150,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       set { _endPointProperty.SetValue(value); }
     }
 
-    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
+    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
     {
-      _verts = verts;
-      // if (_texture == null || element.ActualHeight != _height || element.ActualWidth != _width)
-      {
-        UpdateBounds(bounds, layoutTransform, ref verts);
-        if (!IsOpacityBrush)
-          base.SetupBrush(bounds, layoutTransform, zOrder, ref verts);
+      UpdateBounds(bounds, layoutTransform, verts);
+      if (!IsOpacityBrush)
+        base.SetupBrush(bounds, layoutTransform, zOrder, verts);
 
-        _height = bounds.Height;
-        _width = bounds.Width;
-        _position = new Vector3(bounds.X, bounds.Y, zOrder);
-        if (_brushTexture == null)
-          _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
-        if (_cacheTexture != null)
-          Free(true);
-        _refresh = true;
-      }
+      _height = bounds.Height;
+      _width = bounds.Width;
+      _position = new Vector3(bounds.X, bounds.Y, zOrder);
+      if (_brushTexture == null)
+        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+      if (_cacheTexture != null)
+        Free(true);
+      _refresh = true;
     }
 
-    public override bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount, PrimitiveType primitiveType)
+    public override bool BeginRender(PrimitiveContext primitiveContext)
     {
       if (Transform != null)
       {
@@ -186,7 +183,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
         if (_singleColor)
         {
-          SetColor(vertexBuffer);
           _effect = ContentManager.GetEffect("solidbrush");
           _handleSolidColor = _effect.GetParameterHandle("g_solidColor");
         }
@@ -212,7 +208,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         g_endpoint[0] = ((EndPoint.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
         g_endpoint[1] = ((EndPoint.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
       }
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+
       if (!_singleColor)
       {
         if (Freezable)
@@ -270,8 +266,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
                 //render the control (will be rendered into the opacitytexture)
                 GraphicsDevice.Device.BeginScene();
-                //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-                //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
 
                 Matrix mrel;
                 RelativeTransform.GetTransformRel(out mrel);
@@ -282,8 +276,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
                 _handleEndPoint.SetParameter(g_endpoint);
                 _effect.StartRender(_brushTexture.Texture);
 
-                GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColored2Textured.StrideSize);
-                GraphicsDevice.Device.DrawPrimitives(primitiveType, 0, primitiveCount);
+                GraphicsDevice.Device.VertexFormat = primitiveContext.VertexFormat;
+                GraphicsDevice.Device.SetStreamSource(0, primitiveContext.VertexBuffer, 0, primitiveContext.StrideSize);
+                GraphicsDevice.Device.DrawPrimitives(primitiveContext.PrimitiveType, 0, primitiveContext.NumVertices);
 
                 _effect.EndRender();
 
@@ -300,7 +295,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             GraphicsDevice.Device.BeginScene();
           }
           _effect.StartRender(_cacheTexture);
-          //GraphicsDevice.Device.SetTexture(0, _cacheTexture);
           _lastTimeUsed = SkinContext.Now;
         }
         else
@@ -449,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
     }
 
-    public override void SetupPrimitive(Rendering.PrimitiveContext context)
+    public override void SetupPrimitive(PrimitiveContext context)
     {
       context.Parameters = new EffectParameters();
       CheckSingleColor();

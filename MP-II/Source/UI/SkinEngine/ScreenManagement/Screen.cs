@@ -30,6 +30,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Presentation.Actions;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;

@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using SlimDX.Direct3D9;
@@ -57,9 +56,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _borderThicknessProperty;
     protected AbstractProperty _cornerRadiusProperty;
     protected FrameworkElement _content;
-    protected VisualAssetContext _backgroundAsset;
-    protected int _verticesCountFill;
-    protected VisualAssetContext _borderAsset;
     protected int _verticesCountBorder;
     protected PrimitiveContext _backgroundContext;
     protected PrimitiveContext _borderContext;
@@ -297,7 +293,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (!_performLayout)
         return;
       _performLayout = false;
-      //Trace.WriteLine("Border.PerformLayout() " + Name);
 
       SizeF rectSize = new SizeF(_borderRect.Size);
 
@@ -319,6 +314,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void PerformLayoutBackground(RectangleF rect)
     {
+      // Setup background brush
+      RemovePrimitiveContext(ref _backgroundContext);
       if (Background != null)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
@@ -328,43 +325,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           PositionColored2Textured[] verts;
           float centerX, centerY;
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
-          if (SkinContext.UseBatching)
-          {
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-            _verticesCountFill = verts.Length / 3;
-            Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-            if (_backgroundContext == null)
-            {
-              _backgroundContext = new PrimitiveContext(_verticesCountFill, ref verts);
-              Background.SetupPrimitive(_backgroundContext);
-              RenderPipeline.Instance.Add(_backgroundContext);
-            }
-            else
-              _backgroundContext.OnVerticesChanged(_verticesCountFill, ref verts);
-          }
-          else
-          {
-            if (_backgroundAsset == null)
-            {
-              _backgroundAsset = new VisualAssetContext("Border._backgroundAsset:" + Name, Screen.Name);
-              ContentManager.Add(_backgroundAsset);
-            }
-            TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
-            if (verts != null)
-            {
-              _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-              Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-
-              PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
-              _verticesCountFill = verts.Length / 3;
-
-            }
-          }
+          TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
+          int numVertices = verts.Length / 3;
+          Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+          _backgroundContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+          AddPrimitiveContext(_backgroundContext);
+          Background.SetupPrimitive(_backgroundContext);
         }
     }
 
     protected void PerformLayoutBorder(RectangleF rect)
     {
+      // Setup border brush
+      RemovePrimitiveContext(ref _borderContext);
       if (BorderBrush != null && BorderThickness > 0)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
@@ -380,32 +353,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           }
           PositionColored2Textured[] verts;
           GraphicsPathHelper.Flatten(subPathVerts, out verts);
-          if (SkinContext.UseBatching)
-          {
-            BorderBrush.SetupBrush(_borderRect, FinalLayoutTransform, ActualPosition.Z, ref verts);
-            _verticesCountBorder = verts.Length / 3;
-            if (_borderContext == null)
-            {
-              _borderContext = new PrimitiveContext(_verticesCountBorder, ref verts);
-              BorderBrush.SetupPrimitive(_borderContext);
-              RenderPipeline.Instance.Add(_borderContext);
-            }
-            else
-              _borderContext.OnVerticesChanged(_verticesCountBorder, ref verts);
-          }
-          else
-          {
-            if (_borderAsset == null)
-            {
-              _borderAsset = new VisualAssetContext("Border._borderAsset:" + Name, Screen.Name);
-              ContentManager.Add(_borderAsset);
-            }
-            _borderAsset.VertexBuffer = PositionColored2Textured.Create(verts.Length);
-            BorderBrush.SetupBrush(_borderRect, FinalLayoutTransform, ActualPosition.Z, ref verts);
-
-            PositionColored2Textured.Set(_borderAsset.VertexBuffer, ref verts);
-            _verticesCountBorder = verts.Length / 3;
-          }
+          BorderBrush.SetupBrush(_borderRect, FinalLayoutTransform, ActualPosition.Z, verts);
+          int numVertices = verts.Length / 3;
+          _borderContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
+          AddPrimitiveContext(_borderContext);
+          BorderBrush.SetupPrimitive(_borderContext);
         }
     }
 
@@ -430,22 +382,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.FillChange) != 0)
       {
-        if (Background != null && _backgroundContext != null)
-        {
-          RenderPipeline.Instance.Remove(_backgroundContext);
+        if (_backgroundContext != null)
           Background.SetupPrimitive(_backgroundContext);
-          RenderPipeline.Instance.Add(_backgroundContext);
-        }
       }
 
       if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.StrokeChange) != 0)
       {
-        if (BorderBrush != null && _borderContext != null)
-        {
-          RenderPipeline.Instance.Remove(_borderContext);
+        if (_borderContext != null)
           BorderBrush.SetupPrimitive(_borderContext);
-          RenderPipeline.Instance.Add(_borderContext);
-        }
       }
     }
 
@@ -461,10 +405,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if ((_lastEvent & UIEvent.Hidden) != 0)
         {
-          RenderPipeline.Instance.Remove(_backgroundContext);
-          RenderPipeline.Instance.Remove(_borderContext);
-          _backgroundContext = null;
-          _borderContext = null;
+          RemovePrimitiveContext(ref _backgroundContext);
+          RemovePrimitiveContext(ref _borderContext);
           _performLayout = true;
         }
         else
@@ -475,52 +417,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
-      if (!IsVisible) return;
-      if (Background != null || (BorderBrush != null && BorderThickness > 0))
-      {
-        if (Background != null && _backgroundAsset != null && _backgroundAsset.IsAllocated == false)
-          _performLayout = true;
-        if (BorderBrush != null && _borderAsset != null && _borderAsset.IsAllocated == false)
-          _performLayout = true;
-        PerformLayout();
-        SkinContext.AddOpacity(Opacity);
-        //ExtendedMatrix m = new ExtendedMatrix();
-        //m.Matrix = Matrix.Translation(new Vector3((float)ActualPosition.X, (float)ActualPosition.Y, (float)ActualPosition.Z));
-        //SkinContext.AddRenderTransform(m);
-        if (Background != null)
+      PerformLayout();
+
+      SkinContext.AddOpacity(Opacity);
+
+      if (_backgroundContext != null)
+        if (Background.BeginRender(_backgroundContext))
         {
-          //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-          //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          if (Background.BeginRender(_backgroundAsset.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
-          {
-            GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
-            Background.EndRender();
-          }
-          _backgroundAsset.LastTimeUsed = SkinContext.Now;
+          GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
+          GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(_backgroundContext.PrimitiveType, 0, _backgroundContext.NumVertices);
+          Background.EndRender();
         }
 
-        if (BorderBrush != null && BorderThickness > 0)
+      if (_borderContext != null)
+        if (BorderBrush.BeginRender(_borderContext))
         {
-          //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          if (BorderBrush.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
-          {
-            GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
-            BorderBrush.EndRender();
-          }
-          _borderAsset.LastTimeUsed = SkinContext.Now;
+          GraphicsDevice.Device.VertexFormat = _borderContext.VertexFormat;
+          GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, _borderContext.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(_borderContext.PrimitiveType, 0, _borderContext.NumVertices);
+          BorderBrush.EndRender();
         }
-        //SkinContext.RemoveRenderTransform();
-        SkinContext.RemoveOpacity();
-      }
 
       if (_content != null)
-      {
-        SkinContext.AddOpacity(Opacity);
         _content.Render();
-        SkinContext.RemoveOpacity();
-      }
+
+      SkinContext.RemoveOpacity();
     }
 
     #endregion
@@ -547,29 +469,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         BorderBrush.Deallocate();
       if (Background != null)
         Background.Deallocate();
-      if (_borderAsset != null)
-      {
-        _borderAsset.Free(true);
-        ContentManager.Remove(_borderAsset);
-        _borderAsset = null;
-      }
-      if (_backgroundAsset != null)
-      {
-        _backgroundAsset.Free(true);
-        ContentManager.Remove(_backgroundAsset);
-        _backgroundAsset = null;
-      }
       _performLayout = true;
-      if (_backgroundContext != null)
-      {
-        RenderPipeline.Instance.Remove(_backgroundContext);
-        _backgroundContext = null;
-      }
-      if (_borderContext != null)
-      {
-        RenderPipeline.Instance.Remove(_borderContext);
-        _borderContext = null;
-      }
+      RemovePrimitiveContext(ref _backgroundContext);
+      RemovePrimitiveContext(ref _borderContext);
     }
 
     public override void Allocate()
@@ -592,16 +494,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DestroyRenderTree()
     {
-      if (_backgroundContext != null)
-      {
-        RenderPipeline.Instance.Remove(_backgroundContext);
-        _backgroundContext = null;
-      }
-      if (_borderContext != null)
-      {
-        RenderPipeline.Instance.Remove(_borderContext);
-        _borderContext = null;
-      }
+      RemovePrimitiveContext(ref _backgroundContext);
+      RemovePrimitiveContext(ref _borderContext);
       if (_content != null)
         _content.DestroyRenderTree();
     }

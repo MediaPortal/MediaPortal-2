@@ -53,10 +53,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
   // 
   public class RenderPipeline : IAsset
   {
-    static RenderPipeline _instance = new RenderPipeline();
-    List<PrimitiveContext> _primitives = new List<PrimitiveContext>();
-    List<PrimitiveContext> _newPrimitives = new List<PrimitiveContext>();
-    List<RenderGroup> _renderList = new List<RenderGroup>();
+    static readonly RenderPipeline _instance = new RenderPipeline();
+    readonly List<PrimitiveContext> _primitives = new List<PrimitiveContext>();
+    readonly List<PrimitiveContext> _newPrimitives = new List<PrimitiveContext>();
+    readonly List<RenderGroup> _renderList = new List<RenderGroup>();
     bool _sort = false;
 
     public static RenderPipeline Instance
@@ -93,8 +93,8 @@ namespace MediaPortal.UI.SkinEngine.Rendering
           renderGroup.Remove(primitive);
           primitive.RenderGroup = null;
         }
-        bool res1 = _primitives.Remove(primitive);
-        bool res2 = _newPrimitives.Remove(primitive);
+        _primitives.Remove(primitive);
+        _newPrimitives.Remove(primitive);
       }
     }
 
@@ -116,7 +116,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         {
           if (rendercontext.Effect.Equals(primitive.Effect) &&
               rendercontext.Parameters.Equals(primitive.Parameters) &&
-              rendercontext.Texture == primitive.Texture)
+              rendercontext.Texture == primitive.Texture &&
+              rendercontext.PrimitiveType == primitive.PrimitiveType &&
+              rendercontext.VertexFormat == primitive.VertexFormat &&
+              rendercontext.StrideSize == primitive.StrideSize)
           {
             rendercontext.Add(primitive);
             processed = true;
@@ -125,10 +128,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         }
         if (!processed)
         {
-          RenderGroup rendercontext = new RenderGroup();
-          rendercontext.Effect = primitive.Effect;
-          rendercontext.Parameters = primitive.Parameters;
-          rendercontext.Texture = primitive.Texture;
+          RenderGroup rendercontext = new RenderGroup
+            {
+                Effect = primitive.Effect,
+                Parameters = primitive.Parameters,
+                Texture = primitive.Texture,
+                PrimitiveType = primitive.PrimitiveType,
+                VertexFormat = primitive.VertexFormat,
+                StrideSize = primitive.StrideSize
+            };
           rendercontext.Add(primitive);
           _renderList.Add(rendercontext);
         }
@@ -144,7 +152,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         {
           if (rendercontext.Effect.Equals(primitive.Effect) &&
               rendercontext.Parameters.Equals(primitive.Parameters) &&
-              rendercontext.Texture == primitive.Texture)
+              rendercontext.Texture == primitive.Texture &&
+              rendercontext.PrimitiveType == primitive.PrimitiveType &&
+              rendercontext.VertexFormat == primitive.VertexFormat &&
+              rendercontext.StrideSize == primitive.StrideSize)
           {
             rendercontext.Add(primitive);
             processed = true;
@@ -154,10 +165,15 @@ namespace MediaPortal.UI.SkinEngine.Rendering
         }
         if (!processed)
         {
-          RenderGroup rendercontext = new RenderGroup();
-          rendercontext.Effect = primitive.Effect;
-          rendercontext.Parameters = primitive.Parameters;
-          rendercontext.Texture = primitive.Texture;
+          RenderGroup rendercontext = new RenderGroup
+            {
+                Effect = primitive.Effect,
+                Parameters = primitive.Parameters,
+                Texture = primitive.Texture,
+                PrimitiveType = primitive.PrimitiveType,
+                VertexFormat = primitive.VertexFormat,
+                StrideSize = primitive.StrideSize
+            };
           rendercontext.Add(primitive);
           _renderList.Add(rendercontext);
           _primitives.Add(primitive);

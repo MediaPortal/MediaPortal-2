@@ -273,7 +273,7 @@
     <Compile Include="DirectX\d3dutil.cs" />
     <Compile Include="DirectX\GraphicsDevice.cs" />
     <Compile Include="DirectX\PositionColoredTextured.cs" />
-    <Compile Include="DirectX\Vertex.cs" />
+    <Compile Include="DirectX\PositionColored2Textured.cs" />
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="Effects\EffectHandleAsset.cs" />
     <Compile Include="Effects\EffectParameters.cs" />

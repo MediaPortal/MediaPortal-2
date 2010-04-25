@@ -172,20 +172,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     #endregion
 
-    #region Protected methods
-
-    protected void SetColor(VertexBuffer vertexbuffer)
-    {
-      Color4 color = ColorConverter.FromColor(GradientStops[0].Color);
-      color.Alpha *= (float)Opacity;
-      for (int i = 0; i < _verts.Length; ++i)
-        _verts[i].Color = color.ToArgb();
-
-      PositionColored2Textured.Set(vertexbuffer, ref _verts);
-    }
-
-    #endregion
-
     #region IAddChild Members
 
     public void AddChild(GradientStop o)

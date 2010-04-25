@@ -34,15 +34,14 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
-namespace MediaPortal.UI.SkinEngine
+namespace MediaPortal.UI.SkinEngine.DirectX
 {
   public class GraphicsDevice : IDisposable
   {
-    #region variables
+    #region Variables
 
     private static d3dSetup _setup = new d3dSetup();
     private static Device _device;
@@ -56,6 +55,7 @@ namespace MediaPortal.UI.SkinEngine
     private static bool _firstTimeInitialisationMemory = true;
 
     #endregion
+
     public static Matrix TransformWorld;
     public static Matrix TransformView;
     public static Matrix TransformProjection;
@@ -90,8 +90,8 @@ namespace MediaPortal.UI.SkinEngine
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} format: {2} {3} Hz", Width,
-                                          Height, adapterInfo.CurrentDisplayMode.Format,
-                                          adapterInfo.CurrentDisplayMode.RefreshRate);
+            Height, adapterInfo.CurrentDisplayMode.Format,
+            adapterInfo.CurrentDisplayMode.RefreshRate);
         GetCapabilities();
       }
       catch (Exception ex)
@@ -111,11 +111,11 @@ namespace MediaPortal.UI.SkinEngine
     {
       _anisotropy = _device.Capabilities.MaxAnisotropy;
       _supportsFiltering = MPDirect3D.Direct3D.CheckDeviceFormat(
-        _device.Capabilities.AdapterOrdinal,
-        _device.Capabilities.DeviceType,
-        _device.GetDisplayMode(0).Format,
-        Usage.RenderTarget | Usage.QueryFilter, ResourceType.Texture,
-        Format.A8R8G8B8);
+          _device.Capabilities.AdapterOrdinal,
+          _device.Capabilities.DeviceType,
+          _device.GetDisplayMode(0).Format,
+          Usage.RenderTarget | Usage.QueryFilter, ResourceType.Texture,
+          Format.A8R8G8B8);
 
       _supportsAlphaBlend = MPDirect3D.Direct3D.CheckDeviceFormat(_device.Capabilities.AdapterOrdinal,
           _device.Capabilities.DeviceType, _device.GetDisplayMode(0).Format,
@@ -157,8 +157,8 @@ namespace MediaPortal.UI.SkinEngine
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-                                          adapterInfo.CurrentDisplayMode.Format,
-                                          adapterInfo.CurrentDisplayMode.RefreshRate);
+            adapterInfo.CurrentDisplayMode.Format,
+            adapterInfo.CurrentDisplayMode.RefreshRate);
         _backBuffer = _device.GetRenderTarget(0);
         GetCapabilities();
       }
@@ -406,8 +406,8 @@ namespace MediaPortal.UI.SkinEngine
           int ordinal = Device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
-                                            adapterInfo.CurrentDisplayMode.Format,
-                                            adapterInfo.CurrentDisplayMode.RefreshRate);
+              adapterInfo.CurrentDisplayMode.Format,
+              adapterInfo.CurrentDisplayMode.RefreshRate);
           _backBuffer = _device.GetRenderTarget(0);
           PlayersHelper.ReallocGUIResources();
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Aquired device reset");

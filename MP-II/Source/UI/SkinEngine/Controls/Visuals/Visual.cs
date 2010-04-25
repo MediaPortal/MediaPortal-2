@@ -24,7 +24,9 @@
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.MpfElements;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -144,6 +146,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     
     public virtual void DestroyRenderTree()
     { }
+
+    #region Helper methods
+
+    protected void RemovePrimitiveContext(ref PrimitiveContext primitiveContext)
+    {
+      if (primitiveContext == null)
+        return;
+      if (SkinContext.UseBatching)
+        RenderPipeline.Instance.Remove(primitiveContext);
+      primitiveContext.Dispose();
+      primitiveContext = null;
+    }
+
+    protected void AddPrimitiveContext(PrimitiveContext primitiveContext)
+    {
+      if (SkinContext.UseBatching)
+        RenderPipeline.Instance.Add(primitiveContext);
+    }
+
+    #endregion
   }
 }
 

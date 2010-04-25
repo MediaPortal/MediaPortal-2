@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -757,12 +756,12 @@ namespace Ui.Players.Video.Subtitles
         GraphicsDevice.Device.SetRenderState(RenderState.AlphaTestEnable, false);
 
         EffectAsset effect = ContentManager.GetEffect("normal");
+        GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
         GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColoredTextured.StrideSize);
         GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
         effect.StartRender(subTexture);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
         effect.EndRender();
-        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       }
       catch (Exception e)
       {
@@ -805,10 +804,10 @@ namespace Ui.Players.Video.Subtitles
         int color;
         unchecked
         {
-          color = (int)0xffffffff;
+          color = (int) 0xffffffff;
         }
 
-        // upper left
+        // Upper left
         verts[0].X = wx;
         verts[0].Y = wy;
         verts[0].Z = 1.0f;
@@ -816,7 +815,7 @@ namespace Ui.Players.Video.Subtitles
         verts[0].Tv1 = 0;
         verts[0].Color = color;
 
-        // upper right
+        // Upper right
         verts[1].X = wx + wwidth;
         verts[1].Y = wy;
         verts[1].Z = 1.0f;
@@ -824,7 +823,7 @@ namespace Ui.Players.Video.Subtitles
         verts[1].Tv1 = 0;
         verts[1].Color = color;
 
-        // lower left
+        // Lower left
         verts[2].X = wx;
         verts[2].Y = wy + wheight;
         verts[2].Z = 1.0f;
@@ -832,7 +831,7 @@ namespace Ui.Players.Video.Subtitles
         verts[2].Tv1 = 1;
         verts[2].Color = color;
 
-        // lower right
+        // Lower right
         verts[3].X = wx + wwidth;
         verts[3].Y = wy + wheight;
         verts[3].Z = 1.0f;
@@ -841,7 +840,7 @@ namespace Ui.Players.Video.Subtitles
         verts[3].Color = color;
 
 
-        // remember what the vertexBuffer is set to
+        // Remember what the vertexBuffer is set to
         wy0 = wy;
         wx0 = wx;
         wheight0 = wheight;

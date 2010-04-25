@@ -673,6 +673,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       lock (_syncObj)
         DoCloseCurrentScreenAndDialogs(true);
       _skinManager.Dispose();
+      Fonts.FontManager.Unload();
     }
 
     public ISkinResourceManager SkinResourceManager
@@ -874,12 +875,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Reset()
     {
       ForEachScreen(screen => screen.Reset());
-    }
-
-    public void Exit()
-    {
-      ForEachScreen(screen => screen.Deallocate());
-      Fonts.FontManager.Unload();
     }
 
     #region IScreenManager implementation

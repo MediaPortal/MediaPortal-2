@@ -238,6 +238,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
       else
       {
+        GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
         _font.Render(GraphicsDevice.Device, _primitivecount);
         totalWidth = _previousTotalWidth;

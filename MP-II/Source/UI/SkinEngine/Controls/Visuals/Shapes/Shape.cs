@@ -24,11 +24,9 @@
 
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
-using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 
@@ -69,13 +67,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected AbstractProperty _strokeProperty;
     protected AbstractProperty _strokeThicknessProperty;
 
-    // Albert: We should rework the system how vertex buffers (together with their vertex counts) are stored.
-    // We should implement a "typed vertexbuffer" class, holding the vertices, their count and their primitivetype.
-    // Currently, only triangle lists are used, which limits all vertex buffers to this type.
-    protected VisualAssetContext _fillAsset;
-    protected int _verticesCountFill;
-    protected VisualAssetContext _borderAsset;
-    protected int _verticesCountBorder;
     protected bool _performLayout;
     protected PrimitiveContext _fillContext;
     protected PrimitiveContext _strokeContext;
@@ -217,9 +208,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _strokeThicknessProperty.SetValue(value); }
     }
 
-    protected virtual void PerformLayout()
+    protected void PerformLayout()
     {
+      if (!_performLayout)
+        return;
       _performLayout = false;
+      DoPerformLayout();
+    }
+
+    /// <summary>
+    /// Allocates the <see cref="_fillContext"/> and <see cref="_strokeContext"/> variables.
+    /// This method will be overridden in sub classes.
+    /// </summary>
+    protected virtual void DoPerformLayout()
+    {
     }
 
     public override void DoBuildRenderTree()
@@ -232,16 +234,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public override void DestroyRenderTree()
     {
-      if (_fillContext != null)
-      {
-        RenderPipeline.Instance.Remove(_fillContext);
-        _fillContext = null;
-      }
-      if (_strokeContext != null)
-      {
-        RenderPipeline.Instance.Remove(_strokeContext);
-        _strokeContext = null;
-      }
+      base.DestroyRenderTree();
+      RemovePrimitiveContext(ref _fillContext);
+      RemovePrimitiveContext(ref _strokeContext);
     }
 
     void SetupBrush(UIEvent uiEvent)
@@ -249,20 +244,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       if ((uiEvent & UIEvent.FillChange) != 0 || (uiEvent & UIEvent.OpacityChange) != 0)
       {
         if (Fill != null && _fillContext != null)
-        {
-          RenderPipeline.Instance.Remove(_fillContext);
           Fill.SetupPrimitive(_fillContext);
-          RenderPipeline.Instance.Add(_fillContext);
-        }
       }
       if ((uiEvent & UIEvent.StrokeChange) != 0 || (uiEvent & UIEvent.OpacityChange) != 0)
       {
         if (Stroke != null && _strokeContext != null)
-        {
-          RenderPipeline.Instance.Remove(_strokeContext);
           Stroke.SetupPrimitive(_strokeContext);
-          RenderPipeline.Instance.Add(_strokeContext);
-        }
       }
     }
 
@@ -279,12 +266,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       PerformLayout();
       if ((_lastEvent & UIEvent.Hidden) != 0)
       {
-        if (_fillContext != null)
-          RenderPipeline.Instance.Remove(_fillContext);
-        if (_strokeContext != null)
-          RenderPipeline.Instance.Remove(_strokeContext);
-        _fillContext = null;
-        _strokeContext = null;
+        RemovePrimitiveContext(ref _fillContext);
+        RemovePrimitiveContext(ref _strokeContext);
         _performLayout = true;
         _hidden = true;
       }
@@ -295,43 +278,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     public override void DoRender()
     {
-      if (!IsVisible) return;
-      if (Fill == null && Stroke == null) return;
-      if (Fill != null)
-      {
-        if (_fillAsset == null || !_fillAsset.IsAllocated)
-          _performLayout = true;
-      }
-      if (Stroke != null)
-      {
-        if (_borderAsset == null || !_borderAsset.IsAllocated)
-          _performLayout = true;
-      }
       PerformLayout();
 
       SkinContext.AddOpacity(Opacity);
-      if (_fillAsset != null && _fillAsset.VertexBuffer != null)
+      if (_fillContext != null)
       {
-        //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Fill.BeginRender(_fillAsset.VertexBuffer, _verticesCountFill, PrimitiveType.TriangleList))
+        GraphicsDevice.Device.VertexFormat = _fillContext.VertexFormat;
+        if (Fill.BeginRender(_fillContext))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _fillAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountFill);
+          GraphicsDevice.Device.VertexFormat = _fillContext.VertexFormat;
+          GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, _fillContext.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(_fillContext.PrimitiveType, 0, _fillContext.NumVertices);
           Fill.EndRender();
         }
-        _fillAsset.LastTimeUsed = SkinContext.Now;
       }
-      if (_borderAsset != null && _borderAsset.VertexBuffer != null)
+      if (_strokeContext != null)
       {
-        //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-        if (Stroke.BeginRender(_borderAsset.VertexBuffer, _verticesCountBorder, PrimitiveType.TriangleList))
+        if (Stroke.BeginRender(_strokeContext))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _borderAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, _verticesCountBorder);
+          GraphicsDevice.Device.VertexFormat = _strokeContext.VertexFormat;
+          GraphicsDevice.Device.SetStreamSource(0, _strokeContext.VertexBuffer, 0, _strokeContext.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(_strokeContext.PrimitiveType, 0, _strokeContext.NumVertices);
           Stroke.EndRender();
         }
-        _borderAsset.LastTimeUsed = SkinContext.Now;
       }
       SkinContext.RemoveOpacity();
     }
@@ -366,28 +335,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         Fill.Deallocate();
       if (Stroke != null)
         Stroke.Deallocate();
-      if (_fillAsset != null)
-      {
-        _fillAsset.Free(true);
-        ContentManager.Remove(_fillAsset);
-        _fillAsset = null;
-      }
-      if (_borderAsset != null)
-      {
-        _borderAsset.Free(true);
-        ContentManager.Remove(_borderAsset);
-        _borderAsset = null;
-      }
-      if (_fillContext != null)
-      {
-        RenderPipeline.Instance.Remove(_fillContext);
-        _fillContext = null;
-      }
-      if (_strokeContext != null)
-      {
-        RenderPipeline.Instance.Remove(_strokeContext);
-        _strokeContext = null;
-      }
+      RemovePrimitiveContext(ref _fillContext);
+      RemovePrimitiveContext(ref _strokeContext);
     }
 
     public override void Allocate()

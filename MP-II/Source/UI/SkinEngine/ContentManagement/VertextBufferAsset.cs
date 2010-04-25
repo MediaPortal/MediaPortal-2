@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private float _previousVoff;
     private float _previousUmax;
     private float _previousVMax;
-    EffectAsset _effect;
+    private readonly EffectAsset _effect;
 
     #endregion
 
@@ -71,13 +71,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </summary>
     public void Allocate()
     {
-      //      Trace.WriteLine(String.Format("  Alloc  vertex :{0}", _texture.Name));
       if (_vertexBuffer != null)
-      {
         Free(true);
-      }
-      //      ServiceScope.Get<ILogger>().Debug("VERTEXTBUFFERASSET alloc vertextbuffer {0}",_texture.Name);
-      _vertexBuffer = PositionColored2Textured.Create(4);//writeonly
+      _vertexBuffer = PositionColored2Textured.Create(4);
       ContentManager.VertexReferences++;
       Set(0, 0, 0, 0, 0, 0, 0, 1, 1, 0xff, 0xff, 0xff, 0xff);
     }
@@ -114,14 +110,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Fills the texture buffer with the rendering attribtues
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="w">The w.</param>
-    /// <param name="h">The h.</param>
-    /// <param name="colorUpperLeft">The color upper left.</param>
-    /// <param name="colorBottomLeft">The color bottom left.</param>
-    /// <param name="colorBottomRight">The color bottom right.</param>
-    /// <param name="colorUpperRight">The color upper right.</param>
     private void Set(float x, float y, float z, float w, float h,
         float uoff, float voff, float umax, float vmax,
         int colorUpperLeft, int colorBottomLeft,
@@ -164,14 +152,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Updates the vertex buffer.
     /// </summary>
-    /// <param name="left">The left.</param>
-    /// <param name="top">The top.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="uoff">The uoff.</param>
-    /// <param name="voff">The voff.</param>
-    /// <param name="umax">The umax.</param>
-    /// <param name="vmax">The vmax.</param>
     private void UpdateVertexBuffer(float left, float top, float z, float width, float height,
         float uoff, float voff, float umax, float vmax,
         int alphaUpperLeft, int alphaBottomLeft,
@@ -193,8 +173,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       PositionColored2Textured[] verts = new PositionColored2Textured[4];
       unchecked
       {
-        float tu2, tv2;
-        tu2 = tv2 = 1;
         long colorUpperLeft = alphaUpperLeft;
         colorUpperLeft <<= 24;
         colorUpperLeft += 0xffffff;
@@ -234,7 +212,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         verts[3].Color = (int)colorUpperRight;
         //SkinContext.GetAlphaGradientUV(upperRight, out tu2, out tv2);
       }
-      PositionColored2Textured.Set(_vertexBuffer, ref verts);
+      PositionColored2Textured.Set(_vertexBuffer, verts);
     }
 
     #region IAsset Members
@@ -286,12 +264,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Draws the vertex buffer and associated texture
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="alpha">The alpha.</param>
-    /// <param name="streamNumber">The stream number.</param>
     public void Draw(float x, float y, float z, float width, float height, float alpha, int streamNumber)
     {
       if (!_texture.IsAllocated)
@@ -311,7 +283,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       Set(x, y, z, width, height, 0, 0, 1, 1, (int) alpha, (int) alpha, (int) alpha, (int) alpha);
 
-      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       _effect.Render(_texture, streamNumber);
       _lastTimeUsed = SkinContext.Now;
@@ -320,14 +292,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Draws the vertex buffer and associated texture
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    /// <param name="width">The width.</param>
-    /// <param name="height">The height.</param>
-    /// <param name="alphaUpperLeft">The alpha upper left.</param>
-    /// <param name="alphaBottomLeft">The alpha bottom left.</param>
-    /// <param name="alphaBottomRight">The alpha bottom right.</param>
-    /// <param name="alphaUpperRight">The alpha upper right.</param>
     public void Draw(float x, float y, float z, float width, float height,
         float uoff, float voff, float umax, float vmax,
         float alphaUpperLeft, float alphaBottomLeft,
@@ -368,7 +332,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       Set(x, y, z, width, height, uoff, voff, umax, vmax,
           (int) alphaUpperLeft, (int) alphaBottomLeft, (int) alphaBottomRight, (int) alphaUpperRight);
-      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
       _effect.Render(_texture, 0);
@@ -420,7 +384,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           (int) alphaBottomRight,
           (int) alphaUpperRight);
 
-      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
+      GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       effect.Render(_texture,0);
       _lastTimeUsed = SkinContext.Now;

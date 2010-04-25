@@ -33,7 +33,6 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.Effects;
@@ -163,9 +162,7 @@ namespace Ui.Players.Video
         if (_texture != null)
         {
           if (effect != null)
-          {
             effect.Render(_texture);
-          }
           else
           {
             _normalEffect.StartRender(_texture);

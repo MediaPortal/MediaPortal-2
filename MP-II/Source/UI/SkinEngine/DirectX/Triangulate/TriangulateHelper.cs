@@ -251,13 +251,13 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     }
 
     /// <summary>
-    /// Generates the vertices of a thickened line strip
+    /// Generates the vertices of a thickened line strip.
     /// </summary>
     /// <param name="path">Graphics path on the line strip</param>
     /// <param name="thickness">Thickness of the line</param>
     /// <param name="close">Whether to connect the last point back to the first</param>
     /// <param name="widthMode">How to place the weight of the line relative to it</param>
-    /// <returns>Points ready to pass to the Transform constructor</returns>
+    /// <param name="verts">Generated vertices.</param>
     public void CalculateLinePoints(GraphicsPath path, float thickness, bool close, WidthMode widthMode,
         out PositionColored2Textured[] verts)
     {

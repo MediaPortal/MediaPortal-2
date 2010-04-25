@@ -72,21 +72,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           {
             string fileName = (string) message.MessageData["fullpath"];
             lock (_assetsNormal)
-            {
               if (_assetsNormal.ContainsKey(fileName))
               {
                 TextureAsset asset = (TextureAsset) _assetsNormal[fileName];
                 asset.Free(true);
               }
-            }
             lock (_assetsHigh)
-            {
               if (_assetsHigh.ContainsKey(fileName))
               {
                 TextureAsset asset = (TextureAsset) _assetsHigh[fileName];
                 asset.Free(true);
               }
-            }
           }
         }
       }
@@ -99,9 +95,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public static void Add(IAsset unknownAsset)
     {
       lock (_unnamedAssets)
-      {
         _unnamedAssets.Add(unknownAsset);
-      }
     }
 
     /// <summary>
@@ -111,36 +105,28 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public static void Remove(IAsset unknownAsset)
     {
       lock (_unnamedAssets)
-      {
         if (_unnamedAssets.Remove(unknownAsset)) return;
-      }
       lock (_vertexBuffers)
-      {
         if (_vertexBuffers.Remove(unknownAsset)) return;
-      }
       lock (_assetsNormal)
       {
         Dictionary<string, IAsset>.Enumerator enumer = _assetsNormal.GetEnumerator();
         while (enumer.MoveNext())
-        {
           if (enumer.Current.Value == unknownAsset)
           {
             _assetsNormal.Remove(enumer.Current.Key);
             break;
           }
-        }
       }
       lock (_assetsHigh)
       {
         Dictionary<string, IAsset>.Enumerator enumer = _assetsHigh.GetEnumerator();
         while (enumer.MoveNext())
-        {
           if (enumer.Current.Value == unknownAsset)
           {
             _assetsHigh.Remove(enumer.Current.Key);
             break;
           }
-        }
       }
     }
 
@@ -163,10 +149,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// returns a vertex buffer asset for the specified graphic file
     /// </summary>
     /// <param name="fileName">Name of the file (.jpg, .png).</param>
+    /// <param name="thumb">If set to <c>true</c>, the image will be loaded as thumbnail.</param>
     /// <returns></returns>
-    public static VertextBufferAsset Load(string fileName, bool normal)
+    public static VertextBufferAsset Load(string fileName, bool thumb)
     {
-      TextureAsset texture = GetTexture(fileName, normal);
+      TextureAsset texture = GetTexture(fileName, thumb);
       lock (_vertexBuffers)
       {
         VertextBufferAsset vertex = new VertextBufferAsset(texture);
@@ -180,9 +167,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       lock (_assetsNormal)
       {
         if (_assetsNormal.ContainsKey(effectName))
-        {
           return (EffectAsset)_assetsNormal[effectName];
-        }
         EffectAsset newEffect = new EffectAsset(effectName);
         _assetsNormal[effectName] = newEffect;
         return newEffect;
@@ -201,9 +186,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         lock (_assetsNormal)
         {
           if (_assetsNormal.ContainsKey(fileName))
-          {
-            return (TextureAsset)_assetsNormal[fileName];
-          }
+            return (TextureAsset) _assetsNormal[fileName];
           TextureAsset newImage = new TextureAsset(fileName);
           _assetsNormal[fileName] = newImage;
           return newImage;
@@ -213,9 +196,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       lock (_assetsHigh)
       {
         if (_assetsHigh.ContainsKey(fileName))
-        {
-          return (TextureAsset)_assetsHigh[fileName];
-        }
+          return (TextureAsset) _assetsHigh[fileName];
         TextureAsset newImage = new TextureAsset(fileName);
         _assetsHigh[fileName] = newImage;
         return newImage;
@@ -229,28 +210,18 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     {
       TimeSpan ts = SkinContext.Now - _timer;
       if (ts.TotalSeconds < 1)
-      {
         return;
-      }
       _timer = SkinContext.Now;
 
       Free(true, false);
-      //Trace.WriteLine(String.Format("Mgr: normal:{0} high:{1} unnamed:{2} vertex:{3}",
-      //_assetsNormal.Count, _assetsHigh.Count, _unnamedAssets.Count, _vertexBuffers.Count));
     }
 
     protected static void Free(ICollection<IAsset> assets, bool checkIfCanBeDeleted, bool force)
     {
       lock (assets)
-      {
         foreach (IAsset asset in assets)
-        {
           if (asset.IsAllocated && (!checkIfCanBeDeleted || asset.CanBeDeleted))
-          {
             asset.Free(force);
-          }
-        }
-      }
     }
 
     protected static void Free(IDictionary<string, IAsset> assets, bool checkIfCanBeDeleted, bool force)

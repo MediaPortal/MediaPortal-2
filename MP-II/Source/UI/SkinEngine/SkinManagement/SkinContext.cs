@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.DirectX;
 
 namespace MediaPortal.UI.SkinEngine.SkinManagement
 {                         

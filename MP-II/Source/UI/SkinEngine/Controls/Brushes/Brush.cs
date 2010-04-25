@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
-    public virtual void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, ref PositionColored2Textured[] verts)
+    public virtual void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
     {
       float w = bounds.Width;
       float h = bounds.Height;
@@ -233,7 +233,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
     }
 
-    protected void UpdateBounds(RectangleF bounds, ExtendedMatrix layoutTransform, ref PositionColored2Textured[] verts)
+    protected void UpdateBounds(RectangleF bounds, ExtendedMatrix layoutTransform, PositionColored2Textured[] verts)
     {
       float minx = float.MaxValue;
       float miny = float.MaxValue;
@@ -248,6 +248,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         if (vert.X > maxx) maxx = vert.X;
         if (vert.Y > maxy) maxy = vert.Y;
       }
+      // Albert, 2010-04-23: The following can be removed when the layout transform is no longer calculated in the
+      // vertex coordinates
       if (layoutTransform != null)
       {
         maxx -= minx;
@@ -265,8 +267,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _bounds = new RectangleF(minx, miny, maxx, maxy);
     }
 
-    public virtual bool BeginRender(VertexBuffer vertexBuffer, int primitiveCount,
-        PrimitiveType primitiveType)
+    public virtual bool BeginRender(PrimitiveContext primitiveContext)
     {
       return false;
     }

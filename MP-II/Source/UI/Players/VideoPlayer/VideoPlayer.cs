@@ -38,7 +38,6 @@ using MediaPortal.Core.Logging;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Geometries;
 using MediaPortal.UI.Presentation.Players;
-using MediaPortal.UI.SkinEngine;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities.Exceptions;

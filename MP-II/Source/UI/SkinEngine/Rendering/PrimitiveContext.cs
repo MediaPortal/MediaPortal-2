@@ -25,27 +25,58 @@
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
+using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.Rendering
 {
-  // TODO: Make PrimitiveType configurable
   public class PrimitiveContext
   {
-    EffectAsset _effect;
-    EffectParameters _parameters;
-    ITextureAsset _texture;
-    PositionColored2Textured[] _vertices;
-    int _primitiveCount;
-    RenderGroup _renderGroup;
+    #region Protected fields
+
+    protected EffectAsset _effect;
+    protected EffectParameters _parameters;
+    protected ITextureAsset _texture;
+    protected VertexBuffer _vertexBuffer;
+    protected PositionColored2Textured[] _vertices;
+    protected PrimitiveType _primitiveType;
+    protected int _numVertices;
+    protected VertexFormat _vertexFormat;
+    protected int _strideSize;
+    // TODO: Remove depencency from RenderGroup (inherit from IObservable?)
+    protected RenderGroup _renderGroup;
+
+    #endregion
 
     public PrimitiveContext()
     {
     }
 
-    public PrimitiveContext(int primitiveCount, ref PositionColored2Textured[] vertices)
+    public PrimitiveContext(int verticesCount, ref PositionColored2Textured[] vertices, PrimitiveType primitiveType)
     {
-      _primitiveCount = primitiveCount;
+      InitializeVertexBuffer(verticesCount, vertices);
+      _primitiveType = primitiveType;
+      _vertexFormat = PositionColored2Textured.Format; // TODO: Make configurable
+      _strideSize = PositionColored2Textured.StrideSize;
+    }
+
+    public void Dispose()
+    {
+      _vertexBuffer.Dispose();
+    }
+
+    public void InitializeVertexBuffer(int verticesCount, PositionColored2Textured[] vertices)
+    {
+      _numVertices = verticesCount;
+      _vertexBuffer = PositionColored2Textured.Create(vertices.Length);
+      PositionColored2Textured.Set(_vertexBuffer, vertices);
       _vertices = vertices;
+    }
+
+    public void OnVerticesChanged(int numVertices, PositionColored2Textured[] vertices)
+    {
+      InitializeVertexBuffer(numVertices, vertices);
+      if (_renderGroup != null)
+        _renderGroup.UpdateVertices = true;
     }
 
     #region Properties
@@ -77,23 +108,35 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     public PositionColored2Textured[] Vertices
     {
       get { return _vertices; }
-      set { _vertices = value; }
     }
 
-    public int PrimitiveCount
+    public VertexBuffer VertexBuffer
     {
-      get { return _primitiveCount; }
-      set { _primitiveCount = value; }
+      get { return _vertexBuffer; }
+    }
+
+    public PrimitiveType PrimitiveType
+    {
+      get { return _primitiveType; }
+      set { _primitiveType = value; }
+    }
+
+    public int NumVertices
+    {
+      get { return _numVertices; }
+      set { _numVertices = value; }
+    }
+
+    public VertexFormat VertexFormat
+    {
+      get { return _vertexFormat; }
+    }
+
+    public int StrideSize
+    {
+      get { return _strideSize; }
     }
 
     #endregion
-
-    public void OnVerticesChanged(int primitiveCount, ref PositionColored2Textured[] vertices)
-    {
-      _primitiveCount = primitiveCount;
-      _vertices = vertices;
-      if (_renderGroup != null)
-        _renderGroup.UpdateVertices = true;
-    }
   }
 }

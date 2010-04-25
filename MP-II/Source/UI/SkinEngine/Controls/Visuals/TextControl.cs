@@ -26,6 +26,7 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.DirectX;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
 using FontRender = MediaPortal.UI.SkinEngine.ContentManagement.FontRender;

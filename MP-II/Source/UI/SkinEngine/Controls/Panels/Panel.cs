@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
@@ -93,7 +92,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected volatile bool _performLayout = true; // Mark panel to adapt background brush and related contents to the layout
     protected List<UIElement> _renderOrder; // Cache for the render order of our children
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
-    protected VisualAssetContext _backgroundAsset;
     protected PrimitiveContext _backgroundContext;
     protected UIEvent _lastEvent = UIEvent.None;
 
@@ -165,12 +163,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     protected void OnBackgroundPropertyChanged(AbstractProperty property, object oldValue)
     {
-      if (_backgroundAsset != null)
-      {
-        VisualAssetContext vac = _backgroundAsset;
-        _backgroundAsset = null;
-        vac.Free(false);
-      }
       Brush oldBackground = oldValue as Brush;
       if (oldBackground != null)
         oldBackground.ObjectChanged -= OnBrushChanged;
@@ -223,7 +215,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void InvalidateLayout()
     {
       base.InvalidateLayout();
-      _updateRenderOrder = true;
       if (Screen != null) Screen.Invalidate(this);
     }
 
@@ -246,11 +237,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void SetupBrush()
     {
       if (Background != null && _backgroundContext != null)
-      {
-        RenderPipeline.Instance.Remove(_backgroundContext);
         Background.SetupPrimitive(_backgroundContext);
-        RenderPipeline.Instance.Add(_backgroundContext);
-      }
     }
 
     protected virtual void RenderChildren()
@@ -272,8 +259,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         if ((_lastEvent & UIEvent.Hidden) != 0)
         {
-          RenderPipeline.Instance.Remove(_backgroundContext);
-          _backgroundContext = null;
+          RemovePrimitiveContext(ref _backgroundContext);
           _performLayout = true;
         }
         if ((_lastEvent & UIEvent.OpacityChange) != 0)
@@ -286,21 +272,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       UpdateRenderOrder();
 
-      SkinContext.AddOpacity(Opacity);
-      if (Background != null)
-      {
-        if (_backgroundAsset == null || (_backgroundAsset != null && !_backgroundAsset.IsAllocated))
-          _performLayout = true;
-        PerformLayout();
+      PerformLayout();
 
-        if (Background.BeginRender(_backgroundAsset.VertexBuffer, 2, PrimitiveType.TriangleList))
+      SkinContext.AddOpacity(Opacity);
+
+      if (_backgroundContext != null)
+      {
+        if (Background.BeginRender(_backgroundContext))
         {
-          GraphicsDevice.Device.SetStreamSource(0, _backgroundAsset.VertexBuffer, 0, PositionColored2Textured.StrideSize);
-          GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2);
+          GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
+          GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
+          GraphicsDevice.Device.DrawPrimitives(_backgroundContext.PrimitiveType, 0, 2);
           Background.EndRender();
         }
-
-        _backgroundAsset.LastTimeUsed = SkinContext.Now;
       }
       RenderChildren();
       SkinContext.RemoveOpacity();
@@ -312,8 +296,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return;
       _performLayout = false;
 
-      //Trace.WriteLine("Panel.PerformLayout() " + Name + " -" + GetType().ToString());
-
+      // Setup background brush
+      RemovePrimitiveContext(ref _backgroundContext);
       if (Background != null)
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
@@ -341,28 +325,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           verts[4].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
           verts[5].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
         }
-        Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, ref verts);
-        if (SkinContext.UseBatching)
-        {
-          if (_backgroundContext == null)
-          {
-            _backgroundContext = new PrimitiveContext(2, ref verts);
-            Background.SetupPrimitive(_backgroundContext);
-            RenderPipeline.Instance.Add(_backgroundContext);
-          }
-          else
-            _backgroundContext.OnVerticesChanged(2, ref verts);
-        }
-        else
-        {
-          if (_backgroundAsset == null)
-          {
-            _backgroundAsset = new VisualAssetContext("Panel._backgroundAsset:" + Name, Screen.Name);
-            ContentManager.Add(_backgroundAsset);
-          }
-          _backgroundAsset.VertexBuffer = PositionColored2Textured.Create(6);
-          PositionColored2Textured.Set(_backgroundAsset.VertexBuffer, ref verts);
-        }
+        Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+        _backgroundContext = new PrimitiveContext(2, ref verts, PrimitiveType.TriangleList);
+        AddPrimitiveContext(_backgroundContext);
+        Background.SetupPrimitive(_backgroundContext);
       }
     }
 
@@ -418,27 +384,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     public override void Deallocate()
     {
       base.Deallocate();
-      if (_backgroundAsset != null)
-      {
-        _backgroundAsset.Free(true);
-        ContentManager.Remove(_backgroundAsset);
-        _backgroundAsset = null;
-      }
       if (Background != null)
         Background.Deallocate();
 
-      if (_backgroundContext != null)
-      {
-        RenderPipeline.Instance.Remove(_backgroundContext);
-        _backgroundContext = null;
-      }
+      RemovePrimitiveContext(ref _backgroundContext);
     }
 
     public override void Allocate()
     {
       base.Allocate();
-      if (_backgroundAsset != null)
-        ContentManager.Add(_backgroundAsset);
       if (Background != null)
         Background.Allocate();
       _performLayout = true;
@@ -458,11 +412,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public override void DestroyRenderTree()
     {
-      if (_backgroundContext != null)
-      {
-        RenderPipeline.Instance.Remove(_backgroundContext);
-        _backgroundContext = null;
-      }
+      RemovePrimitiveContext(ref _backgroundContext);
       foreach (UIElement child in Children)
         child.DestroyRenderTree();
     }
