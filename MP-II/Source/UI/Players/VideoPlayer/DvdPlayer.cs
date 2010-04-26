@@ -770,8 +770,8 @@ namespace Ui.Players.Video
           float y = (int)(lParam >> 16);
 
           //scale to skin coordinates
-          x *= SkinContext.SkinWidth / SkinContext.Form.ClientSize.Width;
-          y *= SkinContext.SkinHeight / SkinContext.Form.ClientSize.Height;
+          x *= SkinContext.SkinResources.SkinWidth / (float) SkinContext.Form.ClientSize.Width;
+          y *= SkinContext.SkinResources.SkinHeight / (float) SkinContext.Form.ClientSize.Height;
 
 
           Vector3 upperLeft = _vertices[0].Position;

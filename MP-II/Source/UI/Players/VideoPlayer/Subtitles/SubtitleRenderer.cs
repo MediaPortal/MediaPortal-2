@@ -471,8 +471,8 @@ namespace Ui.Players.Video.Subtitles
         subtitle.timeOut = sub.timeOut;
         subtitle.presentTime = sub.timeStamp / 90000.0f + startPos;
 
-        subtitle.height = (uint)SkinContext.SkinHeight;
-        subtitle.width = (uint)SkinContext.SkinWidth;
+        subtitle.height = (uint) SkinContext.SkinResources.SkinHeight;
+        subtitle.width = (uint) SkinContext.SkinResources.SkinWidth;
         subtitle.firstScanLine = 0;
 
         lock (subtitles)
@@ -499,8 +499,8 @@ namespace Ui.Players.Video.Subtitles
     public static Bitmap RenderText(LineContent[] lc)
     {
 
-      int w = (int)SkinContext.SkinWidth;
-      int h = (int)SkinContext.SkinHeight;
+      int w = SkinContext.SkinResources.SkinWidth;
+      int h = SkinContext.SkinResources.SkinHeight;
 
       Bitmap bmp = new Bitmap(w, h);
 
@@ -736,8 +736,8 @@ namespace Ui.Players.Video.Subtitles
 
         // FIXME: which "MovieRectangle" to use here?
         Rectangle movieRect = new Rectangle();// player.MovieRectangle;
-        rationH = movieRect.Height / ((float)SkinContext.SkinHeight);
-        rationW = movieRect.Width / ((float)SkinContext.SkinWidth);
+        rationH = movieRect.Height / (float) SkinContext.SkinResources.SkinHeight;
+        rationW = movieRect.Width / (float) SkinContext.SkinResources.SkinWidth;
 
         wx = (movieRect.Right) - (movieRect.Width / 2) - (int)((currentSubtitle.width * rationW) / 2);
         wy = movieRect.Top + (int)(rationH * currentSubtitle.firstScanLine);
