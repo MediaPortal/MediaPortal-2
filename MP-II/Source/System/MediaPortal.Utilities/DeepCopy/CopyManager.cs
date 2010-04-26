@@ -135,8 +135,9 @@ namespace MediaPortal.Utilities.DeepCopy
     {
       if (source == null)
         return default(T);
-      if (_identities.ContainsKey(source))
-        return (T) _identities[source];
+      object o;
+      if (_identities.TryGetValue(source, out o))
+        return (T) o;
       T result;
       if (CopyHook(source, out result))
         return result;
@@ -144,11 +145,11 @@ namespace MediaPortal.Utilities.DeepCopy
       {
         result = CreateCopyForInstance(source);
         // The copy process for the new instance will be completed later
-        _toBeCompleted.AddLast((IDeepCopyable)source);
+        _toBeCompleted.AddLast((IDeepCopyable) source);
       }
       else
         // No copying of instances which do not implement IDeepCopyable
-        result = source;
+        return source;
       AddIdentity(source, result);
       return result;
     }
