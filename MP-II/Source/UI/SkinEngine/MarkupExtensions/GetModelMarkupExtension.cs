@@ -75,5 +75,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("Model Id={0}", _id);
+    }
+
+    #endregion
   }
 }

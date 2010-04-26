@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
@@ -488,6 +490,49 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       value = CalculateColor();
       return true;
+    }
+
+    #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      ICollection<string> parameters = new List<string>();
+      if (_baseColor.HasValue)
+        parameters.Add("BaseColor=" + _baseColor.Value);
+      if (_r > -1)
+        parameters.Add("R=" + _r);
+      if (_g > -1)
+        parameters.Add("G=" + _g);
+      if (_b > -1)
+        parameters.Add("B=" + _b);
+      if (_rdiff != 0)
+        parameters.Add("Rdiff=" + _rdiff);
+      if (_gdiff != 0)
+        parameters.Add("Gdiff=" + _gdiff);
+      if (_bdiff != 0)
+        parameters.Add("Bdiff=" + _bdiff);
+
+      if (_h > -1)
+        parameters.Add("H=" + _h);
+      if (_s > -1)
+        parameters.Add("S=" + _s);
+      if (_v > -1)
+        parameters.Add("V=" + _v);
+      if (_hdiff != 0)
+        parameters.Add("Hdiff=" + _hdiff);
+      if (_sdiff != 0)
+        parameters.Add("Sdiff=" + _sdiff);
+      if (_vdiff != 0)
+        parameters.Add("vDiff=" + _vdiff);
+
+      if (_a != 0)
+        parameters.Add("A=" + _a);
+      if (_adiff != 0)
+        parameters.Add("Adiff=" + _adiff);
+      
+      return string.Format("Color {0}", StringUtils.Join(", ", parameters));
     }
 
     #endregion

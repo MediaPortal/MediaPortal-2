@@ -105,11 +105,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         if (AncestorType != null)
           l.Add("AncestorType=" + AncestorType.Name);
         if (AncestorLevel != 1)
-          l.Add(String.Format("AncestorLevel={0}", AncestorLevel));
+          l.Add(string.Format("AncestorLevel={0}", AncestorLevel));
         return "{RelativeSource " + StringUtils.Join(",", l)+"}";
       }
       else
-        return "RelativeSource: " + _mode;
+        return string.Format("RelativeSource Mode={0}", _mode);
     }
   }
 }

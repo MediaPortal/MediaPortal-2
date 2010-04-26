@@ -1062,7 +1062,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         l.Add("ElementName="+ElementName);
       if (!string.IsNullOrEmpty(Path))
         l.Add("Path="+Path);
-      return "{"+BindingTypeName + " " + StringUtils.Join(",", l)+"}";
+      return "{" + BindingTypeName + " " + StringUtils.Join(",", l) + "}";
     }
 
     #endregion

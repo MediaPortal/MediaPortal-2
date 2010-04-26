@@ -103,5 +103,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     }
 
     #endregion
+
+    #region Base overrides
+
+    public override string ToString()
+    {
+      return string.Format("Service InterfaceName={0}", _interfaceName);
+    }
+
+    #endregion
   }
 }

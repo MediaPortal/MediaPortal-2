@@ -41,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   /// <summary>
   /// Base class for the MPF Command and CommandStencil markup extensions.
   /// </summary>
-  public class CommandBaseMarkupExtension : DependencyObject, IEvaluableMarkupExtension
+  public abstract class CommandBaseMarkupExtension : DependencyObject, IEvaluableMarkupExtension
   {
     #region Protected fields
 
@@ -54,12 +54,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 
     #region Ctor
 
-    public CommandBaseMarkupExtension()
+    protected CommandBaseMarkupExtension()
     {
       _source = new BindingMarkupExtension(this);
     }
 
-    public CommandBaseMarkupExtension(string path): this()
+    protected CommandBaseMarkupExtension(string path): this()
     {
       _path = path;
     }
@@ -113,10 +113,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// Returns the XAML name of this command class.
     /// This is for debugging purposes only - ToString() method.
     /// </summary>
-    protected virtual string CommandTypeName
-    {
-      get { return "[-CommandBase-]"; }
-    }
+    protected abstract string CommandTypeName { get; }
 
     #endregion
 
