@@ -54,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// When the resources of this instance are no longer needed, method <see cref="Release"/>
   /// can be called to reduce the memory consumption of this instance.
   /// </remarks>
-  public class SkinResources: IResourceAccessor
+  public abstract class SkinResources: IResourceAccessor
   {
     public const string STYLES_DIRECTORY = "styles";
     public const string SCREENS_DIRECTORY = "screens";
@@ -193,7 +193,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     #endregion
 
-    public SkinResources(string name)
+    protected SkinResources(string name)
     {
       _name = name;
       _modelItemStateTracker = new ModelItemStateTracker(this);
@@ -207,10 +207,23 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       get { return true; }
     }
 
+    /// <summary>
+    /// Gets the name of this resource bundle (skin name or theme name).
+    /// </summary>
     public string Name
     {
       get { return _name; }
     }
+
+    /// <summary>
+    /// Gets the native width of the skin this resource bundle belongs to.
+    /// </summary>
+    public abstract int SkinWidth { get; }
+
+    /// <summary>
+    /// Gets the native height of the skin this resource bundle belongs to.
+    /// </summary>
+    public abstract int SkinHeight { get; }
 
     public IDictionary<Guid, object> StyleGUIModels
     {
@@ -254,19 +267,28 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public string GetResourceFilePath(string resourceName)
     {
-      return GetResourceFilePath(resourceName, true);
+      SkinResources resourceBundle;
+      return GetResourceFilePath(resourceName, true, out resourceBundle);
     }
 
-    public string GetResourceFilePath(string resourceName, bool searchInheritedResources)
+    public string GetResourceFilePath(string resourceName, bool searchInheritedResources,
+        out SkinResources resourceBundle)
     {
       if (resourceName == null)
+      {
+        resourceBundle = null;
         return null;
+      }
       CheckResourcesInitialized();
       string key = resourceName.ToLowerInvariant();
       if (_localResourceFilePaths.ContainsKey(key))
+      {
+        resourceBundle = this;
         return _localResourceFilePaths[key];
+      }
       if (searchInheritedResources && _inheritedSkinResources != null)
-        return _inheritedSkinResources.GetResourceFilePath(resourceName);
+        return _inheritedSkinResources.GetResourceFilePath(resourceName, true, out resourceBundle);
+      resourceBundle = null;
       return null;
     }
 
@@ -288,66 +310,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           if (!result.ContainsKey(kvp.Key))
             result.Add(kvp.Key, kvp.Value);
       return result;
-    }
-
-    /// <summary>
-    /// Returns the file path for the screen with the specified name.
-    /// </summary>
-    /// <param name="screenName">Logical name of the screen.</param>
-    /// <returns>Absolute file path of the requested skin file.</returns>
-    public string GetScreenFilePath(string screenName)
-    {
-      string key = SCREENS_DIRECTORY + Path.DirectorySeparatorChar + screenName + ".xaml";
-      return GetResourceFilePath(key);
-    }
-
-    /// <summary>
-    /// Returns the file path for the background screen with the specified name.
-    /// </summary>
-    /// <param name="screenName">Logical name of the background screen.</param>
-    /// <returns>Absolute file path of the requested skin file.</returns>
-    public string GetBackgroundFilePath(string screenName)
-    {
-      string key = BACKGROUNDS_DIRECTORY + Path.DirectorySeparatorChar + screenName + ".xaml";
-      return GetResourceFilePath(key);
-    }
-
-    /// <summary>
-    /// Loads the skin file for the screen with the specified name and returns its root element.
-    /// </summary>
-    /// <param name="screenName">Logical name of the screen.</param>
-    /// <param name="loader">Loader used for GUI models.</param>
-    /// <returns>Root element of the loaded skin or <c>null</c>, if the screen
-    /// is not defined in this skin.</returns>
-    public object LoadScreenFile(string screenName, IModelLoader loader)
-    {
-      string skinFilePath = GetScreenFilePath(screenName);
-      if (skinFilePath == null)
-      {
-        ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", screenName);
-        return null;
-      }
-      ServiceScope.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
-      return XamlLoader.Load(skinFilePath, loader, true);
-    }
-
-    /// <summary>
-    /// Loads the skin file for the background screen with the specified name and returns its root element.
-    /// </summary>
-    /// <param name="screenName">Logical name of the screen.</param>
-    /// <param name="loader">Loader used for GUI models.</param>
-    /// <returns>Root element of the loaded skin or <c>null</c>, if the screen
-    /// is not defined in this skin.</returns>
-    public object LoadBackgroundScreenFile(string screenName, IModelLoader loader)
-    {
-      string backgroundFilePath = GetBackgroundFilePath(screenName);
-      if (backgroundFilePath == null)
-      {
-        ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for background screen '{0}'", screenName);
-        return null;
-      }
-      ServiceScope.Get<ILogger>().Debug("Loading background screen from file path '{0}'...", backgroundFilePath);
-      return XamlLoader.Load(backgroundFilePath, loader, true);
     }
 
     public void ClearRootDirectories()

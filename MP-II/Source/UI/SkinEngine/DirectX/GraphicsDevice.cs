@@ -336,7 +336,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     public static void InitializeZoom()
     {
-      SkinContext.Zoom = new SizeF(Width / (float) SkinContext.SkinWidth, Height / (float) SkinContext.SkinHeight);
+      SkinContext.Zoom = new SizeF(Width / (float) SkinContext.SkinResources.SkinWidth,
+          Height / (float) SkinContext.SkinResources.SkinHeight);
     }
 
     /// <summary>

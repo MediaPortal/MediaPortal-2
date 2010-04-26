@@ -74,7 +74,8 @@ namespace MediaPortal.UI.SkinEngine.Settings.Configuration.Appearance.Skin
       {
         ListItem themeItem = new ListItem(KEY_NAME, theme.ShortDescription);
         themeItem.SetLabel(KEY_TECHNAME, theme.Name);
-        string preview = theme.GetResourceFilePath(theme.PreviewResourceKey, false);
+        SkinResources resourceBundle;
+        string preview = theme.GetResourceFilePath(theme.PreviewResourceKey, false, out resourceBundle);
         themeItem.SetLabel(KEY_IMAGESRC, preview);
         _items.Add(themeItem);
         if (themeSetting.CurrentThemeName == theme.Name)

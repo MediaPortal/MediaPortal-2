@@ -353,6 +353,7 @@
     <Compile Include="Xaml\XamlNamespace\NullMarkupExtension.cs" />
     <Compile Include="Xaml\XamlNamespace\StaticMarkupExtension.cs" />
     <Compile Include="Xaml\Parser.cs" />
+    <Compile Include="Utils\GeometricHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">

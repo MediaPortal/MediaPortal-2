@@ -43,7 +43,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     private static Dictionary<string, IAsset> _assetsHigh = new Dictionary<string, IAsset>();
     private static List<IAsset> _vertexBuffers = new List<IAsset>();
     private static List<IAsset> _unnamedAssets = new List<IAsset>();
-    private static DateTime _timer = SkinContext.Now;
+    private static DateTime _timer = SkinContext.FrameRenderingStartTime;
     private static AsynchronousMessageQueue _messageQueue;
 
     #endregion
@@ -208,10 +208,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// </summary>
     public static void Clean()
     {
-      TimeSpan ts = SkinContext.Now - _timer;
+      TimeSpan ts = SkinContext.FrameRenderingStartTime - _timer;
       if (ts.TotalSeconds < 1)
         return;
-      _timer = SkinContext.Now;
+      _timer = SkinContext.FrameRenderingStartTime;
 
       Free(true, false);
     }

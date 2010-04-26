@@ -361,7 +361,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         GraphicsDevice.Device.SetTexture(streamNumber, _texture);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
       }
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     /// <summary>
@@ -375,14 +375,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         return;
 
       GraphicsDevice.Device.SetTexture(streamNumber, _texture);
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     #region IAsset Members
 
     public void KeepAlive()
     {
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     public bool IsAllocated
@@ -398,7 +398,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         {
           return false;
         }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
         if (UseThumbnail)
         {
           if (ts.TotalSeconds >= 5)

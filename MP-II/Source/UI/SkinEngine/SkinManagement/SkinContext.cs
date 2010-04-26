@@ -42,12 +42,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     #region Private fields
 
+    private static readonly AbstractProperty _windowSizeProperty = new SProperty(typeof(SizeF), new SizeF(1920, 1080));
     private static readonly WeakEventMulticastDelegate _skinResourcesChangedDelegate = new WeakEventMulticastDelegate();
-    private static string _skinName = null;
-    private static string _themeName = null;
-    private static SkinResources _skinResources = new SkinResources("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
-    private static int _skinWidth = 0;
-    private static int _skinHeight = 0;
+    private static SkinResources _skinResources = new Skin("[not initialized]"); // Avoid initialization issues. So we don't need to check "if SkinResources == null" every time
     // FIXME Albert78: Those should be Stack, not List
     private static List<ExtendedMatrix> _combinedRenderTransforms = new List<ExtendedMatrix>();
     private static List<ExtendedMatrix> _combinedLayoutTransforms = new List<ExtendedMatrix>();
@@ -60,10 +57,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     private static bool _isRendering = false;
     private static AbstractProperty _zoomProperty = new WProperty(typeof(SizeF), new SizeF(1, 1));
     private static float _Zorder = 1.0f;
-    private static DateTime _now;
+    private static DateTime _frameRenderingStartTime;
     private static float _fps = 0;
 
-    public static uint TimePassed;
+    public static uint SystemTickCount;
 
     #endregion
 
@@ -73,10 +70,24 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       remove { _skinResourcesChangedDelegate.Detach(value); }
     }
 
-    public static DateTime Now
+    public static AbstractProperty WindowSizeProperty
     {
-      get { return _now; }
-      set { _now = value; }
+      get { return _windowSizeProperty; }
+    }
+
+    /// <summary>
+    /// Returns the application window's extends. This is the maximum available space to render.
+    /// </summary>
+    public static Size WindowSize
+    {
+      get { return (Size) _windowSizeProperty.GetValue(); }
+      set { _windowSizeProperty.SetValue(value); }
+    }
+
+    public static DateTime FrameRenderingStartTime
+    {
+      get { return _frameRenderingStartTime; }
+      set { _frameRenderingStartTime = value; }
     }
 
     // Zorder ranges from from 0.0f (as close as you can get) to 1.0f (as far away as you can get). 
@@ -135,29 +146,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// <summary>
     /// Gets or sets the Application's main windows form.
     /// </summary>
-    /// <value>The form.</value>
     public static Form Form
     {
       get { return _form; }
       set { _form = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the width of the current skin.
-    /// </summary>
-    public static int SkinWidth
-    {
-      get { return _skinWidth; }
-      set { _skinWidth = value; }
-    }
-
-    /// <summary>
-    /// Gets or sets the height of the current skin.
-    /// </summary>
-    public static int SkinHeight
-    {
-      get { return _skinHeight; }
-      set { _skinHeight = value; }
     }
 
     /// <summary>
@@ -175,24 +167,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         _skinResources = value;
         _skinResourcesChangedDelegate.Fire(new object[] {_skinResources});
       }
-    }
-
-    /// <summary>
-    /// Gets the name of the currently active skin.
-    /// </summary>
-    public static string SkinName
-    {
-      get { return _skinName; }
-      set { _skinName = value; }
-    }
-
-    /// <summary>
-    /// Gets the name of the currently active theme.
-    /// </summary>
-    public static string ThemeName
-    {
-      get { return _themeName; }
-      set { _themeName = value; }
     }
 
     public static AbstractProperty ZoomProperty
@@ -218,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </remarks>
     public static float MaxZoomHeight
     {
-      get { return GraphicsDevice.DesktopHeight / (float) SkinHeight; }
+      get { return GraphicsDevice.DesktopHeight / (float) _skinResources.SkinHeight; }
     }
 
     /// <summary>
@@ -230,7 +204,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// </remarks>
     public static float MaxZoomWidth
     {
-      get { return GraphicsDevice.DesktopWidth / (float) SkinWidth; }
+      get { return GraphicsDevice.DesktopWidth / (float) _skinResources.SkinWidth; }
     }
 
     public static float FPS
@@ -319,7 +293,6 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     /// <summary>
     /// Gets or sets the final matrix.
     /// </summary>
-    /// <value>The final matrix.</value>
     public static ExtendedMatrix FinalLayoutTransform
     {
       get { return _finalLayoutTransform; }
@@ -327,11 +300,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether application is rendering or not.
+    /// Gets or sets a value indicating whether application is currently processing in its render loop.
+    /// When this property is <c>false</c>, an error might have occured and the render thread stopped.
     /// </summary>
-    /// <value>
-    /// 	<c>true</c> if this instance is rendering; otherwise, <c>false</c>.
-    /// </value>
     public static bool IsRendering
     {
       get { return _isRendering; }

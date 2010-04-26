@@ -238,7 +238,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         if (!IsAllocated)
           return false;
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
         if (ts.TotalSeconds >= 5)
           return true;
         return false;
@@ -286,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       _effect.Render(_texture, streamNumber);
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     /// <summary>
@@ -336,7 +336,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
       _effect.Render(_texture, 0);
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     public void Draw(float x, float y, float z, float width, float height,
@@ -387,7 +387,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
       effect.Render(_texture,0);
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
   }
 }

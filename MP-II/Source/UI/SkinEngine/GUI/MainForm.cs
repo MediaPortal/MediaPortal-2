@@ -81,7 +81,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       AppSettings appSettings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
-      ClientSize = new Size(SkinContext.SkinWidth, SkinContext.SkinHeight);
+      ClientSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
 
       // Remember prev size
       _previousWindowClientSize = ClientSize;
@@ -130,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         ShowMouseCursor(true);
 
       // Time
-      SkinContext.Now = DateTime.Now;
+      SkinContext.FrameRenderingStartTime = DateTime.Now;
     }
 
     protected void ShowMouseCursor(bool show)

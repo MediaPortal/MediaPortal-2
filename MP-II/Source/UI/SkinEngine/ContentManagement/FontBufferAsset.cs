@@ -210,7 +210,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           else
             _xPosition += 0.5f;
           _previousTotalWidth = totalWidth;
-          _lastTimeUsed = SkinContext.Now;
+          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
           return;
         }
       }
@@ -243,7 +243,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _font.Render(GraphicsDevice.Device, _primitivecount);
         totalWidth = _previousTotalWidth;
       }
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     #region IAsset Members
@@ -271,7 +271,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         {
           return false;
         }
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
         if (ts.TotalSeconds >= 5)
         {
           return true;

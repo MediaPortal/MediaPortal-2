@@ -225,11 +225,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             Trace.WriteLine("LinearGradientBrush:Create cached texture");
             float w = (float)_width;
             float h = (float)_height;
-            float cx = GraphicsDevice.Width / (float) SkinContext.SkinWidth;
-            float cy = GraphicsDevice.Height / (float) SkinContext.SkinHeight;
+            float cx = GraphicsDevice.Width / (float) SkinContext.SkinResources.SkinWidth;
+            float cy = GraphicsDevice.Height / (float) SkinContext.SkinResources.SkinHeight;
 
             bool copy = true;
-            if ((int)w == SkinContext.SkinWidth && (int)h == SkinContext.SkinHeight)
+            if ((int) w == SkinContext.SkinResources.SkinWidth && (int) h == SkinContext.SkinResources.SkinHeight)
             {
               copy = false;
               w /= 2;
@@ -241,7 +241,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             //and scale it correctly since the backbuffer now has the dimensions of the control
             //instead of the skin width/height dimensions
             m.Matrix *= Matrix.Translation(new Vector3(-(_position.X + 1), -(_position.Y + 1), 0));
-            m.Matrix *= Matrix.Scaling(((SkinContext.SkinWidth) * cx) / w, (SkinContext.SkinHeight * cy) / h, 1.0f);
+            m.Matrix *= Matrix.Scaling(((SkinContext.SkinResources.SkinWidth) * cx) / w, (SkinContext.SkinResources.SkinHeight * cy) / h, 1.0f);
 
             SkinContext.AddRenderTransform(m);
 
@@ -295,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             GraphicsDevice.Device.BeginScene();
           }
           _effect.StartRender(_cacheTexture);
-          _lastTimeUsed = SkinContext.Now;
+          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
         }
         else
         {
@@ -308,7 +308,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _handleStartPoint.SetParameter(g_startpoint);
           _handleEndPoint.SetParameter(g_endpoint);
           _effect.StartRender(_brushTexture.Texture);
-          _lastTimeUsed = SkinContext.Now;
+          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
         }
       }
       else
@@ -316,7 +316,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         Color4 v = ColorConverter.FromColor(GradientStops.OrderedGradientStopList[0].Color);
         _handleSolidColor.SetParameter(v);
         _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.Now;
+        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
       return true;
     }
@@ -372,12 +372,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _handleAlphaTexture.SetParameter(_brushTexture.Texture);
 
         _effect.StartRender(tex);
-        _lastTimeUsed = SkinContext.Now;
+        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
       else
       {
         _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.Now;
+        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
     }
 
@@ -402,7 +402,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         if (!IsAllocated)
           return false;
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
         if (ts.TotalSeconds >= 1)
           return true;
 

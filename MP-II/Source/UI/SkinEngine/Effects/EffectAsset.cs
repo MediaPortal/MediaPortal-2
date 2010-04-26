@@ -86,7 +86,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
           ServiceScope.Get<ILogger>().Error("EffectAsset: Errors: {0}", errors);
         }
 
-        _lastUsed = SkinContext.Now;
+        _lastUsed = SkinContext.FrameRenderingStartTime;
         _handleWorldProjection = _effect.GetParameter(null, "worldViewProj");
         _handleTexture = _effect.GetParameter(null, "g_texture");
         _handleTechnique = _effect.GetTechnique(0);
@@ -109,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
     {
       get
       {
-        TimeSpan ts = SkinContext.Now - _lastUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastUsed;
         return (ts.TotalSeconds >= 5);
       }
     }
@@ -169,7 +169,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
       tex.Draw(stream);
       _effect.EndPass();
       _effect.End();
-      _lastUsed = SkinContext.Now;
+      _lastUsed = SkinContext.FrameRenderingStartTime;
     }
 
     /// <summary>
@@ -224,7 +224,7 @@ namespace MediaPortal.UI.SkinEngine.Effects
       {
         _effect.EndPass();
         _effect.End();
-        _lastUsed = SkinContext.Now;
+        _lastUsed = SkinContext.FrameRenderingStartTime;
       }
       GraphicsDevice.Device.SetTexture(stream, null);
     }

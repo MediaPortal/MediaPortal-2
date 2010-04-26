@@ -95,6 +95,16 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       get { return _parentSkin; }
     }
 
+    public override int SkinWidth
+    {
+      get { return ParentSkin.SkinWidth; }
+    }
+
+    public override int SkinHeight
+    {
+      get { return ParentSkin.SkinHeight; }
+    }
+
     /// <summary>
     /// Will trigger the lazy metadata initialization on request.
     /// </summary>

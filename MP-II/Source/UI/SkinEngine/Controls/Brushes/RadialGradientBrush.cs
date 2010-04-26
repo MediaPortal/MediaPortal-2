@@ -268,7 +268,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         Color4 v = ColorConverter.FromColor(GradientStops[0].Color);
         _handleColor.SetParameter(v);
         _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.Now;
+        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
       else
       {
@@ -290,7 +290,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
 
             bool copy = true;
-            if ((int) w >= SkinContext.SkinWidth && (int) h >= SkinContext.SkinHeight)
+            if ((int) w >= SkinContext.SkinResources.SkinWidth && (int) h >= SkinContext.SkinResources.SkinHeight)
             {
               copy = false;
               w /= 2;
@@ -359,7 +359,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
             GraphicsDevice.Device.BeginScene();
           }
           _effect.StartRender(_cacheTexture);
-          _lastTimeUsed = SkinContext.Now;
+          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
         }
         else
         {
@@ -374,7 +374,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
 
           _effect.StartRender(_brushTexture.Texture);
-          _lastTimeUsed = SkinContext.Now;
+          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
         }
       }
       return true;
@@ -423,7 +423,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       if (_singleColor)
       {
         _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.Now;
+        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
       else
       {
@@ -438,7 +438,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
         _handleAlphaTexture.SetParameter(_brushTexture.Texture);
         _effect.StartRender(tex);
-        _lastTimeUsed = SkinContext.Now;
+        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
     }
 
@@ -465,7 +465,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         if (!IsAllocated)
           return false;
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
         if (ts.TotalSeconds >= 1)
           return true;
 

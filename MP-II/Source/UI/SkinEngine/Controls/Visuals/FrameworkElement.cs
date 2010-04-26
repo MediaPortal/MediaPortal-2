@@ -972,7 +972,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         GraphicsDevice.Device.DrawPrimitives(_opacityMaskContext.PrimitiveType, 0, 2);
         OpacityMask.EndRender();
 
-        _opacityMaskContext.LastTimeUsed = SkinContext.Now;
+        _opacityMaskContext.LastTimeUsed = SkinContext.FrameRenderingStartTime;
       }
       else
       { // No opacity mask

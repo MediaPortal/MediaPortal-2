@@ -34,16 +34,20 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Utils;
 
 namespace MediaPortal.UI.SkinEngine.ScreenManagement
 {
   /// <summary>
   /// Screen class respresenting a logical screen represented by a particular skin.
   /// </summary>
-  public class Screen: NameScope
+  public class Screen : NameScope
   {
     #region Classes
 
+    /// <summary>
+    /// Encapsulates an UI element together with its depth where it is located in the visual tree.
+    /// </summary>
     protected class InvalidControl : IComparable<InvalidControl>
     {
       protected int _treeDepth = -1;
@@ -117,15 +121,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     #endregion
 
-    #region Proteced fields
+    #region Protected fields
 
     protected string _name;
+    protected int _skinWidth;
+    protected int _skinHeight;
     protected State _state = State.Running;
     protected RectangleF? _lastFocusRect = null;
 
     /// <summary>
-    /// Holds the information if our input handlers are currently attached at
-    /// the <see cref="InputManager"/>.
+    /// Holds the information if our input handlers are currently attached at the <see cref="InputManager"/>.
     /// </summary>
     protected bool _attachedInput = false;
 
@@ -148,19 +153,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// Initializes a new instance of the <see cref="Screen"/> class.
     /// </summary>
     /// <param name="name">The logical screen name.</param>
-    public Screen(string name)
+    /// <param name="skinWidth">Native width of the skin providing this screen.</param>
+    /// <param name="skinHeight">Native height of the skin providing this screen.</param>
+    public Screen(string name, int skinWidth, int skinHeight)
     {
-      if (name == null)
-      {
-        throw new ArgumentNullException("name");
-      }
-      if (name.Length == 0)
-      {
-        throw new ArgumentOutOfRangeException("name");
-      }
-
       _opened = new SProperty(typeof(bool), true);
       _name = name;
+      _skinWidth = skinWidth;
+      _skinHeight = skinHeight;
       _animator = new Animator();
     }
 
@@ -186,12 +186,29 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Returns if this screen is still open or if it should be closed.
+    /// Gets the native width of the skin which provides this screen. All length coordinates in this screen
+    /// refer to that width and to <see cref="SkinHeight"/>.
     /// </summary>
-    /// <value><c>true</c> if this screen is still open; otherwise, <c>false</c>.</value>
+    public int SkinWidth
+    {
+      get { return _skinWidth; }
+    }
+
+    /// <summary>
+    /// Gets the native height of the skin which provides this screen. All length coordinates in this screen
+    /// refer to that height and to <see cref="SkinWidth"/>.
+    /// </summary>
+    public int SkinHeight
+    {
+      get { return _skinHeight; }
+    }
+
+    /// <summary>
+    /// Returns if this screen is still open.
+    /// </summary>
     public bool IsOpened
     {
-      get { return (bool)_opened.GetValue(); }
+      get { return (bool) _opened.GetValue(); }
       set { _opened.SetValue(value); }
     }
 
@@ -242,7 +259,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Reset()
     {
-      //Trace.WriteLine("Screen Reset: " + Name);
       if (SkinContext.UseBatching)
         _visual.DestroyRenderTree();
       GraphicsDevice.InitializeZoom();
@@ -252,7 +268,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Deallocate()
     {
-      //Trace.WriteLine("Screen Deallocate: " + Name);
       if (SkinContext.UseBatching)
         _visual.DestroyRenderTree();
       _visual.Deallocate();
@@ -267,7 +282,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public void Render()
     {
       uint time = (uint) Environment.TickCount;
-      SkinContext.TimePassed = time;
+      SkinContext.SystemTickCount = time;
       SkinContext.FinalRenderTransform = new ExtendedMatrix();
 
       lock (_visual)
@@ -283,7 +298,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // element from the root.
         // During each call to UpdateLayout() on an invalidated element, our _invalidLayoutControls list might get
         // more entries because the updated element escalates the layout update to its parent. That's the reason why we
-        // cannot use a simple for loop.
+        // cannot simply use an enumerator.
         lock (_invalidLayoutControls)
           while (_invalidLayoutControls.Count > 0)
           {
@@ -292,10 +307,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             ic.Element.UpdateLayout();
           }
         if (SkinContext.UseBatching)
-        {
           Update();
-          return;
-        }
         else
           _visual.Render();
       }
@@ -461,7 +473,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (_focusedElement == focusedElement)
         return true;
       RemoveCurrentFocus();
-      if (!HasExtends(focusedElement.ActualBounds))
+      if (!GeometricHelper.HasExtends(focusedElement.ActualBounds))
         return false;
       _focusedElement = focusedElement;
       _lastFocusRect = focusedElement.ActualBounds;

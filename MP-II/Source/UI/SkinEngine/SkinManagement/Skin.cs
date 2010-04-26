@@ -75,9 +75,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     #endregion
 
-    public Skin(string name): base(name)
-    {
-    }
+    public Skin(string name): base(name) { }
 
     public string BasedOnSkin
     {
@@ -110,6 +108,16 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         CheckMetadataInitialized();
         return _metadataInitialized;
       }
+    }
+
+    public override int SkinWidth
+    {
+      get { return NativeWidth; }
+    }
+
+    public override int SkinHeight
+    {
+      get { return NativeHeight; }
     }
 
     /// <summary>
@@ -325,7 +333,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
           if (_themes.ContainsKey(themeName))
             theme = _themes[themeName];
           else
+          {
+            logger.Debug("Skin '{0}': Adding theme '{1}'", _name, themeName);
             theme = _themes[themeName] = new Theme(themeName, this);
+          }
           theme.AddRootDirectory(themeDirectoryPath);
         }
     }

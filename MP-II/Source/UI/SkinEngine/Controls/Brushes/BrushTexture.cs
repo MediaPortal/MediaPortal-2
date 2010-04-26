@@ -173,7 +173,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public void KeepAlive()
     {
-      _lastTimeUsed = SkinContext.Now;
+      _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     public bool IsAllocated
@@ -187,7 +187,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       {
         if (!IsAllocated)
           return false;
-        TimeSpan ts = SkinContext.Now - _lastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
         if (ts.TotalSeconds >= 10)
           return true;
 

@@ -53,7 +53,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _primitiveType = primitiveType;
       PositionColored2Textured.Set(_vertexBuffer, verts);
       _texture = texture;
-      LastTimeUsed = SkinContext.Now;
+      LastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     #region IAsset Members
@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         {
           return false;
         }
-        TimeSpan ts = SkinContext.Now - LastTimeUsed;
+        TimeSpan ts = SkinContext.FrameRenderingStartTime - LastTimeUsed;
         if (ts.TotalSeconds >= 1)
           return true;
 

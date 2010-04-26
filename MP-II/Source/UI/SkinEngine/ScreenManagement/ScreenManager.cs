@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using MediaPortal.Core.Messaging;
 using MediaPortal.Core.PluginManager;
@@ -106,7 +107,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       public bool Load(string backgroundName)
       {
         Unload();
-        Screen background = GetBackground(backgroundName, this);
+        Screen background = GetScreen(backgroundName, this, true);
         if (background == null)
           return false;
         background.Prepare();
@@ -598,7 +599,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         _backgroundData.Load(backgroundName);
 
       // Reload screen
-      Screen screen = GetScreen(screenName);
+      Screen screen = GetScreen(screenName, false);
       if (screen == null)
           // Error message was shown in GetScreen()
         return;
@@ -607,7 +608,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       // Reload dialogs
       foreach (DialogSaveDescriptor dialogDescriptor in dialogsReverse)
       {
-        Screen dialog = GetScreen(dialogDescriptor.DialogName);
+        Screen dialog = GetScreen(dialogDescriptor.DialogName, false);
         // We should have copied the dialog's Closed delegate of the old dialog instead of using null here... but it's not possible to
         // copy it
         DoShowDialog(dialog, dialogDescriptor.CloseCallback);
@@ -695,7 +696,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       IList<Screen> enabledScreens = GetScreens(!_backgroundDisabled, true, true);
       lock (_syncObj)
       {
-        SkinContext.Now = DateTime.Now;
+        SkinContext.FrameRenderingStartTime = DateTime.Now;
         foreach (Screen screen in disabledScreens)
           screen.Animate();
         foreach (Screen screen in enabledScreens)
@@ -743,7 +744,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         if (!InstallBackgroundManager())
           _backgroundData.Load(currentBackgroundName);
 
-        Screen screen = GetScreen(currentScreenName);
+        Screen screen = GetScreen(currentScreenName, false);
         DoExchangeScreen(screen);
       }
       SkinSettings settings = ServiceScope.Get<ISettingsManager>().Load<SkinSettings>();
@@ -753,46 +754,67 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Loads the root UI element for the specified screen from the current skin.
+    /// Loads the root UI element for the specified screen from the current skin or any of its parent skins,
+    /// in the defined resource search order.
     /// </summary>
-    /// <param name="screenName">The screen to load.</param>
-    /// <returns>Root UI element for the specified screen.</returns>
-    protected static UIElement LoadScreen(string screenName)
+    /// <param name="relativeScreenPath">The path of the screen to load, relative to the skin's root path.</param>
+    /// <param name="loader">Loader used for GUI models.</param>
+    /// <param name="resourceBundle">Skin resource bundle, the screen was loaded from.</param>
+    /// <returns>Root UI element for the specified screen or <c>null</c>, if the screen
+    /// is not defined in the current skin resource chain.</returns>
+    public static UIElement LoadScreen(string relativeScreenPath, IModelLoader loader, out SkinResources resourceBundle)
     {
-      return SkinContext.SkinResources.LoadScreenFile(screenName, new WorkflowManagerModelLoader()) as UIElement;
+      string skinFilePath = SkinContext.SkinResources.GetResourceFilePath(relativeScreenPath, true, out resourceBundle);
+      if (skinFilePath == null)
+      {
+        ServiceScope.Get<ILogger>().Error("SkinResources: No skinfile for screen '{0}'", relativeScreenPath);
+        resourceBundle = null;
+        return null;
+      }
+      ServiceScope.Get<ILogger>().Debug("Loading screen from file path '{0}'...", skinFilePath);
+      return XamlLoader.Load(skinFilePath, loader, true) as UIElement;
     }
 
     /// <summary>
-    /// Loads the root UI element for the specified background screen from the current skin.
+    /// Gets a screen or background screen with the specified name.
     /// </summary>
-    /// <param name="screenName">The background screen to load.</param>
-    /// <param name="loader">Model loader for the new background screen.</param>
-    /// <returns>Root UI element for the specified screen.</returns>
-    protected static UIElement LoadBackgroundScreen(string screenName, IModelLoader loader)
-    {
-      return SkinContext.SkinResources.LoadBackgroundScreenFile(screenName, loader) as UIElement;
-    }
-
-    /// <summary>
-    /// Gets the screen with the specified name.
-    /// </summary>
+    /// <remarks>
+    /// If the desired screen could not be loaded (because it is not present or because an error occurs while
+    /// loading the screen), an error dialog is shown to the user.
+    /// </remarks>
     /// <param name="screenName">Name of the screen to return.</param>
-    /// <returns>screen or <c>null</c>, if an error occured while loading the screen.</returns>
-    public static Screen GetScreen(string screenName)
+    /// <param name="isBackground"><c>true</c> if the desired screen is a background screen. In this case,
+    /// the screen will be searched in the directory for background screens. If set to <c>false</c>, the screen
+    /// will be searched in the directory for foreground screens.</param>
+    /// <returns>Root UI element of the desired screen or <c>null</c>, if an error occured while
+    /// loading the screen.</returns>
+    public static Screen GetScreen(string screenName, bool isBackground)
     {
-      Screen result = new Screen(screenName);
+      return GetScreen(screenName, new WorkflowManagerModelLoader(), isBackground);
+    }
+
+    public static Screen GetScreen(string screenName, IModelLoader loader, bool isBackground)
+    {
       try
       {
-        UIElement root = LoadScreen(screenName);
+        string relativeScreenPath = (isBackground ? SkinResources.BACKGROUNDS_DIRECTORY : SkinResources.SCREENS_DIRECTORY) +
+            Path.DirectorySeparatorChar + screenName + ".xaml";
+        SkinResources resourceBundle;
+        UIElement root = LoadScreen(relativeScreenPath, loader, out resourceBundle);
         if (root == null)
         {
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-              LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
+          if (isBackground)
+            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+                LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
+                DialogType.OkDialog, false, null);
+          else
+            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+                LocalizationHelper.CreateResourceString(SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
+                DialogType.OkDialog, false, null);
           return null;
         }
-        result.Visual = root;
+        Screen result = new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Visual = root};
         return result;
       }
       catch (Exception ex)
@@ -800,50 +822,14 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for screen '{0}'", ex, screenName);
         try
         {
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-              LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
-        }
-        catch (Exception)
-        {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Error showing generic dialog for error message");
-          return null;
-        }
-        return null;
-      }
-    }
-
-    /// <summary>
-    /// Gets the background screen with the specified name.
-    /// </summary>
-    /// <param name="screenName">Name of the background screen to return.</param>
-    /// <param name="loader">Model loader for the new background screen.</param>
-    /// <returns>screen or <c>null</c>, if an error occured while loading the screen.</returns>
-    public static Screen GetBackground(string screenName, IModelLoader loader)
-    {
-      Screen result = new Screen(screenName);
-      try
-      {
-        UIElement root = LoadBackgroundScreen(screenName, loader);
-        if (root == null)
-        {
-          ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load background screen '{0}'", screenName);
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_MISSING_TEXT_RES).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
-          return null;
-        }
-        result.Visual = root;
-        return result;
-      }
-      catch (Exception ex)
-      {
-        ServiceScope.Get<ILogger>().Error("ScreenManager: Error loading skin file for background screen '{0}'", ex, screenName);
-        try
-        {
-          ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
-              LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
-              DialogType.OkDialog, false, null);
+          if (isBackground)
+            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+                LocalizationHelper.CreateResourceString(BACKGROUND_SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
+                DialogType.OkDialog, false, null);
+          else
+            ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
+                LocalizationHelper.CreateResourceString(SCREEN_BROKEN_TEXT_RES).Evaluate(screenName),
+                DialogType.OkDialog, false, null);
         }
         catch (Exception)
         {
@@ -959,7 +945,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IncPendingOperations();
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
-      Screen newScreen = GetScreen(screenName);
+      Screen newScreen = GetScreen(screenName, false);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;
@@ -972,7 +958,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IncPendingOperations();
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to show screen '{0}'...", screenName);
-      Screen newScreen = GetScreen(screenName);
+      Screen newScreen = GetScreen(screenName, false);
       if (newScreen == null)
           // Error message was shown in GetScreen()
         return false;
@@ -990,7 +976,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       IncPendingOperations();
       ServiceScope.Get<ILogger>().Debug("ScreenManager: Preparing to show dialog '{0}'...", dialogName);
-      Screen newDialog = GetScreen(dialogName);
+      Screen newDialog = GetScreen(dialogName, false);
       if (newDialog == null)
         return false;
       ScreenManagerMessaging.SendMessageShowDialog(newDialog, dialogCloseCallback);

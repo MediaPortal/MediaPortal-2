@@ -886,7 +886,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIElement parent = VisualParent as UIElement;
       if (parent == null)
       {
-        SizeF screenSize = new SizeF(SkinContext.SkinWidth * SkinContext.Zoom.Width, SkinContext.SkinHeight * SkinContext.Zoom.Height);
+        SizeF screenSize = new SizeF(SkinContext.SkinResources.SkinWidth * SkinContext.Zoom.Width,
+            SkinContext.SkinResources.SkinHeight * SkinContext.Zoom.Height);
         SizeF size = new SizeF(screenSize.Width, screenSize.Height);
 
 #if DEBUG_LAYOUT

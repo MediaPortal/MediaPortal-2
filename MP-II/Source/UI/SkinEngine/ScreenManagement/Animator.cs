@@ -132,7 +132,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         board.Setup(context.TimelineContext, conflictingProperties);
 
         _scheduledAnimations.Add(context);
-        board.Start(context.TimelineContext, SkinContext.TimePassed);
+        board.Start(context.TimelineContext, SkinContext.SystemTickCount);
 
         // No animation here - has to be done in the Animate method
       }
@@ -184,7 +184,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
-    /// Returns the informatio if we have a value pending to be set. This can be the case if
+    /// Returns the information if we have a value pending to be set. This can be the case if
     /// <see cref="SetValue"/> was called before with the specified <paramref name="dataDescriptor"/>
     /// but the <see cref="Animate"/> method wasn't called since then.
     /// </summary>
@@ -215,7 +215,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
           if (IsWaiting(ac))
             continue;
           // Animate timeline
-          ac.Timeline.Animate(ac.TimelineContext, SkinContext.TimePassed);
+          ac.Timeline.Animate(ac.TimelineContext, SkinContext.SystemTickCount);
           if (ac.Timeline.IsStopped(ac.TimelineContext))
             // Only remove stopped animations here, not ended animations. Ended animations
             // will remain active.
