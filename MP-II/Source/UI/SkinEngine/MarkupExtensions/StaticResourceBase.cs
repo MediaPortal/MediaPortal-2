@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
@@ -37,6 +39,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
   {
     protected object FindResourceInParserContext(string resourceKey, IParserContext context)
     {
+      object result = null;
       // Step up the parser's context stack to find the resource.
       // The logical tree is not yet defined at the load time of the
       // XAML file. This is the reason we have to step up the parser's context
@@ -48,27 +51,38 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       foreach (ElementContextInfo current in context.ContextStack)
       {
         if (current.ContainsKey(resourceKey))
-          return current.GetKeyedElement(resourceKey);
+          result = current.GetKeyedElement(resourceKey);
         else if (current.Instance is UIElement &&
             ((UIElement) current.Instance).Resources.ContainsKey(resourceKey))
-        {
           // Don't call UIElement.FindResource here, because the logical tree
           // may be not set up yet.
-          return ((UIElement) current.Instance).Resources[resourceKey];
-        }
+          result = ((UIElement) current.Instance).Resources[resourceKey];
         else if (current.Instance is ResourceDictionary)
         {
           ResourceDictionary rd = (ResourceDictionary) current.Instance;
           if (rd.ContainsKey(resourceKey))
-            return rd[resourceKey];
+            result = rd[resourceKey];
         }
       }
-      return null;
+      if (result == null)
+        return null;
+      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
+      // We do a copy of the result to avoid later problems when the property where the result is assigned to is copied.
+      // If we don't cut the result's logical parent, a deep copy of the here assigned property would still reference
+      // the static resource's logical parent, which would copy an unnecessary big tree.
+      // And we cannot simply clean the logical parent of the here found resource because we must not change it.
+      // So we must do a copy where we cut the logical parent.
+      return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
     }
 
     protected object FindResourceInTheme(string resourceKey)
     {
-      return SkinContext.SkinResources.FindStyleResource(resourceKey);
+      object result = SkinContext.SkinResources.FindStyleResource(resourceKey);
+      if (result == null)
+        return null;
+      IEnumerable<IBinding> deferredBindings; // Don't execute bindings in copy
+      // See comment about the copying in method FindResourceInParserContext()
+      return MpfCopyManager.DeepCopyCutLP(result, out deferredBindings);
     }
   }
 }
