@@ -310,8 +310,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       RenderTransform = copyManager.GetCopy(el.RenderTransform);
       RenderTransformOrigin = copyManager.GetCopy(el.RenderTransformOrigin);
       TemplateNameScope = copyManager.GetCopy(el.TemplateNameScope);
-      // Simply reuse the Resources
-      SetResources(el._resources);
+      _resources = copyManager.GetCopy(el._resources);
 
       // Need to manually call this because we are in a detached state
       OnLayoutTransformPropertyChanged(_layoutTransformProperty, oldLayoutTransform);
