@@ -104,8 +104,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
       UIElement result = cm.GetCopy(_templateElement);
+      NameScope ns =  (NameScope) cm.GetCopy(_templateElement.TemplateNameScope);
       result.Resources.Merge(Resources);
-      INameScope ns = new NameScope();
       foreach (KeyValuePair<string, object> nameRegistration in _names)
         ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
       cm.FinishCopy();
@@ -114,7 +114,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
         {
           MpfCopyManager.ActivateBindings(deferredBindings);
         };
-      result.TemplateNameScope = ns;
       return result;
     }
 
@@ -125,6 +124,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     public void AddChild(UIElement o)
     {
       _templateElement = o;
+      // We need to set the template namescope to make sure when copying the template element, it will have its own
+      // namescope where its names are registered
+      _templateElement.TemplateNameScope = new NameScope();
     }
 
     #endregion
