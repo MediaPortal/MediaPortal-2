@@ -96,9 +96,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     public UIElement LoadContent(out FinishBindingsDlgt finishBindings)
     {
-      finishBindings = () => { };
       if (_templateElement == null)
+      {
+        finishBindings = () => { };
         return null;
+      }
       MpfCopyManager cm = new MpfCopyManager();
       cm.AddIdentity(this, null);
       UIElement result = cm.GetCopy(_templateElement);
