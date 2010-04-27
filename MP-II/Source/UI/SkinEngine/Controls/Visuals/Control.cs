@@ -46,6 +46,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     AbstractProperty _cornerRadiusProperty;
     protected UIEvent _lastEvent = UIEvent.None;
     protected bool _hidden = false;
+    protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
 
     #endregion
 
@@ -89,8 +90,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       BorderThickness = c.BorderThickness;
       CornerRadius = c.CornerRadius;
       Template = copyManager.GetCopy(c.Template);
+      FrameworkElement oldTemplateControl = TemplateControl;
       TemplateControl = copyManager.GetCopy(c.TemplateControl);
       Attach();
+      OnTemplateControlChanged(_templateControlProperty, oldTemplateControl);
     }
 
     #endregion
@@ -124,6 +127,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         element.SetScreen(Screen);
         element.VisualParent = this;
       }
+      _initializedTemplateControl = element;
       InvalidateLayout();
       InvalidateParentLayout();
     }
@@ -233,12 +237,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender()
     {
-      FrameworkElement templateControl = TemplateControl;
-        if (templateControl == null)
-          return;
-        SkinContext.AddOpacity(Opacity);
-        templateControl.Render();
-        SkinContext.RemoveOpacity();
+      FrameworkElement templateControl = _initializedTemplateControl;
+      if (templateControl == null)
+        return;
+      SkinContext.AddOpacity(Opacity);
+      templateControl.Render();
+      SkinContext.RemoveOpacity();
     }
 
     #endregion
@@ -247,8 +251,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      FrameworkElement templateControl = TemplateControl;
-
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return new SizeF();
       templateControl.Measure(ref totalSize);
@@ -258,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected override void ArrangeOverride(RectangleF finalRect)
     {
       base.ArrangeOverride(finalRect);
-      FrameworkElement templateControl = TemplateControl;
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
       templateControl.Arrange(finalRect);
@@ -270,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void AddChildren(ICollection<UIElement> childrenOut)
     {
       base.AddChildren(childrenOut);
-      FrameworkElement templateControl = TemplateControl;
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl != null)
         childrenOut.Add(templateControl);
     }
@@ -293,7 +296,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Deallocate()
     {
       base.Deallocate();
-      FrameworkElement templateControl = TemplateControl;
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl != null)
         templateControl.Deallocate();
     }
@@ -301,7 +304,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void Allocate()
     {
       base.Allocate();
-      FrameworkElement templateControl = TemplateControl;
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl != null)
         templateControl.Allocate();
     }
@@ -309,14 +312,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public override void DoBuildRenderTree()
     {
       if (!IsVisible) return;
-      FrameworkElement templateControl = TemplateControl;
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl != null)
         templateControl.BuildRenderTree();
     }
 
     public override void DestroyRenderTree()
     {
-      FrameworkElement templateControl = TemplateControl;
+      FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl != null)
         templateControl.DestroyRenderTree();
       base.DestroyRenderTree();
