@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     protected ResourceDictionary _resourceDictionary;
     protected UIElement _templateElement;
-    protected IDictionary<string, object> _names = new Dictionary<string, object>();
+    protected IDictionary<string, object> _names = null;
 
     #endregion
 
@@ -74,11 +74,40 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       FrameworkTemplate ft = (FrameworkTemplate) source;
       _templateElement = copyManager.GetCopy(ft._templateElement);
       _resourceDictionary = copyManager.GetCopy(ft._resourceDictionary);
-      foreach (KeyValuePair<string, object> kvp in ft._names)
-        if (_names.ContainsKey(kvp.Key))
-          continue;
-        else
-          _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      if (ft._names == null)
+        _names = null;
+      else
+      {
+        _names = new Dictionary<string, object>(ft._names.Count);
+        foreach (KeyValuePair<string, object> kvp in ft._names)
+          if (_names.ContainsKey(kvp.Key))
+            continue;
+          else
+            _names.Add(kvp.Key, copyManager.GetCopy(kvp.Value));
+      }
+    }
+
+    #endregion
+
+    #region Protected methodws
+
+    protected INameScope FindParentNamescope()
+    {
+      DependencyObject current = LogicalParent;
+      while (current != null)
+      {
+        if (current is INameScope)
+          return (INameScope) current;
+        current = current.LogicalParent;
+      }
+      return null;
+    }
+
+    protected IDictionary<string, object> GetOrCreateNames()
+    {
+      if (_names == null)
+        _names = new Dictionary<string, object>();
+      return _names;
     }
 
     #endregion
@@ -106,8 +135,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       UIElement result = cm.GetCopy(_templateElement);
       NameScope ns =  (NameScope) cm.GetCopy(_templateElement.TemplateNameScope);
       result.Resources.Merge(Resources);
-      foreach (KeyValuePair<string, object> nameRegistration in _names)
-        ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
+      if (_names != null)
+        foreach (KeyValuePair<string, object> nameRegistration in _names)
+          ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
       cm.FinishCopy();
       IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
       finishBindings = () =>
@@ -136,7 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     public object FindName(string name)
     {
       object obj;
-      if (_names.TryGetValue(name, out obj))
+      if (_names != null && _names.TryGetValue(name, out obj))
         return obj;
       INameScope parent = FindParentNamescope();
       if (parent != null)
@@ -144,28 +174,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       return null;
     }
 
-    protected INameScope FindParentNamescope()
-    {
-      DependencyObject current = this;
-      while (current.LogicalParent != null)
-      {
-        current = current.LogicalParent;
-        if (current is INameScope)
-          return (INameScope) current;
-      }
-      return null;
-    }
-
     public void RegisterName(string name, object instance)
     {
+      IDictionary<string, object> names = GetOrCreateNames();
       object old;
-      if (_names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
+      if (names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
         return;
-      _names.Add(name, instance);
+      names.Add(name, instance);
     }
 
     public void UnregisterName(string name)
     {
+      if (_names == null)
+        return;
       _names.Remove(name);
     }
 

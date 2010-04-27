@@ -33,8 +33,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
   {
     #region Protected fields
 
-    protected IDictionary<string, object> _names = new Dictionary<string, object>();
-
     protected Style _basedOn = null;
     protected IList<SetterBase> _setters = new List<SetterBase>();
     protected AbstractProperty _targetTypeProperty;
@@ -125,24 +123,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Styles
 
     public object FindName(string name)
     {
-      object obj;
-      if (_names.TryGetValue(name, out obj))
-        return obj;
       return null;
     }
 
-    public void RegisterName(string name, object instance)
-    {
-      object old;
-      if (_names.TryGetValue(name, out old) && ReferenceEquals(old, instance))
-        return;
-      _names.Add(name, instance);
-    }
+    public void RegisterName(string name, object instance) { }
 
-    public void UnregisterName(string name)
-    {
-      _names.Remove(name);
-    }
+    public void UnregisterName(string name) { }
 
     #endregion
 

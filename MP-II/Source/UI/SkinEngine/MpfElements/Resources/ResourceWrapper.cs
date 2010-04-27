@@ -71,6 +71,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     #region Protected methods
 
+    protected INameScope FindParentNamescope()
+    {
+      DependencyObject current = LogicalParent;
+      while (current != null)
+      {
+        if (current is INameScope)
+          return (INameScope) current;
+        current = current.LogicalParent;
+      }
+      return null;
+    }
+
     protected IDictionary<string, object> GetOrCreateNames()
     {
       if (_names == null)
@@ -111,18 +123,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
       INameScope parent = FindParentNamescope();
       if (parent != null)
         return parent.FindName(name);
-      return null;
-    }
-
-    protected INameScope FindParentNamescope()
-    {
-      DependencyObject current = this;
-      while (current.LogicalParent != null)
-      {
-        current = current.LogicalParent;
-        if (current is INameScope)
-          return (INameScope) current;
-      }
       return null;
     }
 
