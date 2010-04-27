@@ -291,7 +291,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       UIElement el = (UIElement) source;
-      Name = el.Name;
+      // When copying, the namescopes of our parent objects might not have been initialized yet. This can be the case
+      // when the TemplateNamescope property of a parent wasn't copied yet. That's why we cannot simply use Name = el.Name.
+      _nameProperty.SetValue(el.Name);
       // We do not copy the focus flag, only one element can have focus
       //HasFocus = el.HasFocus;
       ActualPosition = el.ActualPosition;
