@@ -337,30 +337,42 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       if (startIndex == endIndex || elements.Count == 0)
         return 0f;
+      bool invert = startIndex > endIndex;
+      if (invert)
+      {
+        int tmp = startIndex;
+        startIndex = endIndex;
+        endIndex = tmp;
+      }
       if (startIndex >= elements.Count)
         startIndex = elements.Count - 1;
       if (endIndex < 0)
         endIndex = 0;
-      int direction = Math.Sign(endIndex - startIndex);
       double result = 0;
-      for (int i = startIndex; direction * i < direction * endIndex; i += direction)
-        result += direction*elements[i].ActualWidth;
-      return result;
+      for (int i = startIndex; i < endIndex; i++)
+        result += elements[i].ActualWidth;
+      return invert ? -result : result;
     }
 
     protected static double SumActualHeights(IList<FrameworkElement> elements, int startIndex, int endIndex)
     {
       if (startIndex == endIndex || elements.Count == 0)
         return 0f;
+      bool invert = startIndex > endIndex;
+      if (invert)
+      {
+        int tmp = startIndex;
+        startIndex = endIndex;
+        endIndex = tmp;
+      }
       if (startIndex >= elements.Count)
         startIndex = elements.Count - 1;
       if (endIndex < 0)
         endIndex = 0;
-      int direction = Math.Sign(endIndex - startIndex);
       double result = 0;
-      for (int i = startIndex; direction * i < direction * endIndex; i += direction)
-        result += direction*elements[i].ActualHeight;
-      return result;
+      for (int i = startIndex; i < endIndex; i++)
+        result += elements[i].ActualHeight;
+      return invert ? -result : result;
     }
 
     public override void MakeVisible(UIElement element, RectangleF elementBounds)
