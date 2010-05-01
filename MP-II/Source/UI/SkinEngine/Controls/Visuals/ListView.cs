@@ -35,11 +35,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       ListViewItem container = new ListViewItem
         {
-            Style = ItemContainerStyle,
             Context = dataItem,
             Content = dataItem,
             Screen = Screen
         };
+      container.Style = ItemContainerStyle; // Set this after the other properties have been initialized to avoid duplicate work
 
       // We need to copy the item data template for the child containers, because the
       // data template contains specific data for each container. We need to "personalize" the

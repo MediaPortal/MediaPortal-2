@@ -52,6 +52,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _parent.InvalidateLayout();
     }
 
+    protected void DisposeUIElement(UIElement element)
+    {
+      element.VisualParent = null;
+      element.SetScreen(null);
+      element.Deallocate();
+      element.Dispose();
+    }
+
     public void FixZIndex()
     {
       if (SkinManagement.SkinContext.UseBatching)
@@ -87,6 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Add(UIElement element)
     {
+      // TODO: Allocate if we are already allocated
       element.VisualParent = _parent;
       element.Screen = _parent == null ? null : _parent.Screen;
       _elements.Add(element);
@@ -95,18 +104,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void Remove(UIElement element)
     {
-      _elements.Remove(element);
+      if (_elements.Remove(element))
+        DisposeUIElement(element);
       InvalidateParent();
     }
 
     public void Clear()
     {
-      foreach (UIElement element in _elements)
-      {
-        element.Deallocate();
-        element.Dispose();
-      }
-      _elements.Clear();
+      IList<UIElement> oldElements = _elements;
+      _elements = new List<UIElement>();
+      foreach (UIElement element in oldElements)
+        DisposeUIElement(element);
       InvalidateParent();
     }
 
@@ -122,6 +130,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       {
         if (value != _elements[index])
         {
+          UIElement element = _elements[index];
+          DisposeUIElement(element);
           _elements[index] = value;
           if (_parent != null)
           {

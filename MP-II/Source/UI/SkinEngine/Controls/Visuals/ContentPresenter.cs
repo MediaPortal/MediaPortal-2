@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.SkinManagement;
@@ -75,66 +76,94 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       ContentPresenter p = (ContentPresenter) source;
       Content = copyManager.GetCopy(p.Content);
       ContentTemplate = copyManager.GetCopy(p.ContentTemplate);
+      _templateControl = copyManager.GetCopy(p._templateControl);
       Attach();
-      OnContentTemplateChanged(_contentTemplateProperty, false);
     }
 
     #endregion
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
-      if (_templateControl == null)
+      if (ContentTemplate == null)
         // No ContentTemplate set
-        FindAutomaticContentDataTemplate();
+        InstallAutomaticContentDataTemplate();
       if (_templateControl != null)
         // The controls in the DataTemplate access their "data" via their data context, so we must assign it
         _templateControl.Context = Content;
-    }
-
-    /// <summary>
-    /// Does an automatic search for an approppriate data template for our content, i.e. looks
-    /// in our resources for a resource with the Content's type as key.
-    /// </summary>
-    void FindAutomaticContentDataTemplate()
-    {
-      if (Content == null)
-        return;
-      DataTemplate dt = FindResource(Content.GetType()) as DataTemplate;
-      if (dt != null)
-      {
-        FinishBindingsDlgt finishDlgt;
-        SetTemplateControl(dt.LoadContent(out finishDlgt) as FrameworkElement);
-        finishDlgt.Invoke();
-        return;
-      }
-      object templateControl;
-      if (TypeConverter.Convert(Content, typeof(FrameworkElement), out templateControl))
-      {
-        SetTemplateControl((FrameworkElement) templateControl);
-        return;
-      }
-    }
-
-    void SetTemplateControl(FrameworkElement templateControl)
-    {
-      if (templateControl == null)
-        return;
-      _templateControl = templateControl;
-      _templateControl.Context = Content;
-      _templateControl.VisualParent = this;
-      _templateControl.SetScreen(Screen);
     }
 
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
       if (ContentTemplate == null)
       {
-        FindAutomaticContentDataTemplate();
+        InstallAutomaticContentDataTemplate();
         return;
       }
       FinishBindingsDlgt finishDlgt;
-      SetTemplateControl(ContentTemplate.LoadContent(out finishDlgt) as FrameworkElement);
+      IList<TriggerBase> triggers;
+      SetTemplateControl(ContentTemplate.LoadContent(out triggers, out finishDlgt) as FrameworkElement, triggers);
       finishDlgt.Invoke();
+    }
+
+    /// <summary>
+    /// Does an automatic search for an approppriate data template for our content, i.e. looks
+    /// in our resources for a resource with the Content's type as key.
+    /// </summary>
+    void InstallAutomaticContentDataTemplate()
+    {
+      if (Content == null)
+      {
+        SetTemplateControl(null);
+        return;
+      }
+      DataTemplate dt = FindResource(Content.GetType()) as DataTemplate;
+      if (dt != null)
+      {
+        FinishBindingsDlgt finishDlgt;
+        IList<TriggerBase> triggers;
+        SetTemplateControl(dt.LoadContent(out triggers, out finishDlgt) as FrameworkElement, triggers);
+        finishDlgt.Invoke();
+        return;
+      }
+      object templateControl;
+      if (TypeConverter.Convert(Content, typeof(FrameworkElement), out templateControl))
+        SetTemplateControl((FrameworkElement) templateControl);
+      // else: no content template to present the content
+    }
+
+    protected void SetTemplateControl(FrameworkElement templateControl, IList<TriggerBase> triggers)
+    {
+      SetTemplateControl(templateControl);
+      foreach (TriggerBase trigger in triggers)
+      {
+        trigger.LogicalParent = this;
+        trigger.Setup(this);
+        Triggers.Add(trigger);
+      }
+    }
+
+    protected void SetTemplateControl(FrameworkElement templateControl)
+    {
+      FrameworkElement oldTemplateControl = _templateControl;
+      if (ReferenceEquals(oldTemplateControl, templateControl))
+        return;
+      _templateControl = null;
+      if (oldTemplateControl != null)
+      {
+        oldTemplateControl.VisualParent = null;
+        oldTemplateControl.SetScreen(null);
+        oldTemplateControl.Deallocate();
+        oldTemplateControl.Dispose();
+      }
+      if (templateControl == null)
+        return;
+      object content = Content;
+      if (!ReferenceEquals(templateControl, content)) // If our content is a FrameworkElement itself and no ContentTemplate is present, the content is the templateControl -> we don't need to set the context
+        templateControl.Context = Content;
+      templateControl.VisualParent = this;
+      templateControl.SetScreen(Screen);
+      _templateControl = templateControl;
+      InvalidateLayout();
     }
 
     public FrameworkElement TemplateControl

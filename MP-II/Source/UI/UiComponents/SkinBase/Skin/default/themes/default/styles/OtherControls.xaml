@@ -261,7 +261,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <CheckBox x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource CheckBoxStyle}"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}">
+              IsChecked="{Binding Path=Selected,Mode=TwoWay}"
+              Content="{Binding}">
             <CheckBox.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
@@ -272,9 +273,6 @@
                 </Setter>
               </Trigger>
             </CheckBox.Triggers>
-            <CheckBox.Content>
-              <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-            </CheckBox.Content>
           </CheckBox>
         </ControlTemplate>
       </Setter.Value>
@@ -288,7 +286,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <RadioButton x:Name="NameMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource RadioButtonStyle}"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup">
+              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+              Content="{Binding}">
             <RadioButton.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
@@ -299,9 +298,6 @@
                 </Setter>
               </Trigger>
             </RadioButton.Triggers>
-            <RadioButton.Content>
-              <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-            </RadioButton.Content>
           </RadioButton>
         </ControlTemplate>
       </Setter.Value>
@@ -341,7 +337,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <CheckBox x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource CheckBoxStyle}"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}">
+              IsChecked="{Binding Path=Selected,Mode=TwoWay}"
+              Content="{Binding}">
             <CheckBox.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
@@ -353,9 +350,6 @@
                 </Setter>
               </Trigger>
             </CheckBox.Triggers>
-            <CheckBox.Content>
-              <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-            </CheckBox.Content>
           </CheckBox>
         </ControlTemplate>
       </Setter.Value>
@@ -369,7 +363,8 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <RadioButton x:Name="ShareMarker" Grid.Column="0" Margin="2,1,0,1" Style="{ThemeResource RadioButtonStyle}"
               VerticalAlignment="Center" HorizontalAlignment="Stretch"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup">
+              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+              Content="{Binding}">
             <RadioButton.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="True"/>
@@ -381,9 +376,6 @@
                 </Setter>
               </Trigger>
             </RadioButton.Triggers>
-            <RadioButton.Content>
-              <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-            </RadioButton.Content>
           </RadioButton>
         </ControlTemplate>
       </Setter.Value>
@@ -573,7 +565,8 @@
             <RadioButton x:Name="Checker" GroupName="RadioButtonGroup" Grid.Column="1" Grid.Row="0"
                 Style="{ThemeResource RadioButtonStyle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Content="{Binding}">
               <RadioButton.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
@@ -584,9 +577,6 @@
                   </Setter>
                 </Trigger>
               </RadioButton.Triggers>
-              <RadioButton.Content>
-                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-              </RadioButton.Content>
             </RadioButton>
             <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -622,7 +612,8 @@
             <CheckBox x:Name="Checker" Style="{ThemeResource CheckBoxStyle}"
                 Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                 IsChecked="{PickupBinding Source={DynamicResource ResourceKey=IsChecked_Binding,TreeSearchMode=Hybrid,AssignmentMode=Copy}}"
-                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
+                Command="{DynamicResource ResourceKey=Checker_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}"
+                Content="{Binding}">
               <CheckBox.Triggers>
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Scroll" Value="True"/>
@@ -633,9 +624,6 @@
                   </Setter>
                 </Trigger>
               </CheckBox.Triggers>
-              <CheckBox.Content>
-                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-              </CheckBox.Content>
             </CheckBox>
             <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
@@ -708,9 +696,11 @@
       </Setter.Value>
     </Setter>
   </Style>
+
   <DataTemplate x:Key="KeyBindingItemDataTemplate" DataType="{x:Type KeyBindingControl}" DataString="{Binding Key.Name}">
     <ContentPresenter Content="{Binding}"/>
   </DataTemplate>
+
   <Style x:Key="KeyBindingsListViewStyle" TargetType="{x:Type ListView}">
     <Setter Property="Template">
       <Setter.Value>

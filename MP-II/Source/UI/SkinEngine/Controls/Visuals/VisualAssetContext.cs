@@ -72,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           return false;
         }
         TimeSpan ts = SkinContext.FrameRenderingStartTime - LastTimeUsed;
-        if (ts.TotalSeconds >= 1)
+        if (ts.TotalSeconds >= 5)
           return true;
 
         return false;

@@ -38,8 +38,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   /// for all types of UI-templates. Special template types
   /// like <see cref="ControlTemplate"/> or <see cref="DataTemplate"/> are derived
   /// from this class. This class basically has no other job than holding those
-  /// UI elements and cloning them when the template should be applied
-  /// (method <see cref="LoadContent(out FinishBindingsDlgt)"/>).
+  /// UI elements. Methods for cloning them will be introduced by subclasses.
   /// </summary>
   /// <remarks>
   /// Templated controls such as <see cref="Button">Buttons</see> or
@@ -117,34 +116,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     public ResourceDictionary Resources
     {
       get { return _resourceDictionary; }
-    }
-
-    #endregion
-
-    #region Public methods
-
-    public UIElement LoadContent(out FinishBindingsDlgt finishBindings)
-    {
-      if (_templateElement == null)
-      {
-        finishBindings = () => { };
-        return null;
-      }
-      MpfCopyManager cm = new MpfCopyManager();
-      cm.AddIdentity(this, null);
-      UIElement result = cm.GetCopy(_templateElement);
-      NameScope ns =  (NameScope) cm.GetCopy(_templateElement.TemplateNameScope);
-      result.Resources.Merge(Resources);
-      if (_names != null)
-        foreach (KeyValuePair<string, object> nameRegistration in _names)
-          ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
-      cm.FinishCopy();
-      IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
-      finishBindings = () =>
-        {
-          MpfCopyManager.ActivateBindings(deferredBindings);
-        };
-      return result;
     }
 
     #endregion

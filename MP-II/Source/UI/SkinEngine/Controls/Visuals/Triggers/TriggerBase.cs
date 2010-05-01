@@ -68,6 +68,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
         Setters.Add(copyManager.GetCopy(s));
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      foreach (TriggerAction ac in EnterActions)
+        ac.Dispose();
+      foreach (TriggerAction ac in ExitActions)
+        ac.Dispose();
+      foreach (Setter s in Setters)
+        s.Dispose();
+    }
+
     #endregion
 
     public virtual void Setup(UIElement element)

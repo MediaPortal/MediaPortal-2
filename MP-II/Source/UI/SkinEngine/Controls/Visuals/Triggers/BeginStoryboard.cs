@@ -22,8 +22,12 @@
 
 #endregion
 
+using System;
+using MediaPortal.Core;
 using MediaPortal.Core.General;
+using MediaPortal.Core.Logging;
 using MediaPortal.UI.SkinEngine.Controls.Animations;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
@@ -35,6 +39,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     protected AbstractProperty _storyBoardProperty;
     protected AbstractProperty _nameProperty;
     protected AbstractProperty _handoffBehaviorProperty;
+    private string _tempName = null;
 
     #endregion
 
@@ -49,7 +54,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     {
       _storyBoardProperty = new SProperty(typeof(Storyboard), null);
       _nameProperty = new SProperty(typeof(string), string.Empty);
-      _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), Animations.HandoffBehavior.SnapshotAndReplace);
+      _handoffBehaviorProperty = new SProperty(typeof(HandoffBehavior), HandoffBehavior.SnapshotAndReplace);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -57,13 +62,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       base.DeepCopy(source, copyManager);
       BeginStoryboard s = (BeginStoryboard) source;
       Storyboard = copyManager.GetCopy(s.Storyboard);
-      Name = s.Name;
+      _tempName = s.Name;
       HandoffBehavior = s.HandoffBehavior;
+
+      copyManager.CopyCompleted += OnCopyCompleted;
     }
 
     #endregion
 
     #region Public properties
+
+    void OnCopyCompleted(ICopyManager copymanager)
+    {
+      Name = _tempName;
+      _tempName = null;
+    }
 
     public AbstractProperty StoryboardProperty
     {
@@ -85,7 +98,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
     public string Name
     {
       get { return _nameProperty.GetValue() as string; }
-      set { _nameProperty.SetValue(value); }
+      set
+      {
+        INameScope ns = FindNameScope();
+        if (ns != null)
+          ns.UnregisterName(Name);
+        _nameProperty.SetValue(value);
+        if (ns != null)
+          try
+          {
+            ns.RegisterName(Name, this);
+          }
+          catch (ArgumentException)
+          {
+            ServiceScope.Get<ILogger>().Warn("Name '"+Name+"' was registered twice in namescope '"+ns+"'");
+          }
+      }
     }
 
     public AbstractProperty HandoffBehaviorProperty

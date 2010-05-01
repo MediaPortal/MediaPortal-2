@@ -23,18 +23,65 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
+using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class ItemsPanelTemplate : FrameworkTemplate
+  public abstract class TemplateWithTriggers : FrameworkTemplate
   {
+    #region Protected fields
+
+    protected AbstractProperty _triggerProperty;
+    
+    #endregion
+
+    #region Ctor
+
+    protected TemplateWithTriggers()
+    {
+      Init();
+    }
+
+    void Init()
+    {
+      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
+    }
+
+    public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
+    {
+      base.DeepCopy(source, copyManager);
+      TemplateWithTriggers twt = (TemplateWithTriggers) source;
+      IList<TriggerBase> triggers = Triggers;
+      foreach (TriggerBase t in twt.Triggers)
+        triggers.Add(copyManager.GetCopy(t));
+    }
+
+    #endregion
+
+    #region Public properties
+
+    public AbstractProperty TriggersProperty
+    {
+      get { return _triggerProperty; }
+    }
+
+    public IList<TriggerBase> Triggers
+    {
+      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
+    }
+
+    #endregion
+
     #region Public methods
 
-    public UIElement LoadContent(out FinishBindingsDlgt finishBindings)
+    public UIElement LoadContent(out IList<TriggerBase> triggers, out FinishBindingsDlgt finishBindings)
     {
+      triggers = new List<TriggerBase>(Triggers.Count);
       if (_templateElement == null)
       {
         finishBindings = () => { };
@@ -48,6 +95,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       if (_names != null)
         foreach (KeyValuePair<string, object> nameRegistration in _names)
           ns.RegisterName(nameRegistration.Key, cm.GetCopy(nameRegistration.Value));
+      foreach (TriggerBase t in Triggers)
+      {
+        TriggerBase trigger = cm.GetCopy(t);
+        trigger.LogicalParent = result;
+        trigger.Setup(result);
+        triggers.Add(trigger);
+      }
       cm.FinishCopy();
       IEnumerable<IBinding> deferredBindings = cm.GetDeferredBindings();
       finishBindings = () =>

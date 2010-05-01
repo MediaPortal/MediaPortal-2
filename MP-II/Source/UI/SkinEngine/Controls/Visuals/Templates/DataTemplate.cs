@@ -23,19 +23,16 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
-  public class DataTemplate : FrameworkTemplate, IImplicitKey
+  public class DataTemplate : TemplateWithTriggers, IImplicitKey
   {
     #region Protected fields
 
-    protected AbstractProperty _triggerProperty;
     protected AbstractProperty _dataTypeProperty;
     protected AbstractProperty _dataStringProperty;
 
@@ -50,7 +47,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     void Init()
     {
-      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _dataTypeProperty = new SProperty(typeof(Type), null);
       _dataStringProperty = new SProperty(typeof(string), string.Empty);
     }
@@ -59,8 +55,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     {
       base.DeepCopy(source, copyManager);
       DataTemplate dt = (DataTemplate) source;
-      foreach (TriggerBase t in dt.Triggers)
-        Triggers.Add(copyManager.GetCopy(t));
       DataType = dt.DataType;
       DataString = dt.DataString;
     }
@@ -73,16 +67,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
     {
       get { return (Type) _dataTypeProperty.GetValue(); }
       set { _dataTypeProperty.SetValue(value); }
-    }
-
-    public AbstractProperty TriggersProperty
-    {
-      get { return _triggerProperty; }
-    }
-
-    public IList<TriggerBase> Triggers
-    {
-      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
     }
 
     public AbstractProperty DataStringProperty

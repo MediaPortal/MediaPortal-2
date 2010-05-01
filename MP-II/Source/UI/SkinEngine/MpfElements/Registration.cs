@@ -36,6 +36,7 @@ using MediaPortal.UI.SkinEngine.Controls.Panels;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Styles;
+using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
@@ -375,6 +376,18 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       else if (source is Style)
       {
         // Style objects are unmodifyable
+        target = source;
+        return true;
+      }
+      else if (source is ControlTemplate)
+      {
+        // Control templates are unmodifyable
+        target = source;
+        return true;
+      }
+      else if (source is ItemsPanelTemplate)
+      {
+        // Items panel templates are unmodifyable
         target = source;
         return true;
       }

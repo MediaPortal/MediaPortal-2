@@ -91,9 +91,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       CornerRadius = c.CornerRadius;
       Template = copyManager.GetCopy(c.Template);
       FrameworkElement oldTemplateControl = TemplateControl;
+      if (oldTemplateControl != null)
+        oldTemplateControl.VisualParent = null;
       TemplateControl = copyManager.GetCopy(c.TemplateControl);
+      _initializedTemplateControl = copyManager.GetCopy(c._initializedTemplateControl);
       Attach();
-      OnTemplateControlChanged(_templateControlProperty, oldTemplateControl);
     }
 
     #endregion
@@ -105,11 +107,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Template != null)
       {
         Resources.Merge(Template.Resources);
-        foreach (TriggerBase t in Template.Triggers)
-          Triggers.Add(t);
         FinishBindingsDlgt finishDlgt;
-        TemplateControl = Template.LoadContent(out finishDlgt) as FrameworkElement;
+        IList<TriggerBase> triggers;
+        FrameworkElement templateControl = Template.LoadContent(out triggers, out finishDlgt) as FrameworkElement;
+        TemplateControl = templateControl;
         finishDlgt.Invoke();
+        foreach (TriggerBase trigger in triggers)
+        {
+          trigger.LogicalParent = templateControl;
+          trigger.Setup(this);
+          Triggers.Add(trigger);
+        }
       }
       else
         TemplateControl = null;
@@ -129,7 +137,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       _initializedTemplateControl = element;
       InvalidateLayout();
-      InvalidateParentLayout();
     }
 
     #endregion

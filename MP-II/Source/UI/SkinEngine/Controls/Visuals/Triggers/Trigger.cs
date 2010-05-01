@@ -62,6 +62,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
       Value = copyManager.GetCopy(t.Value);
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      if (_dataDescriptor != null)
+        _dataDescriptor.Detach(OnPropertyChanged);
+    }
+
     #endregion
 
     #region Public properties

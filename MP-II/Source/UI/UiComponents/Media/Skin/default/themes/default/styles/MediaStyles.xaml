@@ -323,9 +323,6 @@
               Style="{ThemeResource ButtonWideStyle}" Context="{Binding}"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Command="{DynamicResource ResourceKey=Select_Command,TreeSearchMode=Hybrid,AssignmentMode=Copy}">
-            <Button.Content>
-              <ContentPresenter x:Name="PlaylistItemData"/>
-            </Button.Content>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemNameLabel" Property="Scroll" Value="True"/>

@@ -1112,7 +1112,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="AudioActiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">
@@ -1165,7 +1165,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="AudioInactiveButtonStyle" TargetType="{x:Type CheckBox}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type CheckBox}">

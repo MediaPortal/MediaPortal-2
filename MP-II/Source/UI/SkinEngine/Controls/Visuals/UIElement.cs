@@ -240,6 +240,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected IExecutableCommand _loaded;
     protected bool _triggersInitialized;
     protected bool _fireLoaded = true;
+    private string _tempName = null;
 
     #endregion
 
@@ -291,11 +292,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       Detach();
       base.DeepCopy(source, copyManager);
       UIElement el = (UIElement) source;
-      // When copying, the namescopes of our parent objects might not have been initialized yet. This can be the case
-      // when the TemplateNamescope property of a parent wasn't copied yet. That's why we cannot simply use Name = el.Name.
-      _nameProperty.SetValue(el.Name);
       // We do not copy the focus flag, only one element can have focus
       //HasFocus = el.HasFocus;
+      _tempName = el.Name;
       ActualPosition = el.ActualPosition;
       Margin = new Thickness(el.Margin);
       Visibility = el.Visibility;
@@ -318,6 +317,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       foreach (TriggerBase t in el.Triggers)
         Triggers.Add(copyManager.GetCopy(t));
       Attach();
+
+      copyManager.CopyCompleted += OnCopyCompleted;
     }
 
     public override void Dispose()
@@ -328,6 +329,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     #endregion
+
+    void OnCopyCompleted(ICopyManager copyManager)
+    {
+      // When copying, the namescopes of our parent objects might not have been initialized yet. This can be the case
+      // when the TemplateNamescope property or a LogicalParent property wasn't copied yet, for example.
+      // That's why we cannot simply copy the Name property in the DeepCopy method.
+      Name = _tempName;
+      _tempName = null;
+    }
 
     void OnOpacityPropertyChanged(AbstractProperty property, object oldValue)
     {

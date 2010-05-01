@@ -24,9 +24,7 @@
 
 using System;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using System.Collections.Generic;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 {
@@ -34,12 +32,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
   /// Specifies the visual structure and behavioral aspects of a Control that
   /// can be shared across multiple instances of the control.
   /// </summary>
-  public class ControlTemplate : FrameworkTemplate
+  public class ControlTemplate : TemplateWithTriggers
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _triggerProperty;
-    AbstractProperty _targetTypeProperty;
+    protected AbstractProperty _targetTypeProperty;
 
     #endregion
 
@@ -52,7 +49,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     void Init()
     {
-      _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
       _targetTypeProperty = new SProperty(typeof(Type), null);
     }
 
@@ -61,8 +57,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
       base.DeepCopy(source, copyManager);
       ControlTemplate ct = (ControlTemplate) source;
       TargetType = ct.TargetType;
-      foreach (TriggerBase t in ct.Triggers)
-        Triggers.Add(copyManager.GetCopy(t));
     }
 
     #endregion
@@ -76,18 +70,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Templates
 
     public Type TargetType
     {
-      get { return _targetTypeProperty.GetValue() as Type; }
+      get { return (Type) _targetTypeProperty.GetValue(); }
       set { _targetTypeProperty.SetValue(value); }
-    }
-
-    public AbstractProperty TriggersProperty
-    {
-      get { return _triggerProperty; }
-    }
-
-    public IList<TriggerBase> Triggers
-    {
-      get { return (IList<TriggerBase>)_triggerProperty.GetValue(); }
     }
 
     #endregion
