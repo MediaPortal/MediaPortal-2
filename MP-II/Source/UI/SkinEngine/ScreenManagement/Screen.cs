@@ -299,17 +299,13 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // During each call to UpdateLayout() on an invalidated element, our _invalidLayoutControls list might get
         // more entries because the updated element escalates the layout update to its parent. That's the reason why we
         // cannot simply use an enumerator.
-        bool updated = false;
         lock (_invalidLayoutControls)
           while (_invalidLayoutControls.Count > 0)
           {
             InvalidControl ic = _invalidLayoutControls[_invalidLayoutControls.Count-1];
             _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
             ic.Element.UpdateLayout();
-            updated = true;
           }
-        if (updated)
-          PretendMouseMove();
         if (SkinContext.UseBatching)
           Update();
         else
