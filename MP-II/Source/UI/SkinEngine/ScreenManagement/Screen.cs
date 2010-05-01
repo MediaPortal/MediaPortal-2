@@ -299,13 +299,17 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
         // During each call to UpdateLayout() on an invalidated element, our _invalidLayoutControls list might get
         // more entries because the updated element escalates the layout update to its parent. That's the reason why we
         // cannot simply use an enumerator.
+        bool updated = false;
         lock (_invalidLayoutControls)
           while (_invalidLayoutControls.Count > 0)
           {
             InvalidControl ic = _invalidLayoutControls[_invalidLayoutControls.Count-1];
             _invalidLayoutControls.RemoveAt(_invalidLayoutControls.Count-1);
             ic.Element.UpdateLayout();
+            updated = true;
           }
+        if (updated)
+          PretendMouseMove();
         if (SkinContext.UseBatching)
           Update();
         else
@@ -358,12 +362,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public void Show()
     {
-      lock (_visual)
-      {
-        IInputManager inputManager = ServiceScope.Get<IInputManager>();
-        if (_attachedInput && inputManager.IsMouseUsed)
-          _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
-      }
+      PretendMouseMove();
     }
 
     public void Close()
@@ -379,6 +378,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       if (Closed != null)
         Closed(this, null);
       _visual.Dispose();
+    }
+
+    protected void PretendMouseMove()
+    {
+      lock (_visual)
+      {
+        IInputManager inputManager = ServiceScope.Get<IInputManager>();
+        if (_attachedInput && inputManager.IsMouseUsed)
+          _visual.OnMouseMove(inputManager.MousePosition.X, inputManager.MousePosition.Y);
+      }
     }
 
     private void OnKeyPreview(ref Key key)
@@ -479,17 +488,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
       _lastFocusRect = focusedElement.ActualBounds;
       _visual.FireEvent(FrameworkElement.GOTFOCUS_EVENT);
       return true;
-    }
-
-    /// <summary>
-    /// Tests whether any of the rect's bounds is <see cref="float.NaN"/>.
-    /// </summary>
-    /// <param name="rect">The rect to test.</param>
-    /// <returns><c>true</c> if none of the rect's bounds is <see cref="float.NaN"/>. <c>false</c>, if any
-    /// of its bounds is <see cref="float.NaN"/>.</returns>
-    private static bool HasExtends(RectangleF rect)
-    {
-      return !rect.IsEmpty && !float.IsNaN(rect.Top) && !float.IsNaN(rect.Bottom) && !float.IsNaN(rect.Left) && !float.IsNaN(rect.Right);
     }
 
     /// <summary>
