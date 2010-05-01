@@ -364,7 +364,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           //Begin the scene
           _device.BeginScene();
 
-          Device.VertexFormat = PositionColored2Textured.Format;
           ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
           manager.Render();
           if (SkinContext.UseBatching)
