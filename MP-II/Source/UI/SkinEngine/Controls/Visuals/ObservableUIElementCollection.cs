@@ -25,12 +25,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public delegate void CollectionChangedDlgt<T>(ObservableUIElementCollection<T> collection) where T : UIElement;
 
-  public class ObservableUIElementCollection<T> : IEnumerable<T>, IDisposable where T : UIElement
+  public class ObservableUIElementCollection<T> : ICollection<T>, IDisposable, IAddChild<T> where T : UIElement
   {
     protected UIElement _parent;
     protected IList<T> _elements;
@@ -46,36 +47,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public void Dispose()
     {
       Clear();
-    }
-
-    public void Add(T element)
-    {
-      element.VisualParent = _parent;
-      element.Screen = _parent == null ? null : _parent.Screen;
-      _elements.Add(element);
-      FireCollectionChanged();
-    }
-
-    public void Remove(T element)
-    {
-      _elements.Remove(element);
-      FireCollectionChanged();
-    }
-
-    public void Clear()
-    {
-      foreach (T element in _elements)
-      {
-        element.Deallocate();
-        element.Dispose();
-      }
-      _elements.Clear();
-      FireCollectionChanged();
-    }
-
-    public int Count
-    {
-      get { return _elements.Count; }
     }
 
     public T this[int index]
@@ -98,7 +69,57 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         dlgt(this);
     }
 
-    #region IEnumerable<UIElement> Members
+    #region ICollection implementation
+
+    public void Add(T element)
+    {
+      element.VisualParent = _parent;
+      element.Screen = _parent == null ? null : _parent.Screen;
+      _elements.Add(element);
+      FireCollectionChanged();
+    }
+
+    public void CopyTo(T[] array, int arrayIndex)
+    {
+      _elements.CopyTo(array, arrayIndex);
+    }
+
+    public bool Remove(T element)
+    {
+      bool result = _elements.Remove(element);
+      FireCollectionChanged();
+      return result;
+    }
+
+    public void Clear()
+    {
+      foreach (T element in _elements)
+      {
+        element.Deallocate();
+        element.Dispose();
+      }
+      _elements.Clear();
+      FireCollectionChanged();
+    }
+
+    public bool Contains(T item)
+    {
+      return _elements.Contains(item);
+    }
+
+    public int Count
+    {
+      get { return _elements.Count; }
+    }
+
+    public bool IsReadOnly
+    {
+      get { return false; }
+    }
+
+    #endregion
+
+    #region IEnumerable<UIElement> implementation
 
     public IEnumerator<T> GetEnumerator()
     {
@@ -107,11 +128,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    #region IEnumerable Members
+    #region IEnumerable implementation
 
     IEnumerator IEnumerable.GetEnumerator()
     {
       return _elements.GetEnumerator();
+    }
+
+    #endregion
+
+    #region IAddChild<T> implementation
+
+    public void AddChild(T child)
+    {
+      _elements.Add(child);
     }
 
     #endregion
