@@ -32,6 +32,8 @@ namespace MediaPortal.UI.Presentation.Workflow
   {
     /// <summary>
     /// Label for the new navigation context to be displayed in the GUI (in the navigation history).
+    /// If this property is set, the given label overrules the workflow state name. If it is left <c>null</c>,
+    /// the workflow state name will be used instead.
     /// </summary>
     public string NavigationContextDisplayLabel = null;
 
@@ -106,11 +108,9 @@ namespace MediaPortal.UI.Presentation.Workflow
     /// containing the specified state on top of the navigation context stack. This realizes a
     /// forward navigation.
     /// </summary>
-    /// <remarks>
-    /// This is a convenience method for calling <c>NavigatePush(stateId, null);</c>.
-    /// </remarks>
     /// <param name="stateId">Id of the non-transient state to enter.</param>
-    /// <param name="config">Configuration for the new state.</param>
+    /// <param name="config">Configuration for the new state. May be left <c>null</c>, if no special configuration
+    /// is required.</param>
     void NavigatePush(Guid stateId, NavigationContextConfig config);
 
     /// <summary>
