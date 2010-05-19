@@ -28,41 +28,22 @@ using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX.Direct3D9;
 using RectangleF = System.Drawing.RectangleF;
-using SizeF = System.Drawing.SizeF;
-using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
   public class Ellipse : Shape
   {
-    protected override void DoPerformLayout()
+    protected override void DoPerformLayout(RenderContext context)
     {
-      base.DoPerformLayout();
-
-      double w = ActualWidth;
-      double h = ActualHeight;
-      Vector3 orgPos = new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z);
-      SizeF rectSize = new SizeF((float) w, (float) h);
-
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      m.InvertSize(ref rectSize);
-      RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
-
+      base.DoPerformLayout(context);
 
       // Setup brushes
-      RemovePrimitiveContext(ref _fillContext);
-      RemovePrimitiveContext(ref _strokeContext);
+      DisposePrimitiveContext(ref _fillContext);
+      DisposePrimitiveContext(ref _strokeContext);
       PositionColored2Textured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = GetEllipse(rect))
+        using (GraphicsPath path = GetEllipse(_innerRect))
         {
           float centerX;
           float centerY;
@@ -71,51 +52,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             int numVertices = verts.Length / 3;
-            Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+            Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-            AddPrimitiveContext(_fillContext);
-            Fill.SetupPrimitive(_fillContext);
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
+            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
             int numVertices = verts.Length / 3;
-            Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+            Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-            AddPrimitiveContext(_strokeContext);
-            Stroke.SetupPrimitive(_strokeContext);
           }
         }
       }
-      //border brush
-
-      ActualPosition = new Vector3(orgPos.X, orgPos.Y, orgPos.Z);
-      ActualWidth = w;
-      ActualHeight = h;
     }
 
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
-    /// <param name="baseRect"></param>
-    /// <returns></returns>
-    private GraphicsPath GetEllipse(RectangleF baseRect)
+    private static GraphicsPath GetEllipse(RectangleF baseRect)
     {
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddEllipse(baseRect);
       mPath.CloseFigure();
-      System.Drawing.Drawing2D.Matrix m = new System.Drawing.Drawing2D.Matrix();
-      m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-      }
-      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      mPath.Transform(m);
       mPath.Flatten();
       return mPath;
     }

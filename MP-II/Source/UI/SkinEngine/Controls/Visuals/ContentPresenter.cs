@@ -27,9 +27,9 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -202,40 +202,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return totalSize;
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       if (_templateControl == null)
         return;
-      PointF position = new PointF(finalRect.X, finalRect.Y);
-      SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
+      PointF position = new PointF(_innerRect.X, _innerRect.Y);
+      SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
       ArrangeChild(_templateControl, ref position, ref availableSize);
       RectangleF childRect = new RectangleF(position, availableSize);
       _templateControl.Arrange(childRect);
     }
 
-    public override void DoRender()
+    public override void DoRender(RenderContext localRenderContext)
     {
-      base.DoRender();
+      base.DoRender(localRenderContext);
       if (_templateControl != null)
-      {
-        SkinContext.AddOpacity(Opacity);
-        _templateControl.Render();
-        SkinContext.RemoveOpacity();
-      }
-    }
-
-    public override void DoBuildRenderTree()
-    {
-      if (!IsVisible) return;
-      if (_templateControl != null)
-        _templateControl.BuildRenderTree();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      if (_templateControl != null)
-        _templateControl.DestroyRenderTree();
+        _templateControl.Render(localRenderContext);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

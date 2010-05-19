@@ -23,10 +23,8 @@
 #endregion
 
 using System;
-using System.Drawing;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -160,12 +158,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float y = Math.Min(scrollAreaHeight - h,
           scrollInfo.ViewPortStartY / totalHeightNN * scrollAreaHeight);
 
-      ScrollBarXKnobWidth = w / SkinContext.Zoom.Width;
-      ScrollBarXKnobPos = x / SkinContext.Zoom.Width;
+      ScrollBarXKnobWidth = w;
+      ScrollBarXKnobPos = x;
       ScrollBarXVisible = !IsNear(totalWidth, 0) && totalWidth > scrollInfo.ViewPortWidth + DELTA_DOUBLE;
 
-      ScrollBarYKnobHeight = h / SkinContext.Zoom.Height;
-      ScrollBarYKnobPos = y / SkinContext.Zoom.Height;
+      ScrollBarYKnobHeight = h;
+      ScrollBarYKnobPos = y;
       ScrollBarYVisible = !IsNear(totalHeight, 0) && totalHeight > scrollInfo.ViewPortHeight + DELTA_DOUBLE;
     }
 
@@ -183,9 +181,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UpdateScrollBars();
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       // We need to update the scrollbars after our own and our content's final rectangles are set
       UpdateScrollBars();
     }

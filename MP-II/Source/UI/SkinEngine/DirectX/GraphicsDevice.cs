@@ -34,8 +34,6 @@ using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
@@ -43,7 +41,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
   {
     #region Variables
 
-    private static d3dSetup _setup = new d3dSetup();
+    private static readonly D3DSetup _setup = new D3DSetup();
     private static Device _device;
     private static Surface _backBuffer;
     private static bool _deviceLost = false;
@@ -73,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         tmpDev = null;
 
         int videoMemory = caps.HardwareCaps.VideoMemoryTotal / (1000 * 1000);
-        ServiceScope.Get<ILogger>().Info("Directx: Total Video Memory:{0} MB", videoMemory);
+        ServiceScope.Get<ILogger>().Info("DirectX: Total Video Memory: {0} MB", videoMemory);
         if (videoMemory < 128)
         {
           string text = String.Format("MediaPortal 2 needs a graphics card with at least 128 MB video memory\nYour card does only has {0} MB.\nMediaportal-II will continue but migh run slow", videoMemory);
@@ -89,14 +87,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _backBuffer = _device.GetRenderTarget(0);
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
-        ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} format: {2} {3} Hz", Width,
+        ServiceScope.Get<ILogger>().Info("GraphicsDevice: DirectX initialized {0}x{1} (format: {2} {3} Hz)", Width,
             Height, adapterInfo.CurrentDisplayMode.Format,
             adapterInfo.CurrentDisplayMode.RefreshRate);
         GetCapabilities();
       }
       catch (Exception ex)
       {
-        ServiceScope.Get<ILogger>().Critical("GraphicsDevice: failed to set-up DirectX", ex);
+        ServiceScope.Get<ILogger>().Critical("GraphicsDevice: Failed to set-up DirectX", ex);
         Environment.Exit(0);
       }
     }
@@ -163,7 +161,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         GetCapabilities();
       }
       else
-        ServiceScope.Get<ILogger>().Error("GraphicsDevice: cannot reset directx. {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
+        ServiceScope.Get<ILogger>().Error("GraphicsDevice: Cannot reset DirectX due to pending texture- or vertex-references (#texture references: {0}, #vertex references: {1})", ContentManager.TextureReferences, ContentManager.VertexReferences);
       return true;
     }
 
@@ -188,12 +186,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _device = null;
       MPDirect3D.Unload();
     }
+
     #endregion
 
     /// <summary>
     /// Gets or sets the DirectX Device.
     /// </summary>
-    /// <value>The DirectX Device.</value>
     public static Device Device
     {
       get { return _device; }
@@ -203,7 +201,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Gets the directx back-buffer width.
     /// </summary>
-    /// <value>The directx back-buffer width.</value>
     public static int Width
     {
       get { return _setup.PresentParameters.BackBufferWidth; }
@@ -212,7 +209,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Gets the directx back-buffer height.
     /// </summary>
-    /// <value>The directx back-buffer height.</value>
     public static int Height
     {
       get { return _setup.PresentParameters.BackBufferHeight; }
@@ -224,24 +220,16 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Sets the directx render states and project matrices
+    /// Sets the directx render states and project matrices.
     /// </summary>
     public static void SetRenderState()
     {
       Device.SetRenderState(RenderState.CullMode, Cull.None);
       Device.SetRenderState(RenderState.Lighting, false);
 
-      // Z order must be enabled for batching to work
-      if (SkinContext.UseBatching)
-      {
-        Device.SetRenderState(RenderState.ZEnable, true);
-        Device.SetRenderState(RenderState.ZWriteEnable, true);
-      }
-      else
-      {
-        Device.SetRenderState(RenderState.ZEnable, false);
-        Device.SetRenderState(RenderState.ZWriteEnable, false);
-      }
+      Device.SetRenderState(RenderState.ZEnable, false);
+      Device.SetRenderState(RenderState.ZWriteEnable, false);
+
       Device.SetRenderState(RenderState.FillMode, FillMode.Solid);
       Device.SetRenderState(RenderState.AlphaBlendEnable, true);
       Device.SetRenderState(RenderState.SourceBlend, Blend.SourceAlpha);
@@ -298,12 +286,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       int gw = Width;
       int gh = Height;
-      InitializeZoom();
       Point camera = new Point(gw / 2, gh / 2);
-      // and calculate the offset from the screen center
+      // And calculate the offset from the screen center
       Point offset = new Point(camera.X - (gw / 2), camera.Y - (gh / 2));
 
-      // grab the viewport dimensions and location
+      // Grab the viewport dimensions and location
       Viewport viewport = Device.Viewport;
       float w = Width * 0.5f; // viewport.Width * 0.5f;
       float h = Height * 0.5f; // viewport.Height * 0.5f;
@@ -311,8 +298,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       //Matrix mtxWorld = Matrix.Identity;
       //GraphicsDevice.TransformWorld = mtxWorld;
 
-      // camera view.  Multiply the Y coord by -1) { translate so that everything is relative to the camera
-      // position.
+      // Camera view. Multiply the Y coord by -1) { translate so that everything is relative to the camera position.
       Matrix flipY = Matrix.Scaling(1.0f, -1.0f, 1.0f);
       Matrix translate = Matrix.Translation(-(viewport.X + w + offset.X), -(viewport.Y + h + offset.Y), 2 * h);
       Matrix mtxView = Matrix.Multiply(translate, flipY);
@@ -334,12 +320,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       //GraphicsDevice.TransformProjection = Matrix.PerspectiveFovLH((float)Math.PI / 4.0f, 1.0f, 1.0f, 100.0f);
     }
 
-    public static void InitializeZoom()
-    {
-      SkinContext.Zoom = new SizeF(Width / (float) SkinContext.SkinResources.SkinWidth,
-          Height / (float) SkinContext.SkinResources.SkinHeight);
-    }
-
     /// <summary>
     /// Renders the entire scene.
     /// </summary>
@@ -352,29 +332,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       {
         try
         {
-          //_device.SetRenderTarget(0, _backBuffer);
+          _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
 
-          //Clear the backbuffer to a blue color (ARGB = 000000ff)
-
-          if (SkinContext.UseBatching)
-            _device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
-          else
-            _device.Clear(ClearFlags.Target, Color.Black, 1.0f, 0);
-
-          //Begin the scene
           _device.BeginScene();
 
           ScreenManager manager = (ScreenManager) ServiceScope.Get<IScreenManager>();
           manager.Render();
-          if (SkinContext.UseBatching)
-            RenderPipeline.Instance.Render();
-          //End the scene
+
           _device.EndScene();
           _device.Present();
         }
-        catch (Direct3D9Exception)
+        catch (Direct3D9Exception e)
         {
-          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device");
+          ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Lost DirectX device", e);
           _deviceLost = true;
           return true;
         }

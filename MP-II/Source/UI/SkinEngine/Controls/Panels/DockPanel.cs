@@ -29,7 +29,6 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -78,14 +77,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return CalculateDesiredSize(Children.GetEnumerator(), totalSize);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       float offsetTop = 0.0f;
       float offsetLeft = 0.0f;
       float offsetRight = 0.0f;
       float offsetBottom = 0.0f;
-      SizeF availableSize = new SizeF(finalRect.Width, finalRect.Height);
+      SizeF availableSize = new SizeF(_innerRect.Width, _innerRect.Height);
 
       int count = 0;
       // Area allocated to child
@@ -105,7 +104,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (GetDock(child) == Dock.Top)
         {
           PointF location = new PointF(offsetLeft, offsetTop);
-          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
@@ -126,11 +124,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           PointF location;
           if (count == Children.Count && LastChildFill)
-            location = new PointF(offsetLeft, finalRect.Height - (offsetBottom + availableSize.Height));
+            location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + availableSize.Height));
           else
-            location = new PointF(offsetLeft, finalRect.Height - (offsetBottom + childSize.Height));
+            location = new PointF(offsetLeft, _innerRect.Height - (offsetBottom + childSize.Height));
 
-          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
@@ -150,7 +147,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else if (GetDock(child) == Dock.Left)
         {
           PointF location = new PointF(offsetLeft, offsetTop);
-          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
@@ -171,10 +167,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         {
           PointF location;
           if (count == Children.Count && LastChildFill)
-            location = new PointF(finalRect.Width - (offsetRight + availableSize.Width), offsetTop);
+            location = new PointF(_innerRect.Width - (offsetRight + availableSize.Width), offsetTop);
           else
-            location = new PointF(finalRect.Width - (offsetRight + childSize.Width), offsetTop);
-          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
+            location = new PointF(_innerRect.Width - (offsetRight + childSize.Width), offsetTop);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
 
@@ -194,7 +189,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         else // Center
         {
           PointF location = new PointF(offsetLeft, offsetTop);
-          SkinContext.FinalLayoutTransform.TransformPoint(ref location);
           location.X += ActualPosition.X;
           location.Y += ActualPosition.Y;
           childSize = new SizeF(availableSize.Width, availableSize.Height);

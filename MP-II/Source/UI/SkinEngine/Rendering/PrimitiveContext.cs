@@ -37,13 +37,10 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     protected EffectParameters _parameters;
     protected ITextureAsset _texture;
     protected VertexBuffer _vertexBuffer;
-    protected PositionColored2Textured[] _vertices;
+    protected VertexFormat _vertexFormat;
     protected PrimitiveType _primitiveType;
     protected int _numVertices;
-    protected VertexFormat _vertexFormat;
     protected int _strideSize;
-    // TODO: Remove depencency from RenderGroup (inherit from IObservable?)
-    protected RenderGroup _renderGroup;
 
     #endregion
 
@@ -69,23 +66,14 @@ namespace MediaPortal.UI.SkinEngine.Rendering
       _numVertices = verticesCount;
       _vertexBuffer = PositionColored2Textured.Create(vertices.Length);
       PositionColored2Textured.Set(_vertexBuffer, vertices);
-      _vertices = vertices;
     }
 
     public void OnVerticesChanged(int numVertices, PositionColored2Textured[] vertices)
     {
       InitializeVertexBuffer(numVertices, vertices);
-      if (_renderGroup != null)
-        _renderGroup.UpdateVertices = true;
     }
 
     #region Properties
-
-    public RenderGroup RenderGroup
-    {
-      get { return _renderGroup; }
-      set { _renderGroup = value; }
-    }
 
     public EffectAsset Effect
     {
@@ -103,11 +91,6 @@ namespace MediaPortal.UI.SkinEngine.Rendering
     {
       get { return _texture; }
       set { _texture = value; }
-    }
-
-    public PositionColored2Textured[] Vertices
-    {
-      get { return _vertices; }
     }
 
     public VertexBuffer VertexBuffer

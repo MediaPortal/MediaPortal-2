@@ -40,9 +40,8 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.DirectX
 {
-  public class MPDirect3D 
+  public static class MPDirect3D 
   {
-
     private static Direct3D _d3d;
 
     public static Direct3D Direct3D
@@ -64,7 +63,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
   }
 
-  internal class d3dSetup
+  internal class D3DSetup
   {
     /// <summary>
     /// Messages that can be used when displaying an error
@@ -148,11 +147,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     }
 
     /// <summary>
-    /// Picks the best graphics device, and initializes it
+    /// Picks the best graphics device and initializes it.
     /// </summary>
     /// <param name="form">The form.</param>
-    /// <param name="exclusive">set to true if exclusive mode</param>
-    /// <returns>true if a good device was found, false otherwise</returns>
+    /// <param name="exclusiveMode">Set to true for exclusive mode.</param>
+    /// <returns><c>true</c>, if a good device was found, <c>false</c> otherwise.</returns>
     public bool SetupDirectX(Form form, bool exclusiveMode)
     {
       _cancelEventHandler = CancelAutoResizeEvent;
@@ -202,14 +201,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         InitializeEnvironment();
         // Initialize the app's custom scene stuff
       }
-      catch (SampleException d3de)
+      catch (Exception ex)
       {
-        HandleSampleException(d3de, ApplicationMessage.ApplicationMustExit);
-        return false;
-      }
-      catch
-      {
-        HandleSampleException(new SampleException(), ApplicationMessage.ApplicationMustExit);
+        HandleException(ex, ApplicationMessage.ApplicationMustExit);
         return false;
       }
 
@@ -238,15 +232,14 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         string name = MPDirect3D.Direct3D.Adapters[i].Details.Description;
         if (String.Compare(name, "NVIDIA PerfHUD", true) == 0)
         {
-          ServiceScope.Get<ILogger>().Info("DirectX: found perfhud adapter:{0} {1} ",
-                  i, MPDirect3D.Direct3D.Adapters[i].Details.Description);
+          ServiceScope.Get<ILogger>().Info("DirectX: Found PerfHUD adapter: {0} {1} ", i,
+              MPDirect3D.Direct3D.Adapters[i].Details.Description);
           primaryDesktopDisplayMode = MPDirect3D.Direct3D.Adapters[i].CurrentDisplayMode;
           perfHudFound = true;
           _usingPerfHud = true;
           doesRequireReference = true;
           break;
         }
-
       }
       GraphicsAdapterInfo bestAdapterInfo = null;
       GraphicsDeviceInfo bestDeviceInfo = null;
@@ -453,19 +446,19 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       if (!FindBestFullscreenMode(false, false))
       {
-        ServiceScope.Get<ILogger>().Critical("d3dSetup: failed to find best fullscreen mode.");
+        ServiceScope.Get<ILogger>().Critical("D3DSetup: failed to find best fullscreen mode.");
         return false;
       }
       if (!FindBestWindowedMode(false, false))
       {
-        ServiceScope.Get<ILogger>().Critical("d3dSetup: failed to find best windowed mode.");
+        ServiceScope.Get<ILogger>().Critical("D3DSetup: failed to find best windowed mode.");
         return false;
       }
       return true;
     }
 
     /// <summary>
-    /// Initialize the graphics environment
+    /// Initialize the graphics environment.
     /// </summary>
     public void InitializeEnvironment()
     {
@@ -477,7 +470,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       if ((deviceInfo.Caps.PrimitiveMiscCaps & PrimitiveMiscCaps.NullReference) != 0)
         // Warn user about null ref device that can't render anything
-        HandleSampleException(new NullReferenceDeviceException(), ApplicationMessage.None);
+        HandleException(new NullReferenceDeviceException(), ApplicationMessage.None);
 
       CreateFlags createFlags;
       if (_graphicsSettings.VertexProcessingType == VertexProcessingType.Software)
@@ -636,7 +629,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
             this.TopMost = alwaysOnTop;*/
 
             // Let the user know we are switching from HAL to the reference rasterizer
-            HandleSampleException(null, ApplicationMessage.WarnSwitchToRef);
+            HandleException(null, ApplicationMessage.WarnSwitchToRef);
 
             InitializeEnvironment();
           }
@@ -646,7 +639,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
     protected static void CancelAutoResizeEvent(object sender, CancelEventArgs e)
     {
-      // Cancel, you stupid bastard!
       e.Cancel = true;
     }
 
@@ -656,16 +648,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       return true;
     }
 
-
     /// <summary>
     /// Displays sample exceptions to the user
     /// </summary>
     /// <param name="e">The exception that was thrown</param>
     /// <param name="Type">Extra information on how to handle the exception</param>
-    public void HandleSampleException(SampleException e, ApplicationMessage Type)
+    public void HandleException(Exception e, ApplicationMessage Type)
     {
       // Build a message to display to the user
-      string strMsg = "";
+      string strMsg = string.Empty;
       if (e != null)
         strMsg = e.Message;
       //Log.Error("D3D: Exception: {0} {1} {2}", strMsg, strSource, strStack);
@@ -689,126 +680,22 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       }
     }
 
-    #region Various SampleExceptions
-
-    /// <summary>
-    /// The default sample exception type
-    /// </summary>
-    public class SampleException : ApplicationException
-    {
-      /// <summary>
-      /// Return information about the exception
-      /// </summary>
-      public override string Message
-      {
-        get
-        {
-          string strMsg = "Generic application error. Enable\n";
-          strMsg += "debug output for detailed information.";
-
-          return strMsg;
-        }
-      }
-    }
-
-
-    /// <summary>
-    /// Exception informing user no compatible devices were found
-    /// </summary>
-    public class NoCompatibleDevicesException : SampleException
-    {
-      /// <summary>
-      /// Return information about the exception
-      /// </summary>
-      public override string Message
-      {
-        get
-        {
-          string strMsg = "This sample cannot run in a desktop\n";
-          strMsg += "window with the current display settings.\n";
-          strMsg += "Please change your desktop settings to a\n";
-          strMsg += "16- or 32-bit display mode and re-run this\n";
-          strMsg += "sample.";
-
-          return strMsg;
-        }
-      }
-    }
-
+    #region Various Exceptions
 
     /// <summary>
     /// An exception for when the ReferenceDevice is null
     /// </summary>
-    public class NullReferenceDeviceException : SampleException
+    public class NullReferenceDeviceException : ApplicationException
     {
-      /// <summary>
-      /// Return information about the exception
-      /// </summary>
       public override string Message
       {
         get
         {
-          string strMsg = "Warning: Nothing will be rendered.\n";
-          strMsg += "The reference rendering device was selected, but your\n";
-          strMsg += "computer only has a reduced-functionality reference device\n";
-          strMsg += "installed. Please check if your graphics card and\n";
-          strMsg += "drivers meet the minimum system requirements.\n";
-
-          return strMsg;
-        }
-      }
-    }
-
-
-    /// <summary>
-    /// An exception for when reset fails
-    /// </summary>
-    public class ResetFailedException : SampleException
-    {
-      /// <summary>
-      /// Return information about the exception
-      /// </summary>
-      public override string Message
-      {
-        get
-        {
-          return "Could not reset the Direct3D device.";
-        }
-      }
-    }
-
-
-    /// <summary>
-    /// The exception thrown when media couldn't be found
-    /// </summary>
-    public class MediaNotFoundException : SampleException
-    {
-      private readonly string mediaFile;
-
-      public MediaNotFoundException(string filename)
-      {
-        mediaFile = filename;
-      }
-
-      public MediaNotFoundException()
-      {
-        mediaFile = string.Empty;
-      }
-
-      /// <summary>
-      /// Return information about the exception
-      /// </summary>
-      public override string Message
-      {
-        get
-        {
-          string strMsg = "Could not load required media.";
-          if (mediaFile.Length > 0)
-          {
-            strMsg += string.Format("\r\nFile: {0}", mediaFile);
-          }
-
-          return strMsg;
+          return "Warning: Nothing will be rendered.\n" +
+              "The reference rendering device was selected, but your\n" +
+              "computer only has a reduced-functionality reference device\n" +
+              "installed. Please check if your graphics card and\n" +
+              "drivers meet the minimum system requirements.\n";
         }
       }
     }
@@ -820,6 +707,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Will hold native methods which are interop'd
     /// </summary>
+    // TODO: Move to MediaPortal.Utils
     public class NativeMethods
     {
       #region Win32 User Messages / Structures
@@ -1003,8 +891,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 
       [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
       [DllImport("User32.dll", CharSet = CharSet.Auto)]
-      public static extern bool PeekMessage(out Message msg, IntPtr hWnd, uint messageFilterMin, uint messageFilterMax,
-                                            PeekMessageFlags flags);
+      public static extern bool PeekMessage(out Message msg, IntPtr hWnd,
+          uint messageFilterMin, uint messageFilterMax, PeekMessageFlags flags);
 
       [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
       [DllImport("User32.dll", CharSet = CharSet.Auto)]
@@ -1025,10 +913,11 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
       [DllImport("User32.dll", CharSet = CharSet.Auto)]
 #if(_WIN64)
-  private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index, [MarshalAs(UnmanagedType.FunctionPtr)] WndProcDelegate windowCallback);
+      private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int index,
+          [MarshalAs(UnmanagedType.FunctionPtr)] WndProcDelegate windowCallback);
 #else
       private static extern IntPtr SetWindowLong(IntPtr hWnd, int index,
-                                                 [MarshalAs(UnmanagedType.FunctionPtr)] WndProcDelegate windowCallback);
+          [MarshalAs(UnmanagedType.FunctionPtr)] WndProcDelegate windowCallback);
 #endif
 
       [SuppressUnmanagedCodeSecurity] // We won't use this maliciously
@@ -1141,11 +1030,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       #region Class Methods
 
       private NativeMethods() { } // No creation
+
       /// <summary>Hooks window messages to go through this new callback</summary>
       public static void HookWindowsMessages(IntPtr window, WndProcDelegate callback)
       {
 #if(_WIN64)
-  SetWindowLongPtr(window, -4, callback);
+        SetWindowLongPtr(window, -4, callback);
 #else
         SetWindowLong(window, -4, callback);
 #endif
@@ -1198,17 +1088,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
       _presentParams.Windowed = _graphicsSettings.IsWindowed;
       _presentParams.BackBufferCount = 2;
 
-      // Z order must be enabled for batching to work
-      if (MediaPortal.UI.SkinEngine.SkinManagement.SkinContext.UseBatching == true)
-      {
-        _presentParams.EnableAutoDepthStencil = true;
-        _presentParams.AutoDepthStencilFormat = Format.D24X8;
-      }
-      else
-        _presentParams.EnableAutoDepthStencil = false;
+      _presentParams.EnableAutoDepthStencil = false;
 
       ServiceScope.Get<ILogger>().Debug("BuildPresentParamsFromSettings windowed {0} {1} {2}",
-        _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);
+          _graphicsSettings.IsWindowed, _ourRenderTarget.ClientRectangle.Width, _ourRenderTarget.ClientRectangle.Height);
 
       if (_graphicsSettings.IsWindowed)
       {
@@ -1231,7 +1114,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
         _presentParams.DeviceWindowHandle = _ourRenderTarget.Handle;
         _presentParams.Windowed = true;
-        //         _presentParams.PresentationInterval = PresentInterval.Immediate;
+        //_presentParams.PresentationInterval = PresentInterval.Immediate;
       }
       else
       {

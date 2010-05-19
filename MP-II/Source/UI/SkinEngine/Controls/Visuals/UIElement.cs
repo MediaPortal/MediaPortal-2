@@ -22,8 +22,6 @@
 
 #endregion
 
-//#define DEBUG_LAYOUT
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -45,6 +43,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
+  #region Additional enums, delegates and classes
 
   public enum VisibilityEnum
   {
@@ -209,6 +208,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
   public delegate void UIEventDelegate(string eventName);
 
+  #endregion
+
   public abstract class UIElement : Visual, IContentEnabled
   {
     protected static IList<UIElement> EMPTY_UIELEMENT_LIST = new List<UIElement>();
@@ -234,9 +235,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected SizeF? _availableSize;
     protected RectangleF? _outerRect;
     protected SizeF _desiredSize;
-    protected RectangleF _finalRect;
+    protected RectangleF _innerRect;
     protected ResourceDictionary _resources;
-    protected ExtendedMatrix _finalLayoutTransform;
     protected IExecutableCommand _loaded;
     protected bool _triggersInitialized;
     protected bool _fireLoaded = true;
@@ -255,7 +255,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Init()
     {
       _nameProperty = new SProperty(typeof(string), string.Empty);
-      _acutalPositionProperty = new SProperty(typeof(Vector3), new Vector3(0, 0, 1));
+      _acutalPositionProperty = new SProperty(typeof(PointF), new PointF(0, 0));
       _marginProperty = new SProperty(typeof(Thickness), new Thickness(0, 0, 0, 0));
       _resources = new ResourceDictionary();
       _triggerProperty = new SProperty(typeof(IList<TriggerBase>), new List<TriggerBase>());
@@ -385,8 +385,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Public properties
 
     /// <summary>
-    /// Event handler called for all events defined by their event string
-    /// like <see cref="LOADED_EVENT"/>.
+    /// Event handler called for all events defined by their event string like <see cref="LOADED_EVENT"/>.
     /// </summary>
     public event UIEventDelegate EventOccured;
 
@@ -399,11 +398,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public ResourceDictionary Resources
     {
       get { return _resources; }
-    }
-
-    public ExtendedMatrix FinalLayoutTransform
-    {
-      get { return _finalLayoutTransform; }
     }
 
     public AbstractProperty OpacityProperty
@@ -482,9 +476,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _acutalPositionProperty; }
     }
 
-    public Vector3 ActualPosition
+    public PointF ActualPosition
     {
-      get { return (Vector3) _acutalPositionProperty.GetValue(); }
+      get { return (PointF) _acutalPositionProperty.GetValue(); }
       set { _acutalPositionProperty.SetValue(value); }
     }
 
@@ -560,7 +554,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Returns the desired size this element calculated based on the available size.
-    /// This value denotes the desired size of this element without <see cref="Margin"/>.
+    /// This value denotes the desired size of this element including its <see cref="Margin"/> in the parent's coordinate
+    /// system, i.e. with the <see cref="RenderTransform"/> and <see cref="LayoutTransform"/> applied.
     /// </summary>
     public SizeF DesiredSize
     {
@@ -588,81 +583,65 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #region Layouting
 
     /// <summary>
-    /// Adds this element's margin to the specified <param name="size"/> parameter.
+    /// Adds the given <paramref name="margin"/> to the specified <param name="size"/> parameter.
     /// </summary>
     /// <remarks>
     /// <see cref="float.NaN"/> values will be preserved, i.e. if a <paramref name="size"/> coordinate
     /// is <see cref="float.NaN"/>, it won't be changed.
     /// </remarks>
     /// <param name="size">Size parameter where the margin will be added.</param>
-    public void AddMargin(ref SizeF size)
+    /// <param name="margin">Margin to be added.</param>
+    public static void AddMargin(ref SizeF size, Thickness margin)
     {
-      AddMargin(ref size, Margin);
+      if (!float.IsNaN(size.Width))
+        size.Width += margin.Left + margin.Right;
+      if (!float.IsNaN(size.Height))
+        size.Height += margin.Top + margin.Bottom;
     }
 
     /// <summary>
-    /// Adds this element's margin to the specified <paramref name="rect"/>.
+    /// Adds the given <paramref name="margin"/> to the specified <paramref name="rect"/>.
     /// </summary>
     /// <param name="rect">Inner element's rectangle where the margin will be added.</param>
-    public void AddMargin(ref RectangleF rect)
+    /// <param name="margin">Margin to be added.</param>
+    public static void AddMargin(ref RectangleF rect, Thickness margin)
     {
-      AddMargin(ref rect, Margin);
+      rect.X -= margin.Left;
+      rect.Y -= margin.Top;
+
+      rect.Width += margin.Left + margin.Right;
+      rect.Height += margin.Top + margin.Bottom;
     }
 
     /// <summary>
-    /// Removes this element's margin from the specified <param name="size"/> parameter.
+    /// Removes the given <paramref name="margin"/> from the specified <param name="size"/> parameter.
     /// </summary>
     /// <remarks>
     /// <see cref="float.NaN"/> values will be preserved, i.e. if a <paramref name="size"/> coordinate
     /// is <see cref="float.NaN"/>, it won't be changed.
     /// </remarks>
     /// <param name="size">Size parameter where the margin will be removed.</param>
-    public void RemoveMargin(ref SizeF size)
-    {
-      RemoveMargin(ref size, Margin);
-    }
-
-    /// <summary>
-    /// Removes this element's margin from the specified <paramref name="rect"/>.
-    /// </summary>
-    /// <param name="rect">Outer element's rectangle where the margin will be removed.</param>
-    public void RemoveMargin(ref RectangleF rect)
-    {
-      RemoveMargin(ref rect, Margin);
-    }
-
-    public static void AddMargin(ref SizeF size, Thickness margin)
-    {
-      if (!float.IsNaN(size.Width))
-        size.Width += (margin.Left + margin.Right) * SkinContext.Zoom.Width;
-      if (!float.IsNaN(size.Height))
-        size.Height += (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
-    }
-
-    public static void AddMargin(ref RectangleF rect, Thickness margin)
-    {
-      rect.X -= margin.Left * SkinContext.Zoom.Width;
-      rect.Y -= margin.Top * SkinContext.Zoom.Height;
-
-      rect.Width += (margin.Left + margin.Right) * SkinContext.Zoom.Width;
-      rect.Height += (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
-    }
-
+    /// <param name="margin">Margin to be removed.</param>
     public static void RemoveMargin(ref SizeF size, Thickness margin)
     {
       if (!float.IsNaN(size.Width))
-        size.Width -= (margin.Left + margin.Right) * SkinContext.Zoom.Width;
+        size.Width -= margin.Left + margin.Right;
       if (!float.IsNaN(size.Height))
-        size.Height -= (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
+        size.Height -= margin.Top + margin.Bottom;
     }
 
+    /// <summary>
+    /// Removes the given <paramref name="margin"/> from the specified <paramref name="rect"/>.
+    /// </summary>
+    /// <param name="rect">Outer element's rectangle where the margin will be removed.</param>
+    /// <param name="margin">Margin to be removed.</param>
     public static void RemoveMargin(ref RectangleF rect, Thickness margin)
     {
-      rect.X += margin.Left * SkinContext.Zoom.Width;
-      rect.Y += margin.Top * SkinContext.Zoom.Height;
+      rect.X += margin.Left;
+      rect.Y += margin.Top;
 
-      rect.Width -= (margin.Left + margin.Right) * SkinContext.Zoom.Width;
-      rect.Height -= (margin.Top + margin.Bottom) * SkinContext.Zoom.Height;
+      rect.Width -= margin.Left + margin.Right;
+      rect.Height -= margin.Top + margin.Bottom;
     }
 
     /// <summary>
@@ -726,35 +705,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return child.IsInArea(x, y) && IsInVisibleArea(x, y);
     }
 
-    #region Replacing methods for the == operator which evaluate two float.NaN values to equal
-
-    public static bool SameValue(float val1, float val2)
-    {
-      return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
-    }
-
-    public static bool SameSize(SizeF size1, SizeF size2)
-    {
-      return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
-    }
-
-    public static bool SameSize(SizeF? size1, SizeF size2)
-    {
-      return size1.HasValue && SameSize(size1.Value, size2);
-    }
-
-    public static bool SameRect(RectangleF rect1, RectangleF rect2)
-    {
-      return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
-    }
-
-    public static bool SameRect(RectangleF? rect1, RectangleF rect2)
-    {
-      return rect1.HasValue && SameRect(rect1.Value, rect2);
-    }
-
-    #endregion
-
     /// <summary>
     /// Measures this element's size and fills the <see cref="DesiredSize"/> property.
     /// </summary>
@@ -773,39 +723,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <param name="totalSize">Total size of the element including Margins. As input, this parameter
     /// contains the size available for this child control (size constraint). As output, it must be set
     /// to the <see cref="DesiredSize"/> plus <see cref="Margin"/>.</param>
-    public void Measure(ref SizeF totalSize)
-    {
-#if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
-#endif
-      if (SameSize(_availableSize, totalSize))
-      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
-        totalSize = _desiredSize;
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
-#endif
-        return;
-      }
-      _availableSize = new SizeF(totalSize);
-      RemoveMargin(ref totalSize);
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      MeasureOverride(ref totalSize);
-      SkinContext.FinalLayoutTransform.TransformSize(ref totalSize);
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-      AddMargin(ref totalSize);
-      _desiredSize = totalSize;
-#if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', returns calculated desired size={2}", GetType().Name, Name, totalSize));
-#endif
-    }
-
-    protected virtual void MeasureOverride(ref SizeF totalSize)
+    public virtual void Measure(ref SizeF totalSize)
     {
     }
 
@@ -813,44 +731,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// Arranges the UI element and positions it in the finalrect.
     /// </summary>
     /// <param name="outerRect">The final position and size the parent computed for this child element.</param>
-    public void Arrange(RectangleF outerRect)
+    public virtual void Arrange(RectangleF outerRect)
     {
-#if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
-#endif
-      if (SameRect(_outerRect, outerRect))
-      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to arrange again
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
-#endif
-        return;
-      }
-      _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
-      RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
-      RemoveMargin(ref rect);
-
-      // TODO: Check if we need this if statement
-      if (!rect.IsEmpty)
-        _finalRect = new RectangleF(rect.Location, rect.Size);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix m;
-        LayoutTransform.GetTransform(out m);
-        SkinContext.AddLayoutTransform(m);
-      }
-      ArrangeOverride(rect);
-      if (LayoutTransform != null)
-        SkinContext.RemoveLayoutTransform();
-
-      _finalLayoutTransform = SkinContext.FinalLayoutTransform;
-      Initialize();
-      InitializeTriggers();
-    }
-
-    protected virtual void ArrangeOverride(RectangleF finalRect)
-    {
-      ActualPosition = new Vector3(finalRect.Location.X, finalRect.Location.Y, SkinContext.GetZorder());
     }
 
     /// <summary>
@@ -873,99 +755,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIElement parent = VisualParent as UIElement;
       if (parent != null)
         parent.InvalidateLayout();
-    }
-
-    /// <summary>
-    /// Updates the layout, i.e. calls <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/>.
-    /// Must be done from the render thread.
-    /// </summary>
-    public void UpdateLayout()
-    {
-      // When measure or arrange is directly or indirectly called from the following code, we need the measure/arrange to be
-      // forced and not be optimized when the available size/outer rect are the same.
-      // We could introduce new variables _isMeasureInvalid and _isArrangementInvalid, set it to true here and
-      // check them in the Measure/Arrange methods, but it is easier to just clear our available size/outer rect cache which
-      // also causes the Measure/Arrange to take place:
-      _availableSize = null;
-      _outerRect = null;
-
-#if DEBUG_LAYOUT
-      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}'", GetType().Name, Name));
-#endif
-      //Trace.WriteLine("UpdateLayout: " + Name + "  " + GetType());
-
-      UIElement parent = VisualParent as UIElement;
-      if (parent == null)
-      {
-        SizeF screenSize = new SizeF(SkinContext.SkinResources.SkinWidth * SkinContext.Zoom.Width,
-            SkinContext.SkinResources.SkinHeight * SkinContext.Zoom.Height);
-        SizeF size = new SizeF(screenSize.Width, screenSize.Height);
-
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so measure with screen size {2}", GetType().Name, Name, size));
-#endif
-        Measure(ref size);
-
-        // Root element - restart counting
-        SkinContext.ResetZorder();
-
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so we arrange with screen size {2}", GetType().Name, Name, size));
-#endif
-        // Ignore the measured size - arrange with screen size
-        Arrange(new RectangleF(0, 0, screenSize.Width, screenSize.Height));
-      }
-      else
-      { // We have a visual parent, i.e parent != null
-        if (!_availableSize.HasValue || !_outerRect.HasValue)
-        {
-#if DEBUG_LAYOUT
-          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no available size or no outer rect, updating layout at parent {2}", GetType().Name, Name, parent));
-#endif
-          // We weren't Measured nor Arranged before - need to update parent
-          parent.InvalidateLayout();
-          return;
-        }
-
-        SizeF availableSize = new SizeF(_availableSize.Value.Width, _availableSize.Value.Height);
-        SizeF formerDesiredSize = _desiredSize;
-
-        ExtendedMatrix m = _finalLayoutTransform;
-        if (m != null)
-          SkinContext.AddLayoutTransform(m);
-
-#if DEBUG_LAYOUT
-        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with former available size {2}", GetType().Name, Name, availableSize));
-#endif
-        Measure(ref availableSize);
-        if (m != null)
-          SkinContext.RemoveLayoutTransform();
-
-        if (_desiredSize != formerDesiredSize)
-        {
-#if DEBUG_LAYOUT
-          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned different desired size, updating parent (former: {2}, now: {3})", GetType().Name, Name, formerDesiredSize, _desiredSize));
-#endif
-          // Our size has changed - we need to update our parent
-          parent.InvalidateLayout();
-          return;
-        }
-        else
-        { // Our size is the same as before - just arrange
-          if (m != null)
-            SkinContext.AddLayoutTransform(m);
-
-          SkinContext.SetZOrder(ActualPosition.Z);
-
-          RectangleF outerRect = new RectangleF(_outerRect.Value.Location, _outerRect.Value.Size);
-#if DEBUG_LAYOUT
-          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned same desired size, arranging with old outer rect {2}", GetType().Name, Name, outerRect));
-#endif
-          Arrange(outerRect);
-          if (m != null)
-            SkinContext.RemoveLayoutTransform();
-        }
-      }
     }
 
     #endregion
@@ -1091,10 +880,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (this is INameScope)
         return this as INameScope;
-      else if (TemplateNameScope != null)
+      if (TemplateNameScope != null)
         return TemplateNameScope;
-      else
-        return LogicalParent == null ? Screen : LogicalParent.FindNameScope();
+      return LogicalParent == null ? Screen : LogicalParent.FindNameScope();
     }
 
     /// <summary>
@@ -1168,8 +956,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       INameScope nameScope = FindNameScope();
       if (nameScope != null)
         return nameScope.FindName(name) as UIElement;
-      else
-        return null;
+      return null;
     }
 
     public void ForEachElementInTree_BreadthFirst(IUIElementAction action)
@@ -1245,6 +1032,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     public static bool IsNear(double x, double y)
     {
       return Math.Abs(x - y) < DELTA_DOUBLE;
+    }
+
+    public static bool GreaterThanOrClose(double x, double y)
+    {
+      return x > y || IsNear(x, y);
+    }
+
+    public static bool LessThanOrClose(double x, double y)
+    {
+      return x< y || IsNear(x, y);
     }
 
     #region IContentEnabled members

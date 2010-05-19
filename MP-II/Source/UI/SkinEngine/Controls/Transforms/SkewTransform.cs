@@ -99,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double CenterX
     {
-      get { return (double)_centerXProperty.GetValue(); }
+      get { return (double) _centerXProperty.GetValue(); }
       set { _centerXProperty.SetValue(value); }
     }
 
@@ -110,7 +110,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double CenterY
     {
-      get { return (double)_centerYProperty.GetValue(); }
+      get { return (double) _centerYProperty.GetValue(); }
       set { _centerYProperty.SetValue(value); }
     }
 
@@ -121,7 +121,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double AngleX
     {
-      get { return (double)_angleXProperty.GetValue(); }
+      get { return (double) _angleXProperty.GetValue(); }
       set { _angleXProperty.SetValue(value); }
     }
 
@@ -132,7 +132,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double AngleY
     {
-      get { return (double)_angleYProperty.GetValue(); }
+      get { return (double) _angleYProperty.GetValue(); }
       set { _angleYProperty.SetValue(value); }
     }
 
@@ -141,21 +141,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       base.UpdateTransform();
       _matrix = Matrix.Identity;
 
-      bool flag = (CenterX != 0.0 || CenterY != 0.0);
-      if (flag)
-      {
-        _matrix = Matrix.Translation((float)-CenterX, (float)-CenterY, 0);
-      }
+      float centerX = (float) CenterX;
+      float centerY = (float) CenterY;
+
+      bool centerSet = (centerX != 0.0 || centerY != 0.0);
+      if (centerSet)
+        _matrix = Matrix.Translation(-centerX, -centerY, 0);
 
       double skewX = AngleX % 360.0;
       double skewY = AngleY % 360.0;
       _matrix *= CreateSkewRadians(skewX * Math.PI / 180.0, skewY * Math.PI / 180.0);
  
 
-      if (flag)
-      {
-        _matrix *= Matrix.Translation((float)CenterX, (float)CenterY, 0);
-      }
+      if (centerSet)
+        _matrix *= Matrix.Translation(centerX, centerY, 0);
     }
 
     static Matrix CreateSkewRadians(double skewX, double skewY)

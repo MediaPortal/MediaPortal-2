@@ -136,9 +136,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF((float) ColumnDefinitions.TotalDesiredLength, (float) RowDefinitions.TotalDesiredLength);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       ColumnDefinitions.SetAvailableSize(ActualWidth);
       RowDefinitions.SetAvailableSize(ActualHeight);
 
@@ -154,8 +154,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         if (row < 0) row = 0;
 
         PointF position = new PointF(
-            (float) ColumnDefinitions.GetOffset(col) + finalRect.Location.X, 
-            (float) RowDefinitions.GetOffset(row) + finalRect.Location.Y);
+            (float) ColumnDefinitions.GetOffset(col) + _innerRect.Location.X, 
+            (float) RowDefinitions.GetOffset(row) + _innerRect.Location.Y);
 
         SizeF childSize = new SizeF(
             (float) ColumnDefinitions.GetLength(col, GetColumnSpan(child)),

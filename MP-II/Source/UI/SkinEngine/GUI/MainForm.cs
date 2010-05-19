@@ -77,11 +77,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
       InitializeComponent();
       CheckForIllegalCrossThreadCalls = false;
 
-      SkinContext.Form = this;
       AppSettings appSettings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       _previousMousePosition = new Point(-1, -1);
       ClientSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+
+      SkinContext.Form = this;
+      SkinContext.WindowSize = ClientSize;
 
       // Remember prev size
       _previousWindowClientSize = ClientSize;
@@ -373,8 +375,9 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
         ContentManager.Free();
 
-        //Trace.WriteLine("DirectX MainForm: Reset DirectX");
+        SkinContext.WindowSize = ClientSize;
 
+        //Trace.WriteLine("DirectX MainForm: Reset DirectX");
         if (WindowState != FormWindowState.Minimized)
         {
           GraphicsDevice.Reset(_mode == ScreenMode.ExclusiveMode);

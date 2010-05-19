@@ -22,9 +22,9 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
@@ -32,6 +32,7 @@ using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
+  // TODO: Implement
   public class ImageBrush : TileBrush
   {
     #region Private fields
@@ -94,7 +95,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public string ImageSource
     {
-      get { return (string)_imageSourceProperty.GetValue(); }
+      get { return (string) _imageSourceProperty.GetValue(); }
       set { _imageSourceProperty.SetValue(value); }
     }
 
@@ -105,7 +106,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public double DownloadProgress
     {
-      get { return (double)_downloadProgressProperty.GetValue(); }
+      get { return (double) _downloadProgressProperty.GetValue(); }
       set { _downloadProgressProperty.SetValue(value); }
     }
 
@@ -150,18 +151,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       _tex.Allocate();
     }
 
-    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
+    public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
       if (_tex == null)
       {
         Allocate();
-        base.SetupBrush(bounds, layoutTransform, zOrder, verts);
+        base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
       }
     }
 
-    public override bool BeginRender(PrimitiveContext primitiveContext)
+    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
+      // TODO: Transform, RelativeTransform
       if (_tex == null)
         Allocate();
       _tex.Set(0);

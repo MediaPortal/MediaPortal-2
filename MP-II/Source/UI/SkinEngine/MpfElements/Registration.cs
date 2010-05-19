@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Globalization;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.Commands;
@@ -41,6 +42,7 @@ using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using SlimDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
+using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
 {                            
@@ -89,7 +91,6 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       objectClassRegistrations.Add("TreeView", typeof(SkinEngine.Controls.Visuals.TreeView));
       objectClassRegistrations.Add("TreeViewItem", typeof(SkinEngine.Controls.Visuals.TreeViewItem));
       objectClassRegistrations.Add("ItemsPresenter", typeof(SkinEngine.Controls.Visuals.ItemsPresenter));
-      objectClassRegistrations.Add("StyleSelector", typeof(SkinEngine.Controls.Visuals.StyleSelector));
       objectClassRegistrations.Add("ScrollViewer", typeof(SkinEngine.Controls.Visuals.ScrollViewer));
       objectClassRegistrations.Add("TextBox", typeof(SkinEngine.Controls.Visuals.TextBox));
       objectClassRegistrations.Add("TextControl", typeof(SkinEngine.Controls.Visuals.TextControl));
@@ -207,8 +208,17 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       }
       // Don't convert LateBoundValue (or superclass ValueWrapper) here... instances of
       // LateBoundValue must stay unchanged until some code part explicitly converts them!
-      else if (typeof(ResourceWrapper).IsAssignableFrom(value.GetType()))
+      else if (value is ResourceWrapper)
         return TypeConverter.Convert(((ResourceWrapper) value).Resource, targetType, out result);
+      else if (value is string && targetType == typeof(FrameworkElement))
+      {
+        // It doesn't suffice to have an implicit data template declaration which returns a label for a string.
+        // If you try to build a ResourceWrapper with a string and assign that ResourceWrapper to a Button's Content property
+        // with a StaticResource, for example, the ResourceWrapper will be assigned directly without the data template being
+        // applied. To make it sill work, we need this explicit type conversion here.
+        result = new Label { Content = (string) value };
+        return true;
+      }
       else if (targetType == typeof(Transform))
       {
         string v = value.ToString();
@@ -268,15 +278,23 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         result = t;
         return true;
       }
-      else if (targetType == typeof(Brush))
+      else if (targetType == typeof(Brush) && value is string || value is Color)
       {
-        SolidColorBrush b = new SolidColorBrush
-          {
-              Color = (System.Drawing.Color)
-                  TypeDescriptor.GetConverter(typeof(System.Drawing.Color)).ConvertFromString(value.ToString())
-          };
-        result = b;
-        return true;
+        try
+        {
+          Color color = (Color)
+              TypeDescriptor.GetConverter(typeof(Color)).ConvertFromString(value.ToString());
+          SolidColorBrush b = new SolidColorBrush
+            {
+                Color = color
+            };
+          result = b;
+          return true;
+        }
+        catch (Exception)
+        {
+          return false;
+        }
       }
       else if (targetType == typeof(PointCollection))
       {

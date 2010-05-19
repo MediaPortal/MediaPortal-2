@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.Effects;
+using SlimDX;
 
 namespace MediaPortal.UI.SkinEngine.Players
 {
@@ -49,7 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Players
 
     // TODO: Tidy up from here
 
-    void BeginRender(EffectAsset effect);
+    void BeginRender(EffectAsset effect, Matrix finalTransform);
     void EndRender(EffectAsset effect);
   }
 }

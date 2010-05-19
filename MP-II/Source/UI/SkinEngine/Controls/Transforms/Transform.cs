@@ -34,9 +34,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     #region Private/protected fields
 
     protected bool _needUpdate = true;
-    protected bool _needUpdateRel = true;
     protected Matrix _matrix = Matrix.Identity;
-    protected Matrix _matrixRel = Matrix.Identity;
 
     #endregion
     
@@ -46,7 +44,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     {
       base.DeepCopy(source, copyManager);
       _needUpdate = true;
-      _needUpdateRel = true;
     }
 
     #endregion
@@ -58,7 +55,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
     protected void OnPropertyChanged(AbstractProperty property, object oldValue)
     {
       _needUpdate = true;
-      _needUpdateRel = true;
       Fire();
     }
 
@@ -70,46 +66,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
         ObjectChanged(this);
     }
 
-    public void GetTransform(out ExtendedMatrix m)
-    {
-      Matrix matrix;
-      GetTransform(out matrix);
-      m = new ExtendedMatrix();
-      m.Matrix *= matrix;
-    }
-
-    public void GetTransformRel(out ExtendedMatrix m)
-    {
-      Matrix matrix;
-      GetTransformRel(out matrix);
-      m = new ExtendedMatrix();
-      m.Matrix *= matrix;
-    }
-    
-    public virtual void GetTransform(out Matrix m)
+    public virtual Matrix GetTransform()
     {
       if (_needUpdate)
       {
         UpdateTransform();
         _needUpdate = false;
       }
-      m = _matrix;
-    }
-
-    public virtual void GetTransformRel(out Matrix m)
-    {
-      if (_needUpdateRel)
-      {
-        UpdateTransformRel();
-        _needUpdateRel = false;
-      }
-      m = _matrixRel;
+      return _matrix;
     }
 
     public virtual void UpdateTransform()
-    { }
-
-    public virtual void UpdateTransformRel()
     { }
   }
 }

@@ -29,7 +29,6 @@ using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Effects;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using Font=MediaPortal.UI.SkinEngine.Fonts.Font;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
@@ -95,15 +94,17 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="alignment">The alignment.</param>
     /// <param name="fontSize">The font size.</param>
     /// <param name="color">The color.</param>
+    /// <param name="finalTransform">The final combined render-/layout-transform.</param>
     /// <returns>
     /// 	<c>true</c> if the specified text is changed; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsChanged(string text, RectangleF textBox, float zOrder, Font.Align alignment, float fontSize, Color4 color)
+    private bool IsChanged(string text, RectangleF textBox, float zOrder, Font.Align alignment, float fontSize,
+        Color4 color, Matrix finalTransform)
     {
       return text != _previousText || textBox != _previousTextBox || alignment != _previousAlignment ||
 //          SkinContext.GradientInUse != _previousGradientUsed ||
           fontSize != _previousSize || color.ToArgb() != _previousColor.ToArgb() ||
-          _previousMatrix != SkinContext.FinalRenderTransform.Matrix;
+          _previousZorder != zOrder || _previousMatrix != finalTransform;
     }
 
     /// <summary>
@@ -117,7 +118,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="color">The color.</param>
     /// <param name="scroll">if set to <c>true</c> then scrolling is allowed.</param>
     /// <param name="totalWidth">The total width.</param>
-    public void Draw(string text, RectangleF textBox, float zOrder, Font.Align alignment, float fontSize, Color4 color, bool scroll, out float totalWidth)
+    /// <param name="finalTransform">The combined render/layout-transformation to use.</param>
+    public void Draw(string text, RectangleF textBox, float zOrder, Font.Align alignment, float fontSize,
+        Color4 color, bool scroll, out float totalWidth, Matrix finalTransform)
     {
       totalWidth = 0;
       if (_font == null || String.IsNullOrEmpty(text))
@@ -127,7 +130,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         if (!_textFits)
         {
-          if (IsChanged(text, textBox, zOrder, alignment, fontSize, color))
+          if (IsChanged(text, textBox, zOrder, alignment, fontSize, color, finalTransform))
           {
             _previousText = text;
             _previousTextBox = textBox;
@@ -137,7 +140,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
             _characterIndex = 0;
-            _previousMatrix = SkinContext.FinalRenderTransform.Matrix;
+            _previousMatrix = finalTransform;
             _previousZorder = zOrder;
           }
 
@@ -157,7 +160,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
           textBox.X -= _xPosition;
 
-          _font.AddString(textDraw, textBox, zOrder, alignment, fontSize, color, true, true, out _textFits, out totalWidth);
+          _font.AddString(textDraw, textBox, zOrder, alignment, fontSize, color, true, true, finalTransform, out _textFits, out totalWidth);
 
           PositionColored2Textured[] verts = _font.Vertices;
           _context.OnVerticesChanged(_font.PrimitiveCount, verts);
@@ -186,7 +189,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _characterIndex = 0;
         _xPosition = 0;
       }
-      if (IsChanged(text, textBox, zOrder, alignment, fontSize, color))
+      if (IsChanged(text, textBox, zOrder, alignment, fontSize, color, finalTransform))
       {
         _previousText = text;
         _previousTextBox = textBox;
@@ -194,10 +197,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _previousSize = fontSize;
         _previousColor = color;
         //_previousGradientUsed = SkinContext.GradientInUse;
-        _previousMatrix = SkinContext.FinalRenderTransform.Matrix;
+        _previousMatrix = finalTransform;
         _previousZorder = zOrder;
 
-        _font.AddString(text, textBox, zOrder, alignment, fontSize, color, true, false, out _textFits, out totalWidth);
+        _font.AddString(text, textBox, zOrder, alignment, fontSize, color, true, false, finalTransform, out _textFits, out totalWidth);
         //_font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
         PositionColored2Textured[] verts = _font.Vertices;
         _context.OnVerticesChanged(_font.PrimitiveCount, verts);
@@ -220,22 +223,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public void Free()
     {
       if (_isAdded && _context != null)
-      {
-        if (SkinContext.UseBatching)
-          RenderPipeline.Instance.Remove(_context);
         _context.Dispose();
-      }
       _isAdded = false;
     }
 
     public void Alloc()
     {
       if (!_isAdded)
-      {
-        if (SkinContext.UseBatching)
-          RenderPipeline.Instance.Add(_context);
         _isAdded = true;
-      }
     }
   }
 }

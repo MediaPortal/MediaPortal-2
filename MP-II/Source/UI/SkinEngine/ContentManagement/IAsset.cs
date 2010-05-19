@@ -24,6 +24,11 @@
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
+  /// <summary>
+  /// Identifies a resource which is maybe shared between different objects and which must be free'd after usage.
+  /// The resource might be able to block its disposal by returning a value of <c>false</c> in its propert
+  /// <see cref="CanBeDeleted"/>.
+  /// </summary>
   public interface IAsset
   {
     /// <summary>
@@ -45,6 +50,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    bool Free(bool force);
+    void Free(bool force);
   }
 }

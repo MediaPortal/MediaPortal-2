@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -36,7 +36,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SlimDX, Version=1.0.2936.23774, Culture=neutral, processorArchitecture=x86">
+    <Reference Include="SlimDX, Version=2.0.9.42, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\SlimDX.dll</HintPath>
     </Reference>
@@ -103,7 +103,7 @@
     <Compile Include="Controls\Visuals\Triggers\TriggerCommand.cs" />
     <Compile Include="Controls\Brushes\Brush.cs" />
     <Compile Include="Controls\Brushes\BrushCache.cs" />
-    <Compile Include="Controls\Brushes\BrushTexture.cs" />
+    <Compile Include="Controls\Brushes\GradientBrushTexture.cs" />
     <Compile Include="Controls\Brushes\GradientBrush.cs" />
     <Compile Include="Controls\Brushes\GradientStop.cs" />
     <Compile Include="Controls\Brushes\GradientStopCollection.cs" />
@@ -176,6 +176,7 @@
     <Compile Include="MpfElements\Converters\expr\Error.cs" />
     <Compile Include="Players\ISlimDXVideoPlayer.cs" />
     <Compile Include="Players\PlayersHelper.cs" />
+    <Compile Include="Rendering\RenderContext.cs" />
     <Compile Include="ScreenManagement\DialogData.cs" />
     <Compile Include="ScreenManagement\ScreenManagerMessaging.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigurationController.cs" />
@@ -220,7 +221,6 @@
     <Compile Include="Controls\Transforms\TransformGroup.cs" />
     <Compile Include="Controls\Transforms\TranslateTransform.cs" />
     <Compile Include="Controls\Visuals\Templates\ControlTemplate.cs" />
-    <Compile Include="Controls\Visuals\IUpdateEventHandler.cs" />
     <Compile Include="Controls\Visuals\Shapes\PointCollection.cs" />
     <Compile Include="Controls\Visuals\TextBox.cs" />
     <Compile Include="Controls\Visuals\Thickness.cs" />
@@ -256,7 +256,6 @@
     <Compile Include="DirectX\Triangulate\CPolygon.cs" />
     <Compile Include="DirectX\Triangulate\Definition.cs" />
     <Compile Include="Controls\Visuals\ARRetainingControl.cs" />
-    <Compile Include="Controls\Visuals\StyleSelector.cs" />
     <Compile Include="Controls\Visuals\Styles\Setter.cs" />
     <Compile Include="Controls\Visuals\Styles\Style.cs" />
     <Compile Include="Controls\Visuals\TreeViewItem.cs" />
@@ -278,7 +277,7 @@
     <Compile Include="Effects\EffectAsset.cs" />
     <Compile Include="Effects\EffectHandleAsset.cs" />
     <Compile Include="Effects\EffectParameters.cs" />
-    <Compile Include="ExtendedMatrix.cs" />
+    <Compile Include="MatrixOperations.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -329,8 +328,6 @@
     <Compile Include="Fonts\Quad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\PrimitiveContext.cs" />
-    <Compile Include="Rendering\RenderGroup.cs" />
-    <Compile Include="Rendering\RenderPipeline.cs" />
     <Compile Include="Settings\AppSettings.cs" />
     <Compile Include="Settings\Configuration\Appearance\Fullscreen.cs" />
     <Compile Include="Settings\Configuration\Appearance\Skin\SkinConfigSetting.cs" />
@@ -357,6 +354,20 @@
     <Compile Include="Utils\GeometricHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
+    <None Include="Skin\default\shaders\blur.fx" />
+    <None Include="Skin\default\shaders\dialogbg.fx" />
+    <None Include="Skin\default\shaders\font.fx" />
+    <None Include="Skin\default\shaders\greyscale.fx" />
+    <None Include="Skin\default\shaders\lineargradient.fx" />
+    <None Include="Skin\default\shaders\linearopacitygradient.fx" />
+    <None Include="Skin\default\shaders\normal.fx" />
+    <None Include="Skin\default\shaders\radialgradient.fx" />
+    <None Include="Skin\default\shaders\radialopacitygradient.fx" />
+    <None Include="Skin\default\shaders\smartzoom.fx" />
+    <None Include="Skin\default\shaders\solidbrush.fx" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\System\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>
@@ -378,8 +389,6 @@
     <EmbeddedResource Include="GUI\MP2.ico" />
     <Content Include="Language\strings_en.xml" />
     <Content Include="plugin.xml" />
-    <Content Include="Skin\default\screens\skinengine_config_skin_dialog.xaml" />
-    <Content Include="Skin\default\screens\skinengine_config_theme_dialog.xaml" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\MainForm.resx">

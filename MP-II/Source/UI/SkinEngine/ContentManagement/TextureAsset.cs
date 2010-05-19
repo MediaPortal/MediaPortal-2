@@ -415,7 +415,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       }
     }
 
-    public bool Free(bool force)
+    public void Free(bool force)
     {
       //      Trace.WriteLine(String.Format("  Dispose texture:{0}", _textureName));
       if (_texture != null)
@@ -430,7 +430,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         }
       }
       _state = State.Unknown;
-      return false;
     }
 
     #endregion

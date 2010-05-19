@@ -29,6 +29,7 @@ using MediaPortal.Core;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.SkinEngine.Effects;
+using SlimDX;
 using Ui.Players.Video.Subtitles;
 
 [ComVisible(true), ComImport,
@@ -613,6 +614,12 @@ namespace Ui.Players.Video
         if (_renderer != null)
           _renderer.OnSeek(CurrentTime.TotalSeconds);
       }
+    }
+
+    public override void BeginRender(EffectAsset effect, Matrix finalTransform)
+    {
+      base.BeginRender(effect, finalTransform);
+      _renderer.FinalTransform = finalTransform;
     }
 
     public override void EndRender(EffectAsset effect)

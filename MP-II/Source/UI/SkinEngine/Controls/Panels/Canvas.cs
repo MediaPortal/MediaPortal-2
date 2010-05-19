@@ -26,7 +26,6 @@ using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -57,29 +56,24 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF(rect.Right, rect.Bottom);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
-      float x = finalRect.Location.X;
-      float y = finalRect.Location.Y;
+      base.ArrangeOverride();
+      float x = _innerRect.Location.X;
+      float y = _innerRect.Location.Y;
 
       foreach (FrameworkElement child in Children)
       {
         if (!child.IsVisible)
           continue;
         // Get the coordinates relative to the canvas area.
-        PointF point = new PointF(((float) GetLeft(child) * SkinContext.Zoom.Width),
-                                  ((float) GetTop(child) * SkinContext.Zoom.Height));
-
-        SkinContext.FinalLayoutTransform.TransformPoint(ref point);
-        point.X += x;
-        point.Y += y;
+        PointF location = new PointF((float) GetLeft(child) + x, (float) GetTop(child) + y);
 
         // Get the child size
         SizeF childSize = child.DesiredSize;
 
         // Arrange the child
-        child.Arrange(new RectangleF(point, childSize));
+        child.Arrange(new RectangleF(location, childSize));
       }
       UpdateRenderOrder();
     }

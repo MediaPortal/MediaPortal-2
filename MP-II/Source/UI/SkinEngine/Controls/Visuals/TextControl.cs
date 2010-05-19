@@ -27,6 +27,7 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
 using FontRender = MediaPortal.UI.SkinEngine.ContentManagement.FontRender;
@@ -108,14 +109,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnColorChanged(AbstractProperty prop, object oldValue)
     {
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
     void OnTextAlignChanged(AbstractProperty prop, object oldValue)
     {
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
     void OnTextChanged(AbstractProperty prop, object oldValue)
@@ -123,8 +120,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // The skin is setting the text, also update the caret
       if (!_editText)
         CaretIndex = Text.Length;
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
     void OnPreferredTextLengthChanged(AbstractProperty prop, object oldValue)
@@ -142,8 +137,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
 
       _asset = null;
-      if (Screen != null) 
-        Screen.Invalidate(this);
     }
 
     public override void OnKeyPreview(ref Key key)
@@ -283,92 +276,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       AllocFont();
 
       SizeF childSize = _asset == null ? new SizeF() :
-          new SizeF(_asset.Font.Width(Text, _fontSizeCache) * SkinContext.Zoom.Width,
-              _asset.Font.LineHeight(_fontSizeCache) * SkinContext.Zoom.Height);
+          new SizeF(_asset.Font.Width(Text, _fontSizeCache), _asset.Font.LineHeight(_fontSizeCache));
 
       if (PreferredTextLength.HasValue)
         // We use the "W" character as the character which needs the most space in X-direction
-        childSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache) * SkinContext.Zoom.Width;
+        childSize.Width = PreferredTextLength.Value * _asset.Font.Width("W", _fontSizeCache);
 
       return childSize;
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
-    {
-      base.ArrangeOverride(finalRect);
-      if (Screen != null)
-        Screen.Invalidate(this);
-    }
-
-    public override void DoBuildRenderTree()
-    {
-      if (!IsVisible) return;
-      if (_asset == null) return;
-      AllocFont();
-      Color4 color = ColorConverter.FromColor(Color);
-
-      base.DoRender();
-      float totalWidth;
-
-      float x = ActualPosition.X;
-      float y = ActualPosition.Y;
-      float w = (float) ActualWidth;
-      float h = (float) ActualHeight;
-      if (_finalLayoutTransform != null)
-      {
-        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-        _finalLayoutTransform.InvertXY(ref x, ref y);
-        _finalLayoutTransform.InvertXY(ref w, ref h);
-      }
-      Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
-      Font.Align align = Font.Align.Left;
-      if (TextAlign == HorizontalAlignmentEnum.Right)
-        align = Font.Align.Right;
-      else if (TextAlign == HorizontalAlignmentEnum.Center)
-        align = Font.Align.Center;
-
-      ExtendedMatrix m = new ExtendedMatrix
-        {
-            Matrix = Matrix.Translation(-rect.X, -rect.Y, 0)
-        };
-      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-      SkinContext.AddRenderTransform(m);
-      color.Alpha *= (float) SkinContext.Opacity;
-      color.Alpha *= (float) Opacity;
-
-      _renderer.Draw(Text, rect, ActualPosition.Z, align, _fontSizeCache, color, false, out totalWidth);
-      SkinContext.RemoveRenderTransform();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      if (_renderer != null)
-        _renderer.Free();
-      _renderer = null;
-    }
-
-    public override void DoRender()
+    public override void DoRender(RenderContext localRenderContext)
     {
       if (_asset == null)
         return;
       Color4 color = ColorConverter.FromColor(Color);
 
-      base.DoRender();
+      base.DoRender(localRenderContext);
       float totalWidth;
 
       float y = ActualPosition.Y;
       float x = ActualPosition.X;
       float w = (float) ActualWidth;
       float h = (float) ActualHeight;
-      if (_finalLayoutTransform != null)
-      {
-        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
 
-        _finalLayoutTransform.InvertXY(ref x, ref y);
-        _finalLayoutTransform.InvertXY(ref w, ref h);
-      }
       Rectangle rect = new Rectangle((int) x, (int) y, (int) w, (int) h);
       Font.Align align = Font.Align.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
@@ -376,17 +306,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
-      ExtendedMatrix m = new ExtendedMatrix
-        {
-            Matrix = Matrix.Translation(-rect.X, -rect.Y, 0)
-        };
-      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-      SkinContext.AddRenderTransform(m);
-      color.Alpha *= (float) SkinContext.Opacity;
-      color.Alpha *= (float) Opacity;
-      _asset.Draw(Text, rect, align, _fontSizeCache, color, false, out totalWidth);
-      SkinContext.RemoveRenderTransform();
+      color.Alpha *= (float) localRenderContext.Opacity;
+      _asset.Draw(Text, rect, align, _fontSizeCache, color, false, out totalWidth, localRenderContext.Transform);
     }
 
     public override void Deallocate()
@@ -401,28 +322,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_renderer != null)
         _renderer.Free();
       _renderer = null;
-    }
-
-    public override void BecomesHidden()
-    {
-      if (_renderer != null)
-        _renderer.Free();
-    }
-
-    public override void BecomesVisible()
-    {
-      if (_renderer != null)
-      {
-        _renderer.Alloc();
-        DoBuildRenderTree();
-      }
-    }
-    
-    public override void Update()
-    {
-      base.Update();
-      if (!_hidden)
-        DoBuildRenderTree();
     }
   }
 }

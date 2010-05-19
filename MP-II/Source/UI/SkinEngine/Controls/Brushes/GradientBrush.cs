@@ -23,8 +23,6 @@
 #endregion
 
 using MediaPortal.Core.General;
-using SlimDX;
-using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
@@ -52,13 +50,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
   public class GradientBrush : Brush, IAddChild<GradientStop>
   {
-    #region Private fields
+    #region Protected fields
 
     protected PositionColored2Textured[] _verts;
-    AbstractProperty _colorInterpolationModeProperty;
-    AbstractProperty _gradientStopsProperty;
-    AbstractProperty _spreadMethodProperty;
-    AbstractProperty _mappingModeProperty;
+    protected AbstractProperty _colorInterpolationModeProperty;
+    protected AbstractProperty _gradientStopsProperty;
+    protected AbstractProperty _spreadMethodProperty;
+    protected AbstractProperty _mappingModeProperty;
+    protected bool _singleColor = false;
 
     #endregion
 
@@ -79,9 +78,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     void Init()
     {
       _gradientStopsProperty = new SProperty(typeof(GradientStopCollection), new GradientStopCollection(this));
-      _colorInterpolationModeProperty =
-        new SProperty(typeof(ColorInterpolationMode),
-                     ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
+      _colorInterpolationModeProperty = new SProperty(typeof(ColorInterpolationMode),
+          ColorInterpolationMode.ColorInterpolationModeScRgbLinearInterpolation);
       _spreadMethodProperty = new SProperty(typeof(GradientSpreadMethod), GradientSpreadMethod.Pad);
       _mappingModeProperty = new SProperty(typeof(BrushMappingMode), BrushMappingMode.RelativeToBoundingBox);
     }
@@ -134,7 +132,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public ColorInterpolationMode ColorInterpolationMode
     {
-      get { return (ColorInterpolationMode)_colorInterpolationModeProperty.GetValue(); }
+      get { return (ColorInterpolationMode) _colorInterpolationModeProperty.GetValue(); }
       set { _colorInterpolationModeProperty.SetValue(value); }
     }
 
@@ -145,7 +143,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public GradientStopCollection GradientStops
     {
-      get { return (GradientStopCollection)_gradientStopsProperty.GetValue(); }
+      get { return (GradientStopCollection) _gradientStopsProperty.GetValue(); }
     }
 
     public AbstractProperty MappingModeProperty
@@ -155,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public BrushMappingMode MappingMode
     {
-      get { return (BrushMappingMode)_mappingModeProperty.GetValue(); }
+      get { return (BrushMappingMode) _mappingModeProperty.GetValue(); }
       set { _mappingModeProperty.SetValue(value); }
     }
 
@@ -166,11 +164,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public GradientSpreadMethod SpreadMethod
     {
-      get { return (GradientSpreadMethod)_spreadMethodProperty.GetValue(); }
+      get { return (GradientSpreadMethod) _spreadMethodProperty.GetValue(); }
       set { _spreadMethodProperty.SetValue(value); }
     }
 
     #endregion
+
+    protected void CheckSingleColor()
+    {
+      int color = -1;
+      _singleColor = true;
+      foreach (GradientStop stop in GradientStops)
+        if (color == -1)
+          color = stop.Color.ToArgb();
+        else
+          if (color != stop.Color.ToArgb())
+          {
+            _singleColor = false;
+            return;
+          }
+    }
 
     #region IAddChild Members
 

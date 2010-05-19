@@ -28,10 +28,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Thickness : IDeepCopyable
   {
-    float _left = 0;
-    float _top = 0;
-    float _right = 0;
-    float _bottom = 0;
+    #region Protected fields
+
+    protected float _left = 0;
+    protected float _top = 0;
+    protected float _right = 0;
+    protected float _bottom = 0;
+
+    #endregion
 
     public Thickness()
     {

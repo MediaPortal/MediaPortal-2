@@ -30,6 +30,7 @@ using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
 using FontRender = MediaPortal.UI.SkinEngine.ContentManagement.FontRender;
@@ -123,8 +124,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnRenderAttributeChanged(AbstractProperty prop, object oldValue)
     {
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
     void OnLayoutPropertyChanged(AbstractProperty prop, object oldValue)
@@ -140,8 +139,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         ContentManager.Remove(_asset);
       }
       _asset = null;
-      if (Screen != null) 
-        Screen.Invalidate(this);
     }
 
     protected void InitializeResourceString()
@@ -289,7 +286,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           totalWidth = (float) MaxDesiredWidth;
         else
           // No size constraints
-          totalWidth = totalSize.Width / SkinContext.Zoom.Width;
+          totalWidth = totalSize.Width;
       else
         // Width: highest priority
         totalWidth = (float) Width;
@@ -307,103 +304,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         // Although we maybe can scroll, we will measure all the label's needed space
         width = Math.Min(_asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache), totalWidth);
 
-      return new SizeF(width * SkinContext.Zoom.Width, height * SkinContext.Zoom.Height);
+      return new SizeF(width, height);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    public override void DoRender(RenderContext localRenderContext)
     {
-      base.ArrangeOverride(finalRect);
-      if (Screen != null)
-        Screen.Invalidate(this);
-    }
-
-    public override void DoBuildRenderTree()
-    {
-      base.DoRender();
-
-      if (_asset == null) 
-        return;
-
-      // The characters fit the textbox exactly, so to get some room between the top of the characters 
-      // and the inner rectangle, move the text down (10% of font size) also reduce the font size to 90%
-      // of the value. Otherwise we will be outside of the inner rectangle.
-
-      float lineHeight = _asset.Font.LineHeight(_fontSizeCache);
-      float x = ActualPosition.X;
-      float y = ActualPosition.Y + 0.05f * lineHeight * SkinContext.Zoom.Height;
-      float w = (float) ActualWidth;
-      float h = (float) ActualHeight;
-      if (_finalLayoutTransform != null)
-      {
-        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-        _finalLayoutTransform.InvertXY(ref x, ref y);
-        _finalLayoutTransform.InvertXY(ref w, ref h);
-      }
-      RectangleF rect = new RectangleF(x, y, w, h);
-      Font.Align align = Font.Align.Left;
-      if (TextAlign == HorizontalAlignmentEnum.Right)
-        align = Font.Align.Right;
-      else if (TextAlign == HorizontalAlignmentEnum.Center)
-        align = Font.Align.Center;
-
-      ExtendedMatrix m = new ExtendedMatrix
-        {
-            Matrix = Matrix.Translation(-rect.X, -rect.Y, 0)
-        };
-      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-      SkinContext.AddRenderTransform(m);
-
-      Color4 color = ColorConverter.FromColor(Color);
-      color.Alpha *= (float) SkinContext.Opacity;
-      color.Alpha *= (float) Opacity;
-      
-      bool scroll = Scroll && !Wrap;
-      string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
-
-      foreach (string line in lines)
-      {
-        float totalWidth;
-        _renderer.Draw(line, rect, ActualPosition.Z, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
-        rect.Y += lineHeight;
-      }
-
-      SkinContext.RemoveRenderTransform();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      if (_renderer != null)
-        _renderer.Free();
-      _renderer = null;
-    }
-
-    public override void DoRender()
-    {
-      base.DoRender();
+      base.DoRender(localRenderContext);
 
       if (_asset == null)
         return;
 
       float lineHeight = _asset.Font.LineHeight(_fontSizeCache);
 
-      // The characters fits the textbox exactly, so to get some room between the top of the characters 
-      // and the inner rectangle. Move the text down (10% of font size) also reduce the font size to 90%
-      // of the value. Otherwise we will be outside of the inner rectangle.
+      float y = _innerRect.Y + 0.05f * lineHeight;
+      float x = _innerRect.X;
+      float w = _innerRect.Width;
+      float h = _innerRect.Height;
 
-      float y = _finalRect.Y + 0.05f * lineHeight * SkinContext.Zoom.Height;
-      float x = _finalRect.X;
-      float w = _finalRect.Width;
-      float h = _finalRect.Height;
-
-      if (_finalLayoutTransform != null)
-      {
-        GraphicsDevice.TransformWorld *= _finalLayoutTransform.Matrix;
-
-        _finalLayoutTransform.InvertXY(ref x, ref y);
-        _finalLayoutTransform.InvertXY(ref w, ref h);
-      }
       RectangleF rect = new RectangleF(x, y, w, h);
       Font.Align align = Font.Align.Left;
       if (TextAlign == HorizontalAlignmentEnum.Right)
@@ -411,33 +328,22 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else if (TextAlign == HorizontalAlignmentEnum.Center)
         align = Font.Align.Center;
 
-      ExtendedMatrix m = new ExtendedMatrix
-        {
-            Matrix = Matrix.Translation(-rect.X, -rect.Y, 0)
-        };
-      m.Matrix *= Matrix.Scaling(SkinContext.Zoom.Width, SkinContext.Zoom.Height, 1);
-      m.Matrix *= Matrix.Translation(rect.X, rect.Y, 0);
-      SkinContext.AddRenderTransform(m);
-
       Color4 color = ColorConverter.FromColor(Color);
-      color.Alpha *= (float) SkinContext.Opacity;
-      color.Alpha *= (float) Opacity;
+      color.Alpha *= (float) localRenderContext.Opacity;
 
       bool scroll = Scroll && !Wrap;
-      string[] lines = Wrap ? WrapText(_finalRect.Width / SkinContext.Zoom.Width, true) : new string[] { _resourceString.Evaluate() };
+      string[] lines = Wrap ? WrapText(_innerRect.Width, true) : new string[] { _resourceString.Evaluate() };
 
       foreach (string line in lines)
       {
         float totalWidth;
-        _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth);
+        _asset.Draw(line, rect, align, _fontSizeCache * 0.9f, color, scroll, out totalWidth, localRenderContext.Transform);
         rect.Y += lineHeight;
       }
-      SkinContext.RemoveRenderTransform();
     }
 
     public override void Deallocate()
     {
-      //Trace.WriteLine("lbl Deallocate:" + Content);
       base.Deallocate();
       if (_asset != null)
       {
@@ -448,36 +354,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (_renderer != null)
         _renderer.Free();
       _renderer = null;
-    }
-
-    public override void BecomesHidden()
-    {
-     // Trace.WriteLine("lbl BecomesHidden:" + Content);
-      if (_renderer != null)
-        _renderer.Free();
-    }
-
-    public override void BecomesVisible()
-    {
-      //Trace.WriteLine("lbl BecomesVisible:" + Content);
-      if (_renderer != null)
-      {
-        _renderer.Alloc();
-        DoBuildRenderTree();
-      }
-    }
-    
-    public override void Update()
-    {
-      //Trace.WriteLine("Label.Update");
-      base.Update();
-      if (!_hidden)
-        DoBuildRenderTree();
-
-      // If the text is scrolling, then we must keep on building the render tree
-      // Otherwise it won't scroll.
-      if (Scroll && Screen != null)
-          Screen.Invalidate(this);
     }
   }
 }

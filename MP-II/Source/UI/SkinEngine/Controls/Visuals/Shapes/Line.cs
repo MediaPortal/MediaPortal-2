@@ -33,7 +33,6 @@ using RectangleF = System.Drawing.RectangleF;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -104,7 +103,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       InvalidateLayout();
       InvalidateParentLayout();
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     public AbstractProperty X1Property
@@ -151,31 +149,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _y2Property.SetValue(value); }
     }
 
-    protected override void DoPerformLayout()
+    protected override void DoPerformLayout(RenderContext context)
     {
-      base.DoPerformLayout();
+      base.DoPerformLayout(context);
 
-      double w = ActualWidth;
-      double h = ActualHeight;
-      SizeF rectSize = new SizeF((float) w, (float) h);
-
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      m.InvertSize(ref rectSize);
-      RectangleF rect = new RectangleF(0, 0, rectSize.Width, rectSize.Height);
-      rect.X += ActualPosition.X;
-      rect.Y += ActualPosition.Y;
-
-      RemovePrimitiveContext(ref _strokeContext);
+      DisposePrimitiveContext(ref _strokeContext);
       if (Stroke != null && StrokeThickness > 0)
       {
-        using (GraphicsPath path = GetLine(rect))
+        using (GraphicsPath path = GetLine(_innerRect))
         {
           float centerX;
           float centerY;
@@ -183,10 +164,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           PositionColored2Textured[] verts;
           TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
           int numVertices = verts.Length / 3;
-          Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+          Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
           _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-          AddPrimitiveContext(_strokeContext);
-          Stroke.SetupPrimitive(_strokeContext);
         }
       }
 
@@ -198,7 +177,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       {
         RectangleF bounds = p.GetBounds();
 
-        return new SizeF(bounds.Width * SkinContext.Zoom.Width, bounds.Height * SkinContext.Zoom.Height);
+        return new SizeF(bounds.Width, bounds.Height);
       }
     }
 
@@ -226,16 +205,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       matrix.RotateAt(ang, new PointF(x1, y1), MatrixOrder.Append);
 
 
-      if (_finalLayoutTransform != null)
-        matrix.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-      matrix.Scale(SkinContext.Zoom.Width, SkinContext.Zoom.Height, MatrixOrder.Append);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        matrix.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-      }
       matrix.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       mPath.Transform(matrix);
       mPath.Flatten();

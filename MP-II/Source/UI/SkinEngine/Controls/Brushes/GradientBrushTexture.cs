@@ -34,22 +34,24 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class BrushTexture : ITextureAsset, IDisposable
+  /// <summary>
+  /// Builds and holds a texture which is used for all gradient brushes. The created texture contains a gradient
+  /// specified by a gradient stop collection.
+  /// </summary>
+  public class GradientBrushTexture : ITextureAsset, IDisposable
   {
     Texture _texture;
     DateTime _lastTimeUsed;
     readonly GradientStopCollection _stops;
-    readonly bool _opacityBrush;
     readonly string _name;
     static int _assetId = 0;
 
-    public BrushTexture(GradientStopCollection stops, bool opacityBrush, string name)
+    public GradientBrushTexture(GradientStopCollection stops)
     {
-      _opacityBrush = opacityBrush;
       _stops = stops;
       Allocate();
       IScreenManager mgr = ServiceScope.Get<IScreenManager>();
-      _name = String.Format("brush#{0} {1} {2}", _assetId, mgr.ActiveScreenName, name);
+      _name = String.Format("brush#{0} {1}", _assetId, mgr.ActiveScreenName);
       _assetId++;
       ContentManager.Add(this);
     }
@@ -89,11 +91,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       return true;
     }
 
-    public bool OpacityBrush
-    {
-      get { return _opacityBrush; }
-    }
-
     public Texture Texture
     {
       get
@@ -111,7 +108,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       byte[] data = new byte[4 * 512];
       int offY = 256 * 4;
       IList<GradientStop> orderedStops = _stops.OrderedGradientStopList;
-      for (int i = 0; i < _stops.Count - 1; ++i)
+      for (int i = 0; i < orderedStops.Count - 1; ++i)
       {
         GradientStop stopBegin = orderedStops[i];
         GradientStop stopEnd = orderedStops[i + 1];
@@ -136,31 +133,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
           float a = step * (colorEnd.Alpha - colorStart.Alpha);
           a += colorStart.Alpha;
 
-          if (OpacityBrush)
-          {
-            a *= 255;
-            r = a;
-            g = a;
-            b = 255;
-          }
-          else
-          {
-            a *= 255;
-            r *= 255;
-            g *= 255;
-            b *= 255;
-          }
+          a *= 255;
+          r *= 255;
+          g *= 255;
+          b *= 255;
 
           int offx = x * 4;
-          data[offx] = (byte)b;
-          data[offx + 1] = (byte)g;
-          data[offx + 2] = (byte)r;
-          data[offx + 3] = (byte)a;
+          data[offx] = (byte) b;
+          data[offx + 1] = (byte) g;
+          data[offx + 2] = (byte) r;
+          data[offx + 3] = (byte) a;
 
-          data[offY + offx] = (byte)b;
-          data[offY + offx + 1] = (byte)g;
-          data[offY + offx + 2] = (byte)r;
-          data[offY + offx + 3] = (byte)a;
+          data[offY + offx] = (byte) b;
+          data[offY + offx + 1] = (byte) g;
+          data[offY + offx + 2] = (byte) r;
+          data[offY + offx + 3] = (byte) a;
         }
       }
       DataRectangle rect = _texture.LockRectangle(0, LockFlags.None);
@@ -195,14 +182,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       }
     }
 
-    public bool Free(bool force)
+    public void Free(bool force)
     {
       if (_texture != null)
       {
         _texture.Dispose();
         _texture = null;
       }
-      return false;
     }
 
     #endregion

@@ -227,9 +227,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     protected static void Free(IDictionary<string, IAsset> assets, bool checkIfCanBeDeleted, bool force)
     {
       lock (assets)
-      {
         Free(assets.Values, checkIfCanBeDeleted, force);
-      }
     }
 
     public static void Free()

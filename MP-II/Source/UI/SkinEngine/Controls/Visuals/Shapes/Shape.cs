@@ -22,13 +22,11 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 {
@@ -58,7 +56,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     RightHanded
   }
 
-  public class Shape : FrameworkElement, IUpdateEventHandler
+  public class Shape : FrameworkElement
   {
     #region Protected fields
 
@@ -129,21 +127,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     void OnStrokeThicknessChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnFillBrushChanged(IObservable observable)
     {
       _performLayout = true;
       _lastEvent |= UIEvent.FillChange;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnStrokeBrushChanged(IObservable observable)
     {
       _performLayout = true;
       _lastEvent |= UIEvent.StrokeChange;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     void OnFillBrushPropertyChanged(AbstractProperty property, object oldValue)
@@ -208,83 +203,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _strokeThicknessProperty.SetValue(value); }
     }
 
-    protected void PerformLayout()
+    protected void PerformLayout(RenderContext context)
     {
       if (!_performLayout)
         return;
       _performLayout = false;
-      DoPerformLayout();
+      DoPerformLayout(context);
     }
 
     /// <summary>
     /// Allocates the <see cref="_fillContext"/> and <see cref="_strokeContext"/> variables.
     /// This method will be overridden in sub classes.
     /// </summary>
-    protected virtual void DoPerformLayout()
+    protected virtual void DoPerformLayout(RenderContext context)
     {
     }
 
-    public override void DoBuildRenderTree()
+    public override void DoRender(RenderContext localRenderContext)
     {
-      if (!IsVisible) 
-        return;
-      PerformLayout();
-      _lastEvent = UIEvent.None;
-    }
+      base.DoRender(localRenderContext);
+      PerformLayout(localRenderContext);
 
-    public override void DestroyRenderTree()
-    {
-      base.DestroyRenderTree();
-      RemovePrimitiveContext(ref _fillContext);
-      RemovePrimitiveContext(ref _strokeContext);
-    }
-
-    void SetupBrush(UIEvent uiEvent)
-    {
-      if ((uiEvent & UIEvent.FillChange) != 0 || (uiEvent & UIEvent.OpacityChange) != 0)
-      {
-        if (Fill != null && _fillContext != null)
-          Fill.SetupPrimitive(_fillContext);
-      }
-      if ((uiEvent & UIEvent.StrokeChange) != 0 || (uiEvent & UIEvent.OpacityChange) != 0)
-      {
-        if (Stroke != null && _strokeContext != null)
-          Stroke.SetupPrimitive(_strokeContext);
-      }
-    }
-
-    public void Update()
-    {
-      if ((_lastEvent & UIEvent.Visible) != 0)
-        _hidden = false;
-      if (_hidden)
-      {
-        _lastEvent = UIEvent.None;
-        return;
-      }
-      UpdateLayout();
-      PerformLayout();
-      if ((_lastEvent & UIEvent.Hidden) != 0)
-      {
-        RemovePrimitiveContext(ref _fillContext);
-        RemovePrimitiveContext(ref _strokeContext);
-        _performLayout = true;
-        _hidden = true;
-      }
-      else if (_lastEvent != UIEvent.None)
-        SetupBrush(_lastEvent);
-      _lastEvent = UIEvent.None;
-    }
-
-    public override void DoRender()
-    {
-      PerformLayout();
-
-      SkinContext.AddOpacity(Opacity);
       if (_fillContext != null)
       {
         GraphicsDevice.Device.VertexFormat = _fillContext.VertexFormat;
-        if (Fill.BeginRender(_fillContext))
+        if (Fill.BeginRenderBrush(_fillContext, localRenderContext))
         {
           GraphicsDevice.Device.VertexFormat = _fillContext.VertexFormat;
           GraphicsDevice.Device.SetStreamSource(0, _fillContext.VertexBuffer, 0, _fillContext.StrideSize);
@@ -294,7 +237,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       }
       if (_strokeContext != null)
       {
-        if (Stroke.BeginRender(_strokeContext))
+        if (Stroke.BeginRenderBrush(_strokeContext, localRenderContext))
         {
           GraphicsDevice.Device.VertexFormat = _strokeContext.VertexFormat;
           GraphicsDevice.Device.SetStreamSource(0, _strokeContext.VertexBuffer, 0, _strokeContext.StrideSize);
@@ -302,30 +245,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           Stroke.EndRender();
         }
       }
-      SkinContext.RemoveOpacity();
     }
 
-    public override void FireUIEvent(UIEvent eventType, UIElement source)
+    protected override void ArrangeOverride()
     {
-      base.FireUIEvent(eventType, source);
-      if (SkinContext.UseBatching)
-      {
-        if ((_lastEvent & UIEvent.Hidden) != 0 && eventType == UIEvent.Visible)
-          _lastEvent = UIEvent.None;
-        if ((_lastEvent & UIEvent.Visible) != 0 && eventType == UIEvent.Hidden)
-          _lastEvent = UIEvent.None;
-        if (_hidden && eventType != UIEvent.Visible) return;
-        _lastEvent |= eventType;
-        if (Screen != null) Screen.Invalidate(this);
-      }
-    }
-
-    protected override void ArrangeOverride(RectangleF finalRect)
-    {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       _performLayout = true;
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
     public override void Deallocate()
@@ -335,8 +260,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
         Fill.Deallocate();
       if (Stroke != null)
         Stroke.Deallocate();
-      RemovePrimitiveContext(ref _fillContext);
-      RemovePrimitiveContext(ref _strokeContext);
+      DisposePrimitiveContext(ref _fillContext);
+      DisposePrimitiveContext(ref _strokeContext);
     }
 
     public override void Allocate()

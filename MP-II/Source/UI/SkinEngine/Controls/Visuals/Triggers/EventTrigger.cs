@@ -71,7 +71,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers
 
     public string RoutedEvent
     {
-      get { return (string)_routedEventProperty.GetValue(); }
+      get { return (string) _routedEventProperty.GetValue(); }
       set { _routedEventProperty.SetValue(value); }
     }
 

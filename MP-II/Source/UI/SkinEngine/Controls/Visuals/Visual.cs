@@ -26,7 +26,6 @@ using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -120,49 +119,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// Returns the information if the specified point is located inside this object.
+    /// Returns the information if the specified point is located inside the bounds of this object.
     /// </summary>
     /// <param name="x">The x coordinate.</param>
     /// <param name="y">The y coordinate.</param>
-    /// <returns></returns>
+    /// <returns><c>true</c>, if the specified point is inside the bounds of this object, else <c>false</c>.</returns>
     public virtual bool InsideObject(double x, double y)
     {
       return false;
     }
 
-    public virtual void DoRender()
-    { }
-
-    public virtual void Render()
-    {
-      DoRender();
-    }
-
-    public virtual void DoBuildRenderTree()
-    { }
-    
-    public virtual void BuildRenderTree()
-    { }
-    
-    public virtual void DestroyRenderTree()
-    { }
+    public virtual void Render(RenderContext parentRenderContext) { }
 
     #region Helper methods
 
-    protected void RemovePrimitiveContext(ref PrimitiveContext primitiveContext)
+    protected void DisposePrimitiveContext(ref PrimitiveContext primitiveContext)
     {
       if (primitiveContext == null)
         return;
-      if (SkinContext.UseBatching)
-        RenderPipeline.Instance.Remove(primitiveContext);
       primitiveContext.Dispose();
       primitiveContext = null;
-    }
-
-    protected void AddPrimitiveContext(PrimitiveContext primitiveContext)
-    {
-      if (SkinContext.UseBatching)
-        RenderPipeline.Instance.Add(primitiveContext);
     }
 
     #endregion

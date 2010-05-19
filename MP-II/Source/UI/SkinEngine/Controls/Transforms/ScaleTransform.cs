@@ -25,7 +25,6 @@
 using MediaPortal.Core.General;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
@@ -101,7 +100,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double CenterX
     {
-      get { return (double)_centerXProperty.GetValue(); }
+      get { return (double) _centerXProperty.GetValue(); }
       set { _centerXProperty.SetValue(value); }
     }
 
@@ -113,7 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double CenterY
     {
-      get { return (double)_centerYProperty.GetValue(); }
+      get { return (double) _centerYProperty.GetValue(); }
       set { _centerYProperty.SetValue(value); }
     }
 
@@ -124,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double ScaleX
     {
-      get { return (double)_scaleXProperty.GetValue(); }
+      get { return (double) _scaleXProperty.GetValue(); }
       set { _scaleXProperty.SetValue(value); }
     }
 
@@ -135,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double ScaleY
     {
-      get { return (double)_scaleYProperty.GetValue(); }
+      get { return (double) _scaleYProperty.GetValue(); }
       set { _scaleYProperty.SetValue(value); }
     }
 
@@ -150,44 +149,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       if (sx == 0.0) sx = 0.00002;
       if (sy == 0.0) sy = 0.00002;
 
-      double cx = CenterX * SkinContext.Zoom.Width;
-      double cy = CenterY * SkinContext.Zoom.Height;
+      double cx = CenterX;
+      double cy = CenterY;
 
       if (cx == 0.0 && cy == 0.0)
-      {
-        _matrix=Matrix.Scaling((float)sx, (float)sy, 1.0f);
-      }
+        _matrix = Matrix.Scaling((float) sx, (float) sy, 1.0f);
       else
       {
-        _matrix=Matrix.Translation((float)-cx, (float)-cy, 0);
-        _matrix *= Matrix.Scaling((float)sx, (float)sy, 1.0f);
-        _matrix *= Matrix.Translation((float)cx, (float)cy, 0);
+        _matrix = Matrix.Translation((float) -cx, (float) -cy, 0);
+        _matrix *= Matrix.Scaling((float) sx, (float) sy, 1.0f);
+        _matrix *= Matrix.Translation((float) cx, (float) cy, 0);
       }
     }
-
-    public override void UpdateTransformRel()
-    {
-      base.UpdateTransformRel();
-      double sx = ScaleX;
-      double sy = ScaleY;
-
-      if (sx == 0.0) sx = 0.00002;
-      if (sy == 0.0) sy = 0.00002;
-
-      double cx = CenterX ;
-      double cy = CenterY ;
-
-      if (cx == 0.0 && cy == 0.0)
-      {
-        _matrixRel = Matrix.Scaling((float)sx, (float)sy, 1.0f);
-      }
-      else
-      {
-        _matrixRel = Matrix.Translation((float)-cx, (float)-cy, 0);
-        _matrixRel *= Matrix.Scaling((float)sx, (float)sy, 1.0f);
-        _matrixRel *= Matrix.Translation((float)cx, (float)cy, 0);
-      }
-    }
-
   }
 }

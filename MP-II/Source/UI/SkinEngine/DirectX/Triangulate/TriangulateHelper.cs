@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using Matrix=SlimDX.Matrix;
@@ -126,7 +125,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       return;
     }
 
-    static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thicknessW, double thicknessH, PolygonDirection direction, ExtendedMatrix finalLayoutTransform)
+    static void GetInset(PointF nextpoint, PointF point, out float x, out float y, double thicknessW, double thicknessH,
+        PolygonDirection direction, Matrix? layoutTransform)
     {
       double ang = Math.Atan2(nextpoint.Y - point.Y, nextpoint.X - point.X);  //returns in radians
       const double pi2 = Math.PI / 2.0;
@@ -137,8 +137,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         ang -= pi2;
       x = (float)(Math.Cos(ang) * thicknessW); //radians
       y = (float)(Math.Sin(ang) * thicknessH);
-      if (finalLayoutTransform != null)
-        finalLayoutTransform.TransformXY(ref x, ref y);
+      if (layoutTransform.HasValue)
+        layoutTransform.Value.Transform(ref x, ref y);
       x += point.X;
       y += point.Y;
     }
@@ -154,7 +154,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// Converts the graphics path to an array of vertices using trianglestrip.
     /// </summary>
     public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
-        out PositionColored2Textured[] verts, ExtendedMatrix finalTransLayoutform)
+        out PositionColored2Textured[] verts, Matrix? layoutTransform)
     {
       CPoint2D[] points = new CPoint2D[path.PathPoints.Length];
       for (int i = 0; i < path.PointCount; i++)
@@ -163,7 +163,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         points[i] = new CPoint2D(pt.X, pt.Y);
       }
       PolygonDirection direction = CPolygon.GetPointsDirection(points);
-      TriangulateStroke_TriangleList(path, thickness, close, direction, out verts, finalTransLayoutform);
+      TriangulateStroke_TriangleList(path, thickness, close, direction, out verts, layoutTransform);
     }
 
     /// <summary>
@@ -174,17 +174,17 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="close">True if we should connect the first and last point.</param>
     /// <param name="direction">The polygon direction.</param>
     /// <param name="verts">The generated verts.</param>
-    /// <param name="finalLayoutTransform">Final layout transform.</param>
+    /// <param name="layoutTransform">Final layout transform.</param>
     /// <returns>vertex buffer</returns>
     public static void TriangulateStroke_TriangleList(GraphicsPath path, float thickness, bool close,
-        PolygonDirection direction, out PositionColored2Textured[] verts, ExtendedMatrix finalLayoutTransform)
+        PolygonDirection direction, out PositionColored2Textured[] verts, Matrix? layoutTransform)
     {
       verts = null;
       if (path.PointCount <= 0)
         return;
 
-      float thicknessW = thickness * SkinContext.Zoom.Width;
-      float thicknessH = thickness * SkinContext.Zoom.Height;
+      float thicknessW = thickness;
+      float thicknessH = thickness;
       PointF[] points = path.PathPoints;
 
       int pointCount;
@@ -203,7 +203,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
         PointF nextpoint = GetNextPoint(points, i, points.Length);
         float x;
         float y;
-        GetInset(nextpoint, points[i], out x, out y, thicknessW, thicknessH, direction, finalLayoutTransform);
+        GetInset(nextpoint, points[i], out x, out y, thicknessW, thicknessH, direction, layoutTransform);
         verts[offset].Position = new Vector3(points[i].X, points[i].Y, 1);
         verts[offset + 1].Position = new Vector3(nextpoint.X, nextpoint.Y, 1);
         verts[offset + 2].Position = new Vector3(x, y, 1);
@@ -269,7 +269,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           return;
       }
 
-      Matrix matrix = new Matrix();
       int count = path.PointCount;
       PointF[] pathPoints = path.PathPoints;
       if (pathPoints[count - 2] == pathPoints[count - 1])
@@ -283,15 +282,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       {
         case WidthMode.Centered:
           //innerDistance =thickness / 2;
-          innerDistance = new Vector2((thickness / 2) * SkinContext.Zoom.Width, (thickness / 2) * SkinContext.Zoom.Height);
+          innerDistance = new Vector2(thickness / 2, thickness / 2);
           break;
         case WidthMode.LeftHanded:
           //innerDistance = -thickness;
-          innerDistance = new Vector2(-thickness * SkinContext.Zoom.Width, -thickness * SkinContext.Zoom.Height);
+          innerDistance = new Vector2(-thickness, -thickness);
           break;
         case WidthMode.RightHanded:
           //innerDistance = thickness;
-          innerDistance = new Vector2(thickness * SkinContext.Zoom.Width, thickness * SkinContext.Zoom.Height);
+          innerDistance = new Vector2(thickness, thickness);
           break;
       }
 
@@ -303,20 +302,18 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
       {
         //Get the overlap points
         int lastIndex = outPoints.Length - 4;
-        outPoints[lastIndex] = InnerPoint(matrix, innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
-        outPoints[0] = InnerPoint(matrix, innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
+        outPoints[lastIndex] = InnerPoint(innerDistance, points[points.Length - 2], points[points.Length - 1], points[0], out slope, out intercept);
+        outPoints[0] = InnerPoint(innerDistance, ref slope, ref intercept, outPoints[lastIndex], points[0], points[1]);
       }
       else
       {
         //Take endpoints based on the end segments' normals alone
         outPoints[0] = Vector2.Modulate(innerDistance, GetNormal(points[1] - points[0]));
-        TransformXY(ref outPoints[0], matrix);
         outPoints[0] = points[0] + outPoints[0];
 
         //outPoints[0] = points[0] + innerDistance * normal(points[1] - points[0]);
         Vector2 norm = Vector2.Modulate(innerDistance, GetNormal(points[points.Length - 1] - points[points.Length - 2])); //DEBUG
 
-        TransformXY(ref norm, matrix);
         outPoints[outPoints.Length - 2] = points[points.Length - 1] + norm;
 
         //Get the slope and intercept of the first segment to feed into the middle loop
@@ -326,7 +323,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
 
       //Get the middle points
       for (int i = 1; i < points.Length - 1; i++)
-        outPoints[2 * i] = InnerPoint(matrix, innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
+        outPoints[2 * i] = InnerPoint(innerDistance, ref slope, ref intercept, outPoints[2 * (i - 1)], points[i], points[i + 1]);
 
       //Derive the outer points from the inner points
       if (widthMode == WidthMode.Centered)
@@ -434,12 +431,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// This overload is less efficient for calculating a sequence of inner vertices because
     /// it does not reuse results from previously calculated points
     /// </remarks>
-    public static Vector2 InnerPoint(Matrix matrix, Vector2 distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
+    public static Vector2 InnerPoint(Vector2 distance, Vector2 lastPoint, Vector2 point, Vector2 nextPoint, out float slope, out float intercept)
     {
       Vector2 lastDifference = point - lastPoint;
       slope = vectorSlope(lastDifference);
       intercept = lineIntercept(lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), slope);
-      return InnerPoint(matrix, distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), point, nextPoint);
+      return InnerPoint(distance, ref slope, ref intercept, lastPoint + Vector2.Modulate(distance, GetNormal(lastDifference)), point, nextPoint);
     }
 
     /// <summary>Finds the inside vertex at a point in a line strip</summary>
@@ -453,13 +450,12 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// This overload can reuse information calculated about the previous point, so it is more
     /// efficient for computing the inside of a string of contiguous points on a strip
     /// </remarks>
-    private static Vector2 InnerPoint(Matrix matrix, Vector2 distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
+    private static Vector2 InnerPoint(Vector2 distance, ref float lastSlope, ref float lastIntercept, Vector2 lastInnerPoint, Vector2 point, Vector2 nextPoint)
     {
       Vector2 edgeVector = nextPoint - point;
       //Vector2 innerPoint = nextPoint + distance * normal(edgeVector);
       Vector2 innerPoint = Vector2.Modulate(distance, GetNormal(edgeVector));
 
-      TransformXY(ref innerPoint, matrix);
       innerPoint = nextPoint + innerPoint;
 
       float slope = vectorSlope(edgeVector);

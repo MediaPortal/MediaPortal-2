@@ -114,6 +114,10 @@ namespace MediaPortal.Core.Services.Logging
         {
           File.Delete(logFile);
         }
+        catch (UnauthorizedAccessException e)
+        {
+          Console.WriteLine("FileLogger: Unable to delete old logfile '{0}'", logFile);
+        }
         catch (Exception e)
         {
           if (!(e is IOException))

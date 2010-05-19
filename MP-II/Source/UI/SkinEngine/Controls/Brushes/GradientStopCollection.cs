@@ -24,6 +24,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities;
 
@@ -141,6 +142,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         {
           List<GradientStop> result = new List<GradientStop>(this);
           result.Sort(CompareByOffset);
+          // Put implicit start/end gradient stop into list if start is not 0 or end is not 1
+          if (result.Count == 0)
+          {
+            result.Add(new GradientStop(0, Color.Black));
+            result.Add(new GradientStop(1, Color.Black));
+          }
+          else
+          {
+            GradientStop stop;
+            if ((stop = result[0]).Offset != 0)
+              result.Insert(0, new GradientStop(0, stop.Color));
+            if ((stop = result[Count - 1]).Offset != 1)
+              result.Add(new GradientStop(1, stop.Color));
+          }
           _orderedGradientStopList = result;
         }
         return _orderedGradientStopList;

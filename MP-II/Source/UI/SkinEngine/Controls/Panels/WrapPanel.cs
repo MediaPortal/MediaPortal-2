@@ -171,9 +171,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF(totalDesiredWidth, totalDesiredHeight);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       switch (Orientation)
       {
         case Orientation.Horizontal:
@@ -188,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 continue;
 
               SizeF childSize = child.DesiredSize;
-              if (childSize.Width + offsetX > _desiredSize.Width)
+              if (childSize.Width + offsetX > _innerRect.Width)
               {
                 offsetX = 0;
                 offsetY += totalHeight;
@@ -220,7 +220,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 continue;
 
               SizeF childSize = child.DesiredSize;
-              if (childSize.Height + offsetY > _desiredSize.Height)
+              if (childSize.Height + offsetY > _innerRect.Height)
               {
                 offsetY = 0;
                 offsetX += totalWidth;

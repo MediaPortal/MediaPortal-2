@@ -25,7 +25,7 @@
 using System;
 using System.Drawing;
 using MediaPortal.UI.SkinEngine.DirectX;
-using MediaPortal.UI.SkinEngine.SkinManagement;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
 using SlimDX.Direct3D9;
 
@@ -51,30 +51,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Ctor
 
-    public ScrollContentPresenter()
-    {
-      Init();
-      Attach();
-    }
-
-    void Init()
-    { }
-
-    void Attach()
-    { }
-
-    void Detach()
-    { }
-
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      Detach();
       base.DeepCopy(source, copyManager);
       ScrollContentPresenter scp = (ScrollContentPresenter) source;
-      CanScroll = scp.CanScroll;
+      _canScroll = scp._canScroll;
       _scrollOffsetX = 0;
       _scrollOffsetY = 0;
-      Attach();
     }
 
     #endregion
@@ -125,9 +108,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.MakeVisible(element, elementBounds);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       if (_templateControl == null)
       {
         _scrollOffsetX = 0;
@@ -140,29 +123,29 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         SizeF availableSize;
         if (_canScroll)
         {
-          availableSize = finalRect.Size;
-          if (desiredSize.Width > finalRect.Width)
+          availableSize = _innerRect.Size;
+          if (desiredSize.Width > _innerRect.Width)
           {
-            _scrollOffsetX = Math.Max(_scrollOffsetX, finalRect.Width - desiredSize.Width);
+            _scrollOffsetX = Math.Max(_scrollOffsetX, _innerRect.Width - desiredSize.Width);
             availableSize.Width = desiredSize.Width;
           }
           else
             _scrollOffsetX = 0;
-          if (desiredSize.Height > finalRect.Height)
+          if (desiredSize.Height > _innerRect.Height)
           {
-            _scrollOffsetY = Math.Max(_scrollOffsetY, finalRect.Height - desiredSize.Height);
+            _scrollOffsetY = Math.Max(_scrollOffsetY, _innerRect.Height - desiredSize.Height);
             availableSize.Height = desiredSize.Height;
           }
           else
             _scrollOffsetY = 0;
-          position = new PointF(finalRect.X + _scrollOffsetX, finalRect.Y + _scrollOffsetY);
+          position = new PointF(_innerRect.X + _scrollOffsetX, _innerRect.Y + _scrollOffsetY);
         }
         else
         {
           _scrollOffsetX = 0;
           _scrollOffsetY = 0;
-          position = new PointF(finalRect.X, finalRect.Y);
-          availableSize = finalRect.Size;
+          position = new PointF(_innerRect.X, _innerRect.Y);
+          availableSize = _innerRect.Size;
         }
 
         ArrangeChild(_templateControl, ref position, ref availableSize);
@@ -173,18 +156,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualScrollOffsetY = _scrollOffsetY;
     }
 
-    public override void DoRender()
+    public override void DoRender(RenderContext localRenderContext)
     {
-      SkinContext.AddScissorRect(new Rectangle(
+      Rectangle? origScissorRect = localRenderContext.ScissorRect;
+      localRenderContext.AddScissorRect(new Rectangle(
           (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
-      GraphicsDevice.Device.ScissorRect = SkinContext.FinalScissorRect.Value;
+      GraphicsDevice.Device.ScissorRect = localRenderContext.ScissorRect.Value;
       GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
-      base.DoRender(); // Do the actual rendering
-      SkinContext.RemoveScissorRect();
-      Rectangle? origScissorRect = SkinContext.FinalScissorRect;
+      base.DoRender(localRenderContext); // Do the actual rendering
       if (origScissorRect.HasValue)
       {
-        GraphicsDevice.Device.ScissorRect = SkinContext.FinalScissorRect.Value;
+        GraphicsDevice.Device.ScissorRect = origScissorRect.Value;
         GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, true);
       }
       else

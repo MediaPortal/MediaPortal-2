@@ -101,39 +101,26 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="alignment">The alignment.</param>
     /// <param name="size">The size.</param>
     /// <param name="color">The color.</param>
+    /// <param name="finalTransform">Final combined layout-/render-transform.</param>
     /// <returns>
     /// 	<c>true</c> if the specified text is changed; otherwise, <c>false</c>.
     /// </returns>
-    private bool IsChanged(string text, RectangleF textBox, Font.Align alignment, float size, Color4 color)
+    private bool IsChanged(string text, RectangleF textBox, Font.Align alignment, float size, Color4 color, Matrix finalTransform)
     {
       if (text != _previousText)
-      {
         return true;
-      }
       if (textBox != _previousTextBox)
-      {
         return true;
-      }
       if (alignment != _previousAlignment)
-      {
         return true;
-      }
       if (size != _previousSize)
-      {
         return true;
-      }
-      /*if (SkinContext.GradientInUse != _previousGradientUsed)
-      {
-        return true;
-      }*/
+      //if (SkinContext.GradientInUse != _previousGradientUsed)
+      //  return true;
       if (color.ToArgb() != _previousColor.ToArgb())
-      {
         return true;
-      }
-      if (_previousMatrix != SkinContext.FinalRenderTransform.Matrix)
-      {
+      if (_previousMatrix != finalTransform)
         return true;
-      }
       return false;
     }
 
@@ -146,8 +133,11 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="size">The size.</param>
     /// <param name="color">The color.</param>
     /// <param name="scroll">if set to <c>true</c> then scrolling is allowed.</param>
-    public void Draw(string text, RectangleF textBox, Font.Align alignment, float size, Color4 color, bool scroll, out float totalWidth)
+    /// <param name="finalTransform">The final combined layout-/render-transform.</param>
+    public void Draw(string text, RectangleF textBox, Font.Align alignment, float size, Color4 color, bool scroll,
+        out float totalWidth, Matrix finalTransform)
     {
+      finalTransform = finalTransform.Clone();
       totalWidth = 0;
       if (_font == null || String.IsNullOrEmpty(text))
       {
@@ -165,7 +155,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         if (false == _textFits)
         {
-          if (IsChanged(text, textBox, alignment, size, color))
+          if (IsChanged(text, textBox, alignment, size, color, finalTransform))
           {
             _previousText = text;
             _previousTextBox = textBox;
@@ -175,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             //_previousGradientUsed = SkinContext.GradientInUse;
             _xPosition = 0.0f;
             _characterIndex = 0;
-            _previousMatrix = SkinContext.FinalRenderTransform.Matrix;
+            _previousMatrix = finalTransform;
           }
 
           //need to scroll
@@ -194,8 +184,8 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
           textBox.X -= _xPosition;
 
-          _font.AddString(textDraw, textBox, 0.0f, alignment, size, color, true, true, out _textFits, out totalWidth);
-          _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
+          _font.AddString(textDraw, textBox, 0.0f, alignment, size, color, true, true, finalTransform, out _textFits, out totalWidth);
+          _font.Render(GraphicsDevice.Device, _vertexBuffer, finalTransform, out _primitivecount);
           _font.ClearStrings();
 
           GraphicsDevice.Device.SetRenderState(RenderState.ScissorTestEnable, (enabled != 0));
@@ -221,7 +211,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _characterIndex = 0;
         _xPosition = 0;
       }
-      if (IsChanged(text, textBox, alignment, size, color))
+      if (IsChanged(text, textBox, alignment, size, color, finalTransform))
       {
         _previousText = text;
         _previousTextBox = textBox;
@@ -229,10 +219,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _previousSize = size;
         _previousColor = color;
         //_previousGradientUsed = SkinContext.GradientInUse;
-        _previousMatrix = SkinContext.FinalRenderTransform.Matrix;
+        _previousMatrix = finalTransform;
 
-        _font.AddString(text, textBox, 0.0f, alignment, size, color, true, false, out _textFits, out totalWidth);
-        _font.Render(GraphicsDevice.Device, _vertexBuffer, out _primitivecount);
+        _font.AddString(text, textBox, 0.0f, alignment, size, color, true, false, finalTransform, out _textFits, out totalWidth);
+        _font.Render(GraphicsDevice.Device, _vertexBuffer, finalTransform, out _primitivecount);
         _font.ClearStrings();
         _previousTotalWidth = totalWidth;
       }
@@ -240,7 +230,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       {
         GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
         GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-        _font.Render(GraphicsDevice.Device, _primitivecount);
+        _font.Render(GraphicsDevice.Device, _primitivecount, finalTransform);
         totalWidth = _previousTotalWidth;
       }
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
@@ -283,7 +273,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public bool Free(bool force)
+    public void Free(bool force)
     {
       if (_vertexBuffer != null)
       {
@@ -292,7 +282,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _vertexBuffer = null;
         ContentManager.VertexReferences--;
       }
-      return false;
     }
 
     public override string ToString()

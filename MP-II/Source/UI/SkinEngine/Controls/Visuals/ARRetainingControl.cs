@@ -25,8 +25,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using MediaPortal.Core.General;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -119,45 +119,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return result;
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       FrameworkElement content = Content;
       if (content != null)
       {
-        PointF position = new PointF(finalRect.X, finalRect.Y);
-        SizeF availableSize = CalculateDesiredSize(finalRect.Size);
+        PointF position = new PointF(_innerRect.X, _innerRect.Y);
+        SizeF availableSize = CalculateDesiredSize(_innerRect.Size);
         ArrangeChild(content, ref position, ref availableSize);
         RectangleF childRect = new RectangleF(position, availableSize);
         content.Arrange(childRect);
       }
     }
 
-    public override void DoRender()
+    public override void DoRender(RenderContext localRenderContext)
     {
-      base.DoRender();
+      base.DoRender(localRenderContext);
       FrameworkElement content = Content;
       if (content != null)
-      {
-        SkinContext.AddOpacity(Opacity);
-        content.Render();
-        SkinContext.RemoveOpacity();
-      }
-    }
-
-    public override void DoBuildRenderTree()
-    {
-      if (!IsVisible) return;
-      FrameworkElement content = Content;
-      if (content != null)
-        content.BuildRenderTree();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      FrameworkElement content = Content;
-      if (content != null)
-        content.DestroyRenderTree();
+        content.Render(localRenderContext);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

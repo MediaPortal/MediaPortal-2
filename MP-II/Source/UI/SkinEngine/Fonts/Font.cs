@@ -404,13 +404,14 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       set { _quads = value; }
     }
 
-    FontQuad createQuad(BitmapCharacter c, Color4 Color, float x, float y, float z, float xOffset, float yOffset, float width, float height)
+    FontQuad createQuad(BitmapCharacter c, Color4 Color, float x, float y, float z, float xOffset, float yOffset,
+        float width, float height, Matrix finalTransform)
     {
       //float u2, v2;
       //u2 = v2 = 1;
       Vector3 uvPos = new Vector3(x + xOffset, y + yOffset, z);
-      Vector3 finalScale = new Vector3(SkinContext.FinalRenderTransform.Matrix.M11, SkinContext.FinalRenderTransform.Matrix.M22, SkinContext.FinalRenderTransform.Matrix.M33);
-      Vector3 finalTranslation = new Vector3(SkinContext.FinalRenderTransform.Matrix.M41, SkinContext.FinalRenderTransform.Matrix.M42, SkinContext.FinalRenderTransform.Matrix.M43);
+      Vector3 finalScale = new Vector3(finalTransform.M11, finalTransform.M22, finalTransform.M33);
+      Vector3 finalTranslation = new Vector3(finalTransform.M41, finalTransform.M42, finalTransform.M43);
 
       uvPos.X *= finalScale.X;
       uvPos.Y *= finalScale.Y;
@@ -491,11 +492,11 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <param name="scroll"></param>
     /// <param name="textFits"></param>
     public int AddString(string text, RectangleF textBox, float zOrder, Align alignment, float size,
-        Color4 color, bool kerning, bool scroll, out bool textFits, out float totalWidth)
+        Color4 color, bool kerning, bool scroll, Matrix finalTransform, out bool textFits, out float totalWidth)
     {
       StringBlock b = new StringBlock(text, textBox, zOrder, alignment, size, color, kerning);
       _strings.Add(b);
-      _quads.AddRange(GetProcessedQuads(b, scroll, out textFits));
+      _quads.AddRange(GetProcessedQuads(b, scroll, finalTransform, out textFits));
       if (_quads.Count > 0)
         totalWidth = _quads[_quads.Count - 1].TopRight.X - textBox.X;
       else
@@ -517,10 +518,10 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       _quads.Clear();
     }
 
-    public void Render(Device device, int count)
+    public void Render(Device device, int count, Matrix finalTransform)
     {
       // Render
-      _effect.StartRender(_texture);
+      _effect.StartRender(_texture, finalTransform);
       //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleList, 0, 2 * count);
       _effect.EndRender();
@@ -550,7 +551,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       get { return (_quads.Count * 2); }
     }
 
-    public void Render(Device device, VertexBuffer buffer, out int count)
+    public void Render(Device device, VertexBuffer buffer, Matrix finalTransform, out int count)
     {
       count = _quads.Count;
       if (buffer == null || _texture == null || count <= 0)
@@ -568,7 +569,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
       buffer.Unlock();
 
-      _effect.StartRender(_texture);
+      _effect.StartRender(_texture, finalTransform);
 
       GraphicsDevice.Device.SetTexture(0, _texture);
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
@@ -627,7 +628,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <param name="scroll">true if text should scroll</param>
     /// <param name="textFits"></param>
     /// <returns>List of Quads</returns>
-    private List<FontQuad> GetProcessedQuads(StringBlock b, bool scroll, out bool textFits)
+    private List<FontQuad> GetProcessedQuads(StringBlock b, bool scroll, Matrix finalTransform, out bool textFits)
     {
       textFits = true;
 
@@ -636,8 +637,8 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       string text = b.Text;
       double x = b.TextBox.X;
       double y = b.TextBox.Y;
-      float maxWidth = b.TextBox.Width / SkinContext.Zoom.Width;
-      float maxHeight = b.TextBox.Bottom / SkinContext.Zoom.Height;
+      float maxWidth = b.TextBox.Width;
+      float maxHeight = b.TextBox.Bottom;
       Align alignment = b.Alignment;
       double lineWidth = 0f;
       float sizeScale = b.Size / _charSet.RenderedSize;
@@ -873,7 +874,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
         firstCharOfLine = false;
         FontQuad q = createQuad(c, b.Color, (float) x, (float) y, z, (float) xOffset, (float) yOffset,
-            (float) width, (float) height);
+            (float) width, (float) height, finalTransform);
    
         q.LineNumber = lineNumber;
         if (text[i] == ' ' && alignment == Align.Right)
@@ -984,7 +985,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
       get { return false; }
     }
 
-    public bool Free(bool force)
+    public void Free(bool force)
     {
       if (_texture != null)
       {
@@ -992,7 +993,6 @@ namespace MediaPortal.UI.SkinEngine.Fonts
         _texture = null;
       }
       _effect.Free(true);
-      return false;
     }
 
     #endregion

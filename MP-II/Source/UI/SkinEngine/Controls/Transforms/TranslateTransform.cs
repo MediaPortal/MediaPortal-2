@@ -25,7 +25,6 @@
 using MediaPortal.Core.General;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 {
@@ -95,7 +94,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double X
     {
-      get { return (double)_XProperty.GetValue(); }
+      get { return (double) _XProperty.GetValue(); }
       set { _XProperty.SetValue(value); }
     }
 
@@ -106,20 +105,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     public double Y
     {
-      get { return (double)_YProperty.GetValue(); }
+      get { return (double) _YProperty.GetValue(); }
       set { _YProperty.SetValue(value); }
     }
 
     public override void UpdateTransform()
     {
       base.UpdateTransform();
-      _matrix = Matrix.Translation((float)X * SkinContext.Zoom.Width, (float)Y * SkinContext.Zoom.Width, 0);
-    }
-
-    public override void UpdateTransformRel()
-    {
-      base.UpdateTransformRel();
-      _matrixRel = Matrix.Translation((float)X , (float)Y , 0);
+      _matrix = Matrix.Translation((float) X, (float) Y, 0);
     }
   }
 }

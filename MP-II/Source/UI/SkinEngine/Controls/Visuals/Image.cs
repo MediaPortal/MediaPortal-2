@@ -25,9 +25,9 @@
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -69,7 +69,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     float _u, _v, _uoff, _voff, _w, _h;
     Vector2 _pos;
-    bool _performImageLayout;
 
     #endregion
 
@@ -93,13 +92,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _imageSourceProperty.Attach(OnImageChanged);
-      _stretchDirectionProperty.Attach(OnPropertyChanged);
+      _stretchDirectionProperty.Attach(OnImageChanged);
     }
 
     void Detach()
     {
       _imageSourceProperty.Detach(OnImageChanged);
-      _stretchDirectionProperty.Detach(OnPropertyChanged);
+      _stretchDirectionProperty.Detach(OnImageChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -117,25 +116,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    /// <summary>
-    /// Called when a property changed. 
-    /// Simply sets a variable to indicate a layout needs to be performed
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="oldValue">The old value of the property.</param>
-    void OnPropertyChanged(AbstractProperty property, object oldValue)
-    {
-      _performImageLayout = true;
-      if (Screen != null) Screen.Invalidate(this);
-    }
-
-    /// <summary>
-    /// Called when the imagesource has been changed
-    /// Simply invalidates the image, the renderer will automaticly create a new one
-    /// with the new image source
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="oldValue">The old value of the property.</param>
     void OnImageChanged(AbstractProperty property, object oldValue)
     {
       if (_image != null)
@@ -150,8 +130,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _renderImage = null;
         }
       }
-      _performImageLayout = true;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     public AbstractProperty StretchProperty
@@ -255,9 +233,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _image = ContentManager.Load(Source, Thumbnail);
         _image.Texture.UseThumbnail = Thumbnail;
         _image.Texture.Allocate();
-
-        if (SkinContext.UseBatching)
-          _renderImage = new TextureRender(_image.Texture);
       }
 
       if (_fallbackImage == null && !string.IsNullOrEmpty(FallbackSource))
@@ -265,16 +240,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _fallbackImage = ContentManager.Load(FallbackSource, Thumbnail);
         _fallbackImage.Texture.UseThumbnail = Thumbnail;
         _fallbackImage.Texture.Allocate();
-
-        if (SkinContext.UseBatching)
-          _renderFallback = new TextureRender(_fallbackImage.Texture);
       }
 
       SizeF imageSize;
       if (_image != null)
-        imageSize = new SizeF(_image.Texture.Width * SkinContext.Zoom.Width, _image.Texture.Height * SkinContext.Zoom.Height);
+        imageSize = new SizeF(_image.Texture.Width, _image.Texture.Height);
       else if (_fallbackImage != null)
-        imageSize = new SizeF(_fallbackImage.Texture.Width * SkinContext.Zoom.Width, _fallbackImage.Texture.Height * SkinContext.Zoom.Height);
+        imageSize = new SizeF(_fallbackImage.Texture.Width, _fallbackImage.Texture.Height);
       else
         imageSize = new SizeF();
       float scaleX;
@@ -284,89 +256,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return new SizeF(imageSize.Width * scaleX, imageSize.Height * scaleY);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       if (_image != null)
         PerformLayout(_image);
 
       if (_fallbackImage != null)
         PerformLayout(_fallbackImage);
-
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
-    public override void DoBuildRenderTree()
+    public override void DoRender(RenderContext localRenderContext)
     {
-      if (_hidden) 
-        return;
-
-      if (!IsVisible) 
-        return;
-      if (!IsEnabled && Opacity == 0.0) 
-        return;
-
-      SkinContext.AddOpacity(Opacity);
-      float opacity = (float)SkinContext.Opacity;
-      float posx = _pos.X + ActualPosition.X;
-      float posy = _pos.Y + ActualPosition.Y;
-      if (_renderImage != null)
-      {
-        _renderImage.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-        if (_renderImage.Texture.IsAllocated)
-        {
-          SkinContext.RemoveOpacity();
-          return;
-        }
-      }
-      if (_renderFallback != null)
-        _renderFallback.Draw(posx, posy, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-      SkinContext.RemoveOpacity();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      if (_renderImage != null)
-      {
-        _renderImage.Free();
-        _renderImage = null;
-      }
-      if (_renderFallback != null)
-      {
-        _renderFallback.Free();
-        _renderFallback = null;
-      }
-    }
-
-    public override void DoRender()
-    {
-      if (!IsEnabled && Opacity == 0.0)
-        return;
-
-      base.DoRender();
-      SkinContext.AddOpacity(Opacity);
-      ExtendedMatrix m = new ExtendedMatrix
-        {
-            Matrix = Matrix.Translation(new Vector3(ActualPosition.X, ActualPosition.Y, ActualPosition.Z))
-        };
-      SkinContext.AddRenderTransform(m);
-      //GraphicsDevice.TransformWorld = SkinContext.FinalMatrix.Matrix;
-      float opacity = (float)SkinContext.Opacity;
+      base.DoRender(localRenderContext);
+      float opacity = (float) localRenderContext.Opacity;
       if (_image != null)
       {
-        _image.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
+        _image.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, localRenderContext.Transform);
         if (_image.Texture.IsAllocated)
-        {
-          SkinContext.RemoveRenderTransform();
-          SkinContext.RemoveOpacity();
           return;
-        }
       }
       if (_fallbackImage != null)
-        _fallbackImage.Draw(_pos.X, _pos.Y, ActualPosition.Z, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity);
-      SkinContext.RemoveRenderTransform();
-      SkinContext.RemoveOpacity();
+        _fallbackImage.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, localRenderContext.Transform);
     }
 
     void PerformLayout(VertextBufferAsset asset)
@@ -412,8 +323,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           _v = 1;
         }
       }
-      //else
-      //  Trace.WriteLine("Image: Texture not allocated");
     }
 
     public override void Deallocate()
@@ -443,36 +352,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _renderFallback = null;
       }
       base.Deallocate();
-    }
-
-    public override void BecomesHidden()
-    {
-      if (_renderImage != null)
-        _renderImage.Free();
-      if (_renderFallback != null)
-        _renderFallback.Free();
-    }
-
-    public override void BecomesVisible()
-    {
-
-      if (_renderImage != null)
-        _renderImage.Alloc();
-      if (_renderFallback != null)
-        _renderFallback.Alloc();
-    }
-
-    public override void Update()
-    {
-      base.Update();
-      if (_hidden == false)
-      {
-        if (_performImageLayout)
-        {
-          DoBuildRenderTree();
-          _performImageLayout = false;
-        }
-      }
     }
   }
 }

@@ -30,8 +30,6 @@ using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX.Direct3D9;
-using RectangleF = System.Drawing.RectangleF;
-using SizeF = System.Drawing.SizeF;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
@@ -82,32 +80,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     #region Layouting
 
-    protected override void DoPerformLayout()
+    protected override void DoPerformLayout(RenderContext context)
     {
-      base.DoPerformLayout();
+      base.DoPerformLayout(context);
       
-      double w = ActualWidth;
-      double h = ActualHeight;
-      SizeF rectSize = new SizeF((float) w, (float) h);
-
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      m.InvertSize(ref rectSize);
-      RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, rectSize.Width, rectSize.Height);
-
       // Setup brushes
-      RemovePrimitiveContext(ref _fillContext);
-      RemovePrimitiveContext(ref _strokeContext);
+      DisposePrimitiveContext(ref _fillContext);
+      DisposePrimitiveContext(ref _strokeContext);
       PositionColored2Textured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
-        using (GraphicsPath path = GetPolygon(rect))
+        using (GraphicsPath path = GetPolygon())
         {
           float centerX;
           float centerY;
@@ -116,20 +99,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             int numVertices = verts.Length / 3;
-            Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+            Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-            AddPrimitiveContext(_fillContext);
-            Fill.SetupPrimitive(_fillContext);
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
+            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
             int numVertices = verts.Length / 3;
-            Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+            Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-            AddPrimitiveContext(_strokeContext);
-            Stroke.SetupPrimitive(_strokeContext);
           }
         }
       }
@@ -138,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     /// <summary>
     /// Get the desired Rounded Rectangle path.
     /// </summary>
-    private GraphicsPath GetPolygon(RectangleF baseRect)
+    private GraphicsPath GetPolygon()
     {
       Point[] points = new Point[Points.Count];
       for (int i = 0; i < Points.Count; ++i)
@@ -146,18 +125,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       GraphicsPath mPath = new GraphicsPath();
       mPath.AddPolygon(points);
       mPath.CloseFigure();
-
-      Matrix m = new Matrix();
-      m.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-      m.Multiply(_finalLayoutTransform.Get2dMatrix(), MatrixOrder.Append);
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-      }
-      m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-      mPath.Transform(m);
 
       mPath.Flatten();
       return mPath;

@@ -22,7 +22,6 @@
 
 #endregion
 
-using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.Utilities.DeepCopy;
 
@@ -83,9 +82,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       PartIndicatorWidth = (float) (ActualWidth*Value/100.0);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       CalcPartIndicatorWidth();
     }
 

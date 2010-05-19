@@ -208,6 +208,8 @@ namespace Ui.Players.Video.Subtitles
     private bool clearOnNextRender = false;
     private bool renderSubtitles = true;
 
+    private Matrix _finalTransform;
+
     public bool RenderSubtitles
     {
       get
@@ -224,6 +226,12 @@ namespace Ui.Players.Video.Subtitles
           clearOnNextRender = true;
         }
       }
+    }
+
+    public Matrix FinalTransform
+    {
+      get { return _finalTransform; }
+      set { _finalTransform = value; }
     }
 
     public SubtitleRenderer()
@@ -759,7 +767,7 @@ namespace Ui.Players.Video.Subtitles
         GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
         GraphicsDevice.Device.SetStreamSource(0, vertexBuffer, 0, PositionColoredTextured.StrideSize);
         GraphicsDevice.Device.VertexFormat = PositionColoredTextured.Format;
-        effect.StartRender(subTexture);
+        effect.StartRender(subTexture, FinalTransform);
         GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
         effect.EndRender();
       }

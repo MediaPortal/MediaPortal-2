@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -33,7 +34,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
   public class VertextBufferAsset : IAsset
   {
-    #region variables
+    #region Variables
 
     private VertexBuffer _vertexBuffer = null;
     private TextureAsset _texture;
@@ -248,7 +249,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Frees this asset.
     /// </summary>
-    public bool Free(bool force)
+    public void Free(bool force)
     {
       if (_vertexBuffer != null)
       {
@@ -256,7 +257,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _vertexBuffer = null;
         ContentManager.VertexReferences--;
       }
-      return false;
     }
 
     #endregion
@@ -264,7 +264,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <summary>
     /// Draws the vertex buffer and associated texture
     /// </summary>
-    public void Draw(float x, float y, float z, float width, float height, float alpha, int streamNumber)
+    public void Draw(float x, float y, float z, float width, float height, float alpha, int streamNumber, Matrix finalTransform)
     {
       if (!_texture.IsAllocated)
         _texture.Allocate();
@@ -285,7 +285,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(streamNumber, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-      _effect.Render(_texture, streamNumber);
+      _effect.Render(_texture, streamNumber, finalTransform);
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
@@ -295,7 +295,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public void Draw(float x, float y, float z, float width, float height,
         float uoff, float voff, float umax, float vmax,
         float alphaUpperLeft, float alphaBottomLeft,
-        float alphaBottomRight, float alphaUpperRight)
+        float alphaBottomRight, float alphaUpperRight, Matrix finalTransform)
     {
       if (!_texture.IsAllocated)
         _texture.Allocate();
@@ -335,14 +335,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
-      _effect.Render(_texture, 0);
+      _effect.Render(_texture, 0, finalTransform);
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
 
     public void Draw(float x, float y, float z, float width, float height,
         float uoff, float voff, float umax, float vmax,
         float alphaUpperLeft, float alphaBottomLeft,
-        float alphaBottomRight, float alphaUpperRight, EffectAsset effect)
+        float alphaBottomRight, float alphaUpperRight, EffectAsset effect, Matrix finalTransform)
     {
       if (!_texture.IsAllocated)
         _texture.Allocate();
@@ -386,7 +386,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
       GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
       GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
-      effect.Render(_texture,0);
+      effect.Render(_texture,0, finalTransform);
       _lastTimeUsed = SkinContext.FrameRenderingStartTime;
     }
   }

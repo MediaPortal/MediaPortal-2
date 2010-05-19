@@ -42,77 +42,52 @@ namespace MediaPortal.UI.SkinEngine.Effects
 
     public EffectHandle Handle
     {
-      get
-      {
-        return _handle;
-      }
-      set
-      {
-        _handle = value;
-      }
+      get { return _handle; }
+      set { _handle = value; }
     }
 
     public void SetParameter(Color4 color)
     {
       if (_asset.Effect == null)
-      {
         _asset.Allocate();
-      }
       if (_handle == null)
-      {
         _handle = _asset.Effect.GetParameter(null, _name);
-      }
       _asset.Effect.SetValue(_handle, color);
     }
 
     public void SetParameter(float[] floatArray)
     {
       if (_asset.Effect == null)
-      {
         _asset.Allocate();
-      }
       if (_handle == null)
-      {
         _handle = _asset.Effect.GetParameter(null, _name);
-      }
       _asset.Effect.SetValue(_handle, floatArray);
     }
 
     public void SetParameter(float floatValue)
     {
       if (_asset.Effect == null)
-      {
         _asset.Allocate();
-      }
       if (_handle == null)
-      {
         _handle = _asset.Effect.GetParameter(null, _name);
-      }
       _asset.Effect.SetValue(_handle, floatValue);
     }
 
     public void SetParameter(Matrix matrix)
     {
       if (_asset.Effect == null)
-      {
         _asset.Allocate();
-      }
       if (_handle == null)
-      {
         _handle = _asset.Effect.GetParameter(null, _name);
-      }
       _asset.Effect.SetValue(_handle, matrix);
     }
+
     public void SetParameter(Texture tex)
     {
       if (_asset.Effect == null)
-      {
         _asset.Allocate();
-      }
       if (_handle == null)
-      {
         _handle = _asset.Effect.GetParameter(null, _name);
-      }
       _asset.Effect.SetTexture(_handle, tex);
     }
   }

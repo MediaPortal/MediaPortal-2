@@ -28,12 +28,12 @@ using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.Utilities;
+using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using Brush=MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
@@ -76,7 +76,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
   public enum Orientation { Vertical, Horizontal };
 
-  public class Panel : FrameworkElement, IAddChild<UIElement>, IUpdateEventHandler
+  public class Panel : FrameworkElement, IAddChild<UIElement>
   {
     #region Constants
 
@@ -146,7 +146,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     void OnBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.OpacityChange;
-      if (Screen != null) Screen.Invalidate(this);
       _performLayout = true;
     }
 
@@ -169,7 +168,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (Background != null)
         Background.ObjectChanged += OnBrushChanged;
       _performLayout = true;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     public AbstractProperty BackgroundProperty
@@ -198,7 +196,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         value.SetParent(this);
         SetScreen(Screen); // Sets the screen at the new children
         _updateRenderOrder = true;
-        if (Screen != null) Screen.Invalidate(this);
         InvalidateLayout();
         InvalidateParentLayout();
         oldChildren.SetParent(null);
@@ -212,73 +209,30 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       set { _isItemsHost = value; }
     }
 
-    public override void InvalidateLayout()
+    protected override void ArrangeOverride()
     {
-      base.InvalidateLayout();
-      if (Screen != null) Screen.Invalidate(this);
-    }
-
-    protected override void ArrangeOverride(RectangleF finalRect)
-    {
-      float oldPosX = ActualPosition.X;
-      float oldPosY = ActualPosition.Y;
-      float oldWidth = _finalRect.Width;
-      float oldHeight= _finalRect.Height;
-      base.ArrangeOverride(finalRect);
-      if (!finalRect.IsEmpty &&
-          (oldPosX != finalRect.X || oldPosY != finalRect.Y ||
-           oldWidth != finalRect.Width || oldHeight != finalRect.Height))
+      RectangleF oldRect = new RectangleF(_innerRect.Location, _innerRect.Size);
+      base.ArrangeOverride();
+      if (!_innerRect.IsEmpty && oldRect != _innerRect)
         _performLayout = true;
-      _finalRect = finalRect;
-      Screen.Invalidate(this);
       _updateRenderOrder = true;
     }
 
-    void SetupBrush()
-    {
-      if (Background != null && _backgroundContext != null)
-        Background.SetupPrimitive(_backgroundContext);
-    }
-
-    protected virtual void RenderChildren()
+    protected virtual void RenderChildren(RenderContext localRenderContext)
     {
       foreach (UIElement element in _renderOrder)
-        element.Render();
+        element.Render(localRenderContext);
     }
 
-    public void Update()
-    {
-      UpdateLayout();
-      UpdateRenderOrder();
-      if (_performLayout)
-      {
-        PerformLayout();
-        _lastEvent = UIEvent.None;
-      }
-      else if (_lastEvent != UIEvent.None)
-      {
-        if ((_lastEvent & UIEvent.Hidden) != 0)
-        {
-          RemovePrimitiveContext(ref _backgroundContext);
-          _performLayout = true;
-        }
-        if ((_lastEvent & UIEvent.OpacityChange) != 0)
-          SetupBrush();
-        _lastEvent = UIEvent.None;
-      }
-    }
-
-    public override void DoRender()
+    public override void DoRender(RenderContext localRenderContext)
     {
       UpdateRenderOrder();
 
-      PerformLayout();
-
-      SkinContext.AddOpacity(Opacity);
+      PerformLayout(localRenderContext);
 
       if (_backgroundContext != null)
       {
-        if (Background.BeginRender(_backgroundContext))
+        if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
         {
           GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
           GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
@@ -286,49 +240,36 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           Background.EndRender();
         }
       }
-      RenderChildren();
-      SkinContext.RemoveOpacity();
+      RenderChildren(localRenderContext);
     }
 
-    public void PerformLayout()
+    public void PerformLayout(RenderContext localRenderContext)
     {
       if (!_performLayout)
         return;
       _performLayout = false;
 
       // Setup background brush
-      RemovePrimitiveContext(ref _backgroundContext);
+      DisposePrimitiveContext(ref _backgroundContext);
       if (Background != null)
       {
         SizeF actualSize = new SizeF((float) ActualWidth, (float) ActualHeight);
 
-        ExtendedMatrix m = new ExtendedMatrix();
-        if (_finalLayoutTransform != null)
-          m.Matrix *= _finalLayoutTransform.Matrix;
-        if (LayoutTransform != null)
-        {
-          ExtendedMatrix em;
-          LayoutTransform.GetTransform(out em);
-          m.Matrix *= em.Matrix;
-        }
-        m.InvertSize(ref actualSize);
-        RectangleF rect = new RectangleF(-0.5f, -0.5f, actualSize.Width + 0.5f, actualSize.Height + 0.5f);
-        rect.X += ActualPosition.X;
-        rect.Y += ActualPosition.Y;
+        RectangleF rect = new RectangleF(ActualPosition.X - 0.5f, ActualPosition.Y - 0.5f,
+            actualSize.Width + 0.5f, actualSize.Height + 0.5f);
+
         PositionColored2Textured[] verts = new PositionColored2Textured[6];
         unchecked
         {
-          verts[0].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Top, 1.0f));
-          verts[1].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Bottom, 1.0f));
-          verts[2].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
-          verts[3].Position = m.Transform(new SlimDX.Vector3(rect.Left, rect.Top, 1.0f));
-          verts[4].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Top, 1.0f));
-          verts[5].Position = m.Transform(new SlimDX.Vector3(rect.Right, rect.Bottom, 1.0f));
+          verts[0].Position = new Vector3(rect.Left, rect.Top, 1.0f);
+          verts[1].Position = new Vector3(rect.Left, rect.Bottom, 1.0f);
+          verts[2].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
+          verts[3].Position = new Vector3(rect.Left, rect.Top, 1.0f);
+          verts[4].Position = new Vector3(rect.Right, rect.Top, 1.0f);
+          verts[5].Position = new Vector3(rect.Right, rect.Bottom, 1.0f);
         }
-        Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+        Background.SetupBrush(this, ref verts, localRenderContext.ZOrder, true);
         _backgroundContext = new PrimitiveContext(2, ref verts, PrimitiveType.TriangleList);
-        AddPrimitiveContext(_backgroundContext);
-        Background.SetupPrimitive(_backgroundContext);
       }
     }
 
@@ -352,7 +293,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       base.FireUIEvent(eventType, source);
 
       _lastEvent |= eventType;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)
@@ -387,7 +327,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (Background != null)
         Background.Deallocate();
 
-      RemovePrimitiveContext(ref _backgroundContext);
+      DisposePrimitiveContext(ref _backgroundContext);
     }
 
     public override void Allocate()
@@ -396,25 +336,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       if (Background != null)
         Background.Allocate();
       _performLayout = true;
-    }
-
-    public override void DoBuildRenderTree()
-    {
-      if (!IsVisible) return;
-      if (_performLayout)
-      {
-        PerformLayout();
-        _lastEvent = UIEvent.None;
-      }
-      foreach (UIElement child in Children)
-        child.BuildRenderTree();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      RemovePrimitiveContext(ref _backgroundContext);
-      foreach (UIElement child in Children)
-        child.DestroyRenderTree();
     }
 
     #region IAddChild<UIElement> Members

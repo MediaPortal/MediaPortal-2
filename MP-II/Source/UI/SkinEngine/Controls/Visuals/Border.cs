@@ -36,7 +36,6 @@ using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 // changes possible:
 // - opacity
@@ -47,7 +46,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class Border : FrameworkElement, IAddChild<FrameworkElement>, IUpdateEventHandler
+  public class Border : FrameworkElement, IAddChild<FrameworkElement>
   {
     #region Protected fields
 
@@ -140,21 +139,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void OnBackgroundBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.FillChange;
-      if (Screen != null) Screen.Invalidate(this);
       _performLayout = true;
     }
 
     void OnBorderBrushChanged(IObservable observable)
     {
       _lastEvent |= UIEvent.StrokeChange;
-      if (Screen != null) Screen.Invalidate(this);
       _performLayout = true;
     }
 
     void OnLayoutPropertyChanged(AbstractProperty property, object oldValue)
     {
       _performLayout = true;
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     #endregion
@@ -227,25 +223,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return totalSize;
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      float oldPosX = ActualPosition.X;
-      float oldPosY = ActualPosition.Y;
-      float oldWidth = _finalRect.Width;
-      float oldHeight= _finalRect.Height;
-      base.ArrangeOverride(finalRect);
+      RectangleF oldRect = new RectangleF(_innerRect.Location, _innerRect.Size);
+      base.ArrangeOverride();
 
-      ArrangeBorder(finalRect);
+      ArrangeBorder(_innerRect);
 
-      if (!finalRect.IsEmpty &&
-          (oldPosX != finalRect.X || oldPosY != finalRect.Y ||
-           oldWidth != finalRect.Width || oldHeight != finalRect.Height))
+      if (!_innerRect.IsEmpty && oldRect != _innerRect)
         _performLayout = true;
-      _finalRect = finalRect;
 
       if (_content == null)
         return;
-      RectangleF layoutRect = new RectangleF(finalRect.X, finalRect.Y, finalRect.Width, finalRect.Height);
+      RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
       RemoveMargin(ref layoutRect, GetTotalBorderMargin());
       PointF location = new PointF(layoutRect.Location.X, layoutRect.Location.Y);
       SizeF size = new SizeF(layoutRect.Size);
@@ -255,7 +245,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     /// <summary>
     /// Gets the size needed for this element's border in total. Will be subtracted from the total available area
-    /// when our content will be layouted. The returned value is not zoomed by <see cref="SkinContext.Zoom"/>.
+    /// when our content will be layouted.
     /// </summary>
     protected virtual Thickness GetTotalBorderMargin()
     {
@@ -288,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Layouting
 
-    protected virtual void PerformLayout()
+    protected virtual void PerformLayout(RenderContext context)
     {
       if (!_performLayout)
         return;
@@ -296,26 +286,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       SizeF rectSize = new SizeF(_borderRect.Size);
 
-      ExtendedMatrix m = new ExtendedMatrix();
-      m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      m.InvertSize(ref rectSize);
       RectangleF rect = new RectangleF(-0.5f, -0.5f, rectSize.Width + 0.5f, rectSize.Height + 0.5f);
       rect.X += ActualPosition.X;
       rect.Y += ActualPosition.Y;
-      PerformLayoutBackground(rect);
-      PerformLayoutBorder(rect);
+      PerformLayoutBackground(rect, context);
+      PerformLayoutBorder(rect, context);
     }
 
-    protected void PerformLayoutBackground(RectangleF rect)
+    protected void PerformLayoutBackground(RectangleF rect, RenderContext context)
     {
       // Setup background brush
-      RemovePrimitiveContext(ref _backgroundContext);
+      DisposePrimitiveContext(ref _backgroundContext);
       if (Background != null)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
@@ -327,17 +308,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
           TriangulateHelper.CalcCentroid(path, out centerX, out centerY);
           TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
           int numVertices = verts.Length / 3;
-          Background.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+          Background.SetupBrush(this, ref verts, context.ZOrder, true);
           _backgroundContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-          AddPrimitiveContext(_backgroundContext);
-          Background.SetupPrimitive(_backgroundContext);
         }
     }
 
-    protected void PerformLayoutBorder(RectangleF rect)
+    protected void PerformLayoutBorder(RectangleF rect, RenderContext context)
     {
       // Setup border brush
-      RemovePrimitiveContext(ref _borderContext);
+      DisposePrimitiveContext(ref _borderContext);
       if (BorderBrush != null && BorderThickness > 0)
         using (GraphicsPath path = CreateBorderRectPath(rect))
         {
@@ -349,80 +328,31 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
             bool isClosed;
             gpi.NextSubpath(subPath, out isClosed);
             TriangulateHelper.TriangulateStroke_TriangleList(path, (float) BorderThickness, isClosed,
-                out subPathVerts[i], _finalLayoutTransform);
+                out subPathVerts[i], null);
           }
           PositionColored2Textured[] verts;
           GraphicsPathHelper.Flatten(subPathVerts, out verts);
-          BorderBrush.SetupBrush(_borderRect, FinalLayoutTransform, ActualPosition.Z, verts);
+          BorderBrush.SetupBrush(this, ref verts, context.ZOrder, true);
           int numVertices = verts.Length / 3;
           _borderContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-          AddPrimitiveContext(_borderContext);
-          BorderBrush.SetupPrimitive(_borderContext);
         }
     }
 
     protected virtual GraphicsPath CreateBorderRectPath(RectangleF baseRect)
     {
-      ExtendedMatrix layoutTransform = _finalLayoutTransform ?? new ExtendedMatrix();
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        layoutTransform = layoutTransform.Multiply(em);
-      }
-      return GraphicsPathHelper.CreateRoundedRectPath(baseRect,
-          (float) CornerRadius * SkinContext.Zoom.Width, (float) CornerRadius * SkinContext.Zoom.Width, layoutTransform);
+      return GraphicsPathHelper.CreateRoundedRectPath(baseRect, (float) CornerRadius, (float) CornerRadius);
     }
 
     #endregion
 
     #region Rendering
 
-    void SetupBrush(UIEvent uiEvent)
+    public override void DoRender(RenderContext localRenderContext)
     {
-      if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.FillChange) != 0)
-      {
-        if (_backgroundContext != null)
-          Background.SetupPrimitive(_backgroundContext);
-      }
-
-      if ((uiEvent & UIEvent.OpacityChange) != 0 || (uiEvent & UIEvent.StrokeChange) != 0)
-      {
-        if (_borderContext != null)
-          BorderBrush.SetupPrimitive(_borderContext);
-      }
-    }
-
-    public void Update()
-    {
-      UpdateLayout();
-      if (_performLayout)
-      {
-        PerformLayout();
-        _lastEvent = UIEvent.None;
-      }
-      else if (_lastEvent != UIEvent.None)
-      {
-        if ((_lastEvent & UIEvent.Hidden) != 0)
-        {
-          RemovePrimitiveContext(ref _backgroundContext);
-          RemovePrimitiveContext(ref _borderContext);
-          _performLayout = true;
-        }
-        else
-          SetupBrush(_lastEvent);
-        _lastEvent = UIEvent.None;
-      }
-    }
-
-    public override void DoRender()
-    {
-      PerformLayout();
-
-      SkinContext.AddOpacity(Opacity);
+      PerformLayout(localRenderContext);
 
       if (_backgroundContext != null)
-        if (Background.BeginRender(_backgroundContext))
+        if (Background.BeginRenderBrush(_backgroundContext, localRenderContext))
         {
           GraphicsDevice.Device.VertexFormat = _backgroundContext.VertexFormat;
           GraphicsDevice.Device.SetStreamSource(0, _backgroundContext.VertexBuffer, 0, _backgroundContext.StrideSize);
@@ -431,7 +361,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
       if (_borderContext != null)
-        if (BorderBrush.BeginRender(_borderContext))
+        if (BorderBrush.BeginRenderBrush(_borderContext, localRenderContext))
         {
           GraphicsDevice.Device.VertexFormat = _borderContext.VertexFormat;
           GraphicsDevice.Device.SetStreamSource(0, _borderContext.VertexBuffer, 0, _borderContext.StrideSize);
@@ -440,24 +370,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         }
 
       if (_content != null)
-        _content.Render();
-
-      SkinContext.RemoveOpacity();
-    }
-
-    #endregion
-
-    #region Input handling
-
-    public override void FireUIEvent(UIEvent eventType, UIElement source)
-    {
-      base.FireUIEvent(eventType, source);
-
-      if (SkinContext.UseBatching)
-      {
-        _lastEvent |= eventType;
-        if (Screen != null) Screen.Invalidate(this);
-      }
+        _content.Render(localRenderContext);
     }
 
     #endregion
@@ -470,8 +383,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (Background != null)
         Background.Deallocate();
       _performLayout = true;
-      RemovePrimitiveContext(ref _backgroundContext);
-      RemovePrimitiveContext(ref _borderContext);
+      DisposePrimitiveContext(ref _backgroundContext);
+      DisposePrimitiveContext(ref _borderContext);
     }
 
     public override void Allocate()
@@ -481,23 +394,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         BorderBrush.Allocate();
       if (Background != null)
         Background.Allocate();
-    }
-
-    public override void DoBuildRenderTree()
-    {
-      if (!IsVisible) return;
-      PerformLayout();
-      _lastEvent = UIEvent.None;
-      if (_content != null)
-        _content.BuildRenderTree();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      RemovePrimitiveContext(ref _backgroundContext);
-      RemovePrimitiveContext(ref _borderContext);
-      if (_content != null)
-        _content.DestroyRenderTree();
     }
 
     #region Children handling

@@ -32,7 +32,6 @@ using MediaPortal.UI.SkinEngine.DirectX.Triangulate;
 using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 using FillMode=System.Drawing.Drawing2D.FillMode;
 
@@ -79,27 +78,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _dataProperty.SetValue(value); }
     }
 
-    protected override void DoPerformLayout()
+    protected override void DoPerformLayout(RenderContext context)
     {
-      base.DoPerformLayout();
-
-      ExtendedMatrix m = new ExtendedMatrix();
-      if (_finalLayoutTransform != null)
-        m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      RectangleF rect = new RectangleF(ActualPosition.X, ActualPosition.Y, (float) ActualWidth, (float) ActualHeight);
+      base.DoPerformLayout(context);
 
       // Setup brushes
-      RemovePrimitiveContext(ref _fillContext);
-      RemovePrimitiveContext(ref _strokeContext);
+      DisposePrimitiveContext(ref _fillContext);
+      DisposePrimitiveContext(ref _strokeContext);
       if (Fill != null || ((Stroke != null && StrokeThickness > 0)))
       {
-        using (GraphicsPath path = CalculateTransformedPath(rect, _finalLayoutTransform))
+        using (GraphicsPath path = CalculateTransformedPath(_innerRect))
         {
           if (Fill != null && !_fillDisabled)
           {
@@ -117,10 +105,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
             if (verts != null)
             {
               int numVertices = verts.Length / 3;
-              Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+              Fill.SetupBrush(this, ref verts, context.ZOrder, true);
               _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-              AddPrimitiveContext(_fillContext);
-              Fill.SetupPrimitive(_fillContext);
             }
           }
           if (Stroke != null && StrokeThickness > 0)
@@ -133,17 +119,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
               bool isClosed;
               gpi.NextSubpath(subPath, out isClosed);
               TriangulateHelper.TriangulateStroke_TriangleList(subPath, (float) StrokeThickness, isClosed,
-                  out subPathVerts[i], _finalLayoutTransform);
+                  out subPathVerts[i], null);
             }
             PositionColored2Textured[] verts;
             GraphicsPathHelper.Flatten(subPathVerts, out verts);
             if (verts != null)
             {
               int numVertices = verts.Length/3;
-              Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+              Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
               _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-              AddPrimitiveContext(_strokeContext);
-              Stroke.SetupPrimitive(_strokeContext);
             }
           }
         }
@@ -152,10 +136,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
-      using (GraphicsPath p = CalculateTransformedPath(new RectangleF(0, 0, 0, 0), null))
+      using (GraphicsPath p = CalculateTransformedPath(new RectangleF(0, 0, 0, 0)))
       {
         RectangleF bounds = p.GetBounds();
-        return new SizeF(bounds.Width * SkinContext.Zoom.Width, bounds.Height * SkinContext.Zoom.Height);
+        return new SizeF(bounds.Width, bounds.Height);
       }
     }
 
@@ -310,58 +294,44 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       return result;
     }
 
-    protected GraphicsPath CalculateTransformedPath(RectangleF baseRect, ExtendedMatrix finalTransform)
+    protected GraphicsPath CalculateTransformedPath(RectangleF baseRect)
     {
       GraphicsPath result = ParsePath();
       Matrix m = new Matrix();
       RectangleF bounds = result.GetBounds();
       _fillDisabled = bounds.Width < StrokeThickness || bounds.Height < StrokeThickness;
-      if (Width > 0) baseRect.Width = (float) Width * SkinContext.Zoom.Width;
-      if (Height > 0) baseRect.Height = (float) Height * SkinContext.Zoom.Height;
+      if (Width > 0) baseRect.Width = (float) Width;
+      if (Height > 0) baseRect.Height = (float) Height;
       float scaleW;
       float scaleH;
       if (Stretch == Stretch.Fill)
       {
-        // baseRect is already zoomed, bounds are not, so scale will contain the zoom factor
         scaleW = baseRect.Width / bounds.Width;
         scaleH = baseRect.Height / bounds.Height;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       else if (Stretch == Stretch.Uniform)
       {
-        // baseRect is already zoomed, bounds are not, so scale will contain the zoom factor
         scaleW = Math.Min(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
         scaleH = scaleW;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       else if (Stretch == Stretch.UniformToFill)
       {
-        // baseRect is already zoomed, bounds are not, so scale will contain the zoom factor
         scaleW = Math.Max(baseRect.Width / bounds.Width, baseRect.Height / bounds.Height);
         scaleH = scaleW;
         m.Translate(-bounds.X, -bounds.Y, MatrixOrder.Append);
       }
       else
       { // Stretch == Stretch.None
-        // Only in this case we must apply the current zoom. In all other cases, the zoom gets implicitly applied
-        // by the alignment factor, which is based on the parent control's size, which is already zoomed.
-        scaleW = SkinContext.Zoom.Width;
-        scaleH = SkinContext.Zoom.Height;
+        scaleW = 1;
+        scaleH = 1;
       }
       // In case bounds.Width or bounds.Height or baseRect.Width or baseRect.Height were 0
       if (scaleW == 0 || float.IsNaN(scaleW) || float.IsInfinity(scaleW)) scaleW = 1;
       if (scaleH == 0 || float.IsNaN(scaleH) || float.IsInfinity(scaleH)) scaleH = 1;
       m.Scale(scaleW, scaleH, MatrixOrder.Append);
 
-      if (finalTransform != null)
-        m.Multiply(finalTransform.Get2dMatrix(), MatrixOrder.Append);
-
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Multiply(em.Get2dMatrix(), MatrixOrder.Append);
-      }
       m.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
       result.Transform(m);
       result.Flatten();

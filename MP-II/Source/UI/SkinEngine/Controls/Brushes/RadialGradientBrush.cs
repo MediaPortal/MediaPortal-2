@@ -22,49 +22,44 @@
 
 #endregion
 
-using System;
-using System.Diagnostics;
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  public class RadialGradientBrush : GradientBrush, IAsset
+  // TODO: Implement Freezable behaviour
+  public class RadialGradientBrush : GradientBrush
   {
     #region Private fields
 
-    Texture _cacheTexture;
-    double _height;
-    double _width;
-    Vector3 _position;
     EffectAsset _effect;
-    DateTime _lastTimeUsed;
 
     AbstractProperty _centerProperty;
     AbstractProperty _gradientOriginProperty;
     AbstractProperty _radiusXProperty;
     AbstractProperty _radiusYProperty;
-    bool _refresh = false;
-    bool _singleColor = true;
-    EffectHandleAsset _handleRelativeTransform;
+    EffectHandleAsset _handleTransform;
     EffectHandleAsset _handleFocus;
     EffectHandleAsset _handleCenter;
     EffectHandleAsset _handleRadius;
     EffectHandleAsset _handleOpacity;
     EffectHandleAsset _handleColor;
     EffectHandleAsset _handleAlphaTexture;
-    BrushTexture _brushTexture;
+    EffectHandleAsset _handleUpperVertsBounds;
+    EffectHandleAsset _handleLowerVertsBounds;
+    GradientBrushTexture _gradientBrushTexture;
     float[] g_focus;
     float[] g_center;
     float[] g_radius;
+    bool _refresh = false;
 
     #endregion
 
@@ -80,7 +75,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       base.Dispose();
       Detach();
-      Free(false);
     }
 
     void Init()
@@ -151,7 +145,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public Vector2 GradientOrigin
     {
-      get { return (Vector2)_gradientOriginProperty.GetValue(); }
+      get { return (Vector2) _gradientOriginProperty.GetValue(); }
       set { _gradientOriginProperty.SetValue(value); }
     }
 
@@ -162,7 +156,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public double RadiusX
     {
-      get { return (double)_radiusXProperty.GetValue(); }
+      get { return (double) _radiusXProperty.GetValue(); }
       set { _radiusXProperty.SetValue(value); }
     }
 
@@ -173,64 +167,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public double RadiusY
     {
-      get { return (double)_radiusYProperty.GetValue(); }
+      get { return (double) _radiusYProperty.GetValue(); }
       set { _radiusYProperty.SetValue(value); }
     }
 
     public override Texture Texture
     {
-      get { return _brushTexture.Texture; }
+      get { return _gradientBrushTexture.Texture; }
     }
 
     #endregion
 
-    protected void CheckSingleColor()
-    {
-      int color = -1;
-      _singleColor = true;
-      foreach (GradientStop stop in GradientStops)
-        if (color == -1)
-          color = stop.Color.ToArgb();
-        else
-          if (color != stop.Color.ToArgb())
-          {
-            _singleColor = false;
-            return;
-          }
-    }
-
     #region Public methods
 
-    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
+    public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
-      UpdateBounds(bounds, layoutTransform, verts);
-      if (!IsOpacityBrush)
-        base.SetupBrush(bounds, layoutTransform, zOrder, verts);
+      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
 
-      _height = bounds.Height;
-      _width = bounds.Width;
-      _position = new Vector3(bounds.X, bounds.Y, zOrder);
-
-      if (_brushTexture == null)
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
-      Free(true);
+      if (_gradientBrushTexture == null)
+        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
       _refresh = true;
     }
 
-    public override bool BeginRender(PrimitiveContext primitiveContext)
+    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
-      if (Transform != null)
-      {
-        ExtendedMatrix mTrans;
-        Transform.GetTransform(out mTrans);
-        SkinContext.AddRenderTransform(mTrans);
-      }
-      if (_brushTexture == null) return false;
+      if (_gradientBrushTexture == null)
+        return false;
+      Matrix finalTransform = renderContext.Transform.Clone();
       if (_refresh)
       {
         _refresh = false;
         CheckSingleColor();
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
         if (_singleColor)
         {
           _effect = ContentManager.GetEffect("solidbrush");
@@ -239,169 +207,76 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         else
         {
           _effect = ContentManager.GetEffect("radialgradient");
-          _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+          _handleTransform = _effect.GetParameterHandle("Transform");
           _handleFocus = _effect.GetParameterHandle("g_focus");
           _handleCenter = _effect.GetParameterHandle("g_center");
           _handleRadius = _effect.GetParameterHandle("g_radius");
           _handleOpacity = _effect.GetParameterHandle("g_opacity");
         }
-        Free(true);
+
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };
         g_radius = new float[] { (float) RadiusX, (float) RadiusY };
 
         if (MappingMode == BrushMappingMode.Absolute)
         {
-          g_focus[0] = ((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
-          g_focus[1] = ((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
+          g_focus[0] /= _vertsBounds.Width;
+          g_focus[1] /= _vertsBounds.Height;
 
-          g_center[0] = ((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
-          g_center[1] = ((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
+          g_center[0] /= _vertsBounds.Width;
+          g_center[1] /= _vertsBounds.Height;
 
-          g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
-          g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
+          g_radius[0] /= _vertsBounds.Width;
+          g_radius[1] /= _vertsBounds.Height;
+        }
+        if (RelativeTransform != null)
+        {
+          Matrix m = RelativeTransform.GetTransform();
+          m.Transform(ref g_focus[0], ref g_focus[1]);
+          m.Transform(ref g_center[0], ref g_center[1]);
+          m.Transform(ref g_radius[0], ref g_radius[1]);
         }
       }
 
       if (_singleColor)
       {
-        Color4 v = ColorConverter.FromColor(GradientStops[0].Color);
+        Color4 v = ColorConverter.FromColor(Color.FromArgb((int) (255*Opacity*renderContext.Opacity), GradientStops[0].Color));
         _handleColor.SetParameter(v);
-        _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
+        _effect.StartRender(finalTransform);
       }
       else
       {
-        if (Freezable)
-        {
-          if (_cacheTexture == null)
-          {
-            Trace.WriteLine("RadialGradientBrush:Create cached texture");
-            _effect = ContentManager.GetEffect("radialgradient");
-            _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
-            _handleFocus = _effect.GetParameterHandle("g_focus");
-            _handleCenter = _effect.GetParameterHandle("g_center");
-            _handleRadius = _effect.GetParameterHandle("g_radius");
-            _handleOpacity = _effect.GetParameterHandle("g_opacity");
+        _handleTransform.SetParameter(GetCachedFinalBrushTransform());
+        _handleFocus.SetParameter(g_focus);
+        _handleCenter.SetParameter(g_center);
+        _handleRadius.SetParameter(g_radius);
+        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
 
-            float w = (float) _width;
-            float h = (float) _height;
-            float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.SkinWidth;
-            float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
-
-            bool copy = true;
-            if ((int) w >= SkinContext.SkinResources.SkinWidth && (int) h >= SkinContext.SkinResources.SkinHeight)
-            {
-              copy = false;
-              w /= 2;
-              h /= 2;
-            }
-            ExtendedMatrix m = new ExtendedMatrix();
-            m.Matrix *= SkinContext.FinalRenderTransform.Matrix;
-            //next put the control at position (0,0,0)
-            //and scale it correctly since the backbuffer now has the dimensions of the control
-            //instead of the skin width/height dimensions
-            m.Matrix *= Matrix.Translation(new Vector3(-(_position.X + 1), -(_position.Y + 1), 0));
-            m.Matrix *= Matrix.Scaling((GraphicsDevice.Width * cx) / w, (GraphicsDevice.Height * cy) / h, 1.0f);
-
-            SkinContext.AddRenderTransform(m);
-
-            GraphicsDevice.Device.EndScene();
-
-            _cacheTexture = new Texture(GraphicsDevice.Device, (int) w, (int) h, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
-            //get the current backbuffer
-            using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
-            {
-              //get the surface of our opacity texture
-              using (Surface cacheSurface = _cacheTexture.GetSurfaceLevel(0))
-              {
-                if (copy)
-                {
-                  //copy the correct rectangle from the backbuffer in the opacitytexture
-                  GraphicsDevice.Device.StretchRectangle(backBuffer,
-                      new Rectangle((int) (_position.X * cx), (int) (_position.Y * cy),
-                          (int) (_width * cx), (int) (_height * cy)),
-                      cacheSurface, new Rectangle(0, 0, (int) w, (int) h), TextureFilter.None);
-                }
-                //change the rendertarget to the opacitytexture
-                GraphicsDevice.Device.SetRenderTarget(0, cacheSurface);
-
-                // Render the control (will be rendered into the opacitytexture)
-                GraphicsDevice.Device.BeginScene();
-
-                Matrix mrel;
-                RelativeTransform.GetTransformRel(out mrel);
-                mrel = Matrix.Invert(mrel);
-                _handleRelativeTransform.SetParameter(mrel);
-                _handleFocus.SetParameter(g_focus);
-                _handleCenter.SetParameter(g_center);
-                _handleRadius.SetParameter(g_radius);
-                _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
-
-                _effect.StartRender(_brushTexture.Texture);
-
-                GraphicsDevice.Device.VertexFormat = primitiveContext.VertexFormat;
-                GraphicsDevice.Device.SetStreamSource(0, primitiveContext.VertexBuffer, 0, primitiveContext.StrideSize);
-                GraphicsDevice.Device.DrawPrimitives(primitiveContext.PrimitiveType, 0, primitiveContext.NumVertices);
-
-                _effect.EndRender();
-
-                GraphicsDevice.Device.EndScene();
-                SkinContext.RemoveRenderTransform();
-
-                // Restore the backbuffer
-                GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
-              }
-              //TextureLoader.Save(@"C:\1\1.png", ImageFileFormat.Png, _cacheTexture);
-              _effect = ContentManager.GetEffect("normal");
-              ContentManager.Add(this);
-            }
-            GraphicsDevice.Device.BeginScene();
-          }
-          _effect.StartRender(_cacheTexture);
-          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
-        }
-        else
-        {
-          Matrix m;
-          RelativeTransform.GetTransformRel(out m);
-          m = Matrix.Invert(m);
-
-          _handleRelativeTransform.SetParameter(m);
-          _handleFocus.SetParameter(g_focus);
-          _handleCenter.SetParameter(g_center);
-          _handleRadius.SetParameter(g_radius);
-          _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
-
-          _effect.StartRender(_brushTexture.Texture);
-          _lastTimeUsed = SkinContext.FrameRenderingStartTime;
-        }
+        _effect.StartRender(_gradientBrushTexture.Texture, finalTransform);
       }
       return true;
     }
 
-    public override void BeginRender(Texture tex)
+    public override void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     {
-      if (Transform != null)
-      {
-        ExtendedMatrix mTrans;
-        Transform.GetTransform(out mTrans);
-        SkinContext.AddRenderTransform(mTrans);
-      }
       if (tex == null)
         return;
+      Matrix finalTransform = renderContext.Transform.Clone();
       if (_refresh)
       {
         _refresh = false;
         CheckSingleColor();
-        _brushTexture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
+        // TODO: if (_singleColor) ...
+        _gradientBrushTexture = BrushCache.Instance.GetGradientBrush(GradientStops);
         _effect = ContentManager.GetEffect("radialopacitygradient");
-        _handleRelativeTransform = _effect.GetParameterHandle("RelativeTransform");
+        _handleTransform = _effect.GetParameterHandle("Transform");
         _handleFocus = _effect.GetParameterHandle("g_focus");
         _handleCenter = _effect.GetParameterHandle("g_center");
         _handleRadius = _effect.GetParameterHandle("g_radius");
         _handleOpacity = _effect.GetParameterHandle("g_opacity");
         _handleAlphaTexture = _effect.GetParameterHandle("g_alphatex");
+        _handleUpperVertsBounds = _effect.GetParameterHandle("g_UpperVertsBounds");
+        _handleLowerVertsBounds = _effect.GetParameterHandle("g_LowerVertsBounds");
 
         g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
         g_center = new float[] { Center.X, Center.Y };
@@ -409,36 +284,45 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
         if (MappingMode == BrushMappingMode.Absolute)
         {
-          g_focus[0] = ((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
-          g_focus[1] = ((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
+          g_focus[0] /= _vertsBounds.Width;
+          g_focus[1] /= _vertsBounds.Height;
 
-          g_center[0] = ((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
-          g_center[1] = ((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
+          g_center[0] /= _vertsBounds.Width;
+          g_center[1] /= _vertsBounds.Height;
 
-          g_radius[0] = (float) ((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
-          g_radius[1] = (float) ((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
+          g_radius[0] /= _vertsBounds.Width;
+          g_radius[1] /= _vertsBounds.Height;
+        }
+        if (RelativeTransform != null)
+        {
+          Matrix m = RelativeTransform.GetTransform();
+          m.Transform(ref g_focus[0], ref g_focus[1]);
+          m.Transform(ref g_center[0], ref g_center[1]);
+          m.Transform(ref g_radius[0], ref g_radius[1]);
         }
       }
 
       if (_singleColor)
       {
-        _effect.StartRender(null);
-        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
+        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
+        _effect.StartRender(tex, finalTransform);
       }
       else
       {
-        Matrix m;
-        RelativeTransform.GetTransformRel(out m);
-        m = Matrix.Invert(m);
+        SurfaceDescription desc = tex.GetLevelDescription(0);
+        float[] g_LowerVertsBounds = new float[] {_vertsBounds.Left / desc.Width, _vertsBounds.Top / desc.Height};
+        float[] g_UpperVertsBounds = new float[] {_vertsBounds.Right / desc.Width, _vertsBounds.Bottom / desc.Height};
 
-        _handleRelativeTransform.SetParameter(m);
+        _handleTransform.SetParameter(GetCachedFinalBrushTransform());
         _handleFocus.SetParameter(g_focus);
         _handleCenter.SetParameter(g_center);
         _handleRadius.SetParameter(g_radius);
-        _handleOpacity.SetParameter((float) (Opacity * SkinContext.Opacity));
-        _handleAlphaTexture.SetParameter(_brushTexture.Texture);
-        _effect.StartRender(tex);
-        _lastTimeUsed = SkinContext.FrameRenderingStartTime;
+        _handleOpacity.SetParameter((float) (Opacity * renderContext.Opacity));
+        _handleAlphaTexture.SetParameter(_gradientBrushTexture.Texture);
+        _handleUpperVertsBounds.SetParameter(g_UpperVertsBounds);
+        _handleLowerVertsBounds.SetParameter(g_LowerVertsBounds);
+
+        _effect.StartRender(tex, finalTransform);
       }
     }
 
@@ -446,108 +330,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (_effect != null)
         _effect.EndRender();
-      if (Transform != null)
-        SkinContext.RemoveRenderTransform();
     }
 
     #endregion
-
-    #region IAsset Members
-
-    public bool IsAllocated
-    {
-      get { return (_cacheTexture != null); }
-    }
-
-    public bool CanBeDeleted
-    {
-      get
-      {
-        if (!IsAllocated)
-          return false;
-        TimeSpan ts = SkinContext.FrameRenderingStartTime - _lastTimeUsed;
-        if (ts.TotalSeconds >= 1)
-          return true;
-
-        return false;
-      }
-    }
-
-    public bool Free(bool force)
-    {
-      if (_cacheTexture != null)
-      {
-        Trace.WriteLine("RadialGradientBrush: Free cached texture");
-        _cacheTexture.Dispose();
-        _cacheTexture = null;
-        return true;
-      }
-      return false;
-    }
-
-    #endregion
-
-    public override void Deallocate()
-    {
-      if (_cacheTexture != null)
-      {
-        Trace.WriteLine("RadialGradientBrush: Deallocate cached texture");
-        _cacheTexture.Dispose();
-        _cacheTexture = null;
-        ContentManager.Remove(this);
-      }
-    }
-
-    public override void Allocate()
-    { }
-
-    public override void SetupPrimitive(PrimitiveContext context)
-    {
-      context.Parameters = new EffectParameters();
-      CheckSingleColor();
-      context.Texture = BrushCache.Instance.GetGradientBrush(GradientStops, IsOpacityBrush);
-      if (_singleColor)
-      {
-
-        Color4 v = ColorConverter.FromColor(GradientStops[0].Color);
-        v.Alpha *= (float) SkinContext.Opacity;
-        context.Effect = ContentManager.GetEffect("solidbrush");
-        context.Parameters.Add(context.Effect.GetParameterHandle("g_solidColor"), v);
-        return;
-      }
-      else
-      {
-        context.Effect = ContentManager.GetEffect("radialgradient");
-        _handleRelativeTransform = context.Effect.GetParameterHandle("RelativeTransform");
-        _handleFocus = context.Effect.GetParameterHandle("g_focus");
-        _handleCenter = context.Effect.GetParameterHandle("g_center");
-        _handleRadius = context.Effect.GetParameterHandle("g_radius");
-        _handleOpacity = context.Effect.GetParameterHandle("g_opacity");
-
-        g_focus = new float[] { GradientOrigin.X, GradientOrigin.Y };
-        g_center = new float[] { Center.X, Center.Y };
-        g_radius = new float[] { (float)RadiusX, (float)RadiusY };
-
-        if (MappingMode == BrushMappingMode.Absolute)
-        {
-          g_focus[0] = ((GradientOrigin.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
-          g_focus[1] = ((GradientOrigin.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
-
-          g_center[0] = ((Center.X * SkinContext.Zoom.Width) - (_minPosition.X - _orginalPosition.X)) / _bounds.Width;
-          g_center[1] = ((Center.Y * SkinContext.Zoom.Height) - (_minPosition.Y - _orginalPosition.Y)) / _bounds.Height;
-
-          g_radius[0] = (float)((RadiusX * SkinContext.Zoom.Width) / _bounds.Width);
-          g_radius[1] = (float)((RadiusY * SkinContext.Zoom.Height) / _bounds.Height);
-        }
-        Matrix mrel;
-        RelativeTransform.GetTransformRel(out mrel);
-        mrel = Matrix.Invert(mrel);
-        context.Parameters.Add(_handleRelativeTransform, mrel);
-        context.Parameters.Add(_handleFocus, g_focus);
-        context.Parameters.Add(_handleCenter, g_center);
-        context.Parameters.Add(_handleRadius, g_radius);
-        context.Parameters.Add(_handleOpacity, (float) (Opacity * SkinContext.Opacity));
-      }
-    }
   }
 }

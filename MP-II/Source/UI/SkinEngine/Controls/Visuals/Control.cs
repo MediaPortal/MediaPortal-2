@@ -25,16 +25,15 @@
 using System.Collections.Generic;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Templates;
-using RectangleF = System.Drawing.RectangleF;
+using MediaPortal.UI.SkinEngine.Rendering;
 using SizeF = System.Drawing.SizeF;
 using MediaPortal.UI.SkinEngine.Controls.Brushes;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Triggers;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
-  public class Control : FrameworkElement, IUpdateEventHandler
+  public class Control : FrameworkElement
   {
     #region Private/protected fields
 
@@ -213,43 +212,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #region Rendering
 
-    public virtual void Update()
-    {
-      if (_hidden)
-      {
-        if ((_lastEvent & UIEvent.Visible) != 0)
-        {
-          _hidden = false;
-          BecomesVisible();
-        }
-      }
-      if (_hidden)
-      {
-        _lastEvent = UIEvent.None;
-        return;
-      }
-      if ((_lastEvent & UIEvent.Hidden) != 0)
-      {
-        if (!_hidden)
-        {
-          _hidden = true;
-          BecomesHidden();
-        }
-        _lastEvent = UIEvent.None;
-        return;
-      }
-
-      UpdateLayout();
-    }
-
-    public override void DoRender()
+    public override void DoRender(RenderContext localRenderContext)
     {
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
-      SkinContext.AddOpacity(Opacity);
-      templateControl.Render();
-      SkinContext.RemoveOpacity();
+      templateControl.Render(localRenderContext);
     }
 
     #endregion
@@ -265,14 +233,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return totalSize;
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl == null)
         return;
-      templateControl.Arrange(finalRect);
-      ActualBounds = templateControl.ActualTotalBounds; // Need to adapt to template control's bounds
+      templateControl.Arrange(_innerRect);
     }
 
     #endregion
@@ -292,12 +259,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if ((_lastEvent & UIEvent.Visible) != 0 && eventType == UIEvent.Hidden)
         _lastEvent = UIEvent.None;
       base.FireUIEvent(eventType, source);
-
-      if (SkinContext.UseBatching)
-      {
-        _lastEvent |= eventType;
-        if (Screen != null) Screen.Invalidate(this);
-      }
     }
 
     public override void Deallocate()
@@ -315,27 +276,5 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (templateControl != null)
         templateControl.Allocate();
     }
-
-    public override void DoBuildRenderTree()
-    {
-      if (!IsVisible) return;
-      FrameworkElement templateControl = _initializedTemplateControl;
-      if (templateControl != null)
-        templateControl.BuildRenderTree();
-    }
-
-    public override void DestroyRenderTree()
-    {
-      FrameworkElement templateControl = _initializedTemplateControl;
-      if (templateControl != null)
-        templateControl.DestroyRenderTree();
-      base.DestroyRenderTree();
-    }
-
-    public virtual void BecomesVisible()
-    { }
-
-    public virtual void BecomesHidden()
-    { }
   }
 }

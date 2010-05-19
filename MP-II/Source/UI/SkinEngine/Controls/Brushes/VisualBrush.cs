@@ -22,28 +22,30 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.Rendering;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
   public class VisualBrush : TileBrush
   {
-    #region Private fields
+    #region Protected fields
 
-    AbstractProperty _visualProperty;
-    EffectAsset _effect;
-    Texture _textureVisual;
+    protected AbstractProperty _visualProperty;
+    protected AbstractProperty _autoLayoutContentProperty;
+    protected EffectAsset _effect;
+    protected Texture _textureVisual;
+    protected Screen _screen = null;
+    protected FrameworkElement _preparedVisual = null;
+
 
     #endregion
 
@@ -52,22 +54,57 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public VisualBrush()
     {
       Init();
+      Attach();
     }
 
     void Init()
     {
       _visualProperty = new SProperty(typeof(FrameworkElement), null);
+      _autoLayoutContentProperty = new SProperty(typeof(bool), true);
       _effect = ContentManager.GetEffect("normal");
+    }
+
+    void Attach()
+    {
+      _visualProperty.Attach(OnVisualChanged);
+    }
+
+    void Detach()
+    {
+      _visualProperty.Detach(OnVisualChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
+      Detach();
       base.DeepCopy(source, copyManager);
       VisualBrush b = (VisualBrush) source;
-      Visual = b.Visual; // Use the original Visual. Why should we use a copy?
+      Visual = b.Visual; // Use the original Visual, copying isn't necessary
+      AutoLayoutContent = b.AutoLayoutContent;
+      Attach();
     }
 
     #endregion
+
+    void OnVisualChanged(AbstractProperty prop, object oldVal)
+    {
+      PrepareVisual();
+    }
+
+    protected void PrepareVisual()
+    {
+      if (_screen == null)
+        return;
+      FrameworkElement visual = Visual;
+      if (visual == null)
+        return;
+      if (AutoLayoutContent)
+      {
+        visual.SetScreen(_screen);
+        visual.UpdateLayout();
+      }
+      _preparedVisual = visual;
+    }
 
     #region Public properties
 
@@ -78,96 +115,50 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     public FrameworkElement Visual
     {
-      get { return (FrameworkElement)_visualProperty.GetValue(); }
+      get { return (FrameworkElement) _visualProperty.GetValue(); }
       set { _visualProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AutoLayoutContentProperty
+    {
+      get { return _autoLayoutContentProperty; }
+    }
+
+    public bool AutoLayoutContent
+    {
+      get { return (bool) _autoLayoutContentProperty.GetValue(); }
+      set { _autoLayoutContentProperty.SetValue(value); }
     }
 
     #endregion
 
-    public override void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
+    public override void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
-      UpdateBounds(bounds, layoutTransform, verts);
-      base.SetupBrush(bounds, layoutTransform, zOrder, verts);
-      _textureVisual = new Texture(GraphicsDevice.Device, (int)_bounds.Width, (int)_bounds.Height, 1, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+      base.SetupBrush(parent, ref verts, zOrder, adaptVertsToBrushTexture);
+      _textureVisual = new Texture(GraphicsDevice.Device, (int) _vertsBounds.Width, (int ) _vertsBounds.Height, 1,
+          Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
+      _screen = parent.Screen;
+      if (_preparedVisual == null)
+        PrepareVisual();
     }
 
-    public override bool BeginRender(PrimitiveContext primitiveContext)
+    public override bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
-      if (Visual == null) return false;
-      List<ExtendedMatrix> originalTransforms = SkinContext.CombinedRenderTransforms;
-      SkinContext.CombinedRenderTransforms = new List<ExtendedMatrix>();
+      FrameworkElement visual = _preparedVisual;
+      if (visual == null) return false;
 
-      GraphicsDevice.Device.EndScene();
+      Matrix finalTransform = renderContext.Transform.Clone();
 
-      // Get the current backbuffer
-      using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
-      {
-        // Get the surface of our texture
-        using (Surface textureVisualSurface = _textureVisual.GetSurfaceLevel(0))
-        {
-          SurfaceDescription desc = backBuffer.Description;
+      // TODO: Handle properties of TileBrush
+      // TODO: Handle RelativeTransform, Transform
 
-          ExtendedMatrix matrix = new ExtendedMatrix();
-          Vector3 pos = new Vector3(Visual.ActualPosition.X, Visual.ActualPosition.Y, Visual.ActualPosition.Z);
-          float width = (float) Visual.ActualWidth;
-          float height = (float) Visual.ActualHeight;
-          float w = (float)(_bounds.Width / Visual.Width);
-          float h = (float)(_bounds.Height / Visual.Height);
+      RenderContext tempRenderContext = renderContext.Derive(_vertsBounds, null, null,
+          new Vector2(0.5f, 0.5f), Opacity);
 
-          //m.Matrix *= SkinContext.FinalMatrix.Matrix;
-          //matrix.Matrix *= Matrix.Scaling(w, h, 1);
+      visual.RenderToTexture(_textureVisual, tempRenderContext);
 
-          if (desc.Width == GraphicsDevice.Width && desc.Height == GraphicsDevice.Height)
-          {
-            float cx = 1.0f;// ((float)desc.Width) / ((float)GraphicsDevice.Width);
-            float cy = 1.0f;//((float)desc.Height) / ((float)GraphicsDevice.Height);
-
-            //copy the correct rectangle from the backbuffer in the opacitytexture
-            GraphicsDevice.Device.StretchRectangle(backBuffer, new Rectangle(
-                (int) (_orginalPosition.X * cx), (int) (_orginalPosition.Y * cy),
-                (int) (_bounds.Width * cx), (int) (_bounds.Height * cy)), textureVisualSurface,
-                new Rectangle(0, 0, (int) (_bounds.Width), (int) (_bounds.Height)), TextureFilter.None);
-            matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-            matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / width, GraphicsDevice.Height / height, 1);
-          }
-          else
-          {
-            GraphicsDevice.Device.StretchRectangle(backBuffer, new Rectangle(0, 0, desc.Width, desc.Height),
-                textureVisualSurface, new Rectangle(0, 0, (int) _bounds.Width, (int) _bounds.Height), TextureFilter.None);
-            
-            matrix.Matrix *= Matrix.Translation(new Vector3(-pos.X, -pos.Y, 0));
-            matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / width, GraphicsDevice.Height / height, 1);
-          }
-
-          SkinContext.AddRenderTransform(matrix);
-
-          // Change the rendertarget to our texture
-          GraphicsDevice.Device.SetRenderTarget(0, textureVisualSurface);
-
-          // Render the control (will be rendered into our texture)
-          GraphicsDevice.Device.BeginScene();
-          //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-          Visual.DoRender();
-          GraphicsDevice.Device.EndScene();
-          SkinContext.RemoveRenderTransform();
-
-          // Restore the backbuffer
-          GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
-        }
-        //Texture.ToFile(_textureVisual, @"c:\1\test.png", ImageFileFormat.Png);
-        //TextureLoader.Save(@"C:\erwin\trunk\MP 2\MediaPortal\bin\x86\Debug\text.png", ImageFileFormat.Png, _textureVisual);
-      }
-      SkinContext.CombinedRenderTransforms = originalTransforms;
-      if (Transform != null)
-      {
-        ExtendedMatrix mTrans;
-        Transform.GetTransform(out mTrans);
-        SkinContext.AddRenderTransform(mTrans);
-      }
       // Now render our texture
-      GraphicsDevice.Device.BeginScene();
-      //GraphicsDevice.Device.VertexFormat = PositionColored2Textured.Format;
-      _effect.StartRender(_textureVisual);
+      _effect.StartRender(_textureVisual, finalTransform);
 
       return true;
     }
@@ -175,11 +166,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public override void EndRender()
     {
       if (Visual != null)
-      {
         _effect.EndRender();
-        if (Transform != null)
-          SkinContext.RemoveRenderTransform();
-      }
     }
   }
 }

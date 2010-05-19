@@ -90,7 +90,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     {
       InvalidateLayout();
       InvalidateParentLayout();
-      if (Screen != null) Screen.Invalidate(this);
     }
 
     public AbstractProperty RadiusXProperty
@@ -115,66 +114,43 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
       set { _radiusYProperty.SetValue(value); }
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
       _performLayout = true;
-      if (Screen != null)
-        Screen.Invalidate(this);
     }
 
-    protected override void DoPerformLayout()
+    protected override void DoPerformLayout(RenderContext context)
     {
-      base.DoPerformLayout();
-      double w = ActualWidth;
-      double h = ActualHeight;
-      SizeF rectSize = new SizeF((float) w, (float) h);
-
-      ExtendedMatrix m = new ExtendedMatrix();
-      if (_finalLayoutTransform != null)
-        m.Matrix *= _finalLayoutTransform.Matrix;
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        m.Matrix *= em.Matrix;
-      }
-      m.InvertSize(ref rectSize);
-      RectangleF rect = new RectangleF(0, 0, rectSize.Width, rectSize.Height);
-      rect.X += ActualPosition.X;
-      rect.Y += ActualPosition.Y;
+      base.DoPerformLayout(context);
 
       // Setup brushes
-      RemovePrimitiveContext(ref _fillContext);
-      RemovePrimitiveContext(ref _strokeContext);
+      DisposePrimitiveContext(ref _fillContext);
+      DisposePrimitiveContext(ref _strokeContext);
       PositionColored2Textured[] verts;
       if (Fill != null || (Stroke != null && StrokeThickness > 0))
       {
         GraphicsPath path;
-        using (path = CreateRectanglePath(rect))
+        using (path = CreateRectanglePath(_innerRect))
         {
           if (path.PointCount == 0)
             return;
-          float centerX = rect.Width / 2 + rect.Left;
-          float centerY = rect.Height / 2 + rect.Top;
+          float centerX = _innerRect.Width / 2 + _innerRect.Left;
+          float centerY = _innerRect.Height / 2 + _innerRect.Top;
           if (Fill != null)
           {
             TriangulateHelper.FillPolygon_TriangleList(path, centerX, centerY, out verts);
             int numVertices = verts.Length / 3;
-            Fill.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+            Fill.SetupBrush(this, ref verts, context.ZOrder, true);
             _fillContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-            AddPrimitiveContext(_fillContext);
-            Fill.SetupPrimitive(_fillContext);
           }
 
           if (Stroke != null && StrokeThickness > 0)
           {
-            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, _finalLayoutTransform);
+            TriangulateHelper.TriangulateStroke_TriangleList(path, (float) StrokeThickness, true, out verts, null);
             int numVertices = verts.Length / 3;
-            Stroke.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
+            Stroke.SetupBrush(this, ref verts, context.ZOrder, true);
             _strokeContext = new PrimitiveContext(numVertices, ref verts, PrimitiveType.TriangleList);
-            AddPrimitiveContext(_strokeContext);
-            Stroke.SetupPrimitive(_strokeContext);
           }
         }
       }
@@ -182,14 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected GraphicsPath CreateRectanglePath(RectangleF rect)
     {
-      ExtendedMatrix layoutTransform = _finalLayoutTransform ?? new ExtendedMatrix();
-      if (LayoutTransform != null)
-      {
-        ExtendedMatrix em;
-        LayoutTransform.GetTransform(out em);
-        layoutTransform = layoutTransform.Multiply(em);
-      }
-      return GraphicsPathHelper.CreateRoundedRectPath(rect, (float) RadiusX, (float) RadiusY, layoutTransform);
+      return GraphicsPathHelper.CreateRoundedRectPath(rect, (float) RadiusX, (float) RadiusY);
     }
   }
 }

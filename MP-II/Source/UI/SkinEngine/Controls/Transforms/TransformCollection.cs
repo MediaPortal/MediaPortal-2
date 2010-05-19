@@ -103,10 +103,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       element.ObjectChanged += OnChildChanged;
     }
 
-    /// <summary>
-    /// Removes the specified element.
-    /// </summary>
-    /// <param name="element">The element.</param>
     public void Remove(Transform element)
     {
       if (_elements.Contains(element))
@@ -117,9 +113,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       }
     }
 
-    /// <summary>
-    /// Clears this instance.
-    /// </summary>
     public void Clear()
     {
       foreach (Transform element in _elements)
@@ -135,10 +128,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
       get { return _elements.Count; }
     }
 
-    /// <summary>
-    /// Gets or sets the <see cref="Transform"/> at the specified index.
-    /// </summary>
-    /// <value></value>
     public Transform this[int index]
     {
       get { return _elements[index]; }
@@ -162,12 +151,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #region IEnumerable<Transform> Members
 
-    /// <summary>
-    /// Returns an enumerator that iterates through the collection.
-    /// </summary>
-    /// <returns>
-    /// A <see cref="T:System.Collections.Generic.IEnumerator`1"></see> that can be used to iterate through the collection.
-    /// </returns>
     public IEnumerator<Transform> GetEnumerator()
     {
       return new TransformEnumerator(_elements);
@@ -177,12 +160,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Transforms
 
     #region IEnumerable Members
 
-    /// <summary>
-    /// Returns an enumerator that iterates through a collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="T:System.Collections.IEnumerator"></see> object that can be used to iterate through the collection.
-    /// </returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
       return new TransformEnumerator(_elements);

@@ -156,9 +156,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       return new SizeF(totalDesiredWidth, totalDesiredHeight);
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    protected override void ArrangeOverride()
     {
-      base.ArrangeOverride(finalRect);
+      base.ArrangeOverride();
 
       _totalHeight = 0;
       _totalWidth = 0;
@@ -213,8 +213,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                 ArrangeChildHorizontal(child, ref position, ref childSize);
                 child.Arrange(new RectangleF(position, childSize));
-                _totalWidth = Math.Max(_totalWidth, child.ActualTotalBounds.Width);
-                _totalHeight += child.ActualTotalBounds.Height;
+                _totalWidth = Math.Max(_totalWidth, childSize.Width);
+                _totalHeight += childSize.Height;
 
                 startPositionY += childSize.Height;
               }
@@ -263,8 +263,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                 ArrangeChildVertical(child, ref location, ref childSize);
                 child.Arrange(new RectangleF(location, childSize));
-                _totalHeight = Math.Max(_totalHeight, child.ActualTotalBounds.Height);
-                _totalWidth += child.ActualTotalBounds.Width;
+                _totalHeight = Math.Max(_totalHeight, childSize.Height);
+                _totalWidth += childSize.Width;
 
                 startPositionX += childSize.Width;
               }

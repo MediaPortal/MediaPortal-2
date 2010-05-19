@@ -846,8 +846,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
           throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
 
       }
-      catch (ArgumentException)
+      catch (Exception e)
       {
+        if (e is XamlBindingException)
+          throw;
         throw new XamlBindingException("Could not convert object '{0}' to type '{1}'", val, targetType.Name);
       }
     }

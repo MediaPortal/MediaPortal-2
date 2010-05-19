@@ -23,8 +23,9 @@
 #endregion
 
 using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
 using MediaPortal.Utilities.DeepCopy;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Panels
 {
@@ -41,10 +42,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       foreach (DefinitionBase db in this)
       {
-        if (db.Length.IsAbsolute) // Fixed size can never change.
-          db.Length.Length = db.Length.Value * SkinContext.Zoom.Width;
-        else
-          db.Length.Length = 0.0;
+        db.Length.Length = db.Length.IsAbsolute ? db.Length.Value : 0.0;
       }
     }
 
@@ -55,6 +53,23 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         return;
 
       int relativeCount = 0;
+      if (cellIndex < 0 || cellIndex >= Count)
+      {
+        ServiceScope.Get<ILogger>().Warn("{0}: Invalid cell index {1}; allowed range is {2}-{3}", GetType().Name, cellIndex, 0, Count-1);
+        if (cellIndex < 0)
+          cellIndex = 0;
+        else
+          cellIndex = Count-1;
+      }
+      if (cellSpan < 0 || cellSpan + cellIndex > Count)
+      {
+        ServiceScope.Get<ILogger>().Warn("{0}: Invalid cell span {1} in cell {2}; allowed range is {3}-{4}",
+            GetType().Name, cellSpan, cellIndex, 1, Count-cellIndex);
+        if (cellSpan < 0)
+          cellSpan = 0;
+        else
+          cellSpan = Count-cellIndex;
+      }
       for (int i = 0; i < cellSpan; i++)
       {
         DefinitionBase cell = this[i + cellIndex];

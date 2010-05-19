@@ -801,8 +801,11 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
             Path.DirectorySeparatorChar + screenName + ".xaml";
         SkinResources resourceBundle;
         UIElement root = LoadScreen(relativeScreenPath, loader, out resourceBundle);
-        if (root == null)
+        FrameworkElement element = root as FrameworkElement;
+        if (element == null)
         {
+          if (root != null)
+            root.Dispose();
           ServiceScope.Get<ILogger>().Error("ScreenManager: Cannot load screen '{0}'", screenName);
           if (isBackground)
             ServiceScope.Get<IDialogManager>().ShowDialog(ERROR_LOADING_SKIN_RESOURCE_TEXT_RES,
@@ -814,7 +817,7 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
                 DialogType.OkDialog, false, null);
           return null;
         }
-        Screen result = new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Visual = root};
+        Screen result = new Screen(screenName, resourceBundle.SkinWidth, resourceBundle.SkinHeight) {Visual = element};
         return result;
       }
       catch (Exception ex)

@@ -26,7 +26,6 @@ using SlimDX;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.Rendering;
-using MediaPortal.UI.SkinEngine.SkinManagement;
 using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
@@ -52,7 +51,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     readonly PrimitiveContext _context;
     readonly PositionColored2Textured[] _vertices;
     readonly TextureAsset _texture;
-    bool _added = false;
 
     #endregion
 
@@ -180,42 +178,37 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
         _vertices[0].Tv1 = v1;
         _vertices[0].Position = upperLeft;
         _vertices[0].Color = (int) colorUpperLeft;
-        //SkinContext.GetAlphaGradientUV(upperLeft, out tu2, out tv2);
 
         //bottom left
         _vertices[1].Tu1 = u1;
         _vertices[1].Tv1 = v2;
         _vertices[1].Position = bottomLeft;
         _vertices[1].Color = (int) colorBottomLeft;
-        //SkinContext.GetAlphaGradientUV(bottomLeft, out tu2, out tv2);
 
         //bottom right
         _vertices[2].Tu1 = u2;
         _vertices[2].Tv1 = v2;
         _vertices[2].Position = bottomRight;
         _vertices[2].Color = (int) colorBottomRight;
-        //SkinContext.GetAlphaGradientUV(bottomRight, out tu2, out tv2);
 
         //upper left
         _vertices[3].Tu1 = u1;
         _vertices[3].Tv1 = v1;
         _vertices[3].Position = upperLeft;
         _vertices[3].Color = (int) colorUpperLeft;
-        //SkinContext.GetAlphaGradientUV(upperLeft, out tu2, out tv2);
 
         //upper right
         _vertices[4].Tu1 = u2;
         _vertices[4].Tv1 = v1;
         _vertices[4].Position = upperRight;
         _vertices[4].Color = (int) colorUpperRight;
-        //SkinContext.GetAlphaGradientUV(upperRight, out tu2, out tv2);
 
         //bottom right
         _vertices[5].Tu1 = u2;
         _vertices[5].Tv1 = v2;
         _vertices[5].Position = bottomRight;
         _vertices[5].Color = (int) colorBottomRight;
-        //SkinContext.GetAlphaGradientUV(bottomRight, out tu2, out tv2);
+
         _context.OnVerticesChanged(2, _vertices);
       }
     }
@@ -267,29 +260,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
       //GraphicsDevice.Device.SetStreamSource(0, _vertexBuffer, 0, PositionColored2Textured.StrideSize);
 
       //_effect.Render(_texture, 0);
-      if (!_added)
-      {
-        RenderPipeline.Instance.Add(_context);
-        _added = true;
-      }
     }
 
     public void Free()
     {
-      if (_added && _context != null)
-      {
-        if (SkinContext.UseBatching)
-          RenderPipeline.Instance.Remove(_context);
-        _context.Dispose();
-      }
-      _added = false;
+      _context.Dispose();
     }
+
     public void Alloc()
     {
-      if (!_added)
-        if (SkinContext.UseBatching)
-          RenderPipeline.Instance.Add(_context);
-      _added = true;
     }
   }
 }

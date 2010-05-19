@@ -26,11 +26,11 @@ using System.Collections.Generic;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 {
-  // TODO Albert: Cleanup brushes, when not used any more
+  // TODO Albert: Cleanup brush textures, when not used any more
   public class BrushCache
   {
     static BrushCache _instance;
-    ICollection<BrushTexture> _cache;
+    ICollection<GradientBrushTexture> _cache;
 
     static BrushCache()
     {
@@ -46,19 +46,19 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     }
     public BrushCache()
     {
-      _cache = new List<BrushTexture>();
+      _cache = new List<GradientBrushTexture>();
     }
 
-    public BrushTexture GetGradientBrush(GradientStopCollection stops, bool opacitybrush)
+    public GradientBrushTexture GetGradientBrush(GradientStopCollection stops)
     {
-      foreach (BrushTexture texture in _cache)
-        if ((texture.OpacityBrush == opacitybrush) && texture.IsSame(stops))
+      foreach (GradientBrushTexture texture in _cache)
+        if (texture.IsSame(stops))
           return texture;
       // Here we must do a copy of the gradient stops. If we don't, the cache will change
       // when the stops are changed outside.
-      BrushTexture brush = new BrushTexture(new GradientStopCollection(stops, null), opacitybrush, null);
-      _cache.Add(brush);
-      return brush;
+      GradientBrushTexture gradientBrush = new GradientBrushTexture(new GradientStopCollection(stops, null));
+      _cache.Add(gradientBrush);
+      return gradientBrush;
     }
 
   }

@@ -582,9 +582,11 @@
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
-                <RotateTransform Angle="180"/>
               </TransformGroup>
             </Control.RenderTransform>
+            <Control.LayoutTransform>
+              <RotateTransform Angle="180"/>
+            </Control.LayoutTransform>
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -627,9 +629,11 @@
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
-                <RotateTransform Angle="0"/>
               </TransformGroup>
             </Control.RenderTransform>
+            <Control.LayoutTransform>
+              <RotateTransform Angle="0"/>
+            </Control.LayoutTransform>
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -672,9 +676,11 @@
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
-                <RotateTransform Angle="-90"/>
               </TransformGroup>
             </Control.RenderTransform>
+            <Control.LayoutTransform>
+              <RotateTransform Angle="-90"/>
+            </Control.LayoutTransform>
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
@@ -717,9 +723,11 @@
             <Control.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
-                <RotateTransform Angle="90"/>
               </TransformGroup>
             </Control.RenderTransform>
+            <Control.LayoutTransform>
+              <RotateTransform Angle="90"/>
+            </Control.LayoutTransform>
           </Control>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

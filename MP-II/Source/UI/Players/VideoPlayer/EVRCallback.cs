@@ -35,7 +35,6 @@ using System.Runtime.InteropServices;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using SlimDX.Direct3D9;
-using MediaPortal.UI.SkinEngine.Effects;
 using MediaPortal.UI.SkinEngine.DirectX;
 
 namespace Ui.Players.Video
@@ -58,7 +57,6 @@ namespace Ui.Players.Video
     #region variables
 
     private readonly object _lock;
-    readonly EffectAsset _normalEffect;
     private Size _videoSize;
     private Size _aspectRatio;
     private Texture _texture;
@@ -72,7 +70,6 @@ namespace Ui.Players.Video
     public EVRCallback(IPlayer player)
     {
       _lock = new Object();
-      _normalEffect = ContentManager.GetEffect("normal");
     }
 
     #endregion
@@ -148,29 +145,6 @@ namespace Ui.Players.Video
     public Texture Texture
     {
       get { return _texture; }
-    }
-
-    /// <summary>
-    /// Renders the video texture.
-    /// </summary>
-    public void Render(EffectAsset effect)
-    {
-      //render the texture
-      lock (_lock)
-      {
-        if (_guiBeingReinitialized) return;
-        if (_texture != null)
-        {
-          if (effect != null)
-            effect.Render(_texture);
-          else
-          {
-            _normalEffect.StartRender(_texture);
-            GraphicsDevice.Device.DrawPrimitives(PrimitiveType.TriangleFan, 0, 2);
-            _normalEffect.EndRender();
-          }
-        }
-      }
     }
 
     #region IEVRPresentCallback implementation

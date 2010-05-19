@@ -41,6 +41,7 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.Utilities.Exceptions;
+using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Effects;
@@ -716,11 +717,11 @@ namespace Ui.Players.Video
       set { _geometryOverride = value; }
     }
 
-    public virtual void BeginRender(EffectAsset effect)
+    public virtual void BeginRender(EffectAsset effect, Matrix finalTransform)
     {
       if (!_initialized) return;
       if (_evrCallback == null) return;
-      effect.StartRender(_evrCallback.Texture);
+      effect.StartRender(_evrCallback.Texture, finalTransform);
     }
 
     public virtual void EndRender(EffectAsset effect)

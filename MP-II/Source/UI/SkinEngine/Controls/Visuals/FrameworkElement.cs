@@ -22,14 +22,16 @@
 
 #endregion
 
+//#define DEBUG_LAYOUT
+
 using System;
 using System.Drawing;
-using System.Collections.Generic;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Commands;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.Fonts;
+using MediaPortal.UI.SkinEngine.Rendering;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SlimDX;
 using SlimDX.Direct3D9;
@@ -114,7 +116,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _contextMenuCommandProperty;
 
     protected bool _updateOpacityMask = false;
+    protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
     protected bool _updateFocus = false;
+    protected Matrix _inverseFinalTransform = Matrix.Identity;
 
     #endregion
 
@@ -161,8 +165,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _widthProperty.Attach(OnLayoutPropertyChanged);
       _heightProperty.Attach(OnLayoutPropertyChanged);
-      _actualHeightProperty.Attach(OnActualSizeChanged);
-      _actualWidthProperty.Attach(OnActualSizeChanged);
+      _actualHeightProperty.Attach(OnActualBoundsChanged);
+      _actualWidthProperty.Attach(OnActualBoundsChanged);
       _styleProperty.Attach(OnStyleChanged);
       _hasFocusProperty.Attach(OnFocusPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
@@ -170,14 +174,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _opacityProperty.Attach(OnOpacityChanged);
       _opacityMaskProperty.Attach(OnOpacityChanged);
+      _acutalPositionProperty.Attach(OnActualBoundsChanged);
     }
 
     void Detach()
     {
       _widthProperty.Detach(OnLayoutPropertyChanged);
       _heightProperty.Detach(OnLayoutPropertyChanged);
-      _actualHeightProperty.Detach(OnActualSizeChanged);
-      _actualWidthProperty.Detach(OnActualSizeChanged);
+      _actualHeightProperty.Detach(OnActualBoundsChanged);
+      _actualWidthProperty.Detach(OnActualBoundsChanged);
       _styleProperty.Detach(OnStyleChanged);
       _hasFocusProperty.Detach(OnFocusPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
@@ -185,6 +190,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       _opacityProperty.Detach(OnOpacityChanged);
       _opacityMaskProperty.Detach(OnOpacityChanged);
+      _acutalPositionProperty.Detach(OnActualBoundsChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -250,7 +256,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       InvalidateParentLayout();
     }
 
-    void OnActualSizeChanged(AbstractProperty property, object oldValue)
+    void OnActualBoundsChanged(AbstractProperty property, object oldValue)
     {
       _updateOpacityMask = true;
     }
@@ -324,35 +330,21 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     }
 
     /// <summary>
-    /// This is a derived property which is based on <see cref="UIElement.ActualPosition"/>,
-    /// <see cref="ActualWidth"/> and <see cref="ActualHeight"/>.
+    /// Gets this element's bounds in this element's coordinate system.
+    /// This is a derived property which is calculated by the layout system.
     /// </summary>
     public RectangleF ActualBounds
     {
-      get
-      {
-        return new RectangleF(ActualPosition.X, ActualPosition.Y,
-            (float) ActualWidth, (float) ActualHeight);
-      }
-      set
-      {
-        ActualPosition = new Vector3(value.X, value.Y, ActualPosition.Z);
-        ActualHeight = value.Height;
-        ActualWidth = value.Width;
-      }
+      get { return _innerRect; }
     }
 
     /// <summary>
-    /// Computes the actual bounds plus <see cref="UIElement.Margin"/>.
+    /// Gets the actual bounds plus <see cref="UIElement.Margin"/> plus the space which is needed for our
+    /// <see cref="UIElement.LayoutTransform"/>.
     /// </summary>
     public RectangleF ActualTotalBounds
     {
-      get
-      {
-        RectangleF result = ActualBounds;
-        AddMargin(ref result);
-        return result;
-      }
+      get { return _outerRect ?? new RectangleF(); }
     }
 
     public AbstractProperty HorizontalAlignmentProperty
@@ -514,7 +506,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         HasFocus = true;
         return true;
       }
-      else if (checkChildren)
+      if (checkChildren)
       {
         foreach (UIElement child in GetChildren())
         {
@@ -528,26 +520,343 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       return false;
     }
 
-    protected override void MeasureOverride(ref SizeF totalSize)
+    #region Replacing methods for the == operator which evaluate two float.NaN values to equal
+
+    public static bool SameValue(float val1, float val2)
     {
-      if (!double.IsNaN(Width))
-        totalSize.Width = (float) Width * SkinContext.Zoom.Width;
-      if (!double.IsNaN(Height))
-        totalSize.Height = (float) Height * SkinContext.Zoom.Height;
-
-      SizeF calculatedSize = CalculateDesiredSize(new SizeF(totalSize));
-
-      if (double.IsNaN(Width))
-        totalSize.Width = calculatedSize.Width;
-      if (double.IsNaN(Height))
-        totalSize.Height = calculatedSize.Height;
+      return float.IsNaN(val1) && float.IsNaN(val2) || val1 == val2;
     }
 
-    protected override void ArrangeOverride(RectangleF finalRect)
+    public static bool SameSize(SizeF size1, SizeF size2)
     {
-      base.ArrangeOverride(finalRect);
-      ActualWidth = finalRect.Width;
-      ActualHeight = finalRect.Height;
+      return SameValue(size1.Width, size2.Width) && SameValue(size1.Height, size2.Height);
+    }
+
+    public static bool SameSize(SizeF? size1, SizeF size2)
+    {
+      return size1.HasValue && SameSize(size1.Value, size2);
+    }
+
+    public static bool SameRect(RectangleF rect1, RectangleF rect2)
+    {
+      return SameValue(rect1.X, rect2.X) && SameValue(rect1.Y, rect2.Y) && SameValue(rect1.Width, rect2.Width) && SameValue(rect1.Height, rect2.Height);
+    }
+
+    public static bool SameRect(RectangleF? rect1, RectangleF rect2)
+    {
+      return rect1.HasValue && SameRect(rect1.Value, rect2);
+    }
+
+    #endregion
+
+    #region Measure & Arrange
+
+    /// <summary>
+    /// Updates the layout, i.e. calls <see cref="Measure(ref SizeF)"/> and <see cref="Arrange(RectangleF)"/>.
+    /// Must be done from the render thread.
+    /// </summary>
+    public void UpdateLayout()
+    {
+      // When measure or arrange is directly or indirectly called from the following code, we need the measure/arrange to be
+      // forced and not be optimized when the available size/outer rect are the same.
+      // We could introduce new variables _isMeasureInvalid and _isArrangementInvalid, set it to true here and
+      // check them in the Measure/Arrange methods, but it is easier to just clear our available size/outer rect cache which
+      // also causes the Measure/Arrange to take place:
+      _availableSize = null;
+      _outerRect = null;
+
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}'", GetType().Name, Name));
+#endif
+
+      UIElement parent = VisualParent as UIElement;
+      if (parent == null)
+      {
+        SizeF size = new SizeF(Screen.SkinWidth, Screen.SkinHeight);
+
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so measure with screen size {2}", GetType().Name, Name, size));
+#endif
+        Measure(ref size);
+
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no visual parent so we arrange with screen size {2}", GetType().Name, Name, size));
+#endif
+        // Ignore the measured size - arrange with screen size
+        Arrange(new RectangleF(0, 0, Screen.SkinWidth, Screen.SkinHeight));
+      }
+      else
+      { // We have a visual parent, i.e parent != null
+        if (!_availableSize.HasValue || !_outerRect.HasValue)
+        {
+#if DEBUG_LAYOUT
+          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', no available size or no outer rect, updating layout at parent {2}", GetType().Name, Name, parent));
+#endif
+          // We weren't Measured nor Arranged before - need to update parent
+          parent.InvalidateLayout();
+          return;
+        }
+
+        SizeF availableSize = new SizeF(_availableSize.Value.Width, _availableSize.Value.Height);
+        SizeF formerDesiredSize = _desiredSize;
+
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring with former available size {2}", GetType().Name, Name, availableSize));
+#endif
+        Measure(ref availableSize);
+
+        if (_desiredSize != formerDesiredSize)
+        {
+#if DEBUG_LAYOUT
+          System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned different desired size, updating parent (former: {2}, now: {3})", GetType().Name, Name, formerDesiredSize, _desiredSize));
+#endif
+          // Our size has changed - we need to update our parent
+          parent.InvalidateLayout();
+          return;
+        }
+        // Our size is the same as before - just arrange
+        RectangleF outerRect = new RectangleF(_outerRect.Value.Location, _outerRect.Value.Size);
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("UpdateLayout {0} Name='{1}', measuring returned same desired size, arranging with old outer rect {2}", GetType().Name, Name, outerRect));
+#endif
+        Arrange(outerRect);
+      }
+    }
+
+    /// <summary>
+    /// Given the transform currently applied to child, this method finds (in axis-aligned local space)
+    /// the largest rectangle that, after transform, fits within transformSpaceBounds.
+    /// Largest rectangle means rectangle of the greatest area in local space (although maximal area in local space
+    /// implies maximal area in transform space).
+    /// </summary>
+    /// <param name="transform">Transformation matrix.</param>
+    /// <param name="localBounds">The bounds in local space where the returned size fits when transformed
+    /// via the given <paramref name="transform"/>.</param>
+    /// <returns>The dimensions, in local space, of the maximal area rectangle found.</returns>
+    private static SizeF FindMaxTransformedSize(Matrix transform, SizeF localBounds)
+    {
+      // X (width) and Y (height) constraints for axis-aligned bounding box in dest. space
+      float xConstr = localBounds.Width;
+      float yConstr = localBounds.Height;
+
+      // Avoid doing math on an empty rect
+      if (IsNear(xConstr, 0) || IsNear(yConstr, 0)) 
+        return new SizeF(0, 0); 
+
+      bool xConstrInfinite = float.IsNaN(xConstr); 
+      bool yConstrInfinite = float.IsNaN(yConstr);
+
+      if (xConstrInfinite && yConstrInfinite)
+        return new SizeF(float.NaN, float.NaN);
+
+      if(xConstrInfinite) // Assume square for one-dimensional constraint 
+        xConstr = yConstr; 
+      else if (yConstrInfinite)
+        yConstr = xConstr; 
+
+      // We only deal with nonsingular matrices here. The nonsingular matrix is the one
+      // that has inverse (determinant != 0).
+      if(transform.Determinant() == 0) 
+        return new SizeF(0, 0);
+
+      float a = transform.M11; 
+      float b = transform.M12;
+      float c = transform.M21; 
+      float d = transform.M22;
+
+      // Result width and height (in child/local space)
+      float w;
+      float h; 
+
+      // Because we are dealing with nonsingular transform matrices, we have (b==0 || c==0) XOR (a==0 || d==0) 
+      if (IsNear(b, 0) || IsNear(c, 0)) 
+      { // (b == 0 || c == 0) ==> a != 0 && d != 0
+        float yCoverD = yConstrInfinite ? float.PositiveInfinity : Math.Abs(yConstr/d); 
+        float xCoverA = xConstrInfinite ? float.PositiveInfinity : Math.Abs(xConstr/a);
+
+        if (IsNear(b, 0))
+        {
+          if (IsNear(c, 0))
+          { // b == 0, c == 0, a != 0, d != 0
+
+            // No constraint relation; use maximal width and height 
+            h = yCoverD; 
+            w = xCoverA; 
+          }
+          else 
+          { // b == 0, a != 0, c != 0, d != 0
+
+            // Maximizing under line (hIntercept=xConstr/c, wIntercept=xConstr/a) 
+            // BUT we still have constraint: h <= yConstr/d
+            h = Math.Min(0.5f*Math.Abs(xConstr/c), yCoverD); 
+            w = xCoverA - ((c * h) / a);
+          } 
+        }
+        else
+        { // c == 0, a != 0, b != 0, d != 0 
+
+          // Maximizing under line (hIntercept=yConstr/d, wIntercept=yConstr/b)
+          // BUT we still have constraint: w <= xConstr/a
+          w = Math.Min( 0.5f*Math.Abs(yConstr/b), xCoverA);
+          h = yCoverD - ((b * w) / d);
+        }
+      }
+      else if (IsNear(a, 0) || IsNear(d, 0))
+      { // (a == 0 || d == 0) ==> b != 0 && c != 0 
+        float yCoverB = Math.Abs(yConstr/b);
+        float xCoverC = Math.Abs(xConstr/c); 
+
+        if (IsNear(a, 0))
+        {
+          if (IsNear(d, 0)) 
+          { // a == 0, d == 0, b != 0, c != 0 
+
+            // No constraint relation; use maximal width and height
+            h = xCoverC;
+            w = yCoverB;
+          }
+          else
+          { // a == 0, b != 0, c != 0, d != 0
+
+            // Maximizing under line (hIntercept=yConstr/d, wIntercept=yConstr/b)
+            // BUT we still have constraint: h <= xConstr/c
+            h = Math.Min(0.5f*Math.Abs(yConstr/d), xCoverC);
+            w = yCoverB - ((d * h) / b);
+          }
+        }
+        else
+        { // d == 0, a != 0, b != 0, c != 0
+
+          // Maximizing under line (hIntercept=xConstr/c, wIntercept=xConstr/a)
+          // BUT we still have constraint: w <= yConstr/b
+          w = Math.Min(0.5f*Math.Abs(xConstr/a), yCoverB);
+          h = xCoverC - ((a * w) / c);
+        }
+      }
+      else
+      { 
+        float xCoverA = Math.Abs(xConstr / a); // w-intercept of x-constraint line
+        float xCoverC = Math.Abs(xConstr / c); // h-intercept of x-constraint line
+
+        float yCoverB = Math.Abs(yConstr / b); // w-intercept of y-constraint line
+        float yCoverD = Math.Abs(yConstr / d); // h-intercept of y-constraint line
+
+        // The tighest constraint governs, so we pick the lowest constraint line
+
+        // The optimal point (w, h) for which Area = w*h is maximized occurs halfway to each intercept.
+        w = Math.Min(yCoverB, xCoverA) * 0.5f;
+        h = Math.Min(xCoverC, yCoverD) * 0.5f;
+
+        if ((GreaterThanOrClose(xCoverA, yCoverB) &&
+             LessThanOrClose(xCoverC, yCoverD)) ||
+            (LessThanOrClose(xCoverA, yCoverB) &&
+             GreaterThanOrClose(xCoverC, yCoverD)))
+        {
+          // Constraint lines cross; since the most restrictive constraint wins,
+          // we have to maximize under two line segments, which together are discontinuous.
+          // Instead, we maximize w*h under the line segment from the two smallest endpoints. 
+
+          // Since we are not (except for in corner cases) on the original constraint lines, 
+          // we are not using up all the available area in transform space.  So scale our shape up 
+          // until it does in at least one dimension.
+
+          SizeF childSizeTr = new SizeF(w, h);
+          transform.TransformSize(ref childSizeTr);
+          float expandFactor = Math.Min(xConstr / childSizeTr.Width, yConstr / childSizeTr.Height); 
+          if (!float.IsNaN(expandFactor) && !float.IsInfinity(expandFactor)) 
+          {
+            w *= expandFactor;
+            h *= expandFactor; 
+          }
+        }
+      }
+      return new SizeF(w, h);
+    }
+
+    public sealed override void Measure(ref SizeF totalSize)
+    {
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', totalSize={2}", GetType().Name, Name, totalSize));
+#endif
+      if (SameSize(_availableSize, totalSize))
+      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to measure again
+        totalSize = _desiredSize;
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', cutting short, totalSize is like before, returns desired size={2}", GetType().Name, Name, totalSize));
+#endif
+        return;
+      }
+      _availableSize = new SizeF(totalSize);
+      RemoveMargin(ref totalSize, Margin);
+      
+      Matrix? layoutTransform = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
+      if (layoutTransform.HasValue)
+        totalSize = FindMaxTransformedSize(layoutTransform.Value, totalSize);
+
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
+      totalSize = CalculateDesiredSize(new SizeF(totalSize));
+
+      if (!double.IsNaN(Width))
+        totalSize.Width = (float) Width;
+      if (!double.IsNaN(Height))
+        totalSize.Height = (float) Height;
+
+      if (layoutTransform.HasValue)
+        layoutTransform.Value.TransformSize(ref totalSize);
+
+      AddMargin(ref totalSize, Margin);
+      _desiredSize = totalSize;
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Measure {0} Name='{1}', returns calculated desired size={2}", GetType().Name, Name, totalSize));
+#endif
+    }
+
+    public sealed override void Arrange(RectangleF outerRect)
+    {
+#if DEBUG_LAYOUT
+      System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', outerRect={2}", GetType().Name, Name, outerRect));
+#endif
+      if (SameRect(_outerRect, outerRect))
+      { // Optimization: If our input data is the same and the layout isn't invalid, we don't need to arrange again
+#if DEBUG_LAYOUT
+        System.Diagnostics.Trace.WriteLine(string.Format("Arrange {0} Name='{1}', cutting short, outerRect={2} is like before", GetType().Name, Name, outerRect));
+#endif
+        return;
+      }
+      _outerRect = new RectangleF(outerRect.Location, outerRect.Size);
+      RectangleF rect = new RectangleF(outerRect.Location, outerRect.Size);
+      RemoveMargin(ref rect, Margin);
+
+      if (LayoutTransform != null)
+      {
+        Matrix layoutTransform = LayoutTransform.GetTransform().RemoveTranslation();
+        if (!layoutTransform.IsIdentity)
+        {
+          SizeF transformedSize = FindMaxTransformedSize(layoutTransform, rect.Size);
+
+          rect = new RectangleF(
+              rect.Location.X + (rect.Width - transformedSize.Width)/2,
+              rect.Location.Y + (rect.Height - transformedSize.Height)/2,
+              transformedSize.Width,
+              transformedSize.Height);
+        }
+      }
+      _innerRect = rect;
+      ArrangeOverride();
+
+      Initialize();
+      InitializeTriggers();
+    }
+
+    protected virtual void ArrangeOverride()
+    {
+      ActualPosition = _innerRect.Location;
+      ActualWidth = _innerRect.Width;
+      ActualHeight = _innerRect.Height;
       UpdateFocus();
     }
 
@@ -697,16 +1006,26 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
     }
 
+    #endregion
+
+    protected void TransformMouseCoordinates(ref float x, ref float y)
+    {
+      _inverseFinalTransform.Transform(ref x, ref y);
+    }
+
     public override void OnMouseMove(float x, float y)
     {
-      if (ActualBounds.Contains(x, y))
+      float xTrans = x;
+      float yTrans = y;
+      TransformMouseCoordinates(ref xTrans, ref yTrans);
+      if (ActualBounds.Contains(xTrans, yTrans))
       {
         if (!IsMouseOver)
         {
           IsMouseOver = true;
           FireEvent(MOUSEENTER_EVENT);
         }
-        if (!HasFocus && IsInVisibleArea(x, y))
+        if (!HasFocus && IsInVisibleArea(xTrans, yTrans))
           TrySetFocus(false);
       }
       else
@@ -873,7 +1192,38 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
-    public override void Render()
+    public virtual void DoRender(RenderContext localRenderContext)
+    {
+    }
+
+    public void RenderToTexture(Texture texture, RenderContext renderContext)
+    {
+      // We do the following here:
+      // 1. Set the rendertarget to the given texture
+      // 2. Clear the texture with an alpha value of 0
+      // 3. Render the control (into the texture)
+      // 4. Restore the rendertarget to the backbuffer
+
+      // Get the current backbuffer
+      using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
+        // Get the surface of our render texture
+        using (Surface renderTextureSurface = texture.GetSurfaceLevel(0))
+        {
+          // Change the rendertarget to the render texture
+          GraphicsDevice.Device.SetRenderTarget(0, renderTextureSurface);
+
+          // Fill the background of the texture with an alpha value of 0
+          GraphicsDevice.Device.Clear(ClearFlags.Target, Color.FromArgb(0, Color.Black), 1.0f, 0);
+
+          // Render the control into the given texture
+          DoRender(renderContext);
+
+          // Restore the backbuffer
+          GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
+        }
+    }
+
+    public override void Render(RenderContext parentRenderContext)
     {
       if (!IsVisible)
         return;
@@ -882,163 +1232,54 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       if (bounds.Width <= 0 || bounds.Height <= 0)
         return;
 
-      if (OpacityMask != null)
-      {
-        // Control has an opacity mask
-        // What we do here is that
-        // 1. we create a new opacitytexture which has the same dimensions as the control
-        // 2. we copy the part of the current backbuffer where the control is rendered to the opacitytexture
-        // 3. we set the rendertarget to the opacitytexture
-        // 4. we render the control, since the rendertarget is the opacitytexture we render the control in the opacitytexture
-        // 5. we restore the rendertarget to the backbuffer
-        // 6. we render the opacitytexture using the opacitymask brush
-        UpdateOpacityMask();
+      Matrix? layoutTransformMatrix = LayoutTransform == null ? new Matrix?() : LayoutTransform.GetTransform();
+      Matrix? renderTransformMatrix = RenderTransform == null ? new Matrix?() : RenderTransform.GetTransform();
 
-        float cx = 1.0f;// GraphicsDevice.Width / (float) SkinContext.SkinWidth;
-        float cy = 1.0f;// GraphicsDevice.Height / (float) SkinContext.SkinHeight;
+      RenderContext localRenderContext = parentRenderContext.Derive(bounds, layoutTransformMatrix,
+          renderTransformMatrix, RenderTransformOrigin, Opacity);
+      _inverseFinalTransform = Matrix.Invert(localRenderContext.MouseTransform);
 
-        List<ExtendedMatrix> originalTransforms = SkinContext.CombinedRenderTransforms;
-        SkinContext.CombinedRenderTransforms = new List<ExtendedMatrix>();
-        ExtendedMatrix matrix = new ExtendedMatrix();
+      if (OpacityMask == null)
+        // Simply render without opacity mask
+        DoRender(localRenderContext);
+      else
+      { // Control has an opacity mask
+        Size textureSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+        if (_updateOpacityMask)
+          PrepareOpacityMaskContext(textureSize);
 
-        // Apply the rendertransform
-        if (RenderTransform != null)
+        RenderContext tempRenderContext = new RenderContext(Matrix.Identity, localRenderContext.Transform, bounds);
+        RenderToTexture(_opacityMaskContext.Texture, tempRenderContext);
+
+        if (localRenderContext.OccupiedTransformedBounds != _lastOccupiedTransformedBounds)
+          // We must check this each render pass because the control might have changed its bounds due to a render transform
+          _updateOpacityMask = true;
+        _lastOccupiedTransformedBounds = localRenderContext.OccupiedTransformedBounds;
+
+        if (_updateOpacityMask)
         {
-          Vector2 center = new Vector2(bounds.Left + bounds.Width * RenderTransformOrigin.X,
-              bounds.Top + bounds.Height * RenderTransformOrigin.Y);
-          matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
-          Matrix mNew;
-          RenderTransform.GetTransform(out mNew);
-          matrix.Matrix *= mNew;
-          matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
+          UpdateOpacityMask(tempRenderContext.OccupiedTransformedBounds, textureSize, localRenderContext.ZOrder);
+          _updateOpacityMask = false;
         }
 
-        // Next put the control at position (0, 0, 0)...
-        matrix.Matrix *= Matrix.Translation(new Vector3(-bounds.X, -bounds.Y, 0));
-        // ... And scale it correctly since the backbuffer now has the dimensions of the control
-        // instead of the skin width/height dimensions
-        matrix.Matrix *= Matrix.Scaling(GraphicsDevice.Width / bounds.Width, GraphicsDevice.Height / bounds.Height, 1);
+        // Now render the opacitytexture with the OpacityMask brush
 
-        SkinContext.AddRenderTransform(matrix);
-
-        GraphicsDevice.Device.EndScene();
-
-        // Get the current backbuffer
-        using (Surface backBuffer = GraphicsDevice.Device.GetRenderTarget(0))
-        {
-          SurfaceDescription backbufferDesc = backBuffer.Description;
-          // Get the surface of our opacity texture
-          using (Surface textureOpacitySurface = _opacityMaskContext.Texture.GetSurfaceLevel(0))
-          {
-            SurfaceDescription textureOpacityDesc = textureOpacitySurface.Description;
-            // Copy the correct rectangle from the backbuffer in the opacitytexture
-            if (backbufferDesc.Width == GraphicsDevice.Width && backbufferDesc.Height == GraphicsDevice.Height)
-            {
-              GraphicsDevice.Device.StretchRectangle(backBuffer,
-                  new Rectangle((int) (bounds.X * cx), (int) (bounds.Y * cy), (int) (bounds.Width * cx), (int) (bounds.Height * cy)),
-                  textureOpacitySurface,
-                  new Rectangle(0, 0, textureOpacityDesc.Width, textureOpacityDesc.Height),
-                  TextureFilter.None);
-            }
-            else
-            {
-              GraphicsDevice.Device.StretchRectangle(backBuffer,
-                  new Rectangle(0, 0, backbufferDesc.Width, backbufferDesc.Height),
-                  textureOpacitySurface,
-                  new Rectangle(0, 0, textureOpacityDesc.Width, textureOpacityDesc.Height),
-                  TextureFilter.None);
-            }
-
-            // Change the rendertarget to the opacitytexture
-            GraphicsDevice.Device.SetRenderTarget(0, textureOpacitySurface);
-
-            // Render the control (will be rendered into the opacitytexture)
-            GraphicsDevice.Device.BeginScene();
-            DoRender();
-            GraphicsDevice.Device.EndScene();
-            SkinContext.RemoveRenderTransform();
-
-            // Restore the backbuffer
-            GraphicsDevice.Device.SetRenderTarget(0, backBuffer);
-          }
-        }
-
-        SkinContext.CombinedRenderTransforms = originalTransforms;
-        // Now render the opacitytexture with the opacitymask brush
-        GraphicsDevice.Device.BeginScene();
-        OpacityMask.BeginRender(_opacityMaskContext.Texture);
+        OpacityMask.BeginRenderOpacityBrush(_opacityMaskContext.Texture, localRenderContext);
         GraphicsDevice.Device.VertexFormat = _opacityMaskContext.VertexFormat;
         GraphicsDevice.Device.SetStreamSource(0, _opacityMaskContext.VertexBuffer, 0, _opacityMaskContext.StrideSize);
         GraphicsDevice.Device.DrawPrimitives(_opacityMaskContext.PrimitiveType, 0, 2);
         OpacityMask.EndRender();
 
-        _opacityMaskContext.LastTimeUsed = SkinContext.FrameRenderingStartTime;
+        _opacityMaskContext.LastTimeUsed = SkinContext.FrameRenderingStartTime.AddDays(1);
       }
-      else
-      { // No opacity mask
-        // Apply rendertransform
-        if (RenderTransform != null)
-        {
-          ExtendedMatrix matrix = new ExtendedMatrix();
-          Vector2 center = new Vector2(bounds.X + bounds.Width * RenderTransformOrigin.X,
-              bounds.Y + bounds.Height * RenderTransformOrigin.Y);
-          matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
-          Matrix mNew;
-          RenderTransform.GetTransform(out mNew);
-          matrix.Matrix *= mNew;
-          matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-          SkinContext.AddRenderTransform(matrix);
-        }
-        // Render the control
-        DoRender();
-        // Remove the rendertransform
-        if (RenderTransform != null)
-          SkinContext.RemoveRenderTransform();
-      }
-    }
-
-    public override void BuildRenderTree()
-    {
-      if (!IsVisible)
-        return;
-      UpdateLayout();
-
-      RectangleF bounds = ActualBounds;
-
-      if (bounds.Width <= 0 || bounds.Height <= 0)
-        return;
-      
-      SkinContext.AddOpacity(Opacity);
-      if (RenderTransform != null)
-      {
-        ExtendedMatrix matrix = new ExtendedMatrix();
-        matrix.Matrix *= SkinContext.FinalRenderTransform.Matrix;
-        Vector2 center = new Vector2((float)(ActualPosition.X + ActualWidth * RenderTransformOrigin.X), (float)(ActualPosition.Y + ActualHeight * RenderTransformOrigin.Y));
-        matrix.Matrix *= Matrix.Translation(new Vector3(-center.X, -center.Y, 0));
-        Matrix mNew;
-        RenderTransform.GetTransform(out mNew);
-        matrix.Matrix *= mNew;
-        matrix.Matrix *= Matrix.Translation(new Vector3(center.X, center.Y, 0));
-        SkinContext.AddRenderTransform(matrix);
-      }
-      //render the control
-      DoBuildRenderTree();
-      //remove the rendertransform
-      if (RenderTransform != null)
-        SkinContext.RemoveRenderTransform();
-      SkinContext.RemoveOpacity();
+      // Calculation of absolute render size (in world coordinate system)
+      parentRenderContext.IncludeTransformedContentsBounds(localRenderContext.OccupiedTransformedBounds);
     }
 
     #region Opacitymask
 
-    /// <summary>
-    /// Updates the opacity mask texture
-    /// </summary>
-    void UpdateOpacityMask()
+    void PrepareOpacityMaskContext(Size textureSize)
     {
-      if (!_updateOpacityMask)
-        return;
-      _updateOpacityMask = false;
       if (_opacityMaskContext != null)
       {
         _opacityMaskContext.Free(false);
@@ -1046,72 +1287,82 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       }
       if (OpacityMask == null)
         return;
+      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name, Screen.Name,
+          new Texture(GraphicsDevice.Device, textureSize.Width, textureSize.Height, 1,
+              Usage.RenderTarget, Format.A8R8G8B8, Pool.Default));
+      ContentManager.Add(_opacityMaskContext);
+    }
 
-      RectangleF bounds = ActualBounds;
-      float zPos = ActualPosition.Z;
+    void UpdateOpacityMask(RectangleF bounds, SizeF textureSize, float zPos)
+    {
+      if (OpacityMask == null)
+        return;
 
       PositionColored2Textured[] verts = new PositionColored2Textured[6];
 
       Color4 col = ColorConverter.FromColor(Color.White);
       col.Alpha *= (float) Opacity;
       int color = col.ToArgb();
+      
+      float left = bounds.Left - 0.5f;
+      float right = bounds.Right + 0.5f;
+      float top = bounds.Top - 0.5f;
+      float bottom = bounds.Bottom + 0.5f;
+      float uLeft = bounds.Left / textureSize.Width;
+      float uRight = bounds.Right / textureSize.Width;
+      float vTop = bounds.Top / textureSize.Height;
+      float vBottom = bounds.Bottom / textureSize.Height;
 
       // Upper left
-      verts[0].X = bounds.X;
-      verts[0].Y = bounds.Y;
+      verts[0].X = left;
+      verts[0].Y = top;
       verts[0].Color = color;
-      verts[0].Tu1 = 0;
-      verts[0].Tv1 = 0;
+      verts[0].Tu1 = uLeft;
+      verts[0].Tv1 = vTop;
       verts[0].Z = zPos;
 
       // Bottom left
-      verts[1].X = bounds.X;
-      verts[1].Y = bounds.Bottom;
+      verts[1].X = left;
+      verts[1].Y = bottom;
       verts[1].Color = color;
-      verts[1].Tu1 = 0;
-      verts[1].Tv1 = 1;
+      verts[1].Tu1 = uLeft;
+      verts[1].Tv1 = vBottom;
       verts[1].Z = zPos;
 
       // Bottom right
-      verts[2].X = bounds.Right;
-      verts[2].Y = bounds.Bottom;
+      verts[2].X = right;
+      verts[2].Y = bottom;
       verts[2].Color = color;
-      verts[2].Tu1 = 1;
-      verts[2].Tv1 = 1;
+      verts[2].Tu1 = uRight;
+      verts[2].Tv1 = vBottom;
       verts[2].Z = zPos;
 
       // Upper left
-      verts[3].X = bounds.X;
-      verts[3].Y = bounds.Y;
+      verts[3].X = left;
+      verts[3].Y = top;
       verts[3].Color = color;
-      verts[3].Tu1 = 0;
-      verts[3].Tv1 = 0;
+      verts[3].Tu1 = uLeft;
+      verts[3].Tv1 = vTop;
       verts[3].Z = zPos;
 
-      // Upper right
-      verts[4].X = bounds.Right;
-      verts[4].Y = bounds.Y;
+      // Bottom right
+      verts[4].X = right;
+      verts[4].Y = bottom;
       verts[4].Color = color;
-      verts[4].Tu1 = 1;
-      verts[4].Tv1 = 0;
+      verts[4].Tu1 = uRight;
+      verts[4].Tv1 = vBottom;
       verts[4].Z = zPos;
 
-      // Bottom right
-      verts[5].X = bounds.Right;
-      verts[5].Y = bounds.Bottom;
+      // Upper right
+      verts[5].X = right;
+      verts[5].Y = top;
       verts[5].Color = color;
-      verts[5].Tu1 = 1;
-      verts[5].Tv1 = 1;
+      verts[5].Tu1 = uRight;
+      verts[5].Tv1 = vTop;
       verts[5].Z = zPos;
 
-      _opacityMaskContext = new VisualAssetContext("FrameworkElement.OpacityMaskContext:" + Name, Screen.Name,
-          verts, PrimitiveType.TriangleList, new Texture(GraphicsDevice.Device, (int) bounds.Width, (int) bounds.Height, 1,
-              Usage.RenderTarget, Format.X8R8G8B8, Pool.Default));
-      ContentManager.Add(_opacityMaskContext);
-
-      OpacityMask.IsOpacityBrush = true;
-      OpacityMask.SetupBrush(ActualBounds, FinalLayoutTransform, ActualPosition.Z, verts);
-      PositionColored2Textured.Set(_opacityMaskContext.VertexBuffer, verts);
+      _opacityMaskContext.SetVerts(verts, PrimitiveType.TriangleList);
+      OpacityMask.SetupBrush(this, ref verts, zPos, false);
     }
 
     #endregion

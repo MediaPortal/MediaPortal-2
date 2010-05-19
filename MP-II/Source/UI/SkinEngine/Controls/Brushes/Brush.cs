@@ -25,6 +25,7 @@
 using System.Drawing;
 using MediaPortal.Core.General;
 using MediaPortal.UI.SkinEngine.Controls.Transforms;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.Rendering;
@@ -51,10 +52,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     AbstractProperty _relativeTransformProperty;
     Transform _transform;
     AbstractProperty _freezableProperty;
-    bool _isOpacity;
-    protected RectangleF _bounds;
-    protected PointF _orginalPosition;
-    protected PointF _minPosition;
+    protected RectangleF _vertsBounds;
+    protected Matrix? _finalBrushTransform = null;
 
     #endregion
 
@@ -76,13 +75,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
 
     void Init()
     {
-      _isOpacity = false;
       _opacityProperty = new SProperty(typeof(double), 1.0);
-      _relativeTransformProperty = new SProperty(typeof(Transform), new Transform());
+      _relativeTransformProperty = new SProperty(typeof(Transform), null);
       _transform = null;
       _freezableProperty = new SProperty(typeof(bool), false);
-      _bounds = new RectangleF(0, 0, 0, 0);
-      _orginalPosition = new PointF(0, 0);
+      _vertsBounds = new RectangleF(0, 0, 0, 0);
     }
 
     void Attach()
@@ -100,11 +97,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
       Detach();
       base.DeepCopy(source, copyManager);
       Brush b = (Brush) source;
-      IsOpacityBrush = b.IsOpacityBrush;
       Opacity = b.Opacity;
       RelativeTransform = copyManager.GetCopy(b.RelativeTransform);
       Transform = copyManager.GetCopy(b.Transform);
       Freezable = b.Freezable;
+      _finalBrushTransform = null;
       Attach();
     }
 
@@ -168,13 +165,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public Transform Transform
     {
       get { return _transform; }
-      set { _transform = value; }
-    }
-
-    public bool IsOpacityBrush
-    {
-      get { return _isOpacity; }
-      set { _isOpacity = value; }
+      set
+      {
+        _transform = value;
+        _finalBrushTransform = null;
+      }
     }
 
     public virtual Texture Texture
@@ -192,54 +187,49 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     public virtual void Scale(ref float u, ref float v, ref Color4 color)
     { }
 
-    public virtual void SetupBrush(RectangleF bounds, ExtendedMatrix layoutTransform, float zOrder, PositionColored2Textured[] verts)
+    public virtual void SetupBrush(FrameworkElement parent, ref PositionColored2Textured[] verts, float zOrder, bool adaptVertsToBrushTexture)
     {
-      float w = bounds.Width;
-      float h = bounds.Height;
-      float xoff = _bounds.X;
-      float yoff = _bounds.Y;
-      if (layoutTransform != null)
-      {
-        w = _bounds.Width;
-        h = _bounds.Height;
-        layoutTransform.TransformXY(ref w, ref h);
-        layoutTransform.TransformXY(ref xoff, ref yoff);
-      }
-      for (int i = 0; i < verts.Length; ++i)
-      {
-        PositionColored2Textured vert = verts[i];
-        float x1 = vert.X;
-        float u = x1 - (bounds.X + xoff);
-        u /= w;
-
-        float y1 = vert.Y;
-        float v = y1 - (bounds.Y + yoff);
-        v /= h;
-
-        if (u < 0) u = 0;
-        if (u > 1) u = 1;
-        if (v < 0) v = 0;
-        if (v > 1) v = 1;
-        unchecked
+      UpdateBounds(ref verts);
+      float w = _vertsBounds.Width;
+      float h = _vertsBounds.Height;
+      float xoff = _vertsBounds.X;
+      float yoff = _vertsBounds.Y;
+      if (adaptVertsToBrushTexture)
+        for (int i = 0; i < verts.Length; i++)
         {
-          Color4 color = ColorConverter.FromColor(Color.White);
-          color.Alpha *= (float) Opacity;
-          vert.Color = color.ToArgb();
+          PositionColored2Textured vert = verts[i];
+          float x = vert.X;
+          float u = x - xoff;
+          u /= w;
+
+          float y = vert.Y;
+          float v = y - yoff;
+          v /= h;
+
+          if (u < 0) u = 0;
+          if (u > 1) u = 1;
+          if (v < 0) v = 0;
+          if (v > 1) v = 1;
+          unchecked
+          {
+            Color4 color = ColorConverter.FromColor(Color.White);
+            color.Alpha *= (float) Opacity;
+            vert.Color = color.ToArgb();
+          }
+          vert.Tu1 = u;
+          vert.Tv1 = v;
+          vert.Z = zOrder;
+          verts[i] = vert;
         }
-        vert.Tu1 = u;
-        vert.Tv1 = v;
-        vert.Z = zOrder;
-        verts[i] = vert;
-      }
     }
 
-    protected void UpdateBounds(RectangleF bounds, ExtendedMatrix layoutTransform, PositionColored2Textured[] verts)
+    protected void UpdateBounds(ref PositionColored2Textured[] verts)
     {
       float minx = float.MaxValue;
       float miny = float.MaxValue;
       float maxx = 0;
       float maxy = 0;
-      for (int i = 0; i < verts.Length; ++i)
+      for (int i = 0; i < verts.Length; i++)
       {
         PositionColored2Textured vert = verts[i];
         if (vert.X < minx) minx = vert.X;
@@ -248,31 +238,32 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
         if (vert.X > maxx) maxx = vert.X;
         if (vert.Y > maxy) maxy = vert.Y;
       }
-      // Albert, 2010-04-23: The following can be removed when the layout transform is no longer calculated in the
-      // vertex coordinates
-      if (layoutTransform != null)
-      {
-        maxx -= minx;
-        maxy -= miny;
-        minx -= bounds.X;
-        miny -= bounds.Y;
-        layoutTransform.InvertXY(ref minx, ref miny);
-        layoutTransform.InvertXY(ref maxx, ref maxy);
-
-        _orginalPosition.X = bounds.X;
-        _orginalPosition.Y = bounds.Y;
-        _minPosition.X = _orginalPosition.X + minx;
-        _minPosition.Y = _orginalPosition.Y + miny;
-      }
-      _bounds = new RectangleF(minx, miny, maxx, maxy);
+      _vertsBounds = new RectangleF(minx, miny, maxx - minx, maxy - miny);
     }
 
-    public virtual bool BeginRender(PrimitiveContext primitiveContext)
+    public Matrix GetCachedFinalBrushTransform()
+    {
+      Matrix? transform = _finalBrushTransform;
+      if (transform.HasValue)
+        return transform.Value;
+      if (Transform != null)
+      {
+        transform = Matrix.Scaling(new Vector3(_vertsBounds.Width, _vertsBounds.Height, 1));
+        transform *= Matrix.Invert(Transform.GetTransform());
+        transform *= Matrix.Scaling(new Vector3(1/_vertsBounds.Width, 1/_vertsBounds.Height, 1));
+      }
+      else
+        transform = Matrix.Identity;
+      _finalBrushTransform = transform;
+      return transform.Value;
+    }
+
+    public virtual bool BeginRenderBrush(PrimitiveContext primitiveContext, RenderContext renderContext)
     {
       return false;
     }
 
-    public virtual void BeginRender(Texture tex)
+    public virtual void BeginRenderOpacityBrush(Texture tex, RenderContext renderContext)
     { }
 
     public virtual void EndRender()
@@ -282,9 +273,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     { }
 
     public virtual void Deallocate()
-    { }
-
-    public virtual void SetupPrimitive(PrimitiveContext context)
     { }
 
     #endregion

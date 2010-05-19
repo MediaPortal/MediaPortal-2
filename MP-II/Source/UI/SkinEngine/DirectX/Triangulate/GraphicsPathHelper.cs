@@ -60,11 +60,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <param name="baseRect">The rect which surrounds the created path.</param>
     /// <param name="radiusX">The X radius of the rounded edges.</param>
     /// <param name="radiusY">The Y radius of the rounded edges.</param>
-    /// <param name="layoutTransform">The layout transform to apply to the returned path.</param>
-    public static GraphicsPath CreateRoundedRectPath(RectangleF baseRect, float radiusX, float radiusY,
-        ExtendedMatrix layoutTransform)
+    public static GraphicsPath CreateRoundedRectPath(RectangleF baseRect, float radiusX, float radiusY)
     {
-      return CreateRoundedRectWithTitleRegionPath(baseRect, radiusX, radiusY, false, 0f, 0f, layoutTransform);
+      return CreateRoundedRectWithTitleRegionPath(baseRect, radiusX, radiusY, false, 0f, 0f);
     }
 
     /// <summary>
@@ -79,9 +77,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
     /// <paramref name="withTitleRegion"/> is set to <c>true</c>.</param>
     /// <param name="titleWidth">Width of the title region to leave out. This parameter will only be used if
     /// <paramref name="withTitleRegion"/> is set to <c>true</c>.</param>
-    /// <param name="layoutTransform">The layout transform to apply to the returned path.</param>
     public static GraphicsPath CreateRoundedRectWithTitleRegionPath(RectangleF baseRect, float radiusX, float radiusY,
-        bool withTitleRegion, float titleInset, float titleWidth, ExtendedMatrix layoutTransform)
+        bool withTitleRegion, float titleInset, float titleWidth)
     {
       GraphicsPath result = new GraphicsPath();
       if (radiusX <= 0.0f && radiusY <= 0.0f || baseRect.Width == 0 || baseRect.Height == 0)
@@ -149,14 +146,6 @@ namespace MediaPortal.UI.SkinEngine.DirectX.Triangulate
           result.AddLine(baseRect.Left + radiusX, baseRect.Top, baseRect.Left + radiusX + titleInset, baseRect.Top);
         else
           result.CloseFigure();
-      }
-      if (layoutTransform != null)
-      {
-        Matrix mtx = new Matrix();
-        mtx.Translate(-baseRect.X, -baseRect.Y, MatrixOrder.Append);
-        mtx.Multiply(layoutTransform.Get2dMatrix(), MatrixOrder.Append);
-        mtx.Translate(baseRect.X, baseRect.Y, MatrixOrder.Append);
-        result.Transform(mtx);
       }
       result.Flatten();
       return result;
