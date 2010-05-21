@@ -1,0 +1,384 @@
+<Grid
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+  </Grid.RowDefinitions>
+
+  <Grid.Resources>
+    <ResourceWrapper x:Key="RectangleStrokeColor" Resource="White"/>
+    <ResourceWrapper x:Key="RectangleStrokeFocusColor" Resource="DarkGray"/>
+    <ResourceWrapper x:Key="RectangleStrokeThickness" Resource="2"/>
+    <ResourceWrapper x:Key="RectangleCornerRadius" Resource="10"/>
+    <ResourceWrapper x:Key="RectangleSolidColor" Resource="Yellow"/>
+    <ResourceWrapper x:Key="RectangleLinearGradientBrushStartPoint" Resource="0,0"/>
+    <ResourceWrapper x:Key="RectangleLinearGradientBrushEndPoint" Resource="1,1"/>
+    <ResourceWrapper x:Key="RectangleRadialGradientBrushGradientOrigin" Resource="0.85,0.82"/>
+    <ResourceWrapper x:Key="RectangleGradient1" Resource="Yellow"/>
+    <ResourceWrapper x:Key="RectangleGradient2" Resource="Red"/>
+    <ResourceWrapper x:Key="RectangleGradient3" Resource="Blue"/>
+    <ResourceWrapper x:Key="RectangleGradient4" Resource="LimeGreen"/>
+
+    <ResourceWrapper x:Key="RectangleRTAngle" Resource="10"/>
+    <ResourceWrapper x:Key="RectangleLTAngle" Resource="45"/>
+
+    <Style x:Key="BaseRectangleStyle" TargetType="{x:Type Button}">
+      <Setter Property="Width" Value="100"/>
+      <Setter Property="Height" Value="90"/>
+      <Setter Property="Margin" Value="10"/>
+      <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+    </Style>
+
+    <Style x:Key="SolidColorRectangleStyle" BasedOn="{StaticResource BaseRectangleStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Rectangle x:Name="Shine"
+                Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
+                RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
+              <Rectangle.Fill>
+                <SolidColorBrush Color="{StaticResource RectangleSolidColor}"/>
+              </Rectangle.Fill>
+            </Rectangle>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Shine" Property="Stroke" Value="{StaticResource RectangleStrokeFocusColor}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="LinearGradientRectangleStyle" BasedOn="{StaticResource BaseRectangleStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Rectangle x:Name="Shine"
+                Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
+                RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
+              <Rectangle.Fill>
+                <LinearGradientBrush
+                    StartPoint="{StaticResource RectangleLinearGradientBrushStartPoint}"
+                    EndPoint="{StaticResource RectangleLinearGradientBrushEndPoint}">
+                  <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+                  <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.25"/>
+                  <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.75"/>
+                  <GradientStop Color="{StaticResource RectangleGradient4}" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Shine" Property="Stroke" Value="{StaticResource RectangleStrokeFocusColor}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="RadialGradientRectangleStyle" BasedOn="{StaticResource BaseRectangleStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Rectangle x:Name="Shine"
+                Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
+                RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
+              <Rectangle.Fill>
+                <RadialGradientBrush GradientOrigin="{StaticResource RectangleRadialGradientBrushGradientOrigin}">
+                  <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+                  <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.25"/>
+                  <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.75"/>
+                  <GradientStop Color="{StaticResource RectangleGradient4}" Offset="1"/>
+                </RadialGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Shine" Property="Stroke" Value="{StaticResource RectangleStrokeFocusColor}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="ImageRectangleStyle" BasedOn="{StaticResource BaseRectangleStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Rectangle x:Name="Shine"
+                Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
+                RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
+              <Rectangle.Fill>
+                <ImageBrush ImageSource="cherries.png"/>
+              </Rectangle.Fill>
+            </Rectangle>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Shine" Property="Stroke" Value="{StaticResource RectangleStrokeFocusColor}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="VisualRectangleStyle" BasedOn="{StaticResource BaseRectangleStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+<!--
+            <Rectangle x:Name="Shine"
+                Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
+                RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
+              <Rectangle.Fill>
+                <VisualBrush>
+                  <VisualBrush.Visual>
+                    <Button Style="{ThemeResource RectangleStyle}" Content="Test-Visual"/>
+                  </VisualBrush.Visual>
+                </VisualBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+-->
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Shine" Property="Stroke" Value="{StaticResource RectangleStrokeFocusColor}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="VideoRectangleStyle" BasedOn="{StaticResource BaseRectangleStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate>
+            <Rectangle x:Name="Shine"
+                Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}"
+                RadiusX="{StaticResource RectangleCornerRadius}" RadiusY="{StaticResource RectangleCornerRadius}">
+              <Rectangle.Fill>
+                <VideoBrush Stream="0"/>
+              </Rectangle.Fill>
+            </Rectangle>
+            <ControlTemplate.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="Shine" Property="Stroke" Value="{StaticResource RectangleStrokeFocusColor}"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Grid.Resources>
+
+  <!-- First row: All brushes, no transformation -->
+
+  <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="6" Content="All transforms, normal orientation"/>
+  <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}"/>
+  <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource LinearGradientRectangleStyle}"/>
+  <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource RadialGradientRectangleStyle}"/>
+  <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource ImageRectangleStyle}"/>
+  <Button Grid.Row="1" Grid.Column="4" Style="{StaticResource VisualRectangleStyle}"/>
+  <Button Grid.Row="1" Grid.Column="5" Style="{StaticResource VideoRectangleStyle}"/>
+
+  <!-- Second row: All brushes, N degrees RenderTransform -->
+
+  <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal">
+    <Label Content="All transforms, rotated by "/>
+    <Label Content="{StaticResource RectangleRTAngle}"/>
+    <Label Content=" degrees (RenderTransform)"/>
+  </StackPanel>
+  <Button Grid.Row="3" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+  <Button Grid.Row="3" Grid.Column="1" Style="{StaticResource LinearGradientRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+  <Button Grid.Row="3" Grid.Column="2" Style="{StaticResource RadialGradientRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+  <Button Grid.Row="3" Grid.Column="3" Style="{StaticResource ImageRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+  <Button Grid.Row="3" Grid.Column="4" Style="{StaticResource VisualRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+  <Button Grid.Row="3" Grid.Column="5" Style="{StaticResource VideoRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+  </Button>
+
+  <!-- Third row: All brushes, N degrees LayoutTransform -->
+
+  <StackPanel Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal">
+    <Label Content="All transforms, rotated by "/>
+    <Label Content="{StaticResource RectangleLTAngle}"/>
+    <Label Content=" degrees (LayoutTransform)"/>
+  </StackPanel>
+  <Button Grid.Row="5" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}">
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="5" Grid.Column="1" Style="{StaticResource LinearGradientRectangleStyle}">
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="5" Grid.Column="2" Style="{StaticResource RadialGradientRectangleStyle}">
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="5" Grid.Column="3" Style="{StaticResource ImageRectangleStyle}">
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="5" Grid.Column="4" Style="{StaticResource VisualRectangleStyle}">
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="5" Grid.Column="5" Style="{StaticResource VideoRectangleStyle}">
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+
+  <!-- Fourth row: All brushes, N degrees RenderTransform + N degrees LayoutTransform -->
+
+  <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6" Orientation="Horizontal">
+    <Label Content="All transforms, rotated by "/>
+    <Label Content="{StaticResource RectangleRTAngle}"/>
+    <Label Content=" degrees RenderTransform and "/>
+    <Label Content="{StaticResource RectangleLTAngle}"/>
+    <Label Content=" degrees LayoutTransform"/>
+  </StackPanel>
+  <Button Grid.Row="7" Grid.Column="0" Style="{StaticResource SolidColorRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="7" Grid.Column="1" Style="{StaticResource LinearGradientRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="7" Grid.Column="2" Style="{StaticResource RadialGradientRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="7" Grid.Column="3" Style="{StaticResource ImageRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="7" Grid.Column="4" Style="{StaticResource VisualRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+  <Button Grid.Row="7" Grid.Column="5" Style="{StaticResource VideoRectangleStyle}">
+    <Button.RenderTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleRTAngle}"/>
+      </TransformGroup>
+    </Button.RenderTransform>
+    <Button.LayoutTransform>
+      <TransformGroup>
+        <RotateTransform Angle="{StaticResource RectangleLTAngle}"/>
+      </TransformGroup>
+    </Button.LayoutTransform>
+  </Button>
+</Grid>

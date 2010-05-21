@@ -1,0 +1,8 @@
+<DockPanel
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    FocusedElement="{DynamicResource Focused_Element}"
+    Context="{DynamicResource DataContext}"
+    Background="{StaticResource BackgroundBrush}" Width="720" Height="576"
+    LastChildFill="True">
+this is a broken-screen

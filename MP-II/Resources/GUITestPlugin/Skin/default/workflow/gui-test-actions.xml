@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="2C0D5028-E9FE-4eb3-B7FD-B8492B1009D2"
+        Name="Home->GUI-Test"
+        DisplayCategory="z-Test"
+        SortOrder="a"
+        SourceState="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+        TargetState="F660C2CA-A340-4694-A7F4-9E68AB9721C4"
+        DisplayTitle="GUI-Test"/>
+  </MenuActions>
+</Workflow>

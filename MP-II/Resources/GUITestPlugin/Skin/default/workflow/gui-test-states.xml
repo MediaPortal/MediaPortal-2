@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <States>
+    <WorkflowState Id="F660C2CA-A340-4694-A7F4-9E68AB9721C4"
+        Name="GuiTestMain" MainScreen="gui-test-main"
+        DisplayLabel="GUI-Test"
+        WorkflowModel="F4FC1599-F412-40d0-82BF-46FC352E93BE"/> <!-- Workflow model = GUITestModel -->
+  </States>
+</Workflow>

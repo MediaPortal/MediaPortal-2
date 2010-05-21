@@ -1,0 +1,266 @@
+<Grid
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    >
+  <!-- This screen should look like "Brush Transformation Overview" from MSDN: http://msdn.microsoft.com/en-us/library/aa970500.aspx -->
+
+  <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="Auto"/>
+  </Grid.ColumnDefinitions>
+  <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="Auto"/>
+  </Grid.RowDefinitions>
+
+  <Grid.Resources>
+    <ResourceWrapper x:Key="RectangleWidth" Resource="190"/>
+    <ResourceWrapper x:Key="RectangleWidth2" Resource="95"/>
+    <ResourceWrapper x:Key="RectangleHeight" Resource="100"/>
+    <ResourceWrapper x:Key="RectangleHeight2" Resource="50"/>
+    <ResourceWrapper x:Key="RectangleStrokeColor" Resource="White"/>
+    <ResourceWrapper x:Key="RectangleStrokeFocusColor" Resource="DarkGray"/>
+    <ResourceWrapper x:Key="RectangleStrokeThickness" Resource="2"/>
+    <ResourceWrapper x:Key="LinearGradientBrushStartPoint" Resource="0,0.35"/>
+    <ResourceWrapper x:Key="LinearGradientBrushEndPoint" Resource="1,0.65"/>
+    <ResourceWrapper x:Key="RadialGradientBrushGradientOrigin" Resource="0.5,0.5"/>
+    <ResourceWrapper x:Key="RectangleGradient1" Resource="Blue"/>
+    <ResourceWrapper x:Key="RectangleGradient2" Resource="Black"/>
+    <ResourceWrapper x:Key="RectangleGradient3" Resource="White"/>
+    <ResourceWrapper x:Key="RectangleGradient4" Resource="Black"/>
+    <ResourceWrapper x:Key="RectangleGradient5" Resource="Blue"/>
+
+    <Style x:Key="TestVisualButtonStyle" BasedOn="{ThemeResource ButtonStyle}">
+      <Setter Property="Width" Value="50"/>
+      <Setter Property="Height" Value="20"/>
+      <Setter Property="Content" Value="Test-Button"/>
+    </Style>
+
+  </Grid.Resources>
+
+  <Label Grid.Row="0" Grid.Column="1" Content="No Transform"/>
+  <Label Grid.Row="0" Grid.Column="2" Content="RelativeTransform"/>
+  <Label Grid.Row="0" Grid.Column="3" Content="Transform"/>
+
+  <Label Grid.Row="1" Grid.Column="0" Content="LinearGradientBrush"/>
+  <Rectangle Grid.Row="1" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <LinearGradientBrush StartPoint="{StaticResource LinearGradientBrushStartPoint}" EndPoint="{StaticResource LinearGradientBrushEndPoint}">
+        <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+        <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.4"/>
+        <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource RectangleGradient4}" Offset="0.6"/>
+        <GradientStop Color="{StaticResource RectangleGradient5}" Offset="0.7"/>
+      </LinearGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="1" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <LinearGradientBrush StartPoint="{StaticResource LinearGradientBrushStartPoint}" EndPoint="{StaticResource LinearGradientBrushEndPoint}">
+        <LinearGradientBrush.RelativeTransform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </LinearGradientBrush.RelativeTransform>
+        <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+        <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.4"/>
+        <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource RectangleGradient4}" Offset="0.6"/>
+        <GradientStop Color="{StaticResource RectangleGradient5}" Offset="0.7"/>
+      </LinearGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="1" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <LinearGradientBrush StartPoint="{StaticResource LinearGradientBrushStartPoint}" EndPoint="{StaticResource LinearGradientBrushEndPoint}">
+        <LinearGradientBrush.Transform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </LinearGradientBrush.Transform>
+        <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+        <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.4"/>
+        <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource RectangleGradient4}" Offset="0.6"/>
+        <GradientStop Color="{StaticResource RectangleGradient5}" Offset="0.7"/>
+      </LinearGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+
+  <Label Grid.Row="2" Grid.Column="0" Content="RadialGradientBrush"/>
+  <Rectangle Grid.Row="2" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <RadialGradientBrush GradientOrigin="{StaticResource RadialGradientBrushGradientOrigin}">
+        <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+        <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.4"/>
+        <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource RectangleGradient4}" Offset="0.6"/>
+        <GradientStop Color="{StaticResource RectangleGradient5}" Offset="0.7"/>
+      </RadialGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="2" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <RadialGradientBrush GradientOrigin="{StaticResource RadialGradientBrushGradientOrigin}">
+        <RadialGradientBrush.RelativeTransform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </RadialGradientBrush.RelativeTransform>
+        <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+        <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.4"/>
+        <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource RectangleGradient4}" Offset="0.6"/>
+        <GradientStop Color="{StaticResource RectangleGradient5}" Offset="0.7"/>
+      </RadialGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="2" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <RadialGradientBrush GradientOrigin="{StaticResource RadialGradientBrushGradientOrigin}">
+        <RadialGradientBrush.Transform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </RadialGradientBrush.Transform>
+        <GradientStop Color="{StaticResource RectangleGradient1}" Offset="0"/>
+        <GradientStop Color="{StaticResource RectangleGradient2}" Offset="0.4"/>
+        <GradientStop Color="{StaticResource RectangleGradient3}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource RectangleGradient4}" Offset="0.6"/>
+        <GradientStop Color="{StaticResource RectangleGradient5}" Offset="0.7"/>
+      </RadialGradientBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+
+  <Label Grid.Row="3" Grid.Column="0" Content="ImageBrush"/>
+  <Rectangle Grid.Row="3" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="cherries.png"/>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="3" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="cherries.png">
+        <ImageBrush.RelativeTransform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </ImageBrush.RelativeTransform>
+      </ImageBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="3" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="cherries.png">
+        <ImageBrush.Transform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </ImageBrush.Transform>
+      </ImageBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+
+  <Label Grid.Row="4" Grid.Column="0" Content="ImageBrush (Tiled)"/>
+  <Rectangle Grid.Row="4" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <!-- TODO: Tiled -->
+      <ImageBrush ImageSource="cherries.png"/>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="4" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="cherries.png">
+        <!-- TODO: Tiled -->
+        <ImageBrush.RelativeTransform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </ImageBrush.RelativeTransform>
+      </ImageBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="4" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <ImageBrush ImageSource="cherries.png">
+        <!-- TODO: Tiled -->
+        <ImageBrush.Transform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </ImageBrush.Transform>
+      </ImageBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+
+<!--
+  <Label Grid.Row="5" Grid.Column="0" Content="VisualBrush"/>
+  <Rectangle Grid.Row="5" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <VisualBrush>
+        <VisualBrush.Visual>
+          <Rectangle Style="{StaticResource TestVisualButtonStyle}"/>
+        </VisualBrush.Visual>
+      </VisualBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="5" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <VisualBrush>
+        <VisualBrush.Visual>
+          <Rectangle Style="{StaticResource TestVisualButtonStyle}"/>
+        </VisualBrush.Visual>
+      </VisualBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="5" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <VisualBrush>
+        <VisualBrush.Visual>
+          <Rectangle Style="{StaticResource TestVisualButtonStyle}"/>
+        </VisualBrush.Visual>
+      </VisualBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+-->
+
+  <Label Grid.Row="6" Grid.Column="0" Content="VideoBrush"/>
+  <Rectangle Grid.Row="6" Grid.Column="1" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <VideoBrush Stream="0"/>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="6" Grid.Column="2" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <VideoBrush Stream="0">
+        <VideoBrush.RelativeTransform>
+          <RotateTransform CenterX="0.5" CenterY="0.5" Angle="45"/>
+        </VideoBrush.RelativeTransform>
+      </VideoBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+  <Rectangle Grid.Row="6" Grid.Column="3" Width="{StaticResource RectangleWidth}" Height="{StaticResource RectangleHeight}"
+      Stroke="{StaticResource RectangleStrokeColor}" StrokeThickness="{StaticResource RectangleStrokeThickness}">
+    <Rectangle.Fill>
+      <VideoBrush Stream="0">
+        <VideoBrush.Transform>
+          <RotateTransform CenterX="{StaticResource RectangleWidth2}" CenterY="{StaticResource RectangleHeight2}"
+              Angle="45"/>
+        </VideoBrush.Transform>
+      </VideoBrush>
+    </Rectangle.Fill>
+  </Rectangle>
+</Grid>

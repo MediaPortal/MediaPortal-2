@@ -1,0 +1,21 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="GUI Test"
+    PluginId="{0105CFBA-14BE-4136-87E6-954D03CE5D66}"
+    Author="Albert"
+    Copyright="GPL"
+    Description="GUI Test Plugin showing various test screens for the capabilities of the SkinEngine"
+    PluginVersion="1.0">
+
+  <Runtime>
+    <Assembly FileName="GUITestPlugin.dll"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="F4FC1599-F412-40d0-82BF-46FC352E93BE" ClassName="Test.GUITestPlugin.GUITestModel"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="GUITestSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+</Plugin>
