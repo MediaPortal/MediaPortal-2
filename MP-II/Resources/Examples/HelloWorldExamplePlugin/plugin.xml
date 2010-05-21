@@ -12,18 +12,26 @@
   </Runtime>
 
   <Register Location="/Models">
-    <!-- This registration is necessary to 1) make the model id public and 2) find the model's class.
+    <!-- This registration is necessary to 1) make the model id public and 2) to find the model's class.
          Guids are always written without the enclosing curly braces "{}". -->
     <Model Id="5726DA5A-70D5-458f-AF67-611293D97912" ClassName="Models.HelloWorld.Model"/>
   </Register>
 
   <!-- Registration of our skin directory -->
   <Register Location="/Resources/Skin">
+    <!-- This registration is necessary to declare the skin directory. You can use an arbitrary directory name or
+         relative path; the path must be the relative to directory of the plugin.
+         The id of the plugin can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         in any place. -->
     <Resource Id="HelloWorldSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
   <!-- Registration of our language directory -->
   <Register Location="/Resources/Language">
+    <!-- This registration is necessary to declare the language directory. Just like for the skin directory,
+         you can use an arbitrary directory name or relative path; the path must be the relative to the directory of the plugin.
+         The id of the plugin can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         in any place. -->
     <Resource Id="HelloWorldLanguage" Directory="Language" Type="Language"/>
   </Register>
 </Plugin>

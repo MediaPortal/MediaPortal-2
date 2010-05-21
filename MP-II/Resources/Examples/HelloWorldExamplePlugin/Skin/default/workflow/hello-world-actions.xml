@@ -2,6 +2,31 @@
 <!-- Hello world workflow state actions -->
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
+    <!-- This is the workflow action which will be shown in the main menu in the home screen.
+         A PushNavigationTransition is a static action which is always visible in one or more defined
+         workflow states. When executed, the given target state will be pushed onto the workflow navigation stack.
+         There are also other action types which can be used at this place, for example it is possible to
+         make the action visible and invisible programmatically when using a workflow contributor action.
+
+         The action's name is only needed for debugging purposes and won't be shown to the user.
+
+         The DisplayCategory is used to group actions together. There is no detailed definition which groups
+         are present but the idea is that each plugin developer uses its own display categories to group its actions
+         together. There are also some common display categories which can be reused here. Use the first letter
+         as an indicator for the sort ordering, for example "z" for actions which should be posed at the end,
+         "a" for the beginning, etc.
+
+         The SortOrder is used for finer grained sorting inside a display category. We suggest to use a single, lower-case
+         letter here.
+
+         The SourceState attribute is needed to tell the system in which states the action should be visible.
+         Use the state's id here. You can also use a star ("*"). In that case, the action will be shown in each
+         state.
+
+         The TargetState attribute must always contain an id of a valid target state where the sytem will navigate to
+         when this action is executed.
+
+         The DisplayTitle will be shown in the main menu for this action. -->
     <PushNavigationTransition Id="EA48BD6E-60D3-45b2-9C35-1AB437CC72FB"
         Name="Home->HelloWorld"
         DisplayCategory="z-HelloWorld"
