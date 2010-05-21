@@ -52,17 +52,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     Collapsed = 2,
   }
 
-  [Flags]
-  public enum UIEvent
-  {
-    None = 0,
-    Hidden = 1,
-    Visible = 2,
-    OpacityChange = 4,
-    StrokeChange = 8,
-    FillChange = 16,
-  }
-
   /// <summary>
   /// Delegate interface which decides if an element fulfills a special condition.
   /// </summary>
@@ -341,16 +330,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnOpacityPropertyChanged(AbstractProperty property, object oldValue)
     {
-      FireUIEvent(UIEvent.OpacityChange, this);
     }
 
     void OnVisibilityPropertyChanged(AbstractProperty property, object oldValue)
     {
       InvalidateParentLayout();
-      if (IsVisible)
-        FireUIEvent(UIEvent.Visible, this);
-      else
-        FireUIEvent(UIEvent.Hidden, this);
     }
 
     /// <summary>
@@ -812,9 +796,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       value = null;
       return false;
     }
-
-    public virtual void FireUIEvent(UIEvent eventType, UIElement source)
-    { }
 
     public virtual void FireEvent(string eventName)
     {

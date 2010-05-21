@@ -43,7 +43,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     AbstractProperty _borderProperty;
     AbstractProperty _borderThicknessProperty;
     AbstractProperty _cornerRadiusProperty;
-    protected UIEvent _lastEvent = UIEvent.None;
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
 
@@ -250,15 +249,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       FrameworkElement templateControl = _initializedTemplateControl;
       if (templateControl != null)
         childrenOut.Add(templateControl);
-    }
-
-    public override void FireUIEvent(UIEvent eventType, UIElement source)
-    {
-      if ((_lastEvent & UIEvent.Hidden) != 0 && eventType == UIEvent.Visible)
-        _lastEvent = UIEvent.None;
-      if ((_lastEvent & UIEvent.Visible) != 0 && eventType == UIEvent.Hidden)
-        _lastEvent = UIEvent.None;
-      base.FireUIEvent(eventType, source);
     }
 
     public override void Deallocate()

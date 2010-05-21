@@ -58,7 +58,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected int _verticesCountBorder;
     protected PrimitiveContext _backgroundContext;
     protected PrimitiveContext _borderContext;
-    protected UIEvent _lastEvent = UIEvent.None;
     protected bool _performLayout;
     protected RectangleF _borderRect;
     
@@ -138,13 +137,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     void OnBackgroundBrushChanged(IObservable observable)
     {
-      _lastEvent |= UIEvent.FillChange;
       _performLayout = true;
     }
 
     void OnBorderBrushChanged(IObservable observable)
     {
-      _lastEvent |= UIEvent.StrokeChange;
       _performLayout = true;
     }
 

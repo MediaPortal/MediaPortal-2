@@ -93,7 +93,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected List<UIElement> _renderOrder; // Cache for the render order of our children
     protected volatile bool _updateRenderOrder = true; // Mark panel to update its render order in the rendering thread
     protected PrimitiveContext _backgroundContext;
-    protected UIEvent _lastEvent = UIEvent.None;
 
     #endregion
 
@@ -145,7 +144,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     void OnBrushChanged(IObservable observable)
     {
-      _lastEvent |= UIEvent.OpacityChange;
       _performLayout = true;
     }
 
@@ -286,13 +284,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             _renderOrder.Add(element);
         _renderOrder.Sort(new ZOrderComparer());
       }
-    }
-
-    public override void FireUIEvent(UIEvent eventType, UIElement source)
-    {
-      base.FireUIEvent(eventType, source);
-
-      _lastEvent |= eventType;
     }
 
     public override void AddChildren(ICollection<UIElement> childrenOut)

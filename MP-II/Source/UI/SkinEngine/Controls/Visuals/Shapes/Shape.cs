@@ -68,7 +68,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     protected bool _performLayout;
     protected PrimitiveContext _fillContext;
     protected PrimitiveContext _strokeContext;
-    protected UIEvent _lastEvent;
     protected bool _hidden;
 
     #endregion
@@ -132,13 +131,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
     void OnFillBrushChanged(IObservable observable)
     {
       _performLayout = true;
-      _lastEvent |= UIEvent.FillChange;
     }
 
     void OnStrokeBrushChanged(IObservable observable)
     {
       _performLayout = true;
-      _lastEvent |= UIEvent.StrokeChange;
     }
 
     void OnFillBrushPropertyChanged(AbstractProperty property, object oldValue)
