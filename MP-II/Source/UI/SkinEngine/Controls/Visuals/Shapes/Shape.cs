@@ -246,8 +246,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes
 
     protected override void ArrangeOverride()
     {
-      base.ArrangeOverride();
       _performLayout = true;
+      base.ArrangeOverride();
     }
 
     public override void Deallocate()

@@ -222,14 +222,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected override void ArrangeOverride()
     {
-      RectangleF oldRect = new RectangleF(_innerRect.Location, _innerRect.Size);
+      _performLayout = true;
       base.ArrangeOverride();
-
       ArrangeBorder(_innerRect);
-
-      if (!_innerRect.IsEmpty && oldRect != _innerRect)
-        _performLayout = true;
-
       if (_content == null)
         return;
       RectangleF layoutRect = new RectangleF(_innerRect.X, _innerRect.Y, _innerRect.Width, _innerRect.Height);
