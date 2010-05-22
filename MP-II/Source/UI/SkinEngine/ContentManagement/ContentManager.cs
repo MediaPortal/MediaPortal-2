@@ -151,12 +151,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="fileName">Name of the file (.jpg, .png).</param>
     /// <param name="thumb">If set to <c>true</c>, the image will be loaded as thumbnail.</param>
     /// <returns></returns>
-    public static VertextBufferAsset Load(string fileName, bool thumb)
+    public static VertexBufferAsset Load(string fileName, bool thumb)
     {
       TextureAsset texture = GetTexture(fileName, thumb);
       lock (_vertexBuffers)
       {
-        VertextBufferAsset vertex = new VertextBufferAsset(texture);
+        VertexBufferAsset vertex = new VertexBufferAsset(texture);
         _vertexBuffers.Add(vertex);
         return vertex;
       }

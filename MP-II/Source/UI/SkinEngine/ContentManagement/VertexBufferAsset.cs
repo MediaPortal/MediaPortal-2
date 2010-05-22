@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using SlimDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
@@ -32,7 +31,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
-  public class VertextBufferAsset : IAsset
+  public class VertexBufferAsset : IAsset
   {
     #region Variables
 
@@ -58,10 +57,10 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     #endregion
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="VertextBufferAsset"/> class.
+    /// Initializes a new instance of the <see cref="VertexBufferAsset"/> class.
     /// </summary>
     /// <param name="texture">The texture.</param>
-    public VertextBufferAsset(TextureAsset texture)
+    public VertexBufferAsset(TextureAsset texture)
     {
       _texture = texture;
       _effect = ContentManager.GetEffect("normal");
