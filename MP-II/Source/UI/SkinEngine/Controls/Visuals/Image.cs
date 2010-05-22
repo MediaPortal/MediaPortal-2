@@ -61,12 +61,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     AbstractProperty _imageSourceProperty;
     AbstractProperty _stretchDirectionProperty;
     AbstractProperty _thumbnailProperty;
-    private VertextBufferAsset _image;
-    private VertextBufferAsset _fallbackImage;
+    private VertexBufferAsset _image;
+    private VertexBufferAsset _fallbackImage;
     AbstractProperty _stretchProperty;
-    TextureRender _renderImage;
-    TextureRender _renderFallback;
-
     float _u, _v, _uoff, _voff, _w, _h;
     Vector2 _pos;
 
@@ -92,12 +89,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     void Attach()
     {
       _imageSourceProperty.Attach(OnImageChanged);
+      _fallbackSourceProperty.Attach(OnFallbackImageChanged);
       _stretchDirectionProperty.Attach(OnImageChanged);
     }
 
     void Detach()
     {
       _imageSourceProperty.Detach(OnImageChanged);
+      _fallbackSourceProperty.Detach(OnFallbackImageChanged);
       _stretchDirectionProperty.Detach(OnImageChanged);
     }
 
@@ -123,12 +122,16 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _image.Free(true);
         ContentManager.Remove(_image);
         _image = null;
+      }
+    }
 
-        if (_renderImage != null)
-        {
-          _renderImage.Free();
-          _renderImage = null;
-        }
+    void OnFallbackImageChanged(AbstractProperty property, object oldValue)
+    {
+      if (_fallbackImage != null)
+      {
+        _fallbackImage.Free(true);
+        ContentManager.Remove(_fallbackImage);
+        _fallbackImage = null;
       }
     }
 
@@ -139,7 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public Stretch Stretch
     {
-      get { return (Stretch)_stretchProperty.GetValue(); }
+      get { return (Stretch) _stretchProperty.GetValue(); }
       set { _stretchProperty.SetValue(value); }
     }
 
@@ -150,7 +153,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public bool Thumbnail
     {
-      get { return (bool)_thumbnailProperty.GetValue(); }
+      get { return (bool) _thumbnailProperty.GetValue(); }
       set { _thumbnailProperty.SetValue(value); }
     }
 
@@ -162,7 +165,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public string Source
     {
-      get { return (string)_imageSourceProperty.GetValue(); }
+      get { return (string) _imageSourceProperty.GetValue(); }
       set { _imageSourceProperty.SetValue(value); }
     }
 
@@ -173,7 +176,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public string FallbackSource
     {
-      get { return (string)_fallbackSourceProperty.GetValue(); }
+      get { return (string) _fallbackSourceProperty.GetValue(); }
       set { _fallbackSourceProperty.SetValue(value); }
     }
 
@@ -261,7 +264,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       base.ArrangeOverride();
       if (_image != null)
         PerformLayout(_image);
-
       if (_fallbackImage != null)
         PerformLayout(_fallbackImage);
     }
@@ -276,11 +278,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         if (_image.Texture.IsAllocated)
           return;
       }
-      if (_fallbackImage != null)
+      else if (_fallbackImage != null)
         _fallbackImage.Draw(_pos.X, _pos.Y, localRenderContext.ZOrder, _w, _h, _uoff, _voff, _u, _v, opacity, opacity, opacity, opacity, localRenderContext.Transform);
     }
 
-    void PerformLayout(VertextBufferAsset asset)
+    void PerformLayout(VertexBufferAsset asset)
     {
       if (asset != null && asset.Texture.IsAllocated)
       {
@@ -294,7 +296,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         float scaledImageWidth = sourceImageWidth*scaleX;
         float scaledImageHeight = sourceImageHeight*scaleY;
 
-        _pos = new Vector2(0, 0);
+        _pos = new Vector2(ActualPosition.X, ActualPosition.Y);
         // Calculate offsets
         if (scaledImageWidth > ActualWidth)
         { // The drawn image is bigger than the destination rectangle -> clip
@@ -339,17 +341,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         _fallbackImage.Free(true);
         ContentManager.Remove(_fallbackImage);
         _fallbackImage = null;
-      }
-
-      if (_renderImage != null)
-      {
-        _renderImage.Free();
-        _renderImage = null;
-      }
-      if (_renderFallback != null)
-      {
-        _renderFallback.Free();
-        _renderFallback = null;
       }
       base.Deallocate();
     }
