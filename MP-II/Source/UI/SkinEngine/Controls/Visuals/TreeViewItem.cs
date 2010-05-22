@@ -59,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentProperty.Attach(OnContentChanged);
+      _isExpandedProperty.Attach(OnExpandedChanged);
     }
 
     void Detach()
@@ -85,6 +86,12 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     #endregion
 
     #region Eventhandlers
+
+    void OnExpandedChanged(AbstractProperty property, object oldValue)
+    {
+      if (!IsItemsPrepared)
+        PrepareItems();
+    }
 
     void OnContentChanged(AbstractProperty property, object oldValue)
     {
@@ -141,7 +148,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public DataTemplate ContentTemplate
     {
-      get { return _contentTemplateProperty.GetValue() as DataTemplate; }
+      get { return (DataTemplate) _contentTemplateProperty.GetValue(); }
       set { _contentTemplateProperty.SetValue(value); }
     }
 

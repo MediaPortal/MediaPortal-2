@@ -192,12 +192,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         UIElementCollection oldChildren = Children;
         _childrenProperty.SetValue(value);
         value.SetParent(this);
-        SetScreen(Screen); // Sets the screen at the new children
         _updateRenderOrder = true;
-        InvalidateLayout();
-        InvalidateParentLayout();
         oldChildren.SetParent(null);
         oldChildren.Dispose();
+        InvalidateLayout();
       }
     }
 

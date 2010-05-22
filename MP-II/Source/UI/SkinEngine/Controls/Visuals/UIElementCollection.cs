@@ -85,8 +85,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _parent = parent;
       foreach (UIElement element in _elements)
       {
-        element.VisualParent = _parent;
         element.Screen = _parent == null ? null : _parent.Screen;
+        element.VisualParent = _parent;
       }
       InvalidateParent();
     }

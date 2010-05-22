@@ -147,13 +147,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       DetachFromItemsSource(oldValue as IEnumerable);
       AttachToItemsSource(ItemsSource);
-      InvalidateItems();
       OnItemsSourceChanged();
     }
 
     void OnItemsSourceCollectionChanged(IObservable itemsSource)
     {
-      InvalidateItems();
       OnItemsSourceChanged();
     }
 
@@ -190,6 +188,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// </summary>
     protected virtual void OnItemsSourceChanged()
     {
+      InvalidateItems();
     }
 
     /// <summary>
@@ -306,6 +305,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       internal set { _currentItemProperty.SetValue(value); }
     }
 
+    public bool IsItemsPrepared
+    {
+      get { return _itemsHostPanel != null; }
+    }
+
     #endregion
 
     #region Item management
@@ -351,8 +355,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected virtual void InvalidateItems()
     {
       PrepareItems();
-      InvalidateLayout();
-      InvalidateParentLayout();
     }
 
     protected ItemsPresenter FindItemsPresenter()

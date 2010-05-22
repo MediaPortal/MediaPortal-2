@@ -29,7 +29,6 @@ using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Localization;
 using MediaPortal.UI.SkinEngine.ContentManagement;
-using MediaPortal.UI.SkinEngine.DirectX;
 using MediaPortal.UI.SkinEngine.Rendering;
 using SlimDX;
 using Font = MediaPortal.UI.SkinEngine.Fonts.Font;
