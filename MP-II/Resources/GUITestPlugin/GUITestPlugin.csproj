@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="GUITestModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TreeViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
@@ -62,6 +63,7 @@
     <Content Include="Skin\default\screens\test-opacitymask.xaml" />
     <Content Include="Skin\default\screens\test-text-transforms.xaml" />
     <Content Include="Skin\default\screens\test-transforms.xaml" />
+    <Content Include="Skin\default\screens\test-treeview.xaml" />
     <Content Include="Skin\default\media\cherries.png" />
   </ItemGroup>
   <ItemGroup>

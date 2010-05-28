@@ -1,36 +1,50 @@
-<DockPanel
+<?xml version="1.0" encoding="utf-8"?>
+<Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    LastChildFill="True">
-  <Grid DockPanel.Dock="Center" Margin="30">
-    <Grid.Resources>
-      <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/> <!-- GUI-Test-Model -->
-    </Grid.Resources>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="50*"/>
-      <ColumnDefinition Width="50*"/>
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
-    </Grid.RowDefinitions>
-    <Button Grid.Column="0" Grid.Row="0" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 1"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-brushes-transforms1}"/>
-    <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 2"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-brushes-transforms2}"/>
-    <Button Grid.Column="0" Grid.Row="2" Style="{StaticResource ButtonStyle}" Content="Opacity mask test"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-opacitymask}"/>
-    <Button Grid.Column="0" Grid.Row="3" Style="{StaticResource ButtonStyle}" Content="Text elements/transforms test"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-text-transforms}"/>
-    <Button Grid.Column="0" Grid.Row="4" Style="{StaticResource ButtonStyle}" Content="Transforms test"
-        HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-        Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-transforms}"/>
-  </Grid>
-</DockPanel>
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="GUI tests"/>
+
+    <!-- Contents -->
+    <ResourceWrapper x:Key="Contents_Element">
+      <DockPanel LastChildFill="True">
+        <Grid DockPanel.Dock="Center" Margin="30">
+          <Grid.Resources>
+            <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/> <!-- GUI-Test-Model -->
+          </Grid.Resources>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50*"/>
+            <ColumnDefinition Width="50*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Button Grid.Column="0" Grid.Row="0" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 1"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-brushes-transforms1}"/>
+          <Button Grid.Column="0" Grid.Row="1" Style="{StaticResource ButtonStyle}" Content="Brushes/transforms test 2"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-brushes-transforms2}"/>
+          <Button Grid.Column="0" Grid.Row="2" Style="{StaticResource ButtonStyle}" Content="Opacity mask test"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-opacitymask}"/>
+          <Button Grid.Column="0" Grid.Row="3" Style="{StaticResource ButtonStyle}" Content="Text elements/transforms test"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-text-transforms}"/>
+          <Button Grid.Column="0" Grid.Row="4" Style="{StaticResource ButtonStyle}" Content="Transforms test"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Command="{Command Source={Service ScreenManager},Path=ShowScreen,Parameters=test-transforms}"/>
+        </Grid>
+      </DockPanel>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

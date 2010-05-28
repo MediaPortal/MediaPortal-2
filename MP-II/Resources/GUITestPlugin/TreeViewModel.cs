@@ -24,22 +24,65 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 
 namespace Test.GUITestPlugin
 {
   /// <summary>
-  /// Model which holds the GUI state for the GUI test state.
+  /// Model which holds the GUI state for the TreeView state.
   /// </summary>
-  public class GUITestModel : IWorkflowModel
+  public class TreeViewModel : IWorkflowModel
   {
-    public const string MODEL_ID_STR = "F4FC1599-F412-40d0-82BF-46FC352E93BE";
-    public const string TEST_MAIN_WORKFLOW_STATE_ID_STR = "F660C2CA-A340-4694-A7F4-9E68AB9721C4";
-
-    protected static Guid TEST_MAIN_WORKFLOW_STATE_ID = new Guid(TEST_MAIN_WORKFLOW_STATE_ID_STR);
+    public const string MODEL_ID_STR = "A6C3F942-105C-48cd-AEFF-059DA79773A9";
 
     #region Protected fields
+
+    protected ItemsList _tree = null;
+
+    #endregion
+
+    protected void CreateChildren(TreeItem item, int level, int maxLevel)
+    {
+      if (level > maxLevel)
+        return;
+      TreeItem childItem = new TreeItem("Name", "First item, level " + level);
+      CreateChildren(childItem, level + 1, maxLevel);
+      item.SubItems.Add(childItem);
+      childItem = new TreeItem("Name", "Second item, level " + level);
+      CreateChildren(childItem, level + 1, maxLevel);
+      item.SubItems.Add(childItem);
+      childItem = new TreeItem("Name", "Third item, level " + level);
+      CreateChildren(childItem, level + 1, maxLevel);
+      item.SubItems.Add(childItem);
+    }
+
+    protected void InitializeTree()
+    {
+      _tree = new ItemsList();
+      TreeItem item = new TreeItem("Name", "First item");
+      CreateChildren(item, 2, 3);
+      _tree.Add(item);
+      item = new TreeItem("Name", "Second item");
+      CreateChildren(item, 2, 4);
+      _tree.Add(item);
+      item = new TreeItem("Name", "Third item");
+      CreateChildren(item, 2, 5);
+      _tree.Add(item);
+    }
+
+    protected void DisposeTree()
+    {
+      _tree = null;
+    }
+
+    #region Public properties
+
+    public ItemsList Tree
+    {
+      get { return _tree; }
+    }
 
     #endregion
 
@@ -57,12 +100,12 @@ namespace Test.GUITestPlugin
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // We could initialize some data here when entering the media navigation state
+      InitializeTree();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      // We could dispose some data here when exiting media navigation context
+      DisposeTree();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
