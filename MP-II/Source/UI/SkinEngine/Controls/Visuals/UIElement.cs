@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using MediaPortal.Core;
 using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
@@ -783,10 +784,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public void SetValueInRenderThread(IDataDescriptor dataDescriptor, object value)
     {
-      if (Screen != null)
-        Screen.Animator.SetValue(dataDescriptor, value);
-      else
+      if (Screen == null || SkinContext.RenderThread == Thread.CurrentThread)
         dataDescriptor.Value = value;
+      else
+        Screen.Animator.SetValue(dataDescriptor, value);
     }
 
     public bool TryGetPendingValue(IDataDescriptor dataDescriptor, out object value)

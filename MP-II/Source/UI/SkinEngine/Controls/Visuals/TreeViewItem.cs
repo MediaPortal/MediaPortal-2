@@ -59,6 +59,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Attach(OnContentTemplateChanged);
       _contentProperty.Attach(OnContentChanged);
+      _templateControlProperty.Attach(OnTemplateControlChanged);
       _isExpandedProperty.Attach(OnExpandedChanged);
     }
 
@@ -66,6 +67,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       _contentTemplateProperty.Detach(OnContentTemplateChanged);
       _contentProperty.Detach(OnContentChanged);
+      _templateControlProperty.Detach(OnTemplateControlChanged);
+      _isExpandedProperty.Detach(OnExpandedChanged);
     }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
@@ -100,6 +103,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         presenter.Content = Content;
     }
 
+    void OnTemplateControlChanged(AbstractProperty property, object oldValue)
+    {
+      InitializeContentPresenter();
+    }
+
     void OnContentTemplateChanged(AbstractProperty property, object oldValue)
     {
       if (oldValue is HierarchicalDataTemplate)
@@ -111,12 +119,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       hdt.DataStringProperty.Attach(OnTemplateDataStringChanged);
       DataString = hdt.DataString;
 
-      ContentPresenter presenter = FindContentPresenter();
-      if (presenter != null)
-        presenter.ContentTemplate = ContentTemplate;
+      InitializeContentPresenter();
     }
-
-    #endregion
 
     void OnTemplateItemsSourceChanged(AbstractProperty property, object oldValue)
     {
@@ -127,6 +131,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       DataString = (string) property.GetValue();
     }
+
+    protected void InitializeContentPresenter()
+    {
+      ContentPresenter presenter = FindContentPresenter();
+      if (presenter != null)
+        presenter.ContentTemplate = ContentTemplate;
+    }
+
+    #endregion
 
     #region Public properties
 

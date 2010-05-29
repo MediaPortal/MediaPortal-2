@@ -167,7 +167,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
       _fpsTimer = DateTime.Now;
       _fpsCounter = 0;
-      SkinContext.IsRendering = true;
+      SkinContext.RenderThread = Thread.CurrentThread;
 
       try
       {
@@ -192,7 +192,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
       finally
       {
-        SkinContext.IsRendering = false;
+        SkinContext.RenderThread = null;
       }
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Render thread stopped");
     }

@@ -35,14 +35,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
   public class Control : FrameworkElement
   {
-    #region Private/protected fields
+    #region Protected fields
 
-    AbstractProperty _templateProperty;
-    AbstractProperty _templateControlProperty;
-    AbstractProperty _backgroundProperty;
-    AbstractProperty _borderProperty;
-    AbstractProperty _borderThicknessProperty;
-    AbstractProperty _cornerRadiusProperty;
+    protected AbstractProperty _templateProperty;
+    protected AbstractProperty _templateControlProperty;
+    protected AbstractProperty _backgroundProperty;
+    protected AbstractProperty _borderProperty;
+    protected AbstractProperty _borderThicknessProperty;
+    protected AbstractProperty _cornerRadiusProperty;
     protected bool _hidden = false;
     protected FrameworkElement _initializedTemplateControl = null; // We need to cache the TemplateControl because after it was set, it first needs to be initialized before it can be used
 
