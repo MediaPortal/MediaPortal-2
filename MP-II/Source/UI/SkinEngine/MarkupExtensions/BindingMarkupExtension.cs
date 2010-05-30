@@ -798,7 +798,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
           result = current as INameScope;
           return true;
         }
-        else if (current is UIElement)
+        if (current is UIElement)
         {
           UIElement uiElement = (UIElement) current;
           AbstractProperty templateNameScopeProperty = uiElement.TemplateNameScopeProperty;
@@ -1023,7 +1023,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             !FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement)))
           parent = null;
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
-            attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit, _contextObject,
+            attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
             parent as UIElement, _valueConverter, _converterParameter);
         _retryBinding = false;
         return true;

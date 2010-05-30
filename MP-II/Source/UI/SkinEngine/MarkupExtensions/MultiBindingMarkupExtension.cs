@@ -370,7 +370,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             if (_bindingDependency != null)
               _bindingDependency.Detach();
             _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
-                UpdateSourceTrigger.Explicit, _contextObject, null, null, null);
+                UpdateSourceTrigger.Explicit, null, null, null);
             _retryBinding = false;
             return true;
         }

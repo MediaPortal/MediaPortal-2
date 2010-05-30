@@ -38,6 +38,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected IDataDescriptor _sourceDd;
     protected IDataDescriptor _targetDd;
     protected DependencyObject _targetObject;
+    protected DependencyObject _sourceObject;
     protected IValueConverter _valueConverter;
     protected object _converterParameter;
     protected bool _attachedToSource = false;
@@ -61,9 +62,6 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// <see cref="UIElement.EventOccured"/> event of the <paramref name="parentUiElement"/> object.
     /// If set to <see cref="UpdateSourceTrigger.Explicit"/>, the new binding dependency won't attach to
     /// the target at all.</param>
-    /// <param name="targetObject">This parameter is needed to delegate the property setting, which synchronizes the
-    /// setting to the render thread, if the target object supports it. That avoids threading issues if our update
-    /// methods are called from different threads.</param>
     /// <param name="parentUiElement">The parent <see cref="UIElement"/> of the specified <paramref name="targetDd"/>
     /// data descriptor. This parameter is only used to attach to the lost focus event if
     /// <paramref name="updateSourceTrigger"/> is set to <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
@@ -71,15 +69,14 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
     /// <param name="customValueConverterParameter">Parameter to be used in the custom value converter, if one is
     /// set.</param>
-    public BindingDependency(
-        IDataDescriptor sourceDd, IDataDescriptor targetDd,
-        bool autoAttachToSource, UpdateSourceTrigger updateSourceTrigger,
-        DependencyObject targetObject, UIElement parentUiElement, IValueConverter customValueConverter,
-        object customValueConverterParameter)
+    public BindingDependency(IDataDescriptor sourceDd, IDataDescriptor targetDd, bool autoAttachToSource,
+        UpdateSourceTrigger updateSourceTrigger, UIElement parentUiElement,
+        IValueConverter customValueConverter, object customValueConverterParameter)
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
-      _targetObject = targetObject;
+      _targetObject = _targetDd.TargetObject as DependencyObject;
+      _sourceObject = _sourceDd.TargetObject as DependencyObject;
       _valueConverter = customValueConverter;
       _converterParameter = customValueConverterParameter;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
@@ -176,20 +173,23 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         return;
       if (_sourceDd.Value == newValue)
         return;
+      if (_sourceObject != null)
+        _sourceObject.SetBindingValue(_sourceDd, newValue);
+      else
       _sourceDd.Value = newValue;
     }
 
     public void UpdateTarget()
     {
-      object value = _sourceDd.Value;
-      if (!Convert(value, _targetDd.DataType, out value))
+      object newValue;
+      if (!Convert(_sourceDd.Value, _targetDd.DataType, out newValue))
         return;
-      if (_targetDd.Value == value)
+      if (_targetDd.Value == newValue)
         return;
       if (_targetObject != null)
-        _targetObject.SetBindingValue(_targetDd, value);
+        _targetObject.SetBindingValue(_targetDd, newValue);
       else
-        _targetDd.Value = value;
+        _targetDd.Value = newValue;
     }
   }
 }

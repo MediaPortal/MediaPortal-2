@@ -49,22 +49,19 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// Returns the information, if this data descriptor supports reading
     /// the underlaying data.
     /// </summary>
-    bool SupportsRead
-    { get; }
+    bool SupportsRead { get; }
 
     /// <summary>
     /// Returns the information, if this data descriptor supports updating
     /// the underlaying data.
     /// </summary>
-    bool SupportsWrite
-    { get; }
+    bool SupportsWrite { get; }
 
     /// <summary>
     /// Returns the information, if this data descriptor supports change
     /// notifications for the underlaying value.
     /// </summary>
-    bool SupportsChangeNotification
-    { get; }
+    bool SupportsChangeNotification { get; }
 
     /// <summary>
     /// Returns the information, if this data descriptor supports operations
@@ -72,8 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// This will true for data descriptors
     /// which specify a property or dependency property.
     /// </summary>
-    bool SupportsTargetOperations
-    { get; }
+    bool SupportsTargetOperations { get; }
 
     /// <summary>
     /// Represents the value of this data descriptor.
@@ -81,22 +77,19 @@ namespace MediaPortal.UI.SkinEngine.Xaml
     /// to get the value, those with <c><see cref="SupportsWrite"/> == true</c> support to
     /// set it.
     /// </summary>
-    object Value
-    { get; set; }
+    object Value { get; set; }
 
     /// <summary>
     /// Returns the type of the value to be get/set by this instance.
     /// </summary>
-    Type DataType
-    { get; }
+    Type DataType { get; }
 
     /// <summary>
     /// Returns the target object of the property described by this instance, if
     /// it is based on a target object. This may be called if
     /// <c><see cref="SupportsTargetOperations"/> == true</c>.
     /// </summary>
-    object TargetObject
-    { get; }
+    object TargetObject { get; }
 
     /// <summary>
     /// Copies this data descriptor and exchanges the underlaying target object.
