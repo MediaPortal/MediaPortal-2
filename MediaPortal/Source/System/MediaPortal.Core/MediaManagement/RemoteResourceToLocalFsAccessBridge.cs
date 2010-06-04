@@ -131,7 +131,7 @@ namespace MediaPortal.Core.MediaManagement
 
     public string LocalFileSystemPath
     {
-      // FIXME: Lazy initialization: Create bridge and add tidy up executor for bridge components
+      // TODO: Lazy initialization: Create bridge and add tidy up executor for bridge components
       get { return string.Empty; }
     }
 

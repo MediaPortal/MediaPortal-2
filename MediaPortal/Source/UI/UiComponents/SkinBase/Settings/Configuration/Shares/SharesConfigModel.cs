@@ -474,6 +474,10 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       ResourcePath result = null;
       if (!string.IsNullOrEmpty(str))
       {
+        // The input string is given by the user. We can cope with two formats:
+        // 1) A media provider path which can be interpreted by the choosen media provider itself (i.e. a path without the
+        //    starting media provider GUID)
+        // 2) A resource path in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
         IBaseMediaProvider mp = MediaProvider;
         if (mp.IsResource(str))
           result = new ResourcePath(new ProviderPathSegment[]
@@ -631,7 +635,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
           IResourceAccessor resourceAccessor = share.BaseResourcePath.CreateLocalMediaItemAccessor();
           shareItem.AdditionalProperties[RESOURCE_ACCESSOR_KEY] = resourceAccessor;
           shareItem.SetLabel(PATH_KEY, resourceAccessor.ResourcePathName);
-          IMediaProvider firstMediaProvider = GetFirstMediaProvider(share);
+          IMediaProvider firstMediaProvider = GetBaseMediaProvider(share);
           shareItem.SetLabel(SHARE_MEDIAPROVIDER_KEY, firstMediaProvider == null ? null : firstMediaProvider.Metadata.Name);
           string categories = StringUtils.Join(", ", share.MediaCategories);
           shareItem.SetLabel(SHARE_CATEGORY_KEY, categories);
@@ -652,7 +656,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       IsSharesSelected = selected;
     }
 
-    protected IBaseMediaProvider GetFirstMediaProvider(Share share)
+    protected IBaseMediaProvider GetBaseMediaProvider(Share share)
     {
       IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
       IEnumerator<ProviderPathSegment> enumer = share.BaseResourcePath.GetEnumerator();
@@ -768,7 +772,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       Share share = sharesManagement.GetShare(shareId);
       if (share == null)
         return false;
-      MediaProvider = GetFirstMediaProvider(share);
+      MediaProvider = GetBaseMediaProvider(share);
       ChoosenResourcePath = share.BaseResourcePath;
       ShareName = share.Name;
       MediaCategories.Clear();
