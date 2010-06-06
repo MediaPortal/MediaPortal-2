@@ -114,7 +114,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
     protected AbstractProperty _choosenResourcePathDisplayNameProperty;
     protected ItemsList _mediaProviderPathsTree;
     protected AbstractProperty _shareNameProperty;
-    protected AbstractProperty _isShareNameEmptyProperty;
+    protected AbstractProperty _isShareNameValidProperty;
     protected ItemsList _allMediaCategoriesList;
     protected ICollection<string> _mediaCategories = new HashSet<string>();
     protected Guid _currentShareId;
@@ -139,7 +139,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       _mediaProviderPathsTree = new ItemsList();
       _shareNameProperty = new WProperty(typeof(string), string.Empty);
       _shareNameProperty.Attach(OnShareNameChanged);
-      _isShareNameEmptyProperty = new WProperty(typeof(bool), true);
+      _isShareNameValidProperty = new WProperty(typeof(bool), true);
       _allMediaCategoriesList = new ItemsList();
       _mediaCategories = new HashSet<string>();
     }
@@ -295,18 +295,18 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       set { _shareNameProperty.SetValue(value); }
     }
 
-    public AbstractProperty IsShareNameEmptyProperty
+    public AbstractProperty IsShareNameValidProperty
     {
-      get { return _isShareNameEmptyProperty; }
+      get { return _isShareNameValidProperty; }
     }
 
     /// <summary>
-    /// <c>true</c> if the edited share name is empty. To be used in the GUI.
+    /// <c>true</c> if the edited share name is a valid string for a share name. To be used in the GUI.
     /// </summary>
-    public bool IsShareNameEmpty
+    public bool IsShareNameValid
     {
-      get { return (bool) _isShareNameEmptyProperty.GetValue(); }
-      set { _isShareNameEmptyProperty.SetValue(value); }
+      get { return (bool) _isShareNameValidProperty.GetValue(); }
+      set { _isShareNameValidProperty.SetValue(value); }
     }
 
     /// <summary>
@@ -512,7 +512,7 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
 
     void OnShareNameChanged(AbstractProperty shareName, object oldValue)
     {
-      UpdateIsShareNameEmpty();
+      UpdateIsShareNameValid();
     }
 
     void OnMediaCategoryItemSelectionChanged(AbstractProperty property, object oldValue)
@@ -606,9 +606,9 @@ namespace UiComponents.SkinBase.Settings.Configuration.Shares
       }
     }
 
-    protected void UpdateIsShareNameEmpty()
+    protected void UpdateIsShareNameValid()
     {
-      IsShareNameEmpty = string.IsNullOrEmpty(ShareName);
+      IsShareNameValid = !string.IsNullOrEmpty(ShareName);
     }
 
     protected void UpdateMediaCategories()
