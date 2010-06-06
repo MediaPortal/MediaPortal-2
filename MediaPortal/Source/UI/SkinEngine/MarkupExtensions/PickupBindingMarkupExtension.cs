@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.SkinEngine.MpfElements.Resources;
 using MediaPortal.UI.SkinEngine.Xaml;
+using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
 
 namespace MediaPortal.UI.SkinEngine.MarkupExtensions
 {
@@ -71,7 +72,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       BindingWrapper bindingWrapper = sourceDd.Value as BindingWrapper;
       if (bindingWrapper == null || bindingWrapper.Binding == null)
         return false;
-      bindingWrapper.Binding.CopyAndRetarget(_targetDataDescriptor);
+      IBinding binding = bindingWrapper.Binding.CopyAndRetarget(_targetDataDescriptor);
+      binding.Activate();
       // When the binding is copied, this instance is not needed any more
       _retryBinding = false;
       Dispose();
