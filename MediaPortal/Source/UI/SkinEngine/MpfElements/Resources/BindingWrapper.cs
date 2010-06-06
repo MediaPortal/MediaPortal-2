@@ -35,11 +35,11 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// used as a template for a usage in another place. The binding can be accessed
   /// and copied by using the <see cref="PickupBindingMarkupExtension"/>.
   /// </summary>
-  public class BindingWrapper : ValueWrapper
+  public class BindingWrapper : DependencyObject, IContentEnabled
   {
     #region Protected fields
 
-    protected bool _freezable = false;
+    protected SProperty _bindingProperty = new SProperty(typeof(IBinding), null);
 
     #endregion
 
@@ -48,14 +48,16 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
     public BindingWrapper()
     { }
 
-    public BindingWrapper(IBinding binding): base(binding)
-    { }
+    public BindingWrapper(IBinding binding)
+    {
+      Binding = binding;
+    }
 
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       base.DeepCopy(source, copyManager);
       BindingWrapper bw = (BindingWrapper) source;
-      Freezable = bw.Freezable;
+      Binding = bw.Binding;
     }
 
     #endregion
@@ -64,26 +66,20 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 
     public AbstractProperty BindingProperty
     {
-      get { return ValueProperty; }
+      get { return _bindingProperty; }
     }
 
     public IBinding Binding
     {
-      get { return Value as IBinding; } // Value is not strongly typed by superclass ValueWrapper, so we cannot use a normal typecast
-      set { Value = value; }
-    }
-
-    public bool Freezable
-    {
-      get { return _freezable; }
-      set { _freezable = value; }
+      get { return (IBinding) _bindingProperty.GetValue(); } // Value is not strongly typed by superclass ValueWrapper, so we cannot use a normal typecast
+      set { _bindingProperty.SetValue(value); }
     }
 
     #endregion
 
     #region Base overrides
 
-    public override bool FindContentProperty(out IDataDescriptor dd)
+    public bool FindContentProperty(out IDataDescriptor dd)
     {
       dd = new SimplePropertyDataDescriptor(this, GetType().GetProperty("Binding"));
       return true;
