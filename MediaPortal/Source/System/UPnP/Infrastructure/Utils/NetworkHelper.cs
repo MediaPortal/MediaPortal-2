@@ -305,7 +305,7 @@ namespace UPnP.Infrastructure.Utils
         if (family == AddressFamily.InterNetwork)
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
               new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
-        else
+        else if (family == AddressFamily.InterNetworkV6)
         {
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
               new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
@@ -331,7 +331,7 @@ namespace UPnP.Infrastructure.Utils
         if (family == AddressFamily.InterNetwork)
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
               new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
-        else
+        else if (family == AddressFamily.InterNetworkV6)
         {
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
               new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));

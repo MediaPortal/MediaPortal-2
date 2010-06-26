@@ -294,7 +294,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
           // Receiving options
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.PacketInformation, true);
           // Sending options
-          socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.HopLimit,
+          socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit,
               UPnPConfiguration.SSDP_UDP_HOP_LIMIT_V6);
         }
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
