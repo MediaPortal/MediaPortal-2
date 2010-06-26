@@ -367,5 +367,18 @@ namespace MediaPortal.Utilities
         result.Add(obj);
       return result;
     }
+
+    /// <summary>
+    /// Gets the first element of the given enumeration or <c>null</c>, if the enumerable doesn't contain elements.
+    /// </summary>
+    /// <typeparam name="T">Type of the contents of the enumerable.</typeparam>
+    /// <param name="enumerable">Enumerable containing zero or more elements.</param>
+    /// <returns><see cref="Nullable{T}"/> containing the first element of the given <paramref name="enumerable"/> or
+    /// <c>null</c>, if the enumerable doesn't contain elements.</returns>
+    public static T? FirstOrNull<T>(this IEnumerable<T> enumerable) where T : struct
+    {
+      IEnumerator<T> enumer = enumerable.GetEnumerator();
+      return enumer.MoveNext() ? enumer.Current : new T?();
+    }
   }
 }

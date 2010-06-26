@@ -7,17 +7,40 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.Shares.Overview]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.SharesOverview]"/>
 
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Contents_Element">
-      <ListView Margin="10"
-          Style="{ThemeResource SharesListViewStyle}"
-          DataContext="{Binding Source={StaticResource Model}}"
-          ItemsSource="{Binding Path=Shares,Mode=OneTime}"/>
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Margin="10" Content="[SharesConfig.GlobalShares]"/>
+        <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+            Style="{ThemeResource SharesListViewStyle}"
+            IsVisible="{Binding IsHomeServerConnected}"
+            ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
+        <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
+            Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
+            Color="{ThemeResource HintTextColor}" FontSize="22"/>
+        <Label Margin="10,30,10,10" Grid.Row="2" Content="[SharesConfig.LocalShares]"/>
+        <ListView Margin="10" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+            Style="{ThemeResource SharesListViewStyle}"
+            IsVisible="{Binding ShowLocalShares}"
+            ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
+        <Label Margin="10" Grid.Row="3" IsVisible="{Binding !ShowLocalShares}"
+            Content="[SharesConfig.NoConfigLocalSharesHomeServerLocal]" Wrap="true"
+            Color="{ThemeResource HintTextColor}" FontSize="22"/>
+      </Grid>
     </ResourceWrapper>
 
   </Include.Resources>

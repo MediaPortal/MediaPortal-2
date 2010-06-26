@@ -34,14 +34,12 @@ using MediaPortal.Core.SystemResolver;
 using MediaPortal.Core.Threading;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.ServerCommunication.Settings;
-using MediaPortal.UI.Services.Shares;
 using MediaPortal.UI.Shares;
 using UPnP.Infrastructure.CP;
-using RelocationMode=MediaPortal.UI.Shares.RelocationMode;
+using RelocationMode=MediaPortal.Core.MediaManagement.RelocationMode;
 
 namespace MediaPortal.UI.Services.ServerCommunication
 {
-  // TODO: Schedule regular reimports for all local shares
   public class ServerConnectionManager : IServerConnectionManager
   {
     /// <summary>
@@ -112,8 +110,6 @@ namespace MediaPortal.UI.Services.ServerCommunication
       if (message.ChannelName == SharesMessaging.CHANNEL)
       {
         IContentDirectory cd = ContentDirectory;
-        if (cd == null)
-          return;
         SharesMessaging.MessageType messageType =
             (SharesMessaging.MessageType) message.MessageType;
         IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
@@ -122,21 +118,24 @@ namespace MediaPortal.UI.Services.ServerCommunication
         {
           case SharesMessaging.MessageType.ShareAdded:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
-            cd.RegisterShare(share);
+            if (cd != null)
+              cd.RegisterShare(share);
             importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
           case SharesMessaging.MessageType.ShareRemoved:
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             importerWorker.CancelJobsForPath(share.BaseResourcePath);
-            cd.RemoveShare(share.ShareId);
+            if (cd != null)
+              cd.RemoveShare(share.ShareId);
             break;
           case SharesMessaging.MessageType.ShareChanged:
             RelocationMode relocationMode = (RelocationMode) message.MessageData[SharesMessaging.RELOCATION_MODE];
             share = (Share) message.MessageData[SharesMessaging.SHARE];
             importerWorker.CancelJobsForPath(share.BaseResourcePath);
-            cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories,
-                relocationMode == RelocationMode.Relocate ? UI.ServerCommunication.RelocationMode.Relocate :
-                UI.ServerCommunication.RelocationMode.ClearAndReImport);
+            if (cd != null)
+              cd.UpdateShare(share.ShareId, share.BaseResourcePath, share.Name, share.MediaCategories,
+                  relocationMode == RelocationMode.Relocate ? RelocationMode.Relocate :
+                  RelocationMode.ClearAndReImport);
             importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
             break;
         }
@@ -156,7 +155,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServiceScope.Get<ILogger>().Warn("ServerConnectionManager: Could not connect to home server - Unable to verify UPnP root descriptor");
         return;
       }
-      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}'", serverDescriptor.MPBackendServerUUID, serverDescriptor.System.HostName);
+      ServiceScope.Get<ILogger>().Info("ServerConnectionManager: Connected to home server '{0}' at host '{1}'", serverDescriptor.MPBackendServerUUID, serverDescriptor.GetPreferredLink().HostName);
       lock (_syncObj)
       {
         _isHomeServerConnected = true;
@@ -184,7 +183,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       ServerConnectionSettings settings = settingsManager.Load<ServerConnectionSettings>();
       settings.LastHomeServerName = serverDescriptor.ServerName;
-      settings.LastHomeServerSystem = serverDescriptor.System;
+      settings.LastHomeServerSystem = serverDescriptor.GetPreferredLink();
       settingsManager.Save(settings);
     }
 

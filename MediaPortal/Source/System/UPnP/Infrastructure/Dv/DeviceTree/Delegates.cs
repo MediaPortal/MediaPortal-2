@@ -25,6 +25,7 @@
 
 using System.Globalization;
 using System.Net;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -32,6 +33,12 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// Delegate which can return a URL which is available over the specified <paramref name="endPointIPAddress"/>.
   /// The URL may be localized for the given <paramref name="culture"/>.
   /// </summary>
+  /// <remarks>
+  /// Be careful with the <see cref="IPAddress.ToString"/> method. This method adds the zone identifier at the end of
+  /// the string for IPv6 addresses, like this: <c>ABCD:ABCD::ABCD%12</c>. When creating an URL for the given IP address,
+  /// the zone identifier must be removed from the IP address. Use method <see cref="NetworkHelper.IPAddrToString"/>
+  /// (or <see cref="NetworkHelper.IPEndPointToString"/>).
+  /// </remarks>
   /// <param name="endPointIPAddress">IP address where the returned url must be reachable.</param>
   /// <param name="culture">The culture to localize the returned URL.</param>
   /// <returns>URL to an external resource. The URL/resource is not managed by the UPnP subsystem.</returns>

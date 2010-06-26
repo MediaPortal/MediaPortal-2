@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _maxDesiredWidthProperty;
     protected FontBufferAsset _asset;
     protected FontRender _renderer;
-    protected IResourceString _resourceString;
+    protected string _resourceString;
     private int _fontSizeCache;
 
     #endregion
@@ -142,8 +142,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void InitializeResourceString()
     {
-      _resourceString = string.IsNullOrEmpty(Content) ? LocalizationHelper.CreateStaticString(string.Empty) :
-          LocalizationHelper.CreateResourceString(Content);
+      _resourceString = string.IsNullOrEmpty(Content) ? string.Empty : LocalizationHelper.CreateResourceString(Content).Evaluate();
     }
 
     public AbstractProperty ContentProperty
@@ -242,11 +241,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     /// <paramref name="maxWidth"/>.</param>
     protected string[] WrapText(float maxWidth, bool findWordBoundaries)
     {
-      string text = _resourceString.Evaluate();
-      if (string.IsNullOrEmpty(text))
+      if (string.IsNullOrEmpty(_resourceString))
         return new string[0];
       IList<string> result = new List<string>();
-      foreach (string para in text.Replace("\r\n", "\n").Split('\n'))
+      foreach (string para in _resourceString.Replace("\r\n", "\n").Split('\n'))
       {
         string paragraph = para.Trim();
         for (int nextIndex = 0; nextIndex < paragraph.Length; )
@@ -298,10 +296,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         height *= lines.Length;
       }
       else if (float.IsNaN(totalWidth))
-        width = _asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache);
+        width = _asset.Font.Width(_resourceString, _fontSizeCache);
       else
         // Although we maybe can scroll, we will measure all the label's needed space
-        width = Math.Min(_asset.Font.Width(_resourceString.Evaluate(), _fontSizeCache), totalWidth);
+        width = Math.Min(_asset.Font.Width(_resourceString, _fontSizeCache), totalWidth);
 
       return new SizeF(width, height);
     }
@@ -331,7 +329,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       color.Alpha *= (float) localRenderContext.Opacity;
 
       bool scroll = Scroll && !Wrap;
-      string[] lines = Wrap ? WrapText(_innerRect.Width, true) : new string[] { _resourceString.Evaluate() };
+      string[] lines = Wrap ? WrapText(_innerRect.Width, true) : new string[] { _resourceString };
 
       foreach (string line in lines)
       {

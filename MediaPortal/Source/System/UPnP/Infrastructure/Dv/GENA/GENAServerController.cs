@@ -32,7 +32,7 @@ using System.Threading;
 using HttpServer;
 using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using UPnP.Infrastructure.Dv.HTTP;
+using UPnP.Infrastructure.Utils.HTTP;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.GENA
@@ -43,29 +43,9 @@ namespace UPnP.Infrastructure.Dv.GENA
   public class GENAServerController : IDisposable
   {
     /// <summary>
-    /// Default timeout for GENA event subscriptions in seconds.
-    /// </summary>
-    public static int DEFAULT_SUBSCRIPTION_TIMEOUT = 600;
-
-    /// <summary>
     /// Subscription expiration check timer interval in milliseconds.
     /// </summary>
     public static long TIMER_INTERVAL = 1000;
-
-    /// <summary>
-    /// Multicast address for GENA multicast sendings for IPv4.
-    /// </summary>
-    public static IPAddress GENA_MULTICAST_ADDRESS_V4 = new IPAddress(new byte[] {239, 255, 255, 246});
-
-    /// <summary>
-    /// Multicast address for GENA multicast sendings for IPv6.
-    /// </summary>
-    public static IPAddress GENA_MULTICAST_ADDRESS_V6 = IPAddress.Parse("FF02::130");
-
-    /// <summary>
-    /// Maximum number of variables which are evented in a single multicast (UDP) message.
-    /// </summary>
-    public const int MAX_MULTICAST_EVENT_VAR_COUNT = 5;
 
     protected Timer _expirationTimer;
     protected Timer _notificationTimer;
@@ -230,7 +210,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       {
         foreach (DvService service in device.Services)
           service.StateVariableChanged -= OnStateVariableChanged;
-        RegisterChangeEventsRecursive(device.EmbeddedDevices);
+        UnregisterChangeEventsRecursive(device.EmbeddedDevices);
       }
     }
 
@@ -269,17 +249,17 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <param name="config">The endpoint configuration which should be initialized.</param>
     public void InitializeGENAEndpoint(EndpointConfiguration config)
     {
-      config.GENA_UDPClient = new UdpClient(config.AddressFamily)
-        {
-          Ttl = Configuration.DEFAULT_GENA_UDP_TTL_V4
-        };
+      Socket socket = new Socket(config.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+      config.GENA_UDP_Socket = socket;
       if (config.AddressFamily == AddressFamily.InterNetwork)
-        config.GENAMulticastAddress = GENA_MULTICAST_ADDRESS_V4;
+      {
+        socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, UPnPConfiguration.GENA_UDP_TTL_V4);
+      }
       else if (config.AddressFamily == AddressFamily.InterNetworkV6)
-        config.GENAMulticastAddress = GENA_MULTICAST_ADDRESS_V6;
-      else
-        return;
-      config.EndPointGENAPort = UPnPConsts.GENA_MULTICAST_PORT;
+      {
+        socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit, UPnPConfiguration.GENA_UDP_HOP_LIMIT_V6);
+      }
+      config.GENAMulticastAddress = NetworkHelper.GetGENAMulticastAddressForInterface(config.EndPointIPAddress);
     }
 
     /// <summary>
@@ -288,7 +268,7 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <param name="config">The endpoint configuration which should be closed.</param>
     public void CloseGENAEndpoint(EndpointConfiguration config)
     {
-      config.GENA_UDPClient.Close();
+      config.GENA_UDP_Socket.Close();
     }
 
     /// <summary>
@@ -302,9 +282,9 @@ namespace UPnP.Infrastructure.Dv.GENA
     {
       if (request.Method == "SUBSCRIBE")
       { // SUBSCRIBE events
-        string uri = request.Uri.AbsoluteUri;
+        string pathAndQuery = request.Uri.PathAndQuery;
         DvService service;
-        if (config.EventSubURLsToServices.TryGetValue(uri, out service))
+        if (config.EventSubPathsToServices.TryGetValue(pathAndQuery, out service))
         {
           IHttpResponse response = request.CreateResponse(context);
           string httpVersion = request.HttpVersion;
@@ -313,7 +293,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           string nt = request.Headers.Get("NT");
           string sid = request.Headers.Get("SID");
           string timeoutStr = request.Headers.Get("TIMEOUT");
-          int timeout = DEFAULT_SUBSCRIPTION_TIMEOUT;
+          int timeout = UPnPConsts.GENA_DEFAULT_SUBSCRIPTION_TIMEOUT;
           ICollection<string> callbackURLs = null;
           if ((!string.IsNullOrEmpty(timeoutStr) && (!timeoutStr.StartsWith("Second-") ||
               !int.TryParse(timeoutStr.Substring("Second-".Length).Trim(), out timeout))) ||
@@ -352,7 +332,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             }
             catch (Exception e)
             {
-              Configuration.LOGGER.Warn("GENAServerController: Error in event subscription", e);
+              UPnPConfiguration.LOGGER.Warn("GENAServerController: Error in event subscription", e);
               response.Status = HttpStatusCode.BadRequest;
               response.Send();
               return true;
@@ -383,7 +363,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             {
               response.Status = HttpStatusCode.OK;
               response.AddHeader("DATE", date.ToUniversalTime().ToString("R"));
-              response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
+              response.AddHeader("SERVER", UPnPConfiguration.UPnPMachineInfoHeader);
               response.AddHeader("SID", sid);
               response.AddHeader("CONTENT-LENGTH", "0");
               response.AddHeader("TIMEOUT", "Second-"+timeout);
@@ -391,13 +371,10 @@ namespace UPnP.Infrastructure.Dv.GENA
               SendInitialEventNotification(sid);
               return true;
             }
-            else
-            {
-              response.Status = HttpStatusCode.ServiceUnavailable;
-              response.Reason = "Unable to accept renewal"; // See (DevArch), table 4-4
-              response.Send();
-              return true;
-            }
+            response.Status = HttpStatusCode.ServiceUnavailable;
+            response.Reason = "Unable to accept renewal"; // See (DevArch), table 4-4
+            response.Send();
+            return true;
           }
           else if (!string.IsNullOrEmpty(sid))
           { // Renewal
@@ -406,7 +383,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             {
               response.Status = HttpStatusCode.OK;
               response.AddHeader("DATE", date.ToUniversalTime().ToString("R"));
-              response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
+              response.AddHeader("SERVER", UPnPConfiguration.UPnPMachineInfoHeader);
               response.AddHeader("SID", sid);
               response.AddHeader("CONTENT-LENGTH", "0");
               response.AddHeader("TIMEOUT", "Second-"+timeout);
@@ -425,9 +402,9 @@ namespace UPnP.Infrastructure.Dv.GENA
       }
       else if (request.Method == "UNSUBSCRIBE")
       { // UNSUBSCRIBE events
-        string uri = request.Uri.AbsoluteUri;
+        string pathAndQuery = request.Uri.PathAndQuery;
         DvService service;
-        if (config.EventSubURLsToServices.TryGetValue(uri, out service))
+        if (config.EventSubPathsToServices.TryGetValue(pathAndQuery, out service))
         {
           IHttpResponse response = request.CreateResponse(context);
           string sid = request.Headers.Get("SID");
@@ -585,9 +562,9 @@ namespace UPnP.Infrastructure.Dv.GENA
       }
       foreach (KeyValuePair<string, ICollection<DvStateVariable>> varByLevel in variablesByLevel)
       {
-        // Use a maximum cluster size of MAX_MULTICAST_EVENT_VAR_COUNT to keep UDP message small
+        // Use a maximum cluster size of GENA_MAX_MULTICAST_EVENT_VAR_COUNT to keep UDP message small
         ICollection<IList<DvStateVariable>> variableClusters = CollectionUtils.Cluster(
-            varByLevel.Value, MAX_MULTICAST_EVENT_VAR_COUNT);
+            varByLevel.Value, UPnPConsts.GENA_MAX_MULTICAST_EVENT_VAR_COUNT);
         foreach (IList<DvStateVariable> cluster in variableClusters)
         {
           foreach (DvStateVariable variable in cluster)
@@ -607,11 +584,11 @@ namespace UPnP.Infrastructure.Dv.GENA
 
           foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
           {
-            IPEndPoint ep = new IPEndPoint(config.GENAMulticastAddress, (int) config.EndPointGENAPort);
-            request.SetHeader("HOST", ep.ToString());
+            IPEndPoint ep = new IPEndPoint(config.GENAMulticastAddress, UPnPConsts.GENA_MULTICAST_PORT);
+            request.SetHeader("HOST", NetworkHelper.IPEndPointToString(ep));
             request.MessageBody = bodyData;
             byte[] bytes = request.Encode();
-            config.GENA_UDPClient.Send(bytes, bytes.Length, ep);
+            config.GENA_UDP_Socket.SendTo(bytes, bytes.Length, SocketFlags.None, ep);
           }
         }
       }

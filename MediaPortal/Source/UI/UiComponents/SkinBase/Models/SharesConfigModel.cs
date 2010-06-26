@@ -1,0 +1,787 @@
+#region Copyright (C) 2007-2010 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2010 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using MediaPortal.Core;
+using MediaPortal.Core.General;
+using MediaPortal.Core.Localization;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.Core.Messaging;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
+using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.ServerCommunication;
+using MediaPortal.UI.Shares;
+using MediaPortal.Utilities;
+using UiComponents.SkinBase.Utils;
+
+namespace UiComponents.SkinBase.Models
+{
+  /// <summary>
+  /// Provides a workflow model to attend the complex configuration process for server and client shares
+  /// in the MP 2 configuration.
+  /// </summary>
+  public class SharesConfigModel : IWorkflowModel, IDisposable
+  {
+    #region Enums
+
+    public enum ShareType
+    {
+      Local,
+      Server,
+    }
+
+    #endregion
+
+    #region Consts
+
+    public const string SHARESCONFIG_MODEL_ID_STR = "1768FC91-86B9-4f78-8A4C-E204F0D51502";
+    public const string SHARES_OVERVIEW_STATE_ID_STR = "36B3F24A-29B4-4cb4-BC7D-434C51491CD2";
+    public const string SHARES_REMOVE_STATE_ID_STR = "900BA520-F989-48c0-B076-5DAD61945845";
+    public const string SHARE_EDIT_STATE_ID_STR = "F68E8EB1-00B2-4951-9948-110CFCA93E8D";
+    public const string SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR = "6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26";
+    public const string SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR = "F3163500-3015-4a6f-91F6-A3DA5DC3593C";
+    public const string SHARE_EDIT_EDIT_PATH_STATE_ID_STR = "652C5A9F-EA50-4076-886B-B28FD167AD66";
+    public const string SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR = "5652A9C9-6B20-45f0-889E-CFBF6086FB0A";
+    public const string SHARE_EDIT_EDIT_NAME_STATE_ID_STR = "ACDD705B-E60B-454a-9671-1A12A3A3985A";
+    public const string SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR = "6218FE5B-767E-48e6-9691-65E466B6020B";
+
+    public const string SHARES_CONFIG_RELOCATE_DIALOG_SCREEN = "shares_config_relocate_dialog";
+
+    public const string SHARES_CONFIG_LOCAL_SHARE_RES = "[SharesConfig.LocalShare]";
+    public const string SHARES_CONFIG_GLOBAL_SHARE_RES = "[SharesConfig.GlobalShare]";
+
+    public static Guid SHARES_OVERVIEW_STATE_ID = new Guid(SHARES_OVERVIEW_STATE_ID_STR);
+    
+    public static Guid SHARES_REMOVE_STATE_ID = new Guid(SHARES_REMOVE_STATE_ID_STR);
+
+    public static Guid SHARE_EDIT_STATE_ID = new Guid(SHARE_EDIT_STATE_ID_STR);
+
+    public static Guid SHARE_ADD_CHOOSE_SYSTEM_STATE_ID = new Guid(SHARE_ADD_CHOOSE_SYSTEM_STATE_ID_STR);
+    public static Guid SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID_STR);
+    public static Guid SHARE_EDIT_EDIT_PATH_STATE_ID = new Guid(SHARE_EDIT_EDIT_PATH_STATE_ID_STR);
+    public static Guid SHARE_EDIT_CHOOSE_PATH_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_PATH_STATE_ID_STR);
+    public static Guid SHARE_EDIT_EDIT_NAME_STATE_ID = new Guid(SHARE_EDIT_EDIT_NAME_STATE_ID_STR);
+    public static Guid SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID = new Guid(SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID_STR);
+
+    // Keys for the ListItem's Labels in the ItemsLists
+    public const string NAME_KEY = "Name";
+    public const string SHARE_KEY = "Share";
+    public const string MEDIA_PROVIDER_METADATA_KEY = "MediaProviderMetadata";
+    public const string RESOURCE_PATH_KEY = "ResourcePath";
+    public const string PATH_KEY = "Path";
+    public const string SHARE_CATEGORIES_KEY = "Categories";
+    public const string SHARES_PROXY_KEY = "SharesProxy";
+
+    public const string INVALID_PATH_RES = "[SharesConfig.InvalidPath]";
+
+    #endregion
+
+    #region Protected fields
+
+    protected object _syncObj = new object();
+    protected bool _updatingProperties = false;
+    protected ItemsList _systemsList = null;
+    protected ItemsList _serverSharesList = null;
+    protected ItemsList _localSharesList = null;
+    protected SharesProxy _shareEditProxy = null; // Encapsulates state and communication of shares configuration - either for server shares or for client shares
+    protected AbstractProperty _isSharesSelectedProperty;
+    protected AbstractProperty _isHomeServerConnectedProperty;
+    protected AbstractProperty _isLocalHomeServerProperty;
+    protected AbstractProperty _showLocalSharesProperty;
+    protected AbstractProperty _isSystemSelectedProperty;
+    protected bool _enableLocalShares = true;
+    protected bool _enableServerShares = true;
+    protected AsynchronousMessageQueue _messageQueue = null;
+
+    #endregion
+
+    #region Ctor
+
+    public SharesConfigModel()
+    {
+      _isSharesSelectedProperty = new WProperty(typeof(bool), false);
+      _isHomeServerConnectedProperty = new WProperty(typeof(bool), false);
+      _isLocalHomeServerProperty = new WProperty(typeof(bool), false);
+      _showLocalSharesProperty = new WProperty(typeof(bool), false);
+      _isSystemSelectedProperty = new WProperty(typeof(bool), false);
+    }
+
+    public void Dispose()
+    {
+      _shareEditProxy = null;
+      _serverSharesList = null;
+      _localSharesList = null;
+    }
+
+    #endregion
+
+    void SubscribeToMessages()
+    {
+      AsynchronousMessageQueue messageQueue = new AsynchronousMessageQueue(this, new string[]
+        {
+           ServerConnectionMessaging.CHANNEL,
+           SharesMessaging.CHANNEL,
+        });
+      messageQueue.MessageReceived += OnMessageReceived;
+      messageQueue.Start();
+      lock (_syncObj)
+        _messageQueue = messageQueue;
+    }
+
+    void UnsubscribeFromMessages()
+    {
+      AsynchronousMessageQueue messageQueue;
+      lock (_syncObj)
+      {
+        messageQueue = _messageQueue;
+        _messageQueue = null;
+      }
+      if (messageQueue == null)
+        return;
+      messageQueue.Shutdown();
+    }
+
+    protected void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
+        ServerConnectionMessaging.MessageType messageType =
+            (ServerConnectionMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          case ServerConnectionMessaging.MessageType.HomeServerDetached:
+          case ServerConnectionMessaging.MessageType.HomeServerConnected:
+          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+            // TODO: Go out of shares edit workflow if it is not valid any more
+            UpdateProperties();
+            UpdateSharesLists(false);
+            break;
+        }
+      }
+      else if (message.ChannelName == SharesMessaging.CHANNEL)
+      {
+        SharesMessaging.MessageType messageType =
+            (SharesMessaging.MessageType) message.MessageType;
+        switch (messageType)
+        {
+          case SharesMessaging.MessageType.ShareAdded:
+          case SharesMessaging.MessageType.ShareRemoved:
+            UpdateProperties();
+            UpdateSharesLists(false);
+            break;
+        }
+      }
+    }
+
+    void OnSystemSelectionChanged(AbstractProperty prop, object oldVal)
+    {
+      foreach (ListItem systemItem in _systemsList)
+        if (systemItem.Selected)
+        {
+          lock (_syncObj)
+            _shareEditProxy = (SharesProxy) systemItem.AdditionalProperties[SHARES_PROXY_KEY];
+          IsSystemSelected = true;
+          return;
+        }
+      lock (_syncObj)
+        _shareEditProxy = null;
+      IsSystemSelected = false;
+    }
+
+    #region Public properties (Also accessed from the GUI)
+
+    public SharesProxy ShareEditProxy
+    {
+      get { return _shareEditProxy; }
+    }
+
+    public ItemsList SystemsList
+    {
+      get { return _systemsList; }
+    }
+
+    // Used by the skin to determine in state "choose mediaprovider" if the back button should be
+    // enabled to go back to state "choose system", so this property must only be set once at the beginning of
+    // the shares add workflow
+    public bool IsShowSystemsChoice
+    {
+      get
+      {
+        lock (_syncObj)
+          return _enableLocalShares && _enableServerShares;
+      }
+    }
+
+    public AbstractProperty IsSystemSelectedProperty
+    {
+      get { return _isSystemSelectedProperty; }
+    }
+
+    public bool IsSystemSelected
+    {
+      get { return (bool) _isSystemSelectedProperty.GetValue(); }
+      set { _isSystemSelectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsHomeServerConnectedProperty
+    {
+      get { return _isHomeServerConnectedProperty; }
+    }
+
+    public bool IsHomeServerConnected
+    {
+      get { return (bool) _isHomeServerConnectedProperty.GetValue(); }
+      set { _isHomeServerConnectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsLocalHomeServerProperty
+    {
+      get { return _isLocalHomeServerProperty; }
+    }
+
+    public bool IsLocalHomeServer
+    {
+      get { return (bool) _isLocalHomeServerProperty.GetValue(); }
+      set { _isLocalHomeServerProperty.SetValue(value); }
+    }
+
+    public AbstractProperty ShowLocalSharesProperty
+    {
+      get { return _showLocalSharesProperty; }
+    }
+
+    public bool ShowLocalShares
+    {
+      get { return (bool) _showLocalSharesProperty.GetValue(); }
+      set { _showLocalSharesProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// List of all local shares to be displayed in the shares config screens.
+    /// </summary>
+    public ItemsList LocalSharesList
+    {
+      get
+      {
+        lock (_syncObj)
+          return _localSharesList;
+      }
+    }
+
+    /// <summary>
+    /// List of all server shares to be displayed in the shares config screens.
+    /// </summary>
+    public ItemsList ServerSharesList
+    {
+      get
+      {
+        lock (_syncObj)
+          return _serverSharesList;
+      }
+    }
+
+    public AbstractProperty IsSharesSelectedProperty
+    {
+      get { return _isSharesSelectedProperty; }
+    }
+
+    /// <summary>
+    /// <c>true</c> if at least one share of the local shares list or of the server shares list is selected.
+    /// </summary>
+    public bool IsSharesSelected
+    {
+      get { return (bool) _isSharesSelectedProperty.GetValue(); }
+      set { _isSharesSelectedProperty.SetValue(value); }
+    }
+
+    #endregion
+
+    #region Public methods
+
+    public void RemoveSelectedSharesAndFinish()
+    {
+      try
+      {
+        LocalShares.RemoveShares(GetSelectedLocalShares());
+        ServerShares.RemoveShares(GetSelectedServerShares());
+        NavigateBackToOverview();
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    public void SelectMediaProviderAndContinue()
+    {
+      try
+      {
+        MediaProviderMetadata mpm = _shareEditProxy.GetSelectedBaseMediaProvider();
+        if (mpm == null)
+            // Error case: Should not happen
+          return;
+        MediaProviderMetadata oldMediaProvider = _shareEditProxy.BaseMediaProvider;
+        if (oldMediaProvider == null ||
+            oldMediaProvider.MediaProviderId != mpm.MediaProviderId)
+          _shareEditProxy.ClearAllConfiguredProperties();
+        _shareEditProxy.BaseMediaProvider = mpm;
+        // Check if the choosen MP implements a known path navigation interface and go to that screen,
+        // if supported
+        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        if (_shareEditProxy.MediaProviderSupportsResourceTreeNavigation)
+          workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_PATH_STATE_ID, null);
+        else // If needed, add other path navigation screens here
+            // Fallback: Simple TextBox path editor screen
+          workflowManager.NavigatePush(SHARE_EDIT_EDIT_PATH_STATE_ID, null);
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    public void FinishShareConfiguration()
+    {
+      try
+      {
+        if (_shareEditProxy.EditMode == SharesProxy.ShareEditMode.AddShare)
+        {
+          _shareEditProxy.AddShare();
+          NavigateBackToOverview();
+        }
+        else if (_shareEditProxy.EditMode == SharesProxy.ShareEditMode.EditShare)
+        {
+          if (_shareEditProxy.IsResourcePathChanged)
+          {
+            IScreenManager screenManager = ServiceScope.Get<IScreenManager>();
+            screenManager.ShowDialog(SHARES_CONFIG_RELOCATE_DIALOG_SCREEN);
+          }
+          else
+            UpdateShareAndFinish(RelocationMode.ClearAndReImport);
+        }
+        else
+          throw new NotImplementedException(string.Format("ShareEditMode '{0}' is not implemented", _shareEditProxy.EditMode));
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    public void FinishDoRelocate()
+    {
+      try
+      {
+        UpdateShareAndFinish(RelocationMode.Relocate);
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    public void FinishDoReImport()
+    {
+      try
+      {
+        UpdateShareAndFinish(RelocationMode.ClearAndReImport);
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    public void EditSelectedShare()
+    {
+      try
+      {
+        Share share = GetSelectedLocalShares().FirstOrDefault();
+        if (share != null)
+          lock (_syncObj)
+            _shareEditProxy = new LocalShares(share);
+        else
+        {
+          share = GetSelectedServerShares().FirstOrDefault();
+          if (share == null)
+              // Should never happen
+            return;
+          lock (_syncObj)
+            _shareEditProxy = new ServerShares(share);
+        }
+        IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID, null);
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    public void NavigateBackToOverview()
+    {
+      lock (_syncObj)
+        _shareEditProxy = null;
+      IWorkflowManager workflowManager = ServiceScope.Get<IWorkflowManager>();
+      workflowManager.NavigatePopToState(SHARES_OVERVIEW_STATE_ID, false);
+    }
+
+    #endregion
+
+    #region Private and protected methods
+
+    void OnShareItemSelectionChanged(AbstractProperty shareItem, object oldValue)
+    {
+      UpdateIsSharesSelected();
+    }
+
+    protected ICollection<Share> GetSelectedShares(ItemsList sharesItemsList)
+    {
+      ICollection<Share> result = new List<Share>(); // Fill the result inside the method to make it possible to lock other threads out while looking at the shares list
+      lock (_syncObj)
+        foreach (ListItem shareItem in sharesItemsList)
+          if (shareItem.Selected)
+            result.Add((Share) shareItem.AdditionalProperties[SHARE_KEY]);
+      return result;
+    }
+
+    protected ICollection<Share> GetSelectedLocalShares()
+    {
+      return GetSelectedShares(_localSharesList);
+    }
+
+    protected ICollection<Share> GetSelectedServerShares()
+    {
+      return GetSelectedShares(_serverSharesList);
+    }
+
+    protected void UpdateIsSharesSelected()
+    {
+      IsSharesSelected = GetSelectedLocalShares().GetEnumerator().MoveNext() || GetSelectedServerShares().GetEnumerator().MoveNext();
+    }
+
+    protected void UpdateSystemsList()
+    {
+      lock (_syncObj)
+      {
+        _systemsList = new ItemsList();
+
+        if (_enableLocalShares)
+        {
+          ListItem localSystemItem = new ListItem(NAME_KEY, SHARES_CONFIG_LOCAL_SHARE_RES);
+          localSystemItem.AdditionalProperties[SHARES_PROXY_KEY] = new LocalShares();
+          localSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
+          _systemsList.Add(localSystemItem);
+        }
+
+        if (_enableServerShares)
+        {
+          ListItem serverSystemItem = new ListItem(NAME_KEY, SHARES_CONFIG_GLOBAL_SHARE_RES);
+          serverSystemItem.AdditionalProperties[SHARES_PROXY_KEY] = new ServerShares();
+          serverSystemItem.SelectedProperty.Attach(OnSystemSelectionChanged);
+          _systemsList.Add(serverSystemItem);
+        }
+
+        if (_systemsList.Count > 0)
+          _systemsList[0].Selected = true;
+      }
+      _systemsList.FireChange();
+    }
+
+    protected void UpdateSharesLists(bool create)
+    {
+      lock (_syncObj)
+      {
+        if (_updatingProperties)
+          return;
+        _updatingProperties = true;
+        if (create)
+          _localSharesList = new ItemsList();
+        else
+          _localSharesList.Clear();
+        if (create)
+          _serverSharesList = new ItemsList();
+        else
+          _serverSharesList.Clear();
+      }
+      try
+      {
+        try
+        {
+          List<Share> localShareDescriptors = new List<Share>(LocalShares.GetShares());
+          List<Share> serverShareDescriptors = IsHomeServerConnected ?
+              new List<Share>(ServerShares.GetShares()) : new List<Share>(0);
+          int numShares = localShareDescriptors.Count + serverShareDescriptors.Count;
+          UpdateSharesList(_localSharesList, localShareDescriptors, ShareType.Local, numShares == 1);
+          if (IsHomeServerConnected)
+            // If our home server is not connected, don't try to update its list of shares
+            UpdateSharesList(_serverSharesList, serverShareDescriptors, ShareType.Server, numShares == 1);
+          ShowLocalShares = !IsLocalHomeServer || _localSharesList.Count > 0;
+          IsSharesSelected = numShares == 1;
+        }
+        catch (DisconnectedException)
+        {
+          DisconnectedError();
+        }
+      }
+      finally
+      {
+        lock (_syncObj)
+          _updatingProperties = false;
+      }
+    }
+
+    protected void UpdateSharesList(ItemsList list, List<Share> shareDescriptors, ShareType type, bool selectFirstShare)
+    {
+      bool selectShare = selectFirstShare;
+      shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
+      foreach (Share share in shareDescriptors)
+      {
+        try
+        {
+          ListItem shareItem = new ListItem(NAME_KEY, share.Name);
+          shareItem.AdditionalProperties[SHARE_KEY] = share;
+          try
+          {
+            string path = type == ShareType.Local ?
+                LocalShares.GetLocalResourcePathDisplayName(share.BaseResourcePath) :
+                ServerShares.GetServerResourcePathDisplayName(share.BaseResourcePath);
+            if (string.IsNullOrEmpty(path))
+              path = LocalizationHelper.Translate(INVALID_PATH_RES, share.BaseResourcePath);
+              // Error case: The path is invalid
+            shareItem.SetLabel(PATH_KEY, path);
+            Guid? firstMediaProviderId = SharesProxy.GetBaseMediaProviderId(share.BaseResourcePath);
+            if (firstMediaProviderId.HasValue)
+            {
+              // Error case: The base media provider cannot be evaluated from the given share
+              MediaProviderMetadata firstMediaProviderMetadata = type == ShareType.Local ?
+                  LocalShares.GetLocalMediaProviderMetadata(firstMediaProviderId.Value) :
+                  ServerShares.GetServerMediaProviderMetadata(firstMediaProviderId.Value);
+              shareItem.AdditionalProperties[MEDIA_PROVIDER_METADATA_KEY] = firstMediaProviderMetadata;
+            }
+          }
+          catch (Exception e)
+          {
+            ServiceScope.Get<ILogger>().Warn("Problems building share item '{0}' (path '{1}')", e, share.Name, share.BaseResourcePath);
+          }
+          string categories = StringUtils.Join(", ", share.MediaCategories);
+          shareItem.SetLabel(SHARE_CATEGORIES_KEY, categories);
+          if (selectShare)
+          {
+            selectShare = false;
+            shareItem.Selected = true;
+          }
+          shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
+          lock (_syncObj)
+            list.Add(shareItem);
+        }
+        catch (Exception e)
+        {
+          ServiceScope.Get<ILogger>().Warn("Share item '{0}' (path '{1}') cannot be built", e, share.Name, share.BaseResourcePath);
+        }
+      }
+      list.FireChange();
+    }
+
+    protected void UpdateShareAndFinish(RelocationMode relocationMode)
+    {
+      try
+      {
+        _shareEditProxy.UpdateShare(relocationMode);
+        NavigateBackToOverview();
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    protected void UpdateProperties()
+    {
+      lock (_syncObj)
+      {
+        if (_updatingProperties)
+          return;
+        _updatingProperties = true;
+      }
+      try
+      {
+        IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+        IsHomeServerConnected = serverConnectionManager.IsHomeServerConnected;
+        SystemName homeServerSystem = serverConnectionManager.LastHomeServerSystem;
+        IsLocalHomeServer = homeServerSystem == null ? false : homeServerSystem.IsLocalSystem();
+        lock (_syncObj)
+        {
+          _enableLocalShares = !IsLocalHomeServer;
+          _enableServerShares = IsHomeServerConnected;
+        }
+      }
+      finally
+      {
+        lock (_syncObj)
+          _updatingProperties = false;
+      }
+    }
+
+    /// <summary>
+    /// Prepares the internal data of this model to match the specified new
+    /// <paramref name="workflowState"/>. This method will be called in result of a
+    /// forward state navigation as well as for a backward navigation.
+    /// </summary>
+    /// <param name="workflowState">The workflow state to prepare.</param>
+    /// <param name="push">Set to <c>true</c>, if the given <paramref name="workflowState"/> has been pushed onto
+    /// the workflow navigation stack. Else, set to <c>false</c>.</param>
+    protected void PrepareState(Guid workflowState, bool push)
+    {
+      try
+      {
+        if (workflowState == SHARES_OVERVIEW_STATE_ID)
+        {
+          UpdateSharesLists(true);
+        }
+        else if (!push)
+          return;
+        if (workflowState == SHARES_REMOVE_STATE_ID)
+        {
+          UpdateSharesLists(push);
+        }
+        else if (workflowState == SHARE_EDIT_STATE_ID)
+        {
+          UpdateSharesLists(push);
+        }
+        else if (workflowState == SHARE_ADD_CHOOSE_SYSTEM_STATE_ID)
+        {
+          UpdateSystemsList();
+        }
+        else if (workflowState == SHARE_EDIT_CHOOSE_MEDIA_PROVIDER_STATE_ID)
+        {
+          // This could be optimized - we don't need to update the MPs list every time we are popping a WF state
+          _shareEditProxy.UpdateMediaProvidersList();
+        }
+        else if (workflowState == SHARE_EDIT_EDIT_PATH_STATE_ID)
+        {
+          // Nothing to prepare
+        }
+        else if (workflowState == SHARE_EDIT_CHOOSE_PATH_STATE_ID)
+        {
+          _shareEditProxy.UpdateMediaProviderPathTree();
+        }
+        else if (workflowState == SHARE_EDIT_EDIT_NAME_STATE_ID)
+        {
+          _shareEditProxy.PrepareShareName();
+        }
+        else if (workflowState == SHARE_EDIT_CHOOSE_CATEGORIES_STATE_ID)
+        {
+          _shareEditProxy.UpdateMediaCategoriesList();
+        }
+      }
+      catch (DisconnectedException)
+      {
+        DisconnectedError();
+      }
+    }
+
+    protected void ClearData()
+    {
+      lock (_syncObj)
+      {
+        _shareEditProxy = null;
+        _localSharesList = null;
+        _serverSharesList = null;
+        _systemsList = null;
+      }
+    }
+
+    protected void DisconnectedError()
+    {
+      // TODO: Tell the user that the server was disconnected and the current action cannot be completed.
+      // This method should leave the all ongoing configuration tasks and go back to the shares overview.
+      // Be careful: This method is also called inside of method PrepareState, which is indirectly called from
+      // the workflow manager itself (so don't simply call NavigatePush() at the workflow manager from here).
+    }
+
+    #endregion
+
+    #region IWorkflowModel implementation
+
+    public Guid ModelId
+    {
+      get { return new Guid(SHARESCONFIG_MODEL_ID_STR); }
+    }
+
+    public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
+    {
+      return true;
+    }
+
+    public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      SubscribeToMessages();
+      ClearData();
+      UpdateProperties();
+      PrepareState(newContext.WorkflowState.StateId, true);
+    }
+
+    public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      UnsubscribeFromMessages();
+      ClearData();
+    }
+
+    public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      PrepareState(newContext.WorkflowState.StateId, push);
+    }
+
+    public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      // Nothing to do here
+    }
+
+    public void ReActivate(NavigationContext oldContext, NavigationContext newContext)
+    {
+      PrepareState(newContext.WorkflowState.StateId, false);
+    }
+
+    public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
+    {
+      // Not used yet, currently we don't show any menu during the shares configuration process.
+      // Perhaps we'll add menu actions later for different convenience procedures like initializing the
+      // shares to their default setting etc.
+    }
+
+    public ScreenUpdateMode UpdateScreen(NavigationContext context, ref string screen)
+    {
+      return ScreenUpdateMode.AutoWorkflowManager;
+    }
+
+    #endregion
+  }
+}

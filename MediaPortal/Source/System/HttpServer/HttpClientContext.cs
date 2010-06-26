@@ -345,7 +345,7 @@ namespace HttpServer
         reason = statusCode.ToString();
 
       string response = string.IsNullOrEmpty(body)
-          ? httpVersion + " " + (int) statusCode + " " + reason + "\r\n\r\n"
+          ? httpVersion + " " + (int) statusCode + " " + reason + "\r\nContent-Length: 0\r\n\r\n"
           : string.Format(
               "{0} {1} {2}\r\nContent-Type: {5}\r\nContent-Length: {3}\r\n\r\n{4}",
               httpVersion, (int) statusCode, reason ?? statusCode.ToString(),

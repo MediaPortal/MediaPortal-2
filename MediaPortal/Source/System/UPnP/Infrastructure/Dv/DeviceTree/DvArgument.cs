@@ -116,7 +116,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Warn("DvArgument: Error deserializing argument value", e);
+        UPnPConfiguration.LOGGER.Warn("DvArgument: Error deserializing argument value", e);
         value = null;
         return new UPnPError(402, "Invalid Args");
       }
@@ -139,7 +139,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Warn("DvArgument: Error serializing argument value", e);
+        UPnPConfiguration.LOGGER.Warn("DvArgument: Error serializing argument value", e);
         return new UPnPError(501, "Action Failed");
       }
     }

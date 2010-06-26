@@ -47,5 +47,15 @@ namespace MediaPortal.Core.MediaManagement
     /// <exception cref="ArgumentException">If the given <paramref name="path"/> is not a valid path or if the resource
     /// described by the path doesn't exist.</exception>
     IResourceAccessor CreateMediaItemAccessor(string path);
+
+    /// <summary>
+    /// Given the specified <paramref name="pathStr"/>, this method tries to expand it to a resource path by trying
+    /// different methods with the given value. For example, the file system provider will expand a given value of
+    /// <c>c:\temp</c> to a valid resource path pointing to that resource. Other path syntaxes will also be tried.
+    /// </summary>
+    /// <param name="pathStr">A string representing a path which is valid in this media provider, in some syntax.</param>
+    /// <returns>Expanded resource path or <c>null</c>, if the given <paramref name="pathStr"/> is not a path in any known
+    /// syntax.</returns>
+    ResourcePath ExpandResourcePathFromString(string pathStr);
   }
 }

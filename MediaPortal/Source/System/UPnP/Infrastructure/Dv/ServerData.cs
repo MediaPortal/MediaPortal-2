@@ -40,7 +40,7 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// HTTP listening port for description and control requests.
     /// </summary>
-    public static uint DEFAULT_HTTP_PORT = 8081;
+    public static int DEFAULT_HTTP_PORT = 8081;
 
     /// <summary>
     /// State of the UPnP subsystem.
@@ -80,12 +80,12 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// Port where the HTTP server is listening for IPv4.
     /// </summary>
-    public uint HTTP_PORTv4 = DEFAULT_HTTP_PORT;
+    public int HTTP_PORTv4 = DEFAULT_HTTP_PORT;
 
     /// <summary>
     /// Port where the HTTP server is listening for IPv6.
     /// </summary>
-    public uint HTTP_PORTv6 = DEFAULT_HTTP_PORT;
+    public int HTTP_PORTv6 = DEFAULT_HTTP_PORT;
 
     /// <summary>
     /// The UPnP server which is handled by the UPnP subsystem.

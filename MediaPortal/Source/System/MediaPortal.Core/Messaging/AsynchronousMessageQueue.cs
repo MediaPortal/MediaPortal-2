@@ -44,6 +44,7 @@ namespace MediaPortal.Core.Messaging
   {
     #region Protected fields
 
+    protected ShutdownWatcher _shutdownWatcher;
     protected Thread _messageDeliveryThread = null;
     protected bool _terminated = false;
 
@@ -60,10 +61,18 @@ namespace MediaPortal.Core.Messaging
         _owner = owner;
       }
 
-      public static void Create(AsynchronousMessageQueue owner)
+      public static ShutdownWatcher Create(AsynchronousMessageQueue owner)
       {
         IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
-        broker.RegisterMessageReceiver(SystemMessaging.CHANNEL, new ShutdownWatcher(owner));
+        ShutdownWatcher result = new ShutdownWatcher(owner);
+        broker.RegisterMessageReceiver(SystemMessaging.CHANNEL, result);
+        return result;
+      }
+
+      public void Remove()
+      {
+        IMessageBroker broker = ServiceScope.Get<IMessageBroker>();
+        broker.UnregisterMessageReceiver(SystemMessaging.CHANNEL, this);
       }
 
       public void Receive(SystemMessage message)
@@ -104,7 +113,7 @@ namespace MediaPortal.Core.Messaging
     public AsynchronousMessageQueue(string ownerType, IEnumerable<string> messageChannels) : base(messageChannels)
     {
       _queueName = string.Format("Async message queue '{0}'", ownerType);
-      ShutdownWatcher.Create(this);
+      _shutdownWatcher = ShutdownWatcher.Create(this);
     }
 
     public override void Dispose()
@@ -147,7 +156,7 @@ namespace MediaPortal.Core.Messaging
             break;
           // We need to check this in a synchronized block. If we wouldn't prevent other threads from
           // enqueuing data in this moment, we could miss the PulseAll event
-          else if (!IsMessagesAvailable)
+          if (!IsMessagesAvailable)
             Monitor.Wait(_syncObj);
         }
       }
@@ -237,6 +246,7 @@ namespace MediaPortal.Core.Messaging
     /// delivered by this queue.</returns>
     public bool Shutdown()
     {
+      _shutdownWatcher.Remove();
       UnregisterFromAllMessageChannels();
       Terminate();
       Thread threadToJoin;

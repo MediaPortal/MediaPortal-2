@@ -32,7 +32,8 @@ using MediaPortal.Utilities.Exceptions;
 namespace MediaPortal.Core.MediaManagement
 {
   /// <summary>
-  /// Encapsulates a path expression which describes a resource provider chain to a file or directory in MediaPortal.
+  /// Encapsulates a path expression which describes a resource provider chain in a given system
+  /// to a file or directory in MediaPortal.
   /// </summary>
   /// <remarks>
   /// <para>

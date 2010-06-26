@@ -32,6 +32,12 @@ using MediaPortal.Core.SystemResolver;
 
 namespace MediaPortal.Core.MediaManagement
 {
+  public enum RelocationMode
+  {
+    Relocate,
+    ClearAndReImport
+  }
+
   public enum DefaultMediaCategory
   {
     Audio,

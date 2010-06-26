@@ -1,0 +1,174 @@
+#region Copyright (C) 2007-2010 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2010 Team MediaPortal
+    http://www.team-mediaportal.com
+ 
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using MediaPortal.Core;
+using MediaPortal.Core.Logging;
+using MediaPortal.Core.MediaManagement;
+using MediaPortal.UI.ServerCommunication;
+using UiComponents.SkinBase.Utils;
+using RelocationMode=MediaPortal.Core.MediaManagement.RelocationMode;
+
+namespace UiComponents.SkinBase.Models
+{
+  public class ServerShares : SharesProxy
+  {
+    #region Consts
+
+    public const string ADD_SHARE_TITLE_RES = "[SharesConfig.AddServerShare]";
+    public const string EDIT_SHARE_TITLE_RES = "[SharesConfig.EditServerShare]";
+
+    #endregion
+
+    public ServerShares() : base(ShareEditMode.AddShare) { }
+
+    public ServerShares(Share share) : base(ShareEditMode.EditShare)
+    {
+      InitializePropertiesWithShare(share);
+    }
+
+    public override string ConfigShareTitle
+    {
+      get { return _editMode == ShareEditMode.AddShare ? ADD_SHARE_TITLE_RES : EDIT_SHARE_TITLE_RES; }
+    }
+
+    public override bool MediaProviderSupportsResourceTreeNavigation
+    {
+      get
+      {
+        IContentDirectory contentDirectory = GetContentDirectoryService();
+        return contentDirectory.DoesMediaProviderSupportTreeListing(BaseMediaProvider.MediaProviderId);
+      }
+    }
+
+    protected static IContentDirectory GetContentDirectoryService()
+    {
+      IContentDirectory contentDirectory = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      if (contentDirectory != null)
+        return contentDirectory;
+      throw new DisconnectedException();
+    }
+
+    public static IEnumerable<Share> GetShares()
+    {
+      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.GetShares(serverConnectionManager.HomeServerSystemId, SharesFilter.All);
+    }
+
+    public static void RemoveShares(IEnumerable<Share> shares)
+    {
+      IContentDirectory contentDirectory = ServiceScope.Get<IServerConnectionManager>().ContentDirectory;
+      if (contentDirectory == null)
+      {
+        if (new List<Share>(shares).Count > 0)
+          throw new DisconnectedException();
+        return;
+      }
+      foreach (Share share in shares)
+        contentDirectory.RemoveShare(share.ShareId);
+    }
+
+    public override void AddShare()
+    {
+      IServerConnectionManager serverConnectionManager = ServiceScope.Get<IServerConnectionManager>();
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      contentDirectory.RegisterShare(Share.CreateNewShare(serverConnectionManager.HomeServerSystemId, ChoosenResourcePath, ShareName, MediaCategories));
+    }
+
+    public override void UpdateShare(RelocationMode relocationMode)
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      contentDirectory.UpdateShare(_origShare.ShareId, ChoosenResourcePath, ShareName, MediaCategories, relocationMode);
+    }
+
+    protected override string SuggestShareName()
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.GetResourceDisplayName(ChoosenResourcePath);
+    }
+
+    protected override ResourcePath ExpandResourcePathFromString(string path)
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.ExpandResourcePathFromString(BaseMediaProvider.MediaProviderId, path);
+    }
+
+    protected override bool GetIsPathValid(ResourcePath path)
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.GetIsPathValid(path);
+    }
+
+    public override string GetResourcePathDisplayName(ResourcePath path)
+    {
+      return GetServerResourcePathDisplayName(path);
+    }
+
+    protected override IEnumerable<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path)
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.GetChildDirectoriesData(path);
+    }
+
+    protected override IEnumerable<string> GetAllAvailableCategories()
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.GetMediaCategoriesFromMetadataExtractors();
+    }
+
+    public static string GetServerResourcePathDisplayName(ResourcePath path)
+    {
+      try
+      {
+        IContentDirectory contentDirectory = GetContentDirectoryService();
+        return contentDirectory.GetResourcePathDisplayName(path);
+      }
+      catch (Exception e)
+      {
+        ServiceScope.Get<ILogger>().Warn("Problem updating display name of choosen path '{0}'", e, path);
+        return string.Empty;
+      }
+    }
+
+    protected override IEnumerable<MediaProviderMetadata> GetAvailableBaseMediaProviders()
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      foreach (MediaProviderMetadata mpm in contentDirectory.GetAllBaseMediaProviderMetadata())
+        yield return mpm;
+    }
+
+    protected override MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId)
+    {
+      return GetServerMediaProviderMetadata(mediaProviderId);
+    }
+
+    public static MediaProviderMetadata GetServerMediaProviderMetadata(Guid mediaProviderId)
+    {
+      IContentDirectory contentDirectory = GetContentDirectoryService();
+      return contentDirectory.GetMediaProviderMetadata(mediaProviderId);
+    }
+  }
+}

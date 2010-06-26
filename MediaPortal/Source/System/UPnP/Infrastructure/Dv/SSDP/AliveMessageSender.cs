@@ -24,8 +24,9 @@
 #endregion
 
 using System.Net;
+using System.Net.Sockets;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using UPnP.Infrastructure.Dv.HTTP;
+using UPnP.Infrastructure.Utils.HTTP;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.SSDP
@@ -54,21 +55,26 @@ namespace UPnP.Infrastructure.Dv.SSDP
       response.SetHeader("CACHE-CONTROL", "max-age = " + _serverData.AdvertisementExpirationTime);
       response.SetHeader("NT", NT);
       response.SetHeader("NTS", "ssdp:alive");
-      response.SetHeader("SERVER", Configuration.UPnPMachineInfoHeader);
+      response.SetHeader("SERVER", UPnPConfiguration.UPnPMachineInfoHeader);
       response.SetHeader("USN", USN);
       response.SetHeader("BOOTID.UPNP.ORG", _serverData.BootId.ToString());
       // Currently, we don't support SEARCHPORT.UPNP.ORG function and header
 
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
       {
+        if (config.AddressFamily == AddressFamily.InterNetworkV6)
+        {
+          response.SetHeader("OPT", "\"http://schemas.upnp.org/upnp/1/0/\"; ns=01");
+          response.SetHeader("01-NLS", _serverData.BootId.ToString());
+        }
         response.SetHeader("CONFIGID.UPNP.ORG", config.ConfigId.ToString());
         IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
-        response.SetHeader("HOST", ep.ToString());
+        response.SetHeader("HOST", NetworkHelper.IPEndPointToString(ep));
         if (config.SSDPUsesSpecialSearchPort)
           response.SetHeader("SEARCHPORT.UPNP.ORG", config.SSDPSearchPort.ToString());
-        response.SetHeader("LOCATION", config.RootDeviceDescriptionURLs[rootDevice]);
+        response.SetHeader("LOCATION", config.GetRootDeviceDescriptionURL(rootDevice));
         byte[] bytes = response.Encode();
-        NetworkHelper.MulticastMessage(config.AddressFamily, config.SSDPMulticastAddress, bytes);
+        NetworkHelper.MulticastMessage(config.SSDP_UDP_UnicastSocket, config.SSDPMulticastAddress, bytes);
       }
     }
   }

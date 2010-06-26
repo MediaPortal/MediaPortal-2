@@ -44,9 +44,54 @@ namespace UPnP.Infrastructure
     public static int GENA_MULTICAST_PORT = 7900;
 
     /// <summary>
+    /// Default timeout for GENA event subscriptions in seconds.
+    /// </summary>
+    public static int GENA_DEFAULT_SUBSCRIPTION_TIMEOUT = 600;
+
+    /// <summary>
+    /// Multicast address for GENA multicast sendings for IPv4.
+    /// </summary>
+    public static IPAddress GENA_MULTICAST_ADDRESS_V4 = new IPAddress(new byte[] {239, 255, 255, 246});
+
+    /// <summary>
+    /// Multicast address for GENA multicast sendings for IPv6 (node-local scope).
+    /// </summary>
+    public static IPAddress GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL = IPAddress.Parse("FF01::130");
+
+    /// <summary>
+    /// Multicast address for GENA multicast sendings for IPv6 (link-local scope).
+    /// </summary>
+    public static IPAddress GENA_MULTICAST_ADDRESS_V6_LINK_LOCAL = IPAddress.Parse("FF02::130");
+
+    /// <summary>
+    /// Multicast address for GENA multicast sendings for IPv6 (site-local scope).
+    /// </summary>
+    public static IPAddress GENA_MULTICAST_ADDRESS_V6_SITE_LOCAL = IPAddress.Parse("FF05::130");
+
+    /// <summary>
+    /// Multicast address for GENA multicast sendings for IPv6 (global scope).
+    /// </summary>
+    public static IPAddress GENA_MULTICAST_ADDRESS_V6_GLOBAL = IPAddress.Parse("FF0E::130");
+
+    /// <summary>
+    /// Maximum number of variables which are evented in a single multicast (UDP) message.
+    /// </summary>
+    public const int GENA_MAX_MULTICAST_EVENT_VAR_COUNT = 5;
+
+    /// <summary>
     /// Default port for the SSDP UDP socket which receives unicast requests.
     /// </summary>
     public static int DEFAULT_SSDP_SEARCH_PORT = 1900;
+
+    /// <summary>
+    /// Default time-to-live for SSDP and GENA UDP multicast packets for IPv4.
+    /// </summary>
+    public static short DEFAULT_UDP_TTL_V4 = 2;
+
+    /// <summary>
+    /// Default hop limit for SSDP and GENA UDP multicast packets for IPv6.
+    /// </summary>
+    public static short DEFAULT_HOP_LIMIT_V6 = 254;
 
     /// <summary>
     /// Multicast address for SSDP multicast sendings for IPv4.
@@ -54,9 +99,35 @@ namespace UPnP.Infrastructure
     public static IPAddress SSDP_MULTICAST_ADDRESS_V4 = new IPAddress(new byte[] {239, 255, 255, 250});
 
     /// <summary>
-    /// Multicast address for SSDP multicast sendings for IPv6.
+    /// Multicast address for SSDP multicast sendings for IPv6 (node-local scope).
     /// </summary>
-    public static IPAddress SSDP_MULTICAST_ADDRESS_V6 = IPAddress.Parse("FF02::C");
+    public static IPAddress SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL = IPAddress.Parse("FF01::C");
+
+    /// <summary>
+    /// Multicast address for SSDP multicast sendings for IPv6 (link-local scope).
+    /// </summary>
+    public static IPAddress SSDP_MULTICAST_ADDRESS_V6_LINK_LOCAL = IPAddress.Parse("FF02::C");
+
+    /// <summary>
+    /// Multicast address for SSDP multicast sendings for IPv6 (site-local scope).
+    /// </summary>
+    public static IPAddress SSDP_MULTICAST_ADDRESS_V6_SITE_LOCAL = IPAddress.Parse("FF05::C");
+
+    /// <summary>
+    /// Multicast address for SSDP multicast sendings for IPv6 (global scope).
+    /// </summary>
+    public static IPAddress SSDP_MULTICAST_ADDRESS_V6_GLOBAL = IPAddress.Parse("FF0E::C");
+
+    /// <summary>
+    /// Receive buffer size for the UDP socket for the SSDP protocol handlers.
+    /// </summary>
+    public static int UDP_SSDP_RECEIVE_BUFFER_SIZE = 4096;
+
+    /// <summary>
+    /// Receive buffer size for the UDP socket for the GENA event notifications. Must be quite big to hold a complete
+    /// event notification (unfortunately it is not specified how big it should be).
+    /// </summary>
+    public static int UDP_GENA_RECEIVE_BUFFER_SIZE = 16384;
 
     /// <summary>
     /// Denotes the "infinite" timespan, used for <see cref="System.Threading.Timer.Change(System.TimeSpan,System.TimeSpan)"/>

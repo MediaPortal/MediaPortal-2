@@ -184,14 +184,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
         string udn = RootDescriptor.GetDeviceUDN(deviceElementNav, nsmgr);
         string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
-        SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);
+        SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
         return new ClientDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName, system);
       }
       catch (Exception e)
       {
         RootEntry rootEntry = rootDescriptor.SSDPRootEntry;
         ServiceScope.Get<ILogger>().Warn("UPnPServerControlPoint: Error parsing UPnP device description for root device '{0}' at location '{1}'", e,
-            rootEntry.RootDeviceID, rootEntry.DescriptionLocation);
+            rootEntry.RootDeviceID, rootEntry.PreferredLink.DescriptionLocation);
         return null;
       }
     }

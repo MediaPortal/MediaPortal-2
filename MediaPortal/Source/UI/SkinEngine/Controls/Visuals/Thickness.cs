@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Globalization;
 using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
@@ -108,7 +109,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override string ToString()
     {
-      return string.Format("({0}; {1}; {2}; {3})", Left, Top, Right, Bottom);
+      return string.Format(CultureInfo.InvariantCulture, "({0},{1},{2},{3})", Left, Top, Right, Bottom);
     }
   }
 }

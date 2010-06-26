@@ -23,7 +23,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -214,7 +213,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     public string BuildSCPDDocument(EndpointConfiguration config, ServerData serverData)
     {
       StringBuilder result = new StringBuilder(10000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         writer.WriteStartDocument();
         writer.WriteStartElement(string.Empty, "scpd", UPnPConsts.NS_SERVICE_DESCRIPTION);
@@ -258,14 +257,14 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
 
     internal void AddDeviceDescriptionForService(XmlWriter writer, EndpointConfiguration config)
     {
-      ServiceURLs serviceURLs = config.ServiceURLs[this];
+      ServicePaths servicePaths = config.ServicePaths[this];
 
       writer.WriteStartElement("service");
       writer.WriteElementString("serviceType", ServiceTypeVersion_URN);
       writer.WriteElementString("serviceId", _serviceId);
-      writer.WriteElementString("SCPDURL", new Uri(serviceURLs.SCPDURL).AbsolutePath);
-      writer.WriteElementString("controlURL", new Uri(serviceURLs.ControlURL).AbsolutePath);
-      writer.WriteElementString("eventSubURL", new Uri(serviceURLs.EventSubURL).AbsolutePath);
+      writer.WriteElementString("SCPDURL", servicePaths.SCPDPath);
+      writer.WriteElementString("controlURL", servicePaths.ControlPath);
+      writer.WriteElementString("eventSubURL", servicePaths.EventSubPath);
       writer.WriteEndElement(); // service
     }
 

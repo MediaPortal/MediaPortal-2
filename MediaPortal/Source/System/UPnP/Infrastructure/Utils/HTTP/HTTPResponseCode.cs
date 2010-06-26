@@ -23,7 +23,7 @@
 
 #endregion
 
-namespace UPnP.Infrastructure.Dv.HTTP
+namespace UPnP.Infrastructure.Utils.HTTP
 {
   /// <summary>
   /// Enumerates all HTTP response codes as specified in RFC 2616 (http://www.ietf.org/rfc/rfc2616.txt).

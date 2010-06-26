@@ -222,6 +222,32 @@ namespace MediaPortal.Media.MediaProviders.LocalFsMediaProvider
       return new LocalFsResourceAccessor(this, path);
     }
 
+    public ResourcePath ExpandResourcePathFromString(string pathStr)
+    {
+      ResourcePath result;
+      if (string.IsNullOrEmpty(pathStr))
+        return null;
+      // The input string is given by the user. We can cope with two formats:
+      // 1) A media provider path which can be interpreted by the choosen media provider itself (i.e. a path without the
+      //    starting media provider GUID)
+      // 2) A resource path in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
+      if (IsResource(pathStr))
+        result = new ResourcePath(new ProviderPathSegment[]
+          {
+              new ProviderPathSegment(_metadata.MediaProviderId, pathStr, true), 
+          });
+      else
+        try
+        {
+          result = ResourcePath.Deserialize(pathStr);
+        }
+        catch (ArgumentException)
+        {
+          return null;
+        }
+      return result;
+    }
+
     #endregion
   }
 }

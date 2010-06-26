@@ -31,7 +31,7 @@ using System.Net.Sockets;
 using System.Threading;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.Common;
-using UPnP.Infrastructure.Dv.HTTP;
+using UPnP.Infrastructure.Utils.HTTP;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.SSDP
@@ -84,40 +84,11 @@ namespace UPnP.Infrastructure.CP.SSDP
   public class SSDPClientController : IDisposable
   {
     /// <summary>
-    /// Receive buffer size for the UDP socket.
-    /// </summary>
-    public static int UDP_RECEIVE_BUFFER_SIZE = 4096;
-
-    /// <summary>
     /// Timer interval when the expiration check will occur.
     /// </summary>
     public static int EXPIRATION_TIMER_INTERVAL = 1000;
 
-    protected class UDPAsyncReceiveState
-    {
-      protected byte[] _buffer;
-      protected EndpointConfiguration _endpoint;
-
-      public UDPAsyncReceiveState(EndpointConfiguration endpoint, int bufferSize)
-      {
-        _endpoint = endpoint;
-        _buffer = new byte[bufferSize];
-      }
-
-      public EndpointConfiguration Endpoint
-      {
-        get { return _endpoint; }
-      }
-
-      public byte[] Buffer
-      {
-        get { return _buffer; }
-      }
-    }
-
     protected bool _isActive = false;
-    protected ICollection<EndpointConfiguration> _endpoints = new List<EndpointConfiguration>();
-    protected IDictionary<string, RootEntry> _deviceEntries = new Dictionary<string, RootEntry>();
     protected Timer _expirationTimer = null;
     protected CPData _cpData;
 
@@ -138,9 +109,12 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     private void OnSSDPMulticastReceive(IAsyncResult ar)
     {
-      UDPAsyncReceiveState state = (UDPAsyncReceiveState) ar.AsyncState;
+      lock (_cpData.SyncObj)
+        if (!_isActive)
+          return;
+      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
-      Socket socket = config.MulticastReceiveSocket;
+      Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
       if (socket == null)
         return;
       try
@@ -154,24 +128,23 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         catch (Exception e)
         {
-          Configuration.LOGGER.Debug("SSDPClientController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
-          NetworkHelper.DiscardInput(stream);
+          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming multicast UDP packet. Error message: '{0}'", e.Message);
         }
         StartMulticastReceive(state);
       }
       catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
-        Configuration.LOGGER.Info("SSDPClientController: Stopping listening for multicast messages at IP endpoint '{0}', multicast IP address '{1}'",
-            config.EndPointIPAddress, config.SSDPMulticastAddress);
+        UPnPConfiguration.LOGGER.Info("SSDPClientController: Stopping listening for multicast messages at IP endpoint '{0}'",
+            NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       }
     }
 
     private void OnSSDPUnicastReceive(IAsyncResult ar)
     {
-      UDPAsyncReceiveState state = (UDPAsyncReceiveState) ar.AsyncState;
+      UDPAsyncReceiveState<EndpointConfiguration> state = (UDPAsyncReceiveState<EndpointConfiguration>) ar.AsyncState;
       EndpointConfiguration config = state.Endpoint;
-      Socket socket = config.UnicastSocket;
+      Socket socket = config.SSDP_UDP_UnicastSocket;
       if (socket == null)
         return;
       try
@@ -185,15 +158,15 @@ namespace UPnP.Infrastructure.CP.SSDP
         }
         catch (Exception e)
         {
-          Configuration.LOGGER.Debug("SSDPClientController: Problem parsing incoming packet. Error message: '{0}'", e.Message);
-          NetworkHelper.DiscardInput(stream);
+          UPnPConfiguration.LOGGER.Debug("SSDPClientController: Problem parsing incoming unicast UDP packet. Error message: '{0}'", e.Message);
         }
         StartUnicastReceive(state);
       }
       catch (Exception) // SocketException, ObjectDisposedException
       {
         // Socket was closed - ignore this exception
-        Configuration.LOGGER.Info("SSDPClientController: Stopping listening for unicast messages at address '{0}'", config.EndPointIPAddress);
+        UPnPConfiguration.LOGGER.Info("SSDPClientController: Stopping listening for unicast messages at address '{0}'",
+            NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       }
     }
 
@@ -203,12 +176,12 @@ namespace UPnP.Infrastructure.CP.SSDP
       {
         DateTime now = DateTime.Now;
         ICollection<KeyValuePair<string, RootEntry>> removeEntries = new List<KeyValuePair<string, RootEntry>>();
-        foreach (KeyValuePair<string, RootEntry> kvp in _deviceEntries)
+        foreach (KeyValuePair<string, RootEntry> kvp in _cpData.DeviceEntries)
           if (kvp.Value.ExpirationTime < now)
             removeEntries.Add(kvp);
         foreach (KeyValuePair<string, RootEntry> kvp in removeEntries)
         {
-          _deviceEntries.Remove(kvp);
+          _cpData.DeviceEntries.Remove(kvp);
           InvokeRootDeviceRemoved(kvp.Value);
         }
       }
@@ -268,7 +241,11 @@ namespace UPnP.Infrastructure.CP.SSDP
     /// </summary>
     public ICollection<RootEntry> RootEntries
     {
-      get { return _deviceEntries.Values; }
+      get
+      {
+        lock (_cpData.SyncObj)
+          return new List<RootEntry>(_cpData.DeviceEntries.Values);
+      }
     }
 
     #endregion
@@ -285,56 +262,51 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (_isActive)
           throw new IllegalCallException("SSDPClientController is already active");
         _isActive = true;
-        ICollection<IPAddress> addresses = NetworkHelper.GetExternalIPAddresses();
+        IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses());
   
         // Add endpoints
         foreach (IPAddress address in addresses)
         {
-          EndpointConfiguration config = new EndpointConfiguration();
           AddressFamily family = address.AddressFamily;
-          if (family == AddressFamily.InterNetwork)
-            config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V4;
-          else if (family == AddressFamily.InterNetworkV6)
-            config.SSDPMulticastAddress = UPnPConsts.SSDP_MULTICAST_ADDRESS_V6;
-          else
+          if (family == AddressFamily.InterNetwork && !UPnPConfiguration.USE_IPV4)
             continue;
+          if (family == AddressFamily.InterNetworkV6 && !UPnPConfiguration.USE_IPV6)
+            continue;
+
+          EndpointConfiguration config = new EndpointConfiguration();
+          config.SSDPMulticastAddress = NetworkHelper.GetSSDPMulticastAddressForInterface(address);
           config.EndPointIPAddress = address;
+
+          // Multicast receiver socket - used for receiving multicast messages
+          Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+          config.SSDP_UDP_MulticastReceiveSocket = socket;
           try
           {
-            // Multicast receiver socket - used for receiving multicast messages
-            Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-            socket.Bind(new IPEndPoint(config.EndPointIPAddress, UPnPConsts.SSDP_MULTICAST_PORT));
-            if (family == AddressFamily.InterNetwork)
-              socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership,
-                  new MulticastOption(config.SSDPMulticastAddress));
-            else
-              socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership,
-                  new IPv6MulticastOption(config.SSDPMulticastAddress));
-            config.MulticastReceiveSocket = socket;
-            StartMulticastReceive(new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE));
+            NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
+            StartMulticastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
           }
           catch (Exception) // SocketException, SecurityException
           {
-            Configuration.LOGGER.Info("SSDPClientController: Unable to bind to multicast address '{0}' for endpoint '{1}'",
-                config.SSDPMulticastAddress, config.EndPointIPAddress);
+            UPnPConfiguration.LOGGER.Info("SSDPClientController: Unable to bind to multicast address(es) for endpoint '{0}'",
+                NetworkHelper.IPAddrToString(config.EndPointIPAddress));
           }
 
+          // Unicast sender and receiver socket - used for sending M-SEARCH queries and receiving its responses.
+          // We need a second socket here because the search responses which arrive at this port are structured
+          // in another way than the notifications which arrive at our multicast socket.
+          socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
+          config.SSDP_UDP_UnicastSocket = socket;
           try
           {
-            // Unicast sender and receiver socket - used for sending M-SEARCH queries and receiving its responses.
-            // We need a second socket here because the search responses which arrive at this port are structured
-            // in another way than the notifications which arrive at our multicast socket.
-            Socket socket = new Socket(family, SocketType.Dgram, ProtocolType.Udp);
             socket.Bind(new IPEndPoint(config.EndPointIPAddress, 0));
-            config.UnicastSocket = socket;
-            _endpoints.Add(config);
-            StartUnicastReceive(new UDPAsyncReceiveState(config, UDP_RECEIVE_BUFFER_SIZE));
+            _cpData.Endpoints.Add(config);
+            StartUnicastReceive(new UDPAsyncReceiveState<EndpointConfiguration>(config, UPnPConsts.UDP_SSDP_RECEIVE_BUFFER_SIZE, socket));
           }
           catch (Exception) // SocketException, SecurityException
           {
-            Configuration.LOGGER.Info("SSDPClientController: Unable to bind to unicast address '{0}'",
-                config.EndPointIPAddress);
+            UPnPConfiguration.LOGGER.Info("SSDPClientController: Unable to bind to unicast address '{0}'",
+                NetworkHelper.IPAddrToString(config.EndPointIPAddress));
           }
         }
   
@@ -353,17 +325,17 @@ namespace UPnP.Infrastructure.CP.SSDP
         if (!_isActive)
           return;
         _isActive = false;
-        foreach (EndpointConfiguration config in _endpoints)
+        foreach (EndpointConfiguration config in _cpData.Endpoints)
         {
-          Socket socket = config.MulticastReceiveSocket;
+          Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
           if (socket != null)
-            socket.Close();
-          socket = config.UnicastSocket;
+            NetworkHelper.DisposeSSDPMulticastSocket(socket, config.AddressFamily);
+          socket = config.SSDP_UDP_UnicastSocket;
           if (socket != null)
             socket.Close();
         }
-        _endpoints.Clear();
-        _deviceEntries.Clear();
+        _cpData.Endpoints.Clear();
+        _cpData.DeviceEntries.Clear();
       }
     }
 
@@ -414,31 +386,31 @@ namespace UPnP.Infrastructure.CP.SSDP
 
     #region Protected and private methods
 
-    protected void StartMulticastReceive(UDPAsyncReceiveState state)
+    protected void StartMulticastReceive(UDPAsyncReceiveState<EndpointConfiguration> state)
     {
       try
       {
-        Socket socket = state.Endpoint.MulticastReceiveSocket;
+        Socket socket = state.Endpoint.SSDP_UDP_MulticastReceiveSocket;
         if (socket != null)
           socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnSSDPMulticastReceive, state);
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
-        Configuration.LOGGER.Error("SSDPClientController: Problem receiving multicast SSDP packets: '{0}'", e.Message);
+        UPnPConfiguration.LOGGER.Error("SSDPClientController: Problem receiving multicast SSDP packets: '{0}'", e.Message);
       }
     }
 
-    protected void StartUnicastReceive(UDPAsyncReceiveState state)
+    protected void StartUnicastReceive(UDPAsyncReceiveState<EndpointConfiguration> state)
     {
       try
       {
-        Socket socket = state.Endpoint.UnicastSocket;
+        Socket socket = state.Endpoint.SSDP_UDP_UnicastSocket;
         if (socket != null)
           socket.BeginReceive(state.Buffer, 0, state.Buffer.Length, SocketFlags.None, OnSSDPUnicastReceive, state);
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
-        Configuration.LOGGER.Error("SSDPClientController: Problem receiving unicast SSDP packets: '{0}'", e.Message);
+        UPnPConfiguration.LOGGER.Error("SSDPClientController: Problem receiving unicast SSDP packets: '{0}'", e.Message);
       }
     }
 
@@ -461,30 +433,33 @@ namespace UPnP.Infrastructure.CP.SSDP
       return false;
     }
 
-    protected RootEntry GetOrCreateRootEntry(string deviceUUID, EndpointConfiguration config, UPnPVersion upnpVersion,
-        HTTPVersion httpVersion, string osVersion, string productVersion, DateTime expirationTime, out bool wasAdded)
+    protected RootEntry GetOrCreateRootEntry(string rootDeviceUUID, UPnPVersion upnpVersion,
+        string osVersion, string productVersion, DateTime expirationTime,
+        EndpointConfiguration endpoint, string descriptionLocation, HTTPVersion httpVersion, int searchPort, out LinkData link, out bool wasAdded)
     {
       lock (_cpData.SyncObj)
       {
         RootEntry result;
-        if (_deviceEntries.TryGetValue(deviceUUID, out result))
+        if (_cpData.DeviceEntries.TryGetValue(rootDeviceUUID, out result))
         {
           result.ExpirationTime = expirationTime;
           wasAdded = false;
+          link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
           return result;
         }
         wasAdded = true;
-        return _deviceEntries[deviceUUID] = new RootEntry(deviceUUID, config, upnpVersion, httpVersion,
-            osVersion, productVersion, expirationTime);
+        result = new RootEntry(rootDeviceUUID, upnpVersion, osVersion, productVersion, expirationTime);
+        link = result.AddOrUpdateLink(endpoint, descriptionLocation, httpVersion, searchPort);
+        return _cpData.DeviceEntries[rootDeviceUUID] = result;
       }
     }
 
-    protected RootEntry GetRootEntry(string location)
+    protected RootEntry GetRootEntryByRootDeviceUUID(string deviceUUID)
     {
       lock (_cpData.SyncObj)
       {
         RootEntry result;
-        if (_deviceEntries.TryGetValue(location, out result))
+        if (_cpData.DeviceEntries.TryGetValue(deviceUUID, out result))
           return result;
       }
       return null;
@@ -493,19 +468,19 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected void RemoveRootEntry(RootEntry rootEntry)
     {
       lock (_cpData.SyncObj)
-        _deviceEntries.Remove(rootEntry.DescriptionLocation);
+        _cpData.DeviceEntries.Remove(rootEntry.RootDeviceID);
     }
 
     /// <summary>
     /// Returns the root entry which contains any device of the given <paramref name="uuid"/>.
     /// </summary>
     /// <param name="uuid">UUID of any device to search the enclosing root entry for.</param>
-    /// <returns>Root entry instance or <c>null</c>.</returns>
-    protected RootEntry GetRootEntryByDeviceUUID(string uuid)
+    /// <returns>Root entry instance or <c>null</c>, if no device with the given UUID was found.</returns>
+    protected RootEntry GetRootEntryByContainedDeviceUUID(string uuid)
     {
       lock (_cpData.SyncObj)
       {
-        foreach (KeyValuePair<string, RootEntry> kvp in _deviceEntries)
+        foreach (KeyValuePair<string, RootEntry> kvp in _cpData.DeviceEntries)
           if (kvp.Value.Devices.ContainsKey(uuid))
             return kvp.Value;
       }
@@ -523,17 +498,17 @@ namespace UPnP.Infrastructure.CP.SSDP
     protected void UnicastSearchForST(string st, IPEndPoint endPoint)
     {
       SimpleHTTPRequest request = new SimpleHTTPRequest("M-SEARCH", "*");
-      request.SetHeader("HOST", endPoint.ToString());
+      request.SetHeader("HOST", NetworkHelper.IPEndPointToString(endPoint));
       request.SetHeader("MAN", "\"ssdp:discover\"");
       request.SetHeader("ST", st);
-      request.SetHeader("USER-AGENT", Configuration.UPnPMachineInfoHeader);
+      request.SetHeader("USER-AGENT", UPnPConfiguration.UPnPMachineInfoHeader);
       lock (_cpData.SyncObj)
       {
-        foreach (EndpointConfiguration config in _endpoints)
+        foreach (EndpointConfiguration config in _cpData.Endpoints)
         {
           if (config.AddressFamily != endPoint.AddressFamily)
             continue;
-          Socket socket = config.UnicastSocket;
+          Socket socket = config.SSDP_UDP_UnicastSocket;
           if (socket == null)
             return;
           byte[] bytes = request.Encode();
@@ -547,16 +522,16 @@ namespace UPnP.Infrastructure.CP.SSDP
     {
       SimpleHTTPRequest request = new SimpleHTTPRequest("M-SEARCH", "*");
       request.SetHeader("MAN", "\"ssdp:discover\"");
-      request.SetHeader("MX", Configuration.SEARCH_MX.ToString());
+      request.SetHeader("MX", UPnPConfiguration.SEARCH_MX.ToString());
       request.SetHeader("ST", st);
-      request.SetHeader("USER-AGENT", Configuration.UPnPMachineInfoHeader);
+      request.SetHeader("USER-AGENT", UPnPConfiguration.UPnPMachineInfoHeader);
       lock (_cpData.SyncObj)
       {
-        foreach (EndpointConfiguration config in _endpoints)
+        foreach (EndpointConfiguration config in _cpData.Endpoints)
         {
           IPEndPoint ep = new IPEndPoint(config.SSDPMulticastAddress, UPnPConsts.SSDP_MULTICAST_PORT);
-          request.SetHeader("HOST", ep.ToString());
-          Socket socket = config.UnicastSocket;
+          request.SetHeader("HOST", NetworkHelper.IPEndPointToString(ep));
+          Socket socket = config.SSDP_UDP_UnicastSocket;
           if (socket == null)
             continue;
           byte[] bytes = request.Encode();
@@ -637,12 +612,11 @@ namespace UPnP.Infrastructure.CP.SSDP
       if (!usn.StartsWith("uuid:"))
         // Invalid usn
         return;
-      int separatorIndex = usn.IndexOf("::");
-      if (separatorIndex < 6) // separatorIndex == -1 or separatorIndex not after "uuid:" prefix with at least one char UUID
-        // We only use messages containing a "::" substring
+      string deviceUUID;
+      string messageType;
+      if (!ParserHelper.TryParseUSN(usn, out deviceUUID, out messageType))
+        // We only use messages of the type "uuid:device-UUID::..." and discard the "uuid:device-UUID" message
         return;
-      string deviceUUID = usn.Substring(5, separatorIndex - 5);
-      string messageType = usn.Substring(separatorIndex + 2);
       if (nts == "ssdp:alive")
       {
         if (server == null)
@@ -689,9 +663,9 @@ namespace UPnP.Infrastructure.CP.SSDP
         lock (_cpData.SyncObj)
         {
           bool rootEntryAdded;
-          rootEntry = GetOrCreateRootEntry(deviceUUID, config, upnpVersion, httpVersion, versionInfos[0],
-              versionInfos[2], expirationTime, out rootEntryAdded);
-          rootEntry.SearchPort = searchPort;
+          LinkData link;
+          rootEntry = GetOrCreateRootEntry(deviceUUID, upnpVersion, versionInfos[0], versionInfos[2],
+              expirationTime, config, location, httpVersion, searchPort, out link, out rootEntryAdded);
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
@@ -704,7 +678,6 @@ namespace UPnP.Infrastructure.CP.SSDP
           rootEntry.BootID = bootID;
           if (messageType == "upnp:rootdevice")
           {
-            rootEntry.DescriptionLocation = location;
             rootEntry.GetOrCreateDeviceEntry(deviceUUID);
             if (rootEntryAdded)
               fireRootDeviceAdded = true;
@@ -751,7 +724,7 @@ namespace UPnP.Infrastructure.CP.SSDP
       }
       else if (nts == "ssdp:byebye")
       {
-        RootEntry rootEntry = GetRootEntryByDeviceUUID(deviceUUID);
+        RootEntry rootEntry = GetRootEntryByContainedDeviceUUID(deviceUUID);
         if (rootEntry != null)
         {
           if (bi != null && rootEntry.BootID > bootID)
@@ -776,8 +749,8 @@ namespace UPnP.Infrastructure.CP.SSDP
       //string host = header["HOST"];
       //string nt = header["NT"];
       //string nts = header["NTS"];
-      //string usn = header["USN"];
-      string location = header["LOCATION"];
+      string usn = header["USN"];
+      //string location = header["LOCATION"];
       string bi = header["BOOTID.UPNP.ORG"];
       uint bootID;
       if (!uint.TryParse(bi, out bootID))
@@ -788,7 +761,15 @@ namespace UPnP.Infrastructure.CP.SSDP
       if (!uint.TryParse(nbi, out nextBootID))
         // Invalid message
         return;
-      RootEntry rootEntry = GetRootEntry(location);
+      if (!usn.StartsWith("uuid:"))
+        // Invalid usn
+        return;
+      int separatorIndex = usn.IndexOf("::");
+      if (separatorIndex < 6) // separatorIndex == -1 or separatorIndex not after "uuid:" prefix with at least one char UUID
+        // We only use messages containing a "::" substring and discard the "uuid:device-UUID" message
+        return;
+      string deviceUUID = usn.Substring(5, separatorIndex - 5);
+      RootEntry rootEntry = GetRootEntryByRootDeviceUUID(deviceUUID);
       if (rootEntry == null)
         return;
       if (rootEntry.BootID > bootID)

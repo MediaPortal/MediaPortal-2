@@ -38,6 +38,7 @@ using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
+using RelocationMode=MediaPortal.Backend.MediaLibrary.RelocationMode;
 
 namespace MediaPortal.Backend.Services.MediaLibrary
 {

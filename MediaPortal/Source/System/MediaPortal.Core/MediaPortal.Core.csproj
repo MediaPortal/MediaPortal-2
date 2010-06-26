@@ -137,6 +137,7 @@
     <Compile Include="MediaManagement\MLQueries\NotFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
     <Compile Include="MediaManagement\ResourcePath.cs" />
+    <Compile Include="MediaManagement\ResourcePathMetadata.cs" />
     <Compile Include="Services\Localization\LocalizationSettings.cs" />
     <Compile Include="Services\Logging\GroupLogger.cs" />
     <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
@@ -240,11 +241,15 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UPnP\UPnPDtMediaProviderMetadataEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtMediaProviderMetadata.cs" />
+    <Compile Include="UPnP\UPnPDtResourcePathMetadataEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAspects.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemAttributeValues.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemQuery.cs" />
     <Compile Include="UPnP\UPnPDtMediaItems.cs" />
     <Compile Include="UPnP\UPnPDtMediaItemsFilter.cs" />
+    <Compile Include="UPnP\UPnPDtResourcePathMetadata.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\DataTypesConfiguration.cs" />
     <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Core.General;
 using UPnP.Infrastructure.CP;
 
@@ -31,14 +32,12 @@ namespace MediaPortal.UI.ServerCommunication
   {
     protected RootDescriptor _rootDescriptor;
     protected string _serverName;
-    protected SystemName _system;
     protected string _mpBackendServerUUID;
 
-    public ServerDescriptor(RootDescriptor rootDescriptor, string mpBackendServerUUID, string serverName, SystemName system)
+    public ServerDescriptor(RootDescriptor rootDescriptor, string mpBackendServerUUID, string serverName)
     {
       _rootDescriptor = rootDescriptor;
       _serverName = serverName;
-      _system = system;
       _mpBackendServerUUID = mpBackendServerUUID;
     }
 
@@ -52,14 +51,14 @@ namespace MediaPortal.UI.ServerCommunication
       get { return _serverName; }
     }
 
-    public SystemName System
-    {
-      get { return _system; }
-    }
-
     public string MPBackendServerUUID
     {
       get { return _mpBackendServerUUID; }
+    }
+
+    public SystemName GetPreferredLink()
+    {
+      return new SystemName(new Uri(_rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
     }
 
     public static bool operator == (ServerDescriptor a, ServerDescriptor b)
@@ -92,7 +91,7 @@ namespace MediaPortal.UI.ServerCommunication
 
     public override string ToString()
     {
-      return string.Format("MP backend server '{0}' at system '{1}'", _mpBackendServerUUID, _system.HostName);
+      return string.Format("MP backend server '{0}' at system '{1}'", _mpBackendServerUUID, GetPreferredLink().HostName);
     }
   }
 }

@@ -30,12 +30,6 @@ using MediaPortal.Core.MediaManagement.MLQueries;
 
 namespace MediaPortal.UI.ServerCommunication
 {
-  public enum RelocationMode
-  {
-    Relocate,
-    ClearAndReImport
-  }
-
   public enum SharesFilter
   {
     All,
@@ -43,7 +37,8 @@ namespace MediaPortal.UI.ServerCommunication
   }
 
   /// <summary>
-  /// Interface of the MediaPortal 2 server's ContentDirectory service.
+  /// Interface of the MediaPortal 2 server's ContentDirectory service. This interface is implemented by the
+  /// MediaPortal 2 server.
   /// </summary>
   public interface IContentDirectory
   {
@@ -54,6 +49,16 @@ namespace MediaPortal.UI.ServerCommunication
         IEnumerable<string> mediaCategories, RelocationMode relocationMode);
     ICollection<Share> GetShares(string systemId, SharesFilter sharesFilter);
     Share GetShare(Guid shareId);
+
+    ICollection<string> GetMediaCategoriesFromMetadataExtractors();
+    ICollection<MediaProviderMetadata> GetAllBaseMediaProviderMetadata();
+    MediaProviderMetadata GetMediaProviderMetadata(Guid mediaProviderId);
+    string GetResourcePathDisplayName(ResourcePath path);
+    string GetResourceDisplayName(ResourcePath path);
+    ICollection<ResourcePathMetadata> GetChildDirectoriesData(ResourcePath path);
+    bool GetIsPathValid(ResourcePath path);
+    ResourcePath ExpandResourcePathFromString(Guid mediaProviderId, string path);
+    bool DoesMediaProviderSupportTreeListing(Guid mediaProviderId);
 
     // Media item aspect storage management
     void AddMediaItemAspectStorage(MediaItemAspectMetadata miam);

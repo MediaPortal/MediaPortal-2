@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using HttpServer;
 using MediaPortal.Core.SystemResolver;
 using MediaPortal.UI.FrontendServer;
 using MediaPortal.Core;
@@ -36,6 +37,7 @@ namespace MediaPortal.UI.Services.FrontendServer
   public class FrontendServer : IFrontendServer, IDisposable
   {
     public const string MP2SERVER_DEVICEVERSION = "MediaPortal-2/1.0";
+    public const string MP2_HTTP_SERVER_NAME = "MediaPortal 2 Web Server";
 
     public class UPnPLoggerDelegate : UPnPLogger
     {
@@ -128,8 +130,9 @@ namespace MediaPortal.UI.Services.FrontendServer
 
     public FrontendServer()
     {
-      Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
-      Configuration.LOGGER = new UPnPLoggerDelegate();
+      UPnPConfiguration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
+      UPnPConfiguration.LOGGER = new UPnPLoggerDelegate();
+      HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       _upnpServer = new UPnPFrontendServer(systemResolver.LocalSystemId);
@@ -140,7 +143,7 @@ namespace MediaPortal.UI.Services.FrontendServer
       _upnpServer.Dispose();
     }
 
-    #region IBackendServer implementation
+    #region IFrontendServer implementation
 
     public void Startup()
     {

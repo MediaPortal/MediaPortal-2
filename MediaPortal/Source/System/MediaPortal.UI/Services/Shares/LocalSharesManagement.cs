@@ -85,19 +85,17 @@ namespace MediaPortal.UI.Services.Shares
     {
       ServiceScope.Get<ILogger>().Info("LocalSharesManagement: Initialize");
       LoadSharesFromSettings();
-      if (_shares.Count == 0)
-      { // The shares are still uninitialized - use defaults
-        IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
-        foreach (Share share in mediaAccessor.CreateDefaultShares())
-          _shares.Add(share.ShareId, share);
-        SaveSharesToSettings();
-        foreach (Share share in _shares.Values)
-          ServiceScope.Get<IImporterWorker>().ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
-      }
     }
 
     public void Shutdown()
     {
+    }
+
+    public void SetupDefaultShares()
+    {
+      IMediaAccessor mediaAccessor = ServiceScope.Get<IMediaAccessor>();
+      foreach (Share share in mediaAccessor.CreateDefaultShares())
+        RegisterShare(share.BaseResourcePath, share.Name, share.MediaCategories);
     }
 
     public Share GetShare(Guid shareId)

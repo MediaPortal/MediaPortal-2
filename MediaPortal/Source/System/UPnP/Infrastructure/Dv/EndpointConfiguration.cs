@@ -27,30 +27,32 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using MediaPortal.Utilities;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.GENA;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv
 {
   /// <summary>
   /// Stores all URLs parameters for a UPnP service.
   /// </summary>
-  public class ServiceURLs
+  public class ServicePaths
   {
     /// <summary>
     /// The URL where the service's description can be requested.
     /// </summary>
-    public string SCPDURL;
+    public string SCPDPath;
 
     /// <summary>
     /// The URL to be used for control of the service.
     /// </summary>
-    public string ControlURL;
+    public string ControlPath;
 
     /// <summary>
     /// The URL to be used for event subscriptions.
     /// </summary>
-    public string EventSubURL;
+    public string EventSubPath;
   }
 
   /// <summary>
@@ -61,27 +63,27 @@ namespace UPnP.Infrastructure.Dv
   {
     protected Socket _ssdpUdpUnicastSocket = null;
     protected Socket _ssdpUdpMulticastReceiveSocket = null;
-    protected UdpClient _genaUdpClient = null;
+    protected Socket _genaUdpSocket = null;
     protected IPAddress _endpointIPAddress = null;
+    protected int _httpServerPort = 0;
     protected bool _ssdpUsesSpecialSearchPort = false;
     protected int _ssdpSearchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
-    protected int _endPointGENAPort = 0;
     protected IPAddress _ssdpMulticastAddress = null;
     protected IPAddress _genaMulticastAddress = null;
-    protected string _descriptionURLBase = null;
+    protected string _descriptionPathBase = null;
     protected string _controlURLBase = null;
     protected string _eventSubURLBase = null;
-    protected IDictionary<string, DvDevice> _rootDeviceDescriptionURLsToRootDevices = new Dictionary<string, DvDevice>();
-    protected IDictionary<DvDevice, string> _rootDeviceDescriptionURLs = new Dictionary<DvDevice, string>();
-    protected IDictionary<string, DvService> _scpdURLsToServices = new Dictionary<string, DvService>();
-    protected IDictionary<string, DvService> _controlURLsToServices = new Dictionary<string, DvService>();
-    protected IDictionary<string, DvService> _eventSubURLsToServices = new Dictionary<string, DvService>();
-    protected IDictionary<DvService, ServiceURLs> _serviceURLs = new Dictionary<DvService, ServiceURLs>();
+    protected IDictionary<string, DvDevice> _rootDeviceDescriptionPathsToRootDevices = new Dictionary<string, DvDevice>(StringComparer.InvariantCultureIgnoreCase);
+    protected IDictionary<DvDevice, string> _rootDeviceDescriptionPaths = new Dictionary<DvDevice, string>();
+    protected IDictionary<string, DvService> _scpdPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
+    protected IDictionary<string, DvService> _controlPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
+    protected IDictionary<string, DvService> _eventSubPathsToServices = new Dictionary<string, DvService>(StringComparer.InvariantCultureIgnoreCase);
+    protected IDictionary<DvService, ServicePaths> _servicePaths = new Dictionary<DvService, ServicePaths>();
     protected ICollection<EventSubscription> _eventSubscriptions = new List<EventSubscription>();
     protected Int32 _configId = 0;
 
     /// <summary>
-    /// UDP socket which is used for SSDP to send unicast messages over this UPnP endpoint.
+    /// Socket which is used to a) send unicast and multicast messages and b) receive unicast messages for the SSDP protocol.
     /// </summary>
     public Socket SSDP_UDP_UnicastSocket
     {
@@ -90,7 +92,7 @@ namespace UPnP.Infrastructure.Dv
     }
 
     /// <summary>
-    /// UDP socket which is used for SSDP to receive over this UPnP endpoint.
+    /// UDP socket which is used for SSDP to receive multicast messages over this UPnP endpoint.
     /// </summary>
     public Socket SSDP_UDP_MulticastReceiveSocket
     {
@@ -99,12 +101,12 @@ namespace UPnP.Infrastructure.Dv
     }
 
     /// <summary>
-    /// UDP client which is used for GENA to send and receive over this UPnP endpoint.
+    /// UDP socket which is used for GENA to send messages over this UPnP endpoint.
     /// </summary>
-    public UdpClient GENA_UDPClient
+    public Socket GENA_UDP_Socket
     {
-      get { return _genaUdpClient; }
-      internal set { _genaUdpClient = value; }
+      get { return _genaUdpSocket; }
+      internal set { _genaUdpSocket = value; }
     }
 
     /// <summary>
@@ -122,6 +124,15 @@ namespace UPnP.Infrastructure.Dv
     {
       get { return _endpointIPAddress; }
       internal set { _endpointIPAddress = value; }
+    }
+
+    /// <summary>
+    /// The port where the HTTP server, which corresponds to this endpoint, listens.
+    /// </summary>
+    public int HTTPServerPort
+    {
+      get { return _httpServerPort; }
+      internal set { _httpServerPort = value; }
     }
 
     /// <summary>
@@ -147,15 +158,6 @@ namespace UPnP.Infrastructure.Dv
     }
 
     /// <summary>
-    /// Port to be used for GENA messages.
-    /// </summary>
-    public int EndPointGENAPort
-    {
-      get { return _endPointGENAPort; }
-      internal set { _endPointGENAPort = value; }
-    }
-
-    /// <summary>
     /// Multicast address to that this endpoint is bound for the SSDP protocol.
     /// </summary>
     public IPAddress SSDPMulticastAddress
@@ -174,81 +176,81 @@ namespace UPnP.Infrastructure.Dv
     }
 
     /// <summary>
-    /// Base url for all description documents (device description and SCPD documents).
-    /// Contains a trailing '/' character. Depends on the UPnP endpoint.
+    /// Base path for all description documents (device description and SCPD documents).
+    /// Contains no server and port. Contains leading and trailing '/' characters. Depends on the UPnP endpoint.
     /// </summary>
-    public string DescriptionURLBase
+    public string DescriptionPathBase
     {
-      get { return _descriptionURLBase; }
-      internal set { _descriptionURLBase = value; }
+      get { return _descriptionPathBase; }
+      internal set { _descriptionPathBase = StringUtils.CheckPrefix(StringUtils.CheckSuffix(value, "/"), "/"); }
     }
 
     /// <summary>
-    /// Base url for control. Contains a trailing '/' character. Depends on the UPnP endpoint.
+    /// Base url for control. Contains leading and trailing '/' characters. Depends on the UPnP endpoint.
     /// </summary>
-    public string ControlURLBase
+    public string ControlPathBase
     {
       get { return _controlURLBase; }
-      internal set { _controlURLBase = value; }
+      internal set { _controlURLBase = StringUtils.CheckPrefix(StringUtils.CheckSuffix(value, "/"), "/"); }
     }
 
     /// <summary>
-    /// Base url for eventing. Contains a trailing '/' character. Depends on the UPnP endpoint.
+    /// Base url for eventing. Contains leading and trailing '/' characters. Depends on the UPnP endpoint.
     /// </summary>
-    public string EventSubURLBase
+    public string EventSubPathBase
     {
       get { return _eventSubURLBase; }
-      internal set { _eventSubURLBase = value; }
+      internal set { _eventSubURLBase = StringUtils.CheckPrefix(StringUtils.CheckSuffix(value, "/"), "/"); }
     }
 
     // URLs which are used for communication over this UPnP endpoint
 
     /// <summary>
-    /// Mapping of root device description URLs to the associated root device in this UPnP endpoint.
+    /// Mapping of root device description URL paths to the associated root device in this UPnP endpoint.
     /// </summary>
-    public IDictionary<string, DvDevice> RootDeviceDescriptionURLsToRootDevices
+    public IDictionary<string, DvDevice> RootDeviceDescriptionPathsToRootDevices
     {
-      get { return _rootDeviceDescriptionURLsToRootDevices; }
+      get { return _rootDeviceDescriptionPathsToRootDevices; }
     }
 
     /// <summary>
-    /// Mapping of root devices to their associated description URLs.
+    /// Mapping of root devices to their associated description URL paths.
     /// </summary>
-    public IDictionary<DvDevice, string> RootDeviceDescriptionURLs
+    public IDictionary<DvDevice, string> RootDeviceDescriptionPaths
     {
-      get { return _rootDeviceDescriptionURLs; }
+      get { return _rootDeviceDescriptionPaths; }
     }
 
     /// <summary>
-    /// Mapping of service description (SCPD document) URLs to the associated UPnP service for this UPnP endpoint.
+    /// Mapping of service description (SCPD document) URL paths to the associated UPnP service for this UPnP endpoint.
     /// </summary>
-    public IDictionary<string, DvService> SCPDURLsToServices
+    public IDictionary<string, DvService> SCPDPathsToServices
     {
-      get { return _scpdURLsToServices; }
+      get { return _scpdPathsToServices; }
     }
 
     /// <summary>
-    /// Mapping of service control URLs to the associated UPnP service for this UPnP endpoint.
+    /// Mapping of service control URL paths to the associated UPnP service for this UPnP endpoint.
     /// </summary>
-    public IDictionary<string, DvService> ControlURLsToServices
+    public IDictionary<string, DvService> ControlPathsToServices
     {
-      get { return _controlURLsToServices; }
+      get { return _controlPathsToServices; }
     }
 
     /// <summary>
-    /// Mapping of service event subscription URLs to the associated UPnP service for this UPnP endpoint.
+    /// Mapping of service event subscription URL paths to the associated UPnP service for this UPnP endpoint.
     /// </summary>
-    public IDictionary<string, DvService> EventSubURLsToServices
+    public IDictionary<string, DvService> EventSubPathsToServices
     {
-      get { return _eventSubURLsToServices; }
+      get { return _eventSubPathsToServices; }
     }
 
     /// <summary>
-    /// Mapping of services to its associated URLs.
+    /// Mapping of services to its associated paths.
     /// </summary>
-    public IDictionary<DvService, ServiceURLs> ServiceURLs
+    public IDictionary<DvService, ServicePaths> ServicePaths
     {
-      get { return _serviceURLs; }
+      get { return _servicePaths; }
     }
 
     /// <summary>
@@ -267,6 +269,21 @@ namespace UPnP.Infrastructure.Dv
     {
       get { return _configId; }
       internal set { _configId = value; }
+    }
+
+    /// <summary>
+    /// Returns an URL which points to the root device description of the given <paramref name="rootDevice"/> on this endpoint.
+    /// </summary>
+    /// <param name="rootDevice">Root device to get the description URL for.</param>
+    /// <returns>Absolute URL to the device description.</returns>
+    public string GetRootDeviceDescriptionURL(DvDevice rootDevice)
+    {
+      return GetEndpointHttpPrefixString() + _rootDeviceDescriptionPaths[rootDevice];
+    }
+
+    public string GetEndpointHttpPrefixString()
+    {
+      return "http://" + NetworkHelper.IPEndPointToString(EndPointIPAddress, HTTPServerPort);
     }
   }
 }

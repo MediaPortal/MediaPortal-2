@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Language>
+  <Section Name="System">
+    <String Name="Yes" Text="Yes"/>
+    <String Name="No" Text="No"/>
+    <String Name="Done" Text="Done"/>
+    <String Name="Finish" Text="Finish"/>
+    <String Name="Ok" Text="Ok"/>
+    <String Name="Cancel" Text="Cancel"/>
+    <String Name="Back" Text="Back"/>
+    <String Name="Continue" Text="Continue"/>
+    <String Name="Add" Text="Add"/>
+    <String Name="Remove" Text="Remove"/>
+
+    <String Name="Hint" Text="Hint"/>
+    <String Name="Information" Text="Information"/>
+    <String Name="Warning" Text="Warning"/>
+    <String Name="Error" Text="Error"/>
+  </Section>
   <Section Name="Home">
     <String Name="Title" Text="MediaPortal 2"/>
     <String Name="HomeStateDisplayLabel" Text="Home"/>
@@ -58,23 +75,6 @@
     <String Name="ClosePlayerContext" Text="Close {0}"/> <!-- for example "Close video player" -->
     <String Name="ChoosePlayerGeometry" Text="Zoom mode"/>
   </Section>
-  <Section Name="System">
-    <String Name="Yes" Text="Yes"/>
-    <String Name="No" Text="No"/>
-    <String Name="Done" Text="Done"/>
-    <String Name="Finish" Text="Finish"/>
-    <String Name="Ok" Text="Ok"/>
-    <String Name="Cancel" Text="Cancel"/>
-    <String Name="Back" Text="Back"/>
-    <String Name="Continue" Text="Continue"/>
-    <String Name="Add" Text="Add"/>
-    <String Name="Remove" Text="Remove"/>
-
-    <String Name="Hint" Text="Hint"/>
-    <String Name="Information" Text="Information"/>
-    <String Name="Warning" Text="Warning"/>
-    <String Name="Error" Text="Error"/>
-  </Section>
   <Section Name="Settings">
     <String Name="Appearance" Text="Appearance"/>
     <String Name="Appearance.Skin" Text="Skin"/>
@@ -111,16 +111,28 @@
     <String Name="SharesOverviewWorkflowNavigationContextDisplayLabel" Text="Shares configuration"/>
     <String Name="SharesRemoveWorkflowNavigationContextDisplayLabel" Text="Remove shares"/>
     <String Name="SharesEditWorkflowNavigationContextDisplayLabel" Text="Edit shares"/>
+    <String Name="SharesAddChooseSystemWorkflowNavigationContextDisplayLabel" Text="Choose system"/>
     <String Name="SharesEditChooseMediaProviderWorkflowNavigationContextDisplayLabel" Text="Choose media provider"/>
-    <String Name="SharesAddChooseMediaProviderWorkflowNavigationContextDisplayLabel" Text="Choose media provider"/>
     <String Name="SharesEditEditPathWorkflowNavigationContextDisplayLabel" Text="Edit path"/>
     <String Name="SharesEditChoosePathWorkflowNavigationContextDisplayLabel" Text="Choose path"/>
     <String Name="SharesEditEditNameWorkflowNavigationContextDisplayLabel" Text="Edit name"/>
     <String Name="SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel" Text="Choose categories"/>
-    <String Name="Shares.Overview" Text="Shares overview"/>
-    <String Name="CancelSharesConfig" Text="Cancel shares configuration"/>
+    <String Name="CannotAddShareLocalHomeServerNotConnected" Text="Cannot add shares: The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again."/>
+    <String Name="SharesOverview" Text="Shares overview"/>
+    <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
+    <String Name="SetupDefaultShares" Text="Setup default shares"/>
+    <String Name="InvalidPath" Text="INVALID PATH: '{0}'"/> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
     <String Name="RemoveShares" Text="Remove shares"/>
+    <String Name="EditShare" Text="Edit share"/>
+    <String Name="ChooseSystem" Text="Choose system"/>
     <String Name="ChooseSharesToBeRemoved" Text="Please select the shares to be removed"/>
+    <String Name="ChooseSystemForShare" Text="Choose the system for the new share"/>
+    <String Name="LocalShare" Text="Local share"/>
+    <String Name="LocalShares" Text="Local shares"/>
+    <String Name="GlobalShare" Text="Global share"/>
+    <String Name="GlobalShares" Text="Global shares"/>
+    <String Name="NoConfigGlobalSharesHomeServerNotConnected" Text="The home server is currently not connected, so global shares cannot be managed at the moment."/>
+    <String Name="NoConfigLocalSharesHomeServerLocal" Text="The home server is located at the same machine, so only global shares can be configured."/>
     <String Name="ChooseMediaProviderForShare" Text="Please select a media provider for the share"/>
     <String Name="EditMediaProviderPathForShare" Text="Edit the path to the share"/>
     <String Name="MediaProviderPathIsNotValid" Text="Edit a valid path in the choosen media provider. You can edit a simple path which is understandable by the media provider. You can also edit a complex path in the format {[Base-MediaProvider-ID]}://[Base-MediaProvider-Path]>{[Chained-MediaProvider-ID]}://[Chained-MediaProvider-Path]>..."/>
@@ -132,9 +144,10 @@
     <String Name="MenuAddShare" Text="Add"/>
     <String Name="MenuEditShares" Text="Edit"/>
     <String Name="MenuRemoveShares" Text="Remove"/>
-    <String Name="AddShare" Text="Add share"/>
-    <String Name="EditShares" Text="Edit shares"/>
-    <String Name="EditShare" Text="Edit share"/>
+    <String Name="AddServerShare" Text="Add global share"/> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
+    <String Name="EditServerShare" Text="Edit global share"/> <!-- Must fit for both multiseat and singleseat, that's why we don't write "server share" -->
+    <String Name="AddLocalShare" Text="Add local share"/>
+    <String Name="EditLocalShare" Text="Edit local share"/>
     <String Name="ChooseShareToBeEdited" Text="Please select the share to be edited"/>
     <String Name="UpdateShareRelocateItemsQueryDialogHeader" Text="Update share"/>
     <String Name="UpdateShareRelocateItemsQueryText.Info" Text="The share's media provider and/or path have been updated."/>

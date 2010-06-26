@@ -40,6 +40,7 @@ namespace MediaPortal.Core.Services.MediaManagement
   {
   }
 
+  // TODO: Schedule regular reimports for all local shares
   public class ImporterWorker : IImporterWorker
   {
     protected static IEnumerable<Guid> IMPORTER_MIA_ID_ENUMERATION = new Guid[]
@@ -198,7 +199,7 @@ namespace MediaPortal.Core.Services.MediaManagement
             break;
           // We need to check this in a synchronized block. If we wouldn't prevent other threads from
           // enqueuing data in this moment, we could miss the PulseAll event
-          else if (!IsImportJobAvailable)
+          if (!IsImportJobAvailable)
             Monitor.Wait(_syncObj);
         }
       }

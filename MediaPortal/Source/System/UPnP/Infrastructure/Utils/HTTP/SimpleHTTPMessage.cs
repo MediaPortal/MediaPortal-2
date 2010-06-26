@@ -29,7 +29,7 @@ using System.IO;
 using System.Text;
 using InvalidDataException=MediaPortal.Utilities.Exceptions.InvalidDataException;
 
-namespace UPnP.Infrastructure.Dv.HTTP
+namespace UPnP.Infrastructure.Utils.HTTP
 {
   /// <summary>
   /// Encapsulates an abstract "simple" HTTP message, which will be subclassed into <see cref="SimpleHTTPRequest"/> and

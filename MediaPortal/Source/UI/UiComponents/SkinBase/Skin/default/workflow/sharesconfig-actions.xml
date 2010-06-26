@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Shares configuration workflow state actions -->
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
-    <PushNavigationTransition Id="5138D8EC-A8D5-4f2b-941A-EE7BD8401A1F"
+    <WorkflowContributorAction Id="5138D8EC-A8D5-4f2b-941A-EE7BD8401A1F"
         Name="SharesOverview->ShareAdd"
         DisplayCategory="a-SharesConfig"
         SortOrder="a"
         SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
-        TargetState="6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26"
+        ContributorModelId="9E456C79-3FF1-4040-8CD7-4247C4C12817"
         DisplayTitle="[SharesConfig.MenuAddShare]"/>
 
     <PushNavigationTransition Id="5B6D2739-F0FE-41d9-8522-6C797D700B58"
@@ -25,5 +25,13 @@
         SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
         TargetState="900BA520-F989-48c0-B076-5DAD61945845"
         DisplayTitle="[SharesConfig.MenuRemoveShares]"/>
+
+    <WorkflowContributorAction Id="4EB7677E-C3C6-488c-A57C-B2CD9CBD543B"
+        Name="SharesOverview->SetupDefaultShares"
+        DisplayCategory="b-SetupShares"
+        SortOrder="a"
+        SourceState="36B3F24A-29B4-4cb4-BC7D-434C51491CD2"
+        ContributorModelId="35907215-09EE-4886-9E8B-8A222B9B6DCA"
+        DisplayTitle="[SharesConfig.SetupDefaultShares]"/>
   </MenuActions>
 </Workflow>

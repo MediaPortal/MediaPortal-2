@@ -23,6 +23,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using UPnP.Infrastructure.CP.SSDP;
 
 namespace UPnP.Infrastructure.CP
@@ -33,9 +34,11 @@ namespace UPnP.Infrastructure.CP
   public class CPData
   {
     protected object _syncObj = new object();
-    protected uint _httpPortV4 = 0;
-    protected uint _httpPortV6 = 0;
+    protected int _httpPortV4 = 0;
+    protected int _httpPortV6 = 0;
     protected SSDPClientController _ssdpClientController = null;
+    protected ICollection<EndpointConfiguration> _endpoints = new List<EndpointConfiguration>();
+    protected IDictionary<string, RootEntry> _deviceEntries = new Dictionary<string, RootEntry>();
 
     /// <summary>
     /// Synchronization object for the UPnP control point system.
@@ -48,7 +51,7 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Gets or sets the HTTP listening port for IPv4 used for event messages.
     /// </summary>
-    public uint HttpPortV4
+    public int HttpPortV4
     {
       get { return _httpPortV4; }
       internal set { _httpPortV4 = value; }
@@ -57,10 +60,26 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Gets or sets the HTTP listening port for IPv6 used for event messages.
     /// </summary>
-    public uint HttpPortV6
+    public int HttpPortV6
     {
       get { return _httpPortV6; }
       internal set { _httpPortV6 = value; }
+    }
+
+    /// <summary>
+    /// Gets a collection of all local IP endpoint configurations.
+    /// </summary>
+    public ICollection<EndpointConfiguration> Endpoints
+    {
+      get { return _endpoints; }
+    }
+
+    /// <summary>
+    /// Returns UUIDs of root devices mapped to their root device data entry.
+    /// </summary>
+    public IDictionary<string, RootEntry> DeviceEntries
+    {
+      get { return _deviceEntries; }
     }
 
     /// <summary>

@@ -161,7 +161,13 @@ namespace MediaPortal.UI.Presentation.Workflow
 
     public override IResourceString DisplayTitle
     {
-      get { return _contributor == null ? base.DisplayTitle : _contributor.DisplayTitle; }
+      get
+      {
+        IResourceString result = null;
+        if (_contributor != null)
+          result = _contributor.DisplayTitle;
+        return result ?? base.DisplayTitle;
+      }
     }
 
     public override void AddRef()

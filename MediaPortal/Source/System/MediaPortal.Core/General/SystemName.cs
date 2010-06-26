@@ -24,12 +24,14 @@
 
 using System;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Core.General
 {
   /// <summary>
-  /// Address of a computer in an IP network.
+  /// Identifier for a computer in an IP network. Contains its host name or IP address.
   /// </summary>
   /// <remarks>
   /// <para>
@@ -41,13 +43,21 @@ namespace MediaPortal.Core.General
   {
     #region Consts
 
-    public const string LOCALHOST_NAME = "localhost";
+    public const string LOCALHOST = "localhost";
+    public const string LOOPBACK_IPv4_ADDRESS = "127.0.0.1";
+    public const string LOOPBACK_IPv6_ADDRESS = "[::1]";
 
     #endregion
 
     #region Protected fields
 
     protected string _hostName;
+    protected static string LOCAL_HOST_DNS_NAME;
+
+    static SystemName()
+    {
+      LOCAL_HOST_DNS_NAME = Dns.GetHostName();
+    }
 
     #endregion
 
@@ -56,10 +66,13 @@ namespace MediaPortal.Core.General
     /// <summary>
     /// Creates a new system name for the specified host.
     /// </summary>
-    /// <param name="hostName">The DNS host name to use for this <see cref="SystemName"/>.</param>
+    /// <param name="hostName">A DNS host name or IP address.
+    /// In case of an IPv6 address, the address can also be given inside of <c>[</c> and <c>]</c> brackets.</param>
     public SystemName(string hostName)
     {
       _hostName = hostName.ToLowerInvariant();
+      if (_hostName.StartsWith("[") && _hostName.EndsWith("]"))
+        _hostName = _hostName.Substring(1, _hostName.Length-2);
     }
 
     #endregion
@@ -78,7 +91,7 @@ namespace MediaPortal.Core.General
     /// </summary>
     public static string LocalHostName
     {
-      get { return Dns.GetHostName(); }
+      get { return LOCAL_HOST_DNS_NAME; }
     }
 
     /// <summary>
@@ -87,18 +100,51 @@ namespace MediaPortal.Core.General
     /// <returns>Loopback adapter address.</returns>
     public static SystemName Loopback()
     {
-      return new SystemName(LOCALHOST_NAME);
+      return new SystemName(LOCALHOST);
     }
 
     public static SystemName GetLocalSystemName()
     {
-      return new SystemName(Dns.GetHostName());
+      return new SystemName(LOCAL_HOST_DNS_NAME);
     }
 
     public bool IsLocalSystem()
     {
-      return string.Equals(_hostName, LocalHostName, StringComparison.InvariantCultureIgnoreCase) ||
-          string.Equals(_hostName, LOCALHOST_NAME, StringComparison.InvariantCultureIgnoreCase);
+      // localhost, 127.0.0.1, [::1]
+      if (string.Equals(_hostName, LOCALHOST, StringComparison.InvariantCultureIgnoreCase) ||
+          _hostName == LOOPBACK_IPv4_ADDRESS || _hostName == LOOPBACK_IPv6_ADDRESS)
+        return true;
+      if (string.Equals(_hostName, LocalHostName, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      if (string.Equals(_hostName, LOCAL_HOST_DNS_NAME, StringComparison.InvariantCultureIgnoreCase))
+        return true;
+      return IsALocalAddress();
+    }
+
+    protected bool IsALocalAddress()
+    {
+      IPAddress thisAddress;
+      if (!IPAddress.TryParse(_hostName, out thisAddress))
+        return false;
+      foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
+      { // For each network interface adapter
+        IPInterfaceProperties properties = adapter.GetIPProperties();
+        foreach (UnicastIPAddressInformation info in properties.UnicastAddresses)
+        { // For each address of that adapter
+          IPAddress address = info.Address;
+          if (address.AddressFamily == AddressFamily.InterNetworkV6)
+          {
+            // IPAddress.ToString() adds the scope id; remove it
+            string addrStr = address.ToString();
+            int i = addrStr.IndexOf('%');
+            if (i >= 0) addrStr = addrStr.Substring(0, i);
+            address = IPAddress.Parse(addrStr);
+          }
+          if (address.Equals(thisAddress))
+            return true;
+        }
+      }
+      return false;
     }
 
     public static bool operator==(SystemName a, SystemName b)

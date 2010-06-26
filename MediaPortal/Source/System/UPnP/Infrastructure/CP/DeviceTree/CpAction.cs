@@ -257,11 +257,18 @@ namespace UPnP.Infrastructure.CP.DeviceTree
     /// or <see cref="InvokeAction"/>), else <c>false</c>.</returns>
     public bool MatchesSignature(IList<object> inParameters)
     {
+      if (_inArguments.Count == 0)
+        return inParameters == null || inParameters.Count == 0;
+      if (inParameters == null)
+        return false;
       for (int i=0; i<_inArguments.Count; i++)
+      {
+        if (inParameters.Count <= i)
+          return false;
         if (!_inArguments[i].IsValueAssignable(inParameters[i]))
           return false;
-      return (inParameters == null && _inArguments.Count == 0) ||
-          (inParameters != null && _inArguments.Count == inParameters.Count);
+      }
+      return true;
     }
 
     /// <summary>

@@ -283,7 +283,7 @@ namespace UPnP.Infrastructure.CP
         SetRootDescriptor(rootEntry, rd);
       try
       {
-        HttpWebRequest request = CreateHttpGetRequest(new Uri(rootEntry.DescriptionLocation));
+        HttpWebRequest request = CreateHttpGetRequest(new Uri(rootEntry.PreferredLink.DescriptionLocation));
         DescriptionRequestState state = new DescriptionRequestState(rd, request);
         lock (_cpData.SyncObj)
           _pendingRequests.Add(state);
@@ -372,7 +372,7 @@ namespace UPnP.Infrastructure.CP
         state.CurrentServiceDescriptor.State = ServiceDescriptorState.AwaitingDescription;
         try
         {
-          HttpWebRequest request = CreateHttpGetRequest(new Uri(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation), url));
+          HttpWebRequest request = CreateHttpGetRequest(new Uri(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation), url));
           state.Request = request;
           IAsyncResult result = request.BeginGetResponse(OnServiceDescriptionReceived, state);
           NetworkHelper.AddTimeout(request, result, PENDING_REQUEST_TIMEOUT * 1000);
@@ -547,7 +547,7 @@ namespace UPnP.Infrastructure.CP
       request.Method = "GET";
       request.KeepAlive = true;
       request.AllowAutoRedirect = true;
-      request.UserAgent = Configuration.UPnPMachineInfoHeader;
+      request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
       return request;
     }
 

@@ -25,12 +25,12 @@
 using MediaPortal.Core;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.Core.Messaging;
-using MediaPortal.UI.Shares;
 
-namespace MediaPortal.UI.Services.Shares
+namespace MediaPortal.UI.Shares
 {
   /// <summary>
-  /// This class provides an interface for all shares related messages.
+  /// This class provides an interface for all shares related messages. This class is part of the
+  /// shares management API.
   /// </summary>
   public class SharesMessaging
   {

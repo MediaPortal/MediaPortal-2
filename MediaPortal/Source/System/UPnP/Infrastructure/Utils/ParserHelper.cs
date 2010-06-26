@@ -69,6 +69,28 @@ namespace UPnP.Infrastructure.Utils
       return int.TryParse(versionStr, out version); // We don't permit version numbers which aren't integers.
     }
 
+    /// <summary>
+    /// Parses a USN string of the form <c>uuid:device-UUID::remainder</c>. The remainder is most often a type+version URN of
+    /// a service, but sometimes it is also used for device types or other information (see SSDP NOTIFY messages).
+    /// </summary>
+    /// <param name="usn">String of the form <c>uuid:device-UUID::remainder</c>.</param>
+    /// <param name="deviceUUID">Returns the device UUID of the given <paramref name="usn"/> string.</param>
+    /// <param name="remainingPart">Returns the remainder of the given <paramref name="usn"/> string (the part
+    /// after the <c>::</c>).</param>
+    /// <returns><c>true</c>, if the given string has a correct format and could be parsed, else <c>false</c>.</returns>
+    public static bool TryParseUSN(string usn, out string deviceUUID, out string remainingPart)
+    {
+      deviceUUID = null;
+      remainingPart = null;
+      int separatorIndex = usn.IndexOf("::");
+      if (separatorIndex < 6 ||  // separatorIndex == -1 or separatorIndex not after "uuid:" prefix with at least one char UUID
+          usn.Substring(0, 5) != "uuid:")
+        return false;
+      deviceUUID = usn.Substring(5, separatorIndex - 5);
+      remainingPart = usn.Substring(separatorIndex + 2);
+      return true;
+    }
+
     public static bool TryParseDataTypeReference(string typeStr, XPathNavigator dataTypeElementNav,
         out string schemaURI, out string dataTypeName)
     {

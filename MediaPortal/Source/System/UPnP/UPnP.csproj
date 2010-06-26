@@ -1,4 +1,4 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -98,8 +98,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Infrastructure\ConsoleLogger.cs" />
+    <Compile Include="Infrastructure\CP\AsyncWebRequestState.cs" />
     <Compile Include="Infrastructure\CP\Exceptions.cs" />
+    <Compile Include="Infrastructure\CP\GENA\EventSubscription.cs" />
     <Compile Include="Infrastructure\Dv\CallContext.cs" />
+    <Compile Include="Infrastructure\Utils\UDPAsyncReceiveState.cs" />
     <Compile Include="Infrastructure\ILogger.cs" />
     <Compile Include="Infrastructure\Utils\HttpServerHelper.cs" />
     <Compile Include="Infrastructure\Utils\SoapHelper.cs" />
@@ -115,7 +118,7 @@
     <Compile Include="Infrastructure\CP\DeviceTree\CpStandardDataType.cs" />
     <Compile Include="Infrastructure\CP\DeviceTree\ExtendedDataTypeDummy.cs" />
     <Compile Include="Infrastructure\CP\EndpointConfiguration.cs" />
-    <Compile Include="Infrastructure\CP\GENA\GENAHandler.cs" />
+    <Compile Include="Infrastructure\CP\GENA\GENAClientController.cs" />
     <Compile Include="Infrastructure\CP\RootDescriptor.cs" />
     <Compile Include="Infrastructure\CP\ServiceDescriptor.cs" />
     <Compile Include="Infrastructure\CP\SOAP\SOAPHandler.cs" />
@@ -139,17 +142,17 @@
     <Compile Include="Infrastructure\Dv\GENA\GENAServerController.cs" />
     <Compile Include="Infrastructure\Dv\GENA\EventSubscription.cs" />
     <Compile Include="Infrastructure\Dv\SOAP\SOAPHandler.cs" />
-    <Compile Include="Infrastructure\Dv\HTTP\HTTPResponseCode.cs" />
+    <Compile Include="Infrastructure\Utils\HTTP\HTTPResponseCode.cs" />
     <Compile Include="Infrastructure\Dv\ServerData.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\AliveMessageSender.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\ByeByeMessageSender.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\DeviceTreeNotificationProducer.cs" />
     <Compile Include="Infrastructure\Dv\DeviceTreeURLGenerator.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\UpdateMessageSender.cs" />
-    <Compile Include="Infrastructure\Dv\HTTP\SimpleHTTPRequest.cs" />
+    <Compile Include="Infrastructure\Utils\HTTP\SimpleHTTPRequest.cs" />
     <Compile Include="Infrastructure\Dv\EndpointConfiguration.cs" />
-    <Compile Include="Infrastructure\Dv\HTTP\SimpleHTTPMessage.cs" />
-    <Compile Include="Infrastructure\Dv\HTTP\SimpleHTTPResponse.cs" />
+    <Compile Include="Infrastructure\Utils\HTTP\SimpleHTTPMessage.cs" />
+    <Compile Include="Infrastructure\Utils\HTTP\SimpleHTTPResponse.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\ISSDPDiscoveryMessageSender.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\SearchResultMessageSender.cs" />
     <Compile Include="Infrastructure\Dv\SSDP\PendingSearchRequest.cs" />
@@ -171,7 +174,7 @@
     <Compile Include="Infrastructure\Utils\HashGenerator.cs" />
     <Compile Include="Infrastructure\Exceptions.cs" />
     <Compile Include="Infrastructure\UPnPConsts.cs" />
-    <Compile Include="Infrastructure\Configuration.cs" />
+    <Compile Include="Infrastructure\UPnPConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpServer\HttpServer.csproj">

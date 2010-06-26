@@ -10,7 +10,7 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ConfigShareTitle}"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="{Binding Source={StaticResource Model},Path=ShareEditProxy.ConfigShareTitle}"/>
 
     <ResourceWrapper x:Key="EditShareNameStateId" Resource="ACDD705B-E60B-454a-9671-1A12A3A3985A"/>
 
@@ -30,9 +30,9 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.EditMediaProviderPathForShare]" Wrap="True"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0" Style="{ThemeResource TextBoxStyle}"
-            Text="{Binding Path=ChoosenResourcePathStr,Mode=TwoWay}" PreferredTextLength="40"/>
+            Text="{Binding Path=ShareEditProxy.ChoosenResourcePathStr,Mode=TwoWay}" PreferredTextLength="40"/>
         <Label Grid.Row="3" Content="[SharesConfig.MediaProviderPathIsNotValid]" Color="{ThemeResource ErrorTextColor}" Wrap="True"
-            IsVisible="{Binding !IsChoosenResourcePathValid}"/>
+            IsVisible="{Binding !ShareEditProxy.IsChoosenResourcePathValid}"/>
         <Grid Grid.Row="5" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -46,7 +46,7 @@
               Content="[System.Back]"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Continue]" IsEnabled="{Binding IsChoosenResourcePathValid}"
+              Content="[System.Continue]" IsEnabled="{Binding ShareEditProxy.IsChoosenResourcePathValid}"
               Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
       </Grid>

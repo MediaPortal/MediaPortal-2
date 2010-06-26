@@ -29,6 +29,7 @@ using System.Net;
 using HttpServer;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure.CP.DeviceTree;
+using UPnP.Infrastructure.Utils;
 using HttpListener=HttpServer.HttpListener;
 
 namespace UPnP.Infrastructure.CP
@@ -177,24 +178,30 @@ namespace UPnP.Infrastructure.CP
         if (_isActive)
           throw new IllegalCallException("UPnP control point mustn't be started multiple times");
 
-        _httpListenerV4 = HttpListener.Create(IPAddress.Any, 0);
-        _httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-        if (Configuration.USE_IPV4)
+        if (UPnPConfiguration.USE_IPV4)
         {
+          _httpListenerV4 = HttpListener.Create(IPAddress.Any, 0);
+          _httpListenerV4.RequestReceived += OnHttpListenerRequestReceived;
           _httpListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-          _cpData.HttpPortV4 = (uint) _httpListenerV4.LocalEndpoint.Port;
+          _cpData.HttpPortV4 = _httpListenerV4.LocalEndpoint.Port;
         }
         else
-          _cpData.HttpPortV4 = 0;
-        _httpListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
-        _httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-        if (Configuration.USE_IPV6)
         {
+          _httpListenerV4 = null;
+          _cpData.HttpPortV4 = 0;
+        }
+        if (UPnPConfiguration.USE_IPV6)
+        {
+          _httpListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0);
+          _httpListenerV6.RequestReceived += OnHttpListenerRequestReceived;
           _httpListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv6 isn't installed
-          _cpData.HttpPortV6 = (uint)_httpListenerV6.LocalEndpoint.Port;
+          _cpData.HttpPortV6 = _httpListenerV6.LocalEndpoint.Port;
         }
         else
+        {
+          _httpListenerV6 = null;
           _cpData.HttpPortV6 = 0;
+        }
         _networkTracker.RootDeviceRemoved += OnRootDeviceRemoved;
         _networkTracker.DeviceRebooted += OnDeviceRebooted;
 
@@ -215,10 +222,10 @@ namespace UPnP.Infrastructure.CP
         _isActive = false;
 
         DisconnectAll();
-        if (Configuration.USE_IPV4)
+        if (_httpListenerV4 != null)
           _httpListenerV4.Stop();
         _httpListenerV4 = null;
-        if (Configuration.USE_IPV6)
+        if (_httpListenerV6 != null)
           _httpListenerV6.Stop();
         _httpListenerV6 = null;
         _networkTracker.RootDeviceRemoved -= OnRootDeviceRemoved;
@@ -314,28 +321,32 @@ namespace UPnP.Infrastructure.CP
 
     protected void HandleHTTPRequest(IHttpClientContext context, IHttpRequest request)
     {
+      Uri uri = request.Uri;
+      string hostName = uri.Host;
+      string pathAndQuery = uri.PathAndQuery;
       try
       {
-        string uri = request.Uri.AbsoluteUri;
-        foreach (DeviceConnection connection in _connectedDevices.Values)
+        // Handle different HTTP methods here
+        if (request.Method == "NOTIFY")
         {
-          // Handle different HTTP methods here
-          if (request.Method == "NOTIFY")
+          foreach (DeviceConnection connection in _connectedDevices.Values)
           {
-            foreach (string notificationURL in connection.EventNotificationURLs)
-              if (uri.StartsWith(notificationURL))
-              {
-                IHttpResponse response = request.CreateResponse(context);
-                response.Status = connection.HandleEventNotification(request);
-                response.Send();
-                return;
-              }
+            if (!NetworkHelper.HostNamesEqual(hostName,
+                NetworkHelper.IPAddrToHostName(connection.GENAClientController.EventNotificationEndpoint.Address)))
+              continue;
+            if (pathAndQuery == connection.GENAClientController.EventNotificationPath)
+            {
+              IHttpResponse response = request.CreateResponse(context);
+              response.Status = connection.GENAClientController.HandleUnicastEventNotification(request);
+              response.Send();
+              return;
+            }
           }
-          else
-          {
-            context.Respond(HttpHelper.HTTP11, HttpStatusCode.MethodNotAllowed, null);
-            return;
-          }
+        }
+        else
+        {
+          context.Respond(HttpHelper.HTTP11, HttpStatusCode.MethodNotAllowed, null);
+          return;
         }
         // Url didn't match
         context.Respond(HttpHelper.HTTP11, HttpStatusCode.NotFound, null);

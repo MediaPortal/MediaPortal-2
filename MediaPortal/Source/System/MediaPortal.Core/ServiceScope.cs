@@ -40,20 +40,20 @@ namespace MediaPortal.Core
   /// <para>A ServiceScope is some kind of repository that holds a reference to 
   /// services that other components could need.</para><para>Instead of making
   /// this class a static with static properties for all types of services we 
-  /// choose to create a mechanism that is more flexible.  The biggest advantage of
+  /// choose to create a mechanism that is more flexible. The biggest advantage of
   /// this implemtentation is that you can create different ServiceScope instances
   /// that will be "stacked" upon one another.</para><para>This way you can (temporarily) 
   /// override a certain service by adding another implementation of the service
-  /// interface, which fits you better.  While your new ServiceScope instance 
+  /// interface, which fits you better. While your new ServiceScope instance 
   /// remains in scope, all code that is executed will automatically (if it is
   /// written correctly of course) use this new service implementation.</para>
   /// <para>
   /// <b>A service scope is only valid in the same thread it was created.</b> 
-  /// </para>
+  /// </para><para>
   /// The recommended way of passing the current <see cref="ServiceScope"/> to 
   /// another thread is by passing <see cref="ServiceScope.Current"/> with the 
   /// delegate used to start the thread and then use 
-  /// <code>ServiceScope.Current = passedContect;</code> to restore it in the 
+  /// <c>ServiceScope.Current = passedContect;</c> to restore it in the 
   /// thread.</para><para>If you do not pass the current ServiceScope to the 
   /// background thread, it will automatically fallback to the <b>global</b> 
   /// ServiceScope.  This is the current ServiceScope of the application thread.

@@ -28,12 +28,6 @@ using MediaPortal.Core.MediaManagement;
 
 namespace MediaPortal.UI.Shares
 {
-  public enum RelocationMode
-  {
-    Relocate,
-    ReImport
-  }
-
   /// <summary>
   /// Exposes methods to manage local shares.
   /// </summary>
@@ -55,6 +49,12 @@ namespace MediaPortal.UI.Shares
 
     void Initialize();
     void Shutdown();
+
+    /// <summary>
+    /// If no shares are present, this method can be called to setup the default client shares. This will create
+    /// the music share, the movies share and the pictures share with the Windows default directories.
+    /// </summary>
+    void SetupDefaultShares();
 
     /// <summary>
     /// Returns the share descriptor for the local share with the specified <paramref name="shareId"/>.

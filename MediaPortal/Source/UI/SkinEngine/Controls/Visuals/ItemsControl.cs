@@ -50,6 +50,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     protected AbstractProperty _itemsPanelProperty;
     protected AbstractProperty _currentItemProperty;
     protected AbstractProperty _itemsProperty;
+    protected AbstractProperty _isEmptyProperty;
 
     protected bool _templateApplied = false;
     protected Panel _itemsHostPanel = null;
@@ -73,6 +74,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _itemsPanelProperty = new SProperty(typeof(ItemsPanelTemplate), null);
       _currentItemProperty = new SProperty(typeof(object), null);
       _selectionChangedProperty = new SProperty(typeof(ICommandStencil), null);
+      _isEmptyProperty = new SProperty(typeof(bool), true);
     }
 
     void Attach()
@@ -201,6 +203,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       UIElementCollection children = new UIElementCollection(null);
       foreach (UIElement child in Items)
         children.Add(child);
+      IsEmpty = Items.Count == 0;
       _itemsHostPanel.Children = children;
     }
 
@@ -303,6 +306,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       get { return _currentItemProperty.GetValue(); }
       internal set { _currentItemProperty.SetValue(value); }
+    }
+
+    public AbstractProperty IsEmptyProperty
+    {
+      get { return _isEmptyProperty; }
+    }
+
+    public bool IsEmpty
+    {
+      get { return (bool) _isEmptyProperty.GetValue(); }
+      set { _isEmptyProperty.SetValue(value); }
     }
 
     public bool IsItemsPrepared

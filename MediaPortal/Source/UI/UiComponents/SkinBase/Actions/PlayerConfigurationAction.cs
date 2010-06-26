@@ -55,7 +55,7 @@ namespace UiComponents.SkinBase.Actions
 
     // This is the only attribute to be updated so we can optimize using volatile instead of using a lock
     protected volatile bool _isVisible;
-    protected readonly IResourceString _displayTitle; // TODO: Listen for language changes; update display title
+    protected readonly IResourceString _displayTitle;
 
     #endregion
 

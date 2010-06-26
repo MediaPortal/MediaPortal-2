@@ -26,7 +26,7 @@
 using System.IO;
 using InvalidDataException=MediaPortal.Utilities.Exceptions.InvalidDataException;
 
-namespace UPnP.Infrastructure.Dv.HTTP
+namespace UPnP.Infrastructure.Utils.HTTP
 {
   /// <summary>
   /// Encapsulates an HTTP request.

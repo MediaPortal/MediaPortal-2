@@ -58,7 +58,7 @@ namespace UPnP.Infrastructure.CP.SOAP
     {
       bool targetSupportsUPnP11 = upnpVersion.VerMin >= 1;
       StringBuilder result = new StringBuilder(5000);
-      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), Configuration.DEFAULT_XML_WRITER_SETTINGS))
+      using (XmlWriter writer = XmlWriter.Create(new StringWriterWithEncoding(result, Encoding.UTF8), UPnPConfiguration.DEFAULT_XML_WRITER_SETTINGS))
       {
         SoapHelper.WriteSoapEnvelopeStart(writer, true);
         writer.WriteStartElement("u", action.Name, action.ParentService.ServiceTypeVersion_URN);
@@ -99,7 +99,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       {
         if (!body.CanRead)
         {
-          Configuration.LOGGER.Error("SOAPHandler: Empty action result document");
+          UPnPConfiguration.LOGGER.Error("SOAPHandler: Empty action result document");
           action.ActionErrorResultPresent(new UPnPError(501, "Invalid server result"), clientState);
           return;
         }
@@ -108,7 +108,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Error("SOAPHandler: Error parsing action result document", e);
+        UPnPConfiguration.LOGGER.Error("SOAPHandler: Error parsing action result document", e);
         action.ActionErrorResultPresent(new UPnPError(501, "Invalid server result"), clientState);
         return;
       }
@@ -119,7 +119,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Error("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
+        UPnPConfiguration.LOGGER.Error("UPnP subsystem: Error invoking action '{0}'", e, action.FullQualifiedName);
       }
     }
 
@@ -134,7 +134,7 @@ namespace UPnP.Infrastructure.CP.SOAP
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Error("SOAPHandler: Error parsing action error result document", e);
+        UPnPConfiguration.LOGGER.Error("SOAPHandler: Error parsing action error result document", e);
         ActionFailed(action, clientState, "Invalid server result");
       }
     }
@@ -146,7 +146,7 @@ namespace UPnP.Infrastructure.CP.SOAP
 
     protected static void ParseFaultDocument(TextReader textReader, out uint errorCode, out string errorDescription)
     {
-      using(XmlReader reader = XmlReader.Create(textReader, Configuration.DEFAULT_XML_READER_SETTINGS))
+      using(XmlReader reader = XmlReader.Create(textReader, UPnPConfiguration.DEFAULT_XML_READER_SETTINGS))
       {
         reader.MoveToContent();
         // Parse SOAP envelope
@@ -171,7 +171,7 @@ namespace UPnP.Infrastructure.CP.SOAP
     protected static IList<object> ParseResult(TextReader textReader, CpAction action, bool sourceSupportsUPnP11)
     {
       IList<object> outParameterValues = new List<object>();
-      using(XmlReader reader = XmlReader.Create(textReader, Configuration.DEFAULT_XML_READER_SETTINGS))
+      using(XmlReader reader = XmlReader.Create(textReader, UPnPConfiguration.DEFAULT_XML_READER_SETTINGS))
       {
         reader.MoveToContent();
         // Parse SOAP envelope

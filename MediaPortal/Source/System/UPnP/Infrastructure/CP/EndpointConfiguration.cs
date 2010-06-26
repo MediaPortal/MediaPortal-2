@@ -30,17 +30,40 @@ namespace UPnP.Infrastructure.CP
 {
   public class EndpointConfiguration
   {
+    /// <summary>
+    /// Convenience property for the call to <c>EndPointIPAddress.AddressFamily</c>.
+    /// </summary>
     public AddressFamily AddressFamily
     {
       get { return EndPointIPAddress.AddressFamily; }
     }
 
+    /// <summary>
+    /// The IP address which specifies this endpoint.
+    /// </summary>
     public IPAddress EndPointIPAddress;
 
-    public Socket MulticastReceiveSocket;
+    /// <summary>
+    /// Socket which is bound to all necessary multicast groups for this endpoint and which is used to
+    /// receive multicast messages for the SSDP protocol.
+    /// </summary>
+    public Socket SSDP_UDP_MulticastReceiveSocket;
 
-    public Socket UnicastSocket;
+    /// <summary>
+    /// Socket which is bound to all necessary multicast groups for this endpoint and which is used to
+    /// receive multicast event messages for the GENA protocol.
+    /// </summary>
+    public Socket GENA_UDP_MulticastReceiveSocket;
 
+    /// <summary>
+    /// Socket which is used to a) send unicast and multicast messages and b) receive unicast messages for the SSDP protocol.
+    /// </summary>
+    public Socket SSDP_UDP_UnicastSocket;
+
+    /// <summary>
+    /// Address which is used to receive and send multicast messages for this endpoint. This address takes into account
+    /// that for IPv6 messages, the scope must be set according to the type of endpoint IP address.
+    /// </summary>
     public IPAddress SSDPMulticastAddress;
   }
 }

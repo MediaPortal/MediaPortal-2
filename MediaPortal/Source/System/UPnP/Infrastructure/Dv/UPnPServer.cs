@@ -61,17 +61,17 @@ namespace UPnP.Infrastructure.Dv
     /// <summary>
     /// Prefix which is added to URLs for description documents.
     /// </summary>
-    public static string DEFAULT_DESCRIPTION_URL_PREFIX = "upnphost/description";
+    public static string DEFAULT_DESCRIPTION_URL_PREFIX = "/upnphost/description";
 
     /// <summary>
     /// Prefix which is added to URLs for control requests.
     /// </summary>
-    public static string DEFAULT_CONTROL_URL_PREFIX = "upnphost/control";
+    public static string DEFAULT_CONTROL_URL_PREFIX = "/upnphost/control";
 
     /// <summary>
     /// Prefix which is added to URLs for event subsriptions.
     /// </summary>
-    public static string DEFAULT_EVENT_SUB_URL_PREFIX = "upnphost/eventing";
+    public static string DEFAULT_EVENT_SUB_URL_PREFIX = "/upnphost/eventing";
 
     protected ICollection<DvDevice> _rootDevices = new List<DvDevice>();
     protected ServerData _serverData = new ServerData();
@@ -180,29 +180,35 @@ namespace UPnP.Infrastructure.Dv
         if (_serverData.IsActive)
           throw new IllegalCallException("UPnP subsystem mustn't be started multiple times");
 
-        _serverData.HTTPListenerV4 = HttpListener.Create(IPAddress.Any, 0);
-        _serverData.HTTPListenerV4.RequestReceived += OnHttpListenerRequestReceived;
-        if (Configuration.USE_IPV4)
+        if (UPnPConfiguration.USE_IPV4)
         {
+          _serverData.HTTPListenerV4 = HttpListener.Create(IPAddress.Any, 0);
+          _serverData.HTTPListenerV4.RequestReceived += OnHttpListenerRequestReceived;
           _serverData.HTTPListenerV4.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE); // Might fail if IPv4 isn't installed
-          _serverData.HTTP_PORTv4 = (uint) _serverData.HTTPListenerV4.LocalEndpoint.Port;
+          _serverData.HTTP_PORTv4 = _serverData.HTTPListenerV4.LocalEndpoint.Port;
+          UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
         }
         else
-          _serverData.HTTP_PORTv4 = 0;
-
-        Configuration.LOGGER.Info("UPnP server: HTTP listener for IPv4 protocol started at port {0}", _serverData.HTTP_PORTv4);
-
-        _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0); // Might fail if IPv6 isn't installed
-        _serverData.HTTPListenerV6.RequestReceived += OnHttpListenerRequestReceived;
-        if (Configuration.USE_IPV6)
         {
+          _serverData.HTTPListenerV4 = null;
+          _serverData.HTTP_PORTv4 = 0;
+          UPnPConfiguration.LOGGER.Info("UPnP server: IPv4 protocol disabled, so no HTTP listener started for IPv4");
+        }
+
+        if (UPnPConfiguration.USE_IPV6)
+        {
+          _serverData.HTTPListenerV6 = HttpListener.Create(IPAddress.IPv6Any, 0); // Might fail if IPv6 isn't installed
+          _serverData.HTTPListenerV6.RequestReceived += OnHttpListenerRequestReceived;
           _serverData.HTTPListenerV6.Start(DEFAULT_HTTP_REQUEST_QUEUE_SIZE);
-          _serverData.HTTP_PORTv6 = (uint) _serverData.HTTPListenerV6.LocalEndpoint.Port;
+          _serverData.HTTP_PORTv6 = _serverData.HTTPListenerV6.LocalEndpoint.Port;
+          UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
         }
         else
+        {
+          _serverData.HTTPListenerV6 = null;
           _serverData.HTTP_PORTv6 = 0;
-
-        Configuration.LOGGER.Info("UPnP server: HTTP listener for IPv6 protocol started at port {0}", _serverData.HTTP_PORTv6);
+          UPnPConfiguration.LOGGER.Info("UPnP server: IPv6 protocol disabled, so no HTTP listener started for IPv6");
+        }
 
         _serverData.SSDPController = new SSDPServerController(_serverData)
           {
@@ -218,7 +224,7 @@ namespace UPnP.Infrastructure.Dv
         // At the end, start the controllers
         _serverData.SSDPController.Start();
         _serverData.GENAController.Start();
-        Configuration.LOGGER.Info("UPnP server online hosting {0} UPnP root devices", _serverData.Server.RootDevices.Count);
+        UPnPConfiguration.LOGGER.Info("UPnP server online hosting {0} UPnP root devices", _serverData.Server.RootDevices.Count);
       }
     }
 
@@ -256,9 +262,9 @@ namespace UPnP.Infrastructure.Dv
         _serverData.IsActive = false;
         _serverData.GENAController.Close();
         _serverData.SSDPController.Close();
-        if (Configuration.USE_IPV4)
+        if (_serverData.HTTPListenerV4 != null)
           _serverData.HTTPListenerV4.Stop();
-        if (Configuration.USE_IPV6)
+        if (_serverData.HTTPListenerV6 != null)
           _serverData.HTTPListenerV6.Stop();
         _serverData.UPnPEndPoints.Clear();
       }
@@ -287,25 +293,29 @@ namespace UPnP.Infrastructure.Dv
     /// <param name="request">HTTP request to handle.</param>
     protected void HandleHTTPRequest(IHttpClientContext context, IHttpRequest request)
     {
-      string uri = request.Uri.AbsoluteUri;
+      Uri uri = request.Uri;
+      string hostName = uri.Host;
+      string pathAndQuery = uri.PathAndQuery;
       try
       {
         DvService service;
         foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
         {
+          if (!NetworkHelper.HostNamesEqual(hostName, NetworkHelper.IPAddrToHostName(config.EndPointIPAddress)))
+            continue;
           // Handle different HTTP methods here
           if (request.Method == "GET")
           { // GET of descriptions
-            if (uri.StartsWith(config.DescriptionURLBase))
+            if (pathAndQuery.StartsWith(config.DescriptionPathBase))
             {
               string acceptLanguage = request.Headers.Get("ACCEPT-LANGUAGE");
               CultureInfo culture = GetFirstCultureOrDefault(acceptLanguage, CultureInfo.InvariantCulture);
   
               string description = null;
               DvDevice rootDevice;
-              if (config.RootDeviceDescriptionURLsToRootDevices.TryGetValue(uri, out rootDevice))
+              if (config.RootDeviceDescriptionPathsToRootDevices.TryGetValue(pathAndQuery, out rootDevice))
                 description = rootDevice.BuildRootDeviceDescription(_serverData, config, culture);
-              else if (config.SCPDURLsToServices.TryGetValue(uri, out service))
+              else if (config.SCPDPathsToServices.TryGetValue(pathAndQuery, out service))
                 description = service.BuildSCPDDocument(config, _serverData);
               if (description != null)
               {
@@ -322,7 +332,7 @@ namespace UPnP.Infrastructure.Dv
           }
           else if (request.Method == "POST")
           { // POST of control messages
-            if (config.ControlURLsToServices.TryGetValue(uri, out service))
+            if (config.ControlPathsToServices.TryGetValue(pathAndQuery, out service))
             {
               string contentType = request.Headers.Get("CONTENT-TYPE");
               string userAgentStr = request.Headers.Get("USER-AGENT");
@@ -345,7 +355,7 @@ namespace UPnP.Infrastructure.Dv
                 return;
               }
               response.AddHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
-              response.AddHeader("SERVER", Configuration.UPnPMachineInfoHeader);
+              response.AddHeader("SERVER", UPnPConfiguration.UPnPMachineInfoHeader);
               response.AddHeader("CONTENT-TYPE", "text/xml; charset=\"utf-8\"");
               string result;
               HttpStatusCode status;
@@ -356,7 +366,7 @@ namespace UPnP.Infrastructure.Dv
               }
               catch (Exception e)
               {
-                Configuration.LOGGER.Warn("Action invocation failed", e);
+                UPnPConfiguration.LOGGER.Warn("Action invocation failed", e);
                 result = SOAPHandler.CreateFaultDocument(501, "Action failed");
                 status = HttpStatusCode.InternalServerError;
               }
@@ -386,7 +396,7 @@ namespace UPnP.Infrastructure.Dv
       }
       catch (Exception e)
       {
-        Configuration.LOGGER.Error("UPnPServer: Error handling HTTP request '{0}'", e, uri);
+        UPnPConfiguration.LOGGER.Error("UPnPServer: Error handling HTTP request '{0}'", e, uri);
         IHttpResponse response = request.CreateResponse(context);
         response.Status = HttpStatusCode.InternalServerError;
         SafeSendResponse(response);
@@ -411,17 +421,18 @@ namespace UPnP.Infrastructure.Dv
     protected Int32 GenerateConfigId(EndpointConfiguration config)
     {
       Int64 result = 0;
-      foreach (DvDevice rootDevice in config.RootDeviceDescriptionURLsToRootDevices.Values)
+      foreach (DvDevice rootDevice in config.RootDeviceDescriptionPathsToRootDevices.Values)
       {
         string description = rootDevice.BuildRootDeviceDescription(_serverData, config, CultureInfo.InvariantCulture);
         result += HashGenerator.CalculateHash(0, description);
       }
-      foreach (DvService service in config.SCPDURLsToServices.Values)
+      foreach (DvService service in config.SCPDPathsToServices.Values)
       {
         string description = service.BuildSCPDDocument(config, _serverData);
         result += HashGenerator.CalculateHash(0, description);
       }
-      result += HashGenerator.CalculateHash(0, config.ControlURLBase + config.DescriptionURLBase + config.EventSubURLBase);
+      result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
+      result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
       return (int) result;
     }
 
@@ -437,21 +448,27 @@ namespace UPnP.Infrastructure.Dv
       IDictionary<IPAddress, EndpointConfiguration> oldEndpoints = new Dictionary<IPAddress, EndpointConfiguration>();
       foreach (EndpointConfiguration config in _serverData.UPnPEndPoints)
         oldEndpoints.Add(config.EndPointIPAddress, config);
-      ICollection<IPAddress> addresses = NetworkHelper.GetExternalIPAddresses();
+      IList<IPAddress> addresses = NetworkHelper.OrderAddressesByScope(NetworkHelper.GetUPnPEnabledIPAddresses());
 
       // Add new endpoints
       foreach (IPAddress address in addresses)
       {
         if (oldEndpoints.ContainsKey(address))
           continue;
-        Configuration.LOGGER.Debug("UPnPServer: Initializing IP endpoint '{0}'", address);
-        int port = (int) (address.AddressFamily == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6);
+        AddressFamily family = address.AddressFamily;
+        if (family == AddressFamily.InterNetwork && !UPnPConfiguration.USE_IPV4)
+          continue;
+        if (family == AddressFamily.InterNetworkV6 && !UPnPConfiguration.USE_IPV6)
+          continue;
+
+        UPnPConfiguration.LOGGER.Debug("UPnPServer: Initializing IP endpoint '{0}'", NetworkHelper.IPAddrToString(address));
         EndpointConfiguration config = new EndpointConfiguration
           {
               EndPointIPAddress = address,
-              DescriptionURLBase = new UriBuilder("http", address.ToString(), port, DEFAULT_DESCRIPTION_URL_PREFIX).ToString(),
-              ControlURLBase = new UriBuilder("http", address.ToString(), port, DEFAULT_CONTROL_URL_PREFIX).ToString(),
-              EventSubURLBase = new UriBuilder("http", address.ToString(), port, DEFAULT_EVENT_SUB_URL_PREFIX).ToString(),
+              DescriptionPathBase = DEFAULT_DESCRIPTION_URL_PREFIX,
+              ControlPathBase = DEFAULT_CONTROL_URL_PREFIX,
+              EventSubPathBase = DEFAULT_EVENT_SUB_URL_PREFIX,
+              HTTPServerPort = family == AddressFamily.InterNetwork ? _serverData.HTTP_PORTv4 : _serverData.HTTP_PORTv6
           };
         GenerateObjectURLs(config);
         config.ConfigId = GenerateConfigId(config);
@@ -463,7 +480,7 @@ namespace UPnP.Infrastructure.Dv
       foreach (EndpointConfiguration config in new List<EndpointConfiguration>(_serverData.UPnPEndPoints))
         if (!addresses.Contains(config.EndPointIPAddress))
         {
-          Configuration.LOGGER.Debug("UPnPServer: Removing obsolete IP endpoint IP '{0}'", config.EndPointIPAddress);
+          UPnPConfiguration.LOGGER.Debug("UPnPServer: Removing obsolete IP endpoint IP '{0}'", NetworkHelper.IPAddrToString(config.EndPointIPAddress));
           _serverData.GENAController.CloseGENAEndpoint(config);
           _serverData.SSDPController.CloseSSDPEndpoint(config, false);
           _serverData.UPnPEndPoints.Remove(config);

@@ -25,51 +25,38 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using UPnP.Infrastructure.Common;
+using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP.SSDP
 {
   /// <summary>
-  /// Contains SSDP advertisement data for a collection of device and service advertisements which are located in the same root
-  /// device.
-  /// The entries are lazily initialized, as the SSDP protocol doesn't provide a strict order of advertisement messages of
-  /// the single entries.
+  /// Contains data which is necessary to communicate with a UPnP device. Multi-homed devices are accessible via multiple
+  /// links; each possible link configuration is stored in its own instance of <see cref="LinkData"/>.
   /// </summary>
-  public class RootEntry
+  public class LinkData : IComparable<LinkData>
   {
     protected string _descriptionLocation;
+    protected string _descriptionServer;
     protected EndpointConfiguration _endpoint;
-    protected UPnPVersion _upnpVersion;
     protected HTTPVersion _httpVersion;
-    protected string _osVersion;
-    protected string _productVersion;
-    protected DateTime _expirationTime;
-    protected string _rootDeviceID; // UUID of the root device
-    protected IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
     protected int _searchPort = UPnPConsts.DEFAULT_SSDP_SEARCH_PORT;
-    protected uint _bootID = 0;
-    protected uint _configID = 0;
-    protected IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
 
     /// <summary>
-    /// Creates a new <see cref="RootEntry"/> instance.
+    /// Creates a new link configuration for the communication with a UPnP device.
     /// </summary>
-    /// <param name="deviceUUID">UUID of the root device.</param>
-    /// <param name="config">UPnP endpoint where the advertisement was received.</param>
-    /// <param name="upnpVersion">UPnP version the remote device is using.</param>
+    /// <param name="endpoint">UPnP endpoint where the advertisement was received.</param>
+    /// <param name="descriptionLocation">Location of the description document for this link.</param>
     /// <param name="httpVersion">HTTP version our partner is using.</param>
-    /// <param name="osVersion">OS and version our partner is using.</param>
-    /// <param name="productVersion">Product and version our partner is using.</param>
-    /// <param name="expirationTime">Time when the advertisement will expire.</param>
-    public RootEntry(string deviceUUID, EndpointConfiguration config, UPnPVersion upnpVersion, HTTPVersion httpVersion, string osVersion, string productVersion, DateTime expirationTime)
+    /// <param name="searchPort">Search port used in the new link.</param>
+    public LinkData(EndpointConfiguration endpoint, string descriptionLocation, HTTPVersion httpVersion, int searchPort)
     {
-      _rootDeviceID = deviceUUID;
-      _endpoint = config;
-      _upnpVersion = upnpVersion;
+      _endpoint = endpoint;
+      _descriptionLocation = descriptionLocation;
+      _descriptionServer = new Uri(_descriptionLocation).Host;
       _httpVersion = httpVersion;
-      _osVersion = osVersion;
-      _productVersion = productVersion;
-      _expirationTime = expirationTime;
+      _searchPort = searchPort;
     }
 
     /// <summary>
@@ -78,7 +65,6 @@ namespace UPnP.Infrastructure.CP.SSDP
     public string DescriptionLocation
     {
       get { return _descriptionLocation; }
-      internal set { _descriptionLocation = value; }
     }
 
     /// <summary>
@@ -90,11 +76,25 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
-    /// Returns the UPnP version the device's server uses for communication.
+    /// Returns the search port the remote SSDP server uses for unicast messaging.
     /// </summary>
-    public UPnPVersion UPnPVersion
+    public int SearchPort
     {
-      get { return _upnpVersion; }
+      get { return _searchPort; }
+    }
+
+    /// <summary>
+    /// Gets the distance of the description location. See <see cref="NetworkHelper.ZERO_DISTANCE"/>, <see cref="NetworkHelper.LINK_LOCAL_DISTANCE"/>,
+    /// <see cref="NetworkHelper.SITE_LOCAL_DISTANCE"/> and <see cref="NetworkHelper.GLOBAL_DISTANCE"/>.
+    /// </summary>
+    public int LinkDistance
+    {
+      get
+      {
+        IPAddress address;
+        return IPAddress.TryParse(_descriptionServer, out address) ?
+            NetworkHelper.GetLinkDistance(address) : NetworkHelper.GLOBAL_DISTANCE;
+      }
     }
 
     /// <summary>
@@ -103,6 +103,64 @@ namespace UPnP.Infrastructure.CP.SSDP
     public HTTPVersion HTTPVersion
     {
       get { return _httpVersion; }
+    }
+
+    public bool IsNearer(LinkData other)
+    {
+      return CompareTo(other) < 0;
+    }
+
+    public int CompareTo(LinkData other)
+    {
+      return LinkDistance - other.LinkDistance;
+    }
+  }
+
+  /// <summary>
+  /// Contains SSDP advertisement data for a collection of device and service advertisements which are located in the same root
+  /// device.
+  /// </summary>
+  /// <remarks>
+  /// The entries are lazily initialized, as the SSDP protocol doesn't provide a strict order of advertisement messages of
+  /// the single entries.
+  /// </remarks>
+  public class RootEntry
+  {
+    protected UPnPVersion _upnpVersion;
+    protected string _osVersion;
+    protected string _productVersion;
+    protected DateTime _expirationTime;
+    protected LinkData _preferredLink = null;
+    protected IDictionary<string, LinkData> _linkConfigurations = new Dictionary<string, LinkData>();
+    protected string _rootDeviceID; // UUID of the root device
+    protected IDictionary<string, DeviceEntry> _devices = new Dictionary<string, DeviceEntry>(); // Device UIDs to DeviceEntry structures
+    protected uint _bootID = 0;
+    protected uint _configID = 0;
+    protected IDictionary<string, object> _clientProperties = new Dictionary<string, object>();
+
+    /// <summary>
+    /// Creates a new <see cref="RootEntry"/> instance.
+    /// </summary>
+    /// <param name="deviceUUID">UUID of the root device.</param>
+    /// <param name="upnpVersion">UPnP version the remote device is using.</param>
+    /// <param name="osVersion">OS and version our partner is using.</param>
+    /// <param name="productVersion">Product and version our partner is using.</param>
+    /// <param name="expirationTime">Time when the advertisement will expire.</param>
+    public RootEntry(string deviceUUID, UPnPVersion upnpVersion, string osVersion, string productVersion, DateTime expirationTime)
+    {
+      _rootDeviceID = deviceUUID;
+      _upnpVersion = upnpVersion;
+      _osVersion = osVersion;
+      _productVersion = productVersion;
+      _expirationTime = expirationTime;
+    }
+
+    /// <summary>
+    /// Returns the UPnP version the device's server uses for communication.
+    /// </summary>
+    public UPnPVersion UPnPVersion
+    {
+      get { return _upnpVersion; }
     }
 
     /// <summary>
@@ -119,15 +177,6 @@ namespace UPnP.Infrastructure.CP.SSDP
     public string Product_Version
     {
       get { return _productVersion; }
-    }
-
-    /// <summary>
-    /// Returns the search port the remote SSDP server uses for unicast messaging.
-    /// </summary>
-    public int SearchPort
-    {
-      get { return _searchPort; }
-      internal set { _searchPort = value; }
     }
 
     /// <summary>
@@ -159,6 +208,14 @@ namespace UPnP.Infrastructure.CP.SSDP
     }
 
     /// <summary>
+    /// Gets the best available link to the device of this device root entry.
+    /// </summary>
+    public LinkData PreferredLink
+    {
+      get { return _preferredLink; }
+    }
+
+    /// <summary>
     /// Gets a mapping of device UUIDs to <see cref="DeviceEntry"/> instances describing the contained devices.
     /// </summary>
     public IDictionary<string, DeviceEntry> Devices
@@ -180,6 +237,17 @@ namespace UPnP.Infrastructure.CP.SSDP
     public IDictionary<string, object> ClientProperties
     {
       get { return _clientProperties; }
+    }
+
+    internal LinkData AddOrUpdateLink(EndpointConfiguration endpoint, string descriptionLocation,
+        HTTPVersion httpVersion, int searchPort)
+    {
+      LinkData result;
+      if (!_linkConfigurations.TryGetValue(descriptionLocation, out result))
+        _linkConfigurations.Add(descriptionLocation, result = new LinkData(endpoint, descriptionLocation, httpVersion, searchPort));
+      if (_preferredLink == null || result.IsNearer(_preferredLink))
+        _preferredLink = result;
+      return result;
     }
 
     /// <summary>

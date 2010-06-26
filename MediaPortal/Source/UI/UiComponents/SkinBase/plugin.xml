@@ -21,7 +21,7 @@
     <Model Id="E821B1C8-0666-4339-8027-AA45A4F6F107" Name="TimeModel" ClassName="UiComponents.SkinBase.Models.TimeModel"/>
     <Model Id="81A130E1-F417-47e4-AC9C-0B2E4912331F" Name="ServerAttachmentModel" ClassName="UiComponents.SkinBase.Models.ServerAttachmentModel"/>
     <Model Id="854ABA9A-71A1-420b-A657-9641815F9C01" Name="HomeServerModel" ClassName="UiComponents.SkinBase.Models.HomeServerModel"/>
-    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SaresModel" ClassName="UiComponents.SkinBase.Settings.Configuration.Shares.SharesConfigModel"/>
+    <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SharesModel" ClassName="UiComponents.SkinBase.Models.SharesConfigModel"/>
     <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="PlayerModel" ClassName="UiComponents.SkinBase.Models.PlayerModel"/>
     <Model Id="58A7F9E3-1514-47af-8E83-2AD60BA8A037" Name="PlayerConfigurationDialogModel" ClassName="UiComponents.SkinBase.Models.PlayerConfigurationDialogModel"/>
 
@@ -29,6 +29,8 @@
     <Model Id="04854BDB-0933-4194-8AAE-DEC50062F37F" Name="CurrentMediaContributorModel" ClassName="UiComponents.SkinBase.Actions.CurrentMediaAction"/>
     <Model Id="08E19EDA-7BB3-4e74-8079-FFB0D52F3838" Name="FullscreenContentContributorModel" ClassName="UiComponents.SkinBase.Actions.FullscreenContentAction"/>
     <Model Id="793DAD9F-F64C-4c7a-86C0-F5AA222D0CDB" Name="AttachDetachContributorModel" ClassName="UiComponents.SkinBase.Actions.AttachDetachAction"/>
+    <Model Id="9E456C79-3FF1-4040-8CD7-4247C4C12817" Name="AddShareContributorModel" ClassName="UiComponents.SkinBase.Actions.AddShareAction"/>
+    <Model Id="35907215-09EE-4886-9E8B-8A222B9B6DCA" Name="SetupDefaultSharesContributorModel" ClassName="UiComponents.SkinBase.Actions.SetupDefaultSharesAction"/>
   </Register>
 
   <Register Location="/Services">

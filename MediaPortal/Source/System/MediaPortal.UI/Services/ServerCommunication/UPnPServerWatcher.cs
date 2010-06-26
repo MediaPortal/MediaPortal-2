@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
 using MediaPortal.Core;
-using MediaPortal.Core.General;
 using MediaPortal.Core.Logging;
 using MediaPortal.Core.UPnP;
 using MediaPortal.UI.ServerCommunication;
@@ -88,8 +87,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         nsmgr.AddNamespace("d", UPnP.Infrastructure.UPnPConsts.NS_DEVICE_DESCRIPTION);
         string udn = RootDescriptor.GetDeviceUDN(deviceElementNav, nsmgr);
         string friendlyName = ParserHelper.SelectText(deviceElementNav, "d:friendlyName/text()", nsmgr);
-        SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.DescriptionLocation).Host);
-        return new ServerDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName, system);
+        return new ServerDescriptor(rootDescriptor, ParserHelper.ExtractUUIDFromUDN(udn), friendlyName);
       }
       catch (Exception e)
       {
@@ -106,8 +104,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || _availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MP 2 BackendServer '{0}' at host '{1}'",
-            serverDescriptor.ServerName, serverDescriptor.System.HostName);
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: Found MediaPortal 2 BackendServer '{0}' at host '{1}'",
+            serverDescriptor.ServerName, serverDescriptor.GetPreferredLink().HostName);
         _availableServers.Add(serverDescriptor);
         availableServers = _availableServers;
       }
@@ -122,8 +120,8 @@ namespace MediaPortal.UI.Services.ServerCommunication
         ServerDescriptor serverDescriptor = GetMPBackendServerDescriptor(rootDescriptor);
         if (serverDescriptor == null || !_availableServers.Contains(serverDescriptor))
           return;
-        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MP 2 BackendServer '{0}' at host '{1}' was removed from the network",
-            serverDescriptor.ServerName, serverDescriptor.System.HostName);
+        ServiceScope.Get<ILogger>().Debug("UPnPServerWatcher: MediaPortal 2 BackendServer '{0}' at host '{1}' was removed from the network",
+            serverDescriptor.ServerName, serverDescriptor.GetPreferredLink().HostName);
         _availableServers.Remove(serverDescriptor);
         availableServers = _availableServers;
       }

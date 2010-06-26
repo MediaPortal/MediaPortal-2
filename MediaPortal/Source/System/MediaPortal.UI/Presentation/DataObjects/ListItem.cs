@@ -299,14 +299,20 @@ namespace MediaPortal.UI.Presentation.DataObjects
     /// </summary>
     public string this[string name]
     {
-      get { return _labels.ContainsKey(name) ? _labels[name].Evaluate() : string.Empty; }
+      get
+      {
+        IResourceString result;
+        if (!_labels.TryGetValue(name, out result))
+          return string.Empty;
+        return result == null ? null : result.Evaluate();
+      }
     }
 
     public override string ToString()
     {
       IList<string> l = new List<string>();
       foreach (KeyValuePair<string, IResourceString> kvp in _labels)
-        l.Add(kvp.Key + "=" + kvp.Value.Evaluate());
+        l.Add(kvp.Key + "=" + kvp.Value);
       return GetType().Name + ": " + StringUtils.Join(", ", l);
     }
   }

@@ -137,7 +137,7 @@
     <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
     <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
     <Compile Include="Services\Shares\LocalSharesManagement.cs" />
-    <Compile Include="Services\Shares\SharesMessaging.cs" />
+    <Compile Include="Shares\SharesMessaging.cs" />
     <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
     <Compile Include="Services\SystemResolver\SystemResolver.cs" />
     <Compile Include="Services\ThumbnailGenerator\Database\Thumb.cs" />
@@ -173,6 +173,10 @@
     <Compile Include="Views\ViewSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HttpServer\HttpServer.csproj">
+      <Project>{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}</Project>
+      <Name>HttpServer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MediaPortal.Core\MediaPortal.Core.csproj">
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Core</Name>

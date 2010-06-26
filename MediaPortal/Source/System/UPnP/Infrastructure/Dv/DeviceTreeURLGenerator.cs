@@ -51,55 +51,54 @@ namespace UPnP.Infrastructure.Dv
     /// <param name="config">UPnP endpoint to generate the URLs for.</param>
     public static void GenerateObjectURLs(UPnPServer server, EndpointConfiguration config)
     {
-      config.SCPDURLsToServices.Clear();
-      config.ControlURLsToServices.Clear();
-      config.EventSubURLsToServices.Clear();
+      config.SCPDPathsToServices.Clear();
+      config.ControlPathsToServices.Clear();
+      config.EventSubPathsToServices.Clear();
 
-      string descriptionBase = StringUtils.CheckSuffix(config.DescriptionURLBase, "/");
+      string descriptionBase = config.DescriptionPathBase;
       foreach (DvDevice rootDevice in server.RootDevices)
       {
-        string url = descriptionBase + rootDevice.UDN;
-        config.RootDeviceDescriptionURLsToRootDevices.Add(url, rootDevice);
-        config.RootDeviceDescriptionURLs.Add(rootDevice, url);
-        GenerateURLsRecursive(rootDevice, config);
+        string path = descriptionBase + rootDevice.UDN;
+        config.RootDeviceDescriptionPathsToRootDevices.Add(path, rootDevice);
+        config.RootDeviceDescriptionPaths.Add(rootDevice, path);
+        GeneratePathsRecursive(rootDevice, config);
       }
     }
 
-    protected static void GenerateURLsRecursive(DvDevice device, EndpointConfiguration config)
+    protected static void GeneratePathsRecursive(DvDevice device, EndpointConfiguration config)
     {
-      string descriptionBase = StringUtils.CheckSuffix(config.DescriptionURLBase, "/");
-      string controlBase = StringUtils.CheckSuffix(config.ControlURLBase, "/");
-      string eventBase = StringUtils.CheckSuffix(config.EventSubURLBase, "/");
-
       string deviceRelUrl = StringUtils.CheckSuffix(device.UDN, "/");
       foreach (DvService service in device.Services)
       {
-        ServiceURLs serviceURLs = new ServiceURLs
+        ServicePaths servicePaths = new ServicePaths
           {
-              SCPDURL = GenerateAndAddUniqueURL(
-                  config.SCPDURLsToServices, descriptionBase + deviceRelUrl + service.ServiceTypeVersion_URN, ".xml", service),
-              ControlURL = GenerateAndAddUniqueURL(
-                  config.ControlURLsToServices, controlBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service),
-              EventSubURL = GenerateAndAddUniqueURL(
-                  config.EventSubURLsToServices, eventBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service)
+              SCPDPath =
+                  GenerateAndAddUniquePath(config.SCPDPathsToServices,
+                      config.DescriptionPathBase + deviceRelUrl + service.ServiceTypeVersion_URN, ".xml", service),
+              ControlPath = 
+                  GenerateAndAddUniquePath(config.ControlPathsToServices,
+                      config.ControlPathBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service),
+              EventSubPath = 
+                  GenerateAndAddUniquePath(config.EventSubPathsToServices,
+                      config.EventSubPathBase + deviceRelUrl + service.ServiceTypeVersion_URN, string.Empty, service)
           };
-        config.ServiceURLs.Add(service, serviceURLs);
+        config.ServicePaths.Add(service, servicePaths);
       }
       foreach (DvDevice embeddedDevice in device.EmbeddedDevices)
-        GenerateURLsRecursive(embeddedDevice, config);
+        GeneratePathsRecursive(embeddedDevice, config);
     }
 
-    protected static string GenerateAndAddUniqueURL<T>(IDictionary<string, T> mapping, string prefix, string suffix, T obj)
+    protected static string GenerateAndAddUniquePath<T>(IDictionary<string, T> mapping, string prefix, string suffix, T obj)
     {
       string result = prefix + suffix;
-      ICollection<string> availableURLs = mapping.Keys;
-      if (!availableURLs.Contains(result))
+      ICollection<string> availablePaths = mapping.Keys;
+      if (!availablePaths.Contains(result))
       {
         mapping.Add(result, obj);
         return result;
       }
       int i = 0;
-      while (availableURLs.Contains(result = (prefix + i) + suffix))
+      while (availablePaths.Contains(result = (prefix + i) + suffix))
         i++;
       mapping.Add(result, obj);
       return result;

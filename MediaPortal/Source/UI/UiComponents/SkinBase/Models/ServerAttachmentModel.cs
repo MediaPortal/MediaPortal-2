@@ -214,10 +214,11 @@ namespace UiComponents.SkinBase.Models
           if (!shownServers.ContainsKey(sd.MPBackendServerUUID))
           {
             ListItem serverItem = new ListItem();
+            SystemName system = sd.GetPreferredLink();
             serverItem.SetLabel(NAME_KEY, LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
-                sd.ServerName, sd.System.HostName));
+                sd.ServerName, system.HostName));
             serverItem.SetLabel(SERVER_NAME_KEY, sd.ServerName);
-            serverItem.SetLabel(SYSTEM_KEY, sd.System.HostName);
+            serverItem.SetLabel(SYSTEM_KEY, system.HostName);
             serverItem.AdditionalProperties[SERVER_DESCRIPTOR_KEY] = sd;
             serverItem.Command = new MethodDelegateCommand(() => ChooseNewHomeServerAndClose(serverItem));
             _availableServers.Add(serverItem);
@@ -236,7 +237,7 @@ namespace UiComponents.SkinBase.Models
         enumer.MoveNext();
         _singleAvailableServer = enumer.Current;
         SingleServer = LocalizationHelper.Translate(SERVER_FORMAT_TEXT_RES,
-            _singleAvailableServer.ServerName, _singleAvailableServer.System.HostName);
+            _singleAvailableServer.ServerName, _singleAvailableServer.GetPreferredLink().HostName);
       }
       else
         SingleServer = string.Empty;
@@ -263,7 +264,7 @@ namespace UiComponents.SkinBase.Models
       _attachInfoDialogHandle = Guid.Empty; // Set this to value != null here to make the attachment dialog's close handler know we are not finished in our WF-state
       screenManager.CloseDialog();
       string header = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_HEADER_RES);
-      string text = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_TEXT_RES, sd.ServerName, sd.System.HostName);
+      string text = LocalizationHelper.Translate(ATTACH_INFO_DIALOG_TEXT_RES, sd.ServerName, sd.GetPreferredLink().HostName);
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.OkDialog, false, DialogButtonType.Ok);
       lock (_syncObj)
         _attachInfoDialogHandle = handle;

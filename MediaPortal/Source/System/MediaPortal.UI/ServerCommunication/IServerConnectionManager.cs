@@ -28,7 +28,8 @@ using MediaPortal.Core.General;
 namespace MediaPortal.UI.ServerCommunication
 {
   /// <summary>
-  /// Manages the UPnP connection to the backend home server.
+  /// Manages the UPnP connection to the backend home server. This interface is implemented by a local service which provides
+  /// access to various connection states and connection methods.
   /// </summary>
   public interface IServerConnectionManager
   {
@@ -56,7 +57,7 @@ namespace MediaPortal.UI.ServerCommunication
     string LastHomeServerName { get; }
 
     /// <summary>
-    /// Gets the computer name of the last connecdted home server, if this MediaPortal client is attached to a home server.
+    /// Gets the computer name of the last connected home server, if this MediaPortal client is attached to a home server.
     /// Else, this property will be <c>null</c>.
     /// </summary>
     SystemName LastHomeServerSystem { get; }

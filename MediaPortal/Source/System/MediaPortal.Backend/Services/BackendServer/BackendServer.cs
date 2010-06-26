@@ -41,6 +41,7 @@ namespace MediaPortal.Backend.Services.BackendServer
   public class BackendServer : IBackendServer, IDisposable
   {
     public const string MP2SERVER_DEVICEVERSION = "MediaPortal2/1.0";
+    public const string MP2_HTTP_SERVER_NAME = "MediaPortal 2 Web Server";
 
     public class UPnPLoggerDelegate : UPnPLogger
     {
@@ -168,10 +169,11 @@ namespace MediaPortal.Backend.Services.BackendServer
       BackendServerSettings settings = ServiceScope.Get<ISettingsManager>().Load<BackendServerSettings>();
       _httpServerV4 = new HttpServer.HttpServer(new HttpLogWriter());
       _httpServerV6 = new HttpServer.HttpServer(new HttpLogWriter());
-      Configuration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
-      Configuration.LOGGER = new UPnPLoggerDelegate();
-      Configuration.USE_IPV4 = settings.UseIPv4;
-      Configuration.USE_IPV6 = settings.UseIPv6;
+      UPnPConfiguration.PRODUCT_VERSION = MP2SERVER_DEVICEVERSION;
+      UPnPConfiguration.LOGGER = new UPnPLoggerDelegate();
+      UPnPConfiguration.USE_IPV4 = settings.UseIPv4;
+      UPnPConfiguration.USE_IPV6 = settings.UseIPv6;
+      HttpResponse.HTTP_SERVER_NAME = MP2_HTTP_SERVER_NAME;
 
       ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
       _upnpServer = new UPnPBackendServer(systemResolver.LocalSystemId);

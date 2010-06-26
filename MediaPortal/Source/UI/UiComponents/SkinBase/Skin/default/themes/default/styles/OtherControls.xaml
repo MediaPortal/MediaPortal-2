@@ -430,6 +430,10 @@
       </Grid.ColumnDefinitions>
       <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="22"/>
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}" FontSize="22"/>
+<!-- Additionally available properties to show here:
+      <Label x:Name="ShareProvider" Grid.Column="2" Content="{Binding AdditionalProperties[MediaProviderMetadata].Name}" FontSize="22"/>
+      <Label x:Name="ShareProvider" Grid.Column="3" Content="{Binding [Categories]}" FontSize="22"/>
+-->
     </Grid>
   </DataTemplate>
 
@@ -470,6 +474,20 @@
 
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <StackPanel>
+            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                Color="{ThemeResource HintTextColor}" FontSize="22"/>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HighlightableShareContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
@@ -477,6 +495,20 @@
 
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="MultiMarkableSharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <StackPanel>
+            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                Color="{ThemeResource HintTextColor}" FontSize="22"/>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShareContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>
@@ -484,6 +516,20 @@
 
   <!-- ListView style to be used for the shares list -->
   <Style x:Key="SingleMarkableSharesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <StackPanel>
+            <ScrollViewer Style="{ThemeResource DefaultScrollViewerStyle}" CanContentScroll="true"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ItemsPresenter VerticalAlignment="Top" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[SharesConfig.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                Color="{ThemeResource HintTextColor}" FontSize="22"/>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableShareContainerStyle}"/>
     <Setter Property="Background" Value="{ThemeResource ItemsControlShadowBackgroundColor}"/>

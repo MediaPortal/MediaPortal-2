@@ -25,7 +25,6 @@
 using System.Collections.Generic;
 using MediaPortal.UI.SkinEngine.Xaml;
 using MediaPortal.UI.SkinEngine.Xaml.Interfaces;
-using MediaPortal.Utilities.DeepCopy;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
 {
@@ -36,7 +35,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Resources
   /// </summary>
   /// <remarks>
   /// We don't derive <see cref="LateBoundValue"/> from <see cref="ValueWrapper"/> because we must avoid
-  /// that the <see cref="BindingValue"/> property gets automatically copied in the <see cref="DeepCopy"/> method.
+  /// that the <see cref="BindingValue"/> property gets automatically copied in the DeepCopy method.
   /// </remarks>
   public class LateBoundValue : DependencyObject, IContentEnabled
   {

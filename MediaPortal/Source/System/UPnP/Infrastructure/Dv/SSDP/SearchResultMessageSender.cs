@@ -27,7 +27,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using UPnP.Infrastructure.Dv.HTTP;
+using UPnP.Infrastructure.Utils.HTTP;
 
 namespace UPnP.Infrastructure.Dv.SSDP
 {
@@ -53,15 +53,20 @@ namespace UPnP.Infrastructure.Dv.SSDP
       response.SetHeader("CACHE-CONTROL", "max-age = " + _serverData.AdvertisementExpirationTime);
       response.SetHeader("DATE", DateTime.Now.ToUniversalTime().ToString("R"));
       response.SetHeader("EXT", string.Empty);
-      response.SetHeader("SERVER", Configuration.UPnPMachineInfoHeader);
+      response.SetHeader("SERVER", UPnPConfiguration.UPnPMachineInfoHeader);
       response.SetHeader("ST", NT);
       response.SetHeader("USN", USN);
       response.SetHeader("BOOTID.UPNP.ORG", _serverData.BootId.ToString());
       response.SetHeader("CONFIGID.UPNP.ORG", _localEndpointConfiguration.ConfigId.ToString());
+      if (_localEndpointConfiguration.AddressFamily == AddressFamily.InterNetworkV6)
+      {
+        response.SetHeader("OPT", "\"http://schemas.upnp.org/upnp/1/0/\"; ns=01");
+        response.SetHeader("01-NLS", _serverData.BootId.ToString());
+      }
       if (_localEndpointConfiguration.SSDPUsesSpecialSearchPort)
         response.SetHeader("SEARCHPORT.UPNP.ORG", _localEndpointConfiguration.SSDPSearchPort.ToString());
 
-      response.SetHeader("LOCATION", _localEndpointConfiguration.RootDeviceDescriptionURLs[rootDevice]);
+      response.SetHeader("LOCATION", _localEndpointConfiguration.GetRootDeviceDescriptionURL(rootDevice));
       byte[] bytes = response.Encode();
       Socket socket = _localEndpointConfiguration.SSDP_UDP_UnicastSocket;
       if (socket != null)
