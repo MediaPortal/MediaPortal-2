@@ -101,22 +101,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public Orientation Orientation
     {
-      get { return (Orientation)_orientationProperty.GetValue(); }
+      get { return (Orientation) _orientationProperty.GetValue(); }
       set { _orientationProperty.SetValue(value); }
     }
 
     #endregion
 
     #region Layouting
-
-    protected IList<FrameworkElement> GetVisibleChildren()
-    {
-      IList<FrameworkElement> result = new List<FrameworkElement>(Children.Count);
-      foreach (FrameworkElement child in Children)
-        if (child.IsVisible)
-          result.Add(child);
-      return result;
-    }
 
     public void SetScrollIndex(int scrollIndex)
     {
@@ -642,6 +633,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
+        if (Orientation == Orientation.Vertical)
+          return 0;
         float spaceBefore = 0;
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         // Need to avoid threading issues. If the render thread is arranging at the same time, _scrollIndex
@@ -667,6 +660,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     {
       get
       {
+        if (Orientation == Orientation.Horizontal)
+          return 0;
         float spaceBefore = 0;
         IList<FrameworkElement> visibleChildren = GetVisibleChildren();
         // Need to avoid threading issues. If the render thread is arranging at the same time, _scrollIndex

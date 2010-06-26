@@ -269,6 +269,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       }
     }
 
+    protected IList<FrameworkElement> GetVisibleChildren()
+    {
+      IList<FrameworkElement> result = new List<FrameworkElement>(Children.Count);
+      foreach (FrameworkElement child in Children)
+        if (child.IsVisible)
+          result.Add(child);
+      return result;
+    }
+
     protected virtual void UpdateRenderOrder()
     {
       if (!_updateRenderOrder) return;
