@@ -20,6 +20,7 @@
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="20"/> <!-- Placeholder -->
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>

@@ -120,6 +120,7 @@
     <String Name="CannotAddShareLocalHomeServerNotConnected" Text="Cannot add shares: The home server is located at the same computer, thus all shares must be registered at the server. But the server is not connected at the moment. Please start the home server and try again."/>
     <String Name="SharesOverview" Text="Shares overview"/>
     <String Name="NoSharesInThisView" Text="- No shares in this view -"/>
+    <String Name="NoSharesAvailable" Text="There are no shares available"/>
     <String Name="SetupDefaultShares" Text="Setup default shares"/>
     <String Name="InvalidPath" Text="INVALID PATH: '{0}'"/> <!-- For example: INVALID PATH: 'C:\XXX\YYY' -->
     <String Name="RemoveShares" Text="Remove shares"/>

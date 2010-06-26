@@ -115,6 +115,7 @@ namespace UiComponents.SkinBase.Models
     protected AbstractProperty _isLocalHomeServerProperty;
     protected AbstractProperty _showLocalSharesProperty;
     protected AbstractProperty _isSystemSelectedProperty;
+    protected AbstractProperty _anyShareAvailableProperty;
     protected bool _enableLocalShares = true;
     protected bool _enableServerShares = true;
     protected AsynchronousMessageQueue _messageQueue = null;
@@ -130,6 +131,7 @@ namespace UiComponents.SkinBase.Models
       _isLocalHomeServerProperty = new WProperty(typeof(bool), false);
       _showLocalSharesProperty = new WProperty(typeof(bool), false);
       _isSystemSelectedProperty = new WProperty(typeof(bool), false);
+      _anyShareAvailableProperty = new WProperty(typeof(bool), false);
     }
 
     public void Dispose()
@@ -319,6 +321,20 @@ namespace UiComponents.SkinBase.Models
     {
       get { return (bool) _isSharesSelectedProperty.GetValue(); }
       set { _isSharesSelectedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty AnyShareAvailableProperty
+    {
+      get { return _anyShareAvailableProperty; }
+    }
+
+    /// <summary>
+    /// <c>true</c> if at least one share is present to be shown/edited/removed.
+    /// </summary>
+    public bool AnyShareAvailable
+    {
+      get { return (bool) _anyShareAvailableProperty.GetValue(); }
+      set { _anyShareAvailableProperty.SetValue(value); }
     }
 
     #endregion
@@ -548,8 +564,14 @@ namespace UiComponents.SkinBase.Models
         }
         catch (DisconnectedException)
         {
+          IsSharesSelected = false;
+          ShowLocalShares = false;
           DisconnectedError();
         }
+        bool anySharesAvailable;
+        lock (_syncObj)
+          anySharesAvailable = _serverSharesList.Count > 0 || _localSharesList.Count > 0;
+        AnyShareAvailable = anySharesAvailable;
       }
       finally
       {

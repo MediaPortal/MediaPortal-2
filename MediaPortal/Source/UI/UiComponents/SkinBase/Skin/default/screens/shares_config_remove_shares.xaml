@@ -14,43 +14,56 @@
 
     <!-- Contents -->
     <ResourceWrapper x:Key="Client_Element">
-      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+      <Grid DataContext="{Binding Source={StaticResource Model}}"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="*"/>
-          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Wrap="True"/>
-        <StackPanel x:Name="GlobalSharesPanel" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            IsVisible="{Binding IsHomeServerConnected}">
-          <Label Margin="10" Content="[SharesConfig.GlobalShares]"/>
-          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
-              Style="{ThemeResource MultiMarkableSharesListViewStyle}"
-              ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
-        </StackPanel>
-        <StackPanel x:Name="LocalSharesPanel" Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            IsVisible="{Binding ShowLocalShares}">
-          <Label Margin="10,30,10,10" Content="[SharesConfig.LocalShares]"/>
-          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
-              Style="{ThemeResource MultiMarkableSharesListViewStyle}"
-              ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
-        </StackPanel>
-        <Grid Grid.Row="3" Margin="10,10,10,0">
+        <Label Grid.Row="0" Grid.Column="0" IsVisible="{Binding !AnyShareAvailable}"
+            HorizontalAlignment="Center" VerticalAlignment="Center"
+            Content="[SharesConfig.NoSharesAvailable]"/>
+        <Grid Grid.Row="0" Grid.Column="0" IsVisible="{Binding AnyShareAvailable}"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Button x:Name="RemoveButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Finish]" IsEnabled="{Binding IsSharesSelected}"
-              Command="{Command Source={StaticResource Model},Path=RemoveSelectedSharesAndFinish}"/>
+          <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Wrap="True"/>
+          <StackPanel x:Name="GlobalSharesPanel" Grid.Row="1" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsVisible="{Binding IsHomeServerConnected}">
+            <Label Margin="10" Content="[SharesConfig.GlobalShares]"/>
+            <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                Style="{ThemeResource MultiMarkableSharesListViewStyle}"
+                ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
+          </StackPanel>
+          <StackPanel x:Name="LocalSharesPanel" Grid.Row="2" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsVisible="{Binding ShowLocalShares}">
+            <Label Margin="10,30,10,10" Content="[SharesConfig.LocalShares]"/>
+            <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                Style="{ThemeResource MultiMarkableSharesListViewStyle}"
+                ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
+          </StackPanel>
+          <Grid Grid.Row="3" Margin="10,10,10,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="10"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="RemoveButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+                Content="[System.Finish]" IsEnabled="{Binding IsSharesSelected}"
+                Command="{Command Source={StaticResource Model},Path=RemoveSelectedSharesAndFinish}"/>
+          </Grid>
         </Grid>
       </Grid>
     </ResourceWrapper>
