@@ -298,14 +298,14 @@ namespace UPnP.Infrastructure.Utils
       }
     }
 
-    public static void DisposeSSDPMulticastSocket(Socket socket, AddressFamily family)
+    public static void DisposeSSDPMulticastSocket(Socket socket)
     {
       try
       {
-        if (family == AddressFamily.InterNetwork)
+        if (socket.AddressFamily == AddressFamily.InterNetwork)
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
               new MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V4));
-        else if (family == AddressFamily.InterNetworkV6)
+        else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
         {
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
               new IPv6MulticastOption(UPnPConsts.SSDP_MULTICAST_ADDRESS_V6_NODE_LOCAL));
@@ -324,14 +324,14 @@ namespace UPnP.Infrastructure.Utils
       socket.Close();
     }
 
-    public static void DisposeGENAMulticastSocket(Socket socket, AddressFamily family)
+    public static void DisposeGENAMulticastSocket(Socket socket)
     {
       try
       {
-        if (family == AddressFamily.InterNetwork)
+        if (socket.AddressFamily == AddressFamily.InterNetwork)
           socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.DropMembership,
               new MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V4));
-        else if (family == AddressFamily.InterNetworkV6)
+        else if (socket.AddressFamily == AddressFamily.InterNetworkV6)
         {
           socket.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.DropMembership,
               new IPv6MulticastOption(UPnPConsts.GENA_MULTICAST_ADDRESS_V6_NODE_LOCAL));

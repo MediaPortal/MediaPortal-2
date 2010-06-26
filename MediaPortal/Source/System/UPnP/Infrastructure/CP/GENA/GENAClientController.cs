@@ -128,13 +128,13 @@ namespace UPnP.Infrastructure.CP.GENA
           if (unsubscribeEvents)
             UnsubscribeEvents(subscription);
         _subscriptions.Clear();
-        Socket socket = _endpoint.SSDP_UDP_MulticastReceiveSocket;
+        Socket socket = _endpoint.GENA_UDP_MulticastReceiveSocket;
         if (socket != null)
         {
           UPnPConfiguration.LOGGER.Info("UPnPServerController: GENA disabled for IP endpoint '{0}'",
               NetworkHelper.IPAddrToString(_endpoint.EndPointIPAddress));
           _endpoint.GENA_UDP_MulticastReceiveSocket = null;
-          NetworkHelper.DisposeGENAMulticastSocket(socket, _endpoint.AddressFamily);
+          NetworkHelper.DisposeGENAMulticastSocket(socket);
         }
       }
     }
@@ -166,7 +166,7 @@ namespace UPnP.Infrastructure.CP.GENA
       try
       {
         socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
-        NetworkHelper.BindAndConfigureSSDPMulticastSocket(socket, address);
+        NetworkHelper.BindAndConfigureGENAMulticastSocket(socket, address);
         StartReceive(new UDPAsyncReceiveState<EndpointConfiguration>(_endpoint, UPnPConsts.UDP_GENA_RECEIVE_BUFFER_SIZE, socket));
       }
       catch (Exception) // SocketException, SecurityException
@@ -183,7 +183,7 @@ namespace UPnP.Infrastructure.CP.GENA
       try
       {
         state.Socket.BeginReceiveFrom(state.Buffer, 0, state.Buffer.Length, SocketFlags.None,
-            ref remoteEP, OnSSDPReceive, state);
+            ref remoteEP, OnGENAReceive, state);
       }
       catch (Exception e) // SocketException and ObjectDisposedException
       {
@@ -192,7 +192,7 @@ namespace UPnP.Infrastructure.CP.GENA
       }
     }
 
-    private void OnSSDPReceive(IAsyncResult ar)
+    private void OnGENAReceive(IAsyncResult ar)
     {
       lock (_cpData.SyncObj)
         if (!_isActive)

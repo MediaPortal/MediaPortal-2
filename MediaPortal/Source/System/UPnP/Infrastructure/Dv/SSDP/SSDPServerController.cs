@@ -331,7 +331,7 @@ namespace UPnP.Infrastructure.Dv.SSDP
         UPnPConfiguration.LOGGER.Info("UPnPServerController: SSDP disabled for IP endpoint '{0}'",
             NetworkHelper.IPAddrToString(config.EndPointIPAddress));
         config.SSDP_UDP_MulticastReceiveSocket = null;
-        NetworkHelper.DisposeSSDPMulticastSocket(socket, config.AddressFamily);
+        NetworkHelper.DisposeSSDPMulticastSocket(socket);
       }
       socket = config.SSDP_UDP_UnicastSocket;
       config.SSDP_UDP_UnicastSocket = null;
