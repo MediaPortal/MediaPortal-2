@@ -79,7 +79,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     float ViewPortWidth { get; }
 
     /// <summary>
-    /// Returns the starting position of the horizontal viewport.
+    /// Returns the horizontal starting position of the viewport.
     /// </summary>
     float ViewPortStartX { get; }
 
@@ -90,7 +90,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     float ViewPortHeight { get; }
 
     /// <summary>
-    /// Returns the starting position of the vertical viewport.
+    /// Returns the vertical starting position of the viewport.
     /// </summary>
     float ViewPortStartY { get; }
 
