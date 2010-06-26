@@ -329,7 +329,7 @@ namespace UPnP.Infrastructure.CP.SSDP
         {
           Socket socket = config.SSDP_UDP_MulticastReceiveSocket;
           if (socket != null)
-            NetworkHelper.DisposeSSDPMulticastSocket(socket, config.AddressFamily);
+            NetworkHelper.DisposeSSDPMulticastSocket(socket);
           socket = config.SSDP_UDP_UnicastSocket;
           if (socket != null)
             socket.Close();
@@ -669,7 +669,7 @@ namespace UPnP.Infrastructure.CP.SSDP
           if (bi != null && rootEntry.BootID > bootID)
             // Invalid message
             return;
-          if (rootEntry.ConfigID != configID)
+          if (!rootEntryAdded && rootEntry.ConfigID != configID)
             fireConfigurationChanged = true;
           rootEntry.ConfigID = configID;
           if (!rootEntryAdded && bi != null && rootEntry.BootID < bootID)
