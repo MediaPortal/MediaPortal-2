@@ -123,10 +123,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float totalDesiredHeight = 0;
       float totalDesiredWidth = 0;
       SizeF childSize;
-      foreach (UIElement child in Children)
+      foreach (FrameworkElement child in GetVisibleChildren())
       {
-        if (!child.IsVisible)
-          continue;
         if (Orientation == Orientation.Vertical)
         {
           childSize = new SizeF(totalSize.Width, float.NaN);

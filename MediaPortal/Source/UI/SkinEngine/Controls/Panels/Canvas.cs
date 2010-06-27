@@ -43,10 +43,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
     protected override SizeF CalculateDesiredSize(SizeF totalSize)
     {
       RectangleF rect = new RectangleF(0, 0, 0, 0);
-      foreach (UIElement child in Children)
+      foreach (FrameworkElement child in GetVisibleChildren())
       {
-        if (!child.IsVisible)
-          continue;
         SizeF childSize = new SizeF(totalSize.Width, totalSize.Height);
         child.Measure(ref childSize);
         rect = RectangleF.Union(rect, new RectangleF(new PointF((float) GetLeft(child), (float) GetTop(child)),
@@ -62,10 +60,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       float x = _innerRect.Location.X;
       float y = _innerRect.Location.Y;
 
-      foreach (FrameworkElement child in Children)
+      foreach (FrameworkElement child in GetVisibleChildren())
       {
-        if (!child.IsVisible)
-          continue;
         // Get the coordinates relative to the canvas area.
         PointF location = new PointF((float) GetLeft(child) + x, (float) GetTop(child) + y);
 

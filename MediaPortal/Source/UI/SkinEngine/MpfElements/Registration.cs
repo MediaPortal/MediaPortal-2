@@ -71,6 +71,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       objectClassRegistrations.Add("ColumnDefinition", typeof(SkinEngine.Controls.Panels.ColumnDefinition));
       objectClassRegistrations.Add("GridLength", typeof(SkinEngine.Controls.Panels.GridLength));
       objectClassRegistrations.Add("WrapPanel", typeof(SkinEngine.Controls.Panels.WrapPanel));
+      objectClassRegistrations.Add("UniformGrid", typeof(SkinEngine.Controls.Panels.UniformGrid));
 
       // Visuals
       objectClassRegistrations.Add("ARRetainingControl", typeof(SkinEngine.Controls.Visuals.ARRetainingControl));

@@ -115,10 +115,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       RowDefinitions.ResetAllCellLengths();
 
       // Set the Width/Hight of the Columns/Rows according to the sizes of the children.
-      foreach (FrameworkElement child in Children)
+      foreach (FrameworkElement child in GetVisibleChildren())
       {
-        if (!child.IsVisible)
-          continue;
         int col = GetColumn(child);
         int row = GetRow(child);
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;
@@ -142,10 +140,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       ColumnDefinitions.SetAvailableSize(ActualWidth);
       RowDefinitions.SetAvailableSize(ActualHeight);
 
-      foreach (FrameworkElement child in Children)
+      foreach (FrameworkElement child in GetVisibleChildren())
       {
-        if (!child.IsVisible)
-          continue;
         int col = GetColumn(child);
         int row = GetRow(child);
         if (col >= ColumnDefinitions.Count) col = ColumnDefinitions.Count - 1;

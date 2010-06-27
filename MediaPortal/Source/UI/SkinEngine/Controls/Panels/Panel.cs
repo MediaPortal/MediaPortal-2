@@ -286,9 +286,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
       {
         Children.FixZIndex();
         _renderOrder.Clear();
-        foreach (UIElement element in Children)
-          if (element.IsVisible)
-            _renderOrder.Add(element);
+        CollectionUtils.AddAll(_renderOrder, GetVisibleChildren());
         _renderOrder.Sort(new ZOrderComparer());
       }
     }

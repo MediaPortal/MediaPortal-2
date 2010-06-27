@@ -112,11 +112,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         case Orientation.Horizontal:
           {
             totalDesiredWidth = totalSize.Width;
-            foreach (FrameworkElement child in Children)
+            foreach (FrameworkElement child in GetVisibleChildren())
             {
-              if (!child.IsVisible)
-                continue;
-
               SizeF childSize = new SizeF(totalDesiredWidth, float.NaN);
               child.Measure(ref childSize);
               // If width is not set, then just go on
@@ -142,11 +139,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         case Orientation.Vertical:
           {
             totalDesiredHeight = totalSize.Height;
-            foreach (FrameworkElement child in Children)
+            foreach (FrameworkElement child in GetVisibleChildren())
             {
-              if (!child.IsVisible)
-                continue;
-
               SizeF childSize = new SizeF(float.NaN, totalDesiredHeight);
               child.Measure(ref childSize);
               if (!double.IsNaN(totalSize.Height) && childSize.Height > totalSize.Height)
@@ -182,11 +176,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             float offsetY = 0;
             float totalHeight = 0;
             int offset = 0;
-            foreach (FrameworkElement child in Children)
+            foreach (FrameworkElement child in GetVisibleChildren())
             {
-              if (!child.IsVisible)
-                continue;
-
               SizeF childSize = child.DesiredSize;
               if (childSize.Width + offsetX > _innerRect.Width)
               {
@@ -214,11 +205,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
             float offsetY = 0;
             float totalWidth = 0;
             int offset = 0;
-            foreach (FrameworkElement child in Children)
+            foreach (FrameworkElement child in GetVisibleChildren())
             {
-              if (!child.IsVisible)
-                continue;
-
               SizeF childSize = child.DesiredSize;
               if (childSize.Height + offsetY > _innerRect.Height)
               {
