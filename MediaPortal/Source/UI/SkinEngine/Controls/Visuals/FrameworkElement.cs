@@ -117,7 +117,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected bool _updateOpacityMask = false;
     protected RectangleF _lastOccupiedTransformedBounds = new RectangleF();
-    protected bool _updateFocus = false;
+    protected bool _setFocus = false;
     protected Matrix _inverseFinalTransform = Matrix.Identity;
 
     #endregion
@@ -168,7 +168,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualHeightProperty.Attach(OnActualBoundsChanged);
       _actualWidthProperty.Attach(OnActualBoundsChanged);
       _styleProperty.Attach(OnStyleChanged);
-      _hasFocusProperty.Attach(OnFocusPropertyChanged);
+      _hasFocusProperty.Attach(OnHasFocusPropertyChanged);
       _fontFamilyProperty.Attach(OnFontChanged);
       _fontSizeProperty.Attach(OnFontChanged);
 
@@ -184,7 +184,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _actualHeightProperty.Detach(OnActualBoundsChanged);
       _actualWidthProperty.Detach(OnActualBoundsChanged);
       _styleProperty.Detach(OnStyleChanged);
-      _hasFocusProperty.Detach(OnFocusPropertyChanged);
+      _hasFocusProperty.Detach(OnHasFocusPropertyChanged);
       _fontFamilyProperty.Detach(OnFontChanged);
       _fontSizeProperty.Detach(OnFontChanged);
 
@@ -215,31 +215,15 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected void UpdateFocus()
     {
-      if (!_updateFocus)
+      if (!_setFocus)
         return;
-      _updateFocus = false;
-      CheckFocus();
-    }
-
-    protected void CheckFocus()
-    {
+      _setFocus = false;
       Screen screen = Screen;
       if (screen == null)
-      {
-        _updateFocus = true;
         return;
-      }
-      if (HasFocus)
-      {
-        MakeVisible(this, ActualBounds);
-        if (!screen.FrameworkElementGotFocus(this))
-        {
-          _updateFocus = true;
-          return;
-        }
-      }
-      else
-        screen.FrameworkElementLostFocus(this);
+      FrameworkElement fe = PredictFocus(null, MoveFocusDirection.Down);
+      if (fe != null)
+        fe.HasFocus = true;
     }
 
     protected virtual void OnFontChanged(AbstractProperty property, object oldValue)
@@ -250,7 +234,6 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     protected virtual void OnStyleChanged(AbstractProperty property, object oldValue)
     {
-      ///@optimize: 
       Style.Set(this);
       InvalidateLayout();
       InvalidateParentLayout();
@@ -261,9 +244,28 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       _updateOpacityMask = true;
     }
 
-    void OnFocusPropertyChanged(AbstractProperty property, object oldValue)
+    void OnHasFocusPropertyChanged(AbstractProperty property, object oldValue)
     {
-      CheckFocus();
+      Screen screen = Screen;
+      if (screen == null)
+      {
+        // HasFocus has been set before the screen was initialized - simply remember the focus request in attribute _setFocus and reset HasFocus to false
+        _setFocus = HasFocus;
+        HasFocus = false;
+        return;
+      }
+      if (HasFocus)
+      {
+        MakeVisible(this, ActualBounds);
+        if (!screen.FrameworkElementGotFocus(this))
+        {
+          HasFocus = false;
+          _setFocus = true;
+          return;
+        }
+      }
+      else
+        screen.FrameworkElementLostFocus(this);
     }
 
     /// <summary>
@@ -374,14 +376,20 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       get { return _styleProperty; }
     }
 
-    /// <summary>
-    /// Gets or sets the control style.
-    /// </summary>
-    /// <value>The control style.</value>
     public Style Style
     {
       get { return (Style) _styleProperty.GetValue(); }
       set { _styleProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Helper property to make it possible in the screenfiles to set the focus to a framework element (or its first focusable child)
+    /// before the screen was initialized. Use this property to set the initial focus.
+    /// </summary>
+    public bool SetFocus
+    {
+      get { return _setFocus; }
+      set { _setFocus = value; }
     }
 
     public AbstractProperty HasFocusProperty
