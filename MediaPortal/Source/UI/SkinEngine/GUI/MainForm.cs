@@ -45,7 +45,6 @@ using SlimDX.Direct3D9;
 
 namespace MediaPortal.UI.SkinEngine.GUI
 {
-  // MainForm must be first in file otherwise can't open in designer
   public partial class MainForm : Form, IScreenControl
   {
     // TODO: Make this configurable
@@ -577,12 +576,4 @@ namespace MediaPortal.UI.SkinEngine.GUI
       CheckTopMost();
     }
   }
-
-  internal struct Rect
-  {
-    public int Left;
-    public int Top;
-    public int Right;
-    public int Bottom;
-  };
 }
