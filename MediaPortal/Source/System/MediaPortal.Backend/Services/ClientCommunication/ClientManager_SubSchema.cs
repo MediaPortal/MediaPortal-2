@@ -53,23 +53,25 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
     }
 
-    public static IDbCommand SelectAttachedClientsCommand(ITransaction transaction, out int attachedClientsIndex,
-        out int lastHostNameIndex)
+    public static IDbCommand SelectAttachedClientsCommand(ITransaction transaction, out int systemIdIndex,
+        out int lastHostNameIndex, out int lastClientNameIndex)
     {
       IDbCommand result = transaction.CreateCommand();
 
-      result.CommandText = "SELECT SYSTEM_ID, LAST_HOSTNAME FROM ATTACHED_CLIENTS";
+      result.CommandText = "SELECT SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME FROM ATTACHED_CLIENTS";
 
-      attachedClientsIndex = 0;
+      systemIdIndex = 0;
       lastHostNameIndex = 1;
+      lastClientNameIndex = 2;
       return result;
     }
 
-    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName)
+    public static IDbCommand InsertAttachedClientCommand(ITransaction transaction, string systemId, string hostName,
+        string clientName)
     {
       IDbCommand result = transaction.CreateCommand();
 
-      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME) VALUES (?, ?)";
+      result.CommandText = "INSERT INTO ATTACHED_CLIENTS (SYSTEM_ID, LAST_HOSTNAME, LAST_CLIENT_NAME) VALUES (?, ?, ?)";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = systemId;
@@ -79,17 +81,26 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       param.Value = hostName;
       result.Parameters.Add(param);
 
+      param = result.CreateParameter();
+      param.Value = clientName;
+      result.Parameters.Add(param);
+
       return result;
     }
 
-    public static IDbCommand UpdateAttachedClientSystemCommand(ITransaction transaction, string systemId, SystemName system)
+    public static IDbCommand UpdateAttachedClientDataCommand(ITransaction transaction, string systemId, SystemName system,
+        string clientName)
     {
       IDbCommand result = transaction.CreateCommand();
 
-      result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = ? WHERE SYSTEM_ID = ?";
+      result.CommandText = "UPDATE ATTACHED_CLIENTS SET LAST_HOSTNAME = ?, LAST_CLIENT_NAME = ? WHERE SYSTEM_ID = ?";
 
       IDbDataParameter param = result.CreateParameter();
       param.Value = system == null ? null : system.HostName;
+      result.Parameters.Add(param);
+
+      param = result.CreateParameter();
+      param.Value = clientName;
       result.Parameters.Add(param);
 
       param = result.CreateParameter();

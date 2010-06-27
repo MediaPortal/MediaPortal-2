@@ -100,9 +100,10 @@ namespace MediaPortal
         ICollection<string> connectedClientSystemIDs = new List<string>(clients.Count);
         foreach (ClientConnection clientConnection in clients)
           connectedClientSystemIDs.Add(clientConnection.Descriptor.MPFrontendServerUUID);
-        foreach (string clientSystemId in clientManager.AttachedClientsSystemIds)
+        foreach (AttachedClientData attachedClientData in clientManager.AttachedClients.Values)
         {
-          ListViewItem lvi = CreateClientItem(clientSystemId, connectedClientSystemIDs.Contains(clientSystemId));
+          ListViewItem lvi = CreateClientItem(attachedClientData.LastClientName, attachedClientData.LastSystem.HostName,
+              connectedClientSystemIDs.Contains(attachedClientData.SystemId));
           lvClients.Items.Add(lvi);
         }
       }
@@ -112,9 +113,9 @@ namespace MediaPortal
       }
     }
 
-    protected ListViewItem CreateClientItem(string clientSystem, bool isConnected)
+    protected ListViewItem CreateClientItem(string clientName, string clientSystem, bool isConnected)
     {
-      return new ListViewItem(new string[] {clientSystem, clientSystem, LocalizationHelper.Translate(isConnected ? CONNECTED_RES : DISCONNECTED_RES)});
+      return new ListViewItem(new string[] {clientName, clientSystem, LocalizationHelper.Translate(isConnected ? CONNECTED_RES : DISCONNECTED_RES)});
     }
 
     protected void InitializeLocalizedControls()

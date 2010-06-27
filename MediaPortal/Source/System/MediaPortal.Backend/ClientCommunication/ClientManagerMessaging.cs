@@ -43,27 +43,32 @@ namespace MediaPortal.Backend.ClientCommunication
     {
       /// <summary>
       /// A new MediaPortal client was attached to this server.
+      /// The <see cref="CLIENT_SYSTEM"/> is set.
       /// </summary>
       ClientAttached,
 
       /// <summary>
       /// A MediaPortal client was detached from this server.
+      /// The <see cref="CLIENT_SYSTEM"/> is set.
       /// </summary>
       ClientDetached,
 
       /// <summary>
       /// An attached client has become online.
+      /// The <see cref="CLIENT_DESCRIPTOR"/> is set.
       /// </summary>
       ClientOnline,
 
       /// <summary>
       /// An attached client has become offline.
+      /// The <see cref="CLIENT_DESCRIPTOR"/> is set.
       /// </summary>
       ClientOffline,
     }
 
     // Message data
     public const string CLIENT_DESCRIPTOR = "ClientDescriptor"; // Contains an instance of ClientDescriptor
+    public const string CLIENT_SYSTEM = "ClientSystemId"; // Contains a string with the system ID of a client
 
     /// <summary>
     /// Sends a message concerning a client.
@@ -74,6 +79,18 @@ namespace MediaPortal.Backend.ClientCommunication
     {
       SystemMessage msg = new SystemMessage(messageType);
       msg.MessageData[CLIENT_DESCRIPTOR] = client;
+      ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a client attach or detach message.
+    /// </summary>
+    /// <param name="messageType">One of the <see cref="MessageType"/> messages.</param>
+    /// <param name="clientSystemId">System ID of the client that was detached.</param>
+    public static void SendClientAttachmentChangeMessage(MessageType messageType, string clientSystemId)
+    {
+      SystemMessage msg = new SystemMessage(messageType);
+      msg.MessageData[CLIENT_SYSTEM] = clientSystemId;
       ServiceScope.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

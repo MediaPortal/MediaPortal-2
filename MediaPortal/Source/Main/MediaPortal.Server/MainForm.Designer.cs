@@ -56,6 +56,7 @@ namespace MediaPortal
             this.colClient,
             this.colSystem,
             this.colConnectionState});
+      this.lvClients.FullRowSelect = true;
       this.lvClients.HideSelection = false;
       this.lvClients.Location = new System.Drawing.Point(0, 28);
       this.lvClients.Name = "lvClients";

@@ -42,6 +42,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
   {
     protected UPnPServerControlPoint _controlPoint = null;
     protected object _syncObj = new object();
+    protected IDictionary<string, AttachedClientData> _attachedClients;
 
     public ClientManager()
     {
@@ -52,7 +53,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     void OnClientConnected(ClientDescriptor client)
     {
-      SetClientConnectionState(client.MPFrontendServerUUID, client.System, true);
+      UpdateClientSetOnline(client.MPFrontendServerUUID, client.System);
       ClientManagerMessaging.SendConnectionStateChangedMessage(ClientManagerMessaging.MessageType.ClientOnline, client);
       // This method is called as a result of our control point's attempt to connect to the (allegedly attached) client;
       // But maybe the client isn't attached any more to this server (it could have detached while the server wasn't online).
@@ -62,48 +63,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     void OnClientDisconnected(ClientDescriptor client)
     {
-      SetClientConnectionState(client.MPFrontendServerUUID, client.System, false);
+      UpdateClientSetOffline(client.MPFrontendServerUUID);
       ClientManagerMessaging.SendConnectionStateChangedMessage(ClientManagerMessaging.MessageType.ClientOffline, client);
-    }
-
-    /// <summary>
-    /// Returns a dictionary which maps the system ids of all attached clients to their last hostname.
-    /// </summary>
-    /// <returns>Dictionary with system ids mapped to host names.</returns>
-    protected IDictionary<string, string> ReadAttachedClients()
-    {
-      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
-      ITransaction transaction = database.BeginTransaction();
-      try
-      {
-        int attachedClientsIndex;
-        int lastHostNameIndex;
-        IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out attachedClientsIndex,
-            out lastHostNameIndex);
-        IDataReader reader = command.ExecuteReader();
-        IDictionary<string, string> result = new Dictionary<string, string>();
-        try
-        {
-          while (reader.Read())
-            result.Add(DBUtils.ReadDBValue<string>(reader, attachedClientsIndex),
-                DBUtils.ReadDBValue<string>(reader, lastHostNameIndex));
-        }
-        finally
-        {
-          reader.Close();
-        }
-        return result;
-      }
-      finally
-      {
-        transaction.Dispose();
-      }
     }
 
     protected void CompleteClientConnection(ClientDescriptor client)
     {
       if (ValidateAttachmentState(client))
-        UpdateClientSystem(client.MPFrontendServerUUID, client.System);
+        UpdateClientSystem(client.MPFrontendServerUUID, client.System, client.ClientName);
     }
 
     protected bool ValidateAttachmentState(ClientDescriptor client)
@@ -127,36 +94,65 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       return true;
     }
 
-    protected void SetClientConnectionState(string clientSystemId, SystemName currentSytemName, bool isOnline)
+    protected void UpdateClientSetOnline(string clientSystemId, SystemName currentSytemName)
     {
       IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
-      if (isOnline)
-      {
-        mediaLibrary.NotifySystemOnline(clientSystemId, currentSytemName);
-        UpdateClientSystem(clientSystemId, currentSytemName);
-      }
-      else
-        mediaLibrary.NotifySystemOffline(clientSystemId);
+      mediaLibrary.NotifySystemOnline(clientSystemId, currentSytemName);
     }
 
-    protected void UpdateClientSystem(string clientSystemId)
+    protected void UpdateClientSetOffline(string clientSystemId)
     {
-      SystemName systemName = null;
-      foreach (ClientDescriptor client in _controlPoint.AvailableClients)
-        if (client.MPFrontendServerUUID == clientSystemId)
-          systemName = client.System;
-      if (systemName != null)
-        UpdateClientSystem(clientSystemId, systemName);
+      IMediaLibrary mediaLibrary = ServiceScope.Get<IMediaLibrary>();
+      mediaLibrary.NotifySystemOffline(clientSystemId);
     }
 
-    protected void UpdateClientSystem(string clientSystemId, SystemName system)
+    /// <summary>
+    /// Returns a dictionary which maps the system ids of all attached clients to their last hostname.
+    /// </summary>
+    /// <returns>Dictionary with system ids mapped to host names.</returns>
+    protected IDictionary<string, AttachedClientData> ReadAttachedClientsFromDB()
+    {
+      ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
+      ITransaction transaction = database.BeginTransaction();
+      try
+      {
+        int systemIdIndex;
+        int lastHostNameIndex;
+        int lastClientNameIndex;
+        IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out systemIdIndex,
+            out lastHostNameIndex, out lastClientNameIndex);
+        IDataReader reader = command.ExecuteReader();
+        IDictionary<string, AttachedClientData> result = new Dictionary<string, AttachedClientData>();
+        try
+        {
+          while (reader.Read())
+          {
+            string clientSystemId = DBUtils.ReadDBValue<string>(reader, systemIdIndex);
+            SystemName lastHostName = new SystemName(DBUtils.ReadDBValue<string>(reader, lastHostNameIndex));
+            string lastClientName = DBUtils.ReadDBValue<string>(reader, lastClientNameIndex);
+            result.Add(clientSystemId, new AttachedClientData(clientSystemId, lastHostName, lastClientName));
+          }
+        }
+        finally
+        {
+          reader.Close();
+        }
+        return result;
+      }
+      finally
+      {
+        transaction.Dispose();
+      }
+    }
+
+    protected void UpdateClientSystem(string clientSystemId, SystemName system, string clientName)
     {
       ServiceScope.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", clientSystemId, system.HostName);
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientSystemCommand(transaction, clientSystemId, system);
+        IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientDataCommand(transaction, clientSystemId, system, clientName);
         command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -182,7 +178,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         throw new IllegalCallException(string.Format(
             "Unable to update the ClientManager's subschema version to expected version {0}.{1}",
             ClientManager_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, ClientManager_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
-      _controlPoint.AttachedClientSystemIds = ReadAttachedClients().Keys;
+      _attachedClients = ReadAttachedClientsFromDB();
+      _controlPoint.AttachedClientSystemIds = _attachedClients.Keys;
       _controlPoint.Start();
     }
 
@@ -196,9 +193,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       get { return _controlPoint.ClientConnections.Values; }
     }
 
-    public ICollection<string> AttachedClientsSystemIds
+    public IDictionary<string, AttachedClientData> AttachedClients
     {
-      get { return _controlPoint.AttachedClientSystemIds; }
+      get { return _attachedClients; }
     }
 
     public void AttachClient(string clientSystemId)
@@ -207,7 +204,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null);
+        IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null, null);
         command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -219,7 +216,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       ServiceScope.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' attached", clientSystemId);
       // Establish the UPnP connection to the client, if available in the network
+      _attachedClients = ReadAttachedClientsFromDB();
       _controlPoint.AddAttachedClient(clientSystemId);
+      ClientManagerMessaging.SendClientAttachmentChangeMessage(ClientManagerMessaging.MessageType.ClientAttached, clientSystemId);
     }
 
     public void DetachClientAndRemoveShares(string clientSystemId)
@@ -245,7 +244,9 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
       ServiceScope.Get<ILogger>().Info("ClientManager: Client with system ID '{0}' detached", clientSystemId);
       // Last action: Remove the client from the collection of attached clients and disconnect the client connection, if connected
+      _attachedClients = ReadAttachedClientsFromDB();
       _controlPoint.RemoveAttachedClient(clientSystemId);
+      ClientManagerMessaging.SendClientAttachmentChangeMessage(ClientManagerMessaging.MessageType.ClientDetached, clientSystemId);
     }
 
     public SystemName GetSystemNameForSystemId(string systemId)

@@ -107,7 +107,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         CallContext context)
     {
       string clientSystemId = (string) inParams[0];
-      bool isAttached = ServiceScope.Get<IClientManager>().AttachedClientsSystemIds.Contains(clientSystemId);
+      bool isAttached = ServiceScope.Get<IClientManager>().AttachedClients.ContainsKey(clientSystemId);
       outParams = new List<object> {isAttached};
       return null;
     }
