@@ -22,8 +22,6 @@
 
 #endregion
 
-using MediaPortal.Core;
-
 namespace MediaPortal.Core.Localization
 {
   public static class LocalizationHelper
