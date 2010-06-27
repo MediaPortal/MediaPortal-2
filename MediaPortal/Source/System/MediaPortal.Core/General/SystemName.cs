@@ -73,6 +73,9 @@ namespace MediaPortal.Core.General
       _hostName = hostName.ToLowerInvariant();
       if (_hostName.StartsWith("[") && _hostName.EndsWith("]"))
         _hostName = _hostName.Substring(1, _hostName.Length-2);
+      IPAddress address;
+      if (IPAddress.TryParse(_hostName, out address))
+        _hostName = address.ToString();
     }
 
     #endregion
