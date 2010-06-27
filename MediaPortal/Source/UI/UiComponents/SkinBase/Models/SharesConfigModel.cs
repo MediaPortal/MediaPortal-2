@@ -180,10 +180,18 @@ namespace UiComponents.SkinBase.Models
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
           case ServerConnectionMessaging.MessageType.HomeServerDetached:
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
-            // TODO: Go out of shares edit workflow if it is not valid any more
             UpdateProperties();
             UpdateSharesLists(false);
+            break;
+          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+            if (_shareEditProxy is ServerShares)
+              // If in edit workflow for a server share, when the server gets disconneted, go back to the shares overview
+              NavigateBackToOverview();
+            else
+            {
+              UpdateProperties();
+              UpdateSharesLists(false);
+            }
             break;
         }
       }
