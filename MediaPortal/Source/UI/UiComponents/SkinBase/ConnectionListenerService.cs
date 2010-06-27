@@ -69,7 +69,7 @@ namespace UiComponents.SkinBase
       // Check setting which prevents the listener service to pop up server availability messages
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
-      if (settings.DisableServerListener)
+      if (settings.EnableServerListener)
         return;
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {

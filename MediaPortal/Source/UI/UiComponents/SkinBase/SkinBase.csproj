@@ -86,7 +86,6 @@
     <Compile Include="Settings\Configuration\Shares\SharesConfigSetting.cs" />
     <Compile Include="Settings\SkinBaseSettings.cs" />
     <Compile Include="Settings\Configuration\General\Autostart.cs" />
-    <Compile Include="Settings\Configuration\General\Balloontips.cs" />
     <Compile Include="SkinMessaging.cs" />
     <Compile Include="Models\TimeModel.cs" />
     <Compile Include="Utils\Exceptions.cs" />

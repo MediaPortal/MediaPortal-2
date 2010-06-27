@@ -37,14 +37,14 @@ namespace UiComponents.SkinBase.Settings.Configuration.General
     {
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
-      _yes = settings.DisableServerListener;
+      _yes = settings.EnableServerListener;
     }
 
     public override void Save()
     {
       ISettingsManager settingsManager = ServiceScope.Get<ISettingsManager>();
       SkinBaseSettings settings = settingsManager.Load<SkinBaseSettings>();
-      settings.DisableServerListener = _yes;
+      settings.EnableServerListener = _yes;
       settingsManager.Save(settings);
     }
 
