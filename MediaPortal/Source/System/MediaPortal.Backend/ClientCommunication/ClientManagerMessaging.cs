@@ -60,11 +60,6 @@ namespace MediaPortal.Backend.ClientCommunication
       /// An attached client has become offline.
       /// </summary>
       ClientOffline,
-
-      /// <summary>
-      /// Internal message. Will be sent if the server should validate whether an attached client is still attached.
-      /// </summary>
-      ValidateAttachmentState,
     }
 
     // Message data

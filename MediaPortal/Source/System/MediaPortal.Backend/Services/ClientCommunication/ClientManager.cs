@@ -57,8 +57,6 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       // This method is called as a result of our control point's attempt to connect to the (allegedly attached) client;
       // But maybe the client isn't attached any more to this server (it could have detached while the server wasn't online).
       // So we will validate if the client is still attached.
-      ClientManagerMessaging.SendConnectionStateChangedMessage(
-          ClientManagerMessaging.MessageType.ValidateAttachmentState, client);
       ServiceScope.Get<IThreadPool>().Add(() => CompleteClientConnection(client));
     }
 

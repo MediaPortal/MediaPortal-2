@@ -31,7 +31,11 @@ namespace MediaPortal
       this.components = new System.ComponentModel.Container();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
       this.serverTrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-      this.label1 = new System.Windows.Forms.Label();
+      this.lvClients = new System.Windows.Forms.ListView();
+      this.colClient = new System.Windows.Forms.ColumnHeader();
+      this.colSystem = new System.Windows.Forms.ColumnHeader();
+      this.colConnectionState = new System.Windows.Forms.ColumnHeader();
+      this.lbAttachedClients = new System.Windows.Forms.Label();
       this.SuspendLayout();
       // 
       // serverTrayIcon
@@ -42,33 +46,71 @@ namespace MediaPortal
       this.serverTrayIcon.Text = "MediaPortal 2";
       this.serverTrayIcon.Visible = true;
       // 
-      // label1
+      // lvClients
       // 
-      this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-      this.label1.Location = new System.Drawing.Point(0, 0);
-      this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(469, 177);
-      this.label1.TabIndex = 0;
-      this.label1.Text = "This form will be filled with life later...";
-      this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+      this.lvClients.Alignment = System.Windows.Forms.ListViewAlignment.Default;
+      this.lvClients.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                  | System.Windows.Forms.AnchorStyles.Left)
+                  | System.Windows.Forms.AnchorStyles.Right)));
+      this.lvClients.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colClient,
+            this.colSystem,
+            this.colConnectionState});
+      this.lvClients.HideSelection = false;
+      this.lvClients.Location = new System.Drawing.Point(0, 28);
+      this.lvClients.Name = "lvClients";
+      this.lvClients.Size = new System.Drawing.Size(538, 176);
+      this.lvClients.TabIndex = 1;
+      this.lvClients.UseCompatibleStateImageBehavior = false;
+      this.lvClients.View = System.Windows.Forms.View.Details;
+      // 
+      // colClient
+      // 
+      this.colClient.Text = "Client";
+      this.colClient.Width = 200;
+      // 
+      // colSystem
+      // 
+      this.colSystem.Text = "System";
+      this.colSystem.Width = 200;
+      // 
+      // colConnectionState
+      // 
+      this.colConnectionState.Text = "Connection state";
+      this.colConnectionState.Width = 100;
+      // 
+      // lbAttachedClients
+      // 
+      this.lbAttachedClients.AutoSize = true;
+      this.lbAttachedClients.Location = new System.Drawing.Point(6, 9);
+      this.lbAttachedClients.Name = "lbAttachedClients";
+      this.lbAttachedClients.Size = new System.Drawing.Size(83, 13);
+      this.lbAttachedClients.TabIndex = 0;
+      this.lbAttachedClients.Text = "Attached &clients";
       // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(469, 177);
-      this.Controls.Add(this.label1);
+      this.ClientSize = new System.Drawing.Size(538, 204);
+      this.Controls.Add(this.lbAttachedClients);
+      this.Controls.Add(this.lvClients);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.Name = "MainForm";
       this.Text = "MediaPortal 2 Server Application";
+      this.Shown += new System.EventHandler(this.OnMainFormShown);
       this.ResumeLayout(false);
+      this.PerformLayout();
 
     }
 
     #endregion
 
     private System.Windows.Forms.NotifyIcon serverTrayIcon;
-    private System.Windows.Forms.Label label1;
+    private System.Windows.Forms.ListView lvClients;
+    private System.Windows.Forms.ColumnHeader colClient;
+    private System.Windows.Forms.ColumnHeader colSystem;
+    private System.Windows.Forms.ColumnHeader colConnectionState;
+    private System.Windows.Forms.Label lbAttachedClients;
   }
 }
