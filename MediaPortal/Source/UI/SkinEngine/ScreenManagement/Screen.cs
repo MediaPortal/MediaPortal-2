@@ -463,8 +463,9 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     /// <param name="key">A key which was pressed.</param>
     protected void UpdateFocus(ref Key key)
     {
-      FrameworkElement cntl = PredictFocus(FocusedElement == null ? _lastFocusRect :
-          FocusedElement.ActualBounds, key);
+      FrameworkElement focusedElement = FocusedElement;
+      FrameworkElement cntl = PredictFocus(focusedElement == null || !focusedElement.IsVisible ? new RectangleF?() :
+          focusedElement.ActualBounds, key);
       if (cntl != null)
       {
         cntl.HasFocus = true;

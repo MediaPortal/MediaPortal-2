@@ -1106,6 +1106,48 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     #endregion
 
+    #region Focus prediction
+
+    private float CalcCenterDirection(RectangleF otherRect)
+    {
+      PointF thisCenter = GetCenterPosition(ActualBounds);
+      PointF thatCenter = GetCenterPosition(otherRect);
+      if (IsNear(thisCenter.X, thatCenter.X) && IsNear(thisCenter.Y, thatCenter.Y))
+        return float.NaN;
+      double x = thatCenter.X - thisCenter.X;
+      double y = thatCenter.Y - thisCenter.Y;
+      double alpha = Math.Acos(x/Math.Sqrt(x*x+y*y));
+      if (thatCenter.Y > thisCenter.Y) // Coordinates go from top to bottom, so y must be inverted
+        alpha = -alpha;
+      if (alpha < 0)
+        alpha += 2*Math.PI;
+      return (float) alpha;
+    }
+
+    protected bool IsLocatedAbove(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha >= Math.PI/4 && alpha <= 3*Math.PI/4;
+    }
+
+    protected bool IsLocatedBelow(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha >= 5*Math.PI/4 && alpha <= 7*Math.PI/4;
+    }
+
+    protected bool IsLocatedRightOf(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha <= Math.PI/4 || alpha >= 7*Math.PI/4;
+    }
+
+    protected bool IsLocatedLeftOf(RectangleF otherRect)
+    {
+      float alpha = CalcCenterDirection(otherRect);
+      return alpha >= 3*Math.PI/4 && alpha <= 5*Math.PI/4;
+    }
+
     /// <summary>
     /// Predicts the next control which is positioned in the specified direction
     /// <paramref name="dir"/> to the specified <paramref name="currentFocusRect"/> and
@@ -1125,10 +1167,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       // Check if this control is a possible return value
       if (IsEnabled && Focusable)
         if (!currentFocusRect.HasValue ||
-            (dir == MoveFocusDirection.Up && ActualPosition.Y < currentFocusRect.Value.Top) ||
-            (dir == MoveFocusDirection.Down && ActualPosition.Y + ActualHeight > currentFocusRect.Value.Bottom) ||
-            (dir == MoveFocusDirection.Left && ActualPosition.X < currentFocusRect.Value.Left) ||
-            (dir == MoveFocusDirection.Right && ActualPosition.X + ActualWidth > currentFocusRect.Value.Right))
+            (dir == MoveFocusDirection.Up && IsLocatedBelow(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Down && IsLocatedAbove(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Left && IsLocatedRightOf(currentFocusRect.Value)) ||
+            (dir == MoveFocusDirection.Right && IsLocatedLeftOf(currentFocusRect.Value)))
           return this;
       // Check child controls
       FrameworkElement bestMatch = null;
@@ -1189,6 +1231,13 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       float distY = Math.Abs((r1.Top + r1.Bottom) / 2 - (r2.Top + r2.Bottom) / 2);
       return (float) Math.Sqrt(distX * distX + distY * distY);
     }
+
+    protected PointF GetCenterPosition(RectangleF rect)
+    {
+      return new PointF((rect.Left + rect.Right)/2, (rect.Top + rect.Bottom)/2);
+    }
+
+    #endregion
 
     #endregion
 
