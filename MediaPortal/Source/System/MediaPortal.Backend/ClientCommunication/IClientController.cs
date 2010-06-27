@@ -22,12 +22,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using MediaPortal.Core.MediaManagement;
-using MediaPortal.Utilities;
-using MediaPortal.Utilities.Exceptions;
-using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Backend.ClientCommunication
 {
