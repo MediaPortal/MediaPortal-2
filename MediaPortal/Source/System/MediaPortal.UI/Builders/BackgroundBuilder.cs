@@ -36,7 +36,6 @@ namespace MediaPortal.UI.Builders
       None,
       Static,
       Manager,
-      Remove
     }
 
     protected static string GetBackgroundAndType(IDictionary<string, string> attributes, out BackgroundType type)
@@ -57,13 +56,6 @@ namespace MediaPortal.UI.Builders
           type = BackgroundType.Manager;
           result = attribute.Value;
         }
-        else if (attribute.Key == "RemoveBackground")
-        {
-          bool bVal;
-          if (!bool.TryParse(attribute.Value, out bVal) || !bVal)
-            throw new ArgumentException("Background builder: Attribute 'RemoveBackground' needs to be set to 'true'");
-          type = BackgroundType.Remove;
-        }
       }
       if (type == BackgroundType.None)
         throw new ArgumentException("Background builder needs one of the attributes 'StaticScreen', 'RemoveBackground' or 'BackgroundManagerClassName'");
@@ -83,8 +75,6 @@ namespace MediaPortal.UI.Builders
         case BackgroundType.Manager:
           // The cast is necessary here to ensure the returned instance is an IBackgroundManager
           return (IBackgroundManager) plugin.InstantiatePluginObject(value);
-        case BackgroundType.Remove:
-          return new StaticBackgroundManager();
         default:
           throw new NotImplementedException(string.Format(
               "Background builder: Background type '{0}' is not implemented", type));
@@ -107,7 +97,7 @@ namespace MediaPortal.UI.Builders
     {
       BackgroundType type;
       string value = GetBackgroundAndType(itemData.Attributes, out type);
-      if (type == BackgroundType.Static || type == BackgroundType.Remove)
+      if (type == BackgroundType.Static)
         return false;
       if (type == BackgroundType.Manager)
         return true;
