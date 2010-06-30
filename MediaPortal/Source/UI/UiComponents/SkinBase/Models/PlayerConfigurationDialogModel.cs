@@ -447,6 +447,7 @@ namespace UiComponents.SkinBase.Models
 
     protected void EnterContext(NavigationContext newContext)
     {
+      _messageQueue.Start();
       if (newContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
       {
         UpdatePlayerConfigurationMenu();
@@ -476,6 +477,7 @@ namespace UiComponents.SkinBase.Models
 
     protected void ExitContext(NavigationContext oldContext)
     {
+      _messageQueue.Shutdown();
       if (oldContext.WorkflowState.StateId == PLAYER_CONFIGURATION_DIALOG_STATE_ID)
       {
         _inPlayerConfigurationDialog = false;
@@ -645,28 +647,20 @@ namespace UiComponents.SkinBase.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _messageQueue.Start();
       EnterContext(newContext);
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      _messageQueue.Shutdown();
       ExitContext(oldContext);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
     {
       if (push)
-      {
-        _messageQueue.Start();
         EnterContext(newContext);
-      }
       else
-      {
-        _messageQueue.Shutdown();
         ExitContext(oldContext);
-      }
     }
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
