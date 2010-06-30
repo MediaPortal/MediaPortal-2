@@ -50,7 +50,6 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
 
     public const string HOME_SCREEN = "home";
 
-    public const string ERROR_DIALOG_HEADER_RES = "[Dialogs.ErrorHeaderText]";
     public const string ERROR_LOADING_SKIN_RESOURCE_TEXT_RES = "[ScreenManager.ErrorLoadingSkinResource]";
     public const string SCREEN_MISSING_TEXT_RES = "[ScreenManager.ScreenMissing]";
     public const string SCREEN_BROKEN_TEXT_RES = "[ScreenManager.ScreenBroken]";
