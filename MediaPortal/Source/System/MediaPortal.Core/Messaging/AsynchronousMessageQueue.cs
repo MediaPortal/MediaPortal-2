@@ -113,7 +113,6 @@ namespace MediaPortal.Core.Messaging
     public AsynchronousMessageQueue(string ownerType, IEnumerable<string> messageChannels) : base(messageChannels)
     {
       _queueName = string.Format("Async message queue '{0}'", ownerType);
-      _shutdownWatcher = ShutdownWatcher.Create(this);
     }
 
     public override void Dispose()
@@ -226,6 +225,10 @@ namespace MediaPortal.Core.Messaging
         if (_messageDeliveryThread != null)
           return;
         _terminated = false;
+      }
+      _shutdownWatcher = ShutdownWatcher.Create(this);
+      lock (_syncObj)
+      {
         _messageDeliveryThread = new Thread(DoWork)
           {
               Name = string.Format("'{0}' - message delivery thread", _queueName)
