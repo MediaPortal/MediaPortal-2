@@ -158,6 +158,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
     public override void DoRender(RenderContext localRenderContext)
     {
+      // FIXME: Scissor rect cannot be combined with transforms. Use an opacity brush instead.
       Rectangle? origScissorRect = localRenderContext.ScissorRect;
       localRenderContext.AddScissorRect(new Rectangle(
           (int) ActualPosition.X, (int) ActualPosition.Y, (int) ActualWidth, (int) ActualHeight));
