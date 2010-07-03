@@ -376,7 +376,7 @@ namespace MediaPortal.Core.MediaManagement
     /// <returns></returns>
     public bool HasSamePrefix(ResourcePath other, int prefixLen)
     {
-      if (prefixLen >= _pathSegments.Count || prefixLen >= other._pathSegments.Count)
+      if (prefixLen > _pathSegments.Count || prefixLen > other._pathSegments.Count)
         return false;
       for (int i = 0; i < prefixLen; i++)
         if (_pathSegments[i] != other._pathSegments[i])
