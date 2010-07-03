@@ -1302,7 +1302,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       else
       { // Control has an opacity mask
         Size textureSize = new Size(SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
-        if (_updateOpacityMask)
+        if (_updateOpacityMask || !_opacityMaskContext.IsAllocated)
           PrepareOpacityMaskContext(textureSize);
 
         RenderContext tempRenderContext = new RenderContext(Matrix.Identity, localRenderContext.Transform, bounds);

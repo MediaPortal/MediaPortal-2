@@ -42,7 +42,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     #region Variables
 
     private static readonly D3DSetup _setup = new D3DSetup();
-    private static Device _device;
+    private static DeviceEx _device;
     private static Surface _backBuffer;
     private static bool _deviceLost = false;
     private static int _anisotropy;
@@ -141,17 +141,15 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Resets the DirectX device.
     /// </summary>
-    /// <param name="exclusiveMode">If set to <c>true</c> then use DirectX exclusive mode
-    /// else DirectX windowed mode.</param>
-    public static bool Reset(bool exclusiveMode)
+    public static bool Reset()
     {
-      ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, exclusive: {0} {1} {2}", exclusiveMode, ContentManager.TextureReferences, ContentManager.VertexReferences);
+      ServiceScope.Get<ILogger>().Debug("GraphicsDevice: Reset DirectX, {0} {1}", ContentManager.TextureReferences, ContentManager.VertexReferences);
       if (ContentManager.TextureReferences == 0 && ContentManager.VertexReferences == 0)
       {
         if (_backBuffer != null)
           _backBuffer.Dispose();
         _backBuffer = null;
-        _setup.SwitchExlusiveOrWindowed(exclusiveMode, DesktopDisplayMode);
+        _setup.ResetDevice();
         int ordinal = Device.Capabilities.AdapterOrdinal;
         AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
         ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,
@@ -192,7 +190,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     /// <summary>
     /// Gets or sets the DirectX Device.
     /// </summary>
-    public static Device Device
+    public static DeviceEx Device
     {
       get { return _device; }
       set { _device = value; }
@@ -340,7 +338,8 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           manager.Render();
 
           _device.EndScene();
-          _device.Present();
+          // TODO: Present.DoNotWait could be used to yield CPU time (no waiting for v-sync on CPU, only with GPU)
+          _device.PresentEx(Present.None);
         }
         catch (Direct3D9Exception e)
         {
@@ -372,7 +371,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         try
         {
           ServiceScope.Get<ILogger>().Warn("GraphicsDevice: Device reset");
-          _setup.Reset();
+          _setup.ResetDevice();
           int ordinal = Device.Capabilities.AdapterOrdinal;
           AdapterInformation adapterInfo = MPDirect3D.Direct3D.Adapters[ordinal];
           ServiceScope.Get<ILogger>().Debug("GraphicsDevice: DirectX reset {0}x{1} format: {2} {3} Hz", Width, Height,

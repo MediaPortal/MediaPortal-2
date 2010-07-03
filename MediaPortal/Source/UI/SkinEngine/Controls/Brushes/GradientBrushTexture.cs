@@ -69,7 +69,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Brushes
     {
       if (!IsAllocated)
       {
-        _texture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.None, Format.A8R8G8B8, Pool.Managed);
+        _texture = new Texture(GraphicsDevice.Device, 256, 2, 1, Usage.Dynamic, Format.A8R8G8B8, Pool.Default);
         CreateGradient();
         KeepAlive();
       }

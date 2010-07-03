@@ -1,4 +1,3 @@
-//#define PROFILE_PERFORMANCE
 #region Copyright (C) 2007-2010 Team MediaPortal
 
 /*
@@ -23,10 +22,11 @@
 
 #endregion
 
+//#define PROFILE_PERFORMANCE
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -42,9 +42,9 @@ namespace MediaPortal.UI.SkinEngine.DirectX
 {
   public static class MPDirect3D 
   {
-    private static Direct3D _d3d;
+    private static Direct3DEx _d3d;
 
-    public static Direct3D Direct3D
+    public static Direct3DEx Direct3D
     {
       get { return _d3d; }
     }
@@ -52,7 +52,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
     public static void Load()
     {
       if(_d3d == null)
-        _d3d = new Direct3D();
+        _d3d = new Direct3DEx();
     }
 
     public static void Unload()
@@ -496,7 +496,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         // Create the device
         //Device.IsUsingEventHandlers = false;
 
-        GraphicsDevice.Device = new Device(MPDirect3D.Direct3D,
+        GraphicsDevice.Device = new DeviceEx(MPDirect3D.Direct3D,
                                            _graphicsSettings.AdapterOrdinal,
                                            _graphicsSettings.DevType,
                                            _ourRenderTarget.Handle,
@@ -1107,10 +1107,10 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         if (_usingPerfHud)
           _presentParams.PresentationInterval = PresentInterval.Immediate;
         else
-        _presentParams.PresentationInterval = PresentInterval.Default; // Immediate.Default;
+          _presentParams.PresentationInterval = PresentInterval.Default;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = 0;
-        _presentParams.SwapEffect = SwapEffect.Discard;
+        _presentParams.SwapEffect = SwapEffect.FlipEx;
         _presentParams.PresentFlags = PresentFlags.Video; //PresentFlag.LockableBackBuffer;
         _presentParams.DeviceWindowHandle = _ourRenderTarget.Handle;
         _presentParams.Windowed = true;
@@ -1127,7 +1127,7 @@ namespace MediaPortal.UI.SkinEngine.DirectX
         _presentParams.BackBufferFormat = _graphicsSettings.DeviceCombo.BackBufferFormat;
         
 #if PROFILE_PERFORMANCE
-        _presentParams.PresentationInterval = PresentInterval.Immediate; // Immediate.Default;
+        _presentParams.PresentationInterval = PresentInterval.Immediate;
 #else
         if (_usingPerfHud)
           _presentParams.PresentationInterval = PresentInterval.Immediate;
@@ -1135,58 +1135,35 @@ namespace MediaPortal.UI.SkinEngine.DirectX
           _presentParams.PresentationInterval = PresentInterval.Default;
 #endif
         _presentParams.FullScreenRefreshRateInHertz = _graphicsSettings.DisplayMode.RefreshRate;
-        _presentParams.SwapEffect = SwapEffect.Discard;
+        _presentParams.SwapEffect = SwapEffect.FlipEx;
         _presentParams.PresentFlags = PresentFlags.Video; //|PresentFlag.LockableBackBuffer;
         _presentParams.DeviceWindowHandle = _window.Handle;
         _presentParams.Windowed = false;
       }
     }
 
-    public void SwitchExlusiveOrWindowed(bool exclusiveMode, string displaySetting)
-    {
-      _graphicsSettings.IsWindowed = !exclusiveMode;
-      if (exclusiveMode)
-      {
-        DisplayMode mode = ToDisplayMode(displaySetting);
-        ServiceScope.Get<ILogger>().Debug("SwitchExlusiveOrWindowed  {0} {1} {2}", mode.Width, mode.Height, mode.RefreshRate);
-
-        for (int i = 0; i < _graphicsSettings.FullscreenDisplayModes.Length; i++)
-        {
-          DisplayMode compareMode = _graphicsSettings.FullscreenDisplayModes[i];
-          if ((compareMode.Width == mode.Width) && (compareMode.Height == mode.Height) &&
-              (compareMode.RefreshRate == mode.RefreshRate))
-          {
-            _graphicsSettings.CurrentFullscreenDisplayMode = i;
-            break;
-          }
-        }
-      }
-
-      Trace.WriteLine("----switch----");
-      BuildPresentParamsFromSettings();
-      //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
-
-      Result result = GraphicsDevice.Device.Reset(_presentParams);
-
-      if (result == ResultCode.DeviceLost)
-      {
-        result = GraphicsDevice.Device.TestCooperativeLevel();
-        // Loop until it's ok to reset
-        while (result == ResultCode.DeviceLost)
-        {
-          Thread.Sleep(10);
-          result = GraphicsDevice.Device.TestCooperativeLevel();
-        }
-        GraphicsDevice.Device.Reset(_presentParams);
-      }
-    }
-
-    public void Reset()
+    public void ResetDevice()
     {
       try
       {
         //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
-        GraphicsDevice.Device.Reset(_presentParams);
+
+        BuildPresentParamsFromSettings();
+        //GraphicsDevice.Device.DeviceResizing -= _cancelEventHandler;
+
+        Result result = GraphicsDevice.Device.Reset(_presentParams);
+
+        if (result == ResultCode.DeviceLost)
+        {
+          result = GraphicsDevice.Device.TestCooperativeLevel();
+          // Loop until it's ok to reset
+          while (result == ResultCode.DeviceLost)
+          {
+            Thread.Sleep(10);
+            result = GraphicsDevice.Device.TestCooperativeLevel();
+          }
+          GraphicsDevice.Device.Reset(_presentParams);
+        }
       }
       finally
       {

@@ -278,7 +278,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
                 info = ImageInformation.FromStream(stream);
                 stream.Seek(0, SeekOrigin.Begin);
                 _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-                    Pool.Managed, Filter.None, Filter.None, 0);
+                    Pool.Default, Filter.None, Filter.None, 0);
                 ContentManager.TextureReferences++;
               }
             }
@@ -315,7 +315,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
             {
               info = ImageInformation.FromFile(_sourceFileName);
               _texture = Texture.FromFile(GraphicsDevice.Device, _sourceFileName, 0, 0, 1, Usage.None, Format.Unknown,
-                  Pool.Managed, Filter.None, Filter.None, 0);
+                  Pool.Default, Filter.None, Filter.None, 0);
               ContentManager.TextureReferences++;
             }
           }
@@ -468,7 +468,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
           info = ImageInformation.FromStream(stream);
           stream.Seek(0, SeekOrigin.Begin);
           _texture = Texture.FromStream(GraphicsDevice.Device, stream, 0, 0, 1, Usage.None, Format.Unknown,
-              Pool.Managed, Filter.None, Filter.None, 0);
+              Pool.Default, Filter.None, Filter.None, 0);
           ContentManager.TextureReferences++;
         }
       }

@@ -30,9 +30,7 @@ namespace MediaPortal.UI.Presentation.Screens
   public enum ScreenMode
   {
     NormalWindowed,
-    FullScreenWindowed,
-    // FIXME Albert: Still needed?
-    ExclusiveMode
+    FullScreenWindowed
   };
 
   public interface IScreenControl

@@ -94,7 +94,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
         // FIXME Albert78: Don't use PrimaryScreen but the screen MP should be displayed on
         ClientSize = System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size;
         FormBorderStyle = FormBorderStyle.None;
-        _mode = ScreenMode.ExclusiveMode;
       }
       _windowState = WindowState;
 
@@ -341,7 +340,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected override void OnSizeChanged(EventArgs e)
     {
       base.OnSizeChanged(e);
-      if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
+      if (GraphicsDevice.DeviceLost)
         return;
       if (ClientSize != _previousWindowClientSize)
       {
@@ -357,7 +356,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       //ServiceScope.Get<ILogger>().Debug("DirectX MainForm: OnResizeEnd {0} {1}", Bounds.ToString(), ScreenState);
 
-      if (GraphicsDevice.DeviceLost || (_mode == ScreenMode.ExclusiveMode))
+      if (GraphicsDevice.DeviceLost)
       {
         base.OnResizeEnd(e);
         _previousWindowClientSize = ClientSize;
@@ -379,7 +378,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
         //Trace.WriteLine("DirectX MainForm: Reset DirectX");
         if (WindowState != FormWindowState.Minimized)
         {
-          GraphicsDevice.Reset(_mode == ScreenMode.ExclusiveMode);
+          GraphicsDevice.Reset();
 
           //Trace.WriteLine("DirectX MainForm: Restart render thread");
           StartRenderThread_Async();
@@ -403,7 +402,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
     {
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: SwitchMode({0})", mode);
       bool oldFullscreen = IsFullScreen;
-      bool newFullscreen = (mode == ScreenMode.ExclusiveMode) || (mode == ScreenMode.FullScreenWindowed);
+      bool newFullscreen = mode == ScreenMode.FullScreenWindowed;
       AppSettings settings = ServiceScope.Get<ISettingsManager>().Load<AppSettings>();
 
       // Already done, no need to do it twice
@@ -448,7 +447,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Switch mode maximize = {0},  mode = {1}", newFullscreen, mode);
       ServiceScope.Get<ILogger>().Debug("DirectX MainForm: Reset DirectX");
 
-      GraphicsDevice.Reset(mode == ScreenMode.ExclusiveMode);
+      GraphicsDevice.Reset();
 
       PlayersHelper.ReallocGUIResources();
 
@@ -457,7 +456,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
 
     public bool IsFullScreen
     {
-      get { return (_mode == ScreenMode.FullScreenWindowed) || (_mode == ScreenMode.ExclusiveMode); }
+      get { return _mode == ScreenMode.FullScreenWindowed; }
     }
 
     public bool IsScreenSaverActive

@@ -182,7 +182,7 @@ namespace MediaPortal.UI.SkinEngine.Fonts
 
       _charSet.Base = _charSet.RenderedSize * Face.ascender / Face.height;
 
-      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.None, Format.L8, Pool.Managed);
+      _texture = new Texture(GraphicsDevice.Device, MAX_WIDTH, MAX_HEIGHT, 1, Usage.Dynamic, Format.L8, Pool.Default);
 
       // Add 'not defined' glyph
       AddGlyph(0);
