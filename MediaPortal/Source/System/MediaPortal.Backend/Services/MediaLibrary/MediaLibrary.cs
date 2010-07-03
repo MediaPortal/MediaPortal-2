@@ -35,6 +35,7 @@ using MediaPortal.Backend.Database;
 using MediaPortal.Backend.Exceptions;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
+using MediaPortal.Core.SystemResolver;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.DB;
 using MediaPortal.Utilities.Exceptions;
@@ -46,12 +47,87 @@ namespace MediaPortal.Backend.Services.MediaLibrary
   // on the fly and holds up to N prepared commands.
   public class MediaLibrary : IMediaLibrary, IDisposable
   {
+    protected class MediaBrowsingCallback : IMediaBrowsing
+    {
+      protected MediaLibrary _parent;
+
+      public MediaBrowsingCallback(MediaLibrary parent)
+      {
+        _parent = parent;
+      }
+
+      public ICollection<MediaItem> Browse(ResourcePath path, IEnumerable<Guid> necessaryRequestedMIATypeIDs, IEnumerable<Guid> optionalRequestedMIATypeIDs)
+      {
+        return _parent.Browse(_parent.LocalSystemId, path, necessaryRequestedMIATypeIDs, optionalRequestedMIATypeIDs, false);
+      }
+    }
+
+    protected class ImportResultHandler : IImportResultHandler
+    {
+      protected MediaLibrary _parent;
+
+      public ImportResultHandler(MediaLibrary parent)
+      {
+        _parent = parent;
+      }
+
+      public void UpdateMediaItem(ResourcePath path, IEnumerable<MediaItemAspect> updatedAspects)
+      {
+        _parent.AddOrUpdateMediaItem(_parent.LocalSystemId, path, updatedAspects);
+      }
+
+      public void DeleteMediaItem(ResourcePath path)
+      {
+        _parent.DeleteMediaItemOrPath(_parent.LocalSystemId, path);
+      }
+    }
+
     protected MIA_Management _miaManagement = null;
     protected IDictionary<string, SystemName> _systemsOnline = new Dictionary<string, SystemName>();
     protected object _syncObj = new object();
+    protected string _localSystemId;
+    protected IMediaBrowsing _mediaBrowsingCallback;
+    protected IImportResultHandler _importResultHandler;
+
+    public MediaLibrary()
+    {
+      ISystemResolver systemResolver = ServiceScope.Get<ISystemResolver>();
+      _localSystemId = systemResolver.LocalSystemId;
+
+      _mediaBrowsingCallback = new MediaBrowsingCallback(this);
+      _importResultHandler = new ImportResultHandler(this);
+    }
     
     public void Dispose()
     {
+    }
+
+    public string LocalSystemId
+    {
+      get { return _localSystemId; }
+    }
+
+    protected Share GetShare(ITransaction transaction, Guid shareId)
+    {
+      int systemIdIndex;
+      int pathIndex;
+      int shareNameIndex;
+      IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex,
+          out pathIndex, out shareNameIndex);
+      IDataReader reader = command.ExecuteReader();
+      try
+      {
+        if (!reader.Read())
+          return null;
+        ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
+        return new Share(shareId, DBUtils.ReadDBValue<string>(reader, systemIdIndex), ResourcePath.Deserialize(
+            DBUtils.ReadDBValue<string>(reader, pathIndex)),
+            DBUtils.ReadDBValue<string>(reader, shareNameIndex), mediaCategories);
+      }
+      finally
+      {
+        reader.Close();
+      }
     }
 
     protected Int64? GetMediaItemId(ITransaction transaction, string systemId, ResourcePath resourcePath)
@@ -175,6 +251,22 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       command.ExecuteNonQuery();
     }
 
+    protected void TryScheduleLocalShareImport(Share share)
+    {
+      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+
+      if (share.SystemId == _localSystemId)
+        importerWorker.ScheduleImport(share.BaseResourcePath, share.MediaCategories, true);
+    }
+
+    protected void TryCancelLocalImportJobs(Share share)
+    {
+      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+
+      if (share.SystemId == _localSystemId)
+        importerWorker.CancelJobsForPath(share.BaseResourcePath);
+    }
+
     #region IMediaLibrary implementation
 
     public void Startup()
@@ -190,10 +282,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             "Unable to update the MediaLibrary's subschema version to expected version {0}.{1}",
             MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MAJOR, MediaLibrary_SubSchema.EXPECTED_SCHEMA_VERSION_MINOR));
       _miaManagement = new MIA_Management();
+      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      importerWorker.Activate(_mediaBrowsingCallback, _importResultHandler);
     }
 
     public void Shutdown()
     {
+      IImporterWorker importerWorker = ServiceScope.Get<IImporterWorker>();
+      importerWorker.Suspend();
     }
 
     public IList<MediaItem> Search(MediaItemQuery query, bool filterOnlyOnline)
@@ -373,6 +469,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           AddMediaCategoryToShare(transaction, share.ShareId, mediaCategory);
 
         transaction.Commit();
+
+        TryScheduleLocalShareImport(share);
       }
       catch (Exception e)
       {
@@ -393,6 +491,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RemoveShare(Guid shareId)
     {
+      Share share = GetShare(shareId);
+      TryCancelLocalImportJobs(share);
+
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
@@ -400,6 +501,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         IDbCommand command = MediaLibrary_SubSchema.DeleteSharesCommand(transaction, new Guid[] {shareId});
         command.ExecuteNonQuery();
 
+        DeleteAllMediaItemsUnderPath(transaction, share.SystemId, share.BaseResourcePath);
         transaction.Commit();
       }
       catch (Exception e)
@@ -412,12 +514,18 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void RemoveSharesOfSystem(string systemId)
     {
+      IDictionary<Guid, Share> shares = GetShares(systemId);
+      foreach (Share share in shares.Values)
+        TryCancelLocalImportJobs(share);
+
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
         IDbCommand command = MediaLibrary_SubSchema.DeleteSharesOfSystemCommand(transaction, systemId);
         command.ExecuteNonQuery();
+
+        DeleteAllMediaItemsUnderPath(transaction, systemId, null);
 
         transaction.Commit();
       }
@@ -432,11 +540,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public int UpdateShare(Guid shareId, ResourcePath baseResourcePath, string shareName,
         IEnumerable<string> mediaCategories, RelocationMode relocationMode)
     {
+      Share share = GetShare(shareId);
+      TryCancelLocalImportJobs(share);
+
       ISQLDatabase database = ServiceScope.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        Share originalShare = GetShare(shareId);
+        Share originalShare = GetShare(transaction, shareId);
 
         IDbCommand command = MediaLibrary_SubSchema.UpdateShareCommand(transaction, shareId, baseResourcePath, shareName);
         command.ExecuteNonQuery();
@@ -465,6 +576,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             break;
           case RelocationMode.Remove:
             numAffected = DeleteAllMediaItemsUnderPath(transaction, originalShare.SystemId, originalShare.BaseResourcePath);
+            Share updatedShare = GetShare(transaction, shareId);
+            TryScheduleLocalShareImport(updatedShare);
             break;
           default:
             throw new NotImplementedException(string.Format("RelocationMode {0} is not implemented", relocationMode));
@@ -529,25 +642,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        int systemIdIndex;
-        int pathIndex;
-        int shareNameIndex;
-        IDbCommand command = MediaLibrary_SubSchema.SelectShareByIdCommand(transaction, shareId, out systemIdIndex,
-            out pathIndex, out shareNameIndex);
-        IDataReader reader = command.ExecuteReader();
-        try
-        {
-          if (!reader.Read())
-            return null;
-          ICollection<string> mediaCategories = GetShareMediaCategories(transaction, shareId);
-          return new Share(shareId, DBUtils.ReadDBValue<string>(reader, systemIdIndex), ResourcePath.Deserialize(
-              DBUtils.ReadDBValue<string>(reader, pathIndex)),
-              DBUtils.ReadDBValue<string>(reader, shareNameIndex), mediaCategories);
-        }
-        finally
-        {
-          reader.Close();
-        }
+        return GetShare(transaction, shareId);
       }
       finally
       {
