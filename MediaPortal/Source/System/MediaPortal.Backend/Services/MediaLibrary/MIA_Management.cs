@@ -303,8 +303,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       string suf = "_" + suffix;
       if (prefix.Length + suf.Length > maxLen)
         return prefix.Substring(0, (int) maxLen - suf.Length) + suf;
-      else
-        return prefix + suf;
+      return prefix + suf;
     }
 
     /// <summary>
@@ -704,10 +703,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         param.Value = value;
         command.Parameters.Add(param);
       }
-      command.CommandText = "DELETE FROM " + nmTableName + " AS NM WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ? AND NOT EXISTS(" +
+      string commandText = "DELETE FROM " + nmTableName + " AS NM WHERE " + MIA_MEDIA_ITEM_ID_COL_NAME + " = ? AND NOT EXISTS(" +
           "SELECT " + FOREIGN_COLL_ATTR_ID_COL_NAME + " FROM " + collectionAttributeTableName + " VAL WHERE VAL." +
-          FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME + " AND " +
-          COLL_ATTR_VALUE_COL_NAME + " IN (" + StringUtils.Join(", ", CollectionUtils.Fill("?", numValues)) + "))";
+          FOREIGN_COLL_ATTR_ID_COL_NAME + " = NM." + FOREIGN_COLL_ATTR_ID_COL_NAME;
+      if (numValues > 0)
+        commandText +=  " AND " + COLL_ATTR_VALUE_COL_NAME + " IN (" +
+            StringUtils.Join(", ", CollectionUtils.Fill("?", numValues)) + ")";
+      commandText += ")";
+      command.CommandText = commandText;
       command.ExecuteNonQuery();
     }
 
