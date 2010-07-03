@@ -28,7 +28,6 @@ using System.Linq;
 using MediaPortal.Core.General;
 using MediaPortal.Core.MediaManagement;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities;
 
 namespace UiComponents.SkinBase.Models
@@ -432,14 +431,16 @@ namespace UiComponents.SkinBase.Models
 
     protected void UpdateIsChoosenPathValid()
     {
-      IsChoosenPathValid = GetIsPathValid(ChoosenResourcePath);
+      ResourcePath path = ChoosenResourcePath;
+      IsChoosenPathValid = path == null ? false : GetIsPathValid(ChoosenResourcePath);
     }
 
     protected abstract bool GetIsPathValid(ResourcePath path);
 
     protected void UpdateChoosenPathDisplayName()
     {
-      ChoosenResourcePathDisplayName = GetResourcePathDisplayName(ChoosenResourcePath);
+      ResourcePath path = ChoosenResourcePath;
+      ChoosenResourcePathDisplayName = path == null ? string.Empty : GetResourcePathDisplayName(path);
     }
 
     public abstract string GetResourcePathDisplayName(ResourcePath path);
