@@ -748,7 +748,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       IMediaProvider mp;
       if (mediaAccessor.LocalMediaProviders.TryGetValue(mediaProviderId, out mp) && mp is IBaseMediaProvider)
         result = ((IBaseMediaProvider) mp).ExpandResourcePathFromString(pathStr);
-      outParams = new List<object> {result.Serialize()};
+      outParams = new List<object> {result == null ? null : result.Serialize()};
       return null;
     }
 
