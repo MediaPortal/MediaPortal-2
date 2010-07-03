@@ -431,10 +431,10 @@ namespace MediaPortal.Core.Services.MediaManagement
           CollectionUtils.AddAll(mediaItemAspectTypes, extractor.Metadata.ExtractedAspectTypes.Values);
         }
 
-        ServiceScope.Get<ILogger>().Info("ImporterWorker: Processing import job '{0}'", importJob.BasePath);
         // Prepare import
         if (state == ImportJobState.Scheduled)
         {
+          ServiceScope.Get<ILogger>().Info("ImporterWorker: Starting import job '{0}'", importJob);
           IResourceAccessor accessor = importJob.BasePath.CreateLocalMediaItemAccessor();
           if (accessor is IFileSystemResourceAccessor)
           { // Prepare complex import process
@@ -451,6 +451,8 @@ namespace MediaPortal.Core.Services.MediaManagement
             return;
           }
         }
+        else
+          ServiceScope.Get<ILogger>().Info("ImporterWorker: Resuming import job '{0}' ({1} items pending)", importJob, importJob.PendingResources.Count);
 
         // Actual import process
         while (importJob.HasPendingResources)
